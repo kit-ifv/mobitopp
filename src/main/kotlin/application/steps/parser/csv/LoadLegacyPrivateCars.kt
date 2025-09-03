@@ -22,6 +22,7 @@ import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.decodeName
 import utils.csv.int
+import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
 
@@ -40,7 +41,7 @@ interface LoadPrivateCarsContext : DemandSimContext {
         row: Row,
         ownerColumn: String
     ) = requireNotNull(
-        householdRepository[HouseholdId(row.invoke(ownerColumn).toLong())]
+        householdRepository[HouseholdId(row.long(ownerColumn))]
     ) {
         "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
             " ${householdRepository.elements.map { it.id }.toList()}"
@@ -50,7 +51,7 @@ interface LoadPrivateCarsContext : DemandSimContext {
         row: Row,
         mainUserColumn: String
     ) = requireNotNull(
-        personRepository[PersonId(row.invoke(mainUserColumn).toLong())]
+        personRepository[PersonId(row.long(mainUserColumn))]
     ) {
         "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
             " ${personRepository.elements.map { it.id }.toList()}"

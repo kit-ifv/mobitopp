@@ -20,6 +20,7 @@ import utils.csv.currency
 import utils.csv.decode
 import utils.csv.decodeName
 import utils.csv.int
+import utils.csv.long
 import utils.csv.unitShare
 
 fun PersonCsvContext.personCsvParser(
@@ -32,8 +33,8 @@ fun PersonCsvContext.personCsvParser(
     val csvParser = CsvParser.Companion<MutablePerson>(errorHandling) { row ->
 
         MutablePerson(
-            id = PersonId(row.invoke(columns.idColumn).toLong()),
-            household = householdProvider(HouseholdId(row.invoke(columns.householdColumn).toLong())),
+            id = PersonId(row.long(columns.idColumn)),
+            household = householdProvider(HouseholdId(row.long(columns.householdColumn))),
             simulationSeed,
         ) {
             age = row.int(columns.ageColumn)

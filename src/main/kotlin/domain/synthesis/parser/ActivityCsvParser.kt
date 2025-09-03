@@ -10,6 +10,7 @@ import utils.csv.CsvParser
 import utils.csv.DefaultCsvParser
 import utils.csv.decode
 import utils.csv.int
+import utils.csv.long
 import utils.units.AbsoluteTime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -22,7 +23,7 @@ fun SynthesisContext.activityCsvParser(
     personProvider: (PersonId) -> MutablePerson,
 ): DefaultCsvParser<MutablePlannedActivity> = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
-    val person = personProvider(PersonId(row.invoke(columns.personColumn).toLong()))
+    val person = personProvider(PersonId(row.long(columns.personColumn)))
 
     MutablePlannedActivity(
         id = ActivityId(row.index.toLong()),
