@@ -17,6 +17,7 @@ import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.PersonId
 import units.kilometers
+import java.util.TreeMap
 import kotlin.time.Duration.Companion.minutes
 
 interface AgentResultsContext {
@@ -39,8 +40,9 @@ val AgentResultsContext.personLegs: List<PersonLeg>
             it.startTime to it.type
         }
 
+        val lookup = TreeMap(purposes)
         person.schedule.pastLegs().map { leg ->
-            PersonLeg(person, leg, purposes[leg.endTime])
+            PersonLeg(person, leg, lookup.ceilingEntry(leg.endTime)?.value)
         }
     }
 
