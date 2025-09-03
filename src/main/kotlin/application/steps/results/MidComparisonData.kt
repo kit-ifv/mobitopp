@@ -23,6 +23,7 @@ import domain.simulation.results.duration
 import domain.simulation.results.personLegs
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
+import domain.synthesis.data.IPerson
 import domain.synthesis.data.Sex
 import units.Distance
 import utils.collections.BaseBin
@@ -35,14 +36,20 @@ import utils.csv.decode
 import utils.csv.double
 import utils.csv.int
 import utils.csv.kilometers
+import utils.units.AbsoluteTime
+import utils.units.sinceStart
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.pathString
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 fun compareWithMid(csv: Path) =
-    CsvReader.of(csv).rows().toList().asResource("MId comparison data", csv.pathString)
+    CsvReader.of(csv, separator = ",").rows().toList().asResource("MId comparison data", csv.pathString)
 
 fun Resource<Row>.legs(
     purposes: ChoiceModelPurposes,
@@ -102,11 +109,17 @@ public data class MidLegRow(
     val ageBin: Bin<Int>
         get() = row("age") { key: String ->
             ageBinCache.getOrPut(key) {
-                key.split(";").let {
-                    BaseBin(it[0].toInt(), it[1].toInt())
+                key.split(",").let {
+                    BaseBin(it[0].toInt(), it[1].toInt()+1)
                 }
             }
         }
+
+    val householdSize: Int
+        get() = row.int("hhSize")
+
+    val hhNumberOfCars: String
+        get() = row("hhNumberOfCars")
 
     val sex: Sex
         get() = Sex.valueOf(row("gender").uppercase())
@@ -119,6 +132,9 @@ public data class MidLegRow(
 
     val hasLicense: Boolean
         get() = row("driversLicense").parseBool()
+
+    val isCarsharingMember: Boolean
+        get() = row("carsharingMembership").parseBool()
 
     val hasEBike: Boolean
         get() = row("hasEBike").parseBool()
@@ -143,14 +159,26 @@ public data class MidLegRow(
 
     val relative: Double
         get() = row.double("W_GEW")
+
+    val tripStart: AbsoluteTime?
+        get() = row("beginTrip").parseTime()
+
+    val activityStart: AbsoluteTime?
+        get() = row("beginActivity").parseTime()
 }
+
+private fun String.parseTime() = this.takeIf {
+    ":" in it
+}?.split(":")?.let {
+    it[0].toInt().hours.sinceStart + it[1].toInt().minutes
+} ?: 0.minutes.sinceStart
 
 private fun String.parseBool(): Boolean = when (this.lowercase()) {
     "yes", "true", "y", "t", "1" -> true
-    "no", "false", "n", "f", "0" -> false
+    "na", "no", "false", "n", "f", "0" -> false
     else -> error(
-        "Invalid boolean string: $this\n." +
-            "Expected 'yes', 'true', 'y', 't', '1' for true or 'no', 'false', 'n', 'f', '0' for false."
+        "Invalid boolean string: '$this'\n" +
+            "Expected 'yes', 'true', 'y', 't', '1' for true or 'na', 'no', 'false', 'n', 'f', '0' for false."
     )
 }
 
@@ -179,6 +207,7 @@ private fun String.parseActivityType(purposes: ChoiceModelPurposes) = when (this
     "service" -> purposes.service
     "shopping" -> purposes.shopping
     "work" -> purposes.work
+    "home" -> purposes.home
     else -> error(
         "Invalid purpose string: $this. " +
             "Expected: 'NA', 'business', 'education', 'leisure', 'privateBusiness', 'service', 'shopping' or 'work'."
@@ -201,11 +230,12 @@ fun <G> AgentResultsContext.midComparisonPlotForLegs(
     modes: ChoiceModelModes,
     impedance: Metrics,
     legFilter: (PersonLeg) -> Boolean = { true },
+    rowFilter: (MidLegRow) -> Boolean,
     legGroup: (PersonLeg) -> G,
     midGroup: (MidLegRow) -> G,
     normalize: Boolean = true
 ) = MidComparisonLegPlotBuilder(
-    this, midCsv, purposes, modes, impedance, legFilter, legGroup, midGroup, normalize
+    this, midCsv, purposes, modes, impedance, legFilter, rowFilter, legGroup, midGroup, normalize
 )
 
 @Suppress("LongParameterList")
@@ -216,6 +246,7 @@ class MidComparisonLegPlotBuilder<G>(
     modes: ChoiceModelModes,
     private val impedance: Metrics,
     legFilter: (PersonLeg) -> Boolean = { true },
+    rowFilter: (MidLegRow) -> Boolean,
     legGroup: (PersonLeg) -> G,
     midGroup: (MidLegRow) -> G,
     private val normalize: Boolean = true,
@@ -237,10 +268,54 @@ class MidComparisonLegPlotBuilder<G>(
     }
 
     private val comparisonBuilder = forData {
-        midLegs
+        midLegs.filter(rowFilter)
     }.groupBy {
         midGroup(it)
     }
+
+    fun overAge(): PlotterBuilder<G, Bin<Int>, Double> {
+        midLegs.forEach { it.ageBin }
+        val ageBins = MidLegRow.ageBinCache.values.toList()
+
+        val dataCount = dataBuilder.count {
+            it.person.age.let { a -> min(100, a) }.mapToBins(ageBins)
+        }.let {
+            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+        }.sortAndFill(0.0)
+
+        val compCount = comparisonBuilder.plotSumOf {
+            if (normalize) { it.absolute } else { it.relative }
+        }.over {
+            it.ageBin
+        }.let {
+            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+        }.sortAndFill(0.0)
+
+        return dataCount.compareTo {
+            compCount
+        }
+    }
+
+    fun overEmployment(): PlotterBuilder<G, Employment, Double> {
+        val dataCount = dataBuilder.count {
+            it.person.employment.simplifyEmploymentMID()
+        }.let {
+            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+        }.sortAndFill(0.0)
+
+        val compCount = comparisonBuilder.plotSumOf {
+            if (normalize) { it.absolute } else { it.relative }
+        }.over {
+            it.employment
+        }.let {
+            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+        }.sortAndFill(0.0)
+
+        return dataCount.compareTo {
+            compCount
+        }
+    }
+
 
     fun overDistance(): PlotterBuilder<G, Bin<Double>, Double> {
         midLegs.forEach { it.distanceBin }
@@ -288,7 +363,36 @@ class MidComparisonLegPlotBuilder<G>(
         }
     }
 
-    private fun <B : Comparable<B>, T : Number> PlotDataTransformationBuilder<G, Bin<B>, T>.sortAndFill(default: T) =
+    fun overTripStart() = overTime({it.leg.startTime}, { it.tripStart ?: AbsoluteTime.START})
+    fun overActivityStart() = overTime({it.leg.endTime}, { it.activityStart ?: AbsoluteTime.START })
+
+    fun overTime(
+        legToTime: (PersonLeg) -> AbsoluteTime,
+        midRowToTime: (MidLegRow) -> AbsoluteTime,
+    ): PlotterBuilder<G, AbsoluteTime, Double> {
+
+        val dataCount = dataBuilder.count {
+            legToTime(it).let { t -> t - t.daysSinceStart.days }.roundToMultipleOf(1.hours)
+        }.let {
+            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+        }.fillMissingXValues {
+            0.0
+        }.sortAndFill(0.0)
+
+        val compCount = comparisonBuilder.plotSumOf {
+            if (normalize) { it.absolute } else { it.relative }
+        }.over {
+            midRowToTime(it).roundToMultipleOf(1.hours)
+        }.let {
+            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+        }.sortAndFill(0.0)
+
+        return dataCount.compareTo {
+            compCount
+        }
+    }
+
+    private fun <B : Comparable<B>, T : Number> PlotDataTransformationBuilder<G, B, T>.sortAndFill(default: T) =
         this.fillMissingXValues {
             default
         }.sortX {
@@ -348,4 +452,10 @@ fun Employment.simplifyEmploymentMID() = when (this) {
     Employment.INFANT,
     Employment.NONE,
     Employment.UNKNOWN -> Employment.UNKNOWN
+}
+
+fun IPerson.carOwnershipMID(): String = when(household.cars.size) {
+    0 -> "0"
+    1 -> "1"
+    else -> "2+"
 }
