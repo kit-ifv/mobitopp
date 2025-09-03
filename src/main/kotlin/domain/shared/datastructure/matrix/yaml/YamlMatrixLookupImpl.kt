@@ -2,6 +2,8 @@ package domain.shared.datastructure.matrix.yaml
 
 import core.datastructure.calendarLookup.CalendarWeekLookup
 import core.datastructure.calendarLookup.CalendarWeekLookupBuilder
+import core.datastructure.calendarLookup.TimeLookupOperation
+import core.datastructure.calendarLookup.WeekLookupOperation
 import org.yaml.snakeyaml.Yaml
 import utils.Decodable
 import utils.Encodable

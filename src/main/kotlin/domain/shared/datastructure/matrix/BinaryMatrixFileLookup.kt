@@ -7,6 +7,7 @@ import utils.files.crc32
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 
@@ -43,10 +44,14 @@ class BinaryMatrixFileLookup(
     fun listCachedFiles() = internalFolder.listDirectoryEntries()
 
     fun deleteDirectory() {
+        clearDirectory()
+        internalFolder.deleteIfExists()
+    }
+    fun clearDirectory() {
+        if (!internalFolder.exists()) return
         internalFolder.listDirectoryEntries().forEach {
             it.deleteIfExists()
         }
-        internalFolder.deleteIfExists()
     }
 
     private fun findCachedBinaryFile(path: Path): StandardMatrix? {

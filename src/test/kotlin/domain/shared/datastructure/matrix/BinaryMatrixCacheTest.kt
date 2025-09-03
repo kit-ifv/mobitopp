@@ -31,16 +31,17 @@ class BinaryMatrixCacheTest {
 
     @Test
     fun cacheConverterToBinary() {
+        readerCache.clearDirectory()
         val yamlLookup = YamlMatrixLookup.default(
             configYaml,
             TestModes,
         )
         val fileCacheLookup = yamlLookup.cached(readerCache)
-        assertFalse(fileCacheLocation.any { it.nameWithoutExtension == "good_case_matrix_1" })
+        assertFalse(readerCache.listCachedFiles().any { it.nameWithoutExtension == "good_case_matrix_1" })
         val outputMatrix = fileCacheLookup[TestModes.BIKESHARING, 1.hours.sinceStart]
         assertTrue(readerCache.listCachedFiles().any { it.nameWithoutExtension == "good_case_matrix_1" })
         val matrix = readerCache.format.deserialize(
-            Path("src/test/resources/multi_matrix_parser/good_case_matrix_1.mtx")
+            Path("src/test/resources/tempOutput/binary-cache/good_case_matrix_1.dbin")
         )
 
         assertEquals(outputMatrix, matrix)
