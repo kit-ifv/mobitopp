@@ -113,7 +113,7 @@ open class DefaultRow(
         val columnName = column ?: columnIndex.toString()
         val message = "The given column's index is out of range in row ${this.index} of $source.\n" +
             "Column: $columnName, index: $columnIndex, values: $values.\n" +
-                "Columns and index: $columnIndexMap"
+            "Columns and index: $columnIndexMap"
         throw IllegalArgumentException(message, i)
     }
 

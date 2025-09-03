@@ -41,7 +41,6 @@ import utils.units.sinceStart
 import java.nio.file.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.pathString
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -110,7 +109,7 @@ public data class MidLegRow(
         get() = row("age") { key: String ->
             ageBinCache.getOrPut(key) {
                 key.split(",").let {
-                    BaseBin(it[0].toInt(), it[1].toInt()+1)
+                    BaseBin(it[0].toInt(), it[1].toInt() + 1)
                 }
             }
         }
@@ -273,6 +272,7 @@ class MidComparisonLegPlotBuilder<G>(
         midGroup(it)
     }
 
+    @Suppress("MagicNumber")
     fun overAge(): PlotterBuilder<G, Bin<Int>, Double> {
         midLegs.forEach { it.ageBin }
         val ageBins = MidLegRow.ageBinCache.values.toList()
@@ -315,7 +315,6 @@ class MidComparisonLegPlotBuilder<G>(
             compCount
         }
     }
-
 
     fun overDistance(): PlotterBuilder<G, Bin<Double>, Double> {
         midLegs.forEach { it.distanceBin }
@@ -363,14 +362,13 @@ class MidComparisonLegPlotBuilder<G>(
         }
     }
 
-    fun overTripStart() = overTime({it.leg.startTime}, { it.tripStart ?: AbsoluteTime.START})
-    fun overActivityStart() = overTime({it.leg.endTime}, { it.activityStart ?: AbsoluteTime.START })
+    fun overTripStart() = overTime({ it.leg.startTime }, { it.tripStart ?: AbsoluteTime.START })
+    fun overActivityStart() = overTime({ it.leg.endTime }, { it.activityStart ?: AbsoluteTime.START })
 
     fun overTime(
         legToTime: (PersonLeg) -> AbsoluteTime,
         midRowToTime: (MidLegRow) -> AbsoluteTime,
     ): PlotterBuilder<G, AbsoluteTime, Double> {
-
         val dataCount = dataBuilder.count {
             legToTime(it).let { t -> t - t.daysSinceStart.days }.roundToMultipleOf(1.hours)
         }.let {
@@ -454,7 +452,7 @@ fun Employment.simplifyEmploymentMID() = when (this) {
     Employment.UNKNOWN -> Employment.UNKNOWN
 }
 
-fun IPerson.carOwnershipMID(): String = when(household.cars.size) {
+fun IPerson.carOwnershipMID(): String = when (household.cars.size) {
     0 -> "0"
     1 -> "1"
     else -> "2+"

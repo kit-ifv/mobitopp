@@ -1,3 +1,5 @@
+@file:Suppress("StringLiteralDuplication")
+
 package application.steps.results
 
 import core.modelsteps.Context
@@ -16,14 +18,14 @@ import domain.synthesis.data.Employment
 import java.nio.file.Path
 import java.time.DayOfWeek
 
+@Suppress("LongMethod", "CyclomaticComplexMethod", "CognitiveComplexMethod")
 fun <C> C.addDefaultMIDComparisonPlots(
     subDir: String = "mid-comparison",
     midDataPath: Path,
     choiceModelPurposes: ChoiceModelPurposes,
     defaultPurpose: ActivityType,
     choiceModelModes: ChoiceModelModes,
-) where C: Context, C: AgentResultsContext = run {
-
+) where C : Context, C : AgentResultsContext = run {
     fun <G> AgentResultsContext.midPlotForLegs(
         legFilter: (PersonLeg) -> Boolean = { true },
         rowFilter: (MidLegRow) -> Boolean = { true },
@@ -35,9 +37,8 @@ fun <C> C.addDefaultMIDComparisonPlots(
         legFilter, rowFilter, legGroup, midGroup, normalize
     )
 
-    //1 Purpose	DistanceCategories	Anteile	rel
+    // 1 Purpose	DistanceCategories	Anteile	rel
     addPlot(subDir) {
-
         midPlotForLegs(
             legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose },
             midGroup = { it.activityType },
@@ -47,14 +48,12 @@ fun <C> C.addDefaultMIDComparisonPlots(
             stackAxisLabel = "trip purpose"
             coloring = { randomColor() }
         }
-
     }
 
-    //2 Purpose	DistanceCategories	Histogramm	abs
+    // 2 Purpose	DistanceCategories	Histogramm	abs
     addPlot(subDir) {
-
         midPlotForLegs(
-            legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose }, //TODO check undefined
+            legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose }, // TODO check undefined
             midGroup = { it.activityType },
             normalize = false
         ).overDistance().asHistogram {
@@ -63,7 +62,6 @@ fun <C> C.addDefaultMIDComparisonPlots(
             xAxisLabel = "travel distance [km]"
             coloring = { randomColor() }
         }
-
     }
 
 //
@@ -80,9 +78,8 @@ fun <C> C.addDefaultMIDComparisonPlots(
 //
 //        }
 
-    //3 Mode	DistanceCategories	Anteile	rel
+    // 3 Mode	DistanceCategories	Anteile	rel
     addPlot(subDir) {
-
         midPlotForLegs(
             legFilter = { it.leg.transportType != MODEUNKOWN },
             legGroup = { it.leg.transportType },
@@ -93,12 +90,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
             stackAxisLabel = "mode"
             coloring = { modeStringColor(it.description) }
         }
-
     }
 
-    //4 Mode	DistanceCategories	Histogramm	abs
+    // 4 Mode	DistanceCategories	Histogramm	abs
     addPlot(subDir) {
-
         midPlotForLegs(
             legFilter = { it.leg.transportType != MODEUNKOWN },
             legGroup = { it.leg.transportType },
@@ -110,15 +105,16 @@ fun <C> C.addDefaultMIDComparisonPlots(
             xAxisLabel = "travel distance [km]"
             coloring = { modeStringColor(it.description) }
         }
-
     }
 
-    //5 Mode	DistanceCategories	Anteile	rel	Employment
+    // 5 Mode	DistanceCategories	Anteile	rel	Employment
     for (employment in Employment.entries.map { it.simplifyEmploymentMID() }.distinct()) {
-        addPlot("${subDir}/by_employment") {
+        addPlot("$subDir/by_employment") {
             midPlotForLegs(
-                legFilter = { it.leg.transportType != MODEUNKOWN && it.person.employment.simplifyEmploymentMID() == employment },
-                rowFilter = { it.employment == employment},
+                legFilter = {
+                    it.leg.transportType != MODEUNKOWN && it.person.employment.simplifyEmploymentMID() == employment
+                },
+                rowFilter = { it.employment == employment },
                 legGroup = { it.leg.transportType },
                 midGroup = { it.mode },
             ).overDistance().asHistogram {
@@ -130,10 +126,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //6 Mode	DistanceCategories	Anteile	rel	carOwnership
+    // 6 Mode	DistanceCategories	Anteile	rel	carOwnership
     for (hasCar in listOf(false, true)) {
-        val label = if(hasCar)  "household with car" else "household without car"
-        addPlot("${subDir}/by_car_ownership") {
+        val label = if (hasCar) "household with car" else "household without car"
+        addPlot("$subDir/by_car_ownership") {
             midPlotForLegs(
                 legFilter = { it.leg.transportType != MODEUNKOWN && (it.person.household.cars.isNotEmpty()) == hasCar },
                 rowFilter = { (it.hhNumberOfCars != "0") == hasCar },
@@ -148,10 +144,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //7 Mode	DistanceCategories	Anteile	rel	hasTransitPass
+    // 7 Mode	DistanceCategories	Anteile	rel	hasTransitPass
     for (hasTicket in listOf(false, true)) {
-        val label = if(hasTicket)  "person with commuter ticket" else "person without commuter ticket"
-        addPlot("${subDir}/by_ticket_ownership") {
+        val label = if (hasTicket) "person with commuter ticket" else "person without commuter ticket"
+        addPlot("$subDir/by_ticket_ownership") {
             midPlotForLegs(
                 legFilter = { it.leg.transportType != MODEUNKOWN && (it.person.hasCommuterTicket == hasTicket) },
                 rowFilter = { it.hasCommuterTicket == hasTicket },
@@ -166,11 +162,14 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //8 Mode	DistanceCategories	Anteile	rel	purpose
+    // 8 Mode	DistanceCategories	Anteile	rel	purpose
     for (purpose in choiceModelPurposes.allActivityTypes.map { it.simplifyMID(choiceModelPurposes) }.distinct()) {
-        addPlot("${subDir}/by_purpose") {
+        addPlot("$subDir/by_purpose") {
             midPlotForLegs(
-                legFilter = { it.leg.transportType != MODEUNKOWN && (it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose) == purpose },
+                legFilter = {
+                    it.leg.transportType != MODEUNKOWN &&
+                        (it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose) == purpose
+                },
                 rowFilter = { it.activityType == purpose },
                 legGroup = { it.leg.transportType },
                 midGroup = { it.mode },
@@ -183,11 +182,14 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //9 Mode	DistanceCategories	Anteile	rel	regioStaR7
+    // 9 Mode	DistanceCategories	Anteile	rel	regioStaR7
     for (regio in RegioStaR7.entries) {
-        addPlot("${subDir}/by_regiostar") {
+        addPlot("$subDir/by_regiostar") {
             midPlotForLegs(
-                legFilter = { it.leg.transportType != MODEUNKOWN && it.person.household.location.zone?.regionType?.toRegioStaR17()?.toRegioStaR7() == regio },
+                legFilter = {
+                    it.leg.transportType != MODEUNKOWN &&
+                        it.person.household.location.zone?.regionType?.toRegioStaR17()?.toRegioStaR7() == regio
+                },
                 rowFilter = { it.regioStaR7 == regio },
                 legGroup = { it.leg.transportType },
                 midGroup = { it.mode },
@@ -200,9 +202,8 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //10 Purpose	TravelTimeCategories	Anteile	rel
+    // 10 Purpose	TravelTimeCategories	Anteile	rel
     addPlot(subDir) {
-
         midPlotForLegs(
             legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose },
             midGroup = { it.activityType },
@@ -212,12 +213,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
             stackAxisLabel = "trip purpose"
             coloring = { randomColor() }
         }
-
     }
 
-    //11 Mode	TravelTimeCategories	Anteile	rel
+    // 11 Mode	TravelTimeCategories	Anteile	rel
     addPlot(subDir) {
-
         midPlotForLegs(
             legFilter = { it.leg.transportType != MODEUNKOWN },
             legGroup = { it.leg.transportType },
@@ -228,12 +227,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
             stackAxisLabel = "mode"
             coloring = { modeStringColor(it.description) }
         }
-
     }
 
-    //12 Mode	beginTrip	Timeseries	rel
+    // 12 Mode	beginTrip	Timeseries	rel
     addPlot(subDir) {
-
         midPlotForLegs(
             legFilter = { it.leg.transportType != MODEUNKOWN && it.leg.startTime.weekDay == DayOfWeek.MONDAY },
             rowFilter = { it.tripStart != null },
@@ -247,12 +244,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
             yAxisLabel = "rel. count"
             coloring = { modeStringColor(it.description) }
         }
-
     }
 
-    //1 Purpose	beginActivity	Histogramm	rel
+    // 1 Purpose	beginActivity	Histogramm	rel
     addPlot(subDir) {
-
         midPlotForLegs(
             legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose },
             rowFilter = { it.activityStart != null },
@@ -265,12 +260,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
             yAxisLabel = "rel. count"
             coloring = { randomColor() }
         }
-
     }
 
-    //2 Purpose	age	Anteile	abs
+    // 2 Purpose	age	Anteile	abs
     addPlot(subDir) {
-
         midPlotForLegs(
             legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose },
             midGroup = { it.activityType },
@@ -280,12 +273,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
             stackAxisLabel = "purpose"
             coloring = { randomColor() }
         }
-
     }
 
-    //3 Purpose	occupation	Anteile	abs
+    // 3 Purpose	occupation	Anteile	abs
     addPlot(subDir) {
-
         midPlotForLegs(
             legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose },
             midGroup = { it.activityType },
@@ -295,10 +286,5 @@ fun <C> C.addDefaultMIDComparisonPlots(
             stackAxisLabel = "activity type"
             coloring = { randomColor() }
         }
-
     }
-
-
-
-
 }
