@@ -1,12 +1,15 @@
 package utils.units
 
 import java.time.DayOfWeek
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
+import kotlin.time.times
 import kotlin.time.toDuration
 
 typealias Time = AbsoluteTime
@@ -26,6 +29,11 @@ fun DayOfWeek.daysSinceStartOfWeek() = this.encode().days
 
 operator fun Duration.rem(other: Duration): Duration =
     (this.inWholeSeconds % other.inWholeSeconds).toDuration(DurationUnit.SECONDS)
+
+fun Duration.floorRem(other: Duration): Duration {
+    val result = this % other
+    return if (result < Duration.ZERO) result + other else result
+}
 
 fun decodeDayOfWeek(s: String): DayOfWeek = when (s.lowercase()) {
     "monday", "montag", "mo", "mo." -> (DayOfWeek.MONDAY)
@@ -121,6 +129,27 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
         return this.offset.compareTo(other.offset)
     }
 
+    /**
+     * Using + mod cheat to always get a positive number
+     */
+    operator fun rem(absoluteTime: AbsoluteTime): AbsoluteTime {
+        return AbsoluteTime((offset + absoluteTime.offset).floorRem(absoluteTime.offset))
+    }
+
+    operator fun rem(duration: Duration): Duration {
+        return (offset + duration).floorRem(duration)
+    }
+    fun floorDiv(duration: Duration): Long {
+        val q = offset / duration
+        return floor(q).toLong()
+    }
+    fun ceilDiv(duration: Duration): Duration {
+        val q = offset / duration
+        return ceil(q) * duration
+    }
+    fun floorDiv(time: AbsoluteTime): Long {
+        return floorDiv(time.sinceStart)
+    }
     companion object {
         val START = AbsoluteTime(Duration.ZERO)
         val MINUS_INFINITY = AbsoluteTime(-Duration.INFINITE)

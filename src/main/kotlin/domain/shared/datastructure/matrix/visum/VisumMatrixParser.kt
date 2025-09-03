@@ -10,13 +10,18 @@ const val NUMBER_LINE_PATTERN = "[\\d|\\s.-]+"
 
 // Another complaint by detekt
 const val OBJ = "* Obj"
+private val AS_DOUBLE: (String) -> Double = { it.toDouble() }
+private val AS_ZONE_ID: (String) -> ZoneId = { ZoneId(it.toLong()) }
+private fun String.splitByWhitespace(): List<String> {
+    return this.trim().split(Regex("\\s+"))
+}
 
 /**
  * The `MatrixParser` class is responsible for parsing a matrix from a file and converting it into a `Matrix` object.
  *
  * @param file The path to the file containing the matrix data.
  */
-class VisumMatrixParser(thoth: () -> BufferedReader) : IVisumParser {
+class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
     private var state: MatrixParseState = MatrixParseState.LOCATE_NUMBER
     private lateinit var values: List<MutableList<Double>>
     private val mutableList: MutableList<ZoneId> = ArrayList()
@@ -24,7 +29,6 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : IVisumParser {
 
     constructor(file: Path) : this({
         file.decompressedBufferedReader()
-        // properBufferedReader(file.toFile())
     })
 
     init {
@@ -158,38 +162,3 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : IVisumParser {
         return values.flatten().toDoubleArray()
     }
 }
-
-private fun String.splitByWhitespace(): List<String> {
-    return this.trim().split(Regex("\\s+"))
-}
-
-private val AS_DOUBLE: (String) -> Double = { it.toDouble() }
-private val AS_ZONE_ID: (String) -> ZoneId = { ZoneId(it.toLong()) }
-
-// fun properBufferedReader(item: File): BufferedReader {
-//    return when (item.extension) {
-//        "bz2" -> BufferedReader(InputStreamReader(uncompressBZip2From(FileInputStream(item))))
-//        else -> item.bufferedReader(charset("ISO-8859-1"))
-//    }
-// }
-//
-// // TODO can be deleted, included buffering in FileDecompression.kt
-// @Suppress("MagicNumber") // 1024 is just the buffer size
-// private fun uncompressBZip2From(fin: FileInputStream): InputStream {
-//    val inputStream = BufferedInputStream(fin)
-//    val bzIn = BZip2CompressorInputStream(inputStream)
-//
-//    val out = ByteArrayOutputStream()
-//
-//    // TODO -> simplify to bzIn.copyTo(out)
-//    val buffer = ByteArray(1024)
-//    var n = 0
-//    while (-1 != (bzIn.read(buffer).also { n = it })) {
-//        out.write(buffer, 0, n)
-//    }
-//    out.close()
-//
-//    bzIn.close()
-//
-//    return ByteArrayInputStream(out.toByteArray())
-// }

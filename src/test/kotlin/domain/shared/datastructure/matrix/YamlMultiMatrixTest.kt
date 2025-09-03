@@ -1,60 +1,80 @@
 package domain.shared.datastructure.matrix
 
-import core.datastructure.matrix.YamlMultiMatrix
-import domain.shared.datastructure.matrix.visum.VisumMatrixFormat
-import domain.shared.location.ZoneId
-import org.junit.jupiter.api.Assertions
+import domain.shared.datastructure.matrix.yaml.YamlInfo
+import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
+import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
-import utils.Decodable
-import utils.Encodable
-import utils.units.AbsoluteTime
+import org.junit.jupiter.api.TestFactory
+import utils.WithExpiration
+import utils.units.sinceStart
 import utils.units.weeks
+import java.nio.file.Path
 import kotlin.io.path.Path
-
-class EncodableString(private val s: String) : Encodable, Comparable<String> by s, CharSequence by s {
-    override val code: Int
-        get() = error("Not implemented")
-
-    override val description: String
-        get() = s
-}
+import kotlin.test.assertEquals
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 class YamlMultiMatrixTest {
+
+    private val first = Path("src/test/resources/multi_matrix_parser/good_case_matrix_0.mtx")
+    private val second = Path("src/test/resources/multi_matrix_parser/good_case_matrix_1.mtx")
+    private val third = Path("src/test/resources/multi_matrix_parser/good_case_matrix_2.mtx")
+    private val fourth = Path("src/test/resources/multi_matrix_parser/good_case_matrix_3.mtx")
+    private val fifth = Path("src/test/resources/multi_matrix_parser/good_case_matrix_4.mtx")
+
+    private val yamlFilePath = Path("src/test/resources/multi_matrix_parser/cost_matrix_configuration.yaml")
+    private val yamlLookup = YamlMatrixLookup.default(yamlFilePath, TestModes.Companion)
+
+    private val repetitivePath = Path("src/test/resources/multi_matrix_parser/repetitive_configuration.yaml")
+    private val repetitiveYamlLookup = YamlMatrixLookup.default(repetitivePath, TestModes.Companion)
+
     @Test
-    fun `test YamlMultiMatrix`() {
-        // Mocked path to a YAML file
-        val yamlFilePath = Path("src/test/resources/multi_matrix_parser/cost_matrix_configuration.yaml")
+    fun testWeekZero() {
+        // path to a YAML file
 
-        // Mocked parser function
-        val parser: (Double) -> Double = { it }
+        yamlLookup["bs", 4.hours].test(second, 12.hours)
+        yamlLookup["bs", 0.hours].test(second, 12.hours)
+        yamlLookup["bs", 13.hours].test(fourth, 5.days)
+        yamlLookup["bs", 25.hours].test(fourth, 5.days)
+        yamlLookup["bs", 5.days].test(third, 6.days)
+        yamlLookup["bs", 6.days].test(first, 7.days)
+    }
 
-        // Mocked mode decoder
-        val modeDecoder = object : Decodable<EncodableString> {
-            override fun decode(i: Int): EncodableString {
-                error("Not implemented")
-            }
+    @Test
+    fun testWeekOne() {
+        yamlLookup["bs", 1.weeks + 4.hours].test(second, 1.weeks + 12.hours)
+        yamlLookup["bs", 1.weeks + 6.days].test(fifth, 2.weeks)
+    }
 
-            override fun decode(s: String): EncodableString {
-                return EncodableString(s)
-            }
-
-            override fun values(): Set<EncodableString> {
-                error("Not implemented")
+    @TestFactory
+    fun testRepetitiveness(): List<DynamicTest> {
+        val days = 7
+        val intervals = 4
+        return (0..<days * intervals).map {
+            DynamicTest.dynamicTest("duplicates don't expire $it") {
+                repetitiveYamlLookup["bs", it.days / intervals].test(first, Duration.INFINITE)
+                repetitiveYamlLookup["car", it.days / intervals].test(second, Duration.INFINITE)
+                repetitiveYamlLookup["cs", it.days / intervals].test(third, Duration.INFINITE)
             }
         }
+    }
 
-        // Create an instance of YamlMultiMatrix
-        YamlMultiMatrix<EncodableString, ZoneId, Double>(
-            yamlFilePath,
-            parser,
-            modeDecoder,
-            AbsoluteTime.Companion.START,
-            AbsoluteTime.Companion.START + 4.weeks,
-            formats = listOf(VisumMatrixFormat)
-        )
+    private operator fun YamlMatrixLookup<TestModes>.get(
+        abbreviation: String,
+        duration: Duration,
+    ): WithExpiration<YamlInfo> {
+        val dec = when (abbreviation) {
+            "bs" -> TestModes.BIKESHARING
+            "car" -> TestModes.CAR
+            "cs" -> TestModes.CARSHARING
+            else -> throw IllegalArgumentException("Unknown abbreviation: $abbreviation")
+        }
+        return this[dec, duration.sinceStart]
+    }
 
-        // Test if parsing the YAML file completes without errors
-        // If no exceptions are thrown during initialization, the test passes
-        Assertions.assertTrue(true, "YAML file parsed successfully")
+    private fun WithExpiration<YamlInfo>.test(expected: Path, expectedExpiration: Duration) {
+        assertEquals(expected, element.path)
+        assertEquals(expectedExpiration.sinceStart, expiration)
     }
 }

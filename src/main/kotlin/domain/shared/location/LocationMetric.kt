@@ -9,7 +9,7 @@ import kotlin.time.Duration
  *
  * @param R the generic result type of the metrics result unit
  */
-interface LocationMetric<R> {
+fun interface LocationMetric<R> {
 
     fun evaluate(origin: Location, destination: Location): R
 }
