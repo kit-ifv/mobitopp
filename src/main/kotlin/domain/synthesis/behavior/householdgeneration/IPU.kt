@@ -8,6 +8,8 @@ import utils.collections.addProgressBar
 import utils.collections.invertMap
 import kotlin.random.Random
 
+private const val IPU_GENERATION_LABEL = "IPU generation"
+
 /**
  * The default implementation of the [HouseholdSynthesis] interface, which generates a synthetic population
  * for each zone based on survey household data represented as [ScalableVector]s. The goal of the synthesis is
@@ -66,7 +68,7 @@ class IPU<AREA, T>(
     ): Map<AREA, List<SurveyHousehold<out T>>> {
         return conditions.entries
             .addProgressBar(
-                label = "IPU generation",
+                label = IPU_GENERATION_LABEL,
                 expectedCount = conditions.size.toLong()
             ).associate { (zone, rules) ->
                 zone to converter.run {
@@ -82,7 +84,7 @@ class IPU<AREA, T>(
     ): Map<AREA, Map<ScalableVector, List<SurveyHousehold<out T>>>> {
         return conditions.entries
             .addProgressBar(
-                label = "IPU generation",
+                label = IPU_GENERATION_LABEL,
                 expectedCount = conditions.size.toLong()
             ).associate { (zone, rules) ->
                 zone to calculate(surveyHouseholds, rules)

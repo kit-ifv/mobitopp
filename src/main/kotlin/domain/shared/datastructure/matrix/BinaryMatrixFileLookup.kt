@@ -11,7 +11,7 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 
 /**
- * This class builds a local file cache at [rootCachePath]. Whenever a matrix is requested to be created, this class
+ * This class builds a local file cache at [rootCachePath] / "binary-cache". Whenever a matrix is requested to be created, this class
  * looks whether it finds a similarly named file in the storage, checks against the hash code of the original file
  * content (to avoid the cache returning a stale element). If the class finds a suitable cache candidate it is parsed
  * with the corresponding binary format, which is faster than string based parsing by a factor of 100x. If the
@@ -38,7 +38,6 @@ class BinaryMatrixFileLookup(
             )
             matrix
         }
-
     }
 
     fun listCachedFiles() = internalFolder.listDirectoryEntries()
@@ -49,7 +48,6 @@ class BinaryMatrixFileLookup(
         }
         internalFolder.deleteIfExists()
     }
-
 
     private fun findCachedBinaryFile(path: Path): StandardMatrix? {
         val fileName = path.nameWithoutExtension

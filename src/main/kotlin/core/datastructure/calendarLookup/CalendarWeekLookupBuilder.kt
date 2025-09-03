@@ -1,7 +1,8 @@
 package core.datastructure.calendarLookup
 
-import domain.shared.datastructure.matrix.yaml.WeekLookupOperation
-
+typealias CalendarLookupOperation<T> = CalendarWeekLookupBuilder<T>.(Collection<WeekLookupOperation<T>>) -> Unit
+typealias WeekLookupOperation<T> = WeekLookupBuilder<T>.() -> Unit
+typealias TimeLookupOperation<T> = TimeLookupBuilder<T>.(Int) -> Unit
 /**
  * A mutable builder for creating a [CalendarWeekLookup].
  *
@@ -10,7 +11,7 @@ import domain.shared.datastructure.matrix.yaml.WeekLookupOperation
  *
  * Behavior:
  * - Explicit entries are stored in [weekLookups].
- * - If a [defaultWeekLookupInstructions] is defined, it will be used for any calendar week number that is not explicitly present.
+ * - If a defaultWeekLookupInstructions is defined, it will be used for any calendar week number that is not explicitly present.
  * - If no default is defined, only explicitly set weeks are available.
  *
  * Once populated, [build] finalizes the structure into an immutable [CalendarWeekLookup].

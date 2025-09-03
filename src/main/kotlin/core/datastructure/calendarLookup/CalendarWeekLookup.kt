@@ -34,7 +34,8 @@ class CalendarWeekLookup<T>(private val weekLookup: Map<Int, WeekLookup<T>>) {
     operator fun get(absoluteTime: AbsoluteTime): WithExpiration<T> {
         val weekNumber = absoluteTime.week
         val (element, nextChangeThisWeek) = weekLookup.getValue(weekNumber)[absoluteTime]
-        val absoluteNextChangeTime = nextChangeThisWeek?.plus(weekNumber.weeks)?.sinceStart ?: findNextAbsoluteChange(absoluteTime, element)
+        val absoluteNextChangeTime = nextChangeThisWeek?.plus(weekNumber.weeks)?.sinceStart
+            ?: findNextAbsoluteChange(absoluteTime, element)
 
         return element.withExpiration(absoluteNextChangeTime)
     }

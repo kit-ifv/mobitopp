@@ -1,8 +1,10 @@
 package domain.shared.datastructure.matrix.yaml
 
-import core.datastructure.calendarLookup.CalendarWeekLookupBuilder
+import core.datastructure.calendarLookup.CalendarLookupOperation
 import core.datastructure.calendarLookup.TimeLookupBuilder
+import core.datastructure.calendarLookup.TimeLookupOperation
 import core.datastructure.calendarLookup.WeekLookupBuilder
+import core.datastructure.calendarLookup.WeekLookupOperation
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.time.Duration.Companion.hours
@@ -119,9 +121,7 @@ internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
             }
         }
 }
-typealias CalendarLookupOperation<T> = CalendarWeekLookupBuilder<T>.(Collection<WeekLookupOperation<T>>) -> Unit
-typealias WeekLookupOperation<T> = WeekLookupBuilder<T>.() -> Unit
-typealias TimeLookupOperation<T> = TimeLookupBuilder<T>.(Int) -> Unit
+
 
 /**
  * Parses a **week specifier** string from a YAML entry and produces a [CalendarLookupOperation].
@@ -161,7 +161,3 @@ fun interface ParseTimeSpecifier<T> {
     fun parseTimeLookupOperation(string: String, details: Pair<String, String>): TimeLookupOperation<T>
 }
 
-data class PrioritizedOperation<T>(
-    val operation: TimeLookupOperation<T>,
-    val priority: Int,
-)

@@ -38,7 +38,7 @@ class CachedMatrixLookup<M>(
         cache[mode, expiration] = matrix
         return matrix
     }
-    private class MatrixCache<M>() {
+    private class MatrixCache<M> {
         private val cache: MutableMap<M, Pair<AbsoluteTime, ZoneIdMatrix>> = mutableMapOf()
         operator fun get(mode: M, time: AbsoluteTime): Pair<AbsoluteTime, ZoneIdMatrix>? {
             return cache[mode]

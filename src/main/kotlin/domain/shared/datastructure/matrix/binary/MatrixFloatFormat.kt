@@ -3,7 +3,7 @@ package domain.shared.datastructure.matrix.binary
 import java.io.DataInputStream
 import java.io.DataOutputStream
 
-object MatrixFloatFormat: StandardMatrixBinaryFormat {
+object MatrixFloatFormat : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".fbin"
 
     override fun writeContent(output: DataOutputStream, value: Double) {

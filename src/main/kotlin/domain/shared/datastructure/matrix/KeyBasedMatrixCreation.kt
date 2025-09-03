@@ -21,4 +21,3 @@ object VisumMatrixCreator : StandardMatrixCreation {
         return StandardMatrix.parseAsVisumMatrix(config.path)
     }
 }
-

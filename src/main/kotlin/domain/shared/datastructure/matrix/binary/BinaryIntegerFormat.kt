@@ -3,7 +3,7 @@ package domain.shared.datastructure.matrix.binary
 import java.io.DataInputStream
 import java.io.DataOutputStream
 
-class BinaryIntegerFormat(private val scalingFactor: Int): StandardMatrixBinaryFormat{
+class BinaryIntegerFormat(private val scalingFactor: Int) : StandardMatrixBinaryFormat {
     override fun writeContent(output: DataOutputStream, value: Double) {
         output.writeInt((value * scalingFactor).toInt())
     }

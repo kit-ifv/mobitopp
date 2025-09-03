@@ -29,6 +29,6 @@ fun interface ZoneMatrixCreation : MatrixCreationInstruction<ZoneId, YamlInfo> {
  * a binary file and cannot operate on [ConstantZoneIdMatrix] as it does not meet the format requirements of
  * [domain.shared.datastructure.matrix.binary.StandardMatrixBinaryFormat]
  */
-fun interface StandardMatrixCreation: ZoneMatrixCreation {
+fun interface StandardMatrixCreation : ZoneMatrixCreation {
     override fun createMatrix(config: YamlInfo): StandardMatrix
 }
