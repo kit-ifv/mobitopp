@@ -1,7 +1,6 @@
 package core.datastructure.calendarLookup
 
-import domain.shared.datastructure.matrix.yaml.PrioritizedOperation
-import domain.shared.datastructure.matrix.yaml.TimeLookupOperation
+import core.datastructure.calendarLookup.PrioritizedOperation
 import kotlinx.datetime.DayOfWeek
 
 /**

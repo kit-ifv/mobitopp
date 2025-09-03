@@ -39,7 +39,6 @@ class StandardMatrixTest {
 
     @Test
     fun shortConversionTest() {
-
         val a = ZoneId(1)
         val b = ZoneId(2)
         val c = ZoneId(9001)

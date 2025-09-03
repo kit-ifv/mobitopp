@@ -124,6 +124,8 @@ class NamedCheckRule<T>(ruleDescription: String, override val logic: CheckRule<T
 
 open class NamedCountRule<T>(val ruleDescription: String, open val logic: CountRule<T>) : CountRule<T> by logic
 
+private const val UNNAMED_RULE = "Unnamed rule"
+
 /**
  * A named implementation of the [Rule] interface, using a [CountRule] to calculate a household's contribution to
  * the target. Example: Counting the number of households with a specific attribute.
@@ -140,7 +142,7 @@ class ZoneRule<T>(
     constructor(description: String, target: Int, logic: CountRule<T>) : this(
         description,
         target,
-        NamedCountRule("Unnamed rule", logic)
+        NamedCountRule(UNNAMED_RULE, logic)
     )
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
         return logic.matches(surveyHousehold)
@@ -167,7 +169,7 @@ class ZoneCheckRule<T>(
     constructor(description: String, target: Int, logic: CheckRule<T>) : this(
         description,
         target,
-        NamedCheckRule("Unnamed rule", logic)
+        NamedCheckRule(UNNAMED_RULE, logic)
     )
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
         return logic.matches(surveyHousehold)

@@ -194,7 +194,7 @@ class YamlMatrixTest {
         }
     }
 
-    private class TestBuilder<T : Any>() {
+    private class TestBuilder<T : Any> {
         lateinit var expected: T
         lateinit var targetTime: Timepoint
         lateinit var expectedExpiration: Timepoint

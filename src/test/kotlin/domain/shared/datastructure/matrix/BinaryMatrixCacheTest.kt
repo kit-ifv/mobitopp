@@ -18,10 +18,12 @@ class BinaryMatrixCacheTest {
     val fileCacheLocation = Path("src/test/resources/tempOutput")
     val configYaml = Path("src/test/resources/multi_matrix_parser/cost_matrix_configuration.yaml")
     val readerCache = BinaryMatrixFileLookup(fileCacheLocation)
+
     @BeforeTest
     fun setup() {
         fileCacheLocation.createDirectories()
     }
+
     @AfterTest
     fun teardown() {
         readerCache.deleteDirectory()
@@ -29,7 +31,6 @@ class BinaryMatrixCacheTest {
 
     @Test
     fun cacheConverterToBinary() {
-
         val yamlLookup = YamlMatrixLookup.default(
             configYaml,
             TestModes,
@@ -38,9 +39,10 @@ class BinaryMatrixCacheTest {
         assertFalse(fileCacheLocation.any { it.nameWithoutExtension == "good_case_matrix_1" })
         val outputMatrix = fileCacheLookup[TestModes.BIKESHARING, 1.hours.sinceStart]
         assertTrue(readerCache.listCachedFiles().any { it.nameWithoutExtension == "good_case_matrix_1" })
-        val matrix = readerCache.format.deserialize(Path("src/test/resources/multi_matrix_parser/good_case_matrix_1.mtx"))
+        val matrix = readerCache.format.deserialize(
+            Path("src/test/resources/multi_matrix_parser/good_case_matrix_1.mtx")
+        )
 
         assertEquals(outputMatrix, matrix)
-
     }
 }

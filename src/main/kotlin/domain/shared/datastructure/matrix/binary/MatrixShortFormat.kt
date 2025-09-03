@@ -4,7 +4,7 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import kotlin.math.roundToInt
 
-object MatrixShortFormat: StandardMatrixBinaryFormat {
+object MatrixShortFormat : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".sbin"
     override fun writeContent(output: DataOutputStream, value: Double) {
         output.writeShort(value.toConvertedShort())
@@ -27,7 +27,6 @@ object MatrixShortFormat: StandardMatrixBinaryFormat {
         return if (this >= 655.35) {
             0xFFFF
         } else {
-
             (this * 100).roundToInt()
         }
     }
