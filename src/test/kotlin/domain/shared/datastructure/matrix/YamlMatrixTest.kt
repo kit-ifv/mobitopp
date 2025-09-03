@@ -3,8 +3,8 @@ package domain.shared.datastructure.matrix
 import core.datastructure.calendarLookup.CalendarWeekLookup
 import core.datastructure.calendarLookup.CalendarWeekLookupBuilder
 import core.datastructure.calendarLookup.TimeLookupBuilder
-import domain.shared.datastructure.matrix.yaml.TimeLookupOperation
-import domain.shared.datastructure.matrix.yaml.WeekLookupOperation
+import core.datastructure.calendarLookup.TimeLookupOperation
+import core.datastructure.calendarLookup.WeekLookupOperation
 import kotlinx.datetime.DayOfWeek
 import org.junit.jupiter.api.assertThrows
 import utils.WithExpiration

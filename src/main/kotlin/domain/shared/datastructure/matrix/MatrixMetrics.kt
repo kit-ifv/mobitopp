@@ -102,7 +102,7 @@ class MatrixMetrics(
             travelCostsYamlPath: Path,
             travelDistanceMatrixPath: Path,
             decoder: Decodable<Mode>,
-            matrixFactory: ZoneMatrixCreation = KeyBasedMatrixCreation,
+            matrixFactory: ZoneMatrixCreation = VisumMatrixCreator,
             converter: UnitConverter = UnitConverter(),
         ): MatrixMetrics {
             val travelTimeMultiMatrix = YamlMatrixLookup.default(
