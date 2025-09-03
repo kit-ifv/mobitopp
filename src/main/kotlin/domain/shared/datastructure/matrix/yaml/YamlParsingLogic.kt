@@ -100,7 +100,10 @@ internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
         action: WeekLookupBuilder<YamlInfo>.(TimeLookupOperation<YamlInfo>) -> Unit,
     ): WeekLookupOperation<YamlInfo> = { dayOperations.forEach { action(it) } }
 
-    override fun parseTimeLookupOperation(string: String, details: Pair<String, String>): TimeLookupOperation<YamlInfo> {
+    override fun parseTimeLookupOperation(
+        string: String,
+        details: Pair<String, String>,
+    ): TimeLookupOperation<YamlInfo> {
         return { priority ->
             val (startTime, endTime) = string.split(" to ")
             val (startHour, startMinute) = startTime.split(":").map { it.toInt() }
@@ -121,7 +124,6 @@ internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
             }
         }
 }
-
 
 /**
  * Parses a **week specifier** string from a YAML entry and produces a [CalendarLookupOperation].
@@ -160,4 +162,3 @@ fun interface ParseDaySpecifier<T> {
 fun interface ParseTimeSpecifier<T> {
     fun parseTimeLookupOperation(string: String, details: Pair<String, String>): TimeLookupOperation<T>
 }
-

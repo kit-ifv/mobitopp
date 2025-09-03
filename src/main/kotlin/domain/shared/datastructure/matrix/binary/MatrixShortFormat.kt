@@ -3,7 +3,7 @@ package domain.shared.datastructure.matrix.binary
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import kotlin.math.roundToInt
-
+@Suppress("MagicNumber")
 object MatrixShortFormat : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".sbin"
     override fun writeContent(output: DataOutputStream, value: Double) {

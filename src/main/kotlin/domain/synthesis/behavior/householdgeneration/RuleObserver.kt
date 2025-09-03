@@ -108,10 +108,12 @@ class TargetNumberObserver(
     override val absoluteDifference: Double get() = abs(expected - sum())
     override val relativeDifference: Double get() = absoluteDifference / expected
 
+    @Suppress("MagicNumber")
     override val quotientDifference: Double
         get() {
-            val exp = if (expected == 0) 1e-9 else expected.toDouble()
-            val act = if (sum() == 0.0) 1e-9 else sum()
+            val fallback = 1e-9
+            val exp = if (expected == 0) fallback else expected.toDouble()
+            val act = if (sum() == 0.0) fallback else sum()
             return max(exp / act, act / exp)
         }
     override fun optimize() {
