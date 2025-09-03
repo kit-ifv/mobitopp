@@ -36,12 +36,11 @@ class ActiToppNGGenerator(
 
 ) :
     GenerateHouseholdActivitySchedule<SurveyWithCommute> {
-    val strategy = StandardHouseholdPlanGeneration()
+    val strategy = StandardHouseholdPlanGeneration() // TODO change to Parallel once implemented.
     override fun generate(
         household: SynthesisHousehold<out SurveyWithCommute>,
     ): Map<SynthesisPerson<out SurveyWithCommute>, PreliminaryActivitySchedule> {
         val (actHH, mapping) = convert(household)
-
         val output = strategy.generateSchedules(actHH)
         return output.entries.associate { (k, v) -> mapping[k]!! to finish(v) }
     }

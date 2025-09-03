@@ -5,8 +5,10 @@ import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
-import domain.shared.datastructure.matrix.InternalMatrixLookup
-import domain.shared.datastructure.matrix.YamlMatrixLookupMetrics
+import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
+import domain.shared.datastructure.matrix.MatrixMetrics
+import domain.shared.datastructure.matrix.UnitConverter
+import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
@@ -32,7 +34,7 @@ fun DemandSimContext.loadImpedance(
     distanceUnit: DistanceUnit? = null,
     currencyUnit: CurrencyUnit? = null,
     durationUnit: DurationUnit? = null,
-    betterFormatRoot: InternalMatrixLookup? = null
+    matrixCreator: ZoneMatrixCreation = KeyBasedMatrixCreation
 ) = runStep {
     LoadImpedanceStep(
         costMatrixConfig,
@@ -41,8 +43,8 @@ fun DemandSimContext.loadImpedance(
         distanceUnit,
         currencyUnit,
         durationUnit,
+        matrixCreator,
         this,
-        betterFormatRoot
     )
 }
 
@@ -54,23 +56,24 @@ private class LoadImpedanceStep(
     private val distanceUnit: DistanceUnit? = null,
     private val currencyUnit: CurrencyUnit? = null,
     private val durationUnit: DurationUnit? = null,
+    private val matrixCreator: ZoneMatrixCreation,
     private val context: DemandSimContext,
-    private val betterFormatRoot: InternalMatrixLookup?
 ) : ModelStep {
     override val name: String = "Load matrix impedance from yaml"
 
     override fun execute() {
-        val impedance = YamlMatrixLookupMetrics(
-            travelCostMatrixConfig = costMatrixConfig,
-            travelTimeMatrixConfig = durationMatrixConfig,
-            distanceMatrix = distanceMatrix,
-            distanceUnit = distanceUnit ?: context.distanceUnit,
-            currencyUnit = currencyUnit ?: context.costUnit,
-            durationUnit = durationUnit ?: context.timeUnit,
-            modeCodes = context.modes,
-            simulationStart = context.simulationStart,
-            simulationEnd = context.simulationEnd,
-            betterFormat = betterFormatRoot
+        val converter = UnitConverter.fromUnits(
+            distanceUnit ?: DistanceUnit.KILOMETERS,
+            currencyUnit ?: CurrencyUnit.EUROS,
+            durationUnit ?: DurationUnit.MINUTES
+        )
+        val impedance = MatrixMetrics.loadFromPaths(
+            travelTimeYamlPath = durationMatrixConfig,
+            travelCostsYamlPath = costMatrixConfig,
+            travelDistanceMatrixPath = distanceMatrix,
+            decoder = context.modes,
+            matrixFactory = matrixCreator,
+            converter = converter,
         )
 
         context.impedance.value = (impedance)
