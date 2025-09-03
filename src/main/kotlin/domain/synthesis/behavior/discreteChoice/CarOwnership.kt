@@ -645,9 +645,3 @@ val carChoiceUtility = NestedStructure<Int, CarOwnershipAttributes, CarOwnership
         }
     }
 }.nestedLogit("ExampleNestedNumberOfCarsModel")
-
-// fun <T> KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, T>.select(
-//    household: SynthesisHousehold<out SurveyInfo>
-// ): Int {
-//    return select { CarOwnershipAttributes(it, household.toCarOwnershipAttributes()) }
-// }

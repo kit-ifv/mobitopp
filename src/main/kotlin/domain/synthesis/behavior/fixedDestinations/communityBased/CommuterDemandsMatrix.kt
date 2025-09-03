@@ -67,7 +67,7 @@ class CommuterDemandsMatrix(
             val match = readZoneToCommunity(mappingFile)
             return readCommuters(commuterFile) {
                 val zoneID = it.zoneID() ?: run {
-                    println("Bad Zone")
+                    println("Bad Zone $it")
                     ZoneId(-1)
                 }
 
