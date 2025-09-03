@@ -78,7 +78,7 @@ fun defaultCsvParser(
 ): DefaultCsvParser<MutableLegacyZone> {
     val csvParser = CsvParser(errorHandling) { row ->
         MutableLegacyZone(
-            id = ZoneId(row.invoke(columns.idColumn).toLong()),
+            id = ZoneId(row.long(columns.idColumn)),
             centroid = row(columns.centroidColumn, centroidParser),
             seed = seed
         ) {

@@ -78,7 +78,7 @@ fun LoadHouseholdContext.prepareHouseholds(
     val parser = CsvParser<MutableHousehold>(errorHandling) { row ->
 
         MutableHousehold(
-            id = HouseholdId(row.invoke(columns.hhIdColumn).toLong()),
+            id = HouseholdId(row.long(columns.hhIdColumn)),
             simulationSeed,
         ) {
             householdNumber = row.long(columns.hhNumberColumn)
