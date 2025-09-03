@@ -13,7 +13,7 @@ package core.datastructure.matrix
  * @property matrix the underlying primitive double matrix
  * @property converter maps external keys [I] to integer indices
  */
-interface MappedDoubleMatrix<I>: TranslatedDoubleMatrix<I> {
+interface MappedDoubleMatrix<I> : TranslatedDoubleMatrix<I> {
 
     val matrix: DoubleMatrix
     val converter: IndexEncoder<I>
@@ -22,5 +22,4 @@ interface MappedDoubleMatrix<I>: TranslatedDoubleMatrix<I> {
         val columnIndex = converter.toIndex(column)
         return matrix[rowIndex, columnIndex]
     }
-
 }

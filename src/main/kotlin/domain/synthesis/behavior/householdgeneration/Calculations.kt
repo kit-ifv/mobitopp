@@ -20,7 +20,8 @@ import domain.synthesis.behavior.SurveyHousehold
  */
 class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1.0) {
     private val array: IntArray = vector.toIntArray()
-    val signature: Map<Int, Int> = array.withIndex().filter { it.value != 0 }.associate{ (i, value) -> i to value }
+    val signature: Map<Int, Int> = array.withIndex().filter { it.value != 0 }.associate { (i, value) -> i to value }
+
     /**
      * A read-only property that provides a list view of the [array] for external access.
      * The underlying array is unfortunately mutable, but the list provides an immutable view to prevent external modification.

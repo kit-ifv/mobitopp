@@ -8,7 +8,6 @@ import kotlin.io.path.pathString
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-
 /**
  * Contract for parsing the YAML layout that defines matrix availability.
  *
@@ -32,7 +31,9 @@ import kotlin.time.Duration.Companion.minutes
  * A default implementation is provided by [YamlParsingLogicImpl], accessible
  * via [YamlParsingLogic.default].
  */
-interface YamlParsingLogic : ParseWeekSpecifier<YamlInfo>, ParseDaySpecifier<YamlInfo>,
+interface YamlParsingLogic :
+    ParseWeekSpecifier<YamlInfo>,
+    ParseDaySpecifier<YamlInfo>,
     ParseTimeSpecifier<YamlInfo> {
     companion object {
         /**
@@ -71,7 +72,6 @@ internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
             weeks.forEach {
                 this[it] = day
             }
-
         }
         return when (string) {
             "all weeks" -> setAsDefaultFunction
@@ -90,13 +90,8 @@ internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
             DayIdentifier.Weekday -> aggregateOperations(dayOperations, WeekLookupBuilder<YamlInfo>::setWorkdays)
             DayIdentifier.Everyday -> aggregateOperations(dayOperations, WeekLookupBuilder<YamlInfo>::setDefault)
             else -> aggregateOperations(dayOperations) { this[day] = it }
-
-
         }
-
-
     }
-
 
     private fun aggregateOperations(
         dayOperations: Collection<TimeLookupOperation<YamlInfo>>,
@@ -112,8 +107,6 @@ internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
                 details.first,
                 resolvePathIfRelative(details.second)
             ) to priority
-
-
         }
     }
 
@@ -142,7 +135,6 @@ typealias TimeLookupOperation<T> = TimeLookupBuilder<T>.(Int) -> Unit
 fun interface ParseWeekSpecifier<T> {
     fun parseCalendarLookupOperation(string: String): CalendarLookupOperation<T>
 }
-
 
 /**
  * Parses a **day specifier** string (e.g. `"Monday"`, `"Weekday"`, `"Everyday"`)

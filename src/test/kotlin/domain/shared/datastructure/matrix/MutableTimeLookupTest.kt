@@ -1,8 +1,8 @@
 package domain.shared.datastructure.matrix
 
-import core.datastructure.calendarLookup.TimeLookupBuilder
 import core.datastructure.calendarLookup.DayTimeLookupBuilder
 import core.datastructure.calendarLookup.TimeLookup
+import core.datastructure.calendarLookup.TimeLookupBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
 import utils.units.sinceStart
 import utils.units.toAbsoluteHours
@@ -26,7 +26,6 @@ class MutableTimeLookupTest {
         assertEquals(output[1.hours], 2)
         assertEquals(output[3.hours], 1)
         timeLookupBuilder.segments()
-
     }
 
     @Test
@@ -50,7 +49,6 @@ class MutableTimeLookupTest {
         dayLookup[30.minutes, 99999999.minutes] = 2
         val output = dayLookup.build()
         assertEquals(2, output[(-1).hours])
-
     }
 
     @Test
@@ -75,12 +73,12 @@ class MutableTimeLookupTest {
         val output = dayLookup.build()
         assertEquals(1, output.elements.size)
         assertEquals(false, output.elements.first())
-
-
     }
 
     private operator fun <T> TimeLookup<T>.get(number: Duration) = get(number.sinceStart)
 
-    private operator fun TimeLookupBuilder<Int>.set(a: Number, b: Number, path: Int) = set(a.toAbsoluteHours()..<b.toAbsoluteHours(), path)
-
+    private operator fun TimeLookupBuilder<Int>.set(a: Number, b: Number, path: Int) = set(
+        a.toAbsoluteHours()..<b.toAbsoluteHours(),
+        path
+    )
 }

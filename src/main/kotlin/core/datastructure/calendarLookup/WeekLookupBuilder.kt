@@ -56,7 +56,6 @@ class WeekLookupBuilder<T>(
      */
     fun setWorkdays(instruction: TimeLookupOperation<T>) = applyToDays(workdays, instruction, 1)
 
-
     /**
      * Inserts the given [day] into the specified [dayOfWeek] with **priority 2**.
      *

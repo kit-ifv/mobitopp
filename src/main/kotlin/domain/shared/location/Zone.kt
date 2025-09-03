@@ -5,15 +5,13 @@ import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
 import units.Distance
 import units.GPSCoordinate
-import utils.ID
 import utils.Identifiable
 import utils.random.StochasticActor
 import kotlin.random.Random
 
-
 @JvmInline
 value class ZoneId(val value: Long)
-//typealias ZoneId = ID<Zone>
+// typealias ZoneId = ID<Zone>
 
 /**
  * Zone - a traffic assignment zone in a transport model.

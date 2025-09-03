@@ -29,7 +29,7 @@ open class TimeLookup<T>(
         val indexBinarySearch = timeIndices.binarySearch(time).smallerIndex()
         require(elements.isNotEmpty()) {
             "The requested time $absoluteTime landed in an empty Time Lookup. If this happens you have no default" +
-                    "defined and the simulation tried to access a day that is not specified."
+                "defined and the simulation tried to access a day that is not specified."
         }
         require(indexBinarySearch >= 0) {
             "The structure has no time for the given entry $absoluteTime"
@@ -60,11 +60,10 @@ open class TimeLookup<T>(
      */
     fun findNextChangeTime(element: T, skipUntil: Duration): Duration? {
         val optionalIndex =
-            elements.withIndex().firstOrNull {timeIndices[it.index] >= skipUntil && it.value != element }?.index
+            elements.withIndex().firstOrNull { timeIndices[it.index] >= skipUntil && it.value != element }?.index
         if (optionalIndex == null) return null
         return timeIndices[optionalIndex]
     }
-
 
     /**
      * Get the relative time applicable to this lookup. If the modulus is 1 day, then an absolute time of 1d 1h should

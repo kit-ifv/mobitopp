@@ -17,5 +17,4 @@ import utils.units.AbsoluteTime
  */
 interface ZoneMatrixLookup<M> : MatrixLookup<M, ZoneId> {
     override fun get(mode: M, time: AbsoluteTime): ZoneIdMatrix
-
 }

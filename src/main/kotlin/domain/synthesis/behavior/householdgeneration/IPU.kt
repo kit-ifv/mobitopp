@@ -86,12 +86,8 @@ class IPU<AREA, T>(
                 expectedCount = conditions.size.toLong()
             ).associate { (zone, rules) ->
                 zone to calculate(surveyHouseholds, rules)
-
             }
     }
-
-
-
 
     /**
      * Calculates the synthetic household population for a set of survey households, based on the provided rules
@@ -110,7 +106,7 @@ class IPU<AREA, T>(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
         rules: List<Rule<in T>>,
 
-        ): Map<ScalableVector, List<SurveyHousehold<out T>>> {
+    ): Map<ScalableVector, List<SurveyHousehold<out T>>> {
         val vectorMapping = surveyHouseholds.associateWith { it.toScalableVector(rules) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
@@ -119,7 +115,6 @@ class IPU<AREA, T>(
         }
         algorithm(uniqueVectors, ruleObservers)
         return inverseMap
-
     }
 
     fun calculateConverter(

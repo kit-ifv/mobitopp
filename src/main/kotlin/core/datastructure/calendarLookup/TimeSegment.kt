@@ -20,10 +20,12 @@ data class TimeSegment<T>(
     val priority: Int = 0,
 ) {
     constructor(a: Number, b: Number, element: T) : this(a.toAbsoluteHours()..<b.toAbsoluteHours(), element)
+
     /** Returns `true` if this segment overlaps with [other]. */
     fun intersects(other: OpenEndRange<AbsoluteTime>): Boolean {
         return !(range.start >= other.endExclusive || range.endExclusive <= other.start)
     }
+
     /** Returns `true` if this segment overlaps with [other]. */
     fun intersects(other: TimeSegment<T>): Boolean = intersects(other.range)
 
@@ -43,5 +45,4 @@ data class TimeSegment<T>(
         }
         return results
     }
-
 }

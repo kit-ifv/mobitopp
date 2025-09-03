@@ -2,8 +2,8 @@
 
 package domain.shared.datastructure.visum
 
-import domain.shared.datastructure.matrix.visum.VisumParseError
 import domain.shared.datastructure.matrix.visum.DebugVisumParser
+import domain.shared.datastructure.matrix.visum.VisumParseError
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

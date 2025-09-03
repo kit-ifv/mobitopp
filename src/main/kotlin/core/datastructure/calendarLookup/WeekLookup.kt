@@ -61,11 +61,13 @@ class WeekLookup<T>(private val dayLookups: Map<DayOfWeek, DayTimeLookup<T>>) {
      */
     private fun TimeLookup<T>.findNextChange(element: T, absoluteTime: AbsoluteTime): Duration? {
         val currentWeekDay = absoluteTime.weekDay
-        val currentDayChange = findNextChangeInDay(element, skipUntil = absoluteTime)?.plus(currentWeekDay.daysSinceStartOfWeek())
+        val currentDayChange = findNextChangeInDay(
+            element,
+            skipUntil = absoluteTime
+        )?.plus(currentWeekDay.daysSinceStartOfWeek())
         val nextDaysChange = findNextChangeInLaterDays(element, skipUntil = currentWeekDay.next())
 
         return currentDayChange ?: nextDaysChange
-
     }
 
     /**
@@ -113,5 +115,4 @@ class WeekLookup<T>(private val dayLookups: Map<DayOfWeek, DayTimeLookup<T>>) {
     private fun DayOfWeek.next(): DayOfWeek? {
         return if (this == DayOfWeek.SUNDAY) null else this.plus(1)
     }
-
 }

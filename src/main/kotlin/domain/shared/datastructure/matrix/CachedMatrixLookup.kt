@@ -24,12 +24,12 @@ import utils.units.AbsoluteTime
 class CachedMatrixLookup<M>(
     private val yaml: YamlMatrixLookup<M>,
     private val matrixCreator: ZoneMatrixCreation,
-): ZoneMatrixLookup<M> {
+) : ZoneMatrixLookup<M> {
     private val cache: MatrixCache<M> = MatrixCache()
 
     override fun get(mode: M, time: AbsoluteTime): ZoneIdMatrix {
         cache[mode, time]?.let { (validUntilExclusive, matrix) ->
-            if(time < validUntilExclusive) {
+            if (time < validUntilExclusive) {
                 return matrix
             }
         }
@@ -49,4 +49,3 @@ class CachedMatrixLookup<M>(
         }
     }
 }
-

@@ -38,6 +38,7 @@ class CalendarWeekLookup<T>(private val weekLookup: Map<Int, WeekLookup<T>>) {
 
         return element.withExpiration(absoluteNextChangeTime)
     }
+
     /**
      * Finds the next absolute time when [element] changes after [absoluteTime].
      *
@@ -54,13 +55,13 @@ class CalendarWeekLookup<T>(private val weekLookup: Map<Int, WeekLookup<T>>) {
             .filter { it.key > weekNumber }
             .firstNotNullOfOrNull { it.value.findFirstChangeInWeek(element)?.plus(it.key.weeks) }
 
-
-        val changeTime = potentialDuration ?:
-        getFallbackWeek()?.findFirstChangeInWeek(element)?.plus(ceilingWeekNumber.weeks)
-        ?: Duration.Companion.INFINITE
+        val changeTime = potentialDuration
+            ?: getFallbackWeek()?.findFirstChangeInWeek(element)?.plus(ceilingWeekNumber.weeks)
+            ?: Duration.Companion.INFINITE
 
         return changeTime.sinceStart
     }
+
     /**
      * Returns the optional "default" week, defined as the week immediately after
      * the highest key in [weekLookup]. Used as a fallback for element expiration.
@@ -74,6 +75,5 @@ class CalendarWeekLookup<T>(private val weekLookup: Map<Int, WeekLookup<T>>) {
      * The highest number of a week not found in the lookup.
      */
 
-
-    val ceilingWeekNumber: Int = if(weekLookup.isEmpty()) 0 else (weekLookup.keys.max() + 1)
+    val ceilingWeekNumber: Int = if (weekLookup.isEmpty()) 0 else (weekLookup.keys.max() + 1)
 }

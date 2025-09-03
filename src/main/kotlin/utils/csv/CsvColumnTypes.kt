@@ -39,7 +39,7 @@ fun Row.commaDouble(index: Int) = this.valueAt(index).replace(",", ".").toDouble
 fun Row.boolean(column: String) = this.invoke(column, String::toBoolean)
 fun Row.boolean(index: Int) = this.valueAt(index, String::toBoolean)
 fun <E> Row.id(column: String) = this.invoke(column) { s -> ID<E>(s.toLong()) }
-fun Row.zoneID(column: String) : ZoneId = this.invoke(column) { s -> ZoneId(s.toLong()) }
+fun Row.zoneID(column: String): ZoneId = this.invoke(column) { s -> ZoneId(s.toLong()) }
 fun <E> Row.id(index: Int) = this.valueAt(index) { s -> ID<E>(s.toLong()) }
 fun <T : Encodable> Row.decode(column: String, codePlan: CodePlan<T>) =
     this.invoke(column) { s -> codePlan.decode(s.toInt()) }

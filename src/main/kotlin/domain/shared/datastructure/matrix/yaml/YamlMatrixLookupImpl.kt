@@ -86,7 +86,6 @@ class YamlMatrixLookupImpl<M : Encodable>(
         return timeMap.map { (t, u) ->
             val (key, value) = u.entries.first()
             yamlParsingLogic.parseTimeLookupOperation(t, key to value as String)
-
         }
     }
 }

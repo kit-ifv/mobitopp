@@ -19,9 +19,10 @@ class MatrixMetricsTest {
             travelDistanceMatrixPath = Path("data/matrix/other/AIR_DIS.mtx.bz2"),
             decoder = LegacyMode.Companion,
         )
-        assertEquals(matrixMetrics.distance(ZoneId(6113L), ZoneId(6114L), mode = LegacyMode.CAR), 0.362.kilometers)
-        assertEquals(matrixMetrics.duration(ZoneId(6113L), ZoneId(6113L), mode = LegacyMode.CAR, 0.minutes.sinceStart), 2.48.minutes)
+        assertEquals(matrixMetrics.distance(ZoneId(6113L), ZoneId(6114L)), 0.362.kilometers)
+        assertEquals(
+            matrixMetrics.duration(ZoneId(6113L), ZoneId(6113L), mode = LegacyMode.CAR, 0.minutes.sinceStart),
+            2.48.minutes
+        )
     }
-
-
 }

@@ -6,7 +6,6 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
 import domain.shared.location.Zone
 import domain.synthesis.behavior.AssignAroundZoneCentroid
@@ -177,7 +176,9 @@ class SynthesisSteps<T : Any>(
         val fixedDestinationBuilder = AssignFixedDestinationBuilder<Zone, T>(attractivenessModel)
         fixedDestinationBuilder.apply(lambda)
         val allFixedDestinations = fixedDestinationBuilder.steps.flatMap { it.generateFixedDestinations(people) }
-        allFixedDestinations.addProgressBar("Assign Fixed Destinations").forEach { it.person.fixedDestinations[it.activityType] = it.location }
+        allFixedDestinations.addProgressBar(
+            "Assign Fixed Destinations"
+        ).forEach { it.person.fixedDestinations[it.activityType] = it.location }
         fixedDestinations = allFixedDestinations
     }
 
@@ -224,7 +225,9 @@ class SynthesisSteps<T : Any>(
 
     fun assignAmountOfCars(lambda: () -> CarOwnershipAssignStrategy<in T>) {
         val strategy = lambda()
-        households.addProgressBar("Assign car amount").forEach { household -> household.amountOfCars = strategy.determineNumberOfCars(household) }
+        households.addProgressBar(
+            "Assign car amount"
+        ).forEach { household -> household.amountOfCars = strategy.determineNumberOfCars(household) }
     }
 
     fun assignTransitCardOwnership(lambda: () -> AssignTransitCardOwnership<in T>) {
@@ -308,7 +311,7 @@ class PopulationSynthesis<T : Any>(
             }
         }
 
-        fun < T : Any> configure(
+        fun <T : Any> configure(
             surveyPopulation: GenerateArtificialPopulation<T>,
             zones: List<Zone>,
             lambda: SynthesisConfiguration<T>.() -> Unit,

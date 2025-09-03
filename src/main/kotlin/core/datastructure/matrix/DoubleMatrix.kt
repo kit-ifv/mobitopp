@@ -12,13 +12,29 @@ package core.datastructure.matrix
  * @property numColumns number of columns in the matrix
  */
 class DoubleMatrix(private val values: DoubleArray, val numColumns: Int) {
+    val size: Int get() = values.size
     operator fun get(row: Int, column: Int): Double {
         val index = row * numColumns + column
         return values[index]
     }
 
-
     fun values(): List<Double> {
         return values.toList()
+    }
+
+    override fun toString(): String {
+        return "Matrix: $size [${values.joinToString()}]"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is DoubleMatrix) return false
+        return values.contentEquals(other.values) && numColumns == other.numColumns
+    }
+
+    override fun hashCode(): Int {
+        var result = numColumns
+        result = 31 * result + values.contentHashCode()
+        result = 31 * result + size
+        return result
     }
 }

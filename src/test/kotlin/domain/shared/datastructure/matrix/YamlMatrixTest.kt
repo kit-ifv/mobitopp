@@ -37,7 +37,6 @@ class YamlMatrixTest {
                         this[3, 4] = 5
                         this[10, 11] = 8
                     }
-
                 }
             }
             return structure
@@ -63,8 +62,6 @@ class YamlMatrixTest {
     @Test
     fun defaultForAllEntries() {
         val structure = createStructure {
-
-
             allWeeks {
                 default {
                     this[0, 24] = 3
@@ -76,9 +73,7 @@ class YamlMatrixTest {
             assertEquals(3, output)
             assertEquals(AbsoluteTime.INFINITY, expiration)
         }
-
     }
-
 
     @Test
     fun useLastEntryOfDayIfNothingElse() {
@@ -104,8 +99,6 @@ class YamlMatrixTest {
                 hours = Double.POSITIVE_INFINITY
             }
         }
-
-
     }
 
     @Test
@@ -122,13 +115,10 @@ class YamlMatrixTest {
                 }
             }
         }
-
     }
-
 
     @Test
     fun monday() {
-
         standardStructure.test {
             expected = 6
             time {
@@ -158,7 +148,6 @@ class YamlMatrixTest {
                 hours = 5
             }
         }
-
     }
 
     /**
@@ -182,7 +171,6 @@ class YamlMatrixTest {
 
     @Test
     fun sunday() {
-
         standardStructure.test {
             expected = 8
             time {
@@ -195,7 +183,6 @@ class YamlMatrixTest {
             }
         }
     }
-
 
     private data class Timepoint(
         var week: Int = 0,
@@ -232,7 +219,6 @@ class YamlMatrixTest {
         val (element, expiration) = this[targetTime]
         assertEquals(expectedElement, element)
         assertEquals(targetExpiration, expiration)
-
     }
 
     private operator fun <T> CalendarWeekLookup<T>.get(week: Int, day: Int, hour: Number): WithExpiration<T> {
@@ -242,7 +228,6 @@ class YamlMatrixTest {
     private operator fun <T> TimeLookupBuilder<T>.set(a: Number, b: Number, element: T) =
         set(a.toDouble().hours, b.toDouble().hours, element)
 }
-
 
 private fun <T> createStructure(lambda: MutableCalendarLookupBuilder<T>.() -> Unit): CalendarWeekLookup<T> {
     val builder = MutableCalendarLookupBuilder<T>()
@@ -277,8 +262,6 @@ private class MutableWeekLookupBuilder<T> {
         thisWeek.add {
             this[day] = lambda
         }
-
-
     }
 
     fun default(lambda: TimeLookupOperation<T>) {
@@ -288,7 +271,7 @@ private class MutableWeekLookupBuilder<T> {
     }
 
     fun workdays(lambda: TimeLookupOperation<T>) {
-        thisWeek.add{
+        thisWeek.add {
             this.setWorkdays(lambda)
         }
     }

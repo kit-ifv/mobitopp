@@ -61,6 +61,7 @@ abstract class RuleObserver(
     abstract val absoluteDifference: Double
 
     abstract val quotientDifference: Double
+
     /**
      * Optimizes the vectors by scaling all of them proportionally, ensuring that the sum matches the expected value.
      */
@@ -99,7 +100,7 @@ class TargetNumberObserver(
     vectors: List<ScalableVector>,
     val expected: Int,
 
-    ) : RuleObserver(
+) : RuleObserver(
     name,
     observedIndex,
     vectors,
@@ -109,14 +110,13 @@ class TargetNumberObserver(
 
     override val quotientDifference: Double
         get() {
-            val exp = if(expected == 0) 1e-9 else expected.toDouble()
-            val act = if(sum() == 0.0) 1e-9 else sum()
+            val exp = if (expected == 0) 1e-9 else expected.toDouble()
+            val act = if (sum() == 0.0) 1e-9 else sum()
             return max(exp / act, act / exp)
         }
     override fun optimize() {
-        if(expected == 0 && sum() == 0.0) return
+        if (expected == 0 && sum() == 0.0) return
         this.timesAssign((expected / sum()))
-
     }
 }
 
@@ -137,6 +137,7 @@ class LowerBoundObserver(
         get() = absoluteDifference / lowerBound
     override val quotientDifference: Double
         get() = TODO("Not yet implemented")
+
     /**
      * Optimizes the vectors by scaling all of them proportionally, ensuring that the sum matches the expected value.
      */
@@ -186,7 +187,7 @@ class IntervalObserver(
 
             return max(lb, ub)
         }
-    private val mid = (interval.first + interval.last) /2.0
+    private val mid = (interval.first + interval.last) / 2.0
     override val relativeDifference: Double
         get() = absoluteDifference / mid
     override val quotientDifference: Double
@@ -194,10 +195,9 @@ class IntervalObserver(
     override fun optimize() {
         val sum = sum()
         when {
-            sum > interval.last -> {timesAssign(interval.last / sum)}
-            sum < interval.first -> {timesAssign(interval.first / sum)}
+            sum > interval.last -> { timesAssign(interval.last / sum) }
+            sum < interval.first -> { timesAssign(interval.first / sum) }
             else -> {
-
             }
         }
     }

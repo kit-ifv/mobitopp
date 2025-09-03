@@ -32,8 +32,8 @@ interface Rule<T> {
      */
     fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int
 
+    fun evaluate(households: Collection<SurveyHousehold<out T>>): Int = households.sumOf { evaluate(it) }
 
-    fun evaluate(households: Collection<SurveyHousehold<out T>>): Int  = households.sumOf { evaluate(it) }
     /**
      * Determines whether a given [surveyHousehold] contributes to the rule's target.
      *
@@ -65,7 +65,6 @@ interface Rule<T> {
 
     fun descriptiveText() = "[$description] expected = $target"
 }
-
 
 /*
    I really wanted to be able to specify rules as numeric rules and boolean rules. To avoid JVM-overload ambiguity different
@@ -112,11 +111,15 @@ fun interface CheckRule<T> : CountRule<T> {
     }
 }
 
-class NamedCheckRule<T>( ruleDescription: String, override val logic: CheckRule<T>) : NamedCountRule<T>(ruleDescription, logic), CheckRule<T> by logic {
+class NamedCheckRule<T>(ruleDescription: String, override val logic: CheckRule<T>) :
+    NamedCountRule<T>(
+        ruleDescription,
+        logic
+    ),
+    CheckRule<T> by logic {
     override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
         return super<NamedCountRule>.matches(surveyHousehold)
     }
-
 }
 
 open class NamedCountRule<T>(val ruleDescription: String, open val logic: CountRule<T>) : CountRule<T> by logic
@@ -134,7 +137,11 @@ class ZoneRule<T>(
     override val target: Int,
     override val logic: NamedCountRule<T>,
 ) : Rule<T> {
-    constructor(description: String, target: Int, logic: CountRule<T>): this(description, target, NamedCountRule("Unnamed rule", logic))
+    constructor(description: String, target: Int, logic: CountRule<T>) : this(
+        description,
+        target,
+        NamedCountRule("Unnamed rule", logic)
+    )
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
         return logic.matches(surveyHousehold)
     }
@@ -142,8 +149,6 @@ class ZoneRule<T>(
     override fun toString(): String {
         return descriptiveText()
     }
-
-
 }
 
 /**
@@ -155,7 +160,7 @@ class ZoneRule<T>(
  * @property logic The [CheckRule] implementation defining the logic for evaluating households.
  */
 class ZoneCheckRule<T>(
-    override val description: String= logic.ruleDescription,
+    override val description: String = logic.ruleDescription,
     override val target: Int,
     override val logic: NamedCheckRule<T>,
 ) : Rule<T> {
@@ -172,4 +177,3 @@ class ZoneCheckRule<T>(
         return descriptiveText()
     }
 }
-

@@ -29,5 +29,4 @@ class SegmentTest {
         assertFalse(segment.intersects(d))
         assertFalse(segment.intersects(e))
     }
-
 }

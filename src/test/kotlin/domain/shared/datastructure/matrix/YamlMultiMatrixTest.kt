@@ -1,13 +1,10 @@
 package domain.shared.datastructure.matrix
 
-import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.datastructure.matrix.yaml.YamlInfo
-import domain.shared.datastructure.matrix.yaml.YamlMatrixLookupImpl
+import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
-import utils.Decodable
-import utils.Encodable
 import utils.WithExpiration
 import utils.units.sinceStart
 import utils.units.weeks
@@ -18,18 +15,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
-
-private enum class PotentialModes(override val code: Int, override val description: String) :
-    Encodable {
-    BIKESHARING(0, "bikesharing"), CAR(1, "car"), CARSHARING(2, "carsharing_free_floating");
-
-    companion object : Decodable<PotentialModes> {
-        override fun values(): Set<PotentialModes> {
-            return PotentialModes.entries.toSet()
-        }
-    }
-}
-
 class YamlMultiMatrixTest {
 
     private val first = Path("src/test/resources/multi_matrix_parser/good_case_matrix_0.mtx")
@@ -39,10 +24,11 @@ class YamlMultiMatrixTest {
     private val fifth = Path("src/test/resources/multi_matrix_parser/good_case_matrix_4.mtx")
 
     private val yamlFilePath = Path("src/test/resources/multi_matrix_parser/cost_matrix_configuration.yaml")
-    private val yamlLookup = YamlMatrixLookupImpl(yamlFilePath, PotentialModes.Companion)
+    private val yamlLookup = YamlMatrixLookup.default(yamlFilePath, TestModes.Companion)
 
     private val repetitivePath = Path("src/test/resources/multi_matrix_parser/repetitive_configuration.yaml")
-    private val repetitiveYamlLookup = YamlMatrixLookupImpl(repetitivePath, PotentialModes.Companion)
+    private val repetitiveYamlLookup = YamlMatrixLookup.default(repetitivePath, TestModes.Companion)
+
     @Test
     fun testWeekZero() {
         // path to a YAML file
@@ -53,9 +39,8 @@ class YamlMultiMatrixTest {
         yamlLookup["bs", 25.hours].test(fourth, 5.days)
         yamlLookup["bs", 5.days].test(third, 6.days)
         yamlLookup["bs", 6.days].test(first, 7.days)
-
-
     }
+
     @Test
     fun testWeekOne() {
         yamlLookup["bs", 1.weeks + 4.hours].test(second, 1.weeks + 12.hours)
@@ -75,14 +60,14 @@ class YamlMultiMatrixTest {
         }
     }
 
-    private operator fun YamlMatrixLookup<PotentialModes>.get(
+    private operator fun YamlMatrixLookup<TestModes>.get(
         abbreviation: String,
         duration: Duration,
     ): WithExpiration<YamlInfo> {
         val dec = when (abbreviation) {
-            "bs" -> PotentialModes.BIKESHARING
-            "car" -> PotentialModes.CAR
-            "cs" -> PotentialModes.CARSHARING
+            "bs" -> TestModes.BIKESHARING
+            "car" -> TestModes.CAR
+            "cs" -> TestModes.CARSHARING
             else -> throw IllegalArgumentException("Unknown abbreviation: $abbreviation")
         }
         return this[dec, duration.sinceStart]
