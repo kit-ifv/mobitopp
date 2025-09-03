@@ -14,7 +14,6 @@ import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.ActiToppHousehold
 import edu.kit.ifv.mobitopp.actitoppNG.ActitoppPerson
 import edu.kit.ifv.mobitopp.actitoppNG.Household
-import edu.kit.ifv.mobitopp.actitoppNG.ParallelHouseholdPlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.PersonAttributes
 import edu.kit.ifv.mobitopp.actitoppNG.StandardHouseholdPlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityType
@@ -37,7 +36,7 @@ class ActiToppNGGenerator(
 
 ) :
     GenerateHouseholdActivitySchedule<SurveyWithCommute> {
-    val strategy = StandardHouseholdPlanGeneration() //TODO change to Parallel once implemented.
+    val strategy = StandardHouseholdPlanGeneration() // TODO change to Parallel once implemented.
     override fun generate(
         household: SynthesisHousehold<out SurveyWithCommute>,
     ): Map<SynthesisPerson<out SurveyWithCommute>, PreliminaryActivitySchedule> {
