@@ -19,28 +19,30 @@ interface StandardMatrixBinaryFormat : BinaryStandardSerializer, BinaryStandardD
 
 interface BinaryStandardSerializer : BinarySerializer {
     override fun serialize(hashCode: Long, matrix: StandardMatrix, path: Path) {
-
         Files.newOutputStream(path).use { fileStream ->
             BufferedOutputStream(fileStream).use { bufferedStream ->
-                DataOutputStream(bufferedStream).use { outputStream ->
-                    // Write the hash code used to identify the original source.
-                    outputStream.writeLong(hashCode)
-                    // Write the size as an Int
-                    outputStream.writeInt(matrix.size)
-
-                    // Write all zoneIds (their corresponding Int values) from the translation map
-                    matrix.keys.forEach { idInt ->
-                        outputStream.writeInt(idInt.value.toInt())
-                    }
-
-                    // Write all values from the array
-                    matrix.values().forEach { value ->
-                        writeContent(outputStream, value)
-                    }
-                }
+                bufferedStream.writeOutput(hashCode, matrix)
             }
         }
+    }
 
+    private fun BufferedOutputStream.writeOutput(hashCode: Long, matrix: StandardMatrix) {
+        DataOutputStream(this).use { outputStream ->
+            // Write the hash code used to identify the original source.
+            outputStream.writeLong(hashCode)
+            // Write the size as an Int
+            outputStream.writeInt(matrix.size)
+
+            // Write all zoneIds (their corresponding Int values) from the translation map
+            matrix.keys.forEach { idInt ->
+                outputStream.writeInt(idInt.value.toInt())
+            }
+
+            // Write all values from the array
+            matrix.values().forEach { value ->
+                writeContent(outputStream, value)
+            }
+        }
     }
 
     fun writeContent(output: DataOutputStream, value: Double)

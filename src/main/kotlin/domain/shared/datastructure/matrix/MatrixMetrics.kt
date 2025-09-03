@@ -96,6 +96,7 @@ class MatrixMetrics(
     }
 
     companion object {
+        @Suppress("LongParameterList")
         fun loadFromPaths(
             travelTimeYamlPath: Path,
             travelCostsYamlPath: Path,

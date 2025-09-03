@@ -3,6 +3,7 @@ package core.datastructure.calendarLookup
 typealias CalendarLookupOperation<T> = CalendarWeekLookupBuilder<T>.(Collection<WeekLookupOperation<T>>) -> Unit
 typealias WeekLookupOperation<T> = WeekLookupBuilder<T>.() -> Unit
 typealias TimeLookupOperation<T> = TimeLookupBuilder<T>.(Int) -> Unit
+
 /**
  * A mutable builder for creating a [CalendarWeekLookup].
  *
