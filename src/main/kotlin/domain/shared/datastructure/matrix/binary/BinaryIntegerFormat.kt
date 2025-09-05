@@ -2,15 +2,24 @@ package domain.shared.datastructure.matrix.binary
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 class BinaryIntegerFormat(private val scalingFactor: Int) : StandardMatrixBinaryFormat {
-    override fun writeContent(output: DataOutputStream, value: Double) {
-        output.writeInt((value * scalingFactor).toInt())
-    }
-
-    override fun readContentElement(input: DataInputStream): Double {
-        return input.readInt() / scalingFactor.toDouble()
-    }
 
     override val fileExtension: String = ".ibin"
+    override val elementByteSize: Int = Int.SIZE_BYTES
+
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
+        return readLoop(byteBuffer, elements) {it.int.toDouble() / scalingFactor}
+    }
+
+    override fun writeContentArray(output: DataOutputStream, values: DoubleArray) {
+        writeBuffer(output, values, elementByteSize) {
+            putInt((it * scalingFactor).toInt())
+        }
+    }
+
+
+
 }

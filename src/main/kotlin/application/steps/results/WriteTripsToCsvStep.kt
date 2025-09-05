@@ -13,6 +13,7 @@ import domain.synthesis.data.PersonId
 import domain.synthesis.results.toCSV
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.bufferedWriter
 import kotlin.io.path.writeText
 
 fun WriteTripsCsvContext.writeTripsToCsv(
@@ -35,19 +36,47 @@ class WriteTripsToCsvStep(
     val header = "id;duration;mode;activityType;tripStart;tripEnd;ZoneStart;ZoneEnd;previousActivityType\n"
 
     override fun execute() {
-        val result =
-            context.personAgents.elements.filter { it.schedule.pastLegs().isNotEmpty() }.map { person ->
-                val legs = person.schedule.pastLegs()
-                val e = legs as List<LinkedLeg>
-                stringifyLegs(e, person)
-            }
-
-        val text = result.joinToString("\n", prefix = header)
-
-        path.writeText(text)
+        path.bufferedWriter().use { writer ->
+            writer.appendLine(header)
+            context.personAgents.elements
+                .filter { it.schedule.pastLegs().isNotEmpty() }
+                .forEach { person ->
+                    val legs = person.schedule.pastLegs() as List<LinkedLeg>
+                    legs.forEach { leg ->
+                        writer.appendLine(stringifyLeg(leg, person))
+                    }
+                }
+        }
         println("Demand Simulation written to $path")
+//        val result =
+//            context.personAgents.elements.filter { it.schedule.pastLegs().isNotEmpty() }.map { person ->
+//                val legs = person.schedule.pastLegs()
+//                val e = legs as List<LinkedLeg>
+//                stringifyLegs(e, person)
+//            }
+//
+//        val text = result.joinToString("\n", prefix = header)
+//
+//        path.writeText(text)
+//        println("Demand Simulation written to $path")
     }
-
+    private fun stringifyLeg(leg: LinkedLeg, person: PersonAgent): String {
+        val previous = leg.previous
+        val next = leg.next
+        val output = if (next is Activity) next.type.toString() else "-"
+        val previousOutput = if (previous is Activity) previous.type.toString() else "-"
+        return toCSV(
+            person.id,
+            leg.duration,
+            leg.transportType,
+            output,
+            leg.startTime,
+            leg.endTime,
+            leg.startLocation.requireZone().id,
+            leg.endLocation.requireZone().id,
+            previousOutput,
+        )
+    }
     private fun stringifyLegs(e: List<LinkedLeg>, person: PersonAgent) =
         e.joinToString("\n") { leg ->
             val previous = leg.previous
