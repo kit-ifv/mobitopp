@@ -21,6 +21,7 @@ dependencies {
     implementation(project(":annotations"))
     implementation(libs.symbol.processing.api) // 2.0.10-1.0.24
     implementation(libs.kotlinpoet) //2.0.0
+    implementation(libs.kotlinpoetksp) //2.0.0
     implementation(kotlin("reflect"))
 }
 

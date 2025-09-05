@@ -94,7 +94,7 @@ class ZoneDistributedLocations<T>(
 ) : AssignHouseholdLocations<Zone, T>, GroupAssignHouseholdLocations<Zone, T> {
 
     /**
-     * Generates one location inside the polyzone, which matches the [visumID] of the given [zone].
+     * Generates one location inside the polyzone, which matches the visumID of the given [zone].
      */
     override fun generateLocation(zone: Zone, household: T): Location {
         val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.visumId.toInt())]
@@ -103,7 +103,7 @@ class ZoneDistributedLocations<T>(
     }
 
     /**
-     * Generates `householdsToLocate.size` many locations inside the polyzone, which matches the [visumID] of the given
+     * Generates `householdsToLocate.size` many locations inside the polyzone, which matches the visumID of the given
      * [zone].
      */
     override fun generateLocations(
