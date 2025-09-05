@@ -6,8 +6,10 @@ import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.behavior.toSchedule
 import domain.simulation.events.PersonBehavior
-import domain.simulation.events.personStateMachine
 import domain.synthesis.data.CarId
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderData
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.Person
@@ -21,6 +23,8 @@ import domain.synthesis.data.SharingStationId
 class BuildAgents(
     val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived
     val personStateMachine: StateMachineFactory<PersonAgent>,
+    val drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
+    val drtAlgorithm: DrtAlgorithm? = null,
     val personBehavior: PersonBehavior,
     val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
 ) {
@@ -32,6 +36,8 @@ class BuildAgents(
     val sharingProvidersById: MutableMap<SharingProviderId, MutableSharingProviderAgent> = mutableMapOf()
     val sharingStationsById: MutableMap<SharingStationId, MutableSharingStationAgent> = mutableMapOf()
 
+    val drtProvidersById: MutableMap<DrtProviderId, DrtProviderAgent> = mutableMapOf()
+
     fun buildPersonAgents(
         households: List<Household>
     ): Set<PersonAgent> {
@@ -41,9 +47,11 @@ class BuildAgents(
     }
 
     fun buildProviderAgents(
-        providers: List<SharingProvider>
+        sharingProviders: List<SharingProvider>,
+        drtProviders: List<DrtProvider>,
     ): Set<SharingProviderAgent> {
-        providers.map { it.toAgent(this) }
+        drtProviders.map { it.toAgent(this) }
+        sharingProviders.map { it.toAgent(this) }
 
         return sharingProvidersById.values.toSet()
     }
@@ -138,9 +146,11 @@ fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = househ
             this.sharingMemberships.map { it.toAgent(context) }
         )
 
+        agent.drtMemberships.addAll(
+            this.drtMemberships.map { it.toAgent(context) }
+        )
+
         agent.behavior = context.personBehavior
-//        agent.memberships.addAll(agent.sharingMemberships)
-//        agent.memberships.add(agent.household)
 
         agent.schedule = this.plannedActivities.toSchedule(SingularDispatcher())
         this.clearPlannedActivities() // clear to save memory
@@ -195,3 +205,15 @@ fun SharingStation.toAgent(context: BuildAgents, ownerAgent: MutableSharingProvi
             addVehicles(vehicles)
         }
     }
+
+fun DrtProvider.toAgent(context: BuildAgents) = context.drtProvidersById.getOrPut(
+    key = this.id
+) {
+    val algorithm = requireNotNull(context.drtAlgorithm) {
+        "Cannot convert DrtProviderData to Agent since drtAlgorithm is null. Specify it in BuildAgents context object."
+    }
+    val stateMachine = requireNotNull(context.drtStateMachine) {
+        "Cannot convert DrtProviderDate to Agent since drtStateMachine is null. Specify it in BuildAgents context object."
+    }
+    DrtProviderAgent(this, algorithm, stateMachine)
+}
