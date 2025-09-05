@@ -152,6 +152,25 @@ class PerformLegState(trip: LinkTrip, val leg: Leg, val afterLegAction: AfterLeg
 @StateCalled("FinishedPerson", PerformLegState::class, PerformingActivityState::class)
 class FinishedPersonState(state: PersonState) : PersonState(state.time, state.agent, doStep = false)
 
+
+//TODO for DTR
+// add person messages sent by drt provider agent (see DrtProviderStateMachine):
+// - DrtOffer(offer)
+// - DrtRide(ride)
+// - PickupByDrt(ride)
+// - DropOffByDrt(ride)
+// add person self messages and states
+// - start drt trip
+// - cancel drt trip (if drt ride is null)
+// - arrive at pickup
+// - State: waiting for pickup
+// - (on pickup) >
+// - State: waiting for dropoff
+// (on dropoff) >
+// State: walking to dest
+// - send self: finish drt trip
+
+
 val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
 
     start(StartPerson, ::startPerson) { send ->
@@ -192,7 +211,7 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
         }
     }.next { send ->
         // TODO add version of ModeAvailabilityFilter with fixed global choice set
-        val (_, sharedResources) = context(person) {
+        val (_, sharedResources) = context(person, time) {
             modes.options.map { modeAvailability.currentAvailability(it) }
         }.flatten()
 
@@ -213,6 +232,7 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
             when (mode) {
                 modes.car -> startingCarTrip()
                 modes.bikeSharing -> startingBikeSharingTrip()
+                //TODO transition to first state in drt process
                 else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
             }
         }

@@ -5,6 +5,8 @@ import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import domain.simulation.config.DemandSimContext
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
@@ -31,11 +33,21 @@ fun LoadPersonsContext.preparePersons(
     incomeUnit: CurrencyUnit = costUnit,
     filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }
 ) {
-    val providersByNameFunction: () -> Map<String, SharingProvider> = {
+    val sharingProvidersByName: () -> Map<String, SharingProvider> = {
         sharingProviderRepository.elements.associateBy { it.name.lowercase() }
     }
 
-    val csvParser = personCsvParser(errorHandling, columns, incomeUnit, providersByNameFunction) {
+    val drtProvidersByName: () -> Map<String, DrtProvider> = {
+        drtProviderRepository.elements.associateBy { it.name.lowercase() }
+    }
+
+    val csvParser = personCsvParser(
+        errorHandling,
+        columns,
+        incomeUnit,
+        sharingProvidersByName,
+        drtProvidersByName
+    ) {
         getHousehold(it)
     }
 
@@ -75,6 +87,7 @@ interface LoadPersonsContext : DemandSimContext, PersonCsvContext {
     val personRepository: MutableRepository<MutablePerson, PersonId>
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
     val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
+    val drtProviderRepository: Repository<DrtProvider, DrtProviderId>
 
     val defaultPersonPath: Path
         get() = dataFolder.resolve("demand-data").resolve("person.csv")

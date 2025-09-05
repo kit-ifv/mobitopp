@@ -1,5 +1,6 @@
 package application.config
 
+import application.steps.model.AddDrtProviderContext
 import application.steps.model.AssignCarsContext
 import application.steps.model.BuildAgentsContext
 import application.steps.model.HomeLocationModelContext
@@ -30,6 +31,7 @@ import domain.shared.location.LegacyZone
 import domain.shared.location.Metrics
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
+import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.config.DemandSimContext
@@ -38,11 +40,13 @@ import domain.simulation.results.AgentResultsContext
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.Graduation
 import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
@@ -76,7 +80,8 @@ interface StandardContext :
     WriteTripsCsvContext,
     RunSimContext,
     RoadNetworkContext,
-    BuildAgentsContext
+    BuildAgentsContext,
+    AddDrtProviderContext
 
 data class ExampleProjectContext(
     override val scenarioName: String,
@@ -103,7 +108,6 @@ data class ExampleProjectContext(
 ) : DemandSimContext,
     StandardContext,
     HomeLocationModelContext,
-
     AgentResultsContext {
     override val execMode: ExecutionMode = ExecutionMode()
 
@@ -115,6 +119,9 @@ data class ExampleProjectContext(
     override val householdRepository = MapRepository<MutableHousehold, HouseholdId>("households")
     override val sharingProviderRepository = MapRepository<MutableSharingProvider, SharingProviderId>(
         "sharing providers"
+    )
+    override val drtProviderRepository = MapRepository<MutableDrtProviderData, DrtProviderId>(
+        "drt providers"
     )
     override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
     override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
@@ -131,6 +138,9 @@ data class ExampleProjectContext(
 
     override val personAgents = MapRepository<PersonAgent, PersonId>("person agents")
     override val sharingProviderAgents = MapRepository<SharingProviderAgent, SharingProviderId>(
+        "sharing providers agents"
+    )
+    override val drtProviderAgents = MapRepository<DrtProviderAgent, DrtProviderId>(
         "sharing providers agents"
     )
 }

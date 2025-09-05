@@ -11,6 +11,8 @@ import core.statemachine.StateMachineFactory
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.simulation.agent.BuildAgents
+import domain.simulation.agent.DrtAlgorithm
+import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.behavior.ActivityDurationRandomizer
@@ -18,6 +20,8 @@ import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarId
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutablePlannedActivity
@@ -34,16 +38,27 @@ interface BuildAgentsContext : DemandSimContext {
     val personRepository: Repository<Person, PersonId>
     val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
     val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
+    val drtProviderRepository: Repository<DrtProvider, DrtProviderId>
 
     val personAgents: MutableRepository<PersonAgent, PersonId>
     val sharingProviderAgents: MutableRepository<SharingProviderAgent, SharingProviderId>
+    val drtProviderAgents: MutableRepository<DrtProviderAgent, DrtProviderId>
 }
 
 fun BuildAgentsContext.buildAgents(
     personStateMachine: StateMachineFactory<PersonAgent>,
     durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
+    drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
+    drtAlgorithm: DrtAlgorithm? = null,
 ) = runMultipleSteps {
-    val builder = BuildAgents(simulationSeed, personStateMachine, behavior.value, durationRandomizer)
+    val builder = BuildAgents(
+        simulationSeed,
+        personStateMachine,
+        drtStateMachine,
+        drtAlgorithm,
+        behavior.value,
+        durationRandomizer
+    )
     listOf(
         BuildProviderAgentsStep(this, builder),
         BuildPersonAgentsStep(this, builder),
@@ -87,7 +102,8 @@ class BuildProviderAgentsStep(
     override val repository: MutableRepository<SharingProviderAgent, SharingProviderId> = context.sharingProviderAgents
     override val resource: Resource<SharingProviderAgent> = LazyResource(name, "BuildProviderAgentsStep") {
         builder.buildProviderAgents(
-            context.sharingProviderRepository.elements.toList()
+            context.sharingProviderRepository.elements.toList(),
+            context.drtProviderRepository.elements.toList(),
         ).asSequence()
     }
 

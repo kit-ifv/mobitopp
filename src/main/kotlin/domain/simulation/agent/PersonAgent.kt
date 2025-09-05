@@ -9,6 +9,7 @@ import domain.shared.datastructure.schedule.Schedule
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.simulation.events.PersonBehavior
+import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
@@ -30,6 +31,7 @@ abstract class PersonAgent(
     final override val stateMachine = stateMachine.create(AbsoluteTime.START, this)
 
     abstract override val sharingMemberships: List<SharingProviderAgent>
+    abstract override val drtMemberships: List<DrtProviderAgent>
 
     abstract val schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
 

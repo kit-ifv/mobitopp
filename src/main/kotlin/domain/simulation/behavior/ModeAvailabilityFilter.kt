@@ -5,12 +5,16 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.Metrics
+import domain.simulation.agent.DrtOffer
+import domain.simulation.agent.DrtRequest
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.agent.getBestCarOrNull
 import domain.simulation.agent.lastTransportMode
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.SharingProviderId
+import domain.synthesis.data.drtMembershipIds
 import domain.synthesis.data.sharingMembershipIds
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import utils.units.AbsoluteTime
@@ -149,7 +153,7 @@ fun Collection<ResourceAvailability>.flatten() = filter {
     modes to resources
 }
 
-context(agent: PersonAgent)
+context(agent: PersonAgent, time: AbsoluteTime)
 fun ModeAvailabilityFilter.currentlyAffectedResources(modes: Collection<Mode>): List<Any> =
     modes.flatMap { currentAvailability(it).resources }
 
@@ -196,7 +200,7 @@ interface ModeAvailabilityFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics>
      * @receiver agent the person to compute the situative mode availability for
      * @return availability and possibly affected resources
      */
-    context(agent: PersonAgent)
+    context(agent: PersonAgent, time: AbsoluteTime)
     fun currentAvailability(mode: Mode): ResourceAvailability
 
     /**
@@ -218,7 +222,8 @@ fun interface BikeSharingConnectionSelector {
 
 class AvailabilityModelWithSharing(
     val modes: ChoiceModelModes,
-    private val providersByMode: Map<Mode, Set<SharingProviderId>>,
+    private val sharingProvidersByMode: Map<Mode, Set<SharingProviderId>>,
+    private val drtProvidersByMode: Map<Mode, Set<DrtProviderId>>,
     private val metrics: Metrics,
 ) : ModeAvailabilityFilter, BikeSharingConnectionSelector {
 
@@ -233,7 +238,7 @@ class AvailabilityModelWithSharing(
         else -> true
     }
 
-    context(agent: PersonAgent)
+    context(agent: PersonAgent, time: AbsoluteTime)
     override fun currentAvailability(mode: Mode): ResourceAvailability =
         takeIf {
             staticAvailability(mode) //TODO use cached static availability of agent
@@ -241,6 +246,7 @@ class AvailabilityModelWithSharing(
             when (mode) {
                 modes.car -> isCarCurrentlyAvailable(agent)
                 modes.bikeSharing -> isBikeSharingCurrentlyAvailable(agent)
+                modes.ridePooling -> isPoolingCurrentlyAvailable(agent, time)
                 else -> when {
                     mode.requiresVehicleTakeAlong -> mode.isFixedModeCurrentlyAvailable(agent)
                     else -> mode.isFlexModeCurrentlyAvailableI(agent)
@@ -250,10 +256,11 @@ class AvailabilityModelWithSharing(
 
     context(characteristics: ModeChoiceCharacteristics)
     override fun choiceAvailability(mode: Mode): Boolean =
-        context(characteristics.person) {
+        context(characteristics.person, characteristics.time) {
             currentAvailability(mode).isAvailable //TODO use cached situative availability of agent
         } && when (mode) {
             modes.bikeSharing -> isBikesharingAvailableForChoice(characteristics)
+            modes.ridePooling -> isPoolingAvailableForChoice(characteristics)
             else -> true
         }
 
@@ -266,18 +273,17 @@ class AvailabilityModelWithSharing(
 
     private fun hasCssbStatic(person: IPerson) =
         person.hasLicense &&
-                providersByMode[modes.carSharingStation]?.any { it in person.sharingMembershipIds } ?: false
+                sharingProvidersByMode[modes.carSharingStation]?.any { it in person.sharingMembershipIds } ?: false
 
     private fun hasCsffStatic(person: IPerson) =
         person.hasLicense &&
-                providersByMode[modes.carSharingFree]?.any { it in person.sharingMembershipIds } ?: false
+                sharingProvidersByMode[modes.carSharingFree]?.any { it in person.sharingMembershipIds } ?: false
 
     private fun hasPoolingStatic(person: IPerson) =
-        providersByMode[modes.ridePooling]?.any { it in person.sharingMembershipIds } ?: false
-    // TODO person should have pooling memberships, this is not sharing or general service memberships
+        drtProvidersByMode[modes.ridePooling]?.any { it in person.drtMembershipIds } ?: false
 
     private fun hasBikeSharingStatic(person: IPerson) =
-        providersByMode[modes.bikeSharing]?.any { it in person.sharingMembershipIds } ?: false
+        sharingProvidersByMode[modes.bikeSharing]?.any { it in person.sharingMembershipIds } ?: false
 
     // Current availability
     private fun isCarCurrentlyAvailable(person: PersonAgent): ResourceAvailability =
@@ -288,13 +294,24 @@ class AvailabilityModelWithSharing(
     private fun isBikeSharingCurrentlyAvailable(person: PersonAgent): ResourceAvailability =
         takeIf { isHome(person) || prevModeIsFlexible(person) }?.let {
             person.sharingMemberships.filter {
-                it.id in (providersByMode[modes.bikeSharing] ?: emptySet())
+                it.id in (sharingProvidersByMode[modes.bikeSharing] ?: emptySet())
             }.flatMap {
                 it.stations
             }.filter {
                 it.zonesByFoot.any { zone -> person.location in zone }
             }
         }?.let { available(modes.bikeSharing, it) } ?: notAvailable
+
+    private fun isPoolingCurrentlyAvailable(person: PersonAgent, time: AbsoluteTime): ResourceAvailability =
+        takeIf { isHome(person) || prevModeIsFlexible(person) }?.let {
+            person.drtMemberships.filter {
+                it.id in (drtProvidersByMode[modes.ridePooling] ?: emptySet())
+            }.filter {
+                it.operatesAt(time, person.location)
+            }
+        }?.let {
+            available(modes.ridePooling, it)
+        } ?: notAvailable
 
     private fun Mode.isFlexModeCurrentlyAvailableI(person: PersonAgent) =
         takeIf { isHome(person) || prevModeIsFlexible(person) }?.let { available(this) } ?: notAvailable
@@ -312,12 +329,13 @@ class AvailabilityModelWithSharing(
     private fun isBikesharingAvailableForChoice(characteristics: ModeChoiceCharacteristics) =
         findConnection(characteristics) != null
 
+
     override fun findConnection(characteristics: ModeChoiceCharacteristics): Pair<SharingStationAgent, SharingStationAgent>? =
         characteristics.findStartEndStation()
 
     private fun ModeChoiceCharacteristics.findStartEndStation(): Pair<SharingStationAgent, SharingStationAgent>? {
         val memberStations = person.sharingMemberships.filter {
-            it.id in (providersByMode[modes.bikeSharing] ?: emptySet())
+            it.id in (sharingProvidersByMode[modes.bikeSharing] ?: emptySet())
         }.flatMap {
             it.stations
         }
@@ -345,6 +363,21 @@ class AvailabilityModelWithSharing(
                 start to end
             }
         }
+    }
+
+    private fun isPoolingAvailableForChoice(characteristics: ModeChoiceCharacteristics) =
+        characteristics.findOffers().isNotEmpty()
+
+    private fun ModeChoiceCharacteristics.findOffers(): List<DrtOffer> {
+        val memberProviders = person.drtMemberships.filter {
+            it.id in (drtProvidersByMode[modes.ridePooling] ?: emptySet())
+        }
+
+        val request = DrtRequest(person, time, origin, destination)
+        return memberProviders.mapNotNull {
+            it.requestRide(request)
+        }
+
     }
 
 }

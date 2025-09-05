@@ -27,12 +27,16 @@ interface IPerson : Identifiable<PersonId>, StochasticActor {
     val hasCommuterTicket: Boolean
     val hasLicense: Boolean
     val sharingMemberships: List<ISharingProvider>
+    val drtMemberships: List<DrtProvider>
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
 }
 
 val IPerson.sharingMembershipIds: Set<SharingProviderId>
     get() = sharingMemberships.map { it.id }.toSet()
+
+val IPerson.drtMembershipIds: Set<DrtProviderId>
+    get() = drtMemberships.map { it.id }.toSet()
 
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)
@@ -46,6 +50,7 @@ abstract class Person(
     // Agent<Person> TODO merge Agent and Stochastic Actor, or agent should just be wrapper in simulation
 
     abstract override val sharingMemberships: List<SharingProvider>
+    abstract override val drtMemberships: List<DrtProvider>
 
     abstract val plannedActivities: ClearableList<PlannedActivity>
 
