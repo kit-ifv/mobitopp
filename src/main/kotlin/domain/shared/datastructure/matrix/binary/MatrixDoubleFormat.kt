@@ -1,15 +1,19 @@
 package domain.shared.datastructure.matrix.binary
 
-import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 object MatrixDoubleFormat : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".dbin"
-    override fun writeContent(output: DataOutputStream, value: Double) {
-        output.writeDouble(value)
+    override val elementByteSize: Int = Double.SIZE_BYTES
+    override fun writeContentArray(output: DataOutputStream, values: DoubleArray) {
+        writeBuffer(output, values, elementByteSize) {
+            putDouble(it)
+        }
+
     }
 
-    override fun readContentElement(input: DataInputStream): Double {
-        return input.readDouble()
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
+        return readLoop(byteBuffer, elements) { it.double }
     }
 }

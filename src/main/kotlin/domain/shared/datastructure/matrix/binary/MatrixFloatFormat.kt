@@ -2,15 +2,23 @@ package domain.shared.datastructure.matrix.binary
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 object MatrixFloatFormat : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".fbin"
+    override val elementByteSize: Int = Float.SIZE_BYTES
 
-    override fun writeContent(output: DataOutputStream, value: Double) {
-        output.writeFloat(value.toFloat())
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
+        return readLoop(byteBuffer, elements) {
+            it.float.toDouble()
+        }
     }
 
-    override fun readContentElement(input: DataInputStream): Double {
-        return input.readFloat().toDouble()
+    override fun writeContentArray(output: DataOutputStream, values: DoubleArray) {
+        writeBuffer(output, values, MatrixDoubleFormat.elementByteSize) {
+            putFloat(it.toFloat())
+        }
+
     }
 }
