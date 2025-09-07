@@ -1,17 +1,17 @@
 package domain.simulation.agent
 
 import Mutable
-import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.IHousehold
-import utils.random.SeededActor
+import utils.random.StochasticActor
+import kotlin.random.Random
 
 @Mutable
 abstract class HouseholdAgent(
     override val id: HouseholdId,
     seed: Long,
-) : SeededActor<Household>(seed), IHousehold {
-
+) : IHousehold, StochasticActor {
+    final override val random: Random by lazy { Random(id.value + seed) }
     abstract override val members: Set<PersonAgent>
     abstract override val cars: Set<PrivateCarAgent>
 }
