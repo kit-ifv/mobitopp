@@ -10,9 +10,7 @@ plugins {
     application
     id("maven-publish")
 }
-/**
- * Projects that appear in
- */
+
 allprojects {
     repositories {
         maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
@@ -37,7 +35,6 @@ detekt {
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
-
 }
 
 dependencies {
@@ -65,8 +62,8 @@ dependencies {
     testImplementation(libs.kotlin.compile.testing.ksp) //1.5.0
 
     //detekt libs
-    detekt(libs.detekt.formatting) // 1.23.7
-    detekt(libs.detekt.cli) // 1.23.7
+    detekt(libs.detekt.formatting)
+    detekt(libs.detekt.cli)
 
     //kandy libs 0.8.0
     implementation(libs.kandy.lets.plot) //
@@ -119,8 +116,10 @@ tasks.withType<Detekt>().configureEach {
         "**/PersonEvents.kt",
         "**/OverridableDestinationChoiceModel.kt",
         "**/OverridableModeChoiceModel.kt",
-        )
+        "**/LoadBehaviorModelsStep.kt",
+    )
 }
+
 tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
 }

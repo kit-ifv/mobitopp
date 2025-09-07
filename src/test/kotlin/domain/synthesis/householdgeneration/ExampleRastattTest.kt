@@ -9,7 +9,6 @@ import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Sex
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
-import java.util.NoSuchElementException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

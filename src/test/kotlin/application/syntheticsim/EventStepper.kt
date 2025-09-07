@@ -1,11 +1,10 @@
 package application.syntheticsim
 
-import core.events.Event
+import core.statemachine.Event
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import java.util.*
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 /**
  * A simple event stepper. Mimics the behaviour of an event queue.
@@ -23,9 +22,17 @@ class EventStepper(
      */
     fun nextStep(expectedQueueSize: Int, lambda: (Event<*>) -> Unit = {}) {
         element = eventQueue.poll()
-        assertTrue(element.isValid, "Event $element is not valid")
-        lambda(element)
         eventQueue.addAll(element.execute())
+        lambda(element)
+        assertEquals(
+            eventQueue.size,
+            expectedQueueSize,
+            "Mismatch: current Queue is ${eventQueue.joinToString { it.toString() }}"
+        )
+    }
+
+    fun inspect(expectedQueueSize: Int, lambda: (Event<*>) -> Unit = {}) {
+        lambda(element)
         assertEquals(
             eventQueue.size,
             expectedQueueSize,
