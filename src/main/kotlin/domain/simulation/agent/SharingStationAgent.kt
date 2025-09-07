@@ -1,8 +1,6 @@
 package domain.simulation.agent
 
 import Mutable
-import core.events.Resource
-import core.events.Subscribable
 import domain.shared.enums.Mode
 import domain.synthesis.data.ISharingProvider
 import domain.synthesis.data.ISharingStation
@@ -17,23 +15,20 @@ abstract class SharingProviderAgent(
     final override val id: SharingProviderId,
     final override val name: String,
     final override val mode: Mode,
-) : ISharingProvider, Subscribable<PersonAgent> {
+) : ISharingProvider {
 
     abstract override val stations: Set<SharingStationAgent>
     abstract val ownedVehicles: Set<SharingVehicleAgent>
 
     override val numberOfVehicles: Int
         get() = ownedVehicles.size
-
-    override val resources: Set<Resource<PersonAgent>>
-        get() = stations
 }
 
 @Mutable
 abstract class SharingStationAgent(
     final override val id: SharingStationId,
     final override val owner: SharingProviderAgent
-) : ISharingStation, Resource<PersonAgent> {
+) : ISharingStation {
 
     // only provide an immutable view of the vehicle set, since adding/removing vehicles requires additional logic
     val vehicles: Set<SharingVehicleAgent>
@@ -62,7 +57,7 @@ abstract class SharingStationAgent(
             "Cannot take a sharing vehicle from station '${this.name}' as none are currently available."
         }
 
-        require(_vehicles.isNotEmpty()) {
+        require(_vehicles.isNotEmpty()) { // TODO is this a duplicate/redundant require?
             "Empty $hasAvailableVehicles"
         }
         return _vehicles.first().also { take(it) }
@@ -79,13 +74,6 @@ abstract class SharingStationAgent(
 
     val hasAvailableVehicles: Boolean
         get() = _vehicles.isNotEmpty()
-
-    override fun isAvailableFor(agent: PersonAgent): Boolean {
-        return agent.memberships.contains(owner) &&
-            !agent.inTransit &&
-//                hasAvailableVehicles && // Available vehicles is not relevant for the resource allocation
-            zonesByFoot.any { agent.location.inSameZone(it.centroid) }
-    }
 }
 
 @Serializable

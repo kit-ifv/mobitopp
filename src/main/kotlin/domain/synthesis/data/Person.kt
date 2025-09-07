@@ -52,6 +52,9 @@ interface IPerson : Identifiable<PersonId>, StochasticActor {
     val chargingInfluence: ChargingInfluence
 }
 
+val IPerson.sharingMembershipIds: Set<SharingProviderId>
+    get() = sharingMemberships.map { it.id }.toSet()
+
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)
 
