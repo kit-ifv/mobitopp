@@ -1,18 +1,12 @@
 package domain.shared.datastructure.matrix.binary
 
-import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 import kotlin.math.roundToInt
 @Suppress("MagicNumber")
 object MatrixShortFormat : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".sbin"
-    override fun writeContent(output: DataOutputStream, value: Double) {
-        output.writeShort(value.toConvertedShort())
-    }
-
-    override fun readContentElement(input: DataInputStream): Double {
-        return input.readUnsignedShort().convertedDouble()
-    }
+    override val elementByteSize: Int = Short.SIZE_BYTES
 
     fun Int.convertedDouble(): Double {
         val unsigned = this and 0xFFFF // interpret bits as unsigned
@@ -29,5 +23,20 @@ object MatrixShortFormat : StandardMatrixBinaryFormat {
         } else {
             (this * 100).roundToInt()
         }
+    }
+    override fun writeContentArray(output: DataOutputStream, values: DoubleArray) {
+        writeBuffer(output, values, MatrixDoubleFormat.elementByteSize) {
+            putShort(it.toConvertedShort().toShort())
+        }
+    }
+
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
+        return readLoop(byteBuffer, elements) {
+            it.ushort.convertedDouble()
+        }
+    }
+
+    inline val ByteBuffer.ushort get(): Int {
+        return short.toInt() and 0xFFFF
     }
 }

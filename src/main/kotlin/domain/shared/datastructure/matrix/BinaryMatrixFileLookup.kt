@@ -21,7 +21,7 @@ import kotlin.io.path.nameWithoutExtension
 class BinaryMatrixFileLookup(
     val rootCachePath: Path,
     val format: StandardMatrixBinaryFormat = MatrixDoubleFormat,
-    private val defaultCreation: StandardMatrixCreation = VisumMatrixCreator,
+    private val defaultCreation: ZoneMatrixCreation = VisumMatrixCreator,
 ) : ZoneMatrixCreation {
 
     private val internalFolder by lazy {
@@ -32,11 +32,14 @@ class BinaryMatrixFileLookup(
         val (_, path) = config
         return findCachedBinaryFile(path) ?: run {
             val matrix = defaultCreation.createMatrix(config)
-            format.serialize(
-                path.crc32(),
-                matrix,
-                internalFolder.resolve(path.nameWithoutExtension + format.fileExtension)
-            )
+            if (matrix is StandardMatrix) {
+                format.serialize(
+                    path.crc32(),
+                    matrix,
+                    internalFolder.resolve(path.nameWithoutExtension + format.fileExtension)
+                )
+            }
+
             matrix
         }
     }
@@ -54,7 +57,9 @@ class BinaryMatrixFileLookup(
         }
     }
 
+    @Suppress("ReturnCount")
     private fun findCachedBinaryFile(path: Path): StandardMatrix? {
+        if (!path.exists()) return null
         val fileName = path.nameWithoutExtension
         // Create the hash value of the content found at the path.
         val originalHash = path.crc32()
