@@ -3,7 +3,7 @@ package application.config
 import application.steps.model.AssignCarsContext
 import application.steps.model.BuildAgentsContext
 import application.steps.model.HomeLocationModelContext
-import application.steps.model.LoadChoiceModelsContext
+import application.steps.model.LoadBehaviorModelsContext
 import application.steps.model.RunSimContext
 import application.steps.parser.RoadNetworkContext
 import application.steps.parser.csv.LoadAttractivenessDataContext
@@ -70,7 +70,7 @@ interface StandardContext :
     LoadPrivateCarsContext,
     LoadPlannedActivitiesContext,
     LoadFixedDestinationsContext,
-    LoadChoiceModelsContext,
+    LoadBehaviorModelsContext,
     AssignCarsContext,
 
     WriteTripsCsvContext,

@@ -217,7 +217,7 @@ class CarOwnershipParameters(
     /**
      * @property oneCar this property uses the conversion functionality of new mobiTopp to generate a different parameter
      * object for the utility function. In this instance an object of type [CarParameters] is created and used in the
-     * utility functions. This property is used later in the [NestedLogitBuilder.option] call, where the translation is
+     * utility functions. This property is used later in the 'option' call, where the translation is
      * set to [oneCar]. The benefit is that only the fields of [CarParameters] are visible. Meaning that the auto completion
      * only suggests valid parameters defined in the Car Parameters.
      *
