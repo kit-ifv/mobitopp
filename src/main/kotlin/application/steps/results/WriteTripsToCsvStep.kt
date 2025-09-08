@@ -14,7 +14,6 @@ import domain.synthesis.results.toCSV
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.bufferedWriter
-import kotlin.io.path.writeText
 
 fun WriteTripsCsvContext.writeTripsToCsv(
     file: Path = Path("results/demandsimulation.csv")
@@ -48,17 +47,6 @@ class WriteTripsToCsvStep(
                 }
         }
         println("Demand Simulation written to $path")
-//        val result =
-//            context.personAgents.elements.filter { it.schedule.pastLegs().isNotEmpty() }.map { person ->
-//                val legs = person.schedule.pastLegs()
-//                val e = legs as List<LinkedLeg>
-//                stringifyLegs(e, person)
-//            }
-//
-//        val text = result.joinToString("\n", prefix = header)
-//
-//        path.writeText(text)
-//        println("Demand Simulation written to $path")
     }
     private fun stringifyLeg(leg: LinkedLeg, person: PersonAgent): String {
         val previous = leg.previous
@@ -77,32 +65,6 @@ class WriteTripsToCsvStep(
             previousOutput,
         )
     }
-    private fun stringifyLegs(e: List<LinkedLeg>, person: PersonAgent) =
-        e.joinToString("\n") { leg ->
-            val previous = leg.previous
-            val next = leg.next
-            val output = if (next is Activity) {
-                next.type.toString()
-            } else {
-                "-"
-            }
-            val previousOutput = if (previous is Activity) {
-                previous.type.toString()
-            } else {
-                "-"
-            }
-            toCSV(
-                person.id,
-                leg.duration,
-                leg.transportType,
-                output,
-                leg.startTime,
-                leg.endTime,
-                (leg.startLocation).requireZone().id,
-                (leg.endLocation).requireZone().id,
-                previousOutput,
-            )
-        }
 
     override fun verifyInput(): Warning? =
         validateFileWriteAccess(path, fileDescription = "result csv for simulated trips")

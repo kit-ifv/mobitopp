@@ -10,7 +10,6 @@ object MatrixDoubleFormat : StandardMatrixBinaryFormat {
         writeBuffer(output, values, elementByteSize) {
             putDouble(it)
         }
-
     }
 
     override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {

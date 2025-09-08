@@ -1,6 +1,5 @@
 package domain.shared.datastructure.matrix.binary
 
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import kotlin.math.roundToInt
@@ -8,7 +7,6 @@ import kotlin.math.roundToInt
 object MatrixShortFormat : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".sbin"
     override val elementByteSize: Int = Short.SIZE_BYTES
-
 
     fun Int.convertedDouble(): Double {
         val unsigned = this and 0xFFFF // interpret bits as unsigned
@@ -30,7 +28,6 @@ object MatrixShortFormat : StandardMatrixBinaryFormat {
         writeBuffer(output, values, MatrixDoubleFormat.elementByteSize) {
             putShort(it.toConvertedShort().toShort())
         }
-
     }
 
     override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
@@ -42,6 +39,4 @@ object MatrixShortFormat : StandardMatrixBinaryFormat {
     inline val ByteBuffer.ushort get(): Int {
         return short.toInt() and 0xFFFF
     }
-
-
 }

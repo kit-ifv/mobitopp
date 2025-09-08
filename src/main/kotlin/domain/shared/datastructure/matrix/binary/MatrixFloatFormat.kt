@@ -1,9 +1,7 @@
 package domain.shared.datastructure.matrix.binary
 
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 object MatrixFloatFormat : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".fbin"
@@ -19,6 +17,5 @@ object MatrixFloatFormat : StandardMatrixBinaryFormat {
         writeBuffer(output, values, MatrixDoubleFormat.elementByteSize) {
             putFloat(it.toFloat())
         }
-
     }
 }
