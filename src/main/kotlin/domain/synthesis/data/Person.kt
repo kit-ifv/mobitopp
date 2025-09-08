@@ -1,17 +1,38 @@
 package domain.synthesis.data
 
 import Mutable
+import kotlinx.serialization.Serializable
 import units.Currency
 import units.UnitIntervalValue
 import utils.Encodable
 import utils.EnumDecodable
-import utils.ID
 import utils.Identifiable
 import utils.collections.ClearableList
-import utils.random.SeededActor
 import utils.random.StochasticActor
+import kotlin.random.Random
 
-typealias PersonId = ID<Person>
+@Serializable
+@JvmInline
+value class PersonId(val value: Long) : Comparable<PersonId> {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    override fun compareTo(other: PersonId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
+     * in the test cases
+     *
+     * @return the next higher id.
+     */
+    fun next(): PersonId {
+        return PersonId(value + 1)
+    }
+}
 
 const val ADULT_AGE_GER = 18
 
@@ -31,6 +52,9 @@ interface IPerson : Identifiable<PersonId>, StochasticActor {
     val chargingInfluence: ChargingInfluence
 }
 
+val IPerson.sharingMembershipIds: Set<SharingProviderId>
+    get() = sharingMemberships.map { it.id }.toSet()
+
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)
 
@@ -39,8 +63,10 @@ abstract class Person(
     final override val id: PersonId,
     override val household: MutableHousehold,
     seed: Long,
-) : SeededActor<Person>(seed), IPerson {
+) : IPerson {
     // Agent<Person> TODO merge Agent and Stochastic Actor, or agent should just be wrapper in simulation
+
+    final override val random: Random by lazy { Random(id.value + seed) }
 
     abstract override val sharingMemberships: List<SharingProvider>
 
