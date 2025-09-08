@@ -10,6 +10,7 @@ kandy = "0.8.0"
 # kotlinx libs
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
+kotlinx-html = "0.12.0"
 kotlin-statistics = "0.2.1"
 # other libs
 snakeyaml = "2.4"
@@ -45,6 +46,7 @@ kotlin-compile-testing-ksp = { module = "com.github.tschuchortdev:kotlin-compile
 
 # annotation processing libs
 kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoetksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 
 # kandy libs
@@ -65,6 +67,7 @@ kotlin-statistics = { module = "org.jetbrains.kotlinx:kotlin-statistics-jvm", ve
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinx-serialization" }
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinx-html" }
 
 # other libs
 snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
