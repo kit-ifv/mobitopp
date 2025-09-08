@@ -4,10 +4,31 @@ import Mutable
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.Zone
-import utils.ID
+import kotlinx.serialization.Serializable
 import utils.Identifiable
 
-typealias SharingProviderId = ID<SharingProvider>
+@Serializable
+@JvmInline
+value class SharingProviderId(val value: Long) : Comparable<SharingProviderId> {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    override fun compareTo(other: SharingProviderId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
+     * in the test cases
+     *
+     * @return the next higher id.
+     */
+    fun next(): SharingProviderId {
+        return SharingProviderId(value + 1)
+    }
+}
 
 interface ISharingProvider : Identifiable<SharingProviderId> {
     val name: String
@@ -29,7 +50,25 @@ abstract class SharingProvider(
         get() = stations.sumOf { it.initialVehicleCount }
 }
 
-typealias SharingStationId = ID<SharingStation>
+@Serializable
+@JvmInline
+value class SharingStationId(val value: Long) : Comparable<SharingStationId> {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    override fun compareTo(other: SharingStationId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * @return the next higher id.
+     */
+    fun next(): SharingStationId {
+        return SharingStationId(value + 1)
+    }
+}
 
 interface ISharingStation : Identifiable<SharingStationId> {
     val uid: String

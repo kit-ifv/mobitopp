@@ -17,13 +17,12 @@ import domain.synthesis.data.PersonId
 import domain.synthesis.data.buildEngine
 import utils.CodePlan
 import utils.ErrorHandling
-import utils.ID
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.decodeName
-import utils.csv.id
 import utils.csv.int
+import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
 
@@ -42,7 +41,7 @@ interface LoadPrivateCarsContext : DemandSimContext {
         row: Row,
         ownerColumn: String
     ) = requireNotNull(
-        householdRepository[row.id(ownerColumn)]
+        householdRepository[HouseholdId(row.long(ownerColumn))]
     ) {
         "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
             " ${householdRepository.elements.map { it.id }.toList()}"
@@ -52,7 +51,7 @@ interface LoadPrivateCarsContext : DemandSimContext {
         row: Row,
         mainUserColumn: String
     ) = requireNotNull(
-        personRepository[row.id(mainUserColumn)]
+        personRepository[PersonId(row.long(mainUserColumn))]
     ) {
         "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
             " ${personRepository.elements.map { it.id }.toList()}"
@@ -79,7 +78,7 @@ fun LoadPrivateCarsContext.preparePrivateCars(
     val csvParser = CsvParser<MutablePrivateCar>(errorHandling) { row ->
 
         MutablePrivateCar(
-            id = ID(row.index.toLong()),
+            id = CarId(row.index.toLong()),
             owner = getOwnerHousehold(row, columns.ownerColumn)
         ) {
             seats = row.int(columns.seatsColumnIndex)

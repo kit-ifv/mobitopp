@@ -1,9 +1,12 @@
 package domain.simulation.agent
 
+import core.statemachine.StateMachineFactory
 import domain.shared.datastructure.schedule.plans.SingularDispatcher
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.behavior.toSchedule
+import domain.simulation.events.PersonBehavior
+import domain.simulation.events.personStateMachine
 import domain.synthesis.data.CarId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -17,7 +20,9 @@ import domain.synthesis.data.SharingStationId
 
 class BuildAgents(
     val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived
-    val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer
+    val personStateMachine: StateMachineFactory<PersonAgent>,
+    val personBehavior: PersonBehavior,
+    val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
 ) {
 
     val personsById: MutableMap<PersonId, MutablePersonAgent> = mutableMapOf()
@@ -83,12 +88,14 @@ fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAf
         this.cars.map { it.toAgent(context, agent) }
     )
 }
+
 context(seed: Long)
 fun Household.toAgent(): HouseholdAgent {
     val agent = MutableHouseholdAgent(id, seed)
     agent.loadAttributes(this)
     return agent
 }
+
 fun MutableHouseholdAgent.loadAttributes(attributes: Household) {
     householdNumber = attributes.householdNumber
     surveyYear = attributes.surveyYear
@@ -98,13 +105,15 @@ fun MutableHouseholdAgent.loadAttributes(attributes: Household) {
     incomePerMonth = attributes.incomePerMonth
     economicStatus = attributes.economicStatus
 }
+
 context(household: Household, seed: Long)
-fun Person.toAgent(): PersonAgent{
+fun Person.toAgent(context: BuildAgents): PersonAgent{
     val hhAgent = household.toAgent()
-    val personAgent = MutablePersonAgent(id, hhAgent, seed)
+    val personAgent = MutablePersonAgent(id, hhAgent, context.personStateMachine, seed)
     personAgent.loadAttributes(this)
     return personAgent
 }
+
 fun MutablePersonAgent.loadAttributes(attributes: Person) {
     age = attributes.age
     employment = attributes.employment
@@ -117,18 +126,21 @@ fun MutablePersonAgent.loadAttributes(attributes: Person) {
     eMobilityAcceptance = attributes.eMobilityAcceptance
     chargingInfluence = attributes.chargingInfluence
 }
+
 fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = household.toAgent(context)) =
     context.personsById.getOrInitAfterPut(
         key = this.id,
-        defaultValue = { MutablePersonAgent(id, householdAgent, context.seed) }
+        defaultValue = { MutablePersonAgent(id, householdAgent, context.personStateMachine, context.seed) }
     ) { agent ->
 
         agent.loadAttributes(this)
         agent.sharingMemberships.addAll(
             this.sharingMemberships.map { it.toAgent(context) }
         )
-        agent.memberships.addAll(agent.sharingMemberships)
-        agent.memberships.add(agent.household)
+
+        agent.behavior = context.personBehavior
+//        agent.memberships.addAll(agent.sharingMemberships)
+//        agent.memberships.add(agent.household)
 
         agent.schedule = this.plannedActivities.toSchedule(SingularDispatcher())
         this.clearPlannedActivities() // clear to save memory

@@ -7,6 +7,7 @@ import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.Resource
 import core.modelsteps.Warning
+import core.statemachine.StateMachineFactory
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.simulation.agent.BuildAgents
@@ -39,9 +40,10 @@ interface BuildAgentsContext : DemandSimContext {
 }
 
 fun BuildAgentsContext.buildAgents(
+    personStateMachine: StateMachineFactory<PersonAgent>,
     durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
 ) = runMultipleSteps {
-    val builder = BuildAgents(simulationSeed, durationRandomizer)
+    val builder = BuildAgents(simulationSeed, personStateMachine, behavior.value, durationRandomizer)
     listOf(
         BuildProviderAgentsStep(this, builder),
         BuildPersonAgentsStep(this, builder),
