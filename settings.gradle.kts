@@ -13,6 +13,13 @@ if (File(dcmPath).exists()) {
     includeBuild(dcmPath)
 }
 
+
+val actiToppPAth =  "../actitopp"
+if (File(actiToppPAth).exists()) {
+    println("Include local build of actitoppNG")
+    includeBuild(actiToppPAth)
+}
+
 val unitsPath =  "../kotlin-units"
 if (File(unitsPath).exists()) {
     println("Include local build of kotlin-units")

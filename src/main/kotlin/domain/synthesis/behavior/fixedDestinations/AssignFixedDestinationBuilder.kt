@@ -29,7 +29,7 @@ class AssignFixedDestinationBuilder<AREA, G>(
     inner class FixedLocationAssignmentStep(
         private val activityType: ActivityType,
         private val filter: (SynthesisPerson<out G>) -> Boolean,
-        private val assignFunction: SimpleGroupLocator<in G>
+        private val assignFunction: SimpleGroupLocator<in G>,
     ) {
 
         fun generateFixedDestinations(target: Collection<SynthesisPerson<out G>>): List<FixedDestinationElements> {
@@ -73,7 +73,7 @@ fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.primarySchool(
         FixedLocationAssignmentStep(
             element.activityType,
             SynthesisPerson<out T>::isPrimaryStudent,
-            element.assignmentStrategy
+            element.assignmentStrategy,
         )
     )
 }
@@ -87,7 +87,7 @@ fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.secondarySchoo
         FixedLocationAssignmentStep(
             element.activityType,
             SynthesisPerson<out T>::isSecondaryStudent,
-            element.assignmentStrategy
+            element.assignmentStrategy,
         )
     )
 }
@@ -101,7 +101,7 @@ fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.tertiarySchool
         FixedLocationAssignmentStep(
             element.activityType,
             SynthesisPerson<out T>::isTertiaryStudent,
-            element.assignmentStrategy
+            element.assignmentStrategy,
         )
     )
 }
@@ -112,6 +112,10 @@ fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.work(
     val element = FixedLocationConfig()
     element.lambda()
     steps.add(
-        FixedLocationAssignmentStep(element.activityType, SynthesisPerson<out T>::isWorker, element.assignmentStrategy)
+        FixedLocationAssignmentStep(
+            element.activityType,
+            SynthesisPerson<out T>::isWorker,
+            element.assignmentStrategy
+        )
     )
 }

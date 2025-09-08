@@ -45,7 +45,7 @@ class SurveyHousehold<T>(
     lateinit var economicStatus: EconomicStatus
     val size get() = members.size
     fun toScalableVector(rules: List<Rule<in T>>): ScalableVector {
-        return ScalableVector.Companion.createFrom(this, rules)
+        return ScalableVector.createFrom(this, rules)
     }
 
     fun toSynthesisHousehold(): SynthesisHousehold<T> {
