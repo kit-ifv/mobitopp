@@ -5,7 +5,6 @@ import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
-import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.MatrixMetrics
 import domain.shared.datastructure.matrix.UnitConverter
 import domain.shared.datastructure.matrix.VisumMatrixCreator

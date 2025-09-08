@@ -41,8 +41,6 @@ interface BinaryStandardSerializer : BinarySerializer {
             }
             // Write all values from the array
             writeContentArray(outputStream, matrix.values().toDoubleArray())
-
-
         }
     }
     fun writeContentArray(output: DataOutputStream, values: DoubleArray)
@@ -89,8 +87,6 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
     }
 
     fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray
-
-
 }
 
 internal inline fun readLoop(

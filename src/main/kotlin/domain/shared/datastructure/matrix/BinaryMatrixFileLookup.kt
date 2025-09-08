@@ -32,7 +32,7 @@ class BinaryMatrixFileLookup(
         val (_, path) = config
         return findCachedBinaryFile(path) ?: run {
             val matrix = defaultCreation.createMatrix(config)
-            if(matrix is StandardMatrix) {
+            if (matrix is StandardMatrix) {
                 format.serialize(
                     path.crc32(),
                     matrix,
@@ -57,8 +57,9 @@ class BinaryMatrixFileLookup(
         }
     }
 
+    @Suppress("ReturnCount")
     private fun findCachedBinaryFile(path: Path): StandardMatrix? {
-        if(!path.exists()) return null
+        if (!path.exists()) return null
         val fileName = path.nameWithoutExtension
         // Create the hash value of the content found at the path.
         val originalHash = path.crc32()
