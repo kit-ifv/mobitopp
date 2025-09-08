@@ -22,7 +22,6 @@ import utils.csv.boolean
 import utils.csv.decode
 import utils.csv.distance
 import utils.csv.double
-import utils.csv.id
 import utils.csv.int
 import utils.csv.long
 import java.nio.file.Path
@@ -79,7 +78,7 @@ fun defaultCsvParser(
 ): DefaultCsvParser<MutableLegacyZone> {
     val csvParser = CsvParser(errorHandling) { row ->
         MutableLegacyZone(
-            id = row.id(columns.idColumn),
+            id = ZoneId(row.long(columns.idColumn)),
             centroid = row(columns.centroidColumn, centroidParser),
             seed = seed
         ) {
