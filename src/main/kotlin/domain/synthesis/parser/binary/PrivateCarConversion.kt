@@ -15,6 +15,7 @@ import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
 class BinaryCarReader(
@@ -24,17 +25,17 @@ class BinaryCarReader(
 //    private val determineLocation: DataInputStream.(MutablePrivateCar) -> Location TODO clean up
 ) : BinaryReader<MutablePrivateCar> {
 
-    override fun DataInputStream.decode(stringLength: Int): MutablePrivateCar {
+    override fun ByteBuffer.decode(stringLength: Int): MutablePrivateCar {
         return MutablePrivateCar(
-            CarId(readLong()),
-            householdConverter(HouseholdId(readLong()))
+            CarId(long),
+            householdConverter(HouseholdId(long))
         ).apply {
-            seats = readInt()
+            seats = int
 
-            val personId = PersonId(readLong())
+            val personId = PersonId(long)
             mainUser = if (personId != PersonId(Long.MIN_VALUE)) personConverter(personId) else null
-            segment = CarSegment.decode(readInt())
-            val engineType = EngineType.decode(readInt())
+            segment = CarSegment.decode(int)
+            val engineType = EngineType.decode(int)
             engine = carEngineStatistics.buildEngine(segment, engineType)
 //            location = determineLocation(this)
         }

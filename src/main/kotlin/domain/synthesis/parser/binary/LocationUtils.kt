@@ -8,6 +8,7 @@ import units.GPSCoordinate
 import units.share
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 /**
  * Since writing and reading are heavily intertwined, they are encapsulated in this object, so that they will always
@@ -20,6 +21,7 @@ object LocationUtils {
     /**
      * Extension function, that reads a location from a [DataInputStream].
      */
+    @Deprecated("Should be used with a bytebuffer instead.")
     fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): Location {
         val zoneId = ZoneId(readLong()) // Reading zone ID
         val coordinate = GPSCoordinate.decimalDegree(
@@ -29,7 +31,15 @@ object LocationUtils {
         val roadAccess = RoadAccess(readLong(), readDouble().share()) // Reading roadId and position
         return Location(coordinate, converter(zoneId), roadAccess)
     }
-
+    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): Location {
+        val zoneId = ZoneId(long) // Reading zone ID
+        val coordinate = GPSCoordinate.decimalDegree(
+            double,
+            double
+        ) // Reading latitude and longitude
+        val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
+        return Location(coordinate, converter(zoneId), roadAccess)
+    }
     /**
      * Extension function for `DataOutputStream` that writes a `Location` object to the output stream.
      * The method serializes the properties of the `Location` object (zone, coordinate, and road access)

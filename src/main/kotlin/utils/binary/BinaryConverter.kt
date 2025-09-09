@@ -3,6 +3,7 @@ package utils.binary
 import utils.files.PathChecksum
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 import java.nio.file.Path
 
 /**
@@ -21,18 +22,21 @@ fun interface BinaryReader<out MUTABLE> {
      * Reads data from a binary file at [path] and returns it as a list of objects of type [MUTABLE].
      */
     fun fromBinary(path: Path): List<MUTABLE> {
-        var elements = emptyList<MUTABLE>()
-        path.bufferedDataInputStream { inputStream ->
-            val hashCode = inputStream.readLong() // Skip the hash code at position 0
-            val size = inputStream.readInt()
-            val stringLength = inputStream.readInt()
-            elements = List(size) {
-                inputStream.decode(stringLength)
-            }
+
+        val byteBuffer = path.readAsByteBuffer()
+        val hashCode = byteBuffer.long
+        val size = byteBuffer.int
+        val stringLength = byteBuffer.int
+
+        var elements = ArrayList<MUTABLE>(size)
+        repeat(size) {
+            elements.add(byteBuffer.decode(stringLength))
         }
         return elements
     }
-
+    fun ByteBuffer.getBoolean(): Boolean {
+        return get().toInt() != 0
+    }
     /**
      * Read the first entry to represent what file the binary entry comes from.
      */
@@ -46,7 +50,7 @@ fun interface BinaryReader<out MUTABLE> {
      * @param stringLength is the expected size of strings, if strings are read. Each string should have the same length
      * specified at writing the element.
      */
-    fun DataInputStream.decode(stringLength: Int): MUTABLE
+    fun ByteBuffer.decode(stringLength: Int): MUTABLE
 }
 
 /**

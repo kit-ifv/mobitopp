@@ -14,6 +14,7 @@ import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 /**
  * Reads a [MutableHousehold] from a binary file. Similar to other readers it firsts reads at position 0 the size,
@@ -27,17 +28,17 @@ import java.io.DataOutputStream
 class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private val contextSimulationSeed: Long) :
     BinaryReader<MutableHousehold> {
 
-    override fun DataInputStream.decode(stringLength: Int): MutableHousehold {
+    override fun ByteBuffer.decode(stringLength: Int): MutableHousehold {
         return MutableHousehold(
-            HouseholdId(readLong()),
+            HouseholdId(long),
             contextSimulationSeed
         ).apply {
-            householdNumber = readLong()
-            surveyYear = readInt()
-            domCode = readInt()
-            type = readInt()
-            incomePerMonth = readDouble().euros
-            economicStatus = EconomicStatus.decode(readInt())
+            householdNumber = long
+            surveyYear = int
+            domCode = int
+            type = int
+            incomePerMonth = double.euros
+            economicStatus = EconomicStatus.decode(int)
             location = decodeLocation(converter = zoneConverter)
         }
     }
