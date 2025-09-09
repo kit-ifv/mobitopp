@@ -55,8 +55,8 @@ fun Path.bufferedDataOutputStream(write: (dataStream: DataOutputStream) -> Unit)
 /**
  * Creates and closes a DataInputStream on the path. While open, executes [read] on it.
  */
-fun Path.bufferedDataInputStream(read: (dataStream: DataInputStream) -> Unit) {
-    toFile().inputStream().use { fileStream ->
+fun <R> Path.bufferedDataInputStream(read: (dataStream: DataInputStream) -> R): R {
+    return toFile().inputStream().use { fileStream ->
         BufferedInputStream(fileStream).use { bufferedStream ->
             DataInputStream(bufferedStream).use { inputStream ->
                 inputStream.run(read)

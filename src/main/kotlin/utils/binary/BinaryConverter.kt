@@ -1,5 +1,6 @@
 package utils.binary
 
+import utils.files.PathChecksum
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.file.Path
@@ -22,6 +23,7 @@ fun interface BinaryReader<out MUTABLE> {
     fun fromBinary(path: Path): List<MUTABLE> {
         var elements = emptyList<MUTABLE>()
         path.bufferedDataInputStream { inputStream ->
+            val hashCode = inputStream.readLong() // Skip the hash code at position 0
             val size = inputStream.readInt()
             val stringLength = inputStream.readInt()
             elements = List(size) {
@@ -31,6 +33,10 @@ fun interface BinaryReader<out MUTABLE> {
         return elements
     }
 
+    /**
+     * Read the first entry to represent what file the binary entry comes from.
+     */
+    fun checksum(path: Path): PathChecksum = path.bufferedDataInputStream { PathChecksum.from(it.readLong()) }
     /**
      * Reads one [MUTABLE] object from the [DataInputStream] and returns an instance of that object.
      * The [DataInputStream] is at the exact location of a new object. All parameters of the object to be created
@@ -68,8 +74,9 @@ fun interface BinaryWriter<in READONLY> {
      * @param path The path to the binary file where the data will be written.
      * @param elements The collection of read-only objects to be written to the binary file.
      */
-    fun toBinary(path: Path, elements: Collection<READONLY>) {
+    fun toBinary(path: Path, elements: Collection<READONLY>, checksum: PathChecksum = PathChecksum.INVALID) {
         path.bufferedDataOutputStream { outputStream ->
+            outputStream.writeLong(checksum.value)
             operateStream(outputStream, elements)
         }
     }

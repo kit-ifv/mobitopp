@@ -27,8 +27,8 @@ abstract class RepositoryTest<E, I> : ResourceTest<E>() where E : Identifiable<I
     }
 
     @Test
-    open fun getById() {
-        val result = repository.getById(queryId())
+    open fun find() {
+        val result = repository.find(queryId())
         assertEquals(expectedQueryResult(), result)
     }
 }

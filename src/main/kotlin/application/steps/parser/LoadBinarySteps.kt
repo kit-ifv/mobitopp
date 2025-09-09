@@ -59,7 +59,7 @@ fun LoadPrivateCarsContext.loadCarsFromBinary(path: Path) {
 fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
     val converter = BinaryActivityReader(
         activityTypes,
-        { personRepository.getById(it) ?: throw NoSuchElementException("No person of id $it in personRepository") },
+        { personRepository.find(it) ?: throw NoSuchElementException("No person of id $it in personRepository") },
         simulationSeed
     )
     runStep {

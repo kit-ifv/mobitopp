@@ -124,7 +124,7 @@ class LoadFixedDestinationsStep(
         person.plannedActivities.filter {
             it.activityType == activityType
         }.forEach {
-            context.plannedActivityRepository.getById(it.id)?.location == location
+            context.plannedActivityRepository.find(it.id)?.location == location
         }
     }
 
