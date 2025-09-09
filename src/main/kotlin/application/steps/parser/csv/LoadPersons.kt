@@ -1,5 +1,6 @@
 package application.steps.parser.csv
 
+import core.modelsteps.AddResourceStep
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
@@ -29,34 +30,45 @@ fun LoadPersonsContext.preparePersons(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: PersonColumns = PersonColumns(),
     incomeUnit: CurrencyUnit = costUnit,
-    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }
+    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true },
+    addResourceStep: AddResourceStep<MutablePerson, PersonId> = csvResourceStep(path, columns, errorHandling, incomeUnit, filter, delimiter),
 ) {
+
+    this.preparePersonsFile(addResourceStep)
+}
+
+fun LoadPersonsContext.csvResourceStep(
+    path: Path,
+    columns: PersonColumns,
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    incomeUnit: CurrencyUnit = costUnit,
+    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true },
+    delimiter: String = SEMICOLON,
+): AddResourceStep<MutablePerson, PersonId> {
     val providersByNameFunction: () -> Map<String, SharingProvider> = {
         sharingProviderRepository.elements.associateBy { it.name.lowercase() }
     }
-
     val csvParser = personCsvParser(errorHandling, columns, incomeUnit, providersByNameFunction) {
         getHousehold(it)
     }
 
     val internalFilter = { row: Row -> columns.filter(row, this) }
-    this.preparePersonsFile(csvParser.withFilter(internalFilter), path, delimiter)
-}
-
-fun LoadPersonsContext.preparePersonsFile(
-    parser: CsvParser<MutablePerson>,
-    path: Path = defaultPersonPath,
-    delimiter: String = SEMICOLON,
-) = runStep {
-    LoadCsvStep<MutablePerson, PersonId>(
+    return LoadCsvStep<MutablePerson, PersonId>(
         path = path,
-        name = "Load persons from csv",
-        parser = parser,
+        name = "Load Person from csv",
+        parser = csvParser.withFilter(internalFilter),
         delimiter = delimiter,
         repository = personRepository,
         dependentRepositories = setOf(householdRepository, sharingProviderRepository),
         validationMock = listOf() // TODO
     )
+}
+
+fun LoadPersonsContext.preparePersonsFile(
+
+    addResourceStep: AddResourceStep<MutablePerson, PersonId>,
+) = runStep {
+    addResourceStep
 }
 
 fun LoadPersonsContext.finishPersons() = runStep {
@@ -65,7 +77,7 @@ fun LoadPersonsContext.finishPersons() = runStep {
 
 fun LoadPersonsContext.loadPersons(
     path: Path = defaultPersonPath,
-    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }
+    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true },
 ) {
     this.preparePersons(path = path, filter = filter)
     this.finishPersons()
@@ -80,11 +92,11 @@ interface LoadPersonsContext : DemandSimContext, PersonCsvContext {
         get() = dataFolder.resolve("demand-data").resolve("person.csv")
 
     fun getHousehold(
-        householdId: HouseholdId
+        householdId: HouseholdId,
     ) = requireNotNull(
         householdRepository[householdId]
     ) {
         "Referenced household id $householdId could not be found in householdRepo:" +
-            " ${householdRepository.elements.map { it.id }.toList()}"
+                " ${householdRepository.elements.map { it.id }.toList()}"
     }
 }

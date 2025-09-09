@@ -18,13 +18,13 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 
 @Suppress("MagicNumber")
-class BinaryPersonReader(val map: (HouseholdId) -> MutableHousehold, private val contextSimulationSeed: Long) :
+class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold, private val contextSimulationSeed: Long) :
     BinaryReader<MutablePerson> {
 
     override fun DataInputStream.decode(stringLength: Int): MutablePerson {
         return MutablePerson(
             PersonId(readLong()),
-            map(HouseholdId(readLong())),
+            converter(HouseholdId(readLong())),
             contextSimulationSeed
         ).apply {
             age = readInt()

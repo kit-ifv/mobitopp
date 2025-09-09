@@ -62,11 +62,11 @@ class BinaryMatrixFileLookup(
         if (!path.exists()) return null
         val fileName = path.nameWithoutExtension
         // Create the hash value of the content found at the path.
-        val originalHash = path.crc32()
+        val originalChecksum = path.crc32()
         val target = internalFolder.listDirectoryEntries().find { it.nameWithoutExtension == fileName }
         if (target == null) return null
-        val cachedHash = format.hashCode(target)
-        if (cachedHash != originalHash) return null
+        val cachedChecksum = format.checksum(target)
+        if (cachedChecksum != originalChecksum) return null
         return format.deserialize(target)
     }
 }
