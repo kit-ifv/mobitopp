@@ -1,10 +1,12 @@
 package utils.binary
 
+import utils.collections.addProgressBar
 import utils.files.PathChecksum
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.file.Path
+import kotlin.io.path.getLastModifiedTime
 
 /**
  * A functional interface for reading binary files.
@@ -22,16 +24,16 @@ fun interface BinaryReader<out MUTABLE> {
      * Reads data from a binary file at [path] and returns it as a list of objects of type [MUTABLE].
      */
     fun fromBinary(path: Path): List<MUTABLE> {
-
         val byteBuffer = path.readAsByteBuffer()
         val hashCode = byteBuffer.long
         val size = byteBuffer.int
         val stringLength = byteBuffer.int
 
         var elements = ArrayList<MUTABLE>(size)
-        repeat(size) {
+        (0 until size).addProgressBar("read binary file", expectedCount = size).forEach { _ ->
             elements.add(byteBuffer.decode(stringLength))
         }
+
         return elements
     }
     fun ByteBuffer.getBoolean(): Boolean {
