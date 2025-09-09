@@ -17,9 +17,9 @@ import domain.synthesis.parser.PersonCsvContext
 import domain.synthesis.parser.personCsvParser
 import units.CurrencyUnit
 import utils.ErrorHandling
-import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
+import utils.csv.id
 import utils.csv.withFilter
 import java.nio.file.Path
 
@@ -31,37 +31,64 @@ fun LoadPersonsContext.preparePersons(
     columns: PersonColumns = PersonColumns(),
     incomeUnit: CurrencyUnit = costUnit,
     filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true },
-    addResourceStep: AddResourceStep<MutablePerson, PersonId> = csvResourceStep(path, columns, errorHandling, incomeUnit, filter, delimiter),
+    addResourceStep: AddResourceStep<MutablePerson, PersonId> = csvResourceStep(
+        PersonCsvConfig(
+            path,
+            columns,
+            delimiter,
+            errorHandling,
+            incomeUnit,
+//            filter
+        )
+    ),
 ) {
 
     this.preparePersonsFile(addResourceStep)
 }
 
-fun LoadPersonsContext.csvResourceStep(
-    path: Path,
-    columns: PersonColumns,
-    errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    incomeUnit: CurrencyUnit = costUnit,
-    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true },
-    delimiter: String = SEMICOLON,
-): AddResourceStep<MutablePerson, PersonId> {
-    val providersByNameFunction: () -> Map<String, SharingProvider> = {
-        sharingProviderRepository.elements.associateBy { it.name.lowercase() }
+data class PersonCsvConfig(
+    var path: Path,
+    var columns: PersonColumns = PersonColumns(),
+    var delimiter: String = SEMICOLON,
+    var errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    var incomeUnit: CurrencyUnit,
+
+
+    ) {
+    /* Filtering should not be done on a resource step but afterward. For performance it doesnt matter because CSV
+    parser remains slow regardless of filter. And Resource wrapping is nigh impossible because each resource step could
+    define its own filtering logic that doesnt share any similarity with any other step.
+    */
+    val filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { row, context ->
+
+        row.id(this.householdColumn) in context.householdRepository
     }
-    val csvParser = personCsvParser(errorHandling, columns, incomeUnit, providersByNameFunction) {
-        getHousehold(it)
+}
+
+
+fun LoadPersonsContext.csvResourceStep(
+    personCsvConfig: PersonCsvConfig,
+): AddResourceStep<MutablePerson, PersonId> {
+    return personCsvConfig.run {
+        val providersByNameFunction: () -> Map<String, SharingProvider> = {
+            sharingProviderRepository.elements.associateBy { it.name.lowercase() }
+        }
+        val csvParser = personCsvParser(errorHandling, columns, incomeUnit, providersByNameFunction) {
+            getHousehold(it)
+        }
+
+        val internalFilter = { row: Row -> columns.filter(row, this@csvResourceStep) }
+        LoadCsvStep<MutablePerson, PersonId>(
+            path = path,
+            name = "Load Person from csv",
+            parser = csvParser.withFilter(internalFilter),
+            delimiter = delimiter,
+            repository = personRepository,
+            dependentRepositories = setOf(householdRepository, sharingProviderRepository),
+            validationMock = listOf() // TODO
+        )
     }
 
-    val internalFilter = { row: Row -> columns.filter(row, this) }
-    return LoadCsvStep<MutablePerson, PersonId>(
-        path = path,
-        name = "Load Person from csv",
-        parser = csvParser.withFilter(internalFilter),
-        delimiter = delimiter,
-        repository = personRepository,
-        dependentRepositories = setOf(householdRepository, sharingProviderRepository),
-        validationMock = listOf() // TODO
-    )
 }
 
 fun LoadPersonsContext.preparePersonsFile(

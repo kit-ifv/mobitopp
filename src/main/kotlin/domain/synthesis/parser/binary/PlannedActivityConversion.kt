@@ -13,6 +13,7 @@ import utils.binary.BinaryWriter
 import utils.units.sinceStart
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -31,16 +32,16 @@ class BinaryActivityReader(
     private val contextSimulationSeed: Long
 ) : BinaryReader<MutablePlannedActivity> {
 
-    override fun DataInputStream.decode(stringLength: Int): MutablePlannedActivity {
+    override fun ByteBuffer.decode(stringLength: Int): MutablePlannedActivity {
         return MutablePlannedActivity(
-            ActivityId(readLong()),
-            person = personConverter(PersonId(readLong())),
+            ActivityId(long),
+            person = personConverter(PersonId(long)),
             seed = contextSimulationSeed,
         ).apply {
-            observedTripDuration = readInt().toDuration(DurationUnit.MINUTES)
-            startTime = readLong().toDuration(DurationUnit.MINUTES).sinceStart
-            duration = readInt().toDuration(DurationUnit.MINUTES)
-            activityType = codeActivity.decode(readInt())
+            observedTripDuration = int.toDuration(DurationUnit.MINUTES)
+            startTime = long.toDuration(DurationUnit.MINUTES).sinceStart
+            duration = int.toDuration(DurationUnit.MINUTES)
+            activityType = codeActivity.decode(int)
         }
     }
 }

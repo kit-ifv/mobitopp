@@ -14,29 +14,31 @@ import units.UnitIntervalValue
 import units.euros
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
+import utils.collections.addProgressBar
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
 class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold, private val contextSimulationSeed: Long) :
     BinaryReader<MutablePerson> {
 
-    override fun DataInputStream.decode(stringLength: Int): MutablePerson {
+    override fun ByteBuffer.decode(stringLength: Int): MutablePerson {
         return MutablePerson(
-            PersonId(readLong()),
-            converter(HouseholdId(readLong())),
+            PersonId(long),
+            converter(HouseholdId(long)),
             contextSimulationSeed
         ).apply {
-            age = readInt()
-            employment = Employment.decode(readInt())
-            sex = Sex.decode(readInt())
-            income = readDouble().euros
-            hasBike = readBoolean()
-            hasCommuterTicket = readBoolean()
-            hasLicense = readBoolean()
-            eMobilityAcceptance = UnitIntervalValue(readDouble())
-            chargingInfluence = ChargingInfluence.decode(readInt())
-            graduation = Graduation.decode(readInt())
+            age = int
+            employment = Employment.decode(int)
+            sex = Sex.decode(int)
+            income = double.euros
+            hasBike = getBoolean()
+            hasCommuterTicket = getBoolean()
+            hasLicense = getBoolean()
+            eMobilityAcceptance = UnitIntervalValue(double)
+            chargingInfluence = ChargingInfluence.decode(int)
+            graduation = Graduation.decode(int)
         }
     }
 }
@@ -47,7 +49,7 @@ class BinaryPersonWriter : BinaryWriter<Person> {
         outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
         outStream.writeInt(-1) // standardized format requires a string length
 
-        elements.forEach { outStream.encodePerson(it) }
+        elements.addProgressBar("Writing binary persons").forEach { outStream.encodePerson(it) }
     }
 
     private fun DataOutputStream.encodePerson(person: Person) {

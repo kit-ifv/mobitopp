@@ -5,9 +5,12 @@ import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.RandomAccessFile
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 
 fun <T> Path.operateOnMemoryFile(run: MappedByteBuffer.() -> T): T {
     return RandomAccessFile(toFile(), "r").use { file ->
@@ -22,10 +25,19 @@ fun <T> Path.operateOnMemoryFile(run: MappedByteBuffer.() -> T): T {
  * Reads [stringLength] many characters from the DataInputStream and converts them to a string.
  * Padding of '.' at the end is removed.
  */
+@Deprecated("Should be used with a bytebuffer instead.")
 fun DataInputStream.readString(stringLength: Int): String {
     var output = ""
     repeat(stringLength) {
         output += readChar()
+    }
+    return output.replace(Regex("\\.+$"), "")
+}
+
+fun ByteBuffer.readString(stringLength: Int): String {
+    var output = ""
+    repeat(stringLength) {
+        output += char
     }
     return output.replace(Regex("\\.+$"), "")
 }
@@ -63,4 +75,13 @@ fun <R> Path.bufferedDataInputStream(read: (dataStream: DataInputStream) -> R): 
             }
         }
     }
+}
+
+/**
+ * Parse directly into a bulk byte buffer for speedup.
+ */
+fun Path.readAsByteBuffer(): ByteBuffer {
+    val channel = FileChannel.open(this, StandardOpenOption.READ)
+    val bb = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
+    return bb.order(ByteOrder.BIG_ENDIAN)
 }
