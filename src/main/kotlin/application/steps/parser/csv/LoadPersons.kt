@@ -30,17 +30,15 @@ fun LoadPersonsContext.preparePersons(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: PersonColumns = PersonColumns(),
     incomeUnit: CurrencyUnit = costUnit,
-    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true },
-    addResourceStep: AddResourceStep<MutablePerson, PersonId> = csvResourceStep(
-        PersonCsvConfig(
-            path,
-            columns,
-            delimiter,
-            errorHandling,
-            incomeUnit,
-//            filter
-        )
-    ),
+    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }, // TODO remove, filter should not striketrough in the parsing of data.
+    addResourceStep: AddResourceStep<MutablePerson, PersonId> = context(path){
+        personCsvConfig {
+            this.delimiter = delimiter
+            this.errorHandling = errorHandling
+            this.columns = columns
+            this.incomeUnit = incomeUnit
+        }
+    },
 ) {
 
     this.preparePersonsFile(addResourceStep)
@@ -51,10 +49,12 @@ data class PersonCsvConfig(
     var columns: PersonColumns = PersonColumns(),
     var delimiter: String = SEMICOLON,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    var incomeUnit: CurrencyUnit,
+    var incomeUnit: CurrencyUnit
+
 
 
     ) {
+
     /* Filtering should not be done on a resource step but afterward. For performance it doesnt matter because CSV
     parser remains slow regardless of filter. And Resource wrapping is nigh impossible because each resource step could
     define its own filtering logic that doesnt share any similarity with any other step.
@@ -63,13 +63,18 @@ data class PersonCsvConfig(
 
         row.id(this.householdColumn) in context.householdRepository
     }
+
+
 }
 
-
-fun LoadPersonsContext.csvResourceStep(
-    personCsvConfig: PersonCsvConfig,
+context(source: Path)
+fun LoadPersonsContext.personCsvConfig(
+    lambda: PersonCsvConfig.() -> Unit,
 ): AddResourceStep<MutablePerson, PersonId> {
-    return personCsvConfig.run {
+    val config = PersonCsvConfig(path = source, incomeUnit = costUnit )
+    config.apply(lambda)
+
+    return config.run {
         val providersByNameFunction: () -> Map<String, SharingProvider> = {
             sharingProviderRepository.elements.associateBy { it.name.lowercase() }
         }
@@ -77,7 +82,7 @@ fun LoadPersonsContext.csvResourceStep(
             getHousehold(it)
         }
 
-        val internalFilter = { row: Row -> columns.filter(row, this@csvResourceStep) }
+        val internalFilter = { row: Row -> columns.filter(row, this@personCsvConfig) }
         LoadCsvStep<MutablePerson, PersonId>(
             path = path,
             name = "Load Person from csv",
