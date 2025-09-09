@@ -1,5 +1,6 @@
 package application.steps.parser.csv
 
+import core.modelsteps.AddResourceStep
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.SealStep
@@ -35,6 +36,40 @@ fun LoadPlannedActivitiesContext.prepareActivities(
     }
     this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, path, delimiter)
 }
+
+
+context(source: Path)
+fun LoadPlannedActivitiesContext.activitiesCsvConfig(
+    lambda: ActivityCsvConfig.() -> Unit
+): AddResourceStep<MutablePlannedActivity, ActivityId> {
+    val config = ActivityCsvConfig(path = source, durationUnit = this.timeUnit)
+    config.apply(lambda)
+    return config.run {
+        val parser = activityCsvParser(errorHandling, columns, shiftActivityStart, durationUnit) {
+            getPerson(it)
+        }
+        val filteredParser = parser.withFilter { columns.filter(it, this@activitiesCsvConfig) }
+        LoadCsvStep(
+            path = path,
+            name = "Load planned activities from csv",
+            parser = filteredParser,
+            delimiter = delimiter,
+            repository = plannedActivityRepository,
+            dependentRepositories = setOf(personRepository),
+            validationMock = listOf() // TODO
+        )
+    }
+}
+
+data class ActivityCsvConfig(
+    val path: Path,
+    val delimiter: String = SEMICOLON,
+    val errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    val columns: ActivitiesColumns = ActivitiesColumns(),
+    val durationUnit: DurationUnit,
+    val filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
+    val shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
+)
 
 fun LoadPlannedActivitiesContext.prepareActivitiesFile(
     parser: CsvParser<MutablePlannedActivity>,
