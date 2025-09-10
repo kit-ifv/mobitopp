@@ -20,25 +20,36 @@ import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
-class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold, private val contextSimulationSeed: Long) :
+class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold?, private val contextSimulationSeed: Long) :
     BinaryReader<MutablePerson> {
 
-    override fun ByteBuffer.decode(stringLength: Int): MutablePerson {
-        return MutablePerson(
-            PersonId(long),
-            converter(HouseholdId(long)),
-            contextSimulationSeed
-        ).apply {
-            age = int
-            employment = Employment.decode(int)
-            sex = Sex.decode(int)
-            income = double.euros
-            hasBike = getBoolean()
-            hasCommuterTicket = getBoolean()
-            hasLicense = getBoolean()
-            eMobilityAcceptance = UnitIntervalValue(double)
-            chargingInfluence = ChargingInfluence.decode(int)
-            graduation = Graduation.decode(int)
+    override fun ByteBuffer.decode(stringLength: Int): MutablePerson? {
+
+        val id = PersonId(long)
+        val household = converter(HouseholdId(long))
+        val age = int
+        val employment = Employment.decode(int)
+        val sex = Sex.decode(int)
+        val income = double.euros
+        val hasBike = getBoolean()
+        val hasCommuterTicket = getBoolean()
+        val hasLicense = getBoolean()
+        val eMobilityAcceptance = UnitIntervalValue(double)
+        val chargingInfluence = ChargingInfluence.decode(int)
+        val graduation = Graduation.decode(int)
+        return household?.let {
+            MutablePerson(id, it, contextSimulationSeed).apply {
+                this.age = age
+                this.employment = employment
+                this.sex = sex
+                this.income = income
+                this.hasBike = hasBike
+                this.hasCommuterTicket = hasCommuterTicket
+                this.hasLicense = hasLicense
+                this.eMobilityAcceptance = eMobilityAcceptance
+                this.chargingInfluence = chargingInfluence
+                this.graduation = graduation
+            }
         }
     }
 }

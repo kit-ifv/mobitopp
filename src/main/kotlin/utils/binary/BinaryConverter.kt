@@ -31,9 +31,11 @@ fun interface BinaryReader<out MUTABLE> {
 
         var elements = ArrayList<MUTABLE>(size)
         (0 until size).addProgressBar("read binary file", expectedCount = size).forEach { _ ->
-            elements.add(byteBuffer.decode(stringLength))
+            byteBuffer.decode(stringLength)?.let {
+                elements.add(it)
+            }
         }
-
+        elements.trimToSize()
         return elements
     }
     fun ByteBuffer.getBoolean(): Boolean {
@@ -52,7 +54,7 @@ fun interface BinaryReader<out MUTABLE> {
      * @param stringLength is the expected size of strings, if strings are read. Each string should have the same length
      * specified at writing the element.
      */
-    fun ByteBuffer.decode(stringLength: Int): MUTABLE
+    fun ByteBuffer.decode(stringLength: Int): MUTABLE?
 }
 
 /**

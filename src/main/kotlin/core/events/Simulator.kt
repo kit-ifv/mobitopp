@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.minutes
 abstract class Simulator(
     initEvents: Collection<Event<*>> = emptyList(),
     protected val queue: EventQueue = MapEventQueue(),
-    val timeStep: Duration = 1.minutes
+    val timeStep: Duration = 1.minutes,
 ) {
 
     init {
@@ -62,7 +62,7 @@ abstract class Simulator(
 class ParallelSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
     queue: MapEventQueue = MapEventQueue(),
-    timeStep: Duration = 1.minutes
+    timeStep: Duration = 1.minutes,
 ) : Simulator(initEvents, queue, timeStep) {
 
     override fun getFutureEvents(now: Time): Collection<Event<*>> {
@@ -72,8 +72,9 @@ class ParallelSimulator(
         }
 
         runBlocking {
-            while (present.isNotEmpty()) {
-                coroutineScope {
+            coroutineScope {
+                while (present.isNotEmpty()) {
+
                     val deferredNewEvents = present.map {
                         async(Dispatchers.Default) { it.execute() }
                     }
@@ -86,7 +87,9 @@ class ParallelSimulator(
                     present.addAll(newInstantEvents)
                     future.addAll(newFutureEvents)
                 }
+
             }
+
         }
 
         return future

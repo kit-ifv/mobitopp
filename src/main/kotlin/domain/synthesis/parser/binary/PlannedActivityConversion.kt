@@ -11,7 +11,6 @@ import utils.CodePlan
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
 import utils.units.sinceStart
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import kotlin.time.DurationUnit
@@ -28,20 +27,25 @@ import kotlin.time.toDuration
 @Suppress("MagicNumber")
 class BinaryActivityReader(
     private val codeActivity: CodePlan<ActivityType>,
-    val personConverter: (PersonId) -> MutablePerson,
-    private val contextSimulationSeed: Long
+    val personConverter: (PersonId) -> MutablePerson?,
+    private val contextSimulationSeed: Long,
 ) : BinaryReader<MutablePlannedActivity> {
 
-    override fun ByteBuffer.decode(stringLength: Int): MutablePlannedActivity {
-        return MutablePlannedActivity(
-            ActivityId(long),
-            person = personConverter(PersonId(long)),
-            seed = contextSimulationSeed,
-        ).apply {
-            observedTripDuration = int.toDuration(DurationUnit.MINUTES)
-            startTime = long.toDuration(DurationUnit.MINUTES).sinceStart
-            duration = int.toDuration(DurationUnit.MINUTES)
-            activityType = codeActivity.decode(int)
+    override fun ByteBuffer.decode(stringLength: Int): MutablePlannedActivity? {
+
+        val id = ActivityId(long)
+        val person = personConverter(PersonId(long))
+        val observedTripDuration = int.toDuration(DurationUnit.MINUTES)
+        val startTime = long.toDuration(DurationUnit.MINUTES).sinceStart
+        val duration = int.toDuration(DurationUnit.MINUTES)
+        val activityType = codeActivity.decode(int)
+        return person?.let {
+            MutablePlannedActivity(id, person, contextSimulationSeed).apply {
+                this.observedTripDuration = observedTripDuration
+                this.startTime = startTime
+                this.duration = duration
+                this.activityType = activityType
+            }
         }
     }
 }

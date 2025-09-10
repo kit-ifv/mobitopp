@@ -17,21 +17,18 @@ import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
 class FixedDestinationReader(
-    val personConverter: (PersonId) -> Person,
+    val personConverter: (PersonId) -> Person?,
     private val activityTypeConverter: CodePlan<ActivityType>,
     val zoneConverter: (ZoneId) -> Zone
 ) : BinaryReader<ActivityLocation> {
 
-    override fun ByteBuffer.decode(stringLength: Int): ActivityLocation {
+    override fun ByteBuffer.decode(stringLength: Int): ActivityLocation? {
         val person = personConverter(PersonId(long))
         val activityType = activityTypeConverter.decode(int)
         val location = decodeLocation(zoneConverter)
-
-        return ActivityLocation(
-            person,
-            activityType,
-            location
-        )
+        return person?.let {
+            ActivityLocation(it, activityType, location)
+        }
     }
 }
 

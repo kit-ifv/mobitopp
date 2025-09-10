@@ -29,17 +29,25 @@ class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private
     BinaryReader<MutableHousehold> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutableHousehold {
+        val id = HouseholdId(long)
+        val householdNumber = long
+        val surveyYear = int
+        val domCode = int
+        val type = int
+        val incomePerMonth = double.euros
+        val economicStatus = EconomicStatus.decode(int)
+        val location = decodeLocation(converter = zoneConverter)
         return MutableHousehold(
-            HouseholdId(long),
+            id,
             contextSimulationSeed
         ).apply {
-            householdNumber = long
-            surveyYear = int
-            domCode = int
-            type = int
-            incomePerMonth = double.euros
-            economicStatus = EconomicStatus.decode(int)
-            location = decodeLocation(converter = zoneConverter)
+            this.householdNumber = householdNumber
+            this.surveyYear = surveyYear
+            this.domCode = domCode
+            this.type = type
+            this.incomePerMonth = incomePerMonth
+            this.economicStatus = economicStatus
+            this.location = location
         }
     }
 }

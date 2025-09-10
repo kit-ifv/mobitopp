@@ -52,14 +52,14 @@ fun <E : Identifiable<I>, I> MutatingStep<E, I>.spawnFilterStep(predicate: (E) -
 }
 
 fun LoadPlannedActivitiesContext.activities(lambda : ActivityBuild.() -> Unit) {
-    val builder = ActivityBuild(simulationSeed, personRepository::getValue, activityTypes)
+    val builder = ActivityBuild(simulationSeed, personRepository::get, activityTypes)
     builder.apply(lambda)
     builder.executeOn(this)
     finishActivities()
 
 }
 class ActivityBuild(
-    val seed: Long, val converter: (PersonId) -> MutablePerson, activityCodes: CodePlan<ActivityType>
+    val seed: Long, val converter: (PersonId) -> MutablePerson?, activityCodes: CodePlan<ActivityType>
 ):LPCBuilder<MutablePlannedActivity, ActivityId>() {
     override val reader: BinaryReader<MutablePlannedActivity> = BinaryActivityReader(
         codeActivity = activityCodes,
@@ -86,7 +86,7 @@ fun LoadHouseholdContext.households(lambda: HouseholdBuild.() -> Unit) {
 }
 
 fun LoadPersonsContext.persons(lambda: PersonBuild.() -> Unit) {
-    val lpcBuilder = PersonBuild(this.simulationSeed, householdRepository::getValue)
+    val lpcBuilder = PersonBuild(this.simulationSeed, householdRepository::get)
     lambda(lpcBuilder)
     lpcBuilder.executeOn(this)
     finishPersons()
@@ -119,7 +119,7 @@ class HouseholdBuild(val seed: Long, val converter: (ZoneId) -> Zone) : LPCBuild
     }
 }
 
-class PersonBuild(val seed: Long, val converter: (HouseholdId) -> MutableHousehold) :
+class PersonBuild(val seed: Long, val converter: (HouseholdId) -> MutableHousehold?) :
     LPCBuilder<MutablePerson, PersonId>() {
     override val reader = BinaryPersonReader(converter, seed)
     override val writer: BinaryWriter<MutablePerson> = BinaryPersonWriter()
