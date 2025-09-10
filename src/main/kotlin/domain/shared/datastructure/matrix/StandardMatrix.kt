@@ -14,10 +14,10 @@ class StandardMatrix private constructor(
     ZoneIdMatrix,
     MappedDoubleMatrix<ZoneId> {
 
-    override val converter: IndexEncoder<ZoneId> = IndexEncoder { indexLookup.getValue(it) }
+    override val converter: IndexEncoder<ZoneId> = IndexEncoder { indexLookup[it]!! }
     val size get() = keys.size
     val keys = indexLookup.keys
-    fun values() = matrix.values()
+
 
     override fun equals(other: Any?): Boolean {
         if (other !is StandardMatrix) return false
