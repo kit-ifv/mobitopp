@@ -26,7 +26,7 @@ interface Repository<out T, I> : Resource<T> where T : Identifiable<I> {
     fun getValue(id: I) = getById(id)
         ?: throw NoSuchElementException(
             "Cannot find id [$id] in repository [$name], Repository contains [${elements.toList().size}] elements." +
-                    "${elements.toList()}"
+                    "${elements.map { it.id }.toList()}"
         )
 
     val size: Int
