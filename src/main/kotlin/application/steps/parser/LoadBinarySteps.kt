@@ -67,12 +67,12 @@ fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
     }
 }
 
-/* TODO There is no reason to require the LoadHouseholdContext or any other of the predefined context, but sadly writing
-     a readonly interface also requires adding the interface to the underlying context, as the interfaces do not specify
+/* TODO There is no reason to require the LoadHouseholdContext or any other of the predefined mobitopp, but sadly writing
+     a readonly interface also requires adding the interface to the underlying mobitopp, as the interfaces do not specify
      what they require. The correct procedure would be i.e. that LoadHouseholdContext is a : ReadonlyZonesContext,
      MutableHouseholdContext, etc. If that would be the case, this extension method could be built upon a readonly
-     household context. Which would be better, because you can write a household repository to binary, even if your
-     context does not fulfill LoadHouseholdContext because Zones are missing (or sth else)
+     household mobitopp. Which would be better, because you can write a household repository to binary, even if your
+     mobitopp does not fulfill LoadHouseholdContext because Zones are missing (or sth else)
  */
 
 fun LoadHouseholdContext.writeHouseholdBinary(path: Path) {

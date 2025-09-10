@@ -23,7 +23,7 @@ fun RoadNetworkContext.loadVisumNetwork(
         localeLambda
     )
 
-//    context.roadNetwork.value = LocatableGraph( //TODO @Robin, why parse outside the model step?
+//    mobitopp.roadNetwork.value = LocatableGraph( //TODO @Robin, why parse outside the model step?
 //        parseNetwork(file) { }
 //    )
 }

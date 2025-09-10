@@ -146,10 +146,10 @@ abstract class Scenario(
     )
 
     // fun <S: ModelExecution<C>, C: PersonContext> S.loadSyntheticPerson() {
-    //    context.personRepository.addBuilders(sequenceOf())
+    //    mobitopp.personRepository.addBuilders(sequenceOf())
     //    addStep(BuildStep(
     //        "finish people",
-    //        context.personRepository
+    //        mobitopp.personRepository
     //    ))
     // }
 

@@ -115,7 +115,7 @@ fun LoadZonesContext.prepareZoneFile(
 }
 
 // fun <S, C> S.filterZones() where S : ModelExecution<C>, C : LoadZonesContext {
-//    this.addStep(FilterStep("filter zones", context.zoneRepository) { it.visumId == 1L })
+//    this.addStep(FilterStep("filter zones", mobitopp.zoneRepository) { it.visumId == 1L })
 // } //TODO
 
 fun LoadZonesContext.finishZones() = runStep {
