@@ -1,7 +1,7 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AddResourceStep
-import core.modelsteps.FileBasedResourceStep
+import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
@@ -35,18 +35,13 @@ fun LoadPersonsContext.preparePersons(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: PersonColumns = PersonColumns(),
     incomeUnit: CurrencyUnit = costUnit,
-    filter: PersonColumns.(
-        Row,
-        LoadPersonsContext
-    ) -> Boolean = { _, _ -> true }, // TODO remove, filter should not striketrough in the parsing of data.
-    addResourceStep: AddResourceStep<MutablePerson, PersonId> = context(path) {
-        personCsvConfig {
+    addResourceStep: AddResourceStep<MutablePerson, PersonId> =
+        personsFromCsvStep(path) {
             this.delimiter = delimiter
             this.errorHandling = errorHandling
             this.columns = columns
             this.incomeUnit = incomeUnit
-        }
-    },
+        },
 ) {
     this.preparePersonsFile(addResourceStep)
 }
@@ -56,7 +51,7 @@ data class PersonCsvConfig(
     var columns: PersonColumns = PersonColumns(),
     var delimiter: String = SEMICOLON,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    var incomeUnit: CurrencyUnit
+    var incomeUnit: CurrencyUnit,
 
 ) {
 
@@ -82,9 +77,9 @@ class PersonStepBuilder(val seed: Long, val converter: (HouseholdId) -> MutableH
     override fun fromCSV(
         source: Path,
         lambda: context(Path) () -> AddResourceStep<MutablePerson, PersonId>,
-    ): FileBasedResourceStep<MutablePerson, PersonId> {
+    ): FileBasedAddResourceStep<MutablePerson, PersonId> {
         return context(source) {
-            FileBasedResourceStep(source, lambda(source))
+            FileBasedAddResourceStep(source, lambda(source))
         }
     }
 }
@@ -99,13 +94,12 @@ fun LoadPersonsContext.persons(lambda: PersonStepBuilder.() -> Unit) {
     finishPersons()
 }
 
-context(source: Path)
-fun LoadPersonsContext.personCsvConfig(
+fun LoadPersonsContext.personsFromCsvStep(
+    path: Path = defaultPersonPath,
     lambda: PersonCsvConfig.() -> Unit,
-): AddResourceStep<MutablePerson, PersonId> {
-    val config = PersonCsvConfig(path = source, incomeUnit = costUnit)
+): FileBasedAddResourceStep<MutablePerson, PersonId> {
+    val config = PersonCsvConfig(path = path, incomeUnit = costUnit)
     config.apply(lambda)
-
     return config.run {
         val providersByNameFunction: () -> Map<String, SharingProvider> = {
             sharingProviderRepository.elements.associateBy { it.name.lowercase() }
@@ -114,8 +108,8 @@ fun LoadPersonsContext.personCsvConfig(
             getHousehold(it)
         }
 
-        val internalFilter = { row: Row -> columns.filter(row, this@personCsvConfig) }
-        LoadCsvStep<MutablePerson, PersonId>(
+        val internalFilter = { row: Row -> columns.filter(row, this@personsFromCsvStep) }
+        val step = LoadCsvStep<MutablePerson, PersonId>(
             path = path,
             name = "Load Person from csv",
             parser = csvParser.withFilter(internalFilter),
@@ -124,6 +118,7 @@ fun LoadPersonsContext.personCsvConfig(
             dependentRepositories = setOf(householdRepository, sharingProviderRepository),
             validationMock = listOf() // TODO
         )
+        FileBasedAddResourceStep(path, step)
     }
 }
 
@@ -140,9 +135,8 @@ fun LoadPersonsContext.finishPersons() = runStep {
 
 fun LoadPersonsContext.loadPersons(
     path: Path = defaultPersonPath,
-    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true },
 ) {
-    this.preparePersons(path = path, filter = filter)
+    this.preparePersons(path = path)
     this.finishPersons()
 }
 

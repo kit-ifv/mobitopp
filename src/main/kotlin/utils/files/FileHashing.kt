@@ -8,6 +8,7 @@ import java.util.zip.CRC32
 import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
 import kotlin.io.path.readBytes
+@Suppress("MagicNumber")
 fun Path.sampledCrc32(sampleSize: Int = 1 shl 20, chunks: Int = 4): PathChecksum {
     val crc = CRC32()
     val fileSize = this.fileSize()

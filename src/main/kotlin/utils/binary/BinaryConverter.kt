@@ -1,6 +1,5 @@
 package utils.binary
 
-import utils.collections.addProgressBar
 import utils.files.PathChecksum
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -24,12 +23,12 @@ fun interface BinaryReader<out MUTABLE> {
      */
     fun fromBinary(path: Path): List<MUTABLE> {
         val byteBuffer = path.readAsByteBuffer()
-        val hashCode = byteBuffer.long
+        byteBuffer.long // Consume hash code at pos 0 - then ignore it
         val size = byteBuffer.int
         val stringLength = byteBuffer.int
 
-        var elements = ArrayList<MUTABLE>(size)
-        (0 until size).addProgressBar("read binary file", expectedCount = size).forEach { _ ->
+        val elements = ArrayList<MUTABLE>(size)
+        repeat(size) {
             byteBuffer.decode(stringLength)?.let {
                 elements.add(it)
             }

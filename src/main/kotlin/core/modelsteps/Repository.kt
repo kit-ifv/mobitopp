@@ -21,7 +21,8 @@ interface Repository<out T, I> : Resource<T> where T : Identifiable<I> {
     fun find(id: I): T? = getById(id)
 
     @Deprecated(
-        "getById does not imply nullabilty by its name, use find instead. In case you compare against null just to check whether the key is present use operator contains instead."
+        "getById does not imply nullabilty by its name, use find instead. In case you compare against null " +
+            "just to check whether the key is present use operator contains instead."
     )
     fun getById(id: I): T?
     operator fun get(id: I) = getById(id)

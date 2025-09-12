@@ -22,6 +22,11 @@ fun <T> Path.operateOnMemoryFile(run: MappedByteBuffer.() -> T): T {
 }
 
 /**
+ * A dot character . is considered an empty entry
+ */
+val regex = Regex("\\.+$")
+
+/**
  * Reads [stringLength] many characters from the DataInputStream and converts them to a string.
  * Padding of '.' at the end is removed.
  */
@@ -31,7 +36,7 @@ fun DataInputStream.readString(stringLength: Int): String {
     repeat(stringLength) {
         output += readChar()
     }
-    return output.replace(Regex("\\.+$"), "")
+    return output.replace(regex, "")
 }
 
 fun ByteBuffer.readString(stringLength: Int): String {
@@ -39,7 +44,8 @@ fun ByteBuffer.readString(stringLength: Int): String {
     repeat(stringLength) {
         output += char
     }
-    return output.replace(Regex("\\.+$"), "")
+
+    return output.replace(regex, "")
 }
 
 /**
