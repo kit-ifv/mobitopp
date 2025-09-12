@@ -41,7 +41,7 @@ fun LoadPersonsContext.preparePersons(
             this.errorHandling = errorHandling
             this.columns = columns
             this.incomeUnit = incomeUnit
-        },
+        }.step,
 ) {
     this.preparePersonsFile(addResourceStep)
 }
