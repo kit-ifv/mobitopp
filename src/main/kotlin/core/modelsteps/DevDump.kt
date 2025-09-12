@@ -1,25 +1,34 @@
 package core.modelsteps
 
+import application.steps.parser.csv.LoadFixedDestinationsContext
 import application.steps.parser.csv.LoadHouseholdContext
 import application.steps.parser.csv.LoadPersonsContext
 import application.steps.parser.csv.LoadPlannedActivitiesContext
+import application.steps.parser.csv.LoadPrivateCarsContext
 import application.steps.parser.csv.PersonCsvConfig
 import application.steps.parser.csv.finishActivities
 import application.steps.parser.csv.finishHouseholds
 import application.steps.parser.csv.finishPersons
+import application.steps.parser.csv.finishPrivateCars
 import application.steps.parser.csv.personCsvConfig
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.data.ActivityId
+import domain.synthesis.data.CarId
+import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
+import domain.synthesis.data.MutablePrivateCar
+import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.parser.binary.BinaryActivityReader
 import domain.synthesis.parser.binary.BinaryActivityWriter
+import domain.synthesis.parser.binary.BinaryCarReader
+import domain.synthesis.parser.binary.BinaryCarWriter
 import domain.synthesis.parser.binary.BinaryHouseholdReader
 import domain.synthesis.parser.binary.BinaryHouseholdWriter
 import domain.synthesis.parser.binary.BinaryPersonReader
@@ -92,6 +101,29 @@ fun LoadPersonsContext.persons(lambda: PersonBuild.() -> Unit) {
     finishPersons()
 }
 
+//fun LoadFixedDestinationsContext.fixedDestinations() {}
+//
+//class FixedDestinationBuild(): LPCBuilder<>
+
+fun LoadPrivateCarsContext.privateCars(lambda: PrivateCarBuild.() -> Unit) {
+    val lpcBuilder = PrivateCarBuild( householdRepository::get, personRepository::get)
+    lambda(lpcBuilder)
+    lpcBuilder.executeOn(this)
+    finishPrivateCars()
+}
+class PrivateCarBuild(val householdConverter: (HouseholdId) -> MutableHousehold?, val personConverter: (PersonId) -> Person?): LPCBuilder<MutablePrivateCar, CarId>() {
+    override val reader: BinaryReader<MutablePrivateCar> = BinaryCarReader(householdConverter, personConverter)
+    override val writer: BinaryWriter<MutablePrivateCar> = BinaryCarWriter()
+
+    override fun fromCSV(
+        source: Path,
+        lambda: context(Path) () -> AddResourceStep<MutablePrivateCar, CarId>
+    ): FileBasedResourceStep<MutablePrivateCar, CarId> {
+        return context(source) {
+            FileBasedResourceStep(source, lambda(source))
+        }
+    }
+}
 //fun LoadPersonsContext.fromCSV(
 //    path: Path,
 //    lambda: PersonCsvConfig.() -> Unit,
