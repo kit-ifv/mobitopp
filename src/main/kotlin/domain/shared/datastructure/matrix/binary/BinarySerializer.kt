@@ -56,7 +56,7 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
     override fun deserialize(path: Path): StandardMatrix {
         return path.inputStream().buffered().use {
             val input = DataInputStream(it)
-            val hashCode = input.readLong() // Skip the hashcode found at position 0 in the file as a long.
+            input.readLong() // Skip the hashcode found at position 0 in the file as a long.
             val size = input.readInt()
             val zoneIds = Array(size) {
                 ZoneId(-1)

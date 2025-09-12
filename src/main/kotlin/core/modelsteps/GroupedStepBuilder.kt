@@ -10,7 +10,7 @@ import java.nio.file.Path
  * is to encapsulate resource creation, mutation and finalization in one call so that later application developers
  * do not get confused by operation order.
  */
-abstract class GroupedStepBuilder<E : Identifiable<I>, I>() {
+abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
 
     abstract val reader: BinaryReader<E>
     abstract val writer: BinaryWriter<E>
@@ -34,15 +34,15 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I>() {
     abstract fun fromCSV(
         source: Path,
         lambda: context(Path) () -> AddResourceStep<E, I>,
-    ): FileBasedResourceStep<E, I>
+    ): FileBasedAddResourceStep<E, I>
 
     // If you dont want to use a binary cache.
-    fun FileBasedResourceStep<E, I>.disableCache(): AddResourceStep<E, I> {
+    fun FileBasedAddResourceStep<E, I>.disableCache(): AddResourceStep<E, I> {
         return step
     }
 
     // Enable the binary cache at the cacheRootPath.
-    fun FileBasedResourceStep<E, I>.enableCache(cacheRootPath: Path = Path.of("data")): AddResourceStep<E, I> {
+    fun FileBasedAddResourceStep<E, I>.enableCache(cacheRootPath: Path = Path.of("data")): AddResourceStep<E, I> {
         return step.cacheInternally(cacheRootPath = cacheRootPath, sourcePath = source)
     }
     private fun AddResourceStep<E, I>.cacheInternally(cacheRootPath: Path, sourcePath: Path): AddResourceStep<E, I> {

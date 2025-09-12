@@ -1,7 +1,7 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AddResourceStep
-import core.modelsteps.FileBasedResourceStep
+import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
@@ -22,7 +22,6 @@ import utils.CodePlan
 import utils.ErrorHandling
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
-import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.withFilter
@@ -39,24 +38,29 @@ fun LoadPlannedActivitiesContext.prepareActivities(
     filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
     shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
 ) {
-    val parser = activityCsvParser(errorHandling, columns, shiftActivityStart, durationUnit) {
-        getPerson(it)
+    val (_, step) = activitiesCsvConfig(path) {
+        this.delimiter = delimiter
+        this.errorHandling = errorHandling
+        this.columns = columns
+        this.durationUnit = durationUnit
+        this.filter = filter
+        this.shiftActivityStart = shiftActivityStart
     }
-    this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, path, delimiter)
+    this.runStep(step)
 }
 
-context(source: Path)
 fun LoadPlannedActivitiesContext.activitiesCsvConfig(
+    path: Path = defaultActivityPath,
     lambda: ActivityCsvConfig.() -> Unit
-): AddResourceStep<MutablePlannedActivity, ActivityId> {
-    val config = ActivityCsvConfig(path = source, durationUnit = this.timeUnit)
+): FileBasedAddResourceStep<MutablePlannedActivity, ActivityId> {
+    val config = ActivityCsvConfig(path = path, durationUnit = this.timeUnit)
     config.apply(lambda)
     return config.run {
         val parser = activityCsvParser(errorHandling, columns, shiftActivityStart, durationUnit) {
             getPerson(it)
         }
         val filteredParser = parser.withFilter { columns.filter(it, this@activitiesCsvConfig) }
-        LoadCsvStep(
+        val step = LoadCsvStep(
             path = path,
             name = "Load planned activities from csv",
             parser = filteredParser,
@@ -65,33 +69,25 @@ fun LoadPlannedActivitiesContext.activitiesCsvConfig(
             dependentRepositories = setOf(personRepository),
             validationMock = listOf() // TODO
         )
+        FileBasedAddResourceStep(path, step)
     }
 }
 
 data class ActivityCsvConfig(
-    val path: Path,
-    val delimiter: String = SEMICOLON,
-    val errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    val columns: ActivitiesColumns = ActivitiesColumns(),
-    val durationUnit: DurationUnit,
-    val filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
-    val shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
+    var path: Path,
+    var delimiter: String = SEMICOLON,
+    var errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    var columns: ActivitiesColumns = ActivitiesColumns(),
+    var durationUnit: DurationUnit,
+    var filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
+    var shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
 )
 
-fun LoadPlannedActivitiesContext.prepareActivitiesFile(
-    parser: CsvParser<MutablePlannedActivity>,
-    path: Path = defaultActivityPath,
-    delimiter: String = SEMICOLON,
+fun LoadPlannedActivitiesContext.runStep(
+    step: AddResourceStep<MutablePlannedActivity, ActivityId>
+
 ) = runStep {
-    LoadCsvStep<MutablePlannedActivity, ActivityId>(
-        path = path,
-        name = "Load planned activities from csv",
-        parser = parser,
-        delimiter = delimiter,
-        repository = plannedActivityRepository,
-        dependentRepositories = setOf(personRepository),
-        validationMock = listOf() // TODO
-    )
+    step
 }
 fun LoadPlannedActivitiesContext.activities(lambda: ActivityBuild.() -> Unit) {
     val builder = ActivityBuild(simulationSeed, personRepository::get, activityTypes)
@@ -115,9 +111,9 @@ class ActivityBuild(
     override fun fromCSV(
         source: Path,
         lambda: context(Path) () -> AddResourceStep<MutablePlannedActivity, ActivityId>,
-    ): FileBasedResourceStep<MutablePlannedActivity, ActivityId> {
+    ): FileBasedAddResourceStep<MutablePlannedActivity, ActivityId> {
         return context(source) {
-            FileBasedResourceStep(source, lambda())
+            FileBasedAddResourceStep(source, lambda())
         }
     }
 }

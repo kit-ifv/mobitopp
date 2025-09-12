@@ -26,7 +26,7 @@ class BinaryZoneReader(
 ) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
         val byteBuffer = path.readAsByteBuffer()
-        val hashCode = byteBuffer.long
+        byteBuffer.long // Consume hash code at start of file
         val size = byteBuffer.int
         val stringLength = byteBuffer.int
 

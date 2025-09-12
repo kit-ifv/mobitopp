@@ -1,7 +1,7 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AddResourceStep
-import core.modelsteps.FileBasedResourceStep
+import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
@@ -83,9 +83,9 @@ class PrivateCarStepBuilder(
     override fun fromCSV(
         source: Path,
         lambda: context(Path) () -> AddResourceStep<MutablePrivateCar, CarId>,
-    ): FileBasedResourceStep<MutablePrivateCar, CarId> {
+    ): FileBasedAddResourceStep<MutablePrivateCar, CarId> {
         return context(source) {
-            FileBasedResourceStep(source, lambda(source))
+            FileBasedAddResourceStep(source, lambda(source))
         }
     }
 }
@@ -116,16 +116,21 @@ fun LoadPrivateCarsContext.privateCarCsvParser(
         }
     }
 }
-context(source: Path)
-fun LoadPrivateCarsContext.privateCarsCsvConfig(
+fun LoadPrivateCarsContext.runStep(
+    step: AddResourceStep<MutablePrivateCar, CarId>
+) = runStep {
+    step
+}
+fun LoadPrivateCarsContext.privateCarsFromCsvStep(
+    path: Path = defaultCarPath,
     lambda: PrivateCarCsvConfig.() -> Unit
-): AddResourceStep<MutablePrivateCar, CarId> {
-    val config = PrivateCarCsvConfig(source)
+): FileBasedAddResourceStep<MutablePrivateCar, CarId> {
+    val config = PrivateCarCsvConfig(path)
     config.apply(lambda)
     return config.run {
         val rawParser = privateCarCsvParser(errorHandling, columns, carEngineStatistics)
-        val parser = rawParser.withFilter { columns.filter(it, this@privateCarsCsvConfig) }
-        LoadCsvStep<MutablePrivateCar, CarId>(
+        val parser = rawParser.withFilter { columns.filter(it, this@privateCarsFromCsvStep) }
+        val step = LoadCsvStep<MutablePrivateCar, CarId>(
             path = path,
             name = "Load private cars from csv",
             parser = parser,
@@ -137,15 +142,16 @@ fun LoadPrivateCarsContext.privateCarsCsvConfig(
             ),
             validationMock = listOf() // TODO
         )
+        FileBasedAddResourceStep(path, step)
     }
 }
 data class PrivateCarCsvConfig(
-    val path: Path,
-    val delimiter: String = SEMICOLON,
-    val errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    val columns: CarColumns = CarColumns(),
-    val carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
-    val filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
+    var path: Path,
+    var delimiter: String = SEMICOLON,
+    var errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    var columns: CarColumns = CarColumns(),
+    var carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
+    var filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
 )
 
 @Suppress("LongParameterList", "UnusedParameter")
@@ -157,28 +163,13 @@ fun LoadPrivateCarsContext.preparePrivateCars(
     carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
     filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
 ) {
-    val csvParser = this.privateCarCsvParser(errorHandling, columns, carEngineStatistics)
-
-    this.preparePrivateCarsFile(csvParser.withFilter { columns.filter(it, this) }, path, delimiter)
-}
-
-fun LoadPrivateCarsContext.preparePrivateCarsFile(
-    parser: CsvParser<MutablePrivateCar>,
-    path: Path = defaultCarPath,
-    delimiter: String = SEMICOLON,
-) = runStep {
-    LoadCsvStep<MutablePrivateCar, CarId>(
-        path = path,
-        name = "Load private cars from csv",
-        parser = parser,
-        delimiter = delimiter,
-        repository = carRepository,
-        dependentRepositories = setOf(
-            householdRepository,
-            personRepository
-        ),
-        validationMock = listOf() // TODO
-    )
+    val (_, step) = privateCarsFromCsvStep(path) {
+        this.delimiter = delimiter
+        this.errorHandling = errorHandling
+        this.columns = columns
+        this.carEngineStatistics = carEngineStatistics
+    }
+    this.runStep(step)
 }
 
 fun LoadPrivateCarsContext.finishPrivateCars() = runStep {

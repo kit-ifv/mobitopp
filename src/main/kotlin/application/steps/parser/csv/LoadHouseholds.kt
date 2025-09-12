@@ -1,7 +1,7 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AddResourceStep
-import core.modelsteps.FileBasedResourceStep
+import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.FilterIdsStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
@@ -85,15 +85,16 @@ fun LoadHouseholdContext.households(lambda: HouseholdStepBuilder.() -> Unit) {
     finishHouseholds()
 }
 
-class HouseholdStepBuilder(val seed: Long, val converter: (ZoneId) -> Zone) : GroupedStepBuilder<MutableHousehold, HouseholdId>() {
+class HouseholdStepBuilder(val seed: Long, val converter: (ZoneId) -> Zone) :
+    GroupedStepBuilder<MutableHousehold, HouseholdId>() {
     override val reader: BinaryReader<MutableHousehold> = BinaryHouseholdReader(converter, seed)
     override val writer: BinaryWriter<MutableHousehold> = BinaryHouseholdWriter()
     override fun fromCSV(
         source: Path,
         lambda: context(Path) () -> AddResourceStep<MutableHousehold, HouseholdId>,
-    ): FileBasedResourceStep<MutableHousehold, HouseholdId> {
+    ): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
         return context(source) {
-            FileBasedResourceStep(source, lambda(source))
+            FileBasedAddResourceStep(source, lambda(source))
         }
     }
 }
@@ -129,90 +130,72 @@ data class HouseholdCsvConfig(
     var filter: HouseholdColumns.(Row) -> Boolean = { true },
 )
 
-@Suppress("LongParameterList", "UnusedParameter")
 fun LoadHouseholdContext.prepareHouseholds(
     householdCsvConfig: HouseholdCsvConfig,
 ) {
-    householdCsvConfig.run {
-        val parser = CsvParser<MutableHousehold>(errorHandling) { row ->
-
-            MutableHousehold(
-                id = row.id(columns.hhIdColumn),
-                simulationSeed,
-            ) {
-                householdNumber = row.long(columns.hhNumberColumn)
-                surveyYear = row.int(columns.yearColumn)
-                domCode = row.int(columns.domCodeColumn)
-                type = row.int(columns.typeColumn)
-                incomePerMonth = row.currency(columns.incomeColumn, incomeUnit)
-                economicStatus = row.decode(columns.economicalStatusColumn, economicalStatusCodes)
-
-                // Robin: I converted this builder call to the location as found in [Household]
-                location = row(columns.locationColumn, roadPositionParser).withZone(
-                    getLegacyZone(row.int(columns.zoneColumn))
-                )
-            }
-        }
-        val filterWrap: (Row) -> Boolean = { columns.filter(it) }
-
-        this@prepareHouseholds.prepareHouseholdsFile(parser.withFilter(filterWrap), path, delimiter)
-    }
+    val (_, step) = householdsFromCsvStep(householdCsvConfig)
+    this@prepareHouseholds.runStep(step)
 }
 
-context(source: Path)
-fun LoadHouseholdContext.householdCsvConfig(
-    lambda: HouseholdCsvConfig.() -> Unit
-): AddResourceStep<MutableHousehold, HouseholdId> {
-    val config = HouseholdCsvConfig(path = source, incomeUnit = costUnit)
-    config.apply(lambda)
-    return config.run {
-        val parser = CsvParser<MutableHousehold>(errorHandling) { row ->
+fun LoadHouseholdContext.spawnCsvParser(
+    householdCsvConfig: HouseholdCsvConfig,
+) = householdCsvConfig.run {
+    val parser = CsvParser(errorHandling) { row ->
 
-            MutableHousehold(
-                id = row.id(columns.hhIdColumn),
-                simulationSeed,
-            ) {
-                householdNumber = row.long(columns.hhNumberColumn)
-                surveyYear = row.int(columns.yearColumn)
-                domCode = row.int(columns.domCodeColumn)
-                type = row.int(columns.typeColumn)
-                incomePerMonth = row.currency(columns.incomeColumn, incomeUnit)
-                economicStatus = row.decode(columns.economicalStatusColumn, economicalStatusCodes)
+        MutableHousehold(
+            id = row.id(columns.hhIdColumn),
+            simulationSeed,
+        ) {
+            householdNumber = row.long(columns.hhNumberColumn)
+            surveyYear = row.int(columns.yearColumn)
+            domCode = row.int(columns.domCodeColumn)
+            type = row.int(columns.typeColumn)
+            incomePerMonth = row.currency(columns.incomeColumn, incomeUnit)
+            economicStatus = row.decode(columns.economicalStatusColumn, economicalStatusCodes)
 
-                // Robin: I converted this builder call to the location as found in [Household]
-                location = row(columns.locationColumn, roadPositionParser).withZone(
-                    getLegacyZone(row.int(columns.zoneColumn))
-                )
-            }
+            // Robin: I converted this builder call to the location as found in [Household]
+            location = row(columns.locationColumn, roadPositionParser).withZone(
+                getLegacyZone(row.int(columns.zoneColumn))
+            )
         }
-        val filterWrap: (Row) -> Boolean = { columns.filter(it) }
+    }
+    val filterWrap: (Row) -> Boolean = { columns.filter(it) }
+    parser.withFilter(filterWrap)
+}
 
-        LoadCsvStep(
+fun LoadHouseholdContext.householdsFromCsvStep(
+    path: Path = defaultHouseholdPath,
+    lambda: HouseholdCsvConfig.() -> Unit = {},
+): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
+    val config = HouseholdCsvConfig(path = path, incomeUnit = costUnit)
+    config.apply(lambda)
+    return householdsFromCsvStep(config)
+}
+
+fun LoadHouseholdContext.householdsFromCsvStep(
+    config: HouseholdCsvConfig,
+): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
+    return config.run {
+        val parser = this@householdsFromCsvStep.spawnCsvParser(config)
+
+        val step = LoadCsvStep(
             path = path,
             name = "Load households from csv",
-            parser = parser.withFilter(filterWrap),
+            parser = parser,
             delimiter = delimiter,
             repository = householdRepository,
             dependentRepositories = setOf(zoneRepository),
             validationMock = listOf() // TODO
         )
+        FileBasedAddResourceStep(config.path, step)
     }
 }
 
-fun LoadHouseholdContext.prepareHouseholdsFile(
-    parser: CsvParser<MutableHousehold>,
-    path: Path = defaultHouseholdPath,
-    delimiter: String = SEMICOLON,
+fun LoadHouseholdContext.runStep(
+    step: AddResourceStep<MutableHousehold, HouseholdId>,
+
 ) = runStep {
-    LoadCsvStep(
-        path = path,
-        name = "Load households from csv",
-        parser = parser,
-        delimiter = delimiter,
-        repository = householdRepository,
-        dependentRepositories = setOf(zoneRepository),
-        validationMock = listOf() // TODO
-    )
+    step
 }
 
 fun LoadHouseholdContext.finishHouseholds() = runStep {
