@@ -12,7 +12,6 @@ import units.CurrencyUnit
 import units.euros
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 

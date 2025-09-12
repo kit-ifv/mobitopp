@@ -1,9 +1,12 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AddResourceStep
+import core.modelsteps.FileBasedResourceStep
+import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.SealStep
+import domain.shared.enums.ActivityType
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePerson
@@ -13,7 +16,12 @@ import domain.synthesis.parser.ActivitiesColumns
 import domain.synthesis.parser.ActivityStartShifter
 import domain.synthesis.parser.QuarterHourShifter
 import domain.synthesis.parser.activityCsvParser
+import domain.synthesis.parser.binary.BinaryActivityReader
+import domain.synthesis.parser.binary.BinaryActivityWriter
+import utils.CodePlan
 import utils.ErrorHandling
+import utils.binary.BinaryReader
+import utils.binary.BinaryWriter
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
@@ -36,7 +44,6 @@ fun LoadPlannedActivitiesContext.prepareActivities(
     }
     this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, path, delimiter)
 }
-
 
 context(source: Path)
 fun LoadPlannedActivitiesContext.activitiesCsvConfig(
@@ -86,7 +93,34 @@ fun LoadPlannedActivitiesContext.prepareActivitiesFile(
         validationMock = listOf() // TODO
     )
 }
+fun LoadPlannedActivitiesContext.activities(lambda: ActivityBuild.() -> Unit) {
+    val builder = ActivityBuild(simulationSeed, personRepository::get, activityTypes)
+    builder.apply(lambda)
+    builder.executeOn(this)
+    finishActivities()
+}
 
+class ActivityBuild(
+    val seed: Long,
+    val converter: (PersonId) -> MutablePerson?,
+    activityCodes: CodePlan<ActivityType>,
+) : GroupedStepBuilder<MutablePlannedActivity, ActivityId>() {
+    override val reader: BinaryReader<MutablePlannedActivity> = BinaryActivityReader(
+        codeActivity = activityCodes,
+        personConverter = converter,
+        contextSimulationSeed = seed
+    )
+    override val writer: BinaryWriter<MutablePlannedActivity> = BinaryActivityWriter()
+
+    override fun fromCSV(
+        source: Path,
+        lambda: context(Path) () -> AddResourceStep<MutablePlannedActivity, ActivityId>,
+    ): FileBasedResourceStep<MutablePlannedActivity, ActivityId> {
+        return context(source) {
+            FileBasedResourceStep(source, lambda())
+        }
+    }
+}
 fun LoadPlannedActivitiesContext.finishActivities() = runStep {
     SealStep(plannedActivityRepository)
 }

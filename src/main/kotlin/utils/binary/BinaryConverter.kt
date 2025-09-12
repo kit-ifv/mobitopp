@@ -6,7 +6,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.file.Path
-import kotlin.io.path.getLastModifiedTime
 
 /**
  * A functional interface for reading binary files.
@@ -41,10 +40,12 @@ fun interface BinaryReader<out MUTABLE> {
     fun ByteBuffer.getBoolean(): Boolean {
         return get().toInt() != 0
     }
+
     /**
      * Read the first entry to represent what file the binary entry comes from.
      */
     fun checksum(path: Path): PathChecksum = path.bufferedDataInputStream { PathChecksum.from(it.readLong()) }
+
     /**
      * Reads one [MUTABLE] object from the [DataInputStream] and returns an instance of that object.
      * The [DataInputStream] is at the exact location of a new object. All parameters of the object to be created

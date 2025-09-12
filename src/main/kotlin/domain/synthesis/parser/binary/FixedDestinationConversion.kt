@@ -11,7 +11,6 @@ import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import utils.CodePlan
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 

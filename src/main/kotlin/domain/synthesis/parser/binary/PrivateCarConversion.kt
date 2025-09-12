@@ -13,7 +13,6 @@ import domain.synthesis.data.PrivateCar
 import domain.synthesis.data.buildEngine
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
@@ -31,12 +30,12 @@ class BinaryCarReader(
         val seats = int
         val personId = PersonId(long)
         val segment = CarSegment.decode(int)
-        val engineTyoe= EngineType.decode(int)
+        val engineTyoe = EngineType.decode(int)
 
         return household?.let {
             MutablePrivateCar(id, it).apply {
                 this.seats = seats
-                this.mainUser = if(personId != PersonId(Long.MIN_VALUE)) personConverter(personId) else null
+                this.mainUser = if (personId != PersonId(Long.MIN_VALUE)) personConverter(personId) else null
                 this.segment = segment
                 this.engine = carEngineStatistics.buildEngine(segment, engineTyoe)
             }

@@ -771,6 +771,9 @@ style:
 formatting:
   Filename:
     active: false
+  #Disable wrapping until detekt can handle context parameters.
+  Wrapping:
+    active: false
 
 
 custom-rules:

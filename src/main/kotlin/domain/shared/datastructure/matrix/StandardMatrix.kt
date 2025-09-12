@@ -18,7 +18,6 @@ class StandardMatrix private constructor(
     val size get() = keys.size
     val keys = indexLookup.keys
 
-
     override fun equals(other: Any?): Boolean {
         if (other !is StandardMatrix) return false
         return matrix == other.matrix && indexLookup == other.indexLookup

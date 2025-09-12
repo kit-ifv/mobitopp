@@ -1,6 +1,8 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AddResourceStep
+import core.modelsteps.FileBasedResourceStep
+import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
@@ -14,9 +16,12 @@ import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.parser.PersonColumns
 import domain.synthesis.parser.PersonCsvContext
+import domain.synthesis.parser.binary.BinaryPersonReader
+import domain.synthesis.parser.binary.BinaryPersonWriter
 import domain.synthesis.parser.personCsvParser
 import units.CurrencyUnit
 import utils.ErrorHandling
+import utils.binary.BinaryWriter
 import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.id
@@ -30,8 +35,11 @@ fun LoadPersonsContext.preparePersons(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: PersonColumns = PersonColumns(),
     incomeUnit: CurrencyUnit = costUnit,
-    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }, // TODO remove, filter should not striketrough in the parsing of data.
-    addResourceStep: AddResourceStep<MutablePerson, PersonId> = context(path){
+    filter: PersonColumns.(
+        Row,
+        LoadPersonsContext
+    ) -> Boolean = { _, _ -> true }, // TODO remove, filter should not striketrough in the parsing of data.
+    addResourceStep: AddResourceStep<MutablePerson, PersonId> = context(path) {
         personCsvConfig {
             this.delimiter = delimiter
             this.errorHandling = errorHandling
@@ -40,7 +48,6 @@ fun LoadPersonsContext.preparePersons(
         }
     },
 ) {
-
     this.preparePersonsFile(addResourceStep)
 }
 
@@ -51,27 +58,52 @@ data class PersonCsvConfig(
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
     var incomeUnit: CurrencyUnit
 
-
-
-    ) {
+) {
 
     /* Filtering should not be done on a resource step but afterward. For performance it doesnt matter because CSV
     parser remains slow regardless of filter. And Resource wrapping is nigh impossible because each resource step could
     define its own filtering logic that doesnt share any similarity with any other step.
-    */
+     */
     val filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { row, context ->
 
         row.id(this.householdColumn) in context.householdRepository
     }
+}
 
+/**
+ * Collects the instructions for initializing the person repository. Automatically sets the reader and writer
+ * to the proper binary implementations.
+ */
+class PersonStepBuilder(val seed: Long, val converter: (HouseholdId) -> MutableHousehold?) :
+    GroupedStepBuilder<MutablePerson, PersonId>() {
+    override val reader = BinaryPersonReader(converter, seed)
+    override val writer: BinaryWriter<MutablePerson> = BinaryPersonWriter()
 
+    override fun fromCSV(
+        source: Path,
+        lambda: context(Path) () -> AddResourceStep<MutablePerson, PersonId>,
+    ): FileBasedResourceStep<MutablePerson, PersonId> {
+        return context(source) {
+            FileBasedResourceStep(source, lambda(source))
+        }
+    }
+}
+
+/**
+ * Operate on the context object. Apply the steps defined in the builder and then finalize the repository.
+ */
+fun LoadPersonsContext.persons(lambda: PersonStepBuilder.() -> Unit) {
+    val lpcBuilder = PersonStepBuilder(this.simulationSeed, householdRepository::get)
+    lambda(lpcBuilder)
+    lpcBuilder.executeOn(this)
+    finishPersons()
 }
 
 context(source: Path)
 fun LoadPersonsContext.personCsvConfig(
     lambda: PersonCsvConfig.() -> Unit,
 ): AddResourceStep<MutablePerson, PersonId> {
-    val config = PersonCsvConfig(path = source, incomeUnit = costUnit )
+    val config = PersonCsvConfig(path = source, incomeUnit = costUnit)
     config.apply(lambda)
 
     return config.run {
@@ -93,7 +125,6 @@ fun LoadPersonsContext.personCsvConfig(
             validationMock = listOf() // TODO
         )
     }
-
 }
 
 fun LoadPersonsContext.preparePersonsFile(
@@ -129,6 +160,6 @@ interface LoadPersonsContext : DemandSimContext, PersonCsvContext {
         householdRepository[householdId]
     ) {
         "Referenced household id $householdId could not be found in householdRepo:" +
-                " ${householdRepository.elements.map { it.id }.toList()}"
+            " ${householdRepository.elements.map { it.id }.toList()}"
     }
 }
