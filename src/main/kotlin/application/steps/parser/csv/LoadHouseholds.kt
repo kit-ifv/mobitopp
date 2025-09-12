@@ -1,7 +1,9 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AddResourceStep
+import core.modelsteps.FileBasedResourceStep
 import core.modelsteps.FilterIdsStep
+import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
@@ -17,9 +19,13 @@ import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
+import domain.synthesis.parser.binary.BinaryHouseholdReader
+import domain.synthesis.parser.binary.BinaryHouseholdWriter
 import units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
+import utils.binary.BinaryReader
+import utils.binary.BinaryWriter
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
@@ -47,7 +53,7 @@ interface LoadHouseholdContext : DemandSimContext {
         zoneColumnIndex[matrixColumn]
     ) {
         "Could not find zone with matrix column $matrixColumn " +
-                "in index: ${zoneColumnIndex.keys}"
+            "in index: ${zoneColumnIndex.keys}"
     }
 }
 
@@ -66,6 +72,31 @@ data class HouseholdColumns(
     val incomeColumn: String = "income",
     val economicalStatusColumn: String = "economicalStatus",
 )
+
+/**
+ * Build a DSL function call that wraps the operations on the household context in curly brackets, by operating on
+ * a [HouseholdStepBuilder] object. collects all the steps created and finalizes the repository at the end of the
+ * block.
+ */
+fun LoadHouseholdContext.households(lambda: HouseholdStepBuilder.() -> Unit) {
+    val builder = HouseholdStepBuilder(simulationSeed, zoneRepository::getValue)
+    builder.apply(lambda)
+    builder.executeOn(this)
+    finishHouseholds()
+}
+
+class HouseholdStepBuilder(val seed: Long, val converter: (ZoneId) -> Zone) : GroupedStepBuilder<MutableHousehold, HouseholdId>() {
+    override val reader: BinaryReader<MutableHousehold> = BinaryHouseholdReader(converter, seed)
+    override val writer: BinaryWriter<MutableHousehold> = BinaryHouseholdWriter()
+    override fun fromCSV(
+        source: Path,
+        lambda: context(Path) () -> AddResourceStep<MutableHousehold, HouseholdId>,
+    ): FileBasedResourceStep<MutableHousehold, HouseholdId> {
+        return context(source) {
+            FileBasedResourceStep(source, lambda(source))
+        }
+    }
+}
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadHouseholdContext.prepareHouseholds(
@@ -87,7 +118,6 @@ fun LoadHouseholdContext.prepareHouseholds(
         filter
     )
 )
-
 
 data class HouseholdCsvConfig(
     var path: Path,
@@ -127,12 +157,12 @@ fun LoadHouseholdContext.prepareHouseholds(
 
         this@prepareHouseholds.prepareHouseholdsFile(parser.withFilter(filterWrap), path, delimiter)
     }
-
-
 }
 
 context(source: Path)
-fun LoadHouseholdContext.householdCsvConfig(lambda: HouseholdCsvConfig.() -> Unit): AddResourceStep<MutableHousehold, HouseholdId> {
+fun LoadHouseholdContext.householdCsvConfig(
+    lambda: HouseholdCsvConfig.() -> Unit
+): AddResourceStep<MutableHousehold, HouseholdId> {
     val config = HouseholdCsvConfig(path = source, incomeUnit = costUnit)
     config.apply(lambda)
     return config.run {

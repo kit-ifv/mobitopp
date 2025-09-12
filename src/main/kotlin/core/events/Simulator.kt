@@ -74,7 +74,6 @@ class ParallelSimulator(
         runBlocking {
             coroutineScope {
                 while (present.isNotEmpty()) {
-
                     val deferredNewEvents = present.map {
                         async(Dispatchers.Default) { it.execute() }
                     }
@@ -87,9 +86,7 @@ class ParallelSimulator(
                     present.addAll(newInstantEvents)
                     future.addAll(newFutureEvents)
                 }
-
             }
-
         }
 
         return future

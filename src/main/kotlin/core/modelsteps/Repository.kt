@@ -20,13 +20,15 @@ interface Repository<out T, I> : Resource<T> where T : Identifiable<I> {
 
     fun find(id: I): T? = getById(id)
 
-    @Deprecated("getById does not imply nullabilty by its name, use find instead. In case you compare against null just to check whether the key is present use operator contains instead.")
+    @Deprecated(
+        "getById does not imply nullabilty by its name, use find instead. In case you compare against null just to check whether the key is present use operator contains instead."
+    )
     fun getById(id: I): T?
     operator fun get(id: I) = getById(id)
     fun getValue(id: I) = getById(id)
         ?: throw NoSuchElementException(
             "Cannot find id [$id] in repository [$name], Repository contains [${elements.toList().size}] elements." +
-                    "${elements.map { it.id }.toList()}"
+                "${elements.map { it.id }.toList()}"
         )
 
     val size: Int
@@ -82,9 +84,9 @@ class MapRepository<T, I>(
         if (sealed) {
             error(
                 "Repository $name has already been sealed and can no longer be updated!\n" +
-                        "attempted mutating action: $operation\n" +
-                        "Repository changelog:\n" +
-                        source
+                    "attempted mutating action: $operation\n" +
+                    "Repository changelog:\n" +
+                    source
             )
         }
     }

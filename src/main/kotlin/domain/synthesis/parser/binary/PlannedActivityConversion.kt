@@ -32,7 +32,6 @@ class BinaryActivityReader(
 ) : BinaryReader<MutablePlannedActivity> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutablePlannedActivity? {
-
         val id = ActivityId(long)
         val person = personConverter(PersonId(long))
         val observedTripDuration = int.toDuration(DurationUnit.MINUTES)

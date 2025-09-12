@@ -40,6 +40,7 @@ object LocationUtils {
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
         return Location(coordinate, converter(zoneId), roadAccess)
     }
+
     /**
      * Extension function for `DataOutputStream` that writes a `Location` object to the output stream.
      * The method serializes the properties of the `Location` object (zone, coordinate, and road access)

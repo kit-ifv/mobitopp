@@ -5,7 +5,6 @@ import java.nio.channels.FileChannel
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.zip.CRC32
-import java.util.zip.CRC32C
 import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
 import kotlin.io.path.readBytes
@@ -61,5 +60,4 @@ value class PathChecksum private constructor(val value: Long) {
 
         val INVALID = PathChecksum(-1L)
     }
-
 }

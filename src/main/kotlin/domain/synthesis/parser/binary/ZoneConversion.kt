@@ -15,8 +15,6 @@ import utils.binary.BinaryWriter
 import utils.binary.readAsByteBuffer
 import utils.binary.readString
 import utils.binary.writeString
-import java.io.BufferedInputStream
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -27,7 +25,6 @@ class BinaryZoneReader(
     private val regionCode: Decodable<RegionType>
 ) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
-
         val byteBuffer = path.readAsByteBuffer()
         val hashCode = byteBuffer.long
         val size = byteBuffer.int
@@ -62,7 +59,7 @@ class BinaryZoneReader(
 
 class BinaryZoneWriter : BinaryWriter<Zone> {
 
-    //TODO introduce hash number here
+    // TODO introduce hash number here
     override fun operateStream(outStream: DataOutputStream, elements: Collection<Zone>) {
         val size = elements.size
         val maxStringLength =

@@ -1,5 +1,8 @@
 package application.steps.parser.csv
 
+import core.modelsteps.AddResourceStep
+import core.modelsteps.FileBasedResourceStep
+import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
@@ -15,10 +18,15 @@ import domain.synthesis.data.MutablePrivateCar
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.buildEngine
+import domain.synthesis.parser.binary.BinaryCarReader
+import domain.synthesis.parser.binary.BinaryCarWriter
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.ID
+import utils.binary.BinaryReader
+import utils.binary.BinaryWriter
 import utils.csv.CsvParser
+import utils.csv.DefaultCsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.decodeName
@@ -58,7 +66,29 @@ interface LoadPrivateCarsContext : DemandSimContext {
             " ${personRepository.elements.map { it.id }.toList()}"
     }
 }
+fun LoadPrivateCarsContext.privateCars(lambda: PrivateCarStepBuilder.() -> Unit) {
+    val lpcBuilder = PrivateCarStepBuilder(householdRepository::get, personRepository::get)
+    lambda(lpcBuilder)
+    lpcBuilder.executeOn(this)
+    finishPrivateCars()
+}
 
+class PrivateCarStepBuilder(
+    val householdConverter: (HouseholdId) -> MutableHousehold?,
+    val personConverter: (PersonId) -> Person?,
+) : GroupedStepBuilder<MutablePrivateCar, CarId>() {
+    override val reader: BinaryReader<MutablePrivateCar> = BinaryCarReader(householdConverter, personConverter)
+    override val writer: BinaryWriter<MutablePrivateCar> = BinaryCarWriter()
+
+    override fun fromCSV(
+        source: Path,
+        lambda: context(Path) () -> AddResourceStep<MutablePrivateCar, CarId>,
+    ): FileBasedResourceStep<MutablePrivateCar, CarId> {
+        return context(source) {
+            FileBasedResourceStep(source, lambda(source))
+        }
+    }
+}
 data class CarColumns(
     val ownerColumn: String = "ownerId",
     val mainUserColumn: String = "mainUserId",
@@ -66,17 +96,12 @@ data class CarColumns(
     val segmentColumnIndex: Int = 7,
     val seatsColumnIndex: Int = 8,
 )
-
-@Suppress("LongParameterList", "UnusedParameter")
-fun LoadPrivateCarsContext.preparePrivateCars(
-    path: Path = defaultCarPath,
-    delimiter: String = SEMICOLON,
+fun LoadPrivateCarsContext.privateCarCsvParser(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: CarColumns = CarColumns(),
     carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
-    filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
-) {
-    val csvParser = CsvParser<MutablePrivateCar>(errorHandling) { row ->
+): DefaultCsvParser<MutablePrivateCar> {
+    return CsvParser<MutablePrivateCar>(errorHandling) { row ->
 
         MutablePrivateCar(
             id = ID(row.index.toLong()),
@@ -90,6 +115,49 @@ fun LoadPrivateCarsContext.preparePrivateCars(
 //            location = owner.location
         }
     }
+}
+context(source: Path)
+fun LoadPrivateCarsContext.privateCarsCsvConfig(
+    lambda: PrivateCarCsvConfig.() -> Unit
+): AddResourceStep<MutablePrivateCar, CarId> {
+    val config = PrivateCarCsvConfig(source)
+    config.apply(lambda)
+    return config.run {
+        val rawParser = privateCarCsvParser(errorHandling, columns, carEngineStatistics)
+        val parser = rawParser.withFilter { columns.filter(it, this@privateCarsCsvConfig) }
+        LoadCsvStep<MutablePrivateCar, CarId>(
+            path = path,
+            name = "Load private cars from csv",
+            parser = parser,
+            delimiter = delimiter,
+            repository = carRepository,
+            dependentRepositories = setOf(
+                householdRepository,
+                personRepository
+            ),
+            validationMock = listOf() // TODO
+        )
+    }
+}
+data class PrivateCarCsvConfig(
+    val path: Path,
+    val delimiter: String = SEMICOLON,
+    val errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    val columns: CarColumns = CarColumns(),
+    val carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
+    val filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
+)
+
+@Suppress("LongParameterList", "UnusedParameter")
+fun LoadPrivateCarsContext.preparePrivateCars(
+    path: Path = defaultCarPath,
+    delimiter: String = SEMICOLON,
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    columns: CarColumns = CarColumns(),
+    carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
+    filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
+) {
+    val csvParser = this.privateCarCsvParser(errorHandling, columns, carEngineStatistics)
 
     this.preparePrivateCarsFile(csvParser.withFilter { columns.filter(it, this) }, path, delimiter)
 }

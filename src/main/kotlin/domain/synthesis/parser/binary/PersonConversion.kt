@@ -15,7 +15,6 @@ import units.euros
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
 import utils.collections.addProgressBar
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
@@ -24,7 +23,6 @@ class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold?, priv
     BinaryReader<MutablePerson> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutablePerson? {
-
         val id = PersonId(long)
         val household = converter(HouseholdId(long))
         val age = int

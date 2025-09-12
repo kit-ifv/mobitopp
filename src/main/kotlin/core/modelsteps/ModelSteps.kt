@@ -208,7 +208,6 @@ abstract class FilterStep<E, I> : MutatingStep<E, I>, SameValidationBehavior whe
         repository.filterElements(name, this::check)
     }
     abstract fun check(element: E): Boolean
-
 }
 
 /**
