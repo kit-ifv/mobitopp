@@ -17,6 +17,7 @@ class HalfFloatTest {
     fun equalityTests() {
         assertEquals(Double.NaN, Double.NaN.toHalfFloat().fromHalfFloat())
         assertEquals(0.0, 0.0.toHalfFloat().fromHalfFloat())
+        assertEquals(0.0, 0.000000001.toHalfFloat().fromHalfFloat())
         assertEquals(65504.0, 65504.0.toHalfFloat().fromHalfFloat())
         val t = 65504.1.toHalfFloat().fromHalfFloat()
         assert( t in 65450.0.rangeTo(65550.0) ) // we have roughly log_10(2^12) = 3,6 decimal places of precision.

@@ -11,7 +11,7 @@ import kotlin.experimental.or
 private const val halfFloatNaN: Short = 0xFFFF.toShort()
 private const val halfFloatInfinity: Short = 0xFFFE.toShort()
 private const val halfFloatNegativeInfinity: Short = 0xFFFD.toShort()
-private const val halfFloatMaxValue: Short = 0xFFFC.toShort()
+private const val halfFloatMaxValue = 261888.0
 
 /* bit counts */
 private const val halfFloatBias = 14 // bias is the implicit exponent offset that allows for negative exponents
@@ -57,7 +57,7 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.MAX_VALUE, val un
 
     fun Double.toHalfFloat(): Short {
         if (this < 0) return halfFloatNegativeInfinity
-        if (this > halfFloatMaxValue.fromHalfFloat()) return halfFloatInfinity
+        if (this > halfFloatMaxValue) return halfFloatInfinity
         if (this.isNaN()) return halfFloatNaN
 
         val bits = toBits()
@@ -72,7 +72,7 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.MAX_VALUE, val un
      */
     private fun Short.toDoubleExponent(): Long {
         val exponent = (this and halfFloatExponentMask).rotateRight(11)
-        if (exponent == 0.toShort()) return 0
+        if (exponent == 0.toShort()) return 0 //todo denormalized handling?
         return (exponent - halfFloatBias + doubleBias).toLong().shl(doubleMantissaLength)
     }
 
@@ -93,7 +93,7 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.MAX_VALUE, val un
     private fun Long.toHalfFloatExponent(): Short {
         val doubleExponent = (this and doubleExponentMask).rotateRight(doubleMantissaLength)
         if (doubleExponent == 0L) return 0.toShort()
-        val halfFloatExponent = doubleExponent - doubleBias + halfFloatBias
+        val halfFloatExponent = doubleExponent - doubleBias + halfFloatBias //todo proper ranging somehow. don't know the correct way atm
         return halfFloatExponent.shl(halfFloatMantissaLength).toShort()
     }
 
