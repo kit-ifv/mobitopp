@@ -12,13 +12,14 @@ private const val halfFloatNaN: Short = 0xFFFF.toShort()
 private const val halfFloatInfinity: Short = 0xFFFE.toShort()
 private const val halfFloatNegativeInfinity: Short = 0xFFFD.toShort()
 
-
 /* bit counts */
 private const val halfFloatBias = 14 // bias is the implicit exponent offset that allows for negative exponents
 private const val halfFloatMantissaLength = 11
+@Suppress("unused")
 private const val halfFloatExponentLength = 5
 private const val doubleBias = 1023
 private const val doubleMantissaLength = 52
+@Suppress("unused")
 private const val doubleExponentLength = 11
 
 /* bit masks */
