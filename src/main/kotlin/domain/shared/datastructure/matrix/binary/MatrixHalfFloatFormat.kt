@@ -11,7 +11,7 @@ import kotlin.experimental.or
 private const val halfFloatNaN: Short = 0xFFFF.toShort()
 private const val halfFloatInfinity: Short = 0xFFFE.toShort()
 private const val halfFloatNegativeInfinity: Short = 0xFFFD.toShort()
-private const val halfFloatMaxValue = 261888.0
+
 
 /* bit counts */
 private const val halfFloatBias = 14 // bias is the implicit exponent offset that allows for negative exponents
@@ -27,13 +27,19 @@ const val halfFloatMantissaMask = 0x07FF.toShort()
 const val doubleExponentMask = 0x7FF0000000000000
 const val doubleMantissaMask = 0x000FFFFFFFFFFFFF
 
+/* values */
+private const val halfFloatMaxValue: Double = 261888.0 // == 0xFFFC.fromHalfFloat()
+private const val halfFloatMinPositiveValue: Double = 6.10649585723877E-5 // == 0x0001.fromHalfFloat()
 
 /**
- * @param overflowValue when a value exceeds the HalfFloat range it gets projected to this value.
- * @param underflowValue when a double < 0 is read, this is the value it should be translated to. Default is NaN, but
- * 0.0 could also be a reasonable choice.
+ * HalfFloats have roughly `log_10(2^12) = 3,6` decimal places of precision. They can represent numbers in the range of
+ * `[0.0, 261888.0]`.
+ * @param overflowValue when a value exceeds the HalfFloat range it gets projected to this value.Default is
+ * `Double.POSITIVE_INFINITY`.
+ * @param underflowValue when a double < 0 is read, this is the value it should be translated to. Default is
+ * `Double.NaN`, but 0.0 could also be a reasonable choice.
  */
-class MatrixHalfFloatFormat(val overflowValue: Double = Double.MAX_VALUE, val underflowValue: Double = Double.NaN) : StandardMatrixBinaryFormat {
+class MatrixHalfFloatFormat(val overflowValue: Double = Double.POSITIVE_INFINITY, val underflowValue: Double = Double.NaN) : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".hfbin"
 
     override fun writeContent(output: DataOutputStream, value: Double) {
@@ -59,9 +65,8 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.MAX_VALUE, val un
         if (this < 0) return halfFloatNegativeInfinity
         if (this > halfFloatMaxValue) return halfFloatInfinity
         if (this.isNaN()) return halfFloatNaN
-
+        if (this < halfFloatMinPositiveValue) return 0 // clamping to 0 if less than half float min positive value
         val bits = toBits()
-
         val outBits: Short = bits.toHalfFloatExponent() or bits.toHalfFloatMantissa()
         return outBits
     }
@@ -71,8 +76,8 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.MAX_VALUE, val un
      * exponent.
      */
     private fun Short.toDoubleExponent(): Long {
+        if (this == 0.toShort()) return 0
         val exponent = (this and halfFloatExponentMask).rotateRight(11)
-        if (exponent == 0.toShort()) return 0 //todo denormalized handling?
         return (exponent - halfFloatBias + doubleBias).toLong().shl(doubleMantissaLength)
     }
 
@@ -92,8 +97,7 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.MAX_VALUE, val un
      */
     private fun Long.toHalfFloatExponent(): Short {
         val doubleExponent = (this and doubleExponentMask).rotateRight(doubleMantissaLength)
-        if (doubleExponent == 0L) return 0.toShort()
-        val halfFloatExponent = doubleExponent - doubleBias + halfFloatBias //todo proper ranging somehow. don't know the correct way atm
+        val halfFloatExponent = (doubleExponent - doubleBias).coerceIn(-14, 16) + halfFloatBias
         return halfFloatExponent.shl(halfFloatMantissaLength).toShort()
     }
 
