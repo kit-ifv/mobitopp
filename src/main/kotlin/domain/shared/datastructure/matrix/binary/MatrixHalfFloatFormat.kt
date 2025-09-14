@@ -1,7 +1,7 @@
 package domain.shared.datastructure.matrix.binary
 
-import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 import kotlin.experimental.and
 import kotlin.experimental.or
 
@@ -47,16 +47,21 @@ private const val HALF_FLOAT_MIN_POSITIVE_VALUE: Double = 6.10649585723877E-5 //
  */
 class MatrixHalfFloatFormat(
     val overflowValue: Double = Double.POSITIVE_INFINITY,
-    val underflowValue: Double = Double.NaN
+    val underflowValue: Double = Double.NaN,
+    override val elementByteSize: Int = Short.SIZE_BYTES
 ) : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".hfbin"
 
-    override fun writeContent(output: DataOutputStream, value: Double) {
-        output.writeShort(value.toHalfFloat().toInt())
+    override fun writeContentArray(output: DataOutputStream, values: DoubleArray) {
+        writeBuffer(output, values, MatrixDoubleFormat.elementByteSize) {
+            putShort(it.toHalfFloat())
+        }
     }
 
-    override fun readContentElement(input: DataInputStream): Double {
-        return input.readShort().fromHalfFloat()
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
+        return readLoop(byteBuffer, elements) {
+            it.getShort().fromHalfFloat()
+        }
     }
 
     fun Short.fromHalfFloat(): Double {
