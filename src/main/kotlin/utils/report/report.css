@@ -1,0 +1,245 @@
+body {
+    font-family: sans-serif;
+    margin: 2rem;
+    background-color: #f7f7f7;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+
+    --highlight-color: #3f92c5;
+    --success-background: #c6f6c1;
+    --success-color: #1ccf00;
+    --warning-background: #f6ebc1;
+    --warning-color: #E1AA05;
+    --error-background: #f6c1c1;
+    --error-color: #d30000;
+    --normal-background: #f5f5f5;
+    --normal-color: #272727;
+    --huge-card: #eeeded;
+    --muted-color: rgba(0, 0, 0, 0.15);
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.rotatable,
+.card,
+.success,
+.warning,
+.error,
+.normal,
+svg,
+button,
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button {
+    all: unset;
+}
+body.dark {
+    background-color: #191919;
+    color: #f0f0f0;
+    --success-background: #465c42;
+    --success-color: #91e886;
+    --warning-background: #605034;
+    --warning-color: #e6c689;
+    --error-background: #4e3636;
+    --error-color: #f28383;
+    --normal-background: #373737;
+    --normal-color: #d5d5d6;
+    --huge-card: #242424;
+    --muted-color: rgba(255, 255, 255, 0.15);
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+html {
+    font-size: 18px;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 100rem;
+    min-width: 40rem;
+}
+
+pre {
+    margin: 0;
+}
+
+svg {
+    background: transparent;
+    color: inherit;
+}
+
+.inline {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.title {
+    color: var(--normal-color);
+}
+
+.success {
+    background: var(--success-background);
+    color: var(--success-color);
+}
+
+
+.warning {
+    background: var(--warning-background);
+    color: var(--warning-color);
+}
+
+.error {
+    background: var(--error-background);
+    color: var(--error-color);
+}
+
+.normal {
+    background: var(--normal-background);
+    color: var(--normal-color);
+}
+
+.card {
+    cursor: pointer;
+    border-radius: 10px;
+    padding-inline: 1em;
+    padding-top: 1em;
+    padding-bottom: 0.5em;
+    box-shadow: var(--shadow);
+}
+
+.card-top {
+    margin-bottom: 0.5em;
+}
+.card-title {
+    font-weight: bold;
+}
+
+.card-body {
+    max-height: 0;
+    overflow: hidden;
+    overflow-inline: auto;
+    transition: max-height 0.2s ease;
+}
+
+.overview-card {
+    border-radius: 10px;
+    padding-inline: 1em;
+    padding-top: 1em;
+    background-color: var(--huge-card);
+    color: var(--normal-color);
+    box-shadow: var(--shadow);
+}
+
+.logs-card {
+    cursor: pointer;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+    gap: 1rem;
+    color: var(--normal-color);
+    background-color: var(--huge-card);
+    box-shadow: var(--shadow);
+}
+
+.big-card-body {
+    overflow: hidden;
+    max-height: min-content;
+}
+
+.step {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 4rem;
+}
+
+.rotatable {
+    rotate: -90deg;
+    transition: rotate 0.2s ease-out;
+}
+
+.rotatable.rotate {
+    rotate: 0deg;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.darkmode-toggle {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    border-radius: 10px;
+    padding: 0.3em;
+    box-shadow: 0 2px 5px var(--shadow);
+    color: var(--normal-color);
+    background: var(--normal-background);
+}
+
+.line {
+    height: 3px;
+    flex: 1 0 0;
+    min-width: 0;
+    border-radius: 4px;
+    background-color: var(--muted-color);
+}
+
+.flex-row-centered {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.dot {
+    min-width: fit-content;
+}
+h1 {
+    font-size: 2.986rem;
+    margin: 0;
+}
+
+h2 {
+    font-size: 2.488rem;
+    margin: 0;
+}
+
+h3 {
+    font-size: 2.074rem;
+    margin: 0;
+}
+
+h4 {
+    font-size: 1.728rem;
+    margin: 0;
+}
+
+h5 {
+    font-size: 1.44rem;
+    margin: 0;
+}
+
+h6 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+small {
+    font-size: 0.833rem;
+}
