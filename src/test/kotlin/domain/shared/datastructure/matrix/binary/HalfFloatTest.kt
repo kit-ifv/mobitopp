@@ -30,7 +30,7 @@ class HalfFloatTest {
 fun main() {
     println("| bits | double value | double bits | ")
     println("| --- | --- | --- |")
-    for(i in (UShort.MIN_VALUE.toInt() until UShort.MAX_VALUE.toInt() + 1).step(64)) {
+    for(i in (UShort.MIN_VALUE.toInt() until UShort.MAX_VALUE.toInt() + 1).step(128)) {
         val short = i.toUShort()
         val transformedResult = short.toShort().fromHalfFloat()
         println("| ${short.toString(2)}| $transformedResult | ${transformedResult.toBits().toString(2)} |")
