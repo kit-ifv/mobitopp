@@ -8,32 +8,34 @@ import kotlin.experimental.or
 /* Definitions */
 
 /* half float bit representations */
-private const val halfFloatNaN: Short = 0xFFFF.toShort()
-private const val halfFloatInfinity: Short = 0xFFFE.toShort()
-private const val halfFloatNegativeInfinity: Short = 0xFFFD.toShort()
+private const val HALF_FLOAT_NAN: Short = 0xFFFF.toShort()
+private const val HALF_FLOAT_INFINITY: Short = 0xFFFE.toShort()
+private const val HALF_FLOAT_NEGATIVE_INFINITY: Short = 0xFFFD.toShort()
 
 /* bit counts */
-private const val halfFloatBias = 14 // bias is the implicit exponent offset that allows for negative exponents
-private const val halfFloatMantissaLength = 11
-@Suppress("unused")
-private const val halfFloatExponentLength = 5
+private const val HALF_FLOAT_BIAS = 14 // bias is the implicit exponent offset that allows for negative exponents
+private const val HALF_FLOAT_MANTISSA_LENGTH = 11
 
-private const val doubleBias = 1023
-private const val doubleMantissaLength = 52
 @Suppress("unused")
-private const val doubleExponentLength = 11
+private const val HALF_FLOAT_EXPONENT_LENGTH = 5
+
+private const val DOUBLE_BIAS = 1023
+private const val DOUBLE_MANTISSA_LENGTH = 52
+
+@Suppress("unused")
+private const val DOUBLE_EXPONENT_LENGTH = 11
 
 /* bit masks */
-const val halfFloatExponentMask = 0xF800.toShort()
-const val halfFloatMantissaMask = 0x07FF.toShort()
-const val doubleExponentMask = 0x7FF0000000000000
-const val doubleMantissaMask = 0x000FFFFFFFFFFFFF
+const val HALF_FLOAT_EXPONENT_MASK = 0xF800.toShort()
+const val HALF_FLOAT_MANTISSA_MASK = 0x07FF.toShort()
+const val DOUBLE_EXPONENT_MASK = 0x7FF0000000000000
+const val DOUBLE_MANTISSA_MASK = 0x000FFFFFFFFFFFFF
 
 /* values */
-private const val halfFloatMaxExponent: Int = 0x1F - halfFloatBias
-private const val halfFloatMinExponent: Int = -halfFloatBias
-private const val halfFloatMaxValue: Double = 261888.0 // == 0xFFFC.fromHalfFloat()
-private const val halfFloatMinPositiveValue: Double = 6.10649585723877E-5 // == 0x0001.fromHalfFloat()
+private const val HALF_FLOAT_MAX_EXPONENT: Int = 0x1F - HALF_FLOAT_BIAS
+private const val HALF_FLOAT_MIN_EXPONENT: Int = -HALF_FLOAT_BIAS
+private const val HALF_FLOAT_MAX_VALUE: Double = 261888.0 // == 0xFFFC.fromHalfFloat()
+private const val HALF_FLOAT_MIN_POSITIVE_VALUE: Double = 6.10649585723877E-5 // == 0x0001.fromHalfFloat()
 
 /**
  * HalfFloats have roughly `log_10(2^12) = 3,6` decimal places of precision. They can represent numbers in the range of
@@ -43,7 +45,10 @@ private const val halfFloatMinPositiveValue: Double = 6.10649585723877E-5 // == 
  * @param underflowValue when a double < 0 is read, this is the value it should be translated to. Default is
  * `Double.NaN`, but 0.0 could also be a reasonable choice.
  */
-class MatrixHalfFloatFormat(val overflowValue: Double = Double.POSITIVE_INFINITY, val underflowValue: Double = Double.NaN) : StandardMatrixBinaryFormat {
+class MatrixHalfFloatFormat(
+    val overflowValue: Double = Double.POSITIVE_INFINITY,
+    val underflowValue: Double = Double.NaN
+) : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".hfbin"
 
     override fun writeContent(output: DataOutputStream, value: Double) {
@@ -55,22 +60,24 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.POSITIVE_INFINITY
     }
 
     fun Short.fromHalfFloat(): Double {
-        when (this) {
-            // half float has these three special values, everything else is a valid half float
-            halfFloatNegativeInfinity -> return underflowValue
-            halfFloatInfinity -> return overflowValue
-            halfFloatNaN -> return Double.NaN
+        // half float has these three special values, everything else is a valid half float
+        return when (this) {
+            HALF_FLOAT_NEGATIVE_INFINITY -> underflowValue
+            HALF_FLOAT_INFINITY -> overflowValue
+            HALF_FLOAT_NAN -> Double.NaN
+            else -> {
+                val bits = this.toDoubleExponent() or this.toDoubleMantissa()
+                Double.fromBits(bits)
+            }
         }
-
-        val bits = this.toDoubleExponent() or this.toDoubleMantissa()
-        return Double.fromBits(bits)
     }
 
+    @Suppress("ReturnCount")
     fun Double.toHalfFloat(): Short {
-        if (this < 0) return halfFloatNegativeInfinity
-        if (this > halfFloatMaxValue) return halfFloatInfinity
-        if (this < halfFloatMinPositiveValue) return 0 // clamping to 0 if less than half float min positive value
-        if (this.isNaN()) return halfFloatNaN
+        if (this < 0) return HALF_FLOAT_NEGATIVE_INFINITY
+        if (this > HALF_FLOAT_MAX_VALUE) return HALF_FLOAT_INFINITY
+        if (this < HALF_FLOAT_MIN_POSITIVE_VALUE) return 0 // clamping to 0 if less than half float min positive value
+        if (this.isNaN()) return HALF_FLOAT_NAN
 
         val bits = toBits()
         val outBits: Short = bits.toHalfFloatExponent() or bits.toHalfFloatMantissa()
@@ -83,8 +90,8 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.POSITIVE_INFINITY
      */
     private fun Short.toDoubleExponent(): Long {
         if (this == 0.toShort()) return 0
-        val exponent = (this and halfFloatExponentMask).rotateRight(11)
-        return (exponent - halfFloatBias + doubleBias).toLong().shl(doubleMantissaLength)
+        val exponent = (this and HALF_FLOAT_EXPONENT_MASK).rotateRight(HALF_FLOAT_MANTISSA_LENGTH)
+        return (exponent - HALF_FLOAT_BIAS + DOUBLE_BIAS).toLong().shl(DOUBLE_MANTISSA_LENGTH)
     }
 
     /**
@@ -92,8 +99,8 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.POSITIVE_INFINITY
      * mantissa.
      */
     private fun Short.toDoubleMantissa(): Long {
-        val mantissa = this and halfFloatMantissaMask
-        return mantissa.toLong().shl(doubleMantissaLength - halfFloatMantissaLength)
+        val mantissa = this and HALF_FLOAT_MANTISSA_MASK
+        return mantissa.toLong().shl(DOUBLE_MANTISSA_LENGTH - HALF_FLOAT_MANTISSA_LENGTH)
     }
 
     /**
@@ -102,10 +109,10 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.POSITIVE_INFINITY
      * cases.
      */
     private fun Long.toHalfFloatExponent(): Short {
-        val doubleExponent = (this and doubleExponentMask).rotateRight(doubleMantissaLength)
-        val halfFloatExponent = (doubleExponent - doubleBias)
-            .coerceIn(halfFloatMinExponent.toLong(), halfFloatMaxExponent.toLong()) + halfFloatBias
-        return halfFloatExponent.shl(halfFloatMantissaLength).toShort()
+        val doubleExponent = (this and DOUBLE_EXPONENT_MASK).rotateRight(DOUBLE_MANTISSA_LENGTH)
+        val halfFloatExponent = (doubleExponent - DOUBLE_BIAS)
+            .coerceIn(HALF_FLOAT_MIN_EXPONENT.toLong(), HALF_FLOAT_MAX_EXPONENT.toLong()) + HALF_FLOAT_BIAS
+        return halfFloatExponent.shl(HALF_FLOAT_MANTISSA_LENGTH).toShort()
     }
 
     /**
@@ -115,7 +122,7 @@ class MatrixHalfFloatFormat(val overflowValue: Double = Double.POSITIVE_INFINITY
      */
     private fun Long.toHalfFloatMantissa(): Short {
         // Just takes the upper bits of the double mantissa. Special cases need to be handled somewhere else.
-        val doubleMantissa = this and doubleMantissaMask
-        return doubleMantissa.shr(doubleMantissaLength - halfFloatMantissaLength).toShort()
+        val doubleMantissa = this and DOUBLE_MANTISSA_MASK
+        return doubleMantissa.shr(DOUBLE_MANTISSA_LENGTH - HALF_FLOAT_MANTISSA_LENGTH).toShort()
     }
 }

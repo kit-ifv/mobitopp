@@ -5,8 +5,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
-const val overflowVal = Double.POSITIVE_INFINITY
-const val underflowVal = -1.0
+const val TEST_OVERFLOW_VAL = Double.POSITIVE_INFINITY
+const val TEST_UNDERFLOW_VAL = -1.0
 
 class HalfFloatTest {
 
@@ -33,19 +33,19 @@ class HalfFloatTest {
         val hfOneUnderMax = 0xFFFB.toShort().fromHalfFloat()
         val hfOneOverMin = 0x0002.toShort().fromHalfFloat()
 
-        assertEquals(underflowVal, Double.NEGATIVE_INFINITY.toFromHF())
-        assertEquals(underflowVal, (-Double.MAX_VALUE).toFromHF())
-        assertEquals(underflowVal, (-(10.0.pow(20))).toFromHF())
-        assertEquals(underflowVal, (0.0 - 0.0000001).toFromHF())
-        assertEquals(underflowVal, (-Double.MIN_VALUE).toFromHF())
+        assertEquals(TEST_UNDERFLOW_VAL, Double.NEGATIVE_INFINITY.toFromHF())
+        assertEquals(TEST_UNDERFLOW_VAL, (-Double.MAX_VALUE).toFromHF())
+        assertEquals(TEST_UNDERFLOW_VAL, (-(10.0.pow(20))).toFromHF())
+        assertEquals(TEST_UNDERFLOW_VAL, (0.0 - 0.0000001).toFromHF())
+        assertEquals(TEST_UNDERFLOW_VAL, (-Double.MIN_VALUE).toFromHF())
         assertEquals(0.0, 0.0.toFromHF())
         assertEquals(0.0, Double.MIN_VALUE.toFromHF())
         assertEquals(0.0, 0.000000001.toFromHF())
         assertEquals(0.0, (hfMinPositiveVal - 0.00000001).toFromHF())
-        assertEquals(hfMinPositiveVal,hfMinPositiveVal.toFromHF())
-        assertEquals(hfMinPositiveVal,(hfMinPositiveVal + 0.00000001).toFromHF())
-        assertEquals(hfMinPositiveVal,(hfOneOverMin - 0.00000001).toFromHF())
-        assertEquals(hfOneOverMin, (hfMinPositiveVal +    0.00000003).toFromHF())
+        assertEquals(hfMinPositiveVal, hfMinPositiveVal.toFromHF())
+        assertEquals(hfMinPositiveVal, (hfMinPositiveVal + 0.00000001).toFromHF())
+        assertEquals(hfMinPositiveVal, (hfOneOverMin - 0.00000001).toFromHF())
+        assertEquals(hfOneOverMin, (hfMinPositiveVal + 0.00000003).toFromHF())
         assertEquals(hfOneOverMin, hfOneOverMin.toFromHF())
         assertEquals(1.0, 1.0.toFromHF())
 
@@ -53,11 +53,11 @@ class HalfFloatTest {
         assertEquals(hfOneUnderMax, (hfMaxPositiveVal - 0.1).toFromHF())
         assertEquals(hfOneUnderMax, (hfMaxPositiveVal - 1).toFromHF())
         assertEquals(hfMaxPositiveVal, hfMaxPositiveVal.toFromHF())
-        assertEquals(overflowVal, (hfMaxPositiveVal + 1).toFromHF())
-        assertEquals(overflowVal, 299999.0.toFromHF())
-        assertEquals(overflowVal, 10.0.pow(20).toFromHF())
-        assertEquals(overflowVal, Double.POSITIVE_INFINITY.toFromHF())
-        assertEquals(overflowVal, Double.MAX_VALUE.toFromHF())
+        assertEquals(TEST_OVERFLOW_VAL, (hfMaxPositiveVal + 1).toFromHF())
+        assertEquals(TEST_OVERFLOW_VAL, 299999.0.toFromHF())
+        assertEquals(TEST_OVERFLOW_VAL, 10.0.pow(20).toFromHF())
+        assertEquals(TEST_OVERFLOW_VAL, Double.POSITIVE_INFINITY.toFromHF())
+        assertEquals(TEST_OVERFLOW_VAL, Double.MAX_VALUE.toFromHF())
     }
 
     @Test
@@ -65,19 +65,19 @@ class HalfFloatTest {
         // we have roughly log_10(2^12) = 3,6 decimal places of precision.
         val hfMaxPositiveVal = 0xFFFC.toShort().fromHalfFloat()
         for (k in (-6 until 4)) {
-            for(i in (100 until 1000)) {
+            for (i in (100 until 1000)) {
                 val testVal = i * 10.0.pow(k)
                 if (testVal >= hfMaxPositiveVal) break
                 val transformedVal = testVal.toFromHF()
                 // +-5 on the forth decimal place
-                val expectedRange = (testVal - (5 * 10.0.pow(k - 1))).rangeTo(testVal + (5* 10.0.pow(k - 1)))
+                val expectedRange = (testVal - (5 * 10.0.pow(k - 1))).rangeTo(testVal + (5 * 10.0.pow(k - 1)))
                 assert(transformedVal in expectedRange)
             }
         }
     }
 }
 
-val matrixFormat = MatrixHalfFloatFormat(overflowVal, underflowVal)
+val matrixFormat = MatrixHalfFloatFormat(TEST_OVERFLOW_VAL, TEST_UNDERFLOW_VAL)
 fun Short.fromHalfFloat(): Double {
     val t = this
     return matrixFormat.run { t.fromHalfFloat() }
@@ -98,7 +98,7 @@ fun Double.toFromHF(): Double {
 fun main() {
     println("| bits | double value | double bits | ")
     println("| --- | --- | --- |")
-    for(i in (UShort.MIN_VALUE.toInt() until UShort.MAX_VALUE.toInt() + 1).step(128)) {
+    for (i in (UShort.MIN_VALUE.toInt() until UShort.MAX_VALUE.toInt() + 1).step(128)) {
         val short = i.toUShort()
         val transformedResult = short.toShort().fromHalfFloat()
         println("| ${short.toString(2)}| $transformedResult | ${transformedResult.toBits().toString(2)} |")
