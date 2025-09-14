@@ -1,5 +1,5 @@
 import application.config.ExampleProjectContext
-import application.steps.model.loadChoiceModels
+import application.steps.model.loadBehaviorModels
 import application.steps.model.simulate
 import application.steps.parser.csv.StationColumns
 import application.steps.parser.csv.assignFixedDestinations
@@ -63,7 +63,7 @@ fun main() {
             columns = StationColumns(vehicleCountColumn = "bikes"),
         )
         finishSharingStations()
-        loadChoiceModels(legacyDestinationChoice, legacyModeChoice, legacyChoiceModelModes)
+        loadBehaviorModels(legacyDestinationChoice, legacyModeChoice, legacyChoiceModelModes)
         loadTestSet()
         assignFixedDestinations(LegacyActivityType.HOME, Path("src/test/resources/debughh/fixedDestination.csv"))
         simulate()

@@ -5,6 +5,8 @@ import domain.shared.location.ZoneId
 import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.inputStream
@@ -37,15 +39,11 @@ interface BinaryStandardSerializer : BinarySerializer {
             matrix.keys.forEach { idInt ->
                 outputStream.writeInt(idInt.value.toInt())
             }
-
             // Write all values from the array
-            matrix.values().forEach { value ->
-                writeContent(outputStream, value)
-            }
+            writeContentArray(outputStream, matrix.values().toDoubleArray())
         }
     }
-
-    fun writeContent(output: DataOutputStream, value: Double)
+    fun writeContentArray(output: DataOutputStream, values: DoubleArray)
 }
 
 interface BinaryDeserializer {
@@ -53,6 +51,7 @@ interface BinaryDeserializer {
 }
 
 interface BinaryStandardDeserializer : BinaryDeserializer {
+    val elementByteSize: Int
     override fun deserialize(path: Path): StandardMatrix {
         return path.inputStream().buffered().use {
             val input = DataInputStream(it)
@@ -66,10 +65,13 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
                     input.readInt().toLong()
                 ) // The established format is writing IDs (represented as long) as int, so we need to read them as int.
             }
-            val doubleArray = DoubleArray(size * size)
-            for (i in doubleArray.indices) {
-                doubleArray[i] = readContentElement(input)
-            }
+
+            val amountOfElements = size * size
+            val byteCount = amountOfElements * elementByteSize
+            val buffer = ByteArray(byteCount)
+            input.readFully(buffer)
+            val bb = ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN)
+            val doubleArray = readContentFromBuffer(bb, amountOfElements)
             StandardMatrix.fromValues(doubleArray, zoneIds)
         }
     }
@@ -84,5 +86,30 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
         }
     }
 
-    fun readContentElement(input: DataInputStream): Double
+    fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray
+}
+
+internal inline fun readLoop(
+    bb: ByteBuffer,
+    elements: Int,
+    crossinline decode: (ByteBuffer) -> Double
+): DoubleArray {
+    val array = DoubleArray(elements)
+    for (i in 0 until elements) {
+        array[i] = decode(bb)
+    }
+    return array
+}
+
+internal inline fun writeBuffer(
+    output: DataOutputStream,
+    values: DoubleArray,
+    bytesPerElement: Int,
+    crossinline encode: ByteBuffer.(Double) -> Unit
+) {
+    val bb = ByteBuffer.allocate(values.size * bytesPerElement).order(ByteOrder.BIG_ENDIAN)
+    for (v in values) {
+        encode(bb, v)
+    }
+    output.write(bb.array())
 }

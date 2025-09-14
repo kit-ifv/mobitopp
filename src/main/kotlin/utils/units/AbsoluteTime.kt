@@ -150,6 +150,9 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
     fun floorDiv(time: AbsoluteTime): Long {
         return floorDiv(time.sinceStart)
     }
+    operator fun rangeTo(other: AbsoluteTime): AbsoluteTimeProgression =
+        AbsoluteTimeProgression(this, other, 1.minutes)
+
     companion object {
         val START = AbsoluteTime(Duration.ZERO)
         val MINUS_INFINITY = AbsoluteTime(-Duration.INFINITE)
@@ -182,9 +185,36 @@ inline val Double.weeks get() = (this * DAYS_PER_WEEK).days
 
 inline val Duration.sinceStart get() = AbsoluteTime.START + this
 
-fun main() {
-    val start = Time.START + 5.hours
-    val end = Time.START + DAYS_PER_WEEK.hours + 12.minutes
+class AbsoluteTimeProgression(
+    override val start: AbsoluteTime,
+    override val endInclusive: AbsoluteTime,
+    val step: Duration,
+) : Iterable<AbsoluteTime>, ClosedRange<AbsoluteTime> {
 
-    print(end - start)
+    init {
+        require(step != Duration.ZERO && !step.isNegative()) {
+            "Step must be positive, but was $step"
+        }
+    }
+
+    override fun iterator(): Iterator<AbsoluteTime> = object : Iterator<AbsoluteTime> {
+        private var current = start
+
+        override fun hasNext(): Boolean = current <= endInclusive
+
+        override fun next(): AbsoluteTime {
+            if (!hasNext()) {
+                throw NoSuchElementException(
+                    "Nex increment step ${current + step} is out of range: [$start, $endInclusive]"
+                )
+            }
+
+            val result = current
+            current += step
+            return result
+        }
+    }
+
+    infix fun step(newStep: Duration): AbsoluteTimeProgression =
+        AbsoluteTimeProgression(start, endInclusive, newStep)
 }

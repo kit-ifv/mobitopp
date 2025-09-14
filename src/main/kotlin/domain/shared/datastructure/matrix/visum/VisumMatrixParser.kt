@@ -19,7 +19,7 @@ private fun String.splitByWhitespace(): List<String> {
 /**
  * The `MatrixParser` class is responsible for parsing a matrix from a file and converting it into a `Matrix` object.
  *
- * @param file The path to the file containing the matrix data.
+ * @param thoth lambda providing a buffered reader.
  */
 class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
     private var state: MatrixParseState = MatrixParseState.LOCATE_NUMBER

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1.3548 1.3542 22.0401 22.0275" width="35.6278px" height="35.6074px">
+  <g id="layer1" transform="matrix(0.767837, 0, 0, 0.767837, -6.376369, -6.383741)" style="fill:none;fill-opacity:1;stroke:currentColor;stroke-opacity:1">
+    <circle style="fill-opacity: 1; stroke-width: 3; fill: var(--warning-background); paint-order: fill markers;" id="path1" cx="24.421" cy="24.421" r="12.372"/>
+    <ellipse style="stroke-miterlimit: 3.71; stroke-linejoin: round; stroke: none; fill: currentcolor; stroke-width: 1;" cx="24.421" cy="30.743" rx="1.954" ry="1.954"/>
+    <path style="stroke-linejoin: round; fill: currentcolor; stroke-width: 1;" d="M 22.559 16.572 L 25.815 16.559 L 25.339 25.674 L 23.073 25.676 L 22.559 16.572 Z"/>
+  </g>
+</svg>
