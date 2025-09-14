@@ -17,6 +17,7 @@ private const val halfFloatBias = 14 // bias is the implicit exponent offset tha
 private const val halfFloatMantissaLength = 11
 @Suppress("unused")
 private const val halfFloatExponentLength = 5
+
 private const val doubleBias = 1023
 private const val doubleMantissaLength = 52
 @Suppress("unused")
