@@ -25,6 +25,7 @@ import domain.shared.enums.LegacyMode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
+import domain.simulation.events.personStateMachine
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.parser.NoActivityStartShifter
@@ -121,7 +122,7 @@ fun main() {
 
         assignFixedDestinations(homeActivity = LegacyActivityType.HOME)
 
-        buildAgents(GaussianActivityDurationRandomizer())
+        buildAgents(personStateMachine, GaussianActivityDurationRandomizer())
 
         simulate()
     }

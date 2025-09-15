@@ -24,7 +24,6 @@ import utils.csv.CsvReader
 import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.decodeName
-import utils.csv.id
 import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
@@ -64,7 +63,7 @@ fun LoadFixedDestinationsContext.assignFixedDestinations(
     val filterWrap: (Row) -> Boolean = { columns.filter(it, this) }
 
     val csvParser = CsvParser(errorHandling) { row ->
-        val id: PersonId = row.id(columns.personOid)
+        val id = PersonId(row.long(columns.personOid))
         val p = personRepository[id]
         val activityType = row.decodeName(
             columns.activityType,

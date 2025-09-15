@@ -1,15 +1,17 @@
 package domain.simulation.behavior
 
-import core.events.Resource
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.Metrics
 import domain.simulation.agent.PersonAgent
-import domain.simulation.agent.PrivateCarAgent
-import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.agent.SharingStationAgent
+import domain.simulation.agent.getBestCarOrNull
+import domain.simulation.agent.lastTransportMode
+import domain.synthesis.data.IPerson
+import domain.synthesis.data.SharingProviderId
+import domain.synthesis.data.sharingMembershipIds
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import utils.units.AbsoluteTime
 import kotlin.random.Random
@@ -19,7 +21,6 @@ interface DestinationChoiceCharacteristics {
     val time: AbsoluteTime
     val origin: Location
     val impedance: Metrics
-    val sharedResources: Set<Resource<PersonAgent>>
     val attractivityModel: AttractivenessModel
     val modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>
 
@@ -29,7 +30,6 @@ interface DestinationChoiceCharacteristics {
             time: AbsoluteTime,
             origin: Location,
             impedance: Metrics,
-            sharedResources: Set<Resource<PersonAgent>>,
             attractivityModel: AttractivenessModel,
             modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
         ): DestinationChoiceCharacteristics {
@@ -38,7 +38,6 @@ interface DestinationChoiceCharacteristics {
                 time,
                 origin,
                 impedance,
-                sharedResources,
                 attractivityModel,
                 modeAvailabilityFilter,
             )
@@ -60,7 +59,6 @@ data class DestinationChoiceCharacteristicsImpl(
     override val time: AbsoluteTime,
     override val origin: Location,
     override val impedance: Metrics,
-    override val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
     override val attractivityModel: AttractivenessModel,
     override val modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
 ) : DestinationChoiceCharacteristics {
@@ -89,7 +87,6 @@ interface ModeChoiceCharacteristics {
     val origin: Location
     val destination: Location
     val impedance: Metrics
-    val sharedResources: Set<Resource<PersonAgent>>
 
     companion object {
         operator fun invoke(
@@ -98,14 +95,12 @@ interface ModeChoiceCharacteristics {
             origin: Location,
             destination: Location,
             impedance: Metrics,
-            sharedResources: Set<Resource<PersonAgent>>,
         ): ModeChoiceCharacteristics = ModeChoiceCharacteristicsImpl(
             person,
             time,
             origin,
             destination,
             impedance,
-            sharedResources,
         )
     }
 }
@@ -119,7 +114,6 @@ data class ModeChoiceCharacteristicsImpl(
     override val origin: Location,
     override val destination: Location,
     override val impedance: Metrics,
-    override val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
 ) : ModeChoiceCharacteristics {
     val random: Random get() = person.random
     fun with(choice: Mode) = ModeChoiceAlternative(
@@ -127,93 +121,206 @@ data class ModeChoiceCharacteristicsImpl(
         time,
         origin,
         destination,
+        choice,
         impedance,
-        sharedResources
     )
 }
 
-data class ModeChoiceAlternative(
+data class ModeChoiceAlternative( //TODO check if this can be deleted?
     val person: PersonAgent,
     val time: AbsoluteTime,
     val origin: Location,
     val destination: Location,
+    val choice: Mode,
     val impedance: Metrics,
-    val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
-) {
+)
 
+data class ResourceAvailability(val mode: Mode?, val resources: Collection<Any> = emptyList()) {
+    val isAvailable: Boolean = (mode != null)
+}
+val notAvailable = ResourceAvailability(null, emptyList())
+fun available(mode: Mode, resources: Collection<Any> = emptyList()) = ResourceAvailability(mode, resources)
+
+fun Collection<ResourceAvailability>.flatten() = filter {
+    it.isAvailable
+}.run {
+    val modes = mapNotNull { it.mode }
+    val resources = flatMap { it.resources }
+    modes to resources
 }
 
-fun interface ModeAvailabilityFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics>
+context(agent: PersonAgent)
+fun ModeAvailabilityFilter.currentlyAffectedResources(modes: Collection<Mode>): List<Any> =
+    modes.flatMap { currentAvailability(it).resources }
 
-class SharingAvailabilityFilter(
-    val modes: ChoiceModelModes,
-    private val sharingStations: Set<SharingStationAgent>,
-    private val providersByMode: Map<Mode, Set<SharingProviderAgent>>,
-    private val metrics: Metrics,
-) : ModeAvailabilityFilter {
+/**
+ * ModeAvailabilityFilter is a [ChoiceFilter] for [ModeChoiceAlternative]s
+ * that additionally breaks down availability into three parts:
+ *  - static availability refers to the modes generally available to a person
+ *    based on their attributes like age, license, etc.
+ *  - current availability refers to the modes available for a person in their current situation
+ *    before a choice of destination or mode is performed e.g. including dynamic availability information
+ *    on shared vehicles. This also determines which mode related (shared) resources might be affected
+ *  - choice availability refers to modes available in a choice situation defined by [ModeChoiceCharacteristics]
+ *    with a selected destination e.g., filtering out bike sharing if there is no station at the destination
+ *
+ * This distinction allows to reuse the model at different stages of decision-making.
+ * The three stages should be implemented building on top of each other: choice > uses > current > uses > static.
+ * Also, static availability could be precomputed per person and current availability per choice
+ * situation/characteristics to reduce computation time.
+ *
+ */
+interface ModeAvailabilityFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics> {
 
-    //    private val cache = PerpetualCache<List<Byte>, Set<Mode>>()
     context(characteristics: ModeChoiceCharacteristics)
-    override fun filter(alternative: Mode): Boolean {
+    override fun filter(alternative: Mode): Boolean =
+        choiceAvailability(alternative)
 
-        return determineAvailability(alternative, characteristics)
 
+    /**
+     * Computes static availability of the given mode for the person provided as context:
+     * i.e., whether the mode is generally available to a person based on their attributes like age, license, etc.
+     *
+     * @receiver person the person to compute the static mode availability for
+     * @param mode the mode to be checked for static availability
+     * @return whether the [mode] is statically available to the person
+     */
+    context(person: IPerson)
+    fun staticAvailability(mode: Mode): Boolean
+
+    /**
+     * Computes the current availability (availability and possibly affected shared resources)
+     * of the given mode for the person agent in their current situation (given in the context).
+     *
+     * @param mode the mode for which to check availability and affected resources
+     * @receiver agent the person to compute the situative mode availability for
+     * @return availability and possibly affected resources
+     */
+    context(agent: PersonAgent)
+    fun currentAvailability(mode: Mode): ResourceAvailability
+
+    /**
+     * Checks the availability of a given mode choice alternative
+     * in the context of a choice situation defined by [ModeChoiceCharacteristics].
+     *
+     * @param mode the mode to be checked for availability
+     * @receiver characteristics the characteristics of the mode choice situation
+     * @return whether the given mode is available
+     */
+    context(characteristics: ModeChoiceCharacteristics)
+    fun choiceAvailability(mode: Mode): Boolean
+
+} // TODO implementation using composite of rules, caching of reduced choice sets in person data and choice situation
+
+fun interface BikeSharingConnectionSelector {
+    fun findConnection(characteristics: ModeChoiceCharacteristics): Pair<SharingStationAgent, SharingStationAgent>?
+}
+
+class AvailabilityModelWithSharing(
+    val modes: ChoiceModelModes,
+    private val providersByMode: Map<Mode, Set<SharingProviderId>>,
+    private val metrics: Metrics,
+) : ModeAvailabilityFilter, BikeSharingConnectionSelector {
+
+    context(person: IPerson)
+    override fun staticAvailability(mode: Mode): Boolean = when (mode) {
+        modes.car -> hasCarStatic(person)
+        modes.bike -> hasBikeStatic(person)
+        modes.carSharingStation -> hasCssbStatic(person)
+        modes.carSharingFree -> hasCsffStatic(person)
+        modes.ridePooling -> hasPoolingStatic(person)
+        modes.bikeSharing -> hasBikeSharingStatic(person)
+        else -> true
     }
 
-    // TODO insert check for sharing stations and find missing resources
-    private fun determineAvailability(mode: Mode, params: ModeChoiceCharacteristics): Boolean {
-        return when (mode) {
-            modes.car -> checkCar(params.person)
-            modes.bike -> checkBike(params.person)
-            modes.ridePooling -> checkRidepooling(params.person, mode)
-            modes.publicTransport -> checkPut(params.person)
-            modes.pedestrian -> true
-            modes.passenger -> true // TODO is passenger always available?
-            modes.bikeSharing -> checkSharing(params, mode) != null
-            else -> false
+    context(agent: PersonAgent)
+    override fun currentAvailability(mode: Mode): ResourceAvailability =
+        takeIf {
+            staticAvailability(mode) //TODO use cached static availability of agent
+        }?.let {
+            when (mode) {
+                modes.car -> isCarCurrentlyAvailable(agent)
+                modes.bikeSharing -> isBikeSharingCurrentlyAvailable(agent)
+                else -> when {
+                    mode.requiresVehicleTakeAlong -> mode.isFixedModeCurrentlyAvailable(agent)
+                    else -> mode.isFlexModeCurrentlyAvailableI(agent)
+                }
+            }
+        } ?: notAvailable
+
+    context(characteristics: ModeChoiceCharacteristics)
+    override fun choiceAvailability(mode: Mode): Boolean =
+        context(characteristics.person) {
+            currentAvailability(mode).isAvailable //TODO use cached situative availability of agent
+        } && when (mode) {
+            modes.bikeSharing -> isBikesharingAvailableForChoice(characteristics)
+            else -> true
         }
-    }
 
-    private fun checkBike(person: PersonAgent): Boolean {
-        return person.hasBike
-    }
+    // Static availability
+    private fun hasCarStatic(person: IPerson) =
+        person.hasLicense && person.household.cars.isNotEmpty()
 
-    private fun checkPut(person: PersonAgent): Boolean {
-        // TODO this is bugged, commuterticket has nothing to do with availability
-        return person.hasCommuterTicket
-    }
+    private fun hasBikeStatic(person: IPerson) =
+        person.hasBike
 
-    private fun checkCar(person: PersonAgent): Boolean {
-        return person.hasLicense && person.household.cars.any {
-            (it.location == person.location) && it.state != PrivateCarAgent.CarState.IN_USE &&
-                    ((it.location == person.household.location) || it.keyHolder == person)
+    private fun hasCssbStatic(person: IPerson) =
+        person.hasLicense &&
+                providersByMode[modes.carSharingStation]?.any { it in person.sharingMembershipIds } ?: false
+
+    private fun hasCsffStatic(person: IPerson) =
+        person.hasLicense &&
+                providersByMode[modes.carSharingFree]?.any { it in person.sharingMembershipIds } ?: false
+
+    private fun hasPoolingStatic(person: IPerson) =
+        providersByMode[modes.ridePooling]?.any { it in person.sharingMembershipIds } ?: false
+    // TODO person should have pooling memberships, this is not sharing or general service memberships
+
+    private fun hasBikeSharingStatic(person: IPerson) =
+        providersByMode[modes.bikeSharing]?.any { it in person.sharingMembershipIds } ?: false
+
+    // Current availability
+    private fun isCarCurrentlyAvailable(person: PersonAgent): ResourceAvailability =
+        takeIf { isHome(person) || (person.lastTransportMode() == this) }
+            ?.let { person.getBestCarOrNull() }?.let { available(modes.car, setOf(it)) } ?: notAvailable
+    //availability definition in other file :(
+
+    private fun isBikeSharingCurrentlyAvailable(person: PersonAgent): ResourceAvailability =
+        takeIf { isHome(person) || prevModeIsFlexible(person) }?.let {
+            person.sharingMemberships.filter {
+                it.id in (providersByMode[modes.bikeSharing] ?: emptySet())
+            }.flatMap {
+                it.stations
+            }.filter {
+                it.zonesByFoot.any { zone -> person.location in zone }
+            }
+        }?.let { available(modes.bikeSharing, it) } ?: notAvailable
+
+    private fun Mode.isFlexModeCurrentlyAvailableI(person: PersonAgent) =
+        takeIf { isHome(person) || prevModeIsFlexible(person) }?.let { available(this) } ?: notAvailable
+
+    private fun Mode.isFixedModeCurrentlyAvailable(person: PersonAgent) =
+        takeIf { isHome(person) || (person.lastTransportMode() == this) }?.let { available(this) } ?: notAvailable
+
+    private fun prevModeIsFlexible(person: PersonAgent): Boolean =
+        (person.lastTransportMode()?.requiresVehicleTakeAlong?.not() ?: true)
+
+    private fun isHome(person: PersonAgent): Boolean = person.location == person.household.location
+
+
+    //Choice availability
+    private fun isBikesharingAvailableForChoice(characteristics: ModeChoiceCharacteristics) =
+        findConnection(characteristics) != null
+
+    override fun findConnection(characteristics: ModeChoiceCharacteristics): Pair<SharingStationAgent, SharingStationAgent>? =
+        characteristics.findStartEndStation()
+
+    private fun ModeChoiceCharacteristics.findStartEndStation(): Pair<SharingStationAgent, SharingStationAgent>? {
+        val memberStations = person.sharingMemberships.filter {
+            it.id in (providersByMode[modes.bikeSharing] ?: emptySet())
+        }.flatMap {
+            it.stations
         }
-    }
-
-    private fun checkRidepooling(person: PersonAgent, mode: Mode): Boolean {
-        val sharingProviders = providersByMode[mode] ?: emptySet()
-        // TODO test this
-        return sharingProviders.any { it in person.memberships }
-    }
-
-    fun checkSharing(
-        params: ModeChoiceCharacteristics,
-        sharingMode: Mode,
-    ): Pair<SharingStationAgent, SharingStationAgent>? {
-        val person = params.person
-
-        val modeMemberships = providersByMode[sharingMode]?.filter {
-            it in person.memberships
-        } ?: emptySet()
-
-        if (modeMemberships.isEmpty()) {
-            return null
-        }
-
-        val memberStations = sharingStations.filter { it.owner in modeMemberships }
-
-        val origin = params.origin
-        val destination = params.destination
 
         val startStation =
             memberStations.filter {
@@ -221,7 +328,7 @@ class SharingAvailabilityFilter(
             }.filter {
                 it.hasAvailableVehicles
             }.minByOrNull {
-                metrics.distance(origin, it.location, sharingMode)
+                metrics.distance(it.location, destination, modes.bikeSharing)
             }
 
         val endStation =
@@ -230,7 +337,7 @@ class SharingAvailabilityFilter(
             }.filter {
                 it != startStation
             }.minByOrNull {
-                metrics.distance(it.location, destination, sharingMode)
+                metrics.distance(it.location, destination, modes.bikeSharing)
             }
 
         return startStation?.let { start ->
@@ -239,4 +346,6 @@ class SharingAvailabilityFilter(
             }
         }
     }
+
 }
+

@@ -11,7 +11,7 @@ import java.nio.file.Path
  *
  * This interface defines a method to read data from a binary file and return it as a list of objects.
  * The generic parameter [MUTABLE] represents the type of objects that will be read from the binary file.
- * Although it is common for the type to be a mutable type (e.g., [MutableHousehold], [MutablePerson]),
+ * Although it is common for the type to be a mutable type (e.g., [domain.synthesis.data.MutableHousehold], [MutablePerson]),
  * the interface is flexible and can work with any type, depending on the specific application.
  *
  * @param MUTABLE The type of the objects to be read from the binary file. It is generally recommended to use a mutable

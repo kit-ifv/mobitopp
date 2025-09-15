@@ -237,7 +237,7 @@ private val alternative = LegacyMode.entries.toSet()
 // availability properties
 val DestinationAlternative.availableModes: Set<Mode>
     get() {
-        return context(ModeChoiceCharacteristics(person, time, origin, choice, impedance, person.sharedResources())) {
+        return context(ModeChoiceCharacteristics(person, time, origin, choice, impedance)) {
             alternative.filter { modeAvailabilityFilter.filter(it) }.toSet()
         }
     }

@@ -31,7 +31,6 @@ import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.currency
 import utils.csv.decode
-import utils.csv.id
 import utils.csv.int
 import utils.csv.long
 import utils.csv.withFilter
@@ -143,7 +142,7 @@ fun LoadHouseholdContext.spawnCsvParser(
     val parser = CsvParser(errorHandling) { row ->
 
         MutableHousehold(
-            id = row.id(columns.hhIdColumn),
+            id = HouseholdId(row.long(columns.hhIdColumn)),
             simulationSeed,
         ) {
             householdNumber = row.long(columns.hhNumberColumn)
