@@ -257,7 +257,7 @@ val studentTypes = listOf(
     Employment.EDUCATION
 )
 val noWorkTypes = listOf(Employment.HOMEKEEPER, Employment.UNEMPLOYED)
-val Distance.kilometers get() = this.toDouble(DistanceUnit.MICROMETERS)
+val Distance.kilometers get() = this.toDouble(DistanceUnit.KILOMETERS)
 val Duration.minutes get() = this.toDouble(DurationUnit.MINUTES)
 inline operator fun Number.times(bool: Boolean) = this.toDouble() * bool.D
 inline operator fun Boolean.times(number: Number) = this.D * number.toDouble()
