@@ -24,7 +24,7 @@ import utils.ErrorHandling
 import utils.binary.BinaryWriter
 import utils.csv.Row
 import utils.csv.SEMICOLON
-import utils.csv.id
+import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
 
@@ -61,7 +61,7 @@ data class PersonCsvConfig(
      */
     val filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { row, context ->
 
-        row.id(this.householdColumn) in context.householdRepository
+        HouseholdId(row.long(this.householdColumn)) in context.householdRepository
     }
 }
 
