@@ -1,5 +1,6 @@
 package core.events
 
+import core.statemachine.Event
 import utils.collections.append
 import utils.units.Time
 import java.util.NavigableMap
@@ -19,20 +20,20 @@ class MapEventQueue : EventQueue {
     private val events: NavigableMap<Time, MutableList<Event<*>>> = TreeMap()
 
     override fun add(event: Event<*>) {
-        val timeSlice = events[event.time]
-        require(event.isValid) { "Attempted to add invalid Event to queue: $event" }
+        val timeSlice = events[event.receiveTime] // TODO round to nearest minute
+//        require(event.isValid) { "Attempted to add invalid Event to queue: $event" }
         require(
             timeSlice?.let {
                 event !in timeSlice
             } ?: true
         ) { "Attempted to add event to queue that was already added: $event" }
 
-        events.append(event.time, event)
+        events.append(event.receiveTime, event)
     }
 
     override fun addAll(events: Collection<Event<*>>) {
-        require(events.all { it.isValid })
-        val targets = events.groupBy { it.time }.map {
+//        require(events.all { it.isValid })
+        val targets = events.groupBy { it.receiveTime }.map {
             it.key to it.value.toMutableList()
         }
         targets.forEach { (k, v) ->
