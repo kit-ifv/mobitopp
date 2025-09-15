@@ -1,0 +1,9 @@
+scenarioName: "exampleSTM"
+seed: 42
+dataFolder: "//ifv-fs/Forschung/Projekte_intern/mobitopp/Output/logiktram_rastatt_long-term-module/rastatt"
+fractionOfPopulation: 1.0
+visumNetwork: "src/test/resources/rastatt.net"
+attractivitiesFile: "data/attractivities.csv"
+costMatrixConfigPath: "C:/Users/fi7528/Desktop/HamburgMatrices/cost-matrix-configuration_transmove_turbo.yaml"
+durationMatrixConfigPath: "C:/Users/fi7528/Desktop/HamburgMatrices/time-matrix-configuration_transmove_turbo.yaml"
+distanceMatrixPath: "C:/Users/fi7528/Desktop/HamburgMatrices/DIS_Car.mtx.bz2"

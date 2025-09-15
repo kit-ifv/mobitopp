@@ -23,7 +23,7 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
     private val additionalSteps: MutableList<MutatingStep<E, I>> = mutableListOf()
 
     // Similar to source, there should reasonably only be one filter. BUt here I am open to discussion
-    var filter: ((E) -> Boolean)? = null
+    var filter: IDFilter<I>? = null
 
     // For DSL addition of steps
     operator fun MutatingStep<E, I>.unaryPlus() {
@@ -62,11 +62,15 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
         target.runStep {
             source
         }
-        filter?.let {
-            target.runStep { source.spawnFilterStep(it) }
+        filter?.let { filter->
+            target.runStep { source.spawnFilterStep { filter.accept(it.id)} }
         }
         additionalSteps.forEach {
             target.runStep { it }
         }
     }
+}
+
+fun interface IDFilter  <I> {
+    fun accept(id: I): Boolean
 }

@@ -4,6 +4,7 @@ import core.modelsteps.AddResourceStep
 import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.FilterIdsStep
 import core.modelsteps.GroupedStepBuilder
+import core.modelsteps.IDFilter
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
@@ -35,6 +36,7 @@ import utils.csv.int
 import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
+import kotlin.math.roundToInt
 
 interface LoadHouseholdContext : DemandSimContext {
     val zoneRepository: Repository<Zone, ZoneId>
@@ -71,7 +73,15 @@ data class HouseholdColumns(
     val incomeColumn: String = "income",
     val economicalStatusColumn: String = "economicalStatus",
 )
+fun interface HouseholdIDFilter: IDFilter<HouseholdId>
 
+class PercentOfPopulation(fraction: Double) : HouseholdIDFilter {
+    var counter = 0
+    val acceptedIncrement = (1 / fraction).roundToInt()
+    override fun accept(id: HouseholdId): Boolean {
+        return (counter % acceptedIncrement == 0).also { counter++ }
+    }
+}
 /**
  * Build a DSL function call that wraps the operations on the household context in curly brackets, by operating on
  * a [HouseholdStepBuilder] object. collects all the steps created and finalizes the repository at the end of the
