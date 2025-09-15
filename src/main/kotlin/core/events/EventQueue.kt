@@ -3,6 +3,8 @@ package core.events
 import core.statemachine.Event
 import utils.collections.append
 import utils.units.Time
+import java.util.NavigableMap
+import java.util.TreeMap
 
 interface EventQueue {
     fun add(event: Event<*>)
@@ -15,7 +17,7 @@ interface EventQueue {
 }
 
 class MapEventQueue : EventQueue {
-    private val events: MutableMap<Time, MutableList<Event<*>>> = mutableMapOf()
+    private val events: NavigableMap<Time, MutableList<Event<*>>> = TreeMap()
 
     override fun add(event: Event<*>) {
         val timeSlice = events[event.receiveTime] // TODO round to nearest minute
@@ -46,8 +48,13 @@ class MapEventQueue : EventQueue {
     }
 
     override fun hasEventsUntil(time: Time): Boolean = events.keys.any { it <= time }
-
-    override fun popEventsUntil(time: Time): List<Event<*>> = events.entries
-        .filter { it.key <= time }
-        .flatMap { events.remove(it.key)!! }
+    override fun popEventsUntil(time: Time): List<Event<*>> {
+        val due = events.headMap(time, true)
+        val result = due.values.flatten()
+        due.clear() // remove from backing map
+        return result
+    }
+//    override fun popEventsUntil(time: Time): List<Event<*>> = events.entries
+//        .filter { it.key <= time }
+//        .flatMap { events.remove(it.key)!! }
 }

@@ -6,6 +6,7 @@ import domain.shared.datastructure.matrix.binary.MatrixShortFormat
 import domain.shared.location.ZoneId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import utils.files.PathChecksum
 import kotlin.io.path.Path
 import kotlin.io.path.deleteIfExists
 
@@ -20,7 +21,7 @@ class StandardMatrixTest {
     fun doubleConversionTest() {
         val standardMatrix = StandardMatrix.parseAsVisumMatrix(matrixPath)
         val format = MatrixDoubleFormat
-        format.serialize(1L, standardMatrix, targetPath)
+        format.serialize(PathChecksum.from(1L), standardMatrix, targetPath)
 
         val output = format.deserialize(targetPath)
         assertEquals(standardMatrix, output)
@@ -31,7 +32,7 @@ class StandardMatrixTest {
     fun floatConversionTest() {
         val standardMatrix = StandardMatrix.parseAsVisumMatrix(matrixPath)
         val format = BinaryIntegerFormat(1000)
-        format.serialize(1L, standardMatrix, targetPathF)
+        format.serialize(PathChecksum.from(1L), standardMatrix, targetPathF)
         val output = format.deserialize(targetPathF)
         assertEquals(standardMatrix, output)
         targetPathF.deleteIfExists()
@@ -47,7 +48,7 @@ class StandardMatrixTest {
             listOf(a, b, c)
         )
         val format = MatrixShortFormat
-        format.serialize(1L, standardMatrix, targetPathS)
+        format.serialize(PathChecksum.from(1L), standardMatrix, targetPathS)
         val output = format.deserialize(targetPathS)
         assertEquals(output[a, a], 0.0)
         assertEquals(output[a, b], 1.0)
