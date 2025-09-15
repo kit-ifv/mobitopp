@@ -2,6 +2,7 @@ package domain.shared.enums
 
 import domain.shared.behavior.ChoiceModelModes
 import utils.CodePlan
+import utils.EnumDecodable
 
 /**
  * The default mode encoding from legacy MobiTopp
@@ -40,6 +41,12 @@ enum class LegacyMode(override val code: Int, private val isFixed: Boolean = fal
     override val requiresVehicleTakeAlong: Boolean = isFixed
 }
 
+object MainModes: EnumDecodable<LegacyMode>(LegacyMode::class) {
+    private val modes = setOf(LegacyMode.BIKE, LegacyMode.CAR, LegacyMode.PASSENGER, LegacyMode.PEDESTRIAN, LegacyMode.PUBLICTRANSPORT)
+    override fun values(): Set<LegacyMode> {
+        return modes
+    }
+}
 val legacyChoiceModelModes = ChoiceModelModes(
     car = LegacyMode.CAR,
     passenger = LegacyMode.PASSENGER,

@@ -79,13 +79,15 @@ dependencies {
     implementation(libs.kotlinx.html) //0.12.0
 
     // other libs
-    implementation(libs.snakeyaml) // SnakeYAML dependency, 2.2
+    implementation(libs.jackson.parser)
+    implementation(libs.jackson.kotlin.serialization)
     implementation(libs.commons.compress) //1.26.2
     implementation(libs.xz) //1.9
     implementation(libs.progressbar) //0.10.1
     implementation(libs.exp4j) //0.4.8
 
     implementation(libs.fast.util)
+
 
 }
 
