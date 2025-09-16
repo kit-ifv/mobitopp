@@ -4,7 +4,7 @@ import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.CostMetric
 import domain.shared.location.Location
 import domain.shared.location.ZoneId
-import units.Currency
+import edu.kit.ifv.units.Currency
 
 fun interface DoubleToCurrency {
     fun from(x: Double): Currency

@@ -10,9 +10,9 @@ import domain.synthesis.behavior.domain.SynthesisPerson
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
-import units.Distance
-import units.DistanceUnit
-import units.kilometers
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.kilometers
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.random.Random

@@ -4,7 +4,7 @@ import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.DistanceMetric
 import domain.shared.location.Location
 import domain.shared.location.ZoneId
-import units.Distance
+import edu.kit.ifv.units.Distance
 
 fun interface DoubleToDistance {
     fun from(x: Double): Distance

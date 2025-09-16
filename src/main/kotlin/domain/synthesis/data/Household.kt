@@ -2,8 +2,8 @@ package domain.synthesis.data
 
 import Mutable
 import domain.shared.location.Location
+import edu.kit.ifv.units.Currency
 import kotlinx.serialization.Serializable
-import units.Currency
 import utils.Encodable
 import utils.EnumDecodable
 import utils.Identifiable

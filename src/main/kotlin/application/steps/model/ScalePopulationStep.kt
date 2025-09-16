@@ -1,7 +1,7 @@
 package application.steps.model
 
-import units.UnitIntervalValue
-import units.share
+import edu.kit.ifv.units.UnitIntervalValue
+import edu.kit.ifv.units.share
 
 // fun <S, C> S.scalePopulation(
 //    percent: UnitIntervalValue = 1.share()

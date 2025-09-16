@@ -4,8 +4,8 @@ import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import units.GPSCoordinate
-import units.share
+import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.share
 import java.io.DataInputStream
 import java.io.DataOutputStream
 

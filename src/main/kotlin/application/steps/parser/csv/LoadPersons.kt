@@ -14,7 +14,7 @@ import domain.synthesis.data.SharingProviderId
 import domain.synthesis.parser.PersonColumns
 import domain.synthesis.parser.PersonCsvContext
 import domain.synthesis.parser.personCsvParser
-import units.CurrencyUnit
+import edu.kit.ifv.units.CurrencyUnit
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.Row

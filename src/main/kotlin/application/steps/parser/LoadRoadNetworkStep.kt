@@ -9,7 +9,7 @@ import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.datastructure.LocatableGraph
 import domain.simulation.config.DemandSimContext
-import units.Hemisphere
+import edu.kit.ifv.units.Hemisphere
 import java.nio.file.Path
 import kotlin.io.path.name
 

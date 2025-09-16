@@ -6,9 +6,9 @@ import domain.VisumPolyZone
 import domain.VisumZoneId
 import domain.shared.location.Location
 import domain.shared.location.Zone
-import units.Coordinate
-import units.Distance
-import units.GPSCoordinate
+import edu.kit.ifv.units.Coordinate
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.GPSCoordinate
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
