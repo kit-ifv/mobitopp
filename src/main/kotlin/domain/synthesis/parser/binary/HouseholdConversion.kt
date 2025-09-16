@@ -8,8 +8,8 @@ import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
-import units.CurrencyUnit
-import units.euros
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
 import java.io.DataInputStream

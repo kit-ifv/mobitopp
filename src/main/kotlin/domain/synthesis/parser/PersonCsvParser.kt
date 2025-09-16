@@ -10,7 +10,7 @@ import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
 import domain.synthesis.data.SharingProvider
-import units.CurrencyUnit
+import edu.kit.ifv.units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser

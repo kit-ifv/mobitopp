@@ -8,7 +8,7 @@ import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ScalableVector
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
-import units.Currency
+import edu.kit.ifv.units.Currency
 
 fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipAttributes {
     return CarOwnershipAttributes(

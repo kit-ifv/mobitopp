@@ -7,8 +7,8 @@ import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
-import units.DistanceUnit
-import units.toDistance
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.toDistance
 import utils.Decodable
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter

@@ -1,9 +1,9 @@
 package core.results.plots
 
+import edu.kit.ifv.units.share
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
-import units.share
 import utils.units.round
 import kotlin.test.assertEquals
 

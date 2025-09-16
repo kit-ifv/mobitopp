@@ -29,8 +29,8 @@ import domain.simulation.events.personStateMachine
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.parser.NoActivityStartShifter
-import units.meters
-import units.share
+import edu.kit.ifv.units.meters
+import edu.kit.ifv.units.share
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
