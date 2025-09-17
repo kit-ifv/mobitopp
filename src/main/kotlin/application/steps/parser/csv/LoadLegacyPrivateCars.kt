@@ -1,6 +1,6 @@
 package application.steps.parser.csv
 
-import core.modelsteps.AddResourceStep
+import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
@@ -63,8 +63,10 @@ interface LoadPrivateCarsContext : DemandSimContext {
         personRepository[PersonId(row.long(mainUserColumn))]
     ) {
         "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
-            " ${personRepository.elements.map { it.id }.toList()}"
+            " ${personRepository.elements.map { it.id }.toList().sortedBy{abs(it.value - row(mainUserColumn).toLong())}.take(5)}"
     }
+
+
 }
 fun LoadPrivateCarsContext.privateCars(lambda: PrivateCarStepBuilder.() -> Unit) {
     val lpcBuilder = PrivateCarStepBuilder(householdRepository::get, personRepository::get)
@@ -80,14 +82,14 @@ class PrivateCarStepBuilder(
     override val reader: BinaryReader<MutablePrivateCar> = BinaryCarReader(householdConverter, personConverter)
     override val writer: BinaryWriter<MutablePrivateCar> = BinaryCarWriter()
 
-    override fun fromCSV(
-        source: Path,
-        lambda: context(Path) () -> AddResourceStep<MutablePrivateCar, CarId>,
-    ): FileBasedAddResourceStep<MutablePrivateCar, CarId> {
-        return context(source) {
-            FileBasedAddResourceStep(source, lambda(source))
-        }
-    }
+//    override fun fromCSV(
+//        source: Path,
+//        lambda: context(Path) () -> AbstractAddResourceStep<MutablePrivateCar, CarId>,
+//    ): FileBasedAddResourceStep<MutablePrivateCar, CarId> {
+//        return context(source) {
+//            FileBasedAddResourceStep(source, lambda(source))
+//        }
+//    }
 }
 data class CarColumns(
     val ownerColumn: String = "ownerId",
@@ -117,7 +119,7 @@ fun LoadPrivateCarsContext.privateCarCsvParser(
     }
 }
 fun LoadPrivateCarsContext.runStep(
-    step: AddResourceStep<MutablePrivateCar, CarId>
+    step: AbstractAddResourceStep<MutablePrivateCar, CarId>
 ) = runStep {
     step
 }
