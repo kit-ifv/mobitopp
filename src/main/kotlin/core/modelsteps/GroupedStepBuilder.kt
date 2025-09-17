@@ -30,11 +30,11 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
         additionalSteps.add(this)
     }
 
-    // Entry function for source if source is file based on a CSV file found at source.
-    abstract fun fromCSV(
-        source: Path,
-        lambda: context(Path) () -> AddResourceStep<E, I>,
-    ): FileBasedAddResourceStep<E, I>
+//    // Entry function for source if source is file based on a CSV file found at source.
+//    abstract fun fromCSV(
+//        source: Path,
+//        lambda: context(Path) () -> AbstractAddResourceStep<E, I>,
+//    ): FileBasedAddResourceStep<E, I>
 
     // If you dont want to use a binary cache.
     fun FileBasedAddResourceStep<E, I>.disableCache(): AddResourceStep<E, I> {
@@ -45,7 +45,7 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
     fun FileBasedAddResourceStep<E, I>.enableCache(cacheRootPath: Path = Path.of("data")): AddResourceStep<E, I> {
         return step.cacheInternally(cacheRootPath = cacheRootPath, sourcePath = source)
     }
-    private fun AddResourceStep<E, I>.cacheInternally(cacheRootPath: Path, sourcePath: Path): AddResourceStep<E, I> {
+    private fun AbstractAddResourceStep<E, I>.cacheInternally(cacheRootPath: Path, sourcePath: Path): AddResourceStep<E, I> {
         return this.cached(
             reader,
             writer,

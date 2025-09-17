@@ -1,6 +1,6 @@
 package application.steps.parser.csv
 
-import core.modelsteps.AddResourceStep
+import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
@@ -26,6 +26,7 @@ import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.withFilter
 import java.nio.file.Path
+import kotlin.math.abs
 import kotlin.time.DurationUnit
 
 @Suppress("LongParameterList")
@@ -84,7 +85,7 @@ data class ActivityCsvConfig(
 )
 
 fun LoadPlannedActivitiesContext.runStep(
-    step: AddResourceStep<MutablePlannedActivity, ActivityId>
+    step: AbstractAddResourceStep<MutablePlannedActivity, ActivityId>
 
 ) = runStep {
     step
@@ -108,14 +109,14 @@ class ActivityBuild(
     )
     override val writer: BinaryWriter<MutablePlannedActivity> = BinaryActivityWriter()
 
-    override fun fromCSV(
-        source: Path,
-        lambda: context(Path) () -> AddResourceStep<MutablePlannedActivity, ActivityId>,
-    ): FileBasedAddResourceStep<MutablePlannedActivity, ActivityId> {
-        return context(source) {
-            FileBasedAddResourceStep(source, lambda())
-        }
-    }
+//    override fun fromCSV(
+//        source: Path,
+//        lambda: context(Path) () -> AbstractAddResourceStep<MutablePlannedActivity, ActivityId>,
+//    ): FileBasedAddResourceStep<MutablePlannedActivity, ActivityId> {
+//        return context(source) {
+//            FileBasedAddResourceStep(source, lambda())
+//        }
+//    }
 }
 fun LoadPlannedActivitiesContext.finishActivities() = runStep {
     SealStep(plannedActivityRepository)
@@ -137,6 +138,6 @@ interface LoadPlannedActivitiesContext : DemandSimContext {
         personRepository[personId]
     ) {
         "Referenced person id $personId could not be found in personRepo:" +
-            " ${personRepository.elements.map { it.id }.toList()}"
+            " ${personRepository.elements.map { it.id }.toList().sortedBy{abs(it.value - personId.value)}.take(5)}"
     }
 }

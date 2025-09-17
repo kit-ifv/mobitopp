@@ -1,6 +1,6 @@
 package application.steps.parser.csv
 
-import core.modelsteps.AddResourceStep
+import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.FilterIdsStep
 import core.modelsteps.GroupedStepBuilder
@@ -98,14 +98,14 @@ class HouseholdStepBuilder(val seed: Long, val converter: (ZoneId) -> Zone) :
     GroupedStepBuilder<MutableHousehold, HouseholdId>() {
     override val reader: BinaryReader<MutableHousehold> = BinaryHouseholdReader(converter, seed)
     override val writer: BinaryWriter<MutableHousehold> = BinaryHouseholdWriter()
-    override fun fromCSV(
-        source: Path,
-        lambda: context(Path) () -> AddResourceStep<MutableHousehold, HouseholdId>,
-    ): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
-        return context(source) {
-            FileBasedAddResourceStep(source, lambda(source))
-        }
-    }
+//    override fun fromCSV(
+//        source: Path,
+//        lambda: context(Path) () -> AbstractAddResourceStep<MutableHousehold, HouseholdId>,
+//    ): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
+//        return context(source) {
+//            FileBasedAddResourceStep(source, lambda(source))
+//        }
+//    }
 }
 
 @Suppress("LongParameterList", "UnusedParameter")
@@ -201,9 +201,9 @@ fun LoadHouseholdContext.householdsFromCsvStep(
 }
 
 fun LoadHouseholdContext.runStep(
-    step: AddResourceStep<MutableHousehold, HouseholdId>,
+    step: AbstractAddResourceStep<MutableHousehold, HouseholdId>,
 
-) = runStep {
+    ) = runStep {
     step
 }
 
