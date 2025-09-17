@@ -3,8 +3,8 @@ package domain.synthesis.behavior.domain
 import domain.shared.location.Location
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.data.EconomicStatus
-import units.Currency
-import units.euros
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.euros
 
 /**
  * A Synthesis household consists of multiple synthesis persons. The fields are variable to be modified within the

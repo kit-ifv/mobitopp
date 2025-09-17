@@ -42,9 +42,9 @@ dependencies {
     detektPlugins(project(":custom-detekt"))
 
     //ifv libs
-    api(libs.ifv.units) //"edu.kit.ifv.mobitopp:kotlin-units:1.1.6")
-    api(libs.ifv.visum.netparser) //"edu.kit.ifv:visumNetfileParser:0.9.13")
-    api(libs.ifv.discrete.choice) //"edu.kit.ifv.mobitopp:discrete-choice:1.0.0
+    api(libs.ifv.units)
+    api(libs.ifv.visum.netparser)
+    api(libs.ifv.discrete.choice)
     api(libs.ifv.actitoppNG)
 
 

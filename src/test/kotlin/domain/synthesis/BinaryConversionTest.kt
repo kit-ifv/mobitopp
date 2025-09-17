@@ -21,13 +21,13 @@ import domain.synthesis.parser.binary.BinaryPersonReader
 import domain.synthesis.parser.binary.BinaryPersonWriter
 import domain.synthesis.parser.binary.BinaryZoneReader
 import domain.synthesis.parser.binary.BinaryZoneWriter
+import edu.kit.ifv.units.euros
 import generateHousehold
 import generatePerson
 import generatePlannedActivity
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import spawnCar
-import units.euros
 import utils.units.sinceStart
 import java.nio.file.Files
 import java.nio.file.Path

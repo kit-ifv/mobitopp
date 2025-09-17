@@ -1,7 +1,7 @@
 package core.modelsteps
 
-import units.CurrencyUnit
-import units.DistanceUnit
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.DistanceUnit
 import utils.units.AbsoluteTime
 import java.nio.file.Path
 import kotlin.time.Duration

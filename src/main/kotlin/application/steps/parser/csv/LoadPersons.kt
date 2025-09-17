@@ -19,7 +19,7 @@ import domain.synthesis.parser.PersonCsvContext
 import domain.synthesis.parser.binary.BinaryPersonReader
 import domain.synthesis.parser.binary.BinaryPersonWriter
 import domain.synthesis.parser.personCsvParser
-import units.CurrencyUnit
+import edu.kit.ifv.units.CurrencyUnit
 import utils.ErrorHandling
 import utils.binary.BinaryWriter
 import utils.csv.Row

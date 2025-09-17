@@ -12,9 +12,9 @@ import domain.synthesis.data.isAdult
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
-import units.Currency
-import units.Distance
-import units.DistanceUnit
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.DistanceUnit
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.max

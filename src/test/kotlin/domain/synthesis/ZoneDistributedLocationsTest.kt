@@ -14,11 +14,11 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.behavior.ZoneDistributedLocations
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.Hemisphere
+import edu.kit.ifv.units.meters
 import readPolyZones
-import units.Distance
-import units.GPSCoordinate
-import units.Hemisphere
-import units.meters
 import utils.csv.DefaultCsvReader
 import kotlin.io.path.Path
 import kotlin.test.Test

@@ -4,7 +4,7 @@ import core.modelsteps.Context
 import core.modelsteps.ModelStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
-import units.UnitIntervalValue
+import edu.kit.ifv.units.UnitIntervalValue
 
 data class PlotterBuilder<E, G, X, A, Y, C>(
     val style: PlotStyling<G, X, C>,

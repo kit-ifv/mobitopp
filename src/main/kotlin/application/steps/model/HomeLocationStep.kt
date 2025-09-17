@@ -15,7 +15,7 @@ import domain.synthesis.behavior.TrivialGroupStrategy
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
-import units.meters
+import edu.kit.ifv.units.meters
 
 interface HomeLocationModelContext : DemandSimContext {
     val zoneRepository: Repository<Zone, ZoneId>
