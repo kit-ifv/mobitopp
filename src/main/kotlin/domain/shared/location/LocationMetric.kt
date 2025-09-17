@@ -1,7 +1,7 @@
 package domain.shared.location
 
-import units.Currency
-import units.Distance
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.Distance
 import kotlin.time.Duration
 
 /**

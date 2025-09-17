@@ -8,10 +8,10 @@ import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
-import units.Currency
-import units.Distance
-import units.euros
-import units.kilometers
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.kilometers
 import kotlin.random.Random
 
 data class CarSegmentSituation(

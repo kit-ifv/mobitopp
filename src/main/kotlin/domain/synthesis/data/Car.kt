@@ -1,12 +1,12 @@
 package domain.synthesis.data
 
 import Mutable
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.Efficiency
+import edu.kit.ifv.units.Energy
+import edu.kit.ifv.units.Volume
+import edu.kit.ifv.units.kilometers
 import kotlinx.serialization.Serializable
-import units.Distance
-import units.Efficiency
-import units.Energy
-import units.Volume
-import units.kilometers
 import utils.Encodable
 import utils.EnumDecodable
 import utils.Identifiable

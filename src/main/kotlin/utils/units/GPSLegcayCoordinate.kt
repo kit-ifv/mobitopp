@@ -1,8 +1,8 @@
 package utils.units
 
-import units.Distance
-import units.GPSCoordinate
-import units.kilometers
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.kilometers
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.cos

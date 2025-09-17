@@ -3,9 +3,9 @@ package domain.shared.location
 import Mutable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.GPSCoordinate
 import kotlinx.serialization.Serializable
-import units.Distance
-import units.GPSCoordinate
 import utils.Identifiable
 import utils.random.StochasticActor
 import kotlin.random.Random

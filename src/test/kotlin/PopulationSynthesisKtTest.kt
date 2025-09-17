@@ -13,11 +13,11 @@ import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
 import domain.synthesis.behavior.householdgeneration.TrivialSynthesis
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Sex
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.meters
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import units.euros
-import units.meters
 import kotlin.io.path.Path
 import kotlin.test.Test
 
