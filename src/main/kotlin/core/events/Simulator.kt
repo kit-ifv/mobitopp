@@ -41,14 +41,16 @@ abstract class Simulator(
             }.flatten().toList()
         )
     }
-
+    fun <E> addAgent(agent: E) where E : Identifiable<*>, E : Agent<*> {
+        addAgents(listOf(agent))
+    }
     fun run(start: AbsoluteTime, end: AbsoluteTime) {
         for (time in progressClock(start, timeStep, end)) {
             queue.addAll(getFutureEvents(time))
         }
     }
 
-    protected fun getFutureEvents(now: Time): Collection<Event<*>> {
+    protected open fun getFutureEvents(now: Time): Collection<Event<*>> {
         val currentEvents = queue.popEventsUntil(now)
         val (present, future) = currentEvents.partition { it.receiveTime <= now }.let {
             it.first.toMutableList() to it.second.toMutableList()

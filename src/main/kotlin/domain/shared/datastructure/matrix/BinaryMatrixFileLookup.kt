@@ -8,6 +8,7 @@ import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
+import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 
@@ -27,6 +28,14 @@ class BinaryMatrixFileLookup(
     private val internalFolder by lazy {
         rootCachePath.resolve("binary-cache").apply { createDirectories() }
     }
+
+
+    fun readAllMatchingMatrices(): Map<String, StandardMatrix> {
+        return rootCachePath.filter { it.extension == format.fileExtension }.associate {
+            it.nameWithoutExtension to format.deserialize(it)
+        }
+    }
+
 
     override fun createMatrix(config: YamlInfo): ZoneIdMatrix {
         val (_, path) = config

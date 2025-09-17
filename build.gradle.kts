@@ -54,11 +54,11 @@ dependencies {
     testImplementation(libs.junit.jupiter.params) //5.11.4
 
     // annotation processing libs
-    implementation(project(":annotations"))
+    api(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work
     api(project(":processor")) // to make KSP work
-    implementation(project(":annotations"))
+
     testImplementation(libs.kotlin.compile.testing.ksp) //1.5.0
 
     //detekt libs

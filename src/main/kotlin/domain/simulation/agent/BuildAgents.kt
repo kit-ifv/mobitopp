@@ -35,7 +35,7 @@ class BuildAgents(
     fun buildPersonAgents(
         households: List<Household>
     ): Set<PersonAgent> {
-        households.map { it.toAgent(this) }
+        households.filter{it.members.isNotEmpty()}.map { it.toAgent(this) }
 
         return personsById.values.toSet()
     }

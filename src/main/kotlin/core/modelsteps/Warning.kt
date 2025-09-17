@@ -22,12 +22,12 @@ class Warning(
 
     constructor(cause: Throwable, isError: Boolean) : this(
         cause.message ?: (
-            "Validation" + if (isError) {
-                "Error"
-            } else {
-                "Warning"
-            }
-            ),
+                "Validation" + if (isError) {
+                    "Error"
+                } else {
+                    "Warning"
+                }
+                ),
         isError
     )
 
@@ -100,11 +100,16 @@ class Warning(
 fun validateScope(
     message: String = "Validate Scope",
     exceptionsAreErrors: Boolean = true,
-    scope: Warning.() -> Unit
-): Warning? =
-    Warning(message, false).apply {
+    scope: Warning.() -> Unit,
+): Warning? {
+    // It is impossible to debug when a warning actually matters
+    val potentialWarning = Warning(message, false).apply {
         validateNoException(exceptionsAreErrors, scope)
     }.takeIf { it.subWarnings.isNotEmpty() }
+
+    return potentialWarning
+}
+
 
 /**
  * Catch exceptions and add them as sub-warning
@@ -117,11 +122,11 @@ fun validateScope(
 @Suppress("TooGenericExceptionCaught")
 fun Warning.validateNoException(
     exceptionsAreErrors: Boolean = true,
-    scope: Warning.() -> Unit
+    scope: Warning.() -> Unit,
 ) = try {
     this.scope()
 } catch (e: Throwable) {
-    this.addChild(e, exceptionsAreErrors)
+    this.addChild(e.toString(), exceptionsAreErrors)
 }
 
 fun Warning.validateCondition(message: String, isError: Boolean = false, predicate: () -> Boolean) {
