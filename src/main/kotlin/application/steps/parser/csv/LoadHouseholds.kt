@@ -21,7 +21,7 @@ import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.parser.binary.BinaryHouseholdReader
 import domain.synthesis.parser.binary.BinaryHouseholdWriter
-import units.CurrencyUnit
+import edu.kit.ifv.units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.binary.BinaryReader
