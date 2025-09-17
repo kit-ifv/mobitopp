@@ -46,7 +46,7 @@ class StandardMatrixTest {
     fun halfFloatConversionTest() {
         val standardMatrix = StandardMatrix.parseAsVisumMatrix(matrixPath)
         val format = MatrixHalfFloatFormat()
-        format.serialize(1L, standardMatrix, targetPathHF)
+        format.serialize(PathChecksum.from(1), standardMatrix, targetPathHF)
         val output = format.deserialize(targetPathHF).matrix
         val expectedDouble = standardMatrix.matrix
         val rowLength = expectedDouble.numColumns
