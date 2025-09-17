@@ -12,8 +12,8 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
-import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 /**
  * Reads a [MutableHousehold] from a binary file. Similar to other readers it firsts reads at position 0 the size,
@@ -27,18 +27,26 @@ import java.io.DataOutputStream
 class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private val contextSimulationSeed: Long) :
     BinaryReader<MutableHousehold> {
 
-    override fun DataInputStream.decode(stringLength: Int): MutableHousehold {
+    override fun ByteBuffer.decode(stringLength: Int): MutableHousehold {
+        val id = HouseholdId(long)
+        val householdNumber = long
+        val surveyYear = int
+        val domCode = int
+        val type = int
+        val incomePerMonth = double.euros
+        val economicStatus = EconomicStatus.decode(int)
+        val location = decodeLocation(converter = zoneConverter)
         return MutableHousehold(
-            HouseholdId(readLong()),
+            id,
             contextSimulationSeed
         ).apply {
-            householdNumber = readLong()
-            surveyYear = readInt()
-            domCode = readInt()
-            type = readInt()
-            incomePerMonth = readDouble().euros
-            economicStatus = EconomicStatus.decode(readInt())
-            location = decodeLocation(converter = zoneConverter)
+            this.householdNumber = householdNumber
+            this.surveyYear = surveyYear
+            this.domCode = domCode
+            this.type = type
+            this.incomePerMonth = incomePerMonth
+            this.economicStatus = economicStatus
+            this.location = location
         }
     }
 }

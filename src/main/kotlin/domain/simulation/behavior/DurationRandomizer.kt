@@ -35,7 +35,7 @@ class GaussianActivityDurationRandomizer(
     }
 }
 
-// TODO move to other file knowing about context when restructuring packages
+// TODO move to other file knowing about mobitopp when restructuring packages
 
 fun DemandSimContext.gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
     max = this.simulationEnd.minus(this.simulationStart),
