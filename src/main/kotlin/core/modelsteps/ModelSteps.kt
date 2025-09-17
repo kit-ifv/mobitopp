@@ -153,7 +153,7 @@ interface SameValidationBehavior : ModelStep {
  */
 abstract class AddResourceStep<E, I> : MutatingStep<E, I> where E : Identifiable<I> {
 
-    protected abstract val resource: Resource<E>
+    abstract val resource: Resource<E>
 
     override fun execute() {
         repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements)
