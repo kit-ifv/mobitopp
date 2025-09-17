@@ -12,11 +12,11 @@ import edu.kit.ifv.units.toDistance
 import utils.Decodable
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
+import utils.binary.readAsByteBuffer
 import utils.binary.readString
 import utils.binary.writeString
-import java.io.BufferedInputStream
-import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
@@ -25,41 +25,41 @@ class BinaryZoneReader(
     private val regionCode: Decodable<RegionType>
 ) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
-        return createInputStream(path).use { dataStream ->
-            val size = dataStream.readInt()
-            val maxStringLength = dataStream.readInt()
-            val zones = Array(size) {
-                dataStream.decode(maxStringLength)
-            }
-            zones.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
-            zones.toList()
+        val byteBuffer = path.readAsByteBuffer()
+        byteBuffer.long // Consume hash code at start of file
+        val size = byteBuffer.int
+        val stringLength = byteBuffer.int
+
+        var elements = ArrayList<MutableLegacyZone>(size)
+        repeat(size) {
+            elements.add(byteBuffer.decode(stringLength))
         }
+        elements.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
+        return elements
     }
 
-    private fun createInputStream(path: Path): DataInputStream {
-        return DataInputStream(BufferedInputStream(path.toFile().inputStream()))
-    }
-
-    override fun DataInputStream.decode(stringLength: Int): MutableLegacyZone {
+    override fun ByteBuffer.decode(stringLength: Int): MutableLegacyZone {
         return MutableLegacyZone(
-            ZoneId(readLong()),
+            ZoneId(long),
             // Since the zone is not yet built there is no way to map it to the correct zone,
             // that step happens in the zone constructor.
             decodeLocation { null },
             seed
         ).apply {
-            visumId = readLong()
+            visumId = long
             name = readString(stringLength)
-            regionType = regionCode.decode(readInt())
-            classification = ZoneClassification.decode(readInt())
-            parkingPlaces = readInt()
-            isDestination = readBoolean()
-            relief = readDouble().toDistance(DistanceUnit.METERS)
+            regionType = regionCode.decode(int)
+            classification = ZoneClassification.decode(int)
+            parkingPlaces = int
+            isDestination = getBoolean()
+            relief = double.toDistance(DistanceUnit.METERS)
         }
     }
 }
 
 class BinaryZoneWriter : BinaryWriter<Zone> {
+
+    // TODO introduce hash number here
     override fun operateStream(outStream: DataOutputStream, elements: Collection<Zone>) {
         val size = elements.size
         val maxStringLength =

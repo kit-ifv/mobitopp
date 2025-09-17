@@ -84,6 +84,9 @@ dependencies {
     implementation(libs.xz) //1.9
     implementation(libs.progressbar) //0.10.1
     implementation(libs.exp4j) //0.4.8
+
+    implementation(libs.fast.util)
+
 }
 
 tasks.test {

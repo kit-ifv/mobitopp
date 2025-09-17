@@ -3,6 +3,7 @@ package domain.shared.datastructure.matrix
 import domain.shared.datastructure.matrix.optimized.DoubleToCurrency
 import domain.shared.datastructure.matrix.optimized.DoubleToDistance
 import domain.shared.datastructure.matrix.optimized.DoubleToDuration
+import domain.shared.datastructure.matrix.yaml.YamlInfo
 import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
@@ -115,7 +116,7 @@ class MatrixMetrics(
                 decoder,
             ).cached(matrixFactory)
 
-            val travelDistanceMatrix = matrixFactory.createMatrix(travelDistanceMatrixPath)
+            val travelDistanceMatrix = matrixFactory.createMatrix(YamlInfo("visum_matrix", travelDistanceMatrixPath))
             return MatrixMetrics(
                 travelTimeMultiMatrix,
                 travelCostMultiMatrix,

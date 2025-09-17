@@ -28,6 +28,15 @@ fun HomeLocationModelContext.householdHomeLocation(
     HomeLocationStep(this, model)
 }
 
+/**
+ * Return the step, but do not execute it immediately.
+ */
+fun HomeLocationModelContext.assignHouseholdLocation(
+    model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters)
+): HomeLocationStep {
+    return HomeLocationStep(this, model)
+}
+
 fun HomeLocationModelContext.groupedHouseholdHomeLocation(
     model: GroupAssignHouseholdLocations<Zone, MutableHousehold> =
         TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
@@ -37,7 +46,7 @@ fun HomeLocationModelContext.groupedHouseholdHomeLocation(
 
 class HomeLocationStep(
     context: HomeLocationModelContext,
-    val model: AssignHouseholdLocations<Zone, Household>
+    val model: AssignHouseholdLocations<Zone, Household>,
 ) : UpdateEachStep<MutableHousehold, HouseholdId>() {
     override val name = "Assign Home Location to Households"
     override val repository = context.householdRepository
@@ -53,7 +62,7 @@ class HomeLocationStep(
 
 class GroupedHomeLocationsStep(
     context: HomeLocationModelContext,
-    val model: GroupAssignHouseholdLocations<Zone, MutableHousehold>
+    val model: GroupAssignHouseholdLocations<Zone, MutableHousehold>,
 ) : UpdateAllStep<MutableHousehold, HouseholdId>() {
     override val name = "Assign Home Location to Households grouped by zone"
     override val repository = context.householdRepository

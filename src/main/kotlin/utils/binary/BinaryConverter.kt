@@ -1,7 +1,9 @@
 package utils.binary
 
+import utils.files.PathChecksum
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 import java.nio.file.Path
 
 /**
@@ -20,16 +22,28 @@ fun interface BinaryReader<out MUTABLE> {
      * Reads data from a binary file at [path] and returns it as a list of objects of type [MUTABLE].
      */
     fun fromBinary(path: Path): List<MUTABLE> {
-        var elements = emptyList<MUTABLE>()
-        path.bufferedDataInputStream { inputStream ->
-            val size = inputStream.readInt()
-            val stringLength = inputStream.readInt()
-            elements = List(size) {
-                inputStream.decode(stringLength)
+        val byteBuffer = path.readAsByteBuffer()
+        byteBuffer.long // Consume hash code at pos 0 - then ignore it
+        val size = byteBuffer.int
+        val stringLength = byteBuffer.int
+
+        val elements = ArrayList<MUTABLE>(size)
+        repeat(size) {
+            byteBuffer.decode(stringLength)?.let {
+                elements.add(it)
             }
         }
+        elements.trimToSize()
         return elements
     }
+    fun ByteBuffer.getBoolean(): Boolean {
+        return get().toInt() != 0
+    }
+
+    /**
+     * Read the first entry to represent what file the binary entry comes from.
+     */
+    fun checksum(path: Path): PathChecksum = path.bufferedDataInputStream { PathChecksum.from(it.readLong()) }
 
     /**
      * Reads one [MUTABLE] object from the [DataInputStream] and returns an instance of that object.
@@ -40,7 +54,7 @@ fun interface BinaryReader<out MUTABLE> {
      * @param stringLength is the expected size of strings, if strings are read. Each string should have the same length
      * specified at writing the element.
      */
-    fun DataInputStream.decode(stringLength: Int): MUTABLE
+    fun ByteBuffer.decode(stringLength: Int): MUTABLE?
 }
 
 /**
@@ -68,8 +82,9 @@ fun interface BinaryWriter<in READONLY> {
      * @param path The path to the binary file where the data will be written.
      * @param elements The collection of read-only objects to be written to the binary file.
      */
-    fun toBinary(path: Path, elements: Collection<READONLY>) {
+    fun toBinary(path: Path, elements: Collection<READONLY>, checksum: PathChecksum = PathChecksum.INVALID) {
         path.bufferedDataOutputStream { outputStream ->
+            outputStream.writeLong(checksum.value)
             operateStream(outputStream, elements)
         }
     }
