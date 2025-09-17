@@ -33,6 +33,7 @@ import utils.csv.int
 import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
+import kotlin.math.abs
 
 interface LoadPrivateCarsContext : DemandSimContext {
     val carRepository: MutableRepository<MutablePrivateCar, CarId>
@@ -52,7 +53,7 @@ interface LoadPrivateCarsContext : DemandSimContext {
         householdRepository[HouseholdId(row.long(ownerColumn))]
     ) {
         "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
-            " ${householdRepository.elements.map { it.id }.toList()}"
+            " ${householdRepository.elements.map { it.id }.toList().sortedBy{abs(it.value - row(ownerColumn).toLong())}.take(10)}"
     }
 
     fun getMainUser(
@@ -167,6 +168,7 @@ fun LoadPrivateCarsContext.preparePrivateCars(
         this.errorHandling = errorHandling
         this.columns = columns
         this.carEngineStatistics = carEngineStatistics
+        this.filter = filter
     }
     this.runStep(step)
 }

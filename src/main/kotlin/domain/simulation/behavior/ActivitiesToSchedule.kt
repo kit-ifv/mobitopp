@@ -25,7 +25,9 @@ fun List<PlannedActivity>.toSchedule(
 ): Schedule {
     val linkedActivities = map { LinkedActivity(it.toActivity()) }
 
-    require(isNotEmpty()) { "Cannot use an empty list to generate a schedule, at least a home activity is required" }
+    require(isNotEmpty()) {
+        "Cannot use an empty list to generate a schedule, at least a home activity is required"
+    }
 
     val filteredActivities = mutableListOf(linkedActivities.first())
     for (i in 1 until size) {
