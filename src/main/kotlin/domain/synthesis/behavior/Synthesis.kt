@@ -2,8 +2,8 @@ package domain.synthesis.behavior
 
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
-import units.Currency
-import units.Distance
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.Distance
 import kotlin.random.Random
 
 fun <T> Collection<T>.pickWithReplacement(

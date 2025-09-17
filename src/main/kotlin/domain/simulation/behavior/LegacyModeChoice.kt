@@ -9,8 +9,8 @@ import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
-import units.Currency
-import units.CurrencyUnit
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.CurrencyUnit
 import kotlin.time.Duration
 
 @Suppress("MagicNumber", "ConstructorParameterNaming")

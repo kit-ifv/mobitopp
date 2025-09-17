@@ -16,10 +16,10 @@ import domain.shared.location.DurationMetric
 import domain.shared.location.Location
 import domain.shared.location.Metrics
 import domain.simulation.config.DemandSimContext
-import units.CurrencyUnit
-import units.DistanceUnit
-import units.euros
-import units.kilometers
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.kilometers
 import utils.units.Time
 import java.nio.file.Path
 import kotlin.io.path.readText

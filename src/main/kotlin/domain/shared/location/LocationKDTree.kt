@@ -2,9 +2,9 @@ package domain.shared.location
 
 import core.datastructure.kdtree.ReadOnlyKDTree
 import core.datastructure.kdtree.WithMetric
-import units.Distance
-import units.DistanceUnit
-import units.toDistance
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.toDistance
 
 /**
  * A KD-tree built by locations using the UTM Coordinate Representation.

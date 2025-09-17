@@ -6,8 +6,8 @@ import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.fixedDestinations.AssignedLocation
 import domain.synthesis.behavior.fixedDestinations.SimpleGroupLocator
-import units.Distance
-import units.abs
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.abs
 import utils.collections.addProgressBar
 
 /**

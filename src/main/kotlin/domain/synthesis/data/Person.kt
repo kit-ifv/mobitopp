@@ -1,9 +1,9 @@
 package domain.synthesis.data
 
 import Mutable
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.UnitIntervalValue
 import kotlinx.serialization.Serializable
-import units.Currency
-import units.UnitIntervalValue
 import utils.Encodable
 import utils.EnumDecodable
 import utils.Identifiable

@@ -1,9 +1,9 @@
 package utils.units
 
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.kilometers
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import units.Distance
-import units.kilometers
 
 class GPSLegacyCoordinateTest {
     private fun Distance.fuzzyEquals(d: Distance): Boolean {
