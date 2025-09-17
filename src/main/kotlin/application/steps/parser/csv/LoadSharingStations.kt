@@ -17,7 +17,7 @@ import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.SharingStationId
-import units.Coordinate
+import edu.kit.ifv.units.Coordinate
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.Row

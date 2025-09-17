@@ -1,11 +1,11 @@
 package domain.synthesis.data
 
-import units.Distance
-import units.Energy
-import units.Volume
-import units.kilometers
-import units.kilowatthours
-import units.liters
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.Energy
+import edu.kit.ifv.units.Volume
+import edu.kit.ifv.units.kilometers
+import edu.kit.ifv.units.kilowatthours
+import edu.kit.ifv.units.liters
 
 /**
  * Properties for different car engine types imported from legacy mobiTopp.

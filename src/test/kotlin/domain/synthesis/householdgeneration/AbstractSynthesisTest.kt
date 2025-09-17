@@ -14,12 +14,12 @@ import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
 import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Sex
+import edu.kit.ifv.units.Coordinate
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.Radians
+import edu.kit.ifv.units.euros
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import units.Coordinate
-import units.Distance
-import units.Radians
-import units.euros
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertNotNull

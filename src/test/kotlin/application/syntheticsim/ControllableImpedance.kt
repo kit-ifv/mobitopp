@@ -14,12 +14,12 @@ import domain.shared.location.Metrics
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.point
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.kilometers
 import generateZones
 import org.junit.jupiter.api.Test
-import units.Currency
-import units.Distance
-import units.euros
-import units.kilometers
 import utils.collections.cartesianProduct
 import utils.units.AbsoluteTime
 import utils.units.Time

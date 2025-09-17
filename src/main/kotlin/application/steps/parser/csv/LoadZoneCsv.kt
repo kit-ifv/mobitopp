@@ -11,7 +11,7 @@ import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPosition
 import domain.simulation.config.DemandSimContext
-import units.DistanceUnit
+import edu.kit.ifv.units.DistanceUnit
 import utils.CodePlan
 import utils.Decodable
 import utils.ErrorHandling

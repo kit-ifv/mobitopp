@@ -1,6 +1,8 @@
 package core.results.plots
 
 import core.modelsteps.Resource
+import edu.kit.ifv.units.UnitIntervalValue
+import edu.kit.ifv.units.share
 import org.jetbrains.kotlinx.dataframe.AnyFrame
 import org.jetbrains.kotlinx.dataframe.api.add
 import org.jetbrains.kotlinx.dataframe.api.dataFrameOf
@@ -17,8 +19,6 @@ import org.jetbrains.kotlinx.kandy.letsplot.feature.layout
 import org.jetbrains.kotlinx.kandy.letsplot.feature.position
 import org.jetbrains.kotlinx.kandy.letsplot.layers.bars
 import org.jetbrains.kotlinx.kandy.letsplot.layers.line
-import units.UnitIntervalValue
-import units.share
 import kotlin.math.floor
 
 /**

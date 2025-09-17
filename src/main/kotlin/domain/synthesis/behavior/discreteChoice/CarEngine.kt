@@ -11,8 +11,8 @@ import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
-import units.Distance
-import units.DistanceUnit
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.DistanceUnit
 
 val FatParameters = EngineParameters(
     CONST_BEV = -9.8079,
