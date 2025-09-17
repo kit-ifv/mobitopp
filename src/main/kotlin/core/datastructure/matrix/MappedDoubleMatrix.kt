@@ -22,4 +22,6 @@ interface MappedDoubleMatrix<I> : TranslatedDoubleMatrix<I> {
         val columnIndex = converter.toIndex(column)
         return matrix[rowIndex, columnIndex]
     }
+
+    fun values() = matrix.values()
 }

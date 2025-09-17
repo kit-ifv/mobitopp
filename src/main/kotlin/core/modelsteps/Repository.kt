@@ -13,8 +13,25 @@ interface Repository<out T, I> : Resource<T> where T : Identifiable<I> {
     val sealed: Boolean
 
     override val elements: Sequence<T>
+
+    operator fun contains(id: I): Boolean {
+        return find(id) != null
+    }
+
+    fun find(id: I): T? = getById(id)
+
+    @Deprecated(
+        "getById does not imply nullabilty by its name, use find instead. In case you compare against null " +
+            "just to check whether the key is present use operator contains instead."
+    )
     fun getById(id: I): T?
     operator fun get(id: I) = getById(id)
+    fun getValue(id: I) = getById(id)
+        ?: throw NoSuchElementException(
+            "Cannot find id [$id] in repository [$name], Repository contains [${elements.toList().size}] elements." +
+                "${elements.map { it.id }.toList()}"
+        )
+
     val size: Int
     fun isEmpty(): Boolean
 }
@@ -38,7 +55,7 @@ private const val SEAL = "seal repository"
 private const val MAX_ELEMENTS_IN_TO_STRING = 20
 
 class MapRepository<T, I>(
-    override val name: String
+    override val name: String,
 ) : MutableRepository<T, I> where T : Identifiable<I> {
 
     override val source: String
@@ -158,7 +175,7 @@ fun <R, E, I> R.asRepository() where R : Resource<E>, E : Identifiable<I> = MapR
 
 fun validateNotSealed(
     repository: MutableRepository<*, *>,
-    step: ModelStep
+    step: ModelStep,
 ) = validateScope(
     "Validate repository ${repository.name} is not sealed:"
 ) {

@@ -2,6 +2,7 @@ package domain.shared.datastructure.matrix.binary
 
 import domain.shared.datastructure.matrix.StandardMatrix
 import domain.shared.location.ZoneId
+import utils.files.PathChecksum
 import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -12,7 +13,7 @@ import java.nio.file.Path
 import kotlin.io.path.inputStream
 
 interface BinarySerializer {
-    fun serialize(hashCode: Long, matrix: StandardMatrix, path: Path)
+    fun serialize(checksum: PathChecksum, matrix: StandardMatrix, path: Path)
 }
 
 interface StandardMatrixBinaryFormat : BinaryStandardSerializer, BinaryStandardDeserializer {
@@ -20,18 +21,18 @@ interface StandardMatrixBinaryFormat : BinaryStandardSerializer, BinaryStandardD
 }
 
 interface BinaryStandardSerializer : BinarySerializer {
-    override fun serialize(hashCode: Long, matrix: StandardMatrix, path: Path) {
+    override fun serialize(checksum: PathChecksum, matrix: StandardMatrix, path: Path) {
         Files.newOutputStream(path).use { fileStream ->
             BufferedOutputStream(fileStream).use { bufferedStream ->
-                bufferedStream.writeOutput(hashCode, matrix)
+                bufferedStream.writeOutput(checksum, matrix)
             }
         }
     }
 
-    private fun BufferedOutputStream.writeOutput(hashCode: Long, matrix: StandardMatrix) {
+    private fun BufferedOutputStream.writeOutput(checksum: PathChecksum, matrix: StandardMatrix) {
         DataOutputStream(this).use { outputStream ->
             // Write the hash code used to identify the original source.
-            outputStream.writeLong(hashCode)
+            outputStream.writeLong(checksum.value)
             // Write the size as an Int
             outputStream.writeInt(matrix.size)
 
@@ -55,7 +56,7 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
     override fun deserialize(path: Path): StandardMatrix {
         return path.inputStream().buffered().use {
             val input = DataInputStream(it)
-            val hashCode = input.readLong() // Skip the hashcode found at position 0 in the file as a long.
+            input.readLong() // Skip the hashcode found at position 0 in the file as a long.
             val size = input.readInt()
             val zoneIds = Array(size) {
                 ZoneId(-1)
@@ -80,9 +81,9 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
     Since this format is the one using hash codes at position0 it should also be the interface that provides easy access
     to the hash code.
      */
-    fun hashCode(path: Path): Long {
+    fun checksum(path: Path): PathChecksum {
         return path.inputStream().buffered().use {
-            DataInputStream(it).readLong()
+            PathChecksum.from(DataInputStream(it).readLong())
         }
     }
 
