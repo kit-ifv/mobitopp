@@ -29,13 +29,11 @@ class BinaryMatrixFileLookup(
         rootCachePath.resolve("binary-cache").apply { createDirectories() }
     }
 
-
     fun readAllMatchingMatrices(): Map<String, StandardMatrix> {
         return rootCachePath.filter { it.extension == format.fileExtension }.associate {
             it.nameWithoutExtension to format.deserialize(it)
         }
     }
-
 
     override fun createMatrix(config: YamlInfo): ZoneIdMatrix {
         val (_, path) = config

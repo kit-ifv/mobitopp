@@ -41,8 +41,9 @@ enum class LegacyMode(override val code: Int, private val isFixed: Boolean = fal
     override val requiresVehicleTakeAlong: Boolean = isFixed
 }
 
-object MainModes: EnumDecodable<LegacyMode>(LegacyMode::class) {
-    private val modes = setOf(LegacyMode.BIKE, LegacyMode.CAR, LegacyMode.PASSENGER, LegacyMode.PEDESTRIAN, LegacyMode.PUBLICTRANSPORT)
+object MainModes : EnumDecodable<LegacyMode>(LegacyMode::class) {
+    private val modes =
+        setOf(LegacyMode.BIKE, LegacyMode.CAR, LegacyMode.PASSENGER, LegacyMode.PEDESTRIAN, LegacyMode.PUBLICTRANSPORT)
     override fun values(): Set<LegacyMode> {
         return modes
     }

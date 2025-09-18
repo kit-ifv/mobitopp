@@ -45,7 +45,10 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
     fun FileBasedAddResourceStep<E, I>.enableCache(cacheRootPath: Path = Path.of("data")): AddResourceStep<E, I> {
         return step.cacheInternally(cacheRootPath = cacheRootPath, sourcePath = source)
     }
-    private fun AbstractAddResourceStep<E, I>.cacheInternally(cacheRootPath: Path, sourcePath: Path): AddResourceStep<E, I> {
+    private fun AbstractAddResourceStep<E, I>.cacheInternally(
+        cacheRootPath: Path,
+        sourcePath: Path
+    ): AddResourceStep<E, I> {
         return this.cached(
             reader,
             writer,
@@ -62,8 +65,8 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
         target.runStep {
             source
         }
-        filter?.let { filter->
-            target.runStep { source.spawnFilterStep { filter.accept(it.id)} }
+        filter?.let { filter ->
+            target.runStep { source.spawnFilterStep { filter.accept(it.id) } }
         }
         additionalSteps.forEach {
             target.runStep { it }
@@ -71,6 +74,6 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
     }
 }
 
-fun interface IDFilter  <I> {
+fun interface IDFilter<I> {
     fun accept(id: I): Boolean
 }
