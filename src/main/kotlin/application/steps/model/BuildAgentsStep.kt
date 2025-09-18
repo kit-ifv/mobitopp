@@ -1,6 +1,6 @@
 package application.steps.model
 
-import core.modelsteps.AddResourceStep
+import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.LazyResource
 import core.modelsteps.ModelStep
 import core.modelsteps.MutableRepository
@@ -54,7 +54,7 @@ fun BuildAgentsContext.buildAgents(
 class BuildPersonAgentsStep(
     context: BuildAgentsContext,
     builder: BuildAgents,
-) : AddResourceStep<PersonAgent, PersonId>() {
+) : AbstractAddResourceStep<PersonAgent, PersonId>() {
     override val name = "build person agents"
 
     override val repository: MutableRepository<PersonAgent, PersonId> = context.personAgents
@@ -81,7 +81,7 @@ class BuildPersonAgentsStep(
 class BuildProviderAgentsStep(
     context: BuildAgentsContext,
     builder: BuildAgents,
-) : AddResourceStep<SharingProviderAgent, SharingProviderId>() {
+) : AbstractAddResourceStep<SharingProviderAgent, SharingProviderId>() {
     override val name = "build provider agents"
 
     override val repository: MutableRepository<SharingProviderAgent, SharingProviderId> = context.sharingProviderAgents

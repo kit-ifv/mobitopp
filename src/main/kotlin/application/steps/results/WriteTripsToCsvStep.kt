@@ -16,39 +16,28 @@ import kotlin.io.path.Path
 import kotlin.io.path.bufferedWriter
 
 fun WriteTripsCsvContext.writeTripsToCsv(
-    file: Path = Path("results/demandsimulation.csv")
+    file: Path = Path("results/demandsimulation.csv"),
+    legCSVWriter: WriteLegToCSV = StandardCSVLegWriter,
 ) = runStep {
-    WriteTripsToCsvStep(file, this)
+    WriteTripsToCsvStep(file, this, legWriter = legCSVWriter)
 }
 
 interface WriteTripsCsvContext : DemandSimContext {
     val personAgents: Repository<PersonAgent, PersonId>
 }
 
-class WriteTripsToCsvStep(
-    private val path: Path,
-    private val context: WriteTripsCsvContext,
-) : ModelStep, SameValidationBehavior {
+interface WriteLegToCSV {
+    val header: String
+    fun generateCSVLine(leg: LinkedLeg, person: PersonAgent) : String
+}
 
-    override val name: String = "Write trip output to csv"
+object StandardCSVLegWriter: WriteLegToCSV {
+    override val header: String = "id;duration;mode;activityType;tripStart;tripEnd;ZoneStart;ZoneEnd;previousActivityType"
 
-    val header = "id;duration;mode;activityType;tripStart;tripEnd;ZoneStart;ZoneEnd;previousActivityType\n"
-
-    override fun execute() {
-        path.bufferedWriter().use { writer ->
-            writer.appendLine(header)
-            context.personAgents.elements
-                .filter { it.schedule.pastLegs().isNotEmpty() }
-                .forEach { person ->
-                    val legs = person.schedule.pastLegs() as List<LinkedLeg>
-                    legs.forEach { leg ->
-                        writer.appendLine(stringifyLeg(leg, person))
-                    }
-                }
-        }
-        println("Demand Simulation written to $path")
-    }
-    private fun stringifyLeg(leg: LinkedLeg, person: PersonAgent): String {
+    override fun generateCSVLine(
+        leg: LinkedLeg,
+        person: PersonAgent,
+    ) : String{
         val previous = leg.previous
         val next = leg.next
         val output = if (next is Activity) next.type.toString() else "-"
@@ -64,6 +53,31 @@ class WriteTripsToCsvStep(
             leg.endLocation.requireZone().id,
             previousOutput,
         )
+    }
+}
+
+class WriteTripsToCsvStep(
+    private val path: Path,
+    private val context: WriteTripsCsvContext,
+    private val legWriter: WriteLegToCSV = StandardCSVLegWriter,
+) : ModelStep, SameValidationBehavior {
+
+    override val name: String = "Write trip output to csv"
+
+
+    override fun execute() {
+        path.bufferedWriter().use { writer ->
+            writer.appendLine(legWriter.header)
+            context.personAgents.elements
+                .filter { it.schedule.pastLegs().isNotEmpty() }
+                .forEach { person ->
+                    val legs = person.schedule.pastLegs() as List<LinkedLeg>
+                    legs.forEach { leg ->
+                        writer.appendLine(legWriter.generateCSVLine(leg, person))
+                    }
+                }
+        }
+        println("Demand Simulation written to $path")
     }
 
     override fun verifyInput(): Warning? =

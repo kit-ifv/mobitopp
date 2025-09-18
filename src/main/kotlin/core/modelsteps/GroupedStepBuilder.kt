@@ -23,18 +23,18 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
     private val additionalSteps: MutableList<MutatingStep<E, I>> = mutableListOf()
 
     // Similar to source, there should reasonably only be one filter. BUt here I am open to discussion
-    var filter: ((E) -> Boolean)? = null
+    var filter: IDFilter<I>? = null
 
     // For DSL addition of steps
     operator fun MutatingStep<E, I>.unaryPlus() {
         additionalSteps.add(this)
     }
 
-    // Entry function for source if source is file based on a CSV file found at source.
-    abstract fun fromCSV(
-        source: Path,
-        lambda: context(Path) () -> AddResourceStep<E, I>,
-    ): FileBasedAddResourceStep<E, I>
+//    // Entry function for source if source is file based on a CSV file found at source.
+//    abstract fun fromCSV(
+//        source: Path,
+//        lambda: context(Path) () -> AbstractAddResourceStep<E, I>,
+//    ): FileBasedAddResourceStep<E, I>
 
     // If you dont want to use a binary cache.
     fun FileBasedAddResourceStep<E, I>.disableCache(): AddResourceStep<E, I> {
@@ -45,7 +45,10 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
     fun FileBasedAddResourceStep<E, I>.enableCache(cacheRootPath: Path = Path.of("data")): AddResourceStep<E, I> {
         return step.cacheInternally(cacheRootPath = cacheRootPath, sourcePath = source)
     }
-    private fun AddResourceStep<E, I>.cacheInternally(cacheRootPath: Path, sourcePath: Path): AddResourceStep<E, I> {
+    private fun AbstractAddResourceStep<E, I>.cacheInternally(
+        cacheRootPath: Path,
+        sourcePath: Path
+    ): AddResourceStep<E, I> {
         return this.cached(
             reader,
             writer,
@@ -62,11 +65,15 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
         target.runStep {
             source
         }
-        filter?.let {
-            target.runStep { source.spawnFilterStep(it) }
+        filter?.let { filter ->
+            target.runStep { source.spawnFilterStep { filter.accept(it.id) } }
         }
         additionalSteps.forEach {
             target.runStep { it }
         }
     }
+}
+
+fun interface IDFilter<I> {
+    fun accept(id: I): Boolean
 }
