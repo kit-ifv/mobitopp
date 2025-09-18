@@ -1,6 +1,6 @@
 package application.steps.parser.csv
 
-import core.modelsteps.AddResourceStep
+import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
@@ -35,7 +35,7 @@ fun LoadPersonsContext.preparePersons(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: PersonColumns = PersonColumns(),
     incomeUnit: CurrencyUnit = costUnit,
-    addResourceStep: AddResourceStep<MutablePerson, PersonId> =
+    addResourceStep: AbstractAddResourceStep<MutablePerson, PersonId> =
         personsFromCsvStep(path) {
             this.delimiter = delimiter
             this.errorHandling = errorHandling
@@ -74,14 +74,14 @@ class PersonStepBuilder(val seed: Long, val converter: (HouseholdId) -> MutableH
     override val reader = BinaryPersonReader(converter, seed)
     override val writer: BinaryWriter<MutablePerson> = BinaryPersonWriter()
 
-    override fun fromCSV(
-        source: Path,
-        lambda: context(Path) () -> AddResourceStep<MutablePerson, PersonId>,
-    ): FileBasedAddResourceStep<MutablePerson, PersonId> {
-        return context(source) {
-            FileBasedAddResourceStep(source, lambda(source))
-        }
-    }
+//    override fun fromCSV(
+//        source: Path,
+//        lambda: context(Path) () -> AbstractAddResourceStep<MutablePerson, PersonId>,
+//    ): FileBasedAddResourceStep<MutablePerson, PersonId> {
+//        return context(source) {
+//            FileBasedAddResourceStep(source, lambda(source))
+//        }
+//    }
 }
 
 /**
@@ -124,7 +124,7 @@ fun LoadPersonsContext.personsFromCsvStep(
 
 fun LoadPersonsContext.preparePersonsFile(
 
-    addResourceStep: AddResourceStep<MutablePerson, PersonId>,
+    addResourceStep: AbstractAddResourceStep<MutablePerson, PersonId>,
 ) = runStep {
     addResourceStep
 }

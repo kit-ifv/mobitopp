@@ -13,7 +13,8 @@ kotlinx-serialization = "1.9.0"
 kotlinx-html = "0.12.0"
 kotlin-statistics = "0.2.1"
 # other libs
-snakeyaml = "2.4"
+jackson-parser = "2.20.0"
+jackson-kotlin-serialization = "2.20.0"
 commons-compress = "1.27.1"
 xz = "1.10"
 progressbar = "0.10.1"
@@ -71,7 +72,8 @@ kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinx-html" }
 
 # other libs
-snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
+jackson-parser = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson-parser" }
+jackson-kotlin-serialization = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson-kotlin-serialization" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
 progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
