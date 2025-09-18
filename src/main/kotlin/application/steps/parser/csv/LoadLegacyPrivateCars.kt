@@ -34,7 +34,7 @@ import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
 import kotlin.math.abs
-
+private const val ERROR_OUTPUT_SIZE = 5
 interface LoadPrivateCarsContext : DemandSimContext {
     val carRepository: MutableRepository<MutablePrivateCar, CarId>
     val engineCodes: CodePlan<EngineType>
@@ -53,7 +53,8 @@ interface LoadPrivateCarsContext : DemandSimContext {
         householdRepository[HouseholdId(row.long(ownerColumn))]
     ) {
         "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
-            " ${householdRepository.elements.map { it.id }.toList().sortedBy{abs(it.value - row(ownerColumn).toLong())}.take(10)}"
+            " ${householdRepository.elements.map { it.id }.toList()
+                .sortedBy{abs(it.value - row(ownerColumn).toLong())}.take(ERROR_OUTPUT_SIZE)}"
     }
 
     fun getMainUser(
@@ -63,10 +64,9 @@ interface LoadPrivateCarsContext : DemandSimContext {
         personRepository[PersonId(row.long(mainUserColumn))]
     ) {
         "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
-            " ${personRepository.elements.map { it.id }.toList().sortedBy{abs(it.value - row(mainUserColumn).toLong())}.take(5)}"
+            " ${personRepository.elements.map { it.id }.toList()
+                .sortedBy{abs(it.value - row(mainUserColumn).toLong())}.take(ERROR_OUTPUT_SIZE)}"
     }
-
-
 }
 fun LoadPrivateCarsContext.privateCars(lambda: PrivateCarStepBuilder.() -> Unit) {
     val lpcBuilder = PrivateCarStepBuilder(householdRepository::get, personRepository::get)

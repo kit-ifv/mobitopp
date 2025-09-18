@@ -15,7 +15,13 @@ data class ShortTermConfig(
     val distanceMatrixPath: Path,
 ) {
     fun validate() {
-        val paths = listOf(dataFolder, attractivitiesFile, costMatrixConfigPath, durationMatrixConfigPath, distanceMatrixPath).filter { !it.exists() }
+        val paths = listOf(
+            dataFolder,
+            attractivitiesFile,
+            costMatrixConfigPath,
+            durationMatrixConfigPath,
+            distanceMatrixPath
+        ).filter { !it.exists() }
         require(paths.isEmpty()) { "The following paths are not existing: $paths" }
     }
 }

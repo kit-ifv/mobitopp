@@ -22,12 +22,12 @@ class Warning(
 
     constructor(cause: Throwable, isError: Boolean) : this(
         cause.message ?: (
-                "Validation" + if (isError) {
-                    "Error"
-                } else {
-                    "Warning"
-                }
-                ),
+            "Validation" + if (isError) {
+                "Error"
+            } else {
+                "Warning"
+            }
+            ),
         isError
     )
 
@@ -109,7 +109,6 @@ fun validateScope(
 
     return potentialWarning
 }
-
 
 /**
  * Catch exceptions and add them as sub-warning

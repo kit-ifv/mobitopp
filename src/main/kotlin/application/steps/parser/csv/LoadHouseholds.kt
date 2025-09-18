@@ -73,7 +73,7 @@ data class HouseholdColumns(
     val incomeColumn: String = "income",
     val economicalStatusColumn: String = "economicalStatus",
 )
-fun interface HouseholdIDFilter: IDFilter<HouseholdId>
+fun interface HouseholdIDFilter : IDFilter<HouseholdId>
 
 class PercentOfPopulation(fraction: Double) : HouseholdIDFilter {
     var counter = 0
@@ -82,6 +82,7 @@ class PercentOfPopulation(fraction: Double) : HouseholdIDFilter {
         return (counter % acceptedIncrement == 0).also { counter++ }
     }
 }
+
 /**
  * Build a DSL function call that wraps the operations on the household context in curly brackets, by operating on
  * a [HouseholdStepBuilder] object. collects all the steps created and finalizes the repository at the end of the
@@ -203,7 +204,7 @@ fun LoadHouseholdContext.householdsFromCsvStep(
 fun LoadHouseholdContext.runStep(
     step: AbstractAddResourceStep<MutableHousehold, HouseholdId>,
 
-    ) = runStep {
+) = runStep {
     step
 }
 

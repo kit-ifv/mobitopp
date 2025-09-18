@@ -11,8 +11,7 @@ data class FileBasedAddResourceStep<E : Identifiable<I>, I>(
     val step: AbstractAddResourceStep<E, I>,
 )
 
-
-interface FileBasedModelStep<X: ModelStep> {
+interface FileBasedModelStep<X : ModelStep> {
     val source: Path
     val step: X
 }

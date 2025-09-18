@@ -28,6 +28,7 @@ import utils.csv.withFilter
 import java.nio.file.Path
 import kotlin.math.abs
 import kotlin.time.DurationUnit
+private const val ERROR_OUTPUT_SIZE = 5
 
 @Suppress("LongParameterList")
 fun LoadPlannedActivitiesContext.prepareActivities(
@@ -138,6 +139,7 @@ interface LoadPlannedActivitiesContext : DemandSimContext {
         personRepository[personId]
     ) {
         "Referenced person id $personId could not be found in personRepo:" +
-            " ${personRepository.elements.map { it.id }.toList().sortedBy{abs(it.value - personId.value)}.take(5)}"
+            " ${personRepository.elements.map { it.id }.toList()
+                .sortedBy{abs(it.value - personId.value)}.take(ERROR_OUTPUT_SIZE)}"
     }
 }

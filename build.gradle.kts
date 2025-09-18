@@ -124,6 +124,7 @@ tasks.withType<Detekt>().configureEach {
         "**/OverridableDestinationChoiceModel.kt",
         "**/OverridableModeChoiceModel.kt",
         "**/LoadBehaviorModelsStep.kt",
+        "**/WriteTripsToCsvStep.kt",
     )
 }
 

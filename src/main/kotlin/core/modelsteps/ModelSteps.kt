@@ -145,15 +145,13 @@ interface SameValidationBehavior : ModelStep {
     }
 }
 
-
-interface AddResourceStep<E, I>: MutatingStep<E, I> where E : Identifiable<I> {
+interface AddResourceStep<E, I> : MutatingStep<E, I> where E : Identifiable<I> {
     val resource: Resource<E>
     override fun execute() {
         repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements)
     }
-
-
 }
+
 /**
  * Add a [Resource] of elements to the given [MutableRepository].
  *

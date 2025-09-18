@@ -47,7 +47,6 @@ class CachedAddResourceStep<E : Identifiable<I>, I>(
 
     override val name: String = "load ${originalSourcePath.fileName} with background cache ${originalStep.name}"
 
-
     override val resource: Resource<E> by lazy {
         if (hasValidCacheEntry) cachedResource() else originalStep.resource
     }
@@ -63,7 +62,6 @@ class CachedAddResourceStep<E : Identifiable<I>, I>(
     }
 
     override fun execute() {
-
         runCached {
             super<AddResourceStep>.execute()
         }
@@ -99,7 +97,7 @@ abstract class CachedFileInput(
     val cacheRootPath: Path,
     val originalSourcePath: Path,
 
-    ) {
+) {
     protected val cacheFolder: Path by lazy {
         cacheRootPath.resolve("data-cache").apply { createDirectories() }
     }
@@ -128,5 +126,4 @@ abstract class CachedFileInput(
         }
         return output
     }
-
 }
