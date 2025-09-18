@@ -163,7 +163,7 @@ tasks.withType<JavaExec>().configureEach {
 publishing {
     publications {
         create("schema", type = MavenPublication::class) {
-            groupId = group.toString()
+            project.group = "edu.kit.ifv.mobitopp"
             artifactId = "${project.name}-shortterm-schema"
             version = project.version.toString()
 
