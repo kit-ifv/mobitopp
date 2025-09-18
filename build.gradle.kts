@@ -160,20 +160,23 @@ tasks.withType<JavaExec>().configureEach {
     )
 }
 // Add the schema definitions to the publish process, but only the core project needs to do so.
-publishing {
-    publications {
-        create("schema", type = MavenPublication::class) {
-            project.group = "edu.kit.ifv.mobitopp"
-            artifactId = "${project.name}-shortterm-schema"
-            version = project.version.toString()
+if(checkProperty("doPublish")) {
+    publishing {
+        publications {
+            create("schema", type = MavenPublication::class) {
+                project.group = "edu.kit.ifv.mobitopp"
+                artifactId = "schemas"
+                version = requireProperty("buildVersion")
 
-            artifact("src/main/resources/shortterm-config-schema.json") {
-                classifier = ""
-                extension = "json"
+                artifact("src/main/resources/shortterm-config-schema.json") {
+                    classifier = ""
+                    extension = "json"
+                }
             }
         }
     }
 }
+
 
 /**
  * Configures this project and each of its sub-projects.
