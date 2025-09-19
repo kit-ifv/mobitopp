@@ -1,4 +1,4 @@
-package utils.jackson
+package domain.jackson
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -13,8 +13,7 @@ import utils.CodePlan
 import utils.Encodable
 import java.util.ServiceLoader
 
-
-class CoreCodePlanModule: SimpleModule("CoreCodePlanModule") {
+class CoreCodePlanModule : SimpleModule("CoreCodePlanModule") {
     init {
         addDeserializer(CodePlan::class.java, CodePlanDeserializer())
     }
@@ -39,7 +38,6 @@ class CodePlanDeserializer : JsonDeserializer<CodePlan<*>>() {
         val surrogate = when {
             node.isTextual -> surrogateClass.getDeclaredConstructor().newInstance()
             else -> p.codec.treeToValue(node, surrogateClass)
-
         }
 
         return surrogate.resolve()
@@ -93,8 +91,7 @@ interface CodePlanSurrogateProvider {
     fun getSurrogateTypes(): Map<String, Class<out CodePlanSurrogate<*>>>
 }
 
-
-class CoreCodePlans: CodePlanSurrogateProvider {
+class CoreCodePlans : CodePlanSurrogateProvider {
     private val registry: MutableMap<String, Class<out CodePlanSurrogate<*>>> = mutableMapOf()
 
     init {
@@ -106,24 +103,23 @@ class CoreCodePlans: CodePlanSurrogateProvider {
         return registry
     }
 }
+
 /**
  * The most generic implementation of a class that can resolve to a codeplan.
  */
-abstract class CodePlanSurrogate<T: Encodable> {
+abstract class CodePlanSurrogate<T : Encodable> {
     abstract fun resolve(): CodePlan<T>
 }
 
-
-abstract class ModeSurrogate: CodePlanSurrogate<Mode>()
-abstract class RegionTypeSurrogate: CodePlanSurrogate<RegionType>()
-class CoreRegionTypeSurrogate: RegionTypeSurrogate() {
+abstract class ModeSurrogate : CodePlanSurrogate<Mode>()
+abstract class RegionTypeSurrogate : CodePlanSurrogate<RegionType>()
+class CoreRegionTypeSurrogate : RegionTypeSurrogate() {
     override fun resolve(): CodePlan<RegionType> {
         return RegioStaR17
     }
 }
-class CoreModeSurrogate: ModeSurrogate() {
+class CoreModeSurrogate : ModeSurrogate() {
     override fun resolve(): CodePlan<Mode> {
         return LegacyMode.Companion
     }
 }
-
