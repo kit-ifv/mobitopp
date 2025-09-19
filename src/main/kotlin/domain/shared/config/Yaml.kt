@@ -4,10 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import domain.jackson.CoreCodePlanModule
 import java.nio.file.Path
 
 object Yaml {
-    val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
+    val mapper = ObjectMapper(YAMLFactory())
+        .registerKotlinModule()
+        .registerModule(CoreCodePlanModule())
+        .findAndRegisterModules()
 
     inline fun <reified T> readYaml(path: Path): T {
         val file = path.toFile()

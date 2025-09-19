@@ -46,7 +46,7 @@ interface LoadHouseholdContext : DemandSimContext {
     val economicalStatusCodes: CodePlan<EconomicStatus>
 
     val defaultHouseholdPath: Path
-        get() = dataFolder.resolve("demand-data").resolve("household.csv")
+        get() = dataFolder.resolve("household.csv")
 
     fun getLegacyZone(
         matrixColumn: Int,
