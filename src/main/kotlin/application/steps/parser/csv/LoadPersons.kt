@@ -146,7 +146,7 @@ interface LoadPersonsContext : DemandSimContext, PersonCsvContext {
     val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
 
     val defaultPersonPath: Path
-        get() = dataFolder.resolve("demand-data").resolve("person.csv")
+        get() = dataFolder.resolve("person.csv")
 
     fun getHousehold(
         householdId: HouseholdId,

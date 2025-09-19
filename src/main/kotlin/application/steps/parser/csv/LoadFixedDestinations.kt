@@ -42,7 +42,7 @@ interface LoadFixedDestinationsContext : DemandSimContext {
     val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
 
     val defaultFixedDestinationsPath: Path
-        get() = dataFolder.resolve("demand-data").resolve("fixedDestination.csv")
+        get() = dataFolder.resolve("fixedDestination.csv")
 
     fun getZone(id: Long) = requireNotNull(
         zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
