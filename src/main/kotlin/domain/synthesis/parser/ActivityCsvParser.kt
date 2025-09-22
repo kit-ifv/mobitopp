@@ -1,6 +1,7 @@
 package domain.synthesis.parser
 
 import domain.shared.config.SynthesisContext
+import domain.synthesis.data.ActivityBinaryRecord
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
@@ -16,7 +17,6 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 
-
 fun SynthesisContext.activityCsvParser(
     errorHandling: ErrorHandling,
     columns: ActivitiesColumns,
@@ -24,7 +24,6 @@ fun SynthesisContext.activityCsvParser(
     durationUnit: DurationUnit,
     personProvider: (PersonId) -> MutablePerson,
 ): DefaultCsvParser<MutablePlannedActivity> = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
-
     val person = personProvider(PersonId(row.long(columns.personColumn)))
 
     MutablePlannedActivity(
@@ -40,6 +39,38 @@ fun SynthesisContext.activityCsvParser(
         activityType = row.decode(columns.activityTypeColumn, activityTypes)
     }
 }
+
+fun <T, S> CsvParser<T>.convert(converter: (T) -> S) {
+    val parser = activityBinaryCsvParser()
+
+}
+
+fun main() {
+    val parser = activityBinaryCsvParser()
+    val functor: (PersonId) -> MutablePerson = TODO()
+    parser.convert {
+        MutablePlannedActivity(ActivityId(it.id),
+            functor(PersonId(it.personId)),
+            42
+            ).apply {
+
+        }
+    }
+}
+
+fun activityBinaryCsvParser(columns: ActivitiesColumns = ActivitiesColumns(), errorHandling: ErrorHandling = ErrorHandling.WARNING) =
+    CsvParser<ActivityBinaryRecord>(errorHandling) { row ->
+        ActivityBinaryRecord(
+            row.index.toLong(),
+            row.long(columns.personColumn),
+            row.int(columns.tripDurationColumn),
+            row.long(columns.startColumn),
+            duration = row.int(columns.durationColumn),
+            activityCode = row.int(columns.activityTypeColumn),
+
+            )
+    }
+
 
 data class ActivitiesColumns(
     val personColumn: String = "personId",
