@@ -1,6 +1,8 @@
 package domain.synthesis.data
 
 import Mutable
+import domain.jackson.ActivityBinaryRecord
+import domain.jackson.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.Location
 import kotlinx.serialization.Serializable
@@ -9,6 +11,7 @@ import utils.random.StochasticActor
 import utils.units.AbsoluteTime
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 @Serializable
 @JvmInline
@@ -35,7 +38,7 @@ abstract class PlannedActivity(
     override val id: ActivityId,
     val person: MutablePerson,
     seed: Long,
-) : StochasticActor, Identifiable<ActivityId> { // : SeededActor<PlannedActivity>(seed), Identifiable<ActivityId> {
+) : StochasticActor, Identifiable<ActivityId>, Simplifiable<ActivityBinaryRecord> { // : SeededActor<PlannedActivity>(seed), Identifiable<ActivityId> {
 
     final override val random: Random by lazy { Random(id.value + seed) }
 
@@ -56,6 +59,16 @@ abstract class PlannedActivity(
     val endTime: AbsoluteTime
         get() = startTime + duration
 
+    override fun simplify(): ActivityBinaryRecord {
+        return ActivityBinaryRecord(
+            id.value,
+            person.id.value,
+            observedTripDuration.toInt(DurationUnit.MINUTES),
+            startTime.minutesSinceStart,
+            duration.toInt(DurationUnit.MINUTES),
+            activityType.code
+        )
+    }
     override fun toString(): String {
         return "${activityType.description.first()}(${activityType.code}) start=$startTime duration=$duration"
     }

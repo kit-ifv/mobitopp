@@ -81,7 +81,7 @@ interface StandardContext :
 data class ExampleProjectContext(
     override val scenarioName: String,
     override val dataFolder: Path,
-
+    override val zoneFolder: Path = Path.of("data/zone-repository"),
     override val regionTypeCodes: CodePlan<RegionType> = RegioStaR17.Companion,
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus.Companion,
     override val sexCodes: CodePlan<Sex> = Sex.Companion,
@@ -106,6 +106,7 @@ data class ExampleProjectContext(
 
     AgentResultsContext {
     override val execMode: ExecutionMode = ExecutionMode()
+
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")

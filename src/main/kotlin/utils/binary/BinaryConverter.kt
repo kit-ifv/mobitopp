@@ -1,5 +1,7 @@
 package utils.binary
 
+import domain.jackson.BinaryWritable
+import domain.jackson.Simplifiable
 import utils.files.PathChecksum
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -36,6 +38,7 @@ fun interface BinaryReader<out MUTABLE> {
         elements.trimToSize()
         return elements
     }
+
     fun ByteBuffer.getBoolean(): Boolean {
         return get().toInt() != 0
     }
@@ -84,9 +87,23 @@ fun interface BinaryWriter<in READONLY> {
      */
     fun toBinary(path: Path, elements: Collection<READONLY>, checksum: PathChecksum = PathChecksum.INVALID) {
         path.bufferedDataOutputStream { outputStream ->
-            outputStream.writeLong(checksum.value)
+            header(outputStream, path, elements, checksum)
             operateStream(outputStream, elements)
         }
+    }
+
+    /**
+     * Define what information should be written to the binary file before the elements are written. The default
+     * implementation writes the checksum and the size of the elements
+     */
+    fun header(outStream: DataOutputStream, path: Path, elements: Collection<READONLY>, checksum: PathChecksum) {
+        outStream.writeLong(checksum.value)
+        outStream.writeInt(elements.size)
+        outStream.writeInt(getMaxStringSize(elements))
+    }
+
+    fun getMaxStringSize(elements: Collection<READONLY>): Int {
+        return 0
     }
 
     /**
@@ -100,4 +117,19 @@ fun interface BinaryWriter<in READONLY> {
      * @param elements The collection of read-only objects to be written.
      */
     fun operateStream(outStream: DataOutputStream, elements: Collection<READONLY>)
+}
+
+fun interface RepresentativeBinaryWriter<in READONLY : Simplifiable<*>> : BinaryWriter<READONLY> {
+    fun operateSimplifiedStream(outStream: DataOutputStream, elements: Collection<BinaryWritable>)
+    override fun operateStream(outStream: DataOutputStream, elements: Collection<READONLY>) {
+        operateSimplifiedStream(outStream, elements.map { it.simplify() })
+    }
+}
+
+abstract class DefaultBinaryWriter<in READONLY : Simplifiable<*>> : RepresentativeBinaryWriter<READONLY> {
+    override fun operateSimplifiedStream(outStream: DataOutputStream, elements: Collection<BinaryWritable>) {
+        elements.forEach {
+            it.writeTo(outStream)
+        }
+    }
 }

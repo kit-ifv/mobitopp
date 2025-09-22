@@ -1,13 +1,18 @@
 package domain.synthesis.data
 
 import Mutable
+import domain.jackson.BinaryWritable
+import domain.jackson.Simplifiable
 import domain.shared.location.Location
+import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.CurrencyUnit
 import kotlinx.serialization.Serializable
 import utils.Encodable
 import utils.EnumDecodable
 import utils.Identifiable
 import utils.random.StochasticActor
+import java.io.DataOutputStream
 import kotlin.random.Random
 
 @Serializable
@@ -33,7 +38,7 @@ value class HouseholdId(val value: Long) : Comparable<HouseholdId> {
     }
 }
 
-interface IHousehold : Identifiable<HouseholdId>, StochasticActor {
+interface IHousehold : Identifiable<HouseholdId>, StochasticActor, Simplifiable<HouseholdBinaryRecord> {
     val householdNumber: Long
     val surveyYear: Int
     val location: Location
@@ -43,6 +48,20 @@ interface IHousehold : Identifiable<HouseholdId>, StochasticActor {
     val economicStatus: EconomicStatus
     val members: Set<IPerson>
     val cars: Set<IPrivateCar>
+
+    override fun simplify(): HouseholdBinaryRecord {
+        return HouseholdBinaryRecord(
+            id.value,
+            householdNumber,
+            surveyYear,
+            domCode,
+            type,
+            incomePerMonth.toDouble(CurrencyUnit.EUROS),
+            economicStatus.code,
+            location
+
+        )
+    }
 }
 
 @Mutable
@@ -56,7 +75,29 @@ abstract class Household(
     abstract override val members: Set<Person>
     abstract override val cars: Set<PrivateCar>
 }
-
+data class HouseholdBinaryRecord(
+    val id: Long,
+    val householdNumber: Long,
+    val surveyYear: Int,
+    val domCode: Int,
+    val type: Int,
+    val incomePerMonth: Double,
+    val economicStatusCode: Int,
+    val location: Location,
+): BinaryWritable {
+    override fun writeTo(outStream: DataOutputStream) {
+        outStream.run {
+            writeLong(id)
+            writeLong(householdNumber)
+            writeInt(surveyYear)
+            writeInt(domCode)
+            writeInt(type)
+            writeDouble(incomePerMonth)
+            writeInt(economicStatusCode)
+            encodeLocation(location)
+        }
+    }
+}
 /**
  * The economic status as taken from the original mobiTopp codebase
  */

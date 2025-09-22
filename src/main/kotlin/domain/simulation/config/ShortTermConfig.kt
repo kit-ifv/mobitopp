@@ -1,23 +1,20 @@
 package domain.simulation.config
 
+import application.config.ExampleProjectContext
 import java.nio.file.Path
 import kotlin.io.path.exists
 
 data class ShortTermConfig(
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
-    val dataFolder: Path,
-    val seed: Long,
-    val scenarioName: String,
-    val attractivitiesFile: Path,
     val costMatrixConfigPath: Path,
     val durationMatrixConfigPath: Path,
     val distanceMatrixPath: Path,
+
+    val simulationContext: ExampleProjectContext,
 ) {
     fun validate() {
         val paths = listOf(
-            dataFolder,
-            attractivitiesFile,
             costMatrixConfigPath,
             durationMatrixConfigPath,
             distanceMatrixPath

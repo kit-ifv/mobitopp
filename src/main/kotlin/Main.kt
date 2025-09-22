@@ -46,15 +46,9 @@ fun main(args: Array<String>) {
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: error("No config argument handed.")
 
     shortTermConfig.validate()
+    val simulationContext = shortTermConfig.simulationContext
     Simulation {
-        ExampleProjectContext(
-            scenarioName = "testSteps",
-            regionTypeCodes = RegioStaR17,
-            dataFolder = shortTermConfig.dataFolder,
-            economicalStatusCodes = EconomicStatus,
-            simulationSeed = 42,
-            modes = MainModes,
-        )
+        simulationContext.copy()
     }.steps {
         loadZones()
         loadVisumNetwork(Path("src/test/resources/rastatt.net"))
