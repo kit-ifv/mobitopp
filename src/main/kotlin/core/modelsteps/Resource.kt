@@ -57,7 +57,7 @@ fun <I, E> I.asResource(name: String, source: String): Resource<E> where I : Ite
 
 /**
  * A resource providing data from a csv file.
- * The file is only read and parsed once.
+ * The file is only read and parsed onc
  * The created entities are stored in the resource for future access.
  *
  * @param E the generic type of entities created from the csv data

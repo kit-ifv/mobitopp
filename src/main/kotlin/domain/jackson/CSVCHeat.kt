@@ -6,12 +6,8 @@ import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.Resource
 import core.modelsteps.Warning
-import domain.synthesis.parser.ActivitiesColumns
 import utils.Identifiable
 import utils.binary.BinaryReader
-import utils.csv.CsvParser
-import utils.csv.int
-import utils.csv.long
 import java.io.DataOutputStream
 import java.nio.file.Path
 
@@ -40,26 +36,6 @@ data class CarBinaryRecord(
             writeLong(mainUserId)
             writeInt(segmentCode)
             writeInt(engineCode)
-        }
-    }
-}
-
-data class ActivityBinaryRecord(
-    val id: Long,
-    val personId: Long,
-    val observedTripDuration: Int,
-    val startTime: Long,
-    val duration: Int,
-    val activityCode: Int,
-): BinaryWritable {
-    override fun writeTo(outStream: DataOutputStream) {
-        outStream.run {
-            writeLong(id)
-            writeLong(personId)
-            writeInt(observedTripDuration)
-            writeLong(startTime)
-            writeInt(duration)
-            writeInt(activityCode)
         }
     }
 }
@@ -106,4 +82,3 @@ class GuaranteedCache<E : Identifiable<I>, I>(
         TODO("Not yet implemented")
     }
 }
-made
