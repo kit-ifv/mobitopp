@@ -74,6 +74,12 @@ class BinaryMatrixFileLookup(
         if (target == null) return null
         val cachedChecksum = format.checksum(target)
         if (cachedChecksum != originalChecksum) return null
-        return format.deserialize(target)
+
+        return try {
+            format.deserialize(target)
+        } catch (e: Exception) {
+            throw  e
+            TODO("Not yet implemented")
+        }
     }
 }

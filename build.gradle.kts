@@ -82,6 +82,7 @@ dependencies {
 
     // other libs
     implementation(libs.jackson.parser)
+    implementation(libs.jackson.dataformat.csv)
     implementation(libs.jackson.kotlin.serialization)
     implementation(libs.commons.compress) //1.26.2
     implementation(libs.xz) //1.9

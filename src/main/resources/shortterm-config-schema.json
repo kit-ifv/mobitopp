@@ -4,51 +4,50 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run usin gshared attributes",
-  "required": ["scenarioName", "seed", "dataFolder", "fractionOfPopulation", "attractivitiesFile", "costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath"],
+  "required": ["scenarioName", "seed", "dataFolder", "fractionOfPopulation", "attractivitiesFile",
+    "costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "zoneRepository"],
   "type": "object",
   "properties": {
     "scenarioName": {
+      "description": "The Scenario Name for the Simulation run.",
       "type": "string",
       "default": "unnamedShorttermScenario",
       "pattern": "^[a-zA-Z]*$"
     },
     "seed": {
-      "description": "The standard seed",
+      "description": "The core seed from which the agent RNG is constructed.",
       "type": "integer",
       "default": 42
     },
     "dataFolder": {
-      "description": "",
+      "description": "The repository where the Short Term Population input resides. This should be a folder where the standard input data for short term reside in a flat structure [activities, persons, households...]",
+
+
       "type": "string",
       "default": "//ifv-fs/Forschung/Projekte_intern/mobitopp/Output/logiktram_rastatt_long-term-module/rastatt"
     },
     "fractionOfPopulation": {
-      "description": "",
+      "description": "The fraction of HOUSEHOLDS that should be simulated during the simulation.",
       "type": "number",
       "default": 1.0,
       "exclusiveMinimum": 0.0,
       "maximum": 1.0
     },
     "visumNetwork": {
-      "description": "src/test/resources/rastatt.net",
+      "description": "The path to the Visum network. ",
       "type": "string"
     },
-    "attractivitiesFile": {
-      "description": "",
-      "type": "string",
-      "default": "data/attractivities.csv"
-    },
     "costMatrixConfigPath": {
-      "description": "",
+      "description": "The path to the yaml file containing the configuration for Cost Matrix Lookup",
       "type": "string"
     },
     "durationMatrixConfigPath": {
-      "description": "",
+      "description": "The path to the yaml file containing the configuration for Duration Matrix Lookup",
       "type": "string"
 
     },
     "distanceMatrixPath": {
-      "description": "",
+      "description": "The path to the matrix containing distances.",
       "type": "string"
     }
   }

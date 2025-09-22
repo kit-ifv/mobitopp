@@ -1,6 +1,8 @@
 package domain.synthesis.data
 
 import Mutable
+import domain.jackson.CarBinaryRecord
+import domain.jackson.Simplifiable
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.Efficiency
 import edu.kit.ifv.units.Energy
@@ -46,9 +48,20 @@ interface Car : Identifiable<CarId> {
     val seats: Int
 }
 
-interface IPrivateCar : Car {
+interface IPrivateCar : Car, Simplifiable<CarBinaryRecord>  {
     val owner: IHousehold
     val mainUser: IPerson?
+
+    override fun simplify(): CarBinaryRecord {
+        return CarBinaryRecord(
+            id.value,
+            owner.id.value,
+            seats,
+            mainUser?.id?.value?: Long.MIN_VALUE,
+            segment.code,
+            engine.type.code
+        )
+    }
 }
 
 /**
@@ -58,7 +71,7 @@ interface IPrivateCar : Car {
 abstract class PrivateCar(
     final override val id: CarId,
     override val owner: MutableHousehold,
-) : IPrivateCar {
+) : IPrivateCar{
 
     abstract override val mainUser: Person?
 

@@ -15,6 +15,8 @@ import utils.units.AbsoluteTime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+
+
 fun SynthesisContext.activityCsvParser(
     errorHandling: ErrorHandling,
     columns: ActivitiesColumns,

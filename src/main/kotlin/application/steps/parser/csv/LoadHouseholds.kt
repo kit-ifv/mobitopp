@@ -201,6 +201,10 @@ fun LoadHouseholdContext.householdsFromCsvStep(
     }
 }
 
+fun LoadHouseholdContext.fillCache() {
+
+}
+
 fun LoadHouseholdContext.runStep(
     step: AbstractAddResourceStep<MutableHousehold, HouseholdId>,
 
