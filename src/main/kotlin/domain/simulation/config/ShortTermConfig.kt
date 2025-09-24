@@ -7,10 +7,6 @@ import kotlin.io.path.exists
 data class ShortTermConfig(
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
-    val dataFolder: Path,
-    val seed: Long,
-    val scenarioName: String,
-    val attractivitiesFile: Path,
     val costMatrixConfigPath: Path,
     val durationMatrixConfigPath: Path,
     val distanceMatrixPath: Path,
@@ -18,8 +14,6 @@ data class ShortTermConfig(
 ) {
     fun validate() {
         val paths = listOf(
-            dataFolder,
-            attractivitiesFile,
             costMatrixConfigPath,
             durationMatrixConfigPath,
             distanceMatrixPath
