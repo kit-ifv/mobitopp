@@ -1,6 +1,8 @@
 package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.behavior.SurveyHousehold
+import domain.synthesis.data.Sex
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Defines a rule for population synthesis, which describes a condition to be met by the synthetic population.
@@ -111,20 +113,123 @@ fun interface CheckRule<T> : CountRule<T> {
     }
 }
 
-class NamedCheckRule<T>(ruleDescription: String, override val logic: CheckRule<T>) :
+class NamedCheckRule<T> protected constructor(ruleDescription: String, override val logic: CheckRule<T>) :
     NamedCountRule<T>(
         ruleDescription,
         logic
     ),
     CheckRule<T> by logic {
-    override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
+    constructor(desc: RuleDescription, logic: CheckRule<T>) : this(desc.logicDescription, logic)
+        override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
         return super<NamedCountRule>.matches(surveyHousehold)
+    }
+
+}
+
+open class NamedCountRule<T> protected constructor(val ruleDescription: String, open val logic: CountRule<T>) : CountRule<T> by logic {
+    constructor(desc: RuleDescription, logic: CountRule<T>) : this(desc.logicDescription, logic)
+    override fun equals(other: Any?): Boolean {
+        if (other !is NamedCountRule<*>) return false
+        return ruleDescription == other.ruleDescription
+    }
+
+    override fun hashCode(): Int {
+        return ruleDescription.hashCode()
+
     }
 }
 
-open class NamedCountRule<T>(val ruleDescription: String, open val logic: CountRule<T>) : CountRule<T> by logic
+sealed interface RuleDescription {
+    val logicDescription: String
 
-private const val UNNAMED_RULE = "Unnamed rule"
+
+}
+object UNKNOWN_LOGIC: RuleDescription{
+    override val logicDescription: String
+        get() = "Unknown logic descriptor."
+
+}
+class AgeRuleDescription(startAge: Int, endAge: Int): RuleDescription {
+    override val logicDescription: String = "Age in ($startAge..$endAge)"
+}
+class AgeSexRuleDescription(startAge: Int, endAge: Int, sex: Sex): RuleDescription {
+    override val logicDescription: String = "Sex=$sex Age in ($startAge..$endAge)"
+}
+class HouseholdTypeDescription(type: String): RuleDescription {
+    constructor(type: Int): this(type.toString())
+    override val logicDescription: String = "Household type = $type"
+}
+class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityOp.EQUALS):RuleDescription {
+    override val logicDescription: String = "Household Size ${operator.symbol} $targetSize "
+
+    enum class EqualityOp(val symbol: String) {
+        EQUALS("=="),
+        NOT_EQUALS("!="),
+        LESS_THAN("<"),
+        LESS_OR_EQUAL("<="),
+        GREATER_THAN(">"),
+        GREATER_OR_EQUAL(">=")
+    }
+
+}
+
+//
+//class RuleDescription(
+//    val ruleDescription: String,
+//    val logic:
+//)
+//
+//abstract class Logic() {
+//
+//}
+//class HouseholdSizeCheck(val householdSize: Int): Logic() {
+//    override fun equals(other: Any?): Boolean {
+//        if(other !is HouseholdSizeCheck) return false
+//        return other.householdSize == householdSize
+//    }
+//
+//    override fun hashCode(): Int {
+//        return householdSize
+//    }
+//}
+//class AgeCheck(val lowerBound: Int, val upperBound: Int) : Logic() {
+//    override fun equals(other: Any?): Boolean {
+//        if (this === other) return true
+//        if(other !is AgeCheck) return false
+//        return lowerBound == other.lowerBound && upperBound == other.upperBound
+//    }
+//
+//    override fun hashCode(): Int {
+//        var result = lowerBound
+//        result = 31 * result + upperBound
+//        return result
+//    }
+//}
+//class AgeGenderCheck<T>(val lowerBound: Int, val upperBound: Int, val sex: Sex) : Logic(), CountRule<T> {
+//
+//    /**
+//     * Evaluates how much the given [surveyHousehold] contributes to the target based on a specific attribute.
+//     *
+//     * @param surveyHousehold The household to evaluate.
+//     * @return An integer representing the contribution.
+//     */
+//    override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
+//        return surveyHousehold.count { it.age in lowerBound..upperBound && it.sex == sex }
+//    }
+//    override fun equals(other: Any?): Boolean {
+//        if (other !is AgeGenderCheck<*>) return false
+//        return lowerBound == other.lowerBound && upperBound == other.upperBound && sex == other.sex
+//    }
+//
+//    override fun hashCode(): Int {
+//        var result = lowerBound
+//        result = 31 * result + upperBound
+//        result = 31 * result + sex.hashCode()
+//        return result
+//    }
+//}
+
+
 
 /**
  * A named implementation of the [Rule] interface, using a [CountRule] to calculate a household's contribution to
@@ -142,7 +247,7 @@ class ZoneRule<T>(
     constructor(description: String, target: Int, logic: CountRule<T>) : this(
         description,
         target,
-        NamedCountRule(UNNAMED_RULE, logic)
+        NamedCountRule(UNKNOWN_LOGIC, logic)
     )
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
         return logic.matches(surveyHousehold)
@@ -150,6 +255,10 @@ class ZoneRule<T>(
 
     override fun toString(): String {
         return descriptiveText()
+    }
+
+    fun sameLogic(other: ZoneRule<T>): Boolean {
+        return logic == other.logic
     }
 }
 
@@ -166,10 +275,17 @@ class ZoneCheckRule<T>(
     override val target: Int,
     override val logic: NamedCheckRule<T>,
 ) : Rule<T> {
+    @TestOnly
     constructor(description: String, target: Int, logic: CheckRule<T>) : this(
         description,
         target,
-        NamedCheckRule(UNNAMED_RULE, logic)
+        NamedCheckRule(UNKNOWN_LOGIC, logic)
+    )
+
+    constructor(ruleDescription: RuleDescription, target: Int, logic: NamedCheckRule<T>) : this(
+        ruleDescription.logicDescription,
+        target,
+        logic
     )
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
         return logic.matches(surveyHousehold)
@@ -177,5 +293,9 @@ class ZoneCheckRule<T>(
 
     override fun toString(): String {
         return descriptiveText()
+    }
+
+    fun sameLogic(other: ZoneRule<T>): Boolean {
+        return logic == other.logic
     }
 }
