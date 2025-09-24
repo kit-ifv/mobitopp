@@ -1,5 +1,6 @@
 package domain.simulation.config
 
+import application.config.StandardContext
 import java.nio.file.Path
 import kotlin.io.path.exists
 
@@ -13,6 +14,7 @@ data class ShortTermConfig(
     val costMatrixConfigPath: Path,
     val durationMatrixConfigPath: Path,
     val distanceMatrixPath: Path,
+    val simulationContext: StandardContext
 ) {
     fun validate() {
         val paths = listOf(
