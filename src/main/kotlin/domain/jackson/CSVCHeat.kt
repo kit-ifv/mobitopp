@@ -8,6 +8,7 @@ import core.modelsteps.Resource
 import core.modelsteps.Warning
 import utils.Identifiable
 import utils.binary.BinaryReader
+import utils.binary.BinaryWriter
 import java.io.DataOutputStream
 import java.nio.file.Path
 
@@ -56,7 +57,11 @@ class GuaranteedCache<E : Identifiable<I>, I>(
 //        resourceProtect()
         binaryResource
     }
-
+    fun getOriginalResource() {
+//        val csv = CSVParser.parse(....) // Nicht Household, sondern BinaryRecord Object.
+//
+//        binaryWriter.write(csv)
+    }
 //    private fun resourceProtect() {
 //        if originalFilePath.crc32() != binaryReader.checksum(cacheFilePath)
 //

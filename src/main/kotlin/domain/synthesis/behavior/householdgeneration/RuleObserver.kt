@@ -28,6 +28,10 @@ abstract class RuleObserver(
         return vectors.sumOf { it.currentValueForIndex(observedIndex) }
     }
 
+    fun fallbackSize(): Double {
+        return vectors.sumOf { it.attributeForIndex(observedIndex).toDouble() }
+    }
+
     /**
      * Performs a sanity check to ensure that no vector has a zero value at the [observedIndex]. An Observer should never
      * track a household which is irrelevant for the underlying rule, which is equivalent to having a 0 as the encoding
@@ -117,7 +121,11 @@ class TargetNumberObserver(
             return max(exp / act, act / exp)
         }
     override fun optimize() {
-        if (expected == 0 && sum() == 0.0) return
-        this.timesAssign((expected / sum()))
+        val sum = sum()
+//        if(sum == 0.0) return // There is no remaining vector with a scalar > 0.0. This observer can no longer be optimized.
+        val currentSum = if(sum == 0.0) fallbackSize() else sum
+
+        // TODO fallback calculation if expected != 0.0 and sum is 0.0
+        this.timesAssign((expected / currentSum))
     }
 }

@@ -36,6 +36,8 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
      */
     fun currentValueForIndex(index: Int): Double = array[index] * scalar
 
+
+    fun attributeForIndex(index: Int): Int  = array[index]
     /**
      * Determines whether this vector applies to a given rule based on the value at the [ruleIndex].
      * A value other than 0 at the [ruleIndex] indicates that the vector applies to the rule.
