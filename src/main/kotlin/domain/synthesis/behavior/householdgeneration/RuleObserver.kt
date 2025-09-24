@@ -66,6 +66,10 @@ abstract class RuleObserver(
 
     abstract val quotientDifference: Double
 
+    abstract val expected: Int
+    val expectedD get()= expected.toDouble()
+    val actual: Double get() = sum()
+
     /**
      * Optimizes the vectors by scaling all of them proportionally, ensuring that the sum matches the expected value.
      */
@@ -102,7 +106,7 @@ class TargetNumberObserver(
     name: String,
     observedIndex: Int,
     vectors: List<ScalableVector>,
-    val expected: Int,
+    override val expected: Int,
 
 ) : RuleObserver(
     name,
