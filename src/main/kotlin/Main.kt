@@ -2,6 +2,7 @@
 
 import application.config.ExampleProjectContext
 import application.config.ShortTermConfig
+import application.config.StandardContext
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
 import application.steps.model.householdHomeLocation
@@ -44,10 +45,7 @@ fun main(args: Array<String>) {
 
     shortTermConfig.validate()
     Simulation {
-        ExampleProjectContext(
-            scenarioName = "Scenario Name",
-            dataFolder = Path("data"),
-        )
+        shortTermConfig.simulationContext.toExampleContext()
     }.steps {
         loadZones()
         loadVisumNetwork(Path("src/test/resources/rastatt.net"))
@@ -101,4 +99,28 @@ fun main(args: Array<String>) {
 
         simulate()
     }
+}
+
+
+fun StandardContext.toExampleContext(): ExampleProjectContext {
+    return ExampleProjectContext(
+        scenarioName = scenarioName,
+        dataFolder = dataFolder,
+        regionTypeCodes = regionTypeCodes,
+        economicalStatusCodes =economicalStatusCodes,
+        sexCodes = sexCodes,
+        graduationCodes = graduationCodes,
+        employmentCodes = employmentCodes,
+        engineCodes = engineCodes,
+        carSegmentCodes = carSegmentCodes,
+        activityTypes = activityTypes,
+        modes = modes,
+        costUnit = costUnit,
+        distanceUnit = distanceUnit,
+        timeUnit = timeUnit,
+        simulationSeed = simulationSeed,
+        simulationStart = simulationStart,
+        simulationEnd = simulationEnd,
+        timeStep = timeStep,
+    )
 }

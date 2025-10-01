@@ -9,7 +9,7 @@ data class ShortTermConfig(
     val costMatrixConfigPath: Path,
     val durationMatrixConfigPath: Path,
     val distanceMatrixPath: Path,
-    val simulationContext: StandardContext
+    val simulationContext: ExampleProjectContext
 ) {
     fun validate() {
         val paths = listOf(
