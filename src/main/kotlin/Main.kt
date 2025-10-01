@@ -1,6 +1,7 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import application.config.ExampleProjectContext
+import application.config.ShortTermConfig
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
 import application.steps.model.householdHomeLocation
@@ -23,17 +24,13 @@ import application.steps.parser.loadVisumNetwork
 import core.modelsteps.Simulation
 import domain.shared.config.Yaml
 import domain.shared.enums.LegacyActivityType
-import domain.shared.enums.MainModes
-import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
 import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
-import domain.simulation.config.ShortTermConfig
 import domain.simulation.events.personStateMachine
 import domain.synthesis.behavior.AssignAroundZoneCentroid
-import domain.synthesis.data.EconomicStatus
 import domain.synthesis.parser.NoActivityStartShifter
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
@@ -48,12 +45,8 @@ fun main(args: Array<String>) {
     shortTermConfig.validate()
     Simulation {
         ExampleProjectContext(
-            scenarioName = "testSteps",
-            regionTypeCodes = RegioStaR17,
-            dataFolder = shortTermConfig.dataFolder,
-            economicalStatusCodes = EconomicStatus,
-            simulationSeed = 42,
-            modes = MainModes,
+            scenarioName = "Scenario Name",
+            dataFolder = Path("data"),
         )
     }.steps {
         loadZones()

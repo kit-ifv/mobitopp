@@ -1,6 +1,5 @@
-package domain.simulation.config
+package application.config
 
-import application.config.StandardContext
 import java.nio.file.Path
 import kotlin.io.path.exists
 
