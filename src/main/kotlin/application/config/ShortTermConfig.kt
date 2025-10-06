@@ -45,9 +45,13 @@ data class ShortTermConfig(
     val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>, // hamburg, legacy, debug
 
     /* agents */
-    val activityDurationRandomizer: ActivityDurationRandomizer // none, Gaussian
+    val activityDurationRandomizer: ActivityDurationRandomizer, // none, Gaussian
 
-) {
+    /* vehicle sharing */
+    val sharingProviderName: String,
+    val vehicleCoundColumn: String,
+
+    ) {
     fun validate() {
         val paths = listOf(
             costMatrixConfigPath,
