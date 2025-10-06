@@ -39,13 +39,10 @@ data class ShortTermConfig(
     /* repos*/
     val zoneRepo: Path,
 
-    /* behavour */
+    /* behaviour */
     val choiceModelModes: ChoiceModelModes, // hamburg, legacy
     val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>, // default and standalone
     val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>, // hamburg, legacy, debug
-
-    /* agents */
-    val activityDurationRandomizer: ActivityDurationRandomizer, // none, Gaussian
 
     /* vehicle sharing */
     val sharingProviderName: String,
