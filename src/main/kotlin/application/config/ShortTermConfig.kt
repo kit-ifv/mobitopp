@@ -35,6 +35,7 @@ data class ShortTermConfig(
     val fixedDestinationCSV: Path? = null,
     val attractivitiesCSV: Path? = null,
     val bikeSharingStations: Path? = null,
+    val zonesCSV: Path? = null,
     /* repos*/
     val zoneRepo: Path,
 
