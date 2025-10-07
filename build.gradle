@@ -27,7 +27,7 @@ subprojects {
     ext.libraries = [
         actitopp: 'edu.kit.ifv.mobitopp:actitopp:1.9.1.48',
         commons_compress: 'org.apache.commons:commons-compress:1.12',
-        lombok: 'org.projectlombok:lombok:1.18.8',
+        lombok: 'org.projectlombok:lombok:1.18.34',
         opencsv: 'net.sf.opencsv:opencsv:2.3',
         snakeyaml: 'org.yaml:snakeyaml:1.18',
 
