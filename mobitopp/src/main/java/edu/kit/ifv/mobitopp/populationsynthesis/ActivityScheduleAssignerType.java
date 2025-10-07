@@ -8,7 +8,7 @@ public enum ActivityScheduleAssignerType {
 
     @Override
     ActivityScheduleAssigner create(long seed, DataRepositoryForPopulationSynthesis dataRepository) {
-      return new ActiToppScheduleCreator(seed);
+      return new ActiToppScheduleCreator(seed, dataRepository.panelDataRepository());
     }
 
   },

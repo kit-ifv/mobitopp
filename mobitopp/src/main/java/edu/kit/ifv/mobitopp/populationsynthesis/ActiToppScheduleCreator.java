@@ -1,431 +1,311 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 
-import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-
-import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson;
-import edu.kit.ifv.mobitopp.actitopp.Configuration;
-import edu.kit.ifv.mobitopp.actitopp.HActivity;
-import edu.kit.ifv.mobitopp.actitopp.InvalidPatternException;
-import edu.kit.ifv.mobitopp.actitopp.ModelFileBase;
-import edu.kit.ifv.mobitopp.actitopp.RNGHelper;
+import edu.kit.ifv.mobitopp.actitopp.*;
+import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
-import edu.kit.ifv.mobitopp.result.CsvBuilder;
-import edu.kit.ifv.mobitopp.result.ResultWriter;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatternCreator;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
+import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 
 /**
- * 
  * Klasse zur Erzeugung der Aktivitätenpläne
  * Implementiert das Interface
- * 
- * @author Tim Hilgert
  *
+ * @author Tim Hilgert
  */
 @Slf4j
-public class ActiToppScheduleCreator implements ActivityScheduleCreator, ActivityScheduleAssigner
-{
-	
-	private final ActiToppCategories categories;
-	
-	// Personenindex
-	private int personIndex = 0;
+public class ActiToppScheduleCreator implements ActivityScheduleAssigner {
 
-  // Dateibasis zum Einlesen der Parameter
-  private ModelFileBase fileBase;
-  
-  // Zufallszahlengenerator
-  private RNGHelper randomgenerator;
-    
-  // DEBUG USE ONLY
-  
-  private static ArrayList<PatternActivityWeek> activities = new ArrayList<PatternActivityWeek>(); 
-  public static HashMap<Number, ActitoppPerson> personmap = new HashMap<Number, ActitoppPerson>();
-  public static HashMap<Number, List<HActivity>> schedulemap = new HashMap<Number, List<HActivity>>();
-  private int globalretries = 0;
+	// Debug-Counters for persons and households
+	private int modeling_counter_pers=0;
+	private int modeling_counter_hh=0;
 
-  /**
-   * 
-   * Konstruktor
-   * 
-   * @param seed
-   */
-  public ActiToppScheduleCreator(long seed)
-  {
-  	categories = new ActiToppCategories();
-      fileBase = new ModelFileBase();
-      randomgenerator = new RNGHelper(seed);
-  }
+	// Debug and Log Limit (every x persons)
+	private int exportandloglimit=50000;
 
-  @Override
-  public void assignActivitySchedule(HouseholdForSetup toHousehold) {
-  }
+	// filebase to read relevant parameters
+	private ModelFileBase fileBase;
+	// filebase for detailed purpose modeling
+	private ModelFileBase fileBase_detailedPurposes;
 
-  /**
-   * 
-   * Methode zur Erstellung des Wochen-Aktivitätenplans
-   * Gibt den fertigen Plan mit Aktivitäten zurück
-   * 
-   */
-  @Override
-	public PatternActivityWeek createActivitySchedule(
-			PersonOfPanelData aPersonOfPanelData,
-			HouseholdOfPanelData householdOfPanelData,
-			HouseholdForSetup household
-	)
+	// random number generator
+	private RNGHelper randomgenerator;
+
+	private PanelDataRepository repository;
+
+	// HashMap for Output Handling
+	private HashMap<Integer, ActitoppPerson> personmap = new HashMap<Integer, ActitoppPerson>();
+	// Output Logger
+	private CSVExportLogger logger;
+
+	// only for debug reasons
+	private int globalretries = 0;
+	private long timeforcounting;
+
+	public ActiToppScheduleCreator(long seed, PanelDataRepository repository)
 	{
-  	// Initialisierungen
-    PatternActivityWeek patternActivityWeek= new PatternActivityWeek();
-  	
-    // Durchführung nur für x% der Bevölkerung
-  	if ((personIndex % (100/Configuration.percent_bevsynthese)) == 0)
-    { 	
-	  	//Erzeuge neue Person
-			ActitoppPerson personOfActiTopp = new ActitoppPerson(
-					personIndex,
-					householdOfPanelData.numberOfNotReportingChildren(),
-					householdOfPanelData.numberOfMinors(),
-					aPersonOfPanelData.age(),
-					aPersonOfPanelData.getEmploymentTypeAsInt(),
-					aPersonOfPanelData.getGenderTypeAsInt(),
-					household.homeZone().getAreaType().getTypeAsInt(),
-					householdOfPanelData.numberOfCars()  				
-					); 		
-			
-			// DEBUG purpose
-		  // log.debug(personOfActiTopp);
-			
-	    // Erzeuge solange Schedules, bis kein InvalidPatternException mehr vorliegt
-	    boolean scheduleOK = false;
-	    while (!scheduleOK)
-	    {
-        try
-        {
-      		// Erzeuge Wochenaktivitätenplan
-          personOfActiTopp.generateSchedule(fileBase, randomgenerator);
-          
-	        // Konvertiere alle Aktivitäten in mobiTopp-Datentypen
-	        for (HActivity act : personOfActiTopp.getWeekPattern().getAllActivities())
-	        {
-	        	patternActivityWeek.addPatternActivity(convertActiToppTomobiToppActivityType(act));
-	        }
-      		
-          scheduleOK = true;                
-        }
-        catch (InvalidPatternException e)
-        {
-          warn(e, log);
-          globalretries++;
-          
-          //  System.err.println(e.getReason());
-          //  System.err.println("person involved: " + this.personIndex);
-          //  System.err.println("RetryNumber : " + retryIndex);
-        }
-	    }
-	    
-	    // Füge die Act und die Person für den Export den Maps hinzu
-	    schedulemap.put(personIndex, personOfActiTopp.getWeekPattern().getAllActivities());
-	    personmap.put(personIndex, personOfActiTopp);
-	    
-	    
-	    activities.add(patternActivityWeek);
-    }
-    personIndex++;
-    
-    // Statusinformationen und Log4J-Export
-    if (personIndex % Configuration.anzexportds == 0)
-    {
-    	log.info("Doing person Nr... " + personIndex);
-    	int prozent = (int) Math.round(100*((double) globalretries/(double) Configuration.anzexportds));
-    	log.error("Anzahl Retries: " + globalretries + " (~ " + prozent + "% der Personen)");
-    	globalretries=0;
-    	
-    	exportData();
-    }
-    
-	  return patternActivityWeek;
+		Configuration.model_joint_actions = false;
+		this.randomgenerator = new RNGHelper(seed);
+		this.repository = repository;
+		try {
+			this.logger = new CSVExportLogger(new File("output/actitopp"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		/*
+		 * create standard file base with custom parameterset and standard step information
+		 */
+		fileBase = new ModelFileBase("mopv14_nopkwhh");
+
+		/*
+		 * create custom model file base for detailed purposes
+		 */
+		HashSet<String> dcsteps_purposes = new HashSet<String>();
+		dcsteps_purposes.add("98A");
+		dcsteps_purposes.add("98B");
+		dcsteps_purposes.add("98C");
+		fileBase_detailedPurposes = new ModelFileBase(new File("config/parameters/actitopp_purposes"), dcsteps_purposes, null, null);
+
+		System.out.println("actitopp - coordinated modeling: " + Configuration.coordinated_modelling);
+		System.out.println("actitopp - modeling of joint actions: " + Configuration.model_joint_actions);
+
+		timeforcounting = System.currentTimeMillis();
 	}
 
-  /**
-   * 
-   * 
-   * @param until
-   */
-  private void exportData()
-  {
 
-    // double rnd = Math.random();
-    // Serial-Dateien
-    //writeSerializeData("" + rnd);
-    // CSV-Dateien Personen
-    //writeCSVPersonData("Rohdaten_Personen", until);
-    // CSV-Dateien Activities
-    //writeCSVActData("Rohdaten_Wege", until);
-    // Log4J-Dateien loggen
-    writeLog4JData();
+	/**
+	 *
+	 * Create activity schedule of a complete household and returns
+	 * a hash map with persons containing activity schedules
+	 *
+	 */
+	@Override
+	public void assignActivitySchedule(HouseholdForSetup household) {
 
-  	personmap.clear();
-    schedulemap.clear();
-  	activities.clear();
-  }
+		// initialization
 
-  /**
-   * 
-   * Schreibe Serial-Daten für Debug
-   * 
-   * @param partition
-   * @throws IOException
-   */
-  @SuppressWarnings("unused")
-	private void writeSerializeData(String partition) throws IOException
-  {
-      File tmp = new File("log/populationsynthesis/serials/" + partition + "dataActiTopp.ser");
-      tmp.createNewFile();
-      FileOutputStream fileOut = new FileOutputStream(tmp);
-      ObjectOutputStream out = new ObjectOutputStream(fileOut);
-      out.writeObject(activities);
-      out.close();
-      fileOut.close();
-  }
-    
-  /**
-   * 
-   * Schreibe CSV-Daten für Debug
-   * 
-   * @param partition
-   * @param untilindex
-   * @throws IOException
-   */
-	@SuppressWarnings("unused")
-  private void writeCSVPersonData(String partition, int untilindex) throws IOException
-  {
-  	// Erstelle die Datei
-  	FileWriter writer = new FileWriter("log/populationsynthesis/csv/" + partition + ".csv");
-  	
-  	// Header
-  	writer.append("HHID;Jahr;PersNr;P0_10;kinder_u18;Alter;BERUF;SEX;Raumtyp_mobitopp;Pkwhh");
-  	writer.append('\n');
-  	writer.flush();
+		// Create household
+		modeling_counter_hh++;
+		ActiToppHousehold tmpactitopphousehold = new ActiToppHousehold(
+				modeling_counter_hh, 										// HouseholdIndex
+				household.getNumberOfPersonsInAgeRange(0,10),				// number of children aged 0-10
+				household.getNumberOfPersonsInAgeRange(0,18),				// number of children aged under 18
+				household.homeZone().getAreaType().getTypeAsInt(),			// AreaType
+				household.getTotalNumberOfCars()  							// number of cars
+		);
 
-  	// Füge alle Personendaten der Datei hinzu
-  	for (int i=(untilindex-Configuration.anzexportds); i<untilindex; i++)
-  	{
-  		ActitoppPerson person = personmap.get(i);
-  		
-  		//Output	ID, Jahr, PersNr, P0_10, kinder_u18, Alter, BERUF, SEX, Raumtyp, Pkwhh 
-  		
-  		
-  		// ID
-  		writer.append(i + ";");
-  		// Jahr
-  		writer.append("2016" + ";");
-  		// PersNr
-  		writer.append("1" + ";");
-  		// P0_10
-  		writer.append(person.getChildren0_10() + ";");
-  		// kinder_u18
-  		writer.append(person.getChildren_u18() + ";");
-  		// Alter    		
-  		writer.append(person.getAge() + ";");
-  		// Beruf
-  		writer.append(person.getEmployment() + ";");
-  		// Sex
-  		writer.append(person.getGender() + ";");
-  		// Raumtyp 
-  		writer.append(person.getAreatype() + ";");
-  		// PKWHH
-  		writer.append(person.getNumberofcarsinhousehold() + "");
-  		
-  		// Abschluss
-  		writer.append('\n'); 		
-  		
-  		writer.flush();
-  	}
-  	writer.close();
-  	String Uhrzeit = new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new java.util.Date());  	
-  	log.info("CSV Data Person geschrieben " + Uhrzeit);
-  }
- 
-  /**
-   * 
-   * Schreibe CSV-Daten für Debug
-   * 
-   * @param partition
-   * @param untilindex
-   * @throws IOException
-   */
-	@SuppressWarnings("unused")
-  private void writeCSVActData(String partition, int untilindex) throws IOException
-  {
-  	// Erstelle die Datei
-  	FileWriter writer = new FileWriter("log/populationsynthesis/csv/" + partition + ".csv");
-  	
-  	// Header
-  	writer.append("HHID;Jahr;PersNr;BERTAG;WOTAG;abzeit_woche;anzeit_woche;Dauer;zweck");
-  	writer.append('\n');
-  	writer.flush();
+		List<PersonBuilder> persons = household.getPersons();
 
-  	// Durlaufe alle ActivityLists
-  	for (int i=(untilindex-Configuration.anzexportds); i<untilindex; i++)
-  	{
-  		List<HActivity> actschedule = schedulemap.get(i);
-  		
-  		// Füge alle Aktivitäten der Datei hinzu
-  		for (HActivity act : actschedule)
-  		{
-  			if (act.getEstimatedTripTime()!=0)
-  			{
-    			// ID
-        		writer.append(i + ";");
-        		// Jahr
-        		writer.append("2016" + ";");
-        		// PersNr
-        		writer.append("1" + ";");
-        		// BERTAG
-        		writer.append(act.getWeekDay() + ";");
-        		// WOTAG
-        		writer.append(act.getWeekDay() + ";");
-        		// abzeit_woche
-        		writer.append(act.getTripStartTimeWeekContext() + ";");  
-        		// anzeit_woche
-        		writer.append(act.getStartTimeWeekContext() + ";");      		
-    			// Dauer
-    			writer.append(act.getEstimatedTripTime() + ";");
-    			// Zweck
-    			writer.append(act.getMobiToppActType() + "");
-    			
-    			// Abschluss
-        		writer.append('\n');
-        		writer.flush();
-  			}
-  		}
-  	}
-  	writer.close();
-  	String Uhrzeit = new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new java.util.Date());  	
-  	log.info("CSV Data Act geschrieben " + Uhrzeit);
-  }
-    
-  /**
-   * 
-   * Schreibt die actiTopp Ergebnisse in die Log-Dateien
-   * 
-   */
-  private void writeLog4JData()
-  {
-  	try(ResultWriter resultWriter = ResultWriter.createDefaultWriter()){
-  		logElementsTo(resultWriter);
-  	}
-  	String Uhrzeit = new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new java.util.Date());  	
-  	log.info("Log4J Data geschrieben " + Uhrzeit);
-  }
+		// Create persons in household
+		for (int i=0 ; i< persons.size(); i++) {
+			PersonBuilder aPerson = persons.get(i);
+
+			PersonOfPanelData panelperson = repository.getPerson(PersonOfPanelDataId.fromPersonId(aPerson.getId()));
+
+			double commuting_distance_work = panelperson.getDistanceWork();
+			double commuting_distance_education = panelperson.getDistanceEducation();
+
+			/*
+			 * model person between 6 and 9 years in actitopp as if they are 12 years old.
+			 * this is a workaround since actitopp can model only persons 10 years and older
+			 */
+			int ageinyearsforactitopp = (aPerson.age() >=6 && aPerson.age() <=9 ? 12 : aPerson.age());
+
+			ActitoppPerson tmpperson =
+					new ActitoppPerson(
+							tmpactitopphousehold,
+							i,														// index in household
+							aPerson.getId().getPersonNumber(), 						// person index
+							ageinyearsforactitopp,									// modified age
+							aPerson.employment().getTypeAsInt(),					// employment
+							aPerson.gender().getTypeAsInt(),						// gender
+							commuting_distance_work,								// commuting distance to work (0 if no commuting)
+							commuting_distance_education							// commuting distance to education (0 if no commuting)
+					);
+
+			//disable modeling of working activities for persons between 6 and 9 years old
+			if (aPerson.age() >=6 && aPerson.age() <=9) tmpperson.setAllowedToWork(false);
+
+		}
+
+		/*
+		 * Generate schedules for the household until there is no longer a wrong schedule for a person
+		 * modeling order of household members is given by the probability of joint actions for each person
+		 *
+		 * Sometimes, the model creates wrong schedules due to time conflicts between activities.
+		 * In these cases, the modeling is repeated until the schedule for each person is free of conflicts.
+		 */
+		boolean householdscheduleOK = false;
+		while (!householdscheduleOK) {
+			try {
+				//create schedules for all household members
+				tmpactitopphousehold.generateSchedules(fileBase, randomgenerator);
+				householdscheduleOK = true;
+			} catch (InvalidPatternException e) {
+				globalretries++;
+				// reset household modeling results when error
+				tmpactitopphousehold.resetHouseholdModelingResults();
+			}
+		}
 
 
-	private void logElementsTo(ResultWriter results) {
-		for (Entry<Number, ActitoppPerson> e : personmap.entrySet())
-  	{
-  		ActitoppPerson person = personmap.get(e.getKey());
-			List<HActivity> actschedule = schedulemap.get(e.getKey());
+		/*
+		 * Switch actiTopp age back to original value for person between 6 and 9
+		 */
+		for (int i=0 ; i< persons.size(); i++) {
+			if (persons.get(i).age() >=6 && persons.get(i).age() <=9) {
+				tmpactitopphousehold.getHouseholdMember(i).setAge(persons.get(i).age());
+			}
+		}
 
-  		//////////////////
-  		//	Personen
-  		//////////////////
-  		
-  		//Output	ID, Jahr, PersNr, P0_10, kinder_u18, Alter, BERUF, SEX, Raumtyp, Pkwhh 
-  		
-  		CsvBuilder log_person = new CsvBuilder();
-  		// PersID
-  		log_person.append(person.getPersIndex());
-  		// Jahr	    
-  		log_person.append(new GregorianCalendar().get(Calendar.YEAR));
-  		// PersNr
-  		log_person.append("1");
-  		// P0_10
-  		log_person.append(person.getChildren0_10());
-  		// kinder_u18
-  		log_person.append(person.getChildren_u18());
-  		// Alter    		
-  		log_person.append(person.getAge());
-  		// Beruf
-  		log_person.append(person.getEmployment());
-  		// Sex
-  		log_person.append(person.getGender());
-  		// Raumtyp 
-  		log_person.append(person.getAreatype());
-  		// PKWHH
-  		log_person.append(person.getNumberofcarsinhousehold());
-  		    		
-  		
-  		// Schreibe die log4j Datei
-			results.write(categories.person, log_person.toString());
-  		
-  		//////////////////
-  		//	Wege
-  		//////////////////   		
 
-  		for (HActivity act : actschedule)
-  		{
-  			if (act.getEstimatedTripTime()!=0)
-  			{
-  				CsvBuilder log_trip = new CsvBuilder();
-  				
-  				// PersID
-      		log_trip.append(person.getPersIndex());
-      		// Jahr
-      		log_trip.append(new GregorianCalendar().get(Calendar.YEAR));
-      		// PersNr
-      		log_trip.append("1");
-      		// BERTAG
-      		log_trip.append(act.getWeekDay());
-      		// WOTAG
-      		log_trip.append(act.getWeekDay());
-      		// abzeit_woche
-      		log_trip.append(act.getTripStartTimeWeekContext());  
-      		// anzeit_woche
-      		log_trip.append(act.getStartTimeWeekContext());      		
-      		// Dauer
-      		log_trip.append(act.getEstimatedTripTime());
-      		// Zweck
-      		log_trip.append(act.getMobiToppActType());/*+ ";";
-      		// Aktdauer
-      		log_trip.append(act.getDuration() + "";
-      		*/ 	
-      		
-      		// Schreibe die log4j Datei
-     			results.write(categories.trip, log_trip.toString());
-  			}
-  		}
-  	}
+		/*
+		 *  Create activitySchedule Format for mobiTopp
+		 */
+		for (int i=0 ; i< persons.size(); i++) {
+			PersonBuilder aPerson = persons.get(i);
+			ActitoppPerson personOfActiTopp = tmpactitopphousehold.getHouseholdMember(i);
+
+			PatternActivityWeek patternActivityWeek= generatepatternActivityWeek(personOfActiTopp);
+			aPerson.setPatternActivityWeek(TourBasedActivityPatternCreator.fromPatternActivityWeek(patternActivityWeek));
+
+			// only for debug and output
+			personmap.put(modeling_counter_pers, personOfActiTopp);
+			modeling_counter_pers++;
+			if (modeling_counter_pers % exportandloglimit == 0) writeExportAndLogData();
+		}
+
 	}
-    
-    /**
-  	 * 
-  	 * Methode konvertiert die Aktivität in den mobiTopp Simulation Aktivitätentyp
-  	 * 
-  	 * @return
-  	 */
-  	public PatternActivity convertActiToppTomobiToppActivityType(HActivity act)
-  	{   	
-  	    DayOfWeek wd = DayOfWeek.fromDay(act.getIndexDay());
-  	    PatternActivity activity = new PatternActivity(ActivityType.getTypeFromInt(act.getMobiToppActType()), wd, act.getEstimatedTripTime(), act.getStartTime(), act.getDuration());
-  	    return activity;
-  	}
+
+	/**
+	 *
+	 * generate ActivityPattern in correct mobiTopp format
+	 *
+	 * @param personOfActiTopp person to create activity pattern for
+	 * @return activity pattern
+	 */
+	private PatternActivityWeek generatepatternActivityWeek(ActitoppPerson personOfActiTopp)
+	{
+		PatternActivityWeek patternActivityWeek = new PatternActivityWeek();
+
+		// Convert activities to mobiTopp activity data format
+		for (HActivity act : personOfActiTopp.getWeekPattern().getAllActivities()) {
+			patternActivityWeek.addPatternActivity(convertActiToppTomobiToppActivityType(act));
+		}
+		// Check correct format of mobitopp patternActivityWeek
+		patternActivityWeek = new TourPatternFixer().ensureIsTour(patternActivityWeek);
+
+		return patternActivityWeek;
+	}
+
+
+	/**
+	 *
+	 * method to convert actitopp activities into mobitopp format
+	 *
+	 */
+	private PatternActivity convertActiToppTomobiToppActivityType(HActivity act) {
+		ActivityType mobitoppActivityType = null;
+		// Convert actiToppPurposes To mobiToppPurpose Types
+		switch (act.getActivityType()) {
+			case WORK:
+				mobitoppActivityType = ActivityType.getTypeFromInt(detailedpurposemodeling(act, "98C"));
+				break;
+			case EDUCATION:
+				if (act.getPerson().getEmployment()==40) {
+					mobitoppActivityType = ActivityType.EDUCATION_PRIMARY;
+				}
+				else if (act.getPerson().getEmployment()==41) {
+					mobitoppActivityType = ActivityType.EDUCATION_SECONDARY;
+				}
+				else if (act.getPerson().getEmployment()==5) {
+					mobitoppActivityType = ActivityType.EDUCATION_SECONDARY;
+				}
+				else {
+					mobitoppActivityType = ActivityType.EDUCATION_TERTIARY;
+				}
+				break;
+			case SHOPPING:
+				mobitoppActivityType = ActivityType.getTypeFromInt(detailedpurposemodeling(act, "98A"));
+				break;
+			case LEISURE:
+				mobitoppActivityType = ActivityType.getTypeFromInt(detailedpurposemodeling(act, "98B"));
+				break;
+			case TRANSPORT:
+				mobitoppActivityType = ActivityType.SERVICE;
+				break;
+			case HOME:
+				mobitoppActivityType = ActivityType.HOME;
+				break;
+			default:
+				System.err.println("unknown activity type");
+		}
+
+		DayOfWeek wd = DayOfWeek.fromDay(act.getDayIndex());
+		PatternActivity activity = new PatternActivity(mobitoppActivityType, wd, act.isHomeActivity() ? 0 : act.getEstimatedTripTimeBeforeActivity(), act.getStartTimeWeekContext(), act.getDuration());
+		return activity;
+	}
+
+	/**
+	 *
+	 * detailed modeling of activity purposes
+	 *
+	 * @param activity
+	 * @param id
+	 */
+	private int detailedpurposemodeling(HActivity activity, String id) {
+		ActitoppPerson person = activity.getPerson();
+		HDay currentDay = activity.getDay();
+		HTour currentTour = activity.getTour();
+
+		// create attribute lookup
+		AttributeLookup lookup = new AttributeLookup(person, currentDay, currentTour, activity);
+
+		// create step object
+		DCDefaultModelStep step = new DCDefaultModelStep(id, fileBase_detailedPurposes, lookup, randomgenerator);
+		step.doStep();
+
+		int chosenActivityType = Integer.parseInt(step.getAlternativeChosen());
+		return chosenActivityType;
+	}
+
+
+	/**
+	 *
+	 * write actitopp result into log files
+	 *
+	 */
+	private void writeExportAndLogData() {
+		System.out.println("Doing person Nr... " + modeling_counter_pers);
+		int percent = (int) Math.round(100*((double) globalretries/(double) personmap.size()));
+		System.err.println("number of retries: " + globalretries + " (~ " + percent + "% of all persons)");
+		globalretries=0;
+		long duration_msec = System.currentTimeMillis() - timeforcounting;
+		System.out.println("Duration total modeling: " + duration_msec + " milli sec");
+		System.out.println("Duration per Pers modeling: " + (duration_msec/personmap.size()) + " milli sec");
+
+		try {
+			logger.writeLogging(personmap);
+			System.out.println("wrote Log Data " + new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new java.util.Date()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		personmap.clear();
+		timeforcounting = System.currentTimeMillis();
+	}
 
 }
