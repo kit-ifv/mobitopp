@@ -4,7 +4,6 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
 import domain.shared.location.Location
-import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
@@ -46,7 +45,7 @@ data class ShortTermConfig(
 
     /* vehicle sharing */
     val sharingProviderName: String,
-    val vehicleCoundColumn: String,
+    val vehicleCountColumn: String,
 
     ) {
     fun validate() {

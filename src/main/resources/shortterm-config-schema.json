@@ -1,43 +1,11 @@
-
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
-  "description": "Configuration for a mobitopp run usin gshared attributes",
-  "required": ["scenarioName", "seed", "dataFolder", "fractionOfPopulation", "attractivitiesFile", "costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath"],
+  "description": "Configuration for a mobitopp run using shared attributes",
+  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "errorHandling"],
   "type": "object",
   "properties": {
-    "scenarioName": {
-      "type": "string",
-      "default": "unnamedShorttermScenario",
-      "pattern": "^[a-zA-Z]*$"
-    },
-    "seed": {
-      "description": "The standard seed",
-      "type": "integer",
-      "default": 42
-    },
-    "dataFolder": {
-      "description": "",
-      "type": "string",
-      "default": "//ifv-fs/Forschung/Projekte_intern/mobitopp/Output/logiktram_rastatt_long-term-module/rastatt"
-    },
-    "fractionOfPopulation": {
-      "description": "",
-      "type": "number",
-      "default": 1.0,
-      "exclusiveMinimum": 0.0,
-      "maximum": 1.0
-    },
-    "visumNetwork": {
-      "description": "src/test/resources/rastatt.net",
-      "type": "string"
-    },
-    "attractivitiesFile": {
-      "description": "",
-      "type": "string",
-      "default": "data/attractivities.csv"
-    },
     "costMatrixConfigPath": {
       "description": "",
       "type": "string"
@@ -45,11 +13,24 @@
     "durationMatrixConfigPath": {
       "description": "",
       "type": "string"
-
     },
     "distanceMatrixPath": {
       "description": "",
       "type": "string"
+    },
+    "resultPath": {
+      "description": "The directory, results are written to",
+      "type": "string"
+    },
+    "resultName": {
+      "description": "The name of the simulation output csv",
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z]*.csv$"
+    },
+    "errorHandling": {
+      "description": "How errors during a simulation run should be treated.",
+      "type": "string",
+      "enum": ["SILENT", "WARNING", "ERROR", "THROW", "THROW_NO_LOG"]
     }
   }
 }
