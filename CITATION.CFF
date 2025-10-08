@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: mobiTopp
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Jelle
+    family-names: Kübler
+    orcid: 'https://orcid.org/0000-0001-8095-1815'
+  - given-names: Lars
+    family-names: Briem
+    orcid: 'https://orcid.org/0000-0002-5418-8948'
+  - given-names: Nicolai
+    family-names: Mallig
+identifiers:
+  - type: url
+    value: 'https://github.com/kit-ifv/mobitopp'
+repository-code: 'https://github.com/kit-ifv/mobitopp'
+url: 'https://mobitopp.ifv.kit.edu/index.php'
+keywords:
+  - agent-based
+  - activity-based
+  - travel-demand
+  - simulation
+  - population-synthesis
+  - mobitopp
+license: GPL-3.0
+version: '0.3'
