@@ -39,9 +39,9 @@ data class ShortTermConfig(
     val zoneRepo: Path,
 
     /* behaviour */
-    val choiceModelModes: ChoiceModelModes, // hamburg, legacy
-    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>, // default and standalone
-    val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>, // hamburg, legacy, debug
+    val choiceModelModes: ChoiceModelModes, // hamburg, legacy -> raus
+    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>, // default and standalone -> eher nicht
+    val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>, // hamburg, legacy, debug -> nicht
 
     /* vehicle sharing */
     val sharingProviderName: String,
