@@ -161,20 +161,34 @@ fun interface GenerateHouseholdsFromVector<T> {
  * a spillover occurs.
  */
 class SampleAndCollect<T>(val random: Random = Random(1)) : GenerateHouseholdsFromVector<T> {
-    private var overflowCounter: Double = 0.0
     override fun Map<ScalableVector, List<SurveyHousehold<out T>>>.extract(): List<SurveyHousehold<out T>> {
-        return entries.flatMap {
-            // Update the offset decimal to be added to the overflow counter
-            val offset = it.key.scalar - it.key.scalar.toInt()
-            overflowCounter += offset
-            val amount = if (overflowCounter >= 1.0) {
-                // If the overflow counter spills, add one extra household
-                overflowCounter--
-                it.key.scalar.toInt() + 1
-            } else {
-                it.key.scalar.toInt()
-            }
-            it.value.pickWithReplacement(amount, random)
+        val wholeAmounts = standardRoundingStrategy.convertToInts(keys.map { it.scalar })
+        return wholeAmounts.zip(values).flatMap {(amount, households) ->
+            households.pickWithReplacement(amount)
+
         }
+
+    }
+}
+
+fun interface RoundingStrategy {
+    fun convertToInts(values: Collection<Double>): List<Int>
+}
+
+fun Collection<Double>.roundVia(strategy: RoundingStrategy): List<Int> = strategy.convertToInts(this)
+
+val standardRoundingStrategy = RoundingStrategy { values ->
+    var overflowCounter = 0.0
+    values.map {
+        val intVal = it.toInt()
+        val offset = it - intVal
+        overflowCounter += offset
+        val amount = if(overflowCounter >= 1.0) {
+            overflowCounter--
+            intVal + 1
+        } else{
+            intVal
+        }
+        amount
     }
 }

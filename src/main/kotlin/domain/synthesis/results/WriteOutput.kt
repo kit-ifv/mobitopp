@@ -267,7 +267,7 @@ object PersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
         return element.run {
             toCSV(
                 personId,
-                "TODO personNumber",
+//                "TODO personNumber",
                 household.id,
                 age,
                 employment,
