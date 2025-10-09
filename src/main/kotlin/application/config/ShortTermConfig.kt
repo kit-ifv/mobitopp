@@ -1,13 +1,7 @@
 package application.config
 
-import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
-import domain.shared.enums.Mode
-import domain.shared.location.Location
-import domain.simulation.behavior.DestinationChoiceCharacteristics
-import domain.simulation.behavior.ModeChoiceCharacteristics
-import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
-import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
+import domain.simulation.behavior.DestinationChoiceParameters
 import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -23,7 +17,7 @@ data class ShortTermConfig(
     val matrixCreationMethod: ZoneMatrixCreation, // key based, visum, standard
     /* simulation */
     val simulationContext: ExampleProjectContext,
-    val errorHandling: ErrorHandling = ErrorHandling.THROW, // silent, warning, error, throw, throw_no_log
+    val errorHandling: ErrorHandling = ErrorHandling.THROW,
     val resultPath: Path,
     val resultName: String,
     /* csv */
@@ -39,7 +33,7 @@ data class ShortTermConfig(
     val zoneRepo: Path,
 
     /* behaviour */
-    val destinationChoiceParameterSet: String,
+    val destinationChoiceParameterSet: DestinationChoiceParameters,
 
     /* vehicle sharing */
     val sharingProviderName: String,
