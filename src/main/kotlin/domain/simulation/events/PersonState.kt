@@ -18,14 +18,17 @@ import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
 import domain.shared.location.Metrics
+import domain.simulation.agent.DrtRide
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PersonMessage
 import domain.simulation.agent.PrivateCarAgent
 import domain.simulation.agent.getBestCar
 import domain.simulation.agent.locationBySchedule
+import domain.simulation.agent.withDrtImpedance
 import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
-import domain.simulation.behavior.ModeAvailabilityFilter
+import domain.simulation.behavior.DrtAvailabilitySelector
+import domain.simulation.behavior.ModeAvailabilityModel
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import domain.simulation.behavior.flatten
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
@@ -53,7 +56,7 @@ abstract class PersonState(
     val impedance: Metrics
         get() = behavior.impedance
 
-    val modeAvailability: ModeAvailabilityFilter
+    val modeAvailability: ModeAvailabilityModel
         get() = behavior.availabilityModel
 
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
@@ -71,6 +74,9 @@ abstract class PersonState(
 
     val bikeSharingConnections: BikeSharingConnectionSelector
         get() = behavior.bikeSharingConnectionSelector
+
+    val operatingDrtProviders: DrtAvailabilitySelector
+        get() = behavior.drtAvailabilitySelector
 
     val self: PersonAgent
         get() = agent
@@ -122,7 +128,13 @@ data class EndLegMessage(val leg: Leg) : PersonMessage
 @StateCalled("StartPerson")
 class PersonStartState(time: AbsoluteTime, agent: PersonAgent) : PersonState(time, agent, doStep = false)
 
-@StateCalled("PerformingActivity", PersonStartState::class, PerformingActivityState::class, PerformLegState::class)
+@StateCalled(
+    "PerformingActivity",
+    PersonStartState::class,
+    PerformingActivityState::class,
+    PerformLegState::class,
+    FinishDrtTripState::class
+)
 class PerformingActivityState(
     agenda: Agenda,
     val activity: StationaryAction,
@@ -149,11 +161,50 @@ class PerformLegState(trip: LinkTrip, val leg: Leg, val afterLegAction: AfterLeg
 // @StateCalled("StartingBikeSharingTrip", StartingTripState::class)
 // class StartingBikeSharingTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
 
-@StateCalled("FinishedPerson", PerformLegState::class, PerformingActivityState::class)
+@StateCalled("FinishedPerson", PerformLegState::class, PerformingActivityState::class, FinishDrtTripState::class)
 class FinishedPersonState(state: PersonState) : PersonState(state.time, state.agent, doStep = false)
 
+// DRT messages
 
-//TODO for DTR
+@MessageCalled("PickupByDrt", DrtProviderStartState::class)
+data class PickupByDrtMessage(val ride: DrtRide) : PersonMessage
+
+@MessageCalled("DropOffByDrt", DrtProviderStartState::class)
+data class DropOffByDrtMessage(val ride: DrtRide) : PersonMessage
+
+@MessageCalled("FinishDrtEgress", OnDrtEgressState::class)
+data class FinishDrtEgressMessage(val ride: DrtRide) : PersonMessage
+
+// DRT states
+@StateCalled("WaitingForPickup", StartingTripState::class)
+class WaitingForPickupState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
+    state.time,
+    state.agent,
+    doStep = false
+)
+
+@StateCalled("WaitingForDropOff", WaitingForPickupState::class)
+class WaitingForDropOffState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
+    state.time,
+    state.agent,
+    doStep = true
+)
+
+@StateCalled("OnDrtEgress", WaitingForDropOffState::class)
+class OnDrtEgressState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
+    state.time,
+    state.agent,
+    doStep = true
+)
+
+@StateCalled("FinishDrtTrip", OnDrtEgressState::class)
+class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
+    state.time,
+    state.agent,
+    doStep = true
+)
+
+// TODO for DTR
 // add person messages sent by drt provider agent (see DrtProviderStateMachine):
 // - DrtOffer(offer)
 // - DrtRide(ride)
@@ -169,7 +220,6 @@ class FinishedPersonState(state: PersonState) : PersonState(state.time, state.ag
 // (on dropoff) >
 // State: walking to dest
 // - send self: finish drt trip
-
 
 val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
 
@@ -197,9 +247,8 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
         }
     }
 
-    transState(StartingTrip) {
-
-        // mode and destination choice
+    transState(StartingTrip) { send ->
+        // destination choice
         // TODO Robin last.endlocation is destination?
 
         if (trip.elements.last().endLocation == LOCATIONUNKNOWN) {
@@ -210,16 +259,71 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
             trip.elements.forEach { it.transportType = MODEUNKOWN }
         }
     }.next { send ->
+
+        // mode choice
+
         // TODO add version of ModeAvailabilityFilter with fixed global choice set
-        val (_, sharedResources) = context(person, time) {
-            modes.options.map { modeAvailability.currentAvailability(it) }
+        val (choices, sharedResources) = context(person, time, destination) {
+            modes.options.map { modeAvailability.providerAvailability(it) }
         }.flatten()
 
         synchronizeAll(sharedResources.distinct().toSet()) {
 
-            val modeSituation = behavior.spawnModeCharacteristics(person, time, behavior, origin, destination)
-            val mode: Mode = context(modeSituation, person.random) {
+            val drtOffers = takeIf { modes.ridePooling in choices }?.let {
+                context(person, time, destination) {
+                    behavior.drtAvailabilitySelector.findDrtOffers()
+                }
+            } ?: emptyList()
+
+            val drtOffer = drtOffers.minByOrNull { it.totalDuration }
+            val drtBehavior = drtOffer?.let {
+                behavior.withDrtImpedance(it, modes.ridePooling)
+            } ?: behavior
+
+            val modeSituation = behavior.spawnModeCharacteristics(
+                person,
+                time,
+                drtBehavior,
+                origin,
+                destination,
+                choices
+            )
+
+            var mode: Mode = context(modeSituation, person.random) {
                 modeChoice.select()
+            }
+
+            var drtRide: DrtRide? = null
+            if (mode == modes.ridePooling) {
+                drtOffer?.also {
+                    drtRide = it.providerAgent.algorithm.bookRide(it)
+                }
+                drtOffers.filter { it != drtOffer }.forEach {
+                    it.providerAgent.algorithm.revokeOffer(it)
+                }
+
+                if (drtRide == null) {
+                    val modesNoDrt = choices - modes.ridePooling
+                    val noDrtSituation = behavior.spawnModeCharacteristics(
+                        person,
+                        time,
+                        behavior,
+                        origin,
+                        destination,
+                        modesNoDrt
+                    )
+                    mode = context(noDrtSituation, person.random) {
+                        modeChoice.select()
+                    }
+                } else {
+                    // TODO since request/booking/revoke not via messages currently,
+                    // trigger provider state machine in case it went inactive
+                    send.now(pickupDropOffPersons(), drtRide.offer.providerAgent)
+                }
+            } else {
+                drtOffers.forEach {
+                    it.providerAgent.algorithm.revokeOffer(it)
+                }
             }
 
             trip.alternateByImpedance(impedance) {
@@ -228,11 +332,12 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
 
             person.inTransit = true
 
+            // TODO after leg action is temporary hack until nested state machine is possible
             val noAction = AfterLegAction { a, t -> Unit }
             when (mode) {
                 modes.car -> startingCarTrip()
                 modes.bikeSharing -> startingBikeSharingTrip()
-                //TODO transition to first state in drt process
+                modes.ridePooling -> startingRidePoolingTrip(drtRide!!)
                 else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
             }
         }
@@ -258,13 +363,65 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
             else -> error(
                 "Cannot process EndLeg: '$message' ins PerformLeg state: $this!" +
                     " Current schedule block should be Agenda or LinkTrip but is of type " +
-                    "${block?.let {it::class.simpleName} ?: "null"}: '$block'"
+                    block.agendaBlockDescription()
             )
         }
     }
 
     finState(FinishedPerson)
+
+    // DRT states
+
+    state(WaitingForPickup) {
+        //
+    }.transitionOn(PickupByDrt) { message, send ->
+        // pedestrian leg finished, pooling leg starts
+        person.location = trip.elements[0].endLocation
+        person.schedule.step()
+        waitingForDropOff()
+    }
+
+    state(WaitingForDropOff) {
+        //
+    }.transitionOn(DropOffByDrt) { message, send ->
+        // pooling leg finished, ped egress leg starts
+        person.location = trip.elements[0].endLocation
+        person.schedule.step()
+        onDrtEgress()
+    }
+
+    state(OnDrtEgress) { send ->
+        val arrival = maxOf(time, drtRide.offer.arrivalTimeAtDest)
+        send(finishDrtEgress(drtRide), self, arrival)
+        //
+    }.transitionOn(FinishDrtEgress) { message, send ->
+        // ped egress leg finished
+        person.location = trip.elements[0].endLocation
+        person.schedule.step()
+        finishDrtTrip()
+    }
+
+    transState(FinishDrtTrip).next { send ->
+
+        when (block) {
+            null -> finishedPerson()
+            is Agenda -> {
+                val agenda = block as Agenda
+                agenda.elements.firstOrNull()?.let {
+                    performingActivity(agenda, agenda.elements[0])
+                } ?: finishedPerson()
+            }
+            else -> error(
+                "Expected next block to be null or Agenda in FinishDrtTrip state: $this!" +
+                    " Current schedule block should be Agenda or null but is of type " +
+                    block.agendaBlockDescription()
+            )
+        }
+    }
 }
+
+private fun Representative<out LinkedAction>?.agendaBlockDescription(): String =
+    "${this?.let { it::class.simpleName } ?: "null"}: '$this'"
 
 fun StartingTripState.startingCarTrip(): PerformLegState {
     val car = person.getBestCar()
@@ -290,9 +447,8 @@ fun StartingTripState.startingCarTrip(): PerformLegState {
 }
 
 fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
-    val maybeBikesharing = bikeSharingConnections.findConnection(
-        behavior.spawnModeCharacteristics(person, time, behavior, origin, destination)
-    )
+    val maybeBikesharing = bikeSharingConnections.findConnection(person, destination)
+
     val (startStation, endStation) = requireNotNull(maybeBikesharing) {
         "How did you manage to select bikesharing if no connection available?\n" +
             " - check availability model: ${modeAvailability::class.simpleName}\n" +
@@ -316,4 +472,14 @@ fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
     }
 
     return performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
+}
+
+fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPickupState {
+    trip.alternateByImpedance(impedance) {
+        taking(modes.pedestrian to drtRide.offer.pickupAt)
+        taking(modes.ridePooling to drtRide.offer.dropOffAt)
+        taking(modes.pedestrian to destination)
+    }
+
+    return waitingForPickup(drtRide = drtRide)
 }

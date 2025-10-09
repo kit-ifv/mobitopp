@@ -1,22 +1,28 @@
 package application.steps.model
 
 import core.modelsteps.AddResourceStep
+import core.modelsteps.LateInit
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.Resource
 import core.modelsteps.Warning
 import core.modelsteps.asResource
+import domain.shared.location.Metrics
+import domain.shared.location.Zone
+import domain.simulation.agent.DummyDrtAlgorithm
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 interface AddDrtProviderContext {
 
-    val drtProviderRepository : MutableRepository<MutableDrtProviderData, DrtProviderId>
-
+    val drtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId>
+    val impedance: LateInit<Metrics>
 }
 
 class DrtProviderCollector {
-    private val providers : MutableList<MutableDrtProviderData> = mutableListOf()
+    private val providers: MutableList<MutableDrtProviderData> = mutableListOf()
 
     fun newDrtProvider(id: DrtProviderId, scope: MutableDrtProviderData.() -> Unit) {
         val p = MutableDrtProviderData(id)
@@ -25,34 +31,71 @@ class DrtProviderCollector {
     }
 
     internal fun getProviders(): List<MutableDrtProviderData> = providers.toList()
-
 }
 
-fun AddDrtProviderContext.addDrtProvider(drtProvider : () -> MutableDrtProviderData) = run {
+private var providerIdCounter = 0L
+
+fun AddDrtProviderContext.newDrtProvider(scope: MutableDrtProviderData.() -> Unit) = run {
+    val provider = MutableDrtProviderData(DrtProviderId(providerIdCounter++))
+    provider.scope()
+    AddDrtProviderStep(this, listOf(provider))
+}
+
+fun AddDrtProviderContext.addDrtProvider(drtProvider: () -> MutableDrtProviderData) = run {
+    val provider = drtProvider()
+    validateId(provider)
+
     AddDrtProviderStep(this, listOf(drtProvider()))
 }
 
-fun AddDrtProviderContext.addMultipleDrtProvider(scope : DrtProviderCollector.() -> Unit) = run {
-    val collector = DrtProviderCollector()
-    collector.scope()
-    AddDrtProviderStep(this, collector.getProviders())
+private fun validateId(provider: MutableDrtProviderData) {
+    require(provider.id.value >= providerIdCounter) {
+        "Ids up to (no including) $providerIdCounter were already used for DrtProviders.\n" +
+            "Cannot create new provider with id: ${provider.id.value}!"
+    }
+    providerIdCounter = provider.id.value + 1
 }
 
+fun AddDrtProviderContext.addMultipleDrtProvider(scope: DrtProviderCollector.() -> Unit) = run {
+    val collector = DrtProviderCollector()
+    collector.scope()
+    val providers = collector.getProviders().sortedBy { it.id.value }.onEach { validateId(it) }
+    AddDrtProviderStep(this, providers)
+}
 
+@Suppress("MagicNumber")
+private val allDay = 0 to 24
 
-class AddDrtProviderStep(context: AddDrtProviderContext, providers: List<MutableDrtProviderData>): AddResourceStep<MutableDrtProviderData, DrtProviderId>() {
+fun AddDrtProviderContext.dummyDrtAlgorithm(
+    serviceArea: Collection<Zone>,
+    numVehicles: Int = serviceArea.size,
+    avgWaitingTime: Duration = 4.minutes,
+    operationHours: Pair<Int, Int> = allDay,
+) = DummyDrtAlgorithm(
+    impedance.value,
+    avgWaitingTime,
+    serviceArea,
+    operationHours,
+    numVehicles
+)
+
+class AddDrtProviderStep(
+    context: AddDrtProviderContext,
+    providers: List<MutableDrtProviderData>
+) : AddResourceStep<MutableDrtProviderData, DrtProviderId>() {
     override val name = "Add DrtProviders"
 
-    override val resource: Resource<MutableDrtProviderData> = providers.asSequence().asResource("newDrtProviders", "AddDrtProviderStep")
+    override val resource: Resource<MutableDrtProviderData> = providers.asSequence().asResource(
+        "newDrtProviders",
+        "AddDrtProviderStep"
+    )
 
     override fun mockElementsForValidation() = emptyList<MutableDrtProviderData>()
 
     override val repository = context.drtProviderRepository
 
-    override val dependentRepositories = emptySet<Repository<*,*>>()
+    override val dependentRepositories = emptySet<Repository<*, *>>()
 
     override fun verifyInput(): Warning? = validate {
-
     }
-
 }

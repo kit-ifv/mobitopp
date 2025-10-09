@@ -9,7 +9,8 @@ import domain.shared.location.Metrics
 import domain.simulation.agent.PersonAgent
 import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
-import domain.simulation.behavior.ModeAvailabilityFilter
+import domain.simulation.behavior.DrtAvailabilitySelector
+import domain.simulation.behavior.ModeAvailabilityModel
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import utils.units.Time
@@ -24,12 +25,14 @@ fun interface GenerateDestinationCharacteristics<out T> {
 }
 
 fun interface GenerateModeCharacteristics<out T> {
+    @Suppress("LongParameterList")
     operator fun invoke(
         person: PersonAgent,
         time: Time,
         behavior: PersonBehavior,
         origin: Location,
         destination: Location,
+        currentChoices: Collection<Mode>,
     ): T
 }
 
@@ -41,18 +44,20 @@ val StandardDestinationImplementation =
             legs.elements.last().startLocation,
             behavior.impedance,
             behavior.attractivityModel,
-            behavior.availabilityModel
+            behavior.availabilityModel.asProviderAvailabilityFilter()
         )
     }
 
 val StandardModeImplementation =
-    GenerateModeCharacteristics<ModeChoiceCharacteristics> { person, time, behavior, origin, destination ->
+    GenerateModeCharacteristics<ModeChoiceCharacteristics> {
+            person, time, behavior, origin, destination, currentChoices ->
         ModeChoiceCharacteristics(
             person,
             time,
             origin,
             destination,
             behavior.impedance,
+            currentChoices,
         )
     }
 
@@ -62,8 +67,9 @@ data class PersonBehavior(
     val modes: ChoiceModelModes,
     val impedance: Metrics,
     val attractivityModel: AttractivenessModel,
-    val availabilityModel: ModeAvailabilityFilter,
+    val availabilityModel: ModeAvailabilityModel,
     val bikeSharingConnectionSelector: BikeSharingConnectionSelector,
+    val drtAvailabilitySelector: DrtAvailabilitySelector,
     val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
     val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
 ) {
@@ -75,8 +81,9 @@ data class PersonBehavior(
             modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
             choiceModelModes: ChoiceModelModes,
             attractivenessModel: AttractivenessModel,
-            modeAvailability: ModeAvailabilityFilter,
+            modeAvailability: ModeAvailabilityModel,
             bikeSharingConnectionSelector: BikeSharingConnectionSelector,
+            drtAvailabilitySelector: DrtAvailabilitySelector,
         ): PersonBehavior {
             return PersonBehavior(
                 destinationChoice,
@@ -86,6 +93,7 @@ data class PersonBehavior(
                 attractivenessModel,
                 modeAvailability,
                 bikeSharingConnectionSelector,
+                drtAvailabilitySelector,
                 StandardDestinationImplementation,
                 StandardModeImplementation,
             )

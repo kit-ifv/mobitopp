@@ -1,7 +1,6 @@
 package domain.synthesis.parser
 
 import domain.shared.config.SynthesisContext
-import domain.simulation.agent.DrtProviderAgent
 import domain.synthesis.data.ChargingInfluence
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.Employment
@@ -24,6 +23,7 @@ import utils.csv.id
 import utils.csv.int
 import utils.csv.unitShare
 
+@Suppress("LongParameterList")
 fun PersonCsvContext.personCsvParser(
     errorHandling: ErrorHandling,
     columns: PersonColumns,

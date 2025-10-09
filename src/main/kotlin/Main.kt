@@ -3,7 +3,9 @@
 import application.config.ExampleProjectContext
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
+import application.steps.model.dummyDrtAlgorithm
 import application.steps.model.householdHomeLocation
+import application.steps.model.newDrtProvider
 import application.steps.model.scaleFilter
 import application.steps.model.simulate
 import application.steps.parser.csv.assignFixedDestinations
@@ -25,6 +27,7 @@ import domain.shared.enums.LegacyMode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
+import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.data.EconomicStatus
@@ -63,6 +66,7 @@ private const val ROOT_TRANSMOVE_ENV =
     "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input" +
         "/transmove/mobitopp-env/data/zone-repository"
 
+@Suppress("LongMethod")
 fun main() {
     Simulation {
         ExampleProjectContext(
@@ -87,6 +91,12 @@ fun main() {
         )
 
 //        scalePopulation(0.1.share())
+
+        newDrtProvider {
+            name = "DummyDrt"
+            mode = LegacyMode.RIDE_POOLING
+        }
+
         finishHouseholds()
 
         preparePersons()
@@ -122,7 +132,14 @@ fun main() {
 
         assignFixedDestinations(homeActivity = LegacyActivityType.HOME)
 
-        buildAgents(personStateMachine, GaussianActivityDurationRandomizer())
+        buildAgents(
+            personStateMachine,
+            drtStateMachine = drtProviderStateMachine,
+            drtAlgorithm = dummyDrtAlgorithm(
+                zoneRepository.elements.filter { it.isDestination }.toList()
+            ),
+            durationRandomizer = GaussianActivityDurationRandomizer()
+        )
 
         simulate()
     }

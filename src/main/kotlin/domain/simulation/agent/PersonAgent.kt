@@ -9,7 +9,6 @@ import domain.shared.datastructure.schedule.Schedule
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.simulation.events.PersonBehavior
-import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
