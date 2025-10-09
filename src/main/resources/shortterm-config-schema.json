@@ -3,19 +3,19 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "errorHandling", "simulationContext"],
+  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "simulationContext"],
   "type": "object",
   "properties": {
     "costMatrixConfigPath": {
-      "description": "",
+      "description": "Path to the cost matrix config.",
       "type": "string"
     },
     "durationMatrixConfigPath": {
-      "description": "",
+      "description": "Path to the duration matrix config.",
       "type": "string"
     },
     "distanceMatrixPath": {
-      "description": "",
+      "description": "Path to the distance matrix",
       "type": "string"
     },
     "resultPath": {
@@ -33,20 +33,21 @@
       "enum": ["SILENT", "WARNING", "ERROR", "THROW", "THROW_NO_LOG"]
     },
     "simulationContext": {
-      "object": {
+      "type": "object",
+      "required": ["scenarioName", "dataFolder", "simulationSeed"],
+      "properties": {
         "simulationSeed": {
+          "description": "The seed randomization is based on.",
           "type": "integer"
         },
         "scenarioName": {
+          "description": "The name of this simulation.",
           "type": "string"
         },
         "dataFolder": {
-           "type": "string"
-        },
-        modes: HamburgModes # TODO with enum
-        regionTypeCodes: safeRegioStaR17 # TODO with enum
-        economicalStatusCodes: EconomicStatus  # TODO with enum
-
+          "description": "The directory most simulation files like car.csv, person.csv... reside in. You can also set single paths to those files by setting for example the carCSV property.",
+          "type": "string"
+        }
       }
     }
   }
