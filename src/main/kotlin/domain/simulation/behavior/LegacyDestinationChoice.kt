@@ -22,7 +22,7 @@ import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.DurationUnit
-val t = DestinationChoiceParameters(asc_bs = 99.0, b_tt_car_p = 987234.0)
+
 @Suppress("MagicNumber")
 data class DestinationChoiceParameters(
     val asc_car_d: Double = 12.1687,

@@ -3,7 +3,7 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "errorHandling"],
+  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "errorHandling", "simulationContext"],
   "type": "object",
   "properties": {
     "costMatrixConfigPath": {
@@ -31,6 +31,23 @@
       "description": "How errors during a simulation run should be treated.",
       "type": "string",
       "enum": ["SILENT", "WARNING", "ERROR", "THROW", "THROW_NO_LOG"]
+    },
+    "simulationContext": {
+      "object": {
+        "simulationSeed": {
+          "type": "integer"
+        },
+        "scenarioName": {
+          "type": "string"
+        },
+        "dataFolder": {
+           "type": "string"
+        },
+        modes: HamburgModes # TODO with enum
+        regionTypeCodes: safeRegioStaR17 # TODO with enum
+        economicalStatusCodes: EconomicStatus  # TODO with enum
+
+      }
     }
   }
 }
