@@ -6,6 +6,12 @@
   "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "simulationContext"],
   "type": "object",
   "properties": {
+    "fractionOfPopulation": {
+      "description": "How much of the population is simulated",
+      "type": "number",
+      "maximum": 1.0,
+      "exclusiveMinimum": 0.0
+    },
     "costMatrixConfigPath": {
       "description": "Path to the cost matrix config.",
       "type": "string"
@@ -34,7 +40,7 @@
     },
     "simulationContext": {
       "type": "object",
-      "required": ["scenarioName", "dataFolder", "simulationSeed"],
+      "required": ["scenarioName", "dataFolder", "simulationSeed", "modes"],
       "properties": {
         "simulationSeed": {
           "description": "The seed randomization is based on.",
@@ -46,6 +52,18 @@
         },
         "dataFolder": {
           "description": "The directory most simulation files like car.csv, person.csv... reside in. You can also set single paths to those files by setting for example the carCSV property.",
+          "type": "string"
+        },
+        "modes": {
+          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects with a CodePlanSurrogateProviders",
+          "type": "string"
+        },
+        "regionTypeCodes": {
+          "description": "Which region type codes are used. Possible values need to be registered in subprojects with a CodePlanSurrogateProviders",
+          "type": "string"
+        },
+        "economicalStatusCodes": {
+          "description": "Which economical status codes are used. Possible values need to be registered in subprojects with a CodePlanSurrogateProviders",
           "type": "string"
         }
       }
