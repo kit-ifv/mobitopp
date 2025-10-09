@@ -128,7 +128,7 @@ class LinkedActivity(
     override var duration: Duration
         get() = original.duration
         set(value) {
-            // delegate to change of endTime, TODO validate in bounds
+            // delegate to change of endTime, TODO validate in bounds, make sure endtime never < start time
             this.endTime = this.startTime + value
         }
 

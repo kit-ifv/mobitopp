@@ -61,6 +61,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 fun MutablePerson.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
     val plan = PlanLoader(this)
@@ -123,11 +124,12 @@ abstract class Scenario(
 
     // When testing choice models with overridden utility calculation they still require activities for the signature.
     val fakeActivity =
-        Activity.fromDuration(zones[0].point(BIELEFELD), (-1).hours.sinceStart, (-1).hours, ActivityType.UNKNOWN)
+        Activity.fromDuration(zones[0].point(BIELEFELD), (-1).hours.sinceStart, (1).seconds, ActivityType.UNKNOWN)
 
     val availability = AvailabilityModelWithSharing(
         legacyChoiceModelModes,
         emptyMap(),
+        mapOf(),
         impedance
     )
 
@@ -135,7 +137,7 @@ abstract class Scenario(
         legacyDestinationChoice
     )
     val modeChoice: OverridableModeChoiceModel = OverridableModeChoiceModel(
-        legacyModeChoice.addFilter(availability)
+        legacyModeChoice.addFilter(availability.asResourceAvailabilityFilter())
     )
 
     protected val behavior = PersonBehavior(
@@ -146,6 +148,7 @@ abstract class Scenario(
         attractivityModel = currentAttractivenessModel,
         availabilityModel = availability,
         bikeSharingConnectionSelector = availability,
+        drtAvailabilitySelector = availability,
         spawnDestinationCharacteristics = StandardDestinationImplementation,
         spawnModeCharacteristics = StandardModeImplementation
     )
@@ -185,7 +188,8 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     override val persons: List<MutablePerson> = household.generatePersons(
         2,
         spawnLimits = spawnDrivers,
-        memberships = mutableListOf()
+        memberships = mutableListOf(),
+        drtMemberships = mutableListOf()
     )
     val first = persons[0]
     val second = persons[1]

@@ -141,6 +141,6 @@ data class ExampleProjectContext(
         "sharing providers agents"
     )
     override val drtProviderAgents = MapRepository<DrtProviderAgent, DrtProviderId>(
-        "sharing providers agents"
+        "drt providers agents"
     )
 }
