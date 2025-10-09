@@ -49,14 +49,14 @@ fun BuildAgentsContext.buildAgents(
     personStateMachine: StateMachineFactory<PersonAgent>,
     durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
     drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
-    drtAlgorithm: DrtAlgorithm? = null,
+    drtAlgorithm: DrtAlgorithm? = null
 ) = runMultipleSteps {
     val builder = BuildAgents(
         simulationSeed,
         personStateMachine,
+        behavior.value,
         drtStateMachine,
         drtAlgorithm,
-        behavior.value,
         durationRandomizer
     )
     listOf(

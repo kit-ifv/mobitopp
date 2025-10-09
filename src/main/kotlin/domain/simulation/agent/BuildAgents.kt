@@ -23,9 +23,9 @@ import domain.synthesis.data.SharingStationId
 class BuildAgents(
     val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived
     val personStateMachine: StateMachineFactory<PersonAgent>,
+    val personBehavior: PersonBehavior,
     val drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
     val drtAlgorithm: DrtAlgorithm? = null,
-    val personBehavior: PersonBehavior,
     val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
 ) {
 
@@ -209,11 +209,14 @@ fun SharingStation.toAgent(context: BuildAgents, ownerAgent: MutableSharingProvi
 fun DrtProvider.toAgent(context: BuildAgents) = context.drtProvidersById.getOrPut(
     key = this.id
 ) {
+
+    val stateMachine = requireNotNull(context.drtStateMachine) {
+        "Cannot convert DrtProviderData to Agent since drtStateMachine is null. Specify it in BuildAgents context object."
+    }
+
     val algorithm = requireNotNull(context.drtAlgorithm) {
         "Cannot convert DrtProviderData to Agent since drtAlgorithm is null. Specify it in BuildAgents context object."
     }
-    val stateMachine = requireNotNull(context.drtStateMachine) {
-        "Cannot convert DrtProviderDate to Agent since drtStateMachine is null. Specify it in BuildAgents context object."
-    }
+
     DrtProviderAgent(this, algorithm, stateMachine)
 }
