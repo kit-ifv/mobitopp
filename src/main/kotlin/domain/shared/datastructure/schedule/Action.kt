@@ -46,6 +46,7 @@ sealed interface Action : Comparable<Action> {
      reader will understand what exactly is happening
      */
     override fun compareTo(other: Action): Int {
+        if (startTime == other.startTime && endTime == other.endTime) { return 0 }
         if (endTime <= other.startTime) return -1
         if (other.endTime <= startTime) return 1
         return 0
@@ -213,6 +214,13 @@ data class RawActivity(
     override var type: ActivityType = ActivityType.UNKNOWN,
 
 ) : Activity {
+
+    init {
+        require(duration > Duration.ZERO) {
+            "Duration must be positive"
+        }
+    }
+
     override val duration get() = endTime - startTime
     override fun equals(other: Any?): Boolean {
         if (other !is StationaryAction) return false

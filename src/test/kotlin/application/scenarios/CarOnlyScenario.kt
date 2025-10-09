@@ -53,6 +53,7 @@ class CarOnlyScenario {
         val availability = AvailabilityModelWithSharing(
             legacyModes,
             mapOf(),
+            mapOf(),
             impedance
         )
 
@@ -63,11 +64,16 @@ class CarOnlyScenario {
                 zones.map { it.centroid }.toSet()
             ),
             impedance = impedance,
-            modeChoice = FixedOrderChoiceModel("prefer car", setOf(car, legacyModes.pedestrian), availability),
+            modeChoice = FixedOrderChoiceModel(
+                "prefer car",
+                setOf(car, legacyModes.pedestrian),
+                availability.asResourceAvailabilityFilter()
+            ),
             modes = legacyChoiceModelModes,
             attractivityModel = testAttractivenessModel,
             availabilityModel = availability,
             bikeSharingConnectionSelector = availability,
+            drtAvailabilitySelector = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
             spawnModeCharacteristics = StandardModeImplementation
 
