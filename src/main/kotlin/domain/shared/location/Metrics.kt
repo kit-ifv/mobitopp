@@ -1,8 +1,8 @@
 package domain.shared.location
 
 import domain.shared.enums.Mode
-import units.Currency
-import units.Distance
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.Distance
 import utils.units.Time
 import kotlin.time.Duration
 

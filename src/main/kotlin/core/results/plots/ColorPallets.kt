@@ -2,10 +2,10 @@
 
 package core.results.plots
 
+import edu.kit.ifv.units.UnitIntervalValue
+import edu.kit.ifv.units.share
 import org.jetbrains.kotlinx.kandy.util.color.Color
 import org.jetbrains.kotlinx.kandy.util.color.StandardColor
-import units.UnitIntervalValue
-import units.share
 import kotlin.math.abs
 import kotlin.random.Random
 

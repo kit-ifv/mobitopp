@@ -5,9 +5,9 @@ import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
-import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.MatrixMetrics
 import domain.shared.datastructure.matrix.UnitConverter
+import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
@@ -16,10 +16,10 @@ import domain.shared.location.DurationMetric
 import domain.shared.location.Location
 import domain.shared.location.Metrics
 import domain.simulation.config.DemandSimContext
-import units.CurrencyUnit
-import units.DistanceUnit
-import units.euros
-import units.kilometers
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.kilometers
 import utils.units.Time
 import java.nio.file.Path
 import kotlin.io.path.readText
@@ -34,7 +34,7 @@ fun DemandSimContext.loadImpedance(
     distanceUnit: DistanceUnit? = null,
     currencyUnit: CurrencyUnit? = null,
     durationUnit: DurationUnit? = null,
-    matrixCreator: ZoneMatrixCreation = KeyBasedMatrixCreation
+    matrixCreator: ZoneMatrixCreation = VisumMatrixCreator
 ) = runStep {
     LoadImpedanceStep(
         costMatrixConfig,

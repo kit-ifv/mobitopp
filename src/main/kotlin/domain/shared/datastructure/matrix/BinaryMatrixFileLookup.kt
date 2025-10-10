@@ -8,6 +8,7 @@ import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
+import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 
@@ -21,22 +22,31 @@ import kotlin.io.path.nameWithoutExtension
 class BinaryMatrixFileLookup(
     val rootCachePath: Path,
     val format: StandardMatrixBinaryFormat = MatrixDoubleFormat,
-    private val defaultCreation: StandardMatrixCreation = VisumMatrixCreator,
+    private val defaultCreation: ZoneMatrixCreation = VisumMatrixCreator,
 ) : ZoneMatrixCreation {
 
     private val internalFolder by lazy {
         rootCachePath.resolve("binary-cache").apply { createDirectories() }
     }
 
+    fun readAllMatchingMatrices(): Map<String, StandardMatrix> {
+        return rootCachePath.filter { it.extension == format.fileExtension }.associate {
+            it.nameWithoutExtension to format.deserialize(it)
+        }
+    }
+
     override fun createMatrix(config: YamlInfo): ZoneIdMatrix {
         val (_, path) = config
         return findCachedBinaryFile(path) ?: run {
             val matrix = defaultCreation.createMatrix(config)
-            format.serialize(
-                path.crc32(),
-                matrix,
-                internalFolder.resolve(path.nameWithoutExtension + format.fileExtension)
-            )
+            if (matrix is StandardMatrix) {
+                format.serialize(
+                    path.crc32(),
+                    matrix,
+                    internalFolder.resolve(path.nameWithoutExtension + format.fileExtension)
+                )
+            }
+
             matrix
         }
     }
@@ -54,14 +64,16 @@ class BinaryMatrixFileLookup(
         }
     }
 
+    @Suppress("ReturnCount")
     private fun findCachedBinaryFile(path: Path): StandardMatrix? {
+        if (!path.exists()) return null
         val fileName = path.nameWithoutExtension
         // Create the hash value of the content found at the path.
-        val originalHash = path.crc32()
+        val originalChecksum = path.crc32()
         val target = internalFolder.listDirectoryEntries().find { it.nameWithoutExtension == fileName }
         if (target == null) return null
-        val cachedHash = format.hashCode(target)
-        if (cachedHash != originalHash) return null
+        val cachedChecksum = format.checksum(target)
+        if (cachedChecksum != originalChecksum) return null
         return format.deserialize(target)
     }
 }
