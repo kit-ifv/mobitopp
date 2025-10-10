@@ -23,7 +23,7 @@ data class ShortTermConfig(
     /* csv */
     val personCSV: Path? = null,
     val householdCSV: Path? = null,
-    val activitiesCSV: Path? = null,
+    val activityCSV: Path? = null,
     val privateCarsCSV: Path? = null,
     val fixedDestinationCSV: Path? = null,
     val attractivitiesCSV: Path? = null,
