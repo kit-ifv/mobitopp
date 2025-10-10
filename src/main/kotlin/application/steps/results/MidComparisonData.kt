@@ -1,4 +1,4 @@
-@file:Suppress("TooManyFunctions")
+@file:Suppress("TooManyFunctions", "MagicNumber")
 
 package application.steps.results
 
@@ -47,7 +47,9 @@ fun Resource<Row>.legs(
     MidLegRow(purposes, modes, it)
 }.asResource(name, source)
 
+private const val EDUCATION = "education"
 
+@Suppress("ComplexInterface")
 interface MidRow {
 
     companion object {
@@ -88,12 +90,12 @@ interface MidRow {
         get() = row("occupation").parseEmployment()
 
     val education: String
-        get() = row.int("education").parseEducation()
+        get() = row.int(EDUCATION).parseEducation()
 
     val hasLicense: Boolean
         get() = row("driversLicense").parseBool()
 
-    //TODO car availability
+    // TODO car availability
 
     val isCarsharingMember: Boolean
         get() = row("carsharingMembership").parseBool()
@@ -109,7 +111,6 @@ interface MidRow {
 
     val isPlanningArea: Boolean
         get() = row("planningArea").parseBool()
-
 }
 
 data class MidPersonRow(override val row: Row) : MidRow {
@@ -119,14 +120,13 @@ data class MidPersonRow(override val row: Row) : MidRow {
 
     override val absolute: Double
         get() = row.double("P_HOCH")
-
 }
 
 data class MidLegRow(
     private val purposes: ChoiceModelPurposes,
     private val modes: ChoiceModelModes,
     override val row: Row
-): MidRow {
+) : MidRow {
 
     companion object {
         val distBinCache: MutableMap<String, Bin<Double>> = mutableMapOf()
@@ -222,7 +222,7 @@ private fun String.parseEmployment() = when (this) {
 private fun String.parseActivityType(purposes: ChoiceModelPurposes) = when (this) {
     "NA" -> purposes.undefined
     "business" -> purposes.business
-    "education" -> purposes.education
+    EDUCATION -> purposes.education
     "leisure" -> purposes.leisure
     "privateBusiness" -> purposes.privateBusiness
     "service" -> purposes.service
@@ -244,7 +244,7 @@ private fun String.parseMode(modes: ChoiceModelModes) = when (this) {
     else -> error("Invalid mode string: $this. Expected: 'bike', 'driver', 'passenger', 'transit' or 'walking'.")
 }
 
-private fun Int.parseEducation(): String = when(this) {
+private fun Int.parseEducation(): String = when (this) {
     1 -> "no degree"
     2 -> "Real-/Hauptschulabschluss"
     3 -> "Abitur"
@@ -253,7 +253,7 @@ private fun Int.parseEducation(): String = when(this) {
     else -> "$this"
 }
 
-fun Graduation.toEducationMID(): String = when(this) {
+fun Graduation.toEducationMID(): String = when (this) {
     Graduation.UNDEFINED -> (-99).parseEducation()
     Graduation.OTHER -> (-99).parseEducation()
     Graduation.NOT_HIGH_SCHOOL -> 2.parseEducation()
