@@ -26,7 +26,20 @@ fun <K> Map<K, Double>.normalize(): Map<K, Double> {
     }
     return copy
 }
+fun <K, V> Map<K, V>.partitionValues(predicate: (V) -> Boolean): Pair<Map<K, V>, Map<K, V>> {
+    val matching = mutableMapOf<K, V>()
+    val nonMatching = mutableMapOf<K, V>()
 
+    for ((key, value) in this) {
+        if (predicate(value)) {
+            matching[key] = value
+        } else {
+            nonMatching[key] = value
+        }
+    }
+
+    return matching to nonMatching
+}
 fun <K> Map<K, Double>.cumulativeSum(): List<Pair<Double, K>> {
     val cumSum = values.cumulativeSum()
     return cumSum.zip(keys)
@@ -43,6 +56,9 @@ fun <K, V> Map<K, V>.invertMap(): Map<V, List<K>> {
         .groupBy({ it.value }, { it.key })
 }
 
+fun <K, V> Map<K, Collection<V>>.flattenAndInvertMap(): Map<V, List<K>> {
+    return this.entries.flatMap { (k, v) -> v.map { it to k } }.groupBy({it.first}, {it.second})
+}
 /**
  * Converts the return value of [binarySearch] to the index position
  */
