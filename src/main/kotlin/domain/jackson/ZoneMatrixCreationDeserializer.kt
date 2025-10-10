@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
+import domain.simulation.behavior.DestinationChoiceParameters
 
 /**
  * Module for deserialization of ZoneMatrixCreation methods.

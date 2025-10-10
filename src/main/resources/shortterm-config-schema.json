@@ -38,11 +38,6 @@
       "type": "string",
       "enum": ["SILENT", "WARNING", "ERROR", "THROW", "THROW_NO_LOG"]
     },
-    "destinationChoiceParameterSet": {
-      "description": "The parameter set to use for destination choice. Available parameters (apart from `standard`)  need to be registered in in the `ParameterSetRepo`",
-      "type": "string",
-      "pattern": "[a-zA-Z]+"
-    },
     "simulationContext": {
       "type": "object",
       "required": ["scenarioName", "dataFolder", "simulationSeed", "modes"],
@@ -60,15 +55,15 @@
           "type": "string"
         },
         "modes": {
-          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects with a CodePlanSurrogateProviders",
+          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects with CodePlanSurrogateProviders",
           "type": "string"
         },
         "regionTypeCodes": {
-          "description": "Which region type codes are used. Possible values need to be registered in subprojects with a CodePlanSurrogateProviders",
+          "description": "Which region type codes are used. Possible values need to be registered in subprojects with CodePlanSurrogateProviders",
           "type": "string"
         },
         "economicalStatusCodes": {
-          "description": "Which economical status codes are used. Possible values need to be registered in subprojects with a CodePlanSurrogateProviders",
+          "description": "Which economical status codes are used. Possible values need to be registered in subprojects with CodePlanSurrogateProviders",
           "type": "string"
         }
       }
@@ -113,6 +108,11 @@
       "description": "How zoneMatrices should be created. On default either `visum` and `keyBased` are available. If you want others, they need to be registered in `ZoneMatrixCreationDeserializer.kt`",
       "type": "string",
       "enum": ["visum", "keyBased"]
+    },
+    "destinationChoiceParameterSet": {
+      "description": "What parameters should be used for destination choice. 'default' is always available. Register new/custom ones in a `DestinationChoiceParameterRepo`. Instructions on how to do that are in its documentation."
+      "type": "string",
+      "pattern": "[a-zA-Z]+"
     }
   }
 }
