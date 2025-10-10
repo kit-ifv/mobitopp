@@ -11,7 +11,7 @@ import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPosition
 import domain.simulation.config.DemandSimContext
-import units.DistanceUnit
+import edu.kit.ifv.units.DistanceUnit
 import utils.CodePlan
 import utils.Decodable
 import utils.ErrorHandling
@@ -22,7 +22,6 @@ import utils.csv.boolean
 import utils.csv.decode
 import utils.csv.distance
 import utils.csv.double
-import utils.csv.id
 import utils.csv.int
 import utils.csv.long
 import java.nio.file.Path
@@ -115,7 +114,7 @@ fun LoadZonesContext.prepareZoneFile(
 }
 
 // fun <S, C> S.filterZones() where S : ModelExecution<C>, C : LoadZonesContext {
-//    this.addStep(FilterStep("filter zones", context.zoneRepository) { it.visumId == 1L })
+//    this.addStep(FilterStep("filter zones", mobitopp.zoneRepository) { it.visumId == 1L })
 // } //TODO
 
 fun LoadZonesContext.finishZones() = runStep {

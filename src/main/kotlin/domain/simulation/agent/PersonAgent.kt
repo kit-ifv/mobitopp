@@ -10,10 +10,10 @@ import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.simulation.events.PersonBehavior
 import domain.synthesis.data.IPerson
-import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
-import utils.random.SeededActor
+import utils.random.StochasticActor
 import utils.units.AbsoluteTime
+import kotlin.random.Random
 
 interface PersonMessage : Message
 
@@ -25,7 +25,9 @@ abstract class PersonAgent(
     override val household: HouseholdAgent,
     stateMachine: StateMachineFactory<PersonAgent>,
     seed: Long,
-) : SeededActor<Person>(seed), IPerson, StateBasedAgent<PersonMessage> {
+) : IPerson, StateBasedAgent<PersonMessage>, StochasticActor {
+
+    final override val random: Random by lazy { Random(id.value + seed) }
 
     final override val stateMachine = stateMachine.create(AbsoluteTime.START, this)
 

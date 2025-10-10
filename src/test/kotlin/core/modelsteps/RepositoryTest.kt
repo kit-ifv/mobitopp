@@ -1,7 +1,6 @@
 package core.modelsteps
 
 import org.junit.jupiter.api.Test
-import utils.ID
 import utils.Identifiable
 import utils.collections.enforceIndent
 import utils.csv.TestEntity
@@ -27,8 +26,8 @@ abstract class RepositoryTest<E, I> : ResourceTest<E>() where E : Identifiable<I
     }
 
     @Test
-    open fun getById() {
-        val result = repository.getById(queryId())
+    open fun find() {
+        val result = repository.find(queryId())
         assertEquals(expectedQueryResult(), result)
     }
 }
@@ -56,7 +55,7 @@ open class MapRepositoryTest : RepositoryTest<TestEntity, TestId>() {
 
     override fun expectedSize() = 10
 
-    override fun queryId(): ID<TestEntity> = ID(7L)
+    override fun queryId(): TestId = TestId(7L)
 
     override fun expectedQueryResult() = TestEntity(rowIndex = 7, string = "mobiTopp")
 

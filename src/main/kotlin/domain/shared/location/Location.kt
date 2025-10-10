@@ -1,13 +1,13 @@
 package domain.shared.location
 
 import domain.shared.enums.areatype.RegionType
-import units.Coordinate
-import units.Distance
-import units.GPSCoordinate
-import units.UTMPosition
-import units.UnitIntervalValue
-import units.meters
-import units.share
+import edu.kit.ifv.units.Coordinate
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.UTMPosition
+import edu.kit.ifv.units.UnitIntervalValue
+import edu.kit.ifv.units.meters
+import edu.kit.ifv.units.share
 
 data class RoadAccess(val roadId: Long, val position: UnitIntervalValue, val lateralDistance: Distance = 0.meters)
 interface Location {

@@ -2,9 +2,10 @@ package domain.synthesis.behavior
 
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.data.EconomicStatus
+import edu.kit.ifv.units.ClosedCurrencyRange
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.euros
 import processor.builder.splitOnce
-import units.Currency
-import units.euros
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import java.util.*
@@ -66,7 +67,7 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
             }
         }
 
-        private fun headerToRange(input: String): ClosedRange<Currency> {
+        private fun headerToRange(input: String): ClosedCurrencyRange {
             val (start, end) = input.splitOnce(":").second.splitOnce("-")
             val endCurrency = if (end.isEmpty()) {
                 Long.MAX_VALUE.euros
@@ -90,5 +91,5 @@ val SynthesisHousehold<out SurveyAge>.numberOfMinors get() = members.count { it.
 
 private class FileEntry(
     val amount: Double,
-    val intervals: List<Pair<ClosedRange<Currency>, EconomicStatus>>
+    val intervals: List<Pair<ClosedCurrencyRange, EconomicStatus>>
 )

@@ -99,6 +99,7 @@ deploy-job:
     - echo "Update BUILD_NUMBER to $NEW_BUILD_NUMBER"
     - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
 
+
 # Keep for first public release of reengineered mobitopp
 #minor-release-job:
 #  stage: deploy

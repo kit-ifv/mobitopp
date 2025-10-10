@@ -4,10 +4,11 @@ import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import units.GPSCoordinate
-import units.share
+import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.share
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 /**
  * Since writing and reading are heavily intertwined, they are encapsulated in this object, so that they will always
@@ -20,6 +21,7 @@ object LocationUtils {
     /**
      * Extension function, that reads a location from a [DataInputStream].
      */
+    @Deprecated("Should be used with a bytebuffer instead.")
     fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): Location {
         val zoneId = ZoneId(readLong()) // Reading zone ID
         val coordinate = GPSCoordinate.decimalDegree(
@@ -27,6 +29,15 @@ object LocationUtils {
             readDouble()
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(readLong(), readDouble().share()) // Reading roadId and position
+        return Location(coordinate, converter(zoneId), roadAccess)
+    }
+    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): Location {
+        val zoneId = ZoneId(long) // Reading zone ID
+        val coordinate = GPSCoordinate.decimalDegree(
+            double,
+            double
+        ) // Reading latitude and longitude
+        val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
         return Location(coordinate, converter(zoneId), roadAccess)
     }
 

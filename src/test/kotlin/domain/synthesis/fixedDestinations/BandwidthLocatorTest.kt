@@ -16,11 +16,11 @@ import domain.synthesis.behavior.fixedDestinations.standardBandwidthModel
 import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.Hemisphere
+import edu.kit.ifv.units.UTMPosition
+import edu.kit.ifv.units.kilometers
 import org.junit.jupiter.api.Test
-import units.Distance
-import units.Hemisphere
-import units.UTMPosition
-import units.kilometers
 import kotlin.math.E
 import kotlin.test.BeforeTest
 import kotlin.test.assertContentEquals

@@ -4,6 +4,7 @@ import application.config.ExampleProjectContext
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
 import application.steps.model.householdHomeLocation
+import application.steps.model.loadBehaviorModels
 import application.steps.model.scaleFilter
 import application.steps.model.simulate
 import application.steps.parser.csv.assignFixedDestinations
@@ -25,67 +26,48 @@ import core.results.plots.asLinePlot
 import core.results.plots.data.Ordering
 import core.results.plots.forData
 import core.results.plots.modeStringColor
+import domain.shared.config.Yaml
 import domain.shared.enums.LegacyActivityType
-import domain.shared.enums.LegacyMode
+import domain.shared.enums.MainModes
 import domain.shared.enums.areatype.RegioStaR17
+import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
+import domain.simulation.behavior.legacyDestinationChoice
+import domain.simulation.behavior.legacyModeChoice
+import domain.simulation.config.ShortTermConfig
 import domain.simulation.events.personStateMachine
 import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.parser.NoActivityStartShifter
-import units.meters
-import units.share
+import edu.kit.ifv.units.meters
+import edu.kit.ifv.units.share
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
 import kotlin.time.Duration.Companion.minutes
 
-private const val ROOT_FS = "\\\\ifv-fs/Forschung/Projekte_intern/mobitopp/Output"
+fun main(args: Array<String>) {
+    val shortTermConfig: ShortTermConfig =
+        args.firstOrNull()?.let { Yaml.readYaml(it) } ?: error("No config argument handed.")
 
-private val rootRastattPath = Path("$ROOT_FS/logiktram_rastatt_long-term-module/rastatt")
-
-private val rootKarlsruhePath = Path("$ROOT_FS/logiktram_karlsruhe_long-term-module/karlsruhe")
-
-private val rootHamburgPath = Path("$ROOT_FS/transmove-synthesis-city-bs/last-stable")
-
-// private val attractivenessTypes = setOf(
-//    LegacyActivityType.BUSINESS,x
-//    LegacyActivityType.LEISURE_INDOOR,
-//    LegacyActivityType.LEISURE_OUTDOOR,
-//    LegacyActivityType.PRIVATE_BUSINESS,x
-//    LegacyActivityType.PRIVATE_VISIT,
-//    LegacyActivityType.SERVICE,x
-//    LegacyActivityType.SHOPPING_DAILY,x
-//    LegacyActivityType.SHOPPING_OTHER,x
-//    LegacyActivityType.SHOPPING,x
-//    LegacyActivityType.EDUCATION_PRIMARY,
-//    LegacyActivityType.EDUCATION_SECONDARY,
-//    LegacyActivityType.EDUCATION_TERTIARY,
-//    // TODO Sightseeing?
-// )
-
-private const val ROOT_TRANSMOVE_ENV =
-    "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input" +
-        "/transmove/mobitopp-env/data/zone-repository"
-
-@Suppress("LongMethod")
-fun main() {
+    shortTermConfig.validate()
     Simulation {
         ExampleProjectContext(
             scenarioName = "testSteps",
             regionTypeCodes = RegioStaR17,
-            dataFolder = rootRastattPath,
+            dataFolder = shortTermConfig.dataFolder,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
-            modes = LegacyMode,
+            modes = MainModes,
         )
     }.steps {
         loadZones()
         loadVisumNetwork(Path("src/test/resources/rastatt.net"))
 
-        val filter = scaleFilter<Row>(0.1.share())
+        val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
+
         prepareHouseholds(
             filter = { filter(it) }
         )
@@ -94,7 +76,6 @@ fun main() {
             AssignAroundZoneCentroid(50.meters)
         )
 
-//        scalePopulation(0.1.share())
         finishHouseholds()
 
         preparePersons()
@@ -117,16 +98,16 @@ fun main() {
             purposes = legacyChoiceModelPurposes,
         )
 
-        val costMatrixConfigPath = Path("$ROOT_MTX/cost-matrix-configuration_transmove_turbo.yaml")
-        val durationMatrixConfigPath = Path("$ROOT_MTX/time-matrix-configuration_transmove_turbo.yaml")
-        val distanceMatrixPath = Path("$ROOT_MTX/DIS_Car.mtx.bz2")
+        val costMatrixConfigPath = shortTermConfig.costMatrixConfigPath
+        val durationMatrixConfigPath = shortTermConfig.durationMatrixConfigPath
+        val distanceMatrixPath = shortTermConfig.distanceMatrixPath
         loadImpedance(
             costMatrixConfig = costMatrixConfigPath,
             durationMatrixConfig = durationMatrixConfigPath,
             distanceMatrix = distanceMatrixPath
         )
 
-        // loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
+        loadBehaviorModels(legacyDestinationChoice, legacyModeChoice, legacyChoiceModelModes)
 
         assignFixedDestinations(homeActivity = LegacyActivityType.HOME)
 
