@@ -191,7 +191,6 @@ class GenerateFromCSV(
     }
 
     override fun validate(): Warning? = validateFileReadAccess(path, fileDescription = "fixed destinations csv file")
-
 }
 
 class GenerateFromCache(

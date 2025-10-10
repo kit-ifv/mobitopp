@@ -53,9 +53,16 @@ fun <G> AgentResultsContext.midComparisonPlotForPerson(
     midGroup: (MidPersonRow) -> G,
     normalize: Boolean = true
 ) = MidComparisonPersonPlotBuilder(
-    this, midCsv, personFilter, rowFilter, personGroup, midGroup, normalize
+    this,
+    midCsv,
+    personFilter,
+    rowFilter,
+    personGroup,
+    midGroup,
+    normalize
 )
 
+@Suppress("LongParameterList")
 class MidComparisonPersonPlotBuilder<G>(
     context: AgentResultsContext,
     midCsv: Path,
@@ -102,7 +109,7 @@ class MidComparisonPersonPlotBuilder<G>(
         return dataCount.compareTo { compCount }
     }
 
-    fun <T: Comparable<T>> over(
+    fun <T : Comparable<T>> over(
         personAtt: IPerson.() -> T,
         midAtt: MidPersonRow.() -> T,
     ): PlotterBuilder<G, T, Double> {
@@ -117,12 +124,10 @@ class MidComparisonPersonPlotBuilder<G>(
         return dataCount.compareTo { compCount }
     }
 
-    fun <T: Comparable<T>> overHousehold(
+    fun <T : Comparable<T>> overHousehold(
         householdAtt: IHousehold.() -> T,
         midAtt: MidPersonRow.() -> T,
     ) = over({ household.householdAtt() }, midAtt)
-
-
 }
 
 @Suppress("LongParameterList")
@@ -222,7 +227,6 @@ class MidComparisonLegPlotBuilder<G>(
         }
     }
 
-
     fun overTripStart() = overTime({ it.leg.startTime }, { it.tripStart ?: AbsoluteTime.Companion.START })
     fun overActivityStart() = overTime({ it.leg.endTime }, { it.activityStart ?: AbsoluteTime.Companion.START })
 
@@ -246,22 +250,18 @@ class MidComparisonLegPlotBuilder<G>(
             compCount
         }
     }
-
-
-
-
 }
 
-private fun <E: MidRow, T: Comparable<T>, G> PlotDataBuilderWithGrouping<E, G>.comparisonOver(
+private fun <E : MidRow, T : Comparable<T>, G> PlotDataBuilderWithGrouping<E, G>.comparisonOver(
     normalize: Boolean,
     scope: E.() -> T
 ): PlotDataTransformationBuilder<G, T, Double> = this.plotSumOf {
-        if (normalize) { it.absolute } else { it.relative }
-    }.over {
-        it.scope()
-    }.let {
-        if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-    }.sortAndFill(0.0)
+    if (normalize) { it.absolute } else { it.relative }
+}.over {
+    it.scope()
+}.let {
+    if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+}.sortAndFill(0.0)
 
 private fun <G, B : Comparable<B>, T : Number> PlotDataTransformationBuilder<G, B, T>.sortAndFill(default: T) =
     this.fillMissingXValues {

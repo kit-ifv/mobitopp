@@ -21,7 +21,7 @@ import domain.synthesis.data.sharingMembershipIds
 import java.nio.file.Path
 import java.time.DayOfWeek
 
-@Suppress("LongMethod", "CyclomaticComplexMethod", "CognitiveComplexMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod", "CognitiveComplexMethod", "LongParameterList")
 fun <C> C.addDefaultMIDComparisonPlots(
     subDir: String = "mid-comparison",
     midPersonPath: Path,
@@ -30,7 +30,6 @@ fun <C> C.addDefaultMIDComparisonPlots(
     defaultPurpose: ActivityType,
     choiceModelModes: ChoiceModelModes,
 ) where C : Context, C : AgentResultsContext = run {
-
     fun <G> AgentResultsContext.midPlotForPerson(
         personFilter: (IPerson) -> Boolean = { true },
         rowFilter: (MidPersonRow) -> Boolean = { true },
@@ -38,7 +37,12 @@ fun <C> C.addDefaultMIDComparisonPlots(
         midGroup: (MidPersonRow) -> G,
         normalize: Boolean = true
     ) = this.midComparisonPlotForPerson(
-        midPersonPath, personFilter, rowFilter, personGroup, midGroup, normalize
+        midPersonPath,
+        personFilter,
+        rowFilter,
+        personGroup,
+        midGroup,
+        normalize
     )
 
     fun <G> AgentResultsContext.midPlotForLegs(
@@ -52,7 +56,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         legFilter, rowFilter, legGroup, midGroup, normalize
     )
 
-    //1 gender age Histogram abs
+    // 1 gender age Histogram abs
     addPlot(subDir, "population", "age") {
         midPlotForPerson(
             rowFilter = { it.row("gender") != "NA" },
@@ -67,7 +71,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //2 occupation age Anteile rel
+    // 2 occupation age Anteile rel
     addPlot(subDir, "population", "age") {
         midPlotForPerson(
             personGroup = { it.employment.simplifyEmploymentMID() },
@@ -80,7 +84,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //3 education age Anteile rel
+    // 3 education age Anteile rel
     addPlot(subDir, "population", "age") {
         midPlotForPerson(
             personGroup = { it.graduation.toEducationMID() },
@@ -93,7 +97,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //4 driversLicense age Anteile rel
+    // 4 driversLicense age Anteile rel
     addPlot(subDir, "population", "age") {
         midPlotForPerson(
             personGroup = { it.hasLicense },
@@ -106,7 +110,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //5 economicStatus hhSize Anteile rel
+    // 5 economicStatus hhSize Anteile rel
     addPlot(subDir, "population", "age") {
         midPlotForPerson(
             personGroup = { it.household.economicStatus.simplifyMID() },
@@ -122,7 +126,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //6 hhNumberOfCars age Anteile rel
+    // 6 hhNumberOfCars age Anteile rel
     addPlot(subDir, "population", "age") {
         midPlotForPerson(
             personGroup = { it.carOwnershipMID() },
@@ -135,7 +139,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //7 hhNumberOfCars gender Anteile rel
+    // 7 hhNumberOfCars gender Anteile rel
     addPlot(subDir, "population") {
         midPlotForPerson(
             rowFilter = { it.row("gender") != "NA" },
@@ -152,7 +156,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //8 hhNumberOfCars occupation Anteile rel
+    // 8 hhNumberOfCars occupation Anteile rel
     addPlot(subDir, "population", "cars") {
         midPlotForPerson(
             personGroup = { it.carOwnershipMID() },
@@ -168,7 +172,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //9 hhNumberOfCars economicStatus Anteile rel
+    // 9 hhNumberOfCars economicStatus Anteile rel
     addPlot(subDir, "population", "cars") {
         midPlotForPerson(
             personGroup = { it.carOwnershipMID() },
@@ -184,7 +188,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //10 hhNumberOfCars regioStar7 Anteile rel
+    // 10 hhNumberOfCars regioStar7 Anteile rel
     addPlot(subDir, "population", "cars") {
         midPlotForPerson(
             personGroup = { it.carOwnershipMID() },
@@ -200,9 +204,9 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //TODO 11 hhNumberOfCars planningArea Anteile rel
+    // TODO 11 hhNumberOfCars planningArea Anteile rel
 
-    //12 hasTransitPass planningArea Anteile rel
+    // 12 hasTransitPass planningArea Anteile rel
     addPlot(subDir, "population", "pt") {
         midPlotForPerson(
             personGroup = { it.hasCommuterTicket },
@@ -215,7 +219,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //13 hasTransitPass gender Anteile rel
+    // 13 hasTransitPass gender Anteile rel
     addPlot(subDir, "population", "pt") {
         midPlotForPerson(
             rowFilter = { it.row("gender") != "NA" },
@@ -232,7 +236,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //14 hasTransitPass occupation Anteile rel
+    // 14 hasTransitPass occupation Anteile rel
     addPlot(subDir, "population", "pt") {
         midPlotForPerson(
             personGroup = { it.hasCommuterTicket },
@@ -248,7 +252,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //15 hasTransitPass regioStar7 Anteile rel
+    // 15 hasTransitPass regioStar7 Anteile rel
     addPlot(subDir, "population", "pt") {
         midPlotForPerson(
             personGroup = { it.hasCommuterTicket },
@@ -264,9 +268,9 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //TODO 16 hasTransitPass planningArea Anteile rel
+    // TODO 16 hasTransitPass planningArea Anteile rel
 
-    //17 carsharingMembership planningArea Anteile rel
+    // 17 carsharingMembership planningArea Anteile rel
     addPlot(subDir, "population", "carsharing") {
         midPlotForPerson(
             personGroup = { it.sharingMembershipIds.isNotEmpty() },
@@ -279,11 +283,11 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //18 carsharingMembership gender Anteile rel
+    // 18 carsharingMembership gender Anteile rel
     addPlot(subDir, "population", "carsharing") {
         midPlotForPerson(
             rowFilter = { it.row("gender") != "NA" },
-            personGroup = { it.sharingMembershipIds.isNotEmpty()  },
+            personGroup = { it.sharingMembershipIds.isNotEmpty() },
             midGroup = { it.isCarsharingMember },
         ).over(
             { sex },
@@ -296,7 +300,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //19 carsharingMembership occupation Anteile rel
+    // 19 carsharingMembership occupation Anteile rel
     addPlot(subDir, "population", "carsharing") {
         midPlotForPerson(
             personGroup = { it.sharingMembershipIds.isNotEmpty() },
@@ -312,7 +316,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //20 carsharingMembership regioStar7 Anteile rel
+    // 20 carsharingMembership regioStar7 Anteile rel
     addPlot(subDir, "population", "carsharing") {
         midPlotForPerson(
             personGroup = { it.sharingMembershipIds.isNotEmpty() },
@@ -328,7 +332,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         }
     }
 
-    //TODO 21 carsharingMembership planningArea Anteile rel
+    // TODO 21 carsharingMembership planningArea Anteile rel
 
     // 1 Purpose	DistanceCategories	Anteile	rel
     addPlot(subDir, "trips", "distance") {
