@@ -3,11 +3,11 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "simulationContext"],
+  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "zoneRepo", "simulationContext", "destinationChoiceParameterSet"],
   "type": "object",
   "properties": {
     "fractionOfPopulation": {
-      "description": "How much of the population is simulated",
+      "description": "How much of the population is simulated.",
       "type": "number",
       "maximum": 1.0,
       "exclusiveMinimum": 0.0
@@ -38,6 +38,11 @@
       "type": "string",
       "enum": ["SILENT", "WARNING", "ERROR", "THROW", "THROW_NO_LOG"]
     },
+    "destinationChoiceParameterSet": {
+      "description": "The parameter set to use for destination choice. Available parameters (apart from `standard`)  need to be registered in in the `ParameterSetRepo`",
+      "type": "string",
+      "pattern": "[a-zA-Z]+"
+    },
     "simulationContext": {
       "type": "object",
       "required": ["scenarioName", "dataFolder", "simulationSeed", "modes"],
@@ -67,6 +72,42 @@
           "type": "string"
         }
       }
+    },
+    "personCSV" :  {
+      "description": "The absolute path to person.csv. If not set, person.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "householdCSV":  {
+      "description": "The absolute path to household.csv. If not set, household.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "activityCSV":  {
+      "description": "The absolute path to activity.csv. If not set, activity.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "privateCarsCSV":  {
+      "description": "The absolute path to cars.csv. If not set, cars.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "fixedDestinationCSV":  {
+      "description": "The absolute path to fixedDestination.csv. If not set, fixedDestination.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "attractivitiesCSV":  {
+      "description": "The absolute path to attractivities.csv. If not set, attractivities.csv is assumed to be in the `zoneRepo`.",
+      "type": "string"
+    },
+    "bikeSharingStations":  {
+      "description": "The absolute path to bikesharing_stations.csv. If not set, bikesharing_stations.csv is assumed to be in the `zoneRepo`.",
+      "type": "string"
+    },
+    "zonesCSV":  {
+      "description": "The absolute path to zones.csv. If not set, zones.csv is assumed to be in the `zoneRepo`.",
+      "type": "string"
+    },
+    "zoneRepo": {
+      "description": "The path to the zone repository folder. Should at least contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file."
+      "type": "string"
     }
   }
 }
