@@ -14,7 +14,7 @@ data class ShortTermConfig(
     val durationMatrixConfigPath: Path,
     val distanceMatrixPath: Path,
     val cachePath: Path,
-    val matrixCreationMethod: ZoneMatrixCreation, // key based, visum
+    val zoneMatrixCreationMethod: ZoneMatrixCreation, // key based, visum
     /* simulation */
     val simulationContext: ExampleProjectContext,
     val errorHandling: ErrorHandling = ErrorHandling.THROW,
