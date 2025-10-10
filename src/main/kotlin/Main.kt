@@ -48,6 +48,7 @@ import utils.csv.Row
 import kotlin.io.path.Path
 import kotlin.time.Duration.Companion.minutes
 
+@Suppress("LongMethod")
 fun main(args: Array<String>) {
     val shortTermConfig: ShortTermConfig =
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: error("No config argument handed.")
