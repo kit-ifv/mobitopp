@@ -69,8 +69,11 @@ class DestinationChoiceParameterDeserializer: JsonDeserializer<DestinationChoice
 }
 
 /**
- * If you are a subproject wanting to register a custom parameter set, you need at least one instance of this repo.
- * Register this repo in the subproject in src/main/ressources/META-INF.services/domain.DestinationChoiceParameterRepo
+ * If you are a subproject wanting to register a custom parameter set (to be able to use it in the yaml config), you need at least one instance of this interface.
+ * Register your implementation in the subproject in src/main/resources/META-INF.services/domain.jackson.DestinationChoiceParameterRepo
+ * This file should contain the package-path and class-name of your instance of this interface.
+ *
+ * For example file-content: 'sub.project.package.structure.myDestinationChoiceRepoInMySubproject'
  */
 interface DestinationChoiceParameterRepo {
     val name: String
