@@ -31,7 +31,7 @@ import core.results.plots.render.LinePlotLayoutBuilder
 import core.results.plots.render.LinePlotRenderer
 import core.results.plots.render.ScatterLayoutBuilder
 import core.results.plots.render.ScatterPlotRenderer
-import units.UnitIntervalValue
+import edu.kit.ifv.units.UnitIntervalValue
 
 /**
  * Entry point to build plot data from a lazy supplier of entities.

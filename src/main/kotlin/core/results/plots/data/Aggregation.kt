@@ -1,7 +1,7 @@
 package core.results.plots.data
 
-import units.UnitIntervalValue
-import units.share
+import edu.kit.ifv.units.UnitIntervalValue
+import edu.kit.ifv.units.share
 import kotlin.math.floor
 
 sealed interface Aggregation<in Y, out V> {

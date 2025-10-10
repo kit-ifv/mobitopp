@@ -16,7 +16,7 @@ import domain.simulation.agent.PersonAgent
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.PersonId
-import units.kilometers
+import edu.kit.ifv.units.kilometers
 import java.util.TreeMap
 import kotlin.time.Duration.Companion.minutes
 

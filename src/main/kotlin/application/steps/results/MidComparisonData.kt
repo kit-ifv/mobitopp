@@ -25,7 +25,7 @@ import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.Sex
-import units.Distance
+import edu.kit.ifv.units.Distance
 import utils.collections.BaseBin
 import utils.collections.Bin
 import utils.collections.OpenBin
