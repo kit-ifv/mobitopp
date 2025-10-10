@@ -5,6 +5,7 @@ import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.RepositoryDependentStep
 import core.modelsteps.Warning
+import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
 import domain.shared.location.LegacyZone
@@ -42,7 +43,7 @@ interface LoadFixedDestinationsContext : DemandSimContext {
     val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
 
     val defaultFixedDestinationsPath: Path
-        get() = dataFolder.resolve("fixedDestination.csv")
+        get() = dataFolder.resolve("demand-data").resolve("fixedDestination.csv")
 
     fun getZone(id: Long) = requireNotNull(
         zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
@@ -175,6 +176,8 @@ fun LoadFixedDestinationsContext.prepareFixedDestinationsFile(
 
 fun interface GenerateFixedDestinationLocations {
     fun generate(): Collection<ActivityLocation>
+
+    fun validate(): Warning? = null
 }
 
 class GenerateFromCSV(
@@ -186,6 +189,9 @@ class GenerateFromCSV(
         val reader = CsvReader.of(path, delimiter)
         return parser.parse(reader).toList()
     }
+
+    override fun validate(): Warning? = validateFileReadAccess(path, fileDescription = "fixed destinations csv file")
+
 }
 
 class GenerateFromCache(
@@ -250,9 +256,7 @@ class LoadFixedDestinationsStep(
         }
     }
 
-    override fun verifyInput(): Warning? = validateScope {
-        // TODO("Not yet implemented")
-    }
+    override fun verifyInput(): Warning? = fixedDestinationGenerator.validate()
 
     override fun mockBehavior(): Warning? = validateScope {
         // TODO("Not yet implemented")

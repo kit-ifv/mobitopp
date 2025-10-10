@@ -7,8 +7,13 @@ import core.modelsteps.validateScope
 import core.results.plots.Plotter
 import java.nio.file.Path
 
-fun <C : Context> C.addPlot(subDir: String = "plots", scope: () -> Plotter<*, *, *>) = runStep {
-    AddPlotStep(scope(), resultDir.resolve(subDir))
+fun <C : Context> C.addPlot(vararg subDirs: String = arrayOf("plots"), scope: () -> Plotter<*, *, *>) = runStep {
+    var dir = resultDir
+    for (subDir in subDirs) {
+        dir = dir.resolve(subDir)
+    }
+
+    AddPlotStep(scope(), dir)
 }
 
 data class AddPlotStep(
