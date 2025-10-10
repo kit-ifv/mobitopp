@@ -3,7 +3,7 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "resultName", "zoneRepo", "simulationContext", "destinationChoiceParameterSet"],
+  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "zoneMatrixCreationMethod","resultName", "zoneRepo", "simulationContext", "destinationChoiceParameterSet"],
   "type": "object",
   "properties": {
     "fractionOfPopulation": {
@@ -106,8 +106,13 @@
       "type": "string"
     },
     "zoneRepo": {
-      "description": "The path to the zone repository folder. Should at least contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file."
+      "description": "The path to the zone repository folder. Should at least contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file.",
       "type": "string"
+    },
+    "zoneMatrixCreationMethod": {
+      "description": "How zoneMatrices should be created. On default either `visum` and `keyBased` are available. If you want others, they need to be registered in `ZoneMatrixCreationDeserializer.kt`",
+      "type": "string",
+      "enum": ["visum", "keyBased"]
     }
   }
 }
