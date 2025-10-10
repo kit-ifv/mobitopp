@@ -1,6 +1,7 @@
 package domain.synthesis.householdgeneration
 
 import TEST_ZONE
+import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.householdgeneration.GenerateHouseholdsFromVector

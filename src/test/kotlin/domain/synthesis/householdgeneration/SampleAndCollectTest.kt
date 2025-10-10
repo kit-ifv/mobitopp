@@ -35,7 +35,7 @@ class SampleAndCollectTest : SynthesisTest() {
             vector3 to listOf(thirdHousehold)
         )
         val output = strategy.run {
-            map.extract()
+            map.extractFrom()
         }
         assertEquals(output.size, 5)
         // To quickly differentiate between the outputs we don't compare the entire household structure but just the size
