@@ -1,6 +1,7 @@
 package application.steps.model
 
 import core.modelsteps.AddResourceStep
+import core.modelsteps.Context
 import core.modelsteps.LateInit
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
@@ -15,7 +16,7 @@ import domain.synthesis.data.MutableDrtProviderData
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-interface AddDrtProviderContext {
+interface AddDrtProviderContext : Context {
 
     val drtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId>
     val impedance: LateInit<Metrics>
@@ -35,13 +36,13 @@ class DrtProviderCollector {
 
 private var providerIdCounter = 0L
 
-fun AddDrtProviderContext.newDrtProvider(scope: MutableDrtProviderData.() -> Unit) = run {
+fun AddDrtProviderContext.newDrtProvider(scope: MutableDrtProviderData.() -> Unit) = runStep {
     val provider = MutableDrtProviderData(DrtProviderId(providerIdCounter++))
     provider.scope()
     AddDrtProviderStep(this, listOf(provider))
 }
 
-fun AddDrtProviderContext.addDrtProvider(drtProvider: () -> MutableDrtProviderData) = run {
+fun AddDrtProviderContext.addDrtProvider(drtProvider: () -> MutableDrtProviderData) = runStep {
     val provider = drtProvider()
     validateId(provider)
 
@@ -56,7 +57,7 @@ private fun validateId(provider: MutableDrtProviderData) {
     providerIdCounter = provider.id.value + 1
 }
 
-fun AddDrtProviderContext.addMultipleDrtProvider(scope: DrtProviderCollector.() -> Unit) = run {
+fun AddDrtProviderContext.addMultipleDrtProvider(scope: DrtProviderCollector.() -> Unit) = runStep {
     val collector = DrtProviderCollector()
     collector.scope()
     val providers = collector.getProviders().sortedBy { it.id.value }.onEach { validateId(it) }
