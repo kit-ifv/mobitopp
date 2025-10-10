@@ -4,32 +4,21 @@ package application.steps.results
 
 import core.modelsteps.Resource
 import core.modelsteps.asResource
-import core.results.plots.PlotDataTransformationBuilder
-import core.results.plots.PlotterBuilder
-import core.results.plots.data.Ordering
-import core.results.plots.forData
-import core.results.plots.normalizeByGroup
-import core.results.plots.normalizeByX
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR7
-import domain.shared.location.Metrics
-import domain.simulation.results.AgentResultsContext
-import domain.simulation.results.PersonLeg
-import domain.simulation.results.distance
-import domain.simulation.results.duration
-import domain.simulation.results.personLegs
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
+import domain.synthesis.data.Graduation
+import domain.synthesis.data.IHousehold
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Distance
 import utils.collections.BaseBin
 import utils.collections.Bin
 import utils.collections.OpenBin
-import utils.collections.mapToBins
 import utils.csv.CsvReader
 import utils.csv.Row
 import utils.csv.decode
@@ -39,16 +28,17 @@ import utils.csv.kilometers
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import java.nio.file.Path
-import kotlin.io.path.absolute
 import kotlin.io.path.pathString
-import kotlin.math.min
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 fun compareWithMid(csv: Path) =
-    CsvReader.of(csv, separator = ",").rows().toList().asResource("MId comparison data", csv.pathString)
+    CsvReader.of(csv, separator = ",").rows().toList().asResource("MID comparison data", csv.pathString)
+
+val Resource<Row>.persons get() = elements.map {
+    MidPersonRow(it)
+}.asResource(name, source)
 
 fun Resource<Row>.legs(
     purposes: ChoiceModelPurposes,
@@ -57,17 +47,97 @@ fun Resource<Row>.legs(
     MidLegRow(purposes, modes, it)
 }.asResource(name, source)
 
-public data class MidLegRow(
+
+interface MidRow {
+
+    companion object {
+        val ageBinCache: MutableMap<String, Bin<Int>> = mutableMapOf()
+    }
+
+    val row: Row
+
+    val relative: Double
+
+    val absolute: Double
+
+    val householdSize: String
+        get() = row("hhSize")
+
+    val hhNumberOfCars: String
+        get() = row("hhNumberOfCars")
+
+    val sex: Sex
+        get() = Sex.valueOf(row("gender").uppercase())
+
+    val age: Int
+        get() = row.int("age")
+
+    val ageBin: Bin<Int>
+        get() = row("age") { key: String ->
+            ageBinCache.getOrPut(key) {
+                key.split(",").let {
+                    BaseBin(it[0].toInt(), it[1].toInt() + 1)
+                }
+            }
+        }
+
+    val economicStatus: EconomicStatus
+        get() = row("economicStatus").parseEconomicStatus()
+
+    val employment: Employment
+        get() = row("occupation").parseEmployment()
+
+    val education: String
+        get() = row.int("education").parseEducation()
+
+    val hasLicense: Boolean
+        get() = row("driversLicense").parseBool()
+
+    //TODO car availability
+
+    val isCarsharingMember: Boolean
+        get() = row("carsharingMembership").parseBool()
+
+    val hasEBike: Boolean
+        get() = row("hasEBike").parseBool()
+
+    val hasCommuterTicket: Boolean
+        get() = row("hasTransitPass").parseBool()
+
+    val regioStaR7: RegioStaR7
+        get() = row.decode("regioStar7", RegioStaR7)
+
+    val isPlanningArea: Boolean
+        get() = row("planningArea").parseBool()
+
+}
+
+data class MidPersonRow(override val row: Row) : MidRow {
+
+    override val relative: Double
+        get() = row.double("P_GEW")
+
+    override val absolute: Double
+        get() = row.double("P_HOCH")
+
+}
+
+data class MidLegRow(
     private val purposes: ChoiceModelPurposes,
     private val modes: ChoiceModelModes,
-    private val row: Row
-) {
+    override val row: Row
+): MidRow {
 
     companion object {
         val distBinCache: MutableMap<String, Bin<Double>> = mutableMapOf()
         val durBinCache: MutableMap<String, Bin<Int>> = mutableMapOf()
-        val ageBinCache: MutableMap<String, Bin<Int>> = mutableMapOf()
     }
+
+    override val relative: Double
+        get() = row.double("W_GEW")
+
+    override val absolute: Double
+        get() = row.double("W_HOCH")
 
     val distanceBin: Bin<Double>
         get() = row("travelDistanceCategories") { key: String ->
@@ -105,59 +175,11 @@ public data class MidLegRow(
     val duration: Duration
         get() = row.int("travelTime").minutes
 
-    val ageBin: Bin<Int>
-        get() = row("age") { key: String ->
-            ageBinCache.getOrPut(key) {
-                key.split(",").let {
-                    BaseBin(it[0].toInt(), it[1].toInt() + 1)
-                }
-            }
-        }
-
-    val householdSize: Int
-        get() = row.int("hhSize")
-
-    val hhNumberOfCars: String
-        get() = row("hhNumberOfCars")
-
-    val sex: Sex
-        get() = Sex.valueOf(row("gender").uppercase())
-
-    val economicStatus: EconomicStatus
-        get() = row("economicStatus").parseEconomicStatus()
-
-    val employment: Employment
-        get() = row("occupation").parseEmployment()
-
-    val hasLicense: Boolean
-        get() = row("driversLicense").parseBool()
-
-    val isCarsharingMember: Boolean
-        get() = row("carsharingMembership").parseBool()
-
-    val hasEBike: Boolean
-        get() = row("hasEBike").parseBool()
-
-    val hasCommuterTicket: Boolean
-        get() = row("hasTransitPass").parseBool()
-
     val activityType: ActivityType
         get() = row("purpose").parseActivityType(purposes)
 
     val mode: Mode
         get() = row("modeChoice").parseMode(modes)
-
-    val regioStaR7: RegioStaR7
-        get() = row.decode("regioStar7", RegioStaR7)
-
-    val isPlanningArea: Boolean
-        get() = row("planningArea").parseBool()
-
-    val absolute: Double
-        get() = row.double("W_HOCH")
-
-    val relative: Double
-        get() = row.double("W_GEW")
 
     val tripStart: AbsoluteTime?
         get() = row("beginTrip").parseTime()
@@ -222,182 +244,24 @@ private fun String.parseMode(modes: ChoiceModelModes) = when (this) {
     else -> error("Invalid mode string: $this. Expected: 'bike', 'driver', 'passenger', 'transit' or 'walking'.")
 }
 
-@Suppress("LongParameterList")
-fun <G> AgentResultsContext.midComparisonPlotForLegs(
-    midCsv: Path,
-    purposes: ChoiceModelPurposes,
-    modes: ChoiceModelModes,
-    impedance: Metrics,
-    legFilter: (PersonLeg) -> Boolean = { true },
-    rowFilter: (MidLegRow) -> Boolean,
-    legGroup: (PersonLeg) -> G,
-    midGroup: (MidLegRow) -> G,
-    normalize: Boolean = true
-) = MidComparisonLegPlotBuilder(
-    this, midCsv, purposes, modes, impedance, legFilter, rowFilter, legGroup, midGroup, normalize
-)
+private fun Int.parseEducation(): String = when(this) {
+    1 -> "no degree"
+    2 -> "Real-/Hauptschulabschluss"
+    3 -> "Abitur"
+    4 -> "university degree"
+    -99 -> "other"
+    else -> "$this"
+}
 
-@Suppress("LongParameterList")
-class MidComparisonLegPlotBuilder<G>(
-    context: AgentResultsContext,
-    midCsv: Path,
-    purposes: ChoiceModelPurposes,
-    modes: ChoiceModelModes,
-    private val impedance: Metrics,
-    legFilter: (PersonLeg) -> Boolean = { true },
-    rowFilter: (MidLegRow) -> Boolean,
-    legGroup: (PersonLeg) -> G,
-    midGroup: (MidLegRow) -> G,
-    private val normalize: Boolean = true,
-) {
-
-    companion object {
-        private val midLegCache: MutableMap<String, List<MidLegRow>> = mutableMapOf()
-    }
-
-    private val midLegs: List<MidLegRow> =
-        midLegCache.computeIfAbsent(midCsv.absolute().pathString) {
-            compareWithMid(midCsv).legs(purposes, modes).elements.toList()
-        }
-
-    private val dataBuilder = forData {
-        context.personLegs.filter(legFilter)
-    }.groupBy {
-        legGroup(it)
-    }
-
-    private val comparisonBuilder = forData {
-        midLegs.filter(rowFilter)
-    }.groupBy {
-        midGroup(it)
-    }
-
-    @Suppress("MagicNumber")
-    fun overAge(): PlotterBuilder<G, Bin<Int>, Double> {
-        midLegs.forEach { it.ageBin }
-        val ageBins = MidLegRow.ageBinCache.values.toList()
-
-        val dataCount = dataBuilder.count {
-            it.person.age.let { a -> min(100, a) }.mapToBins(ageBins)
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        val compCount = comparisonBuilder.plotSumOf {
-            if (normalize) { it.absolute } else { it.relative }
-        }.over {
-            it.ageBin
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        return dataCount.compareTo {
-            compCount
-        }
-    }
-
-    fun overEmployment(): PlotterBuilder<G, Employment, Double> {
-        val dataCount = dataBuilder.count {
-            it.person.employment.simplifyEmploymentMID()
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        val compCount = comparisonBuilder.plotSumOf {
-            if (normalize) { it.absolute } else { it.relative }
-        }.over {
-            it.employment
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        return dataCount.compareTo {
-            compCount
-        }
-    }
-
-    fun overDistance(): PlotterBuilder<G, Bin<Double>, Double> {
-        midLegs.forEach { it.distanceBin }
-        val distanceBins = MidLegRow.distBinCache.values.toList()
-
-        val dataCount = dataBuilder.count {
-            it.distance(impedance).inKilometers.mapToBins(distanceBins)
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        val compCount = comparisonBuilder.plotSumOf {
-            if (normalize) { it.absolute } else { it.relative }
-        }.over {
-            it.distanceBin
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        return dataCount.compareTo {
-            compCount
-        }
-    }
-
-    fun overDuration(): PlotterBuilder<G, Bin<Int>, Double> {
-        midLegs.forEach { it.durationBin }
-        val durationBins = MidLegRow.durBinCache.values.toList()
-
-        val dataCount = dataBuilder.count {
-            it.duration(impedance).inWholeMinutes.toInt().mapToBins(durationBins)
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        val compCount = comparisonBuilder.plotSumOf {
-            if (normalize) { it.absolute } else { it.relative }
-        }.over {
-            it.durationBin
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        return dataCount.compareTo {
-            compCount
-        }
-    }
-
-    fun overTripStart() = overTime({ it.leg.startTime }, { it.tripStart ?: AbsoluteTime.START })
-    fun overActivityStart() = overTime({ it.leg.endTime }, { it.activityStart ?: AbsoluteTime.START })
-
-    fun overTime(
-        legToTime: (PersonLeg) -> AbsoluteTime,
-        midRowToTime: (MidLegRow) -> AbsoluteTime,
-    ): PlotterBuilder<G, AbsoluteTime, Double> {
-        val dataCount = dataBuilder.count {
-            legToTime(it).let { t -> t - t.daysSinceStart.days }.roundToMultipleOf(1.hours)
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.fillMissingXValues {
-            0.0
-        }.sortAndFill(0.0)
-
-        val compCount = comparisonBuilder.plotSumOf {
-            if (normalize) { it.absolute } else { it.relative }
-        }.over {
-            midRowToTime(it).roundToMultipleOf(1.hours)
-        }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
-        }.sortAndFill(0.0)
-
-        return dataCount.compareTo {
-            compCount
-        }
-    }
-
-    private fun <B : Comparable<B>, T : Number> PlotDataTransformationBuilder<G, B, T>.sortAndFill(default: T) =
-        this.fillMissingXValues {
-            default
-        }.sortX {
-            Ordering.Ascending()
-        }.sortGroups {
-            Ordering.AscendingBy { it.hashCode() }
-        }
+fun Graduation.toEducationMID(): String = when(this) {
+    Graduation.UNDEFINED -> (-99).parseEducation()
+    Graduation.OTHER -> (-99).parseEducation()
+    Graduation.NOT_HIGH_SCHOOL -> 2.parseEducation()
+    Graduation.HIGH_SCHOOL_GRADUATE -> 3.parseEducation()
+    Graduation.SOME_COLLEGE_CREDIT_NO_DEGREE -> 1.parseEducation()
+    Graduation.ASSOCIATE_TECHNICAL_SCHOOL_DEGREE -> 2.parseEducation()
+    Graduation.BACHELOR_DEGREE -> 4.parseEducation()
+    Graduation.MASTER_DEGREE -> 4.parseEducation()
 }
 
 fun ActivityType.simplifyMID(purposes: ChoiceModelPurposes) =
@@ -452,8 +316,24 @@ fun Employment.simplifyEmploymentMID() = when (this) {
     Employment.UNKNOWN -> Employment.UNKNOWN
 }
 
+fun EconomicStatus.simplifyMID() = when (this) {
+    EconomicStatus.VERY_LOW -> EconomicStatus.LOW
+    EconomicStatus.LOW -> EconomicStatus.LOW
+    EconomicStatus.MIDDLE -> EconomicStatus.MIDDLE
+    EconomicStatus.HIGH -> EconomicStatus.HIGH
+    EconomicStatus.VERY_HIGH -> EconomicStatus.HIGH
+}
+
 fun IPerson.carOwnershipMID(): String = when (household.cars.size) {
     0 -> "0"
     1 -> "1"
     else -> "2+"
+}
+
+val IHousehold.householdSizeMID get() = members.size.let {
+    if (it < 4) {
+        "$it"
+    } else {
+        "4+"
+    }
 }

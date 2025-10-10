@@ -73,7 +73,6 @@ interface StandardContext :
     LoadFixedDestinationsContext,
     LoadBehaviorModelsContext,
     AssignCarsContext,
-
     WriteTripsCsvContext,
     RunSimContext,
     RoadNetworkContext,
@@ -106,7 +105,7 @@ data class ExampleProjectContext(
 ) : DemandSimContext,
     StandardContext,
     HomeLocationModelContext,
-
+    LoadBehaviorModelsContext,
     AgentResultsContext {
     override val execMode: ExecutionMode = ExecutionMode()
 
