@@ -1,5 +1,6 @@
 package application.config
 
+import application.steps.model.AddDrtMembershipContext
 import application.steps.model.AddDrtProviderContext
 import application.steps.model.AssignCarsContext
 import application.steps.model.BuildAgentsContext
@@ -81,7 +82,8 @@ interface StandardContext :
     RunSimContext,
     RoadNetworkContext,
     BuildAgentsContext,
-    AddDrtProviderContext
+    AddDrtProviderContext,
+    AddDrtMembershipContext
 
 data class ExampleProjectContext(
     override val scenarioName: String,

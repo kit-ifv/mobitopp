@@ -1,9 +1,11 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import application.config.ExampleProjectContext
+import application.steps.model.addDrtMemberships
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
 import application.steps.model.dummyDrtAlgorithm
+import application.steps.model.everyoneIsMember
 import application.steps.model.householdHomeLocation
 import application.steps.model.newDrtProvider
 import application.steps.model.scaleFilter
@@ -100,6 +102,7 @@ fun main() {
         finishHouseholds()
 
         preparePersons()
+        addDrtMemberships(everyoneIsMember)
 
         preparePrivateCars() // file = File("example/car.csv"))
         assignCarUsers()
