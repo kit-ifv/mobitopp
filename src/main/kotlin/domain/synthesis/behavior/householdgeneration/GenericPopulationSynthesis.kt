@@ -1,11 +1,12 @@
 package domain.synthesis.behavior.householdgeneration
 
+import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import org.jgrapht.Graphs
 import org.jgrapht.graph.AsSubgraph
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
-import org.jgrapht.traverse.BreadthFirstIterator
+ import org.jgrapht.traverse.BreadthFirstIterator
 import utils.collections.partitionValues
 
 interface GenericPopulationSynthesis<AREA, T> {
@@ -25,8 +26,7 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
         val rootRegions = hierarchy.traceRoots(targetAreas)
         val independentRegions = separateIrrelevantRegions(rootRegions)
 
-        val activeRulesPerRegion =
-            independentRegions.keys.groupBy { ruleProvider.getConflictFreeRules(it).map { it.logic } }
+
         val ex = independentRegions.flatMap { (root, childs) ->
             println("Working on $root ${childs.take(5)}")
             synthesize(root, hierarchy, childs).entries
@@ -135,11 +135,12 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
 
     fun getAllDescendants(target: AREA) = hierarchy.getAllDescendants(target)
     fun getAllDescendantRules(target: AREA) = getAllDescendants(target).associateWith { getRules(it) }
+    @Deprecated("Use conflict free rules instead.")
     fun getAllRules(target: AREA): Map<AREA, Collection<Rule<T>>> {
         val rules = getAllDescendantRules(target)
         return rules + (target to getRules(target))
     }
-
+    fun getAllRuleLogics():  List<NamedCountRule<T>>
     operator fun contains(area: AREA): Boolean
 
     fun getAllLeafs() = hierarchy.getAllLeafs()
@@ -213,7 +214,7 @@ interface HierarchicElement<T> {
     fun getAllLeafsFrom(element: T): Collection<T> = getAllDescendants(element).filter { isLeaf(it) }
 
     fun isLeaf(element: T) = getChildren(element).isEmpty()
-    fun traceRoots(elements: Collection<T>): Map<T, Collection<T>>
+    fun traceRoots(elements: Collection<T> = getAllLeafs()): Map<T, Collection<T>>
 
     fun getDependencies(elements: Collection<T>): Map<T, List<T>> {
         return elements.associateWith {

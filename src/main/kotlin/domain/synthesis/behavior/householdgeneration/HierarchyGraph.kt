@@ -7,19 +7,9 @@ import org.jgrapht.traverse.BreadthFirstIterator
 
 open class HierarchyGraph<T>(
     protected open val parentGraph: Graph<T, DefaultEdge>,
-    protected open  val childGraph: Graph<T, DefaultEdge>,
+    protected open val childGraph: Graph<T, DefaultEdge>,
 ): HierarchicElement<T> {
 
-    init {
-        val nonTreeNodes = parentGraph.vertexSet().filter { parentGraph.outDegreeOf(it) <= 0 }
-        require(nonTreeNodes.isEmpty()) {
-            "There should never be two parents for the same child. We want a tree like graph."
-        }
-
-        require(parentGraph.vertexSet() == childGraph.vertexSet()) {
-            "The parent and child graph should contain the same vertices."
-        }
-    }
     override fun getParent(element: T): T? {
         val outEdges = parentGraph.outgoingEdgesOf(element)
         if (outEdges.isEmpty()) return null
@@ -73,7 +63,7 @@ open class HierarchyGraph<T>(
     private fun groupByHighestSharedAncestor(targets: Set<T>): Map<T, Set<T>> {
         val activeNodes = allParentNodes(targets)
         val roots = activeNodes.filter { getParent(it) == null }
-        return roots.associateWith { node -> getAllAncestorsInclusive(node).filter { it in targets }.toSet() }
+        return roots.associateWith { node -> getAllDescendantsInclusive(node).filter { it in targets }.toSet() }
     }
 
     private fun allParentNodes(targets: Set<T>): Set<T> {
