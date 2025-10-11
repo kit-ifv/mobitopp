@@ -26,15 +26,15 @@ open class HierarchyGraph<T>(
         return parentGraph.getEdgeTarget(outEdges.first())
     }
 
-    override fun partition(predicate: (T) -> Boolean): Pair<MutableHierarchicElement<T>, MutableHierarchicElement<T>> {
+    override fun partition(predicate: (T) -> Boolean): Pair<HierarchicElement<T>, HierarchicElement<T>> {
         val (setA, setB) = getAllVertices().partition(predicate).run {
             Pair(first.toSet(), second.toSet())
         }
-        val one =  HierarchyGraph(AsSubgraph(parentGraph, setA),
+        val subgraphA =  HierarchyGraph(AsSubgraph(parentGraph, setA),
             AsSubgraph(childGraph, setA))
-        val two = HierarchyGraph(AsSubgraph(parentGraph, setB),
+        val subgraphB = HierarchyGraph(AsSubgraph(parentGraph, setB),
             AsSubgraph(childGraph, setB))
-
+        return subgraphA to subgraphB
     }
 
     override fun getAllAncestors(element: T): Collection<T> {
