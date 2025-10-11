@@ -131,6 +131,8 @@ class UseLowestCoveredLeaf<AREA> : HandleRuleConflicts<AREA> {
 interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
     val hierarchy: HierarchicElement<AREA>
 
+    fun partition(predicate: (AREA)-> Boolean): Pair<HierarchicalRuleProvider<AREA, T>, HierarchicalRuleProvider<AREA, T>>
+
     fun getAllDescendants(target: AREA) = hierarchy.getAllDescendants(target)
     fun getAllDescendantRules(target: AREA) = getAllDescendants(target).associateWith { getRules(it) }
     fun getAllRules(target: AREA): Map<AREA, Collection<Rule<T>>> {
@@ -138,6 +140,7 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
         return rules + (target to getRules(target))
     }
 
+    operator fun contains(area: AREA): Boolean
 
     fun getAllLeafs() = hierarchy.getAllLeafs()
 
