@@ -3,14 +3,15 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "zoneMatrixCreationMethod","resultName", "zoneRepo", "simulationContext", "destinationChoiceParameterSet"],
+  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "zoneMatrixCreationMethod","resultName", "zoneRepo", "simulationContext", "destinationChoiceParameterSet", "sharingProviderName", "vehicleCountColumn", "cachePath"],
   "type": "object",
   "properties": {
     "fractionOfPopulation": {
       "description": "How much of the population is simulated.",
       "type": "number",
       "maximum": 1.0,
-      "exclusiveMinimum": 0.0
+      "exclusiveMinimum": 0.0,
+      "default": 1.0
     },
     "costMatrixConfigPath": {
       "description": "Path to the cost matrix config.",
@@ -26,12 +27,14 @@
     },
     "resultPath": {
       "description": "The directory, results are written to",
-      "type": "string"
+      "type": "string",
+      "default": "results"
     },
     "resultName": {
       "description": "The name of the simulation output csv",
       "type": "string",
-      "pattern": "^[a-z][a-zA-Z]*.csv$"
+      "pattern": "^[a-z][a-zA-Z0-9_-]*.csv$",
+      "default": "demandsimulation.csv"
     },
     "errorHandling": {
       "description": "How errors during a simulation run should be treated.",
@@ -55,8 +58,9 @@
           "type": "string"
         },
         "modes": {
-          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects with CodePlanSurrogateProviders",
-          "type": "string"
+          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects with CodePlanSurrogateProviders. Default options can be found in CoreCodePlans in mobitopp-reengineering.",
+          "type": "string",
+          "default": "coreModes"
         },
         "regionTypeCodes": {
           "description": "Which region type codes are used. Possible values need to be registered in subprojects with CodePlanSurrogateProviders",
@@ -110,9 +114,22 @@
       "enum": ["visum", "keyBased"]
     },
     "destinationChoiceParameterSet": {
-      "description": "What parameters should be used for destination choice. 'default' is always available. Register new/custom ones in a `DestinationChoiceParameterRepo`. Instructions on how to do that are in its documentation."
+      "description": "What parameters should be used for destination choice. 'default' is always available. Register new/custom ones in a `DestinationChoiceParameterRepo`. Instructions on how to do that are in its documentation.",
       "type": "string",
       "pattern": "[a-zA-Z]+"
+    },
+    "sharingProviderName": {
+      "description": "Name of the (bike) sharing provider.",
+      "type": "string"
+    },
+    "vehicleCountColumn": {
+      "description": "The column name which indicates how many bikes/entities one sharing station provides.",
+      "type": "string"
+    },
+    "cachePath": {
+      "description": "Directory for cache files.",
+      "type": "string",
+      "default": "data/data_cache"
     }
   }
 }

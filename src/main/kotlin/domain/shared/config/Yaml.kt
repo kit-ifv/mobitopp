@@ -9,6 +9,10 @@ import domain.jackson.DestinationChoiceParameterModule
 import domain.jackson.ZoneMatrixCreation
 import java.nio.file.Path
 
+/**
+ * To register new json mappers/parser in a subproject create a directory META-INF/services/
+ * in src/main/resources/ of the subproject.
+ */
 object Yaml {
     val mapper = ObjectMapper(YAMLFactory())
         .registerKotlinModule()
