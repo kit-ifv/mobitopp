@@ -14,20 +14,22 @@ data class ShortTermConfig(
     val durationMatrixConfigPath: Path,
     val distanceMatrixPath: Path,
     val cachePath: Path,
-    val zoneMatrixCreationMethod: ZoneMatrixCreation, // key based, visum
+    val zoneMatrixCreationMethod: ZoneMatrixCreation,
+
     /* simulation */
     val simulationContext: ExampleProjectContext,
     val errorHandling: ErrorHandling = ErrorHandling.THROW,
     val resultPath: Path,
     val resultName: String,
-    /* csv */
+
+    /*  paths to individual csv files   */
     val personCSV: Path? = null,
     val householdCSV: Path? = null,
     val activityCSV: Path? = null,
     val privateCarsCSV: Path? = null,
     val fixedDestinationCSV: Path? = null,
     val attractivitiesCSV: Path? = null,
-    val bikeSharingStations: Path? = null,
+    val bikeSharingStationsCSV: Path? = null,
     val zonesCSV: Path? = null,
     /* repos*/
     val zoneRepo: Path,
