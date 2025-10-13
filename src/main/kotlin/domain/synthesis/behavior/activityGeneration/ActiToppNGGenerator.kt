@@ -79,8 +79,8 @@ class ActiToppNGGenerator(
             gender = sex.toGender(),
             employment = employment.toActitoppEmployment(),
             age = age,
-            commuteDistanceWork = min(info.distanceWork.inKilometers, maxCommute),
-            commuteDistanceEducation = min(info.distanceEducation.inKilometers, maxCommute),
+            commuteDistanceWork = min(information.distanceWork.inKilometers, maxCommute),
+            commuteDistanceEducation = min(information.distanceEducation.inKilometers, maxCommute),
             isAllowedToWork = true, // TODO cross check with modellierer
         )
     }

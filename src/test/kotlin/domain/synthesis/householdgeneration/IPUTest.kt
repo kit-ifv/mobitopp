@@ -1,7 +1,6 @@
 package domain.synthesis.householdgeneration
 
 import TEST_ZONE
-import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.householdgeneration.GenerateHouseholdsFromVector
@@ -121,13 +120,13 @@ class IPUTest : SynthesisTest() {
             assertIs<SynthesisPerson<Employment>>(this)
             assertEquals(age, 10)
             assertEquals(sex, Sex.FEMALE)
-            assertEquals(info, Employment.NONE)
+            assertEquals(information, Employment.NONE)
         }
         target.members[1].run {
             assertIs<SynthesisPerson<Employment>>(this)
             assertEquals(age, 10)
             assertEquals(sex, Sex.MALE)
-            assertEquals(info, Employment.NONE)
+            assertEquals(information, Employment.NONE)
         }
     }
 

@@ -18,11 +18,11 @@ fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipA
     )
 }
 
-val SynthesisPerson<out SurveyInfo>.householdId get() = info.householdId
+val SynthesisPerson<out SurveyInfo>.householdId get() = information.householdId
 
-val SynthesisPerson<out SurveyInfo>.householdIncome get() = info.householdIncome
-val SynthesisPerson<out SurveyInfo>.hasLicence get() = info.hasLicence
-val SynthesisPerson<out SurveyEmployment>.employment get() = info.employment
+val SynthesisPerson<out SurveyInfo>.householdIncome get() = information.householdIncome
+val SynthesisPerson<out SurveyInfo>.hasLicence get() = information.hasLicence
+val SynthesisPerson<out SurveyEmployment>.employment get() = information.employment
 fun SynthesisPerson<out SurveyEmployment>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
 fun SynthesisPerson<out SurveyEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
 fun SynthesisPerson<out SurveyEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
@@ -37,11 +37,11 @@ var GLOBAL_PERSON_ID_GENERATOR = 0
     private set
 
 class SurveyHousehold<T>(
-    override val householdId: Int,
+    override val surveyHouseholdId: Int,
     override val income: Currency,
     override val members: List<SurveyPerson<out T>>
 ) :
-    ISurveyHousehold {
+    ISurveyHousehold<T> {
     lateinit var economicStatus: EconomicStatus
     val size get() = members.size
     fun toScalableVector(rules: List<Rule<in T>>): ScalableVector {
@@ -50,7 +50,7 @@ class SurveyHousehold<T>(
 
     fun toSynthesisHousehold(): SynthesisHousehold<T> {
         return SynthesisHousehold<T>(
-            id = householdId,
+            surveyHouseholdId = surveyHouseholdId,
             income = income,
         ).apply {
             members = this@SurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
@@ -63,12 +63,12 @@ class SurveyHousehold<T>(
     }
 
     override fun toString(): String {
-        return "Survey Household($householdId) [${members.joinToString { it.toString() }}"
+        return "Survey Household($surveyHouseholdId) [${members.joinToString { it.toString() }}"
     }
 }
 
-interface ISurveyHousehold {
-    val householdId: Int
+interface ISurveyHousehold<T> {
+    val surveyHouseholdId: Int
     val income: Currency
-    val members: List<SurveyPerson<*>>
+    val members: List<SurveyPerson<out T>>
 }
