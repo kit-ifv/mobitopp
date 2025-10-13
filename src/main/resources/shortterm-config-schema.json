@@ -3,15 +3,13 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "resultPath", "zoneMatrixCreationMethod","resultName", "zoneRepo", "simulationContext", "destinationChoiceParameterSet", "sharingProviderName", "vehicleCountColumn", "cachePath"],
+  "required": ["zoneRepo", "costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling","cachePath", "simulationContext", "sharingProviderName", "vehicleCountColumn","destinationChoiceParameterSet"],
   "type": "object",
   "properties": {
-    "fractionOfPopulation": {
-      "description": "How much of the population is simulated.",
-      "type": "number",
-      "maximum": 1.0,
-      "exclusiveMinimum": 0.0,
-      "default": 1.0
+    "zoneRepo": {
+      "description": "The path to the zone repository folder. Should at least contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file.",
+      "type": "string",
+      "default": "data/zone-repository"
     },
     "costMatrixConfigPath": {
       "description": "Path to the cost matrix config.",
@@ -25,6 +23,23 @@
       "description": "Path to the distance matrix",
       "type": "string"
     },
+    "zoneMatrixCreationMethod": {
+      "description": "How zoneMatrices should be created. On default either `visum` and `keyBased` are available. If you want others, they need to be registered in `ZoneMatrixCreationDeserializer.kt`",
+      "type": "string",
+      "enum": ["visum", "keyBased"]
+    },
+    "fractionOfPopulation": {
+      "description": "How much of the population is simulated.",
+      "type": "number",
+      "maximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "default": 1.0
+    },
+    "errorHandling": {
+      "description": "How errors during a simulation run should be treated. Default is 'THROW'.",
+      "type": "string",
+      "enum": ["THROW","SILENT", "WARNING", "ERROR", "THROW_NO_LOG"]
+    },
     "resultPath": {
       "description": "The directory, results are written to",
       "type": "string",
@@ -36,14 +51,10 @@
       "pattern": "^[a-z][a-zA-Z0-9_-]*.csv$",
       "default": "demandsimulation.csv"
     },
-    "errorHandling": {
-      "description": "How errors during a simulation run should be treated.",
-      "type": "string",
-      "enum": ["SILENT", "WARNING", "ERROR", "THROW", "THROW_NO_LOG"]
-    },
     "simulationContext": {
+      "description": "Each simulation gets a SimulationContext (in kotlin). This yaml object represents the values passed to the ExampleProjectContext object, which is passed to the simulation.",
       "type": "object",
-      "required": ["scenarioName", "dataFolder", "simulationSeed", "modes"],
+      "required": ["scenarioName", "simulationSeed", "modes"],
       "properties": {
         "simulationSeed": {
           "description": "The seed randomization is based on.",
@@ -69,7 +80,30 @@
         "economicalStatusCodes": {
           "description": "Which economical status codes are used. Possible values need to be registered in subprojects with CodePlanSurrogateProviders",
           "type": "string"
+        },
+        "costUnit": {
+          "description": "What unit is used for cost in the simulation. Currently only 'EUROS' is available.",
+          "type": "string",
+          "enum": ["EUROS"],
+          "$comment": "Currently only euros are available (see KotlinUnits)... costUnit is only in here for documentation purposes and enforcing correct values (only EUROS) if it is set in the yaml config for some reason."
+        },
+        "distanceUnit": {
+          "description": "What unit distance should be used like METERS, KILOMETERS... ",
+          "type": "string",
+          "enum": ["MICROMETERS", "MILLIMETERS", "CENTIMETERS", "INCH", "DECIMETERS", "YARD", "METERS", "KILOMETERS", "MILE", "SEA_MILE"]
+        },
+        "timeUnit": {
+          "description": "What unit is used for time like MINUTES, HOURS",
+          "type": "string",
+          "enum": ["SECONDS", "MINUTES", "HOURS", "DAYS"],
+          "$comment": "Theoretically the DurationUnit enum contains Nanoseconds and such, but they are pretty much nonsensical in the context of a simulation."
         }
+      },
+      "default": {
+        "scenarioName": "Mobitopp-Simulation",
+        "simulationSeed": 42,
+        "dataFolder": "data",
+        "modes": "coreModes"
       }
     },
     "personCSV" :  {
@@ -104,15 +138,6 @@
       "description": "The absolute path to zones.csv. If not set, zones.csv is assumed to be in the `zoneRepo`.",
       "type": "string"
     },
-    "zoneRepo": {
-      "description": "The path to the zone repository folder. Should at least contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file.",
-      "type": "string"
-    },
-    "zoneMatrixCreationMethod": {
-      "description": "How zoneMatrices should be created. On default either `visum` and `keyBased` are available. If you want others, they need to be registered in `ZoneMatrixCreationDeserializer.kt`",
-      "type": "string",
-      "enum": ["visum", "keyBased"]
-    },
     "destinationChoiceParameterSet": {
       "description": "What parameters should be used for destination choice. 'default' is always available. Register new/custom ones in a `DestinationChoiceParameterRepo`. Instructions on how to do that are in its documentation.",
       "type": "string",
@@ -129,7 +154,32 @@
     "cachePath": {
       "description": "Directory for cache files.",
       "type": "string",
-      "default": "data/data_cache"
+      "default": "data/data-cache"
     }
-  }
+  },
+  "allOf": [
+    {
+      "$comment": "Checking whether either zoneRepo is set, or all csv's in it are set manually. Setting both is redundant, but not false.",
+      "anyOf": [
+        {
+          "required": ["zoneRepo"]
+        },
+        {
+          "required": ["bikeSharingStations", "zonesCSV", "attractivitiesCSV"]
+        }
+      ]
+    },
+    {
+      "$comment": "Checking whether either dataFolder is set, or all csv's are set manually.",
+      "anyOf": [
+        {
+          "properties": { "simulationContext": { "required": ["dataFolder"] } },
+          "required": ["simulationContext"]
+        },
+        {
+          "required": ["fixedDestinationCSV", "privateCarsCSV", "activityCSV", "householdCSV", "personCSV"]
+        }
+      ]
+    }
+  ]
 }
