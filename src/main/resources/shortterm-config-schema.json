@@ -100,7 +100,7 @@
         }
       },
       "default": {
-        "scenarioName": "Mobitopp-Simulation",
+        "scenarioName": "New-Simulation",
         "simulationSeed": 42,
         "dataFolder": "data",
         "modes": "coreModes"
@@ -141,7 +141,8 @@
     "destinationChoiceParameterSet": {
       "description": "What parameters should be used for destination choice. 'default' is always available. Register new/custom ones in a `DestinationChoiceParameterRepo`. Instructions on how to do that are in its documentation.",
       "type": "string",
-      "pattern": "[a-zA-Z]+"
+      "pattern": "[a-zA-Z]+",
+      "default": "default"
     },
     "sharingProviderName": {
       "description": "Name of the (bike) sharing provider.",
@@ -154,32 +155,7 @@
     "cachePath": {
       "description": "Directory for cache files.",
       "type": "string",
-      "default": "data/data-cache"
+      "default": "\"data/data-cache\""
     }
-  },
-  "allOf": [
-    {
-      "$comment": "Checking whether either zoneRepo is set, or all csv's in it are set manually. Setting both is redundant, but not false.",
-      "anyOf": [
-        {
-          "required": ["zoneRepo"]
-        },
-        {
-          "required": ["bikeSharingStations", "zonesCSV", "attractivitiesCSV"]
-        }
-      ]
-    },
-    {
-      "$comment": "Checking whether either dataFolder is set, or all csv's are set manually.",
-      "anyOf": [
-        {
-          "properties": { "simulationContext": { "required": ["dataFolder"] } },
-          "required": ["simulationContext"]
-        },
-        {
-          "required": ["fixedDestinationCSV", "privateCarsCSV", "activityCSV", "householdCSV", "personCSV"]
-        }
-      ]
-    }
-  ]
+  }
 }
