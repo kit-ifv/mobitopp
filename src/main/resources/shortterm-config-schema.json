@@ -69,16 +69,40 @@
           "type": "string"
         },
         "modes": {
-          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects with CodePlanSurrogateProviders. Default options can be found in CoreCodePlans in mobitopp-reengineering.",
+          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders. Default options can be found in CoreCodePlans in mobitopp-reengineering.",
           "type": "string",
           "default": "coreModes"
         },
         "regionTypeCodes": {
-          "description": "Which region type codes are used. Possible values need to be registered in subprojects with CodePlanSurrogateProviders",
+          "description": "Which region type codes are used. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders",
           "type": "string"
         },
         "economicalStatusCodes": {
-          "description": "Which economical status codes are used. Possible values need to be registered in subprojects with CodePlanSurrogateProviders",
+          "description": "Which economical status codes are used. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders",
+          "type": "string"
+        },
+        "sexCodes": {
+          "description": "Which sex codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders.",
+          "type": "string"
+        },
+        "graduationCodes": {
+          "description": "Which graduation codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders.",
+          "type": "string"
+        },
+        "employmentCodes": {
+          "description": "Which employment codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "engineCodes": {
+          "description": "Which engine codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "carSegmentCodes": {
+          "description": "Which car segment code set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "activityTypes": {
+          "description": "Which activity type code set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
           "type": "string"
         },
         "costUnit": {
