@@ -113,7 +113,7 @@ fun interface CheckRule<T> : CountRule<T> {
     }
 }
 
-class NamedCheckRule<T> protected constructor(ruleDescription: String, override val logic: CheckRule<T>) :
+class NamedCheckRule<T> private constructor(ruleDescription: String, override val logic: CheckRule<T>) :
     NamedCountRule<T>(
         ruleDescription,
         logic
@@ -126,7 +126,8 @@ class NamedCheckRule<T> protected constructor(ruleDescription: String, override 
 
 }
 
-open class NamedCountRule<T> protected constructor(val ruleDescription: String, open val logic: CountRule<T>) : CountRule<T> by logic {
+open class NamedCountRule<T> protected constructor(val ruleDescription: String, open val logic: CountRule<T>) :
+    CountRule<T> by logic, Comparable<NamedCountRule<T>> {
     constructor(desc: RuleDescription, logic: CountRule<T>) : this(desc.logicDescription, logic)
     override fun equals(other: Any?): Boolean {
         if (other !is NamedCountRule<*>) return false
@@ -137,10 +138,15 @@ open class NamedCountRule<T> protected constructor(val ruleDescription: String, 
         return ruleDescription.hashCode()
 
     }
+
+    override fun compareTo(other: NamedCountRule<T>): Int {
+        return ruleDescription.compareTo(other.ruleDescription)
+    }
 }
 
 sealed interface RuleDescription {
     val logicDescription: String
+
 
 
 }
@@ -151,17 +157,19 @@ object UNKNOWN_LOGIC: RuleDescription{
 }
 class AgeRuleDescription(startAge: Int, endAge: Int): RuleDescription {
     override val logicDescription: String = "Age in ($startAge..$endAge)"
+
 }
 class AgeSexRuleDescription(startAge: Int, endAge: Int, sex: Sex): RuleDescription {
     override val logicDescription: String = "Sex=$sex Age in ($startAge..$endAge)"
+
 }
 class HouseholdTypeDescription(type: String): RuleDescription {
     constructor(type: Int): this(type.toString())
     override val logicDescription: String = "Household type = $type"
+
 }
 class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityOp.EQUALS):RuleDescription {
     override val logicDescription: String = "Household Size ${operator.symbol} $targetSize "
-
     enum class EqualityOp(val symbol: String) {
         EQUALS("=="),
         NOT_EQUALS("!="),

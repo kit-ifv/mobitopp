@@ -28,7 +28,7 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
 
 
         val ex = independentRegions.flatMap { (root, childs) ->
-            println("Working on $root ${childs.take(5)}")
+            println("Working on $root subelements=${childs.size}")
             synthesize(root, hierarchy, childs).entries
         }.associate { it.key to it.value }
 
@@ -43,7 +43,7 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
     private fun separateIrrelevantRegions(original: Map<AREA, Collection<AREA>>): Map<AREA, Collection<AREA>> {
         val workspace = original.toMutableMap()
         // TODO when none of the higher elements in the hierarchy define rules then the target area should
-        //   point to itself, but right now it will po
+        //   point to itself, but right now it will point
         val flatTargets = original.values.flatten()
         while (workspace.hasIrrelevantKeys()) {
             val irrelevantKeys = workspace.irrelevantKeys()
@@ -140,7 +140,7 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
         val rules = getAllDescendantRules(target)
         return rules + (target to getRules(target))
     }
-    fun getAllRuleLogics():  List<NamedCountRule<T>>
+    fun getAllRuleLogics(): List<NamedCountRule<RawSurveyInfo>>
     operator fun contains(area: AREA): Boolean
 
     fun getAllLeafs() = hierarchy.getAllLeafs()
@@ -172,7 +172,8 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
             val allActiveRules = v.map { mappedRules[it]!![k]!! }
             allActiveRules.fuse("Fused Rules for ${k.ruleDescription} summing ${allActiveRules.size} elements")
         }
-        return fusedRules
+        // TODO the return of rules should be implicitly sorted and not dependent on the implementation
+        return fusedRules.sortedBy { it.logic }
     }
 
     /**
