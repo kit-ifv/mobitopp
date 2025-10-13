@@ -81,8 +81,8 @@ class BandwidthLocator(
         locationTree.sequenceFor(
             agent.homeLocation,
         )
-            .dropWhile { it.item.distance(agent.homeLocation) <= agent.info.distanceWork - parameters.poleRadius }
-            .takeWhile { it.item.distance(agent.homeLocation) <= agent.info.distanceWork + parameters.poleRadius }
+            .dropWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork - parameters.poleRadius }
+            .takeWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork + parameters.poleRadius }
             .toSet()
 
     private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)

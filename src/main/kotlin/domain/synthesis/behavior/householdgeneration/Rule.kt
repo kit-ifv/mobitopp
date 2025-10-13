@@ -1,5 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.data.Sex
 import org.jetbrains.annotations.TestOnly
@@ -32,9 +33,9 @@ interface Rule<T> {
      * @param surveyHousehold The household to evaluate.
      * @return An integer representing the contribution of the household to the rule's target.
      */
-    fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int
+    fun evaluate(surveyHousehold: ISurveyHousehold<out T>): Int
 
-    fun evaluate(households: Collection<SurveyHousehold<out T>>): Int = households.sumOf { evaluate(it) }
+    fun evaluate(households: Collection<ISurveyHousehold<out T>>): Int = households.sumOf { evaluate(it) }
 
     /**
      * Determines whether a given [surveyHousehold] contributes to the rule's target.
@@ -42,7 +43,7 @@ interface Rule<T> {
      * @param surveyHousehold The household to check.
      * @return `true` if the household contributes to the rule's target; `false` otherwise.
      */
-    fun appliesTo(surveyHousehold: SurveyHousehold<out T>): Boolean = evaluate(surveyHousehold) != 0
+    fun appliesTo(surveyHousehold: ISurveyHousehold<out T>): Boolean = evaluate(surveyHousehold) != 0
 
     /**
      * Calculates the difference (offset) between the desired [target] and the aggregate contributions from a
@@ -51,7 +52,7 @@ interface Rule<T> {
      * @param output A collection of households to evaluate.
      * @return The difference between the target and the sum of contributions from the households.
      */
-    fun verify(output: Collection<SurveyHousehold<out T>>): Double {
+    fun verify(output: Collection<ISurveyHousehold<out T>>): Double {
         return target.toDouble() - output.sumOf { evaluate(it) }
     }
 
@@ -93,7 +94,7 @@ fun interface CountRule<T> {
      * @param surveyHousehold The household to evaluate.
      * @return An integer representing the contribution.
      */
-    fun matches(surveyHousehold: SurveyHousehold<out T>): Int
+    fun matches(surveyHousehold: ISurveyHousehold<out T>): Int
 }
 
 /**
@@ -107,8 +108,8 @@ fun interface CheckRule<T> : CountRule<T> {
      * @param surveyHousehold The household to evaluate.
      * @return `true` if the condition is met; `false` otherwise.
      */
-    fun fits(surveyHousehold: SurveyHousehold<out T>): Boolean
-    override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
+    fun fits(surveyHousehold: ISurveyHousehold<out T>): Boolean
+    override fun matches(surveyHousehold: ISurveyHousehold<out T>): Int {
         return if (fits(surveyHousehold)) 1 else 0
     }
 }
@@ -120,7 +121,7 @@ class NamedCheckRule<T> private constructor(ruleDescription: String, override va
     ),
     CheckRule<T> by logic {
     constructor(desc: RuleDescription, logic: CheckRule<T>) : this(desc.logicDescription, logic)
-        override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
+        override fun matches(surveyHousehold: ISurveyHousehold<out T>): Int {
         return super<NamedCountRule>.matches(surveyHousehold)
     }
 
@@ -257,7 +258,7 @@ class ZoneRule<T>(
         target,
         NamedCountRule(UNKNOWN_LOGIC, logic)
     )
-    override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
+    override fun evaluate(surveyHousehold: ISurveyHousehold<out T>): Int {
         return logic.matches(surveyHousehold)
     }
 
@@ -295,7 +296,7 @@ class ZoneCheckRule<T>(
         target,
         logic
     )
-    override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
+    override fun evaluate(surveyHousehold: ISurveyHousehold<out T>): Int {
         return logic.matches(surveyHousehold)
     }
 

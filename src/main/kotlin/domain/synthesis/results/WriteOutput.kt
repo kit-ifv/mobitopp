@@ -263,7 +263,7 @@ object PersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
     )
 
     override fun convert(element: SynthesisPerson<out RawSurveyInfo>): String {
-        element.info
+        element.information
         return element.run {
             toCSV(
                 personId,
@@ -273,11 +273,11 @@ object PersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
                 employment,
                 sex,
 //                this.info.graduation TODO this is not in
-                this.info.householdIncome,
-                this.info.hasBicycle,
+                this.information.householdIncome,
+                this.information.hasBicycle,
 //                "TODO hasAccessToCar",
                 hasTransitPass,
-                this.info.hasLicence,
+                this.information.hasLicence,
 //                "TODO preferencesSurvey",
 //                "TODO preferencesSimulation",
 //                "TODO emobilityAcceptance",

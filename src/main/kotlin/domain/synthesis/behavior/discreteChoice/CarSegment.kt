@@ -36,7 +36,7 @@ data class CarSegmentChoice(
         person: SynthesisPerson<out CommuteDistance>,
         household: SynthesisHousehold<out CommuteDistance>
     ) : this(
-        person.info.distanceWork,
+        person.information.distanceWork,
         household.size,
         household.income,
         household.amountOfCars,
@@ -50,7 +50,7 @@ fun CarSegment.toAlternative(
     household: SynthesisHousehold<out CommuteDistance>
 ): CarSegmentChoice {
     return CarSegmentChoice(
-        person.info.distanceWork,
+        person.information.distanceWork,
         household.size,
         household.income,
         household.amountOfCars,
