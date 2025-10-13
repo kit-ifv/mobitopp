@@ -20,7 +20,12 @@ import application.steps.parser.csv.preparePersons
 import application.steps.parser.csv.preparePrivateCars
 import application.steps.parser.loadImpedance
 import application.steps.parser.loadVisumNetwork
+import application.steps.results.addPlot
 import core.modelsteps.Simulation
+import core.results.plots.asLinePlot
+import core.results.plots.data.Ordering
+import core.results.plots.forData
+import core.results.plots.modeStringColor
 import domain.shared.config.Yaml
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.MainModes
@@ -32,6 +37,7 @@ import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
 import domain.simulation.config.ShortTermConfig
 import domain.simulation.events.personStateMachine
+import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.parser.NoActivityStartShifter
@@ -40,7 +46,9 @@ import edu.kit.ifv.units.share
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
+import kotlin.time.Duration.Companion.minutes
 
+@Suppress("LongMethod")
 fun main(args: Array<String>) {
     val shortTermConfig: ShortTermConfig =
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: error("No config argument handed.")
@@ -107,5 +115,22 @@ fun main(args: Array<String>) {
         buildAgents(personStateMachine, GaussianActivityDurationRandomizer())
 
         simulate()
+
+        addPlot {
+            forData {
+                personLegs
+            }.groupBy {
+                it.leg.transportType
+            }.count {
+                it.leg.startTime.roundToMultipleOf(5.minutes)
+            }.sortX {
+                Ordering.Ascending()
+            }.asLinePlot {
+                name = "timeline by mode"
+                xAxisLabel = "time"
+                yAxisLabel = "trip count"
+                coloring = { modeStringColor(it.description) }
+            }
+        }
     }
 }
