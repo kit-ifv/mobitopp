@@ -13,30 +13,32 @@ import domain.synthesis.data.PrivateCar
 import domain.synthesis.data.buildEngine
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
-import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
 class BinaryCarReader(
-    val householdConverter: (HouseholdId) -> MutableHousehold,
-    val personConverter: (PersonId) -> Person,
+    val householdConverter: (HouseholdId) -> MutableHousehold?,
+    val personConverter: (PersonId) -> Person?,
     private val carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
 //    private val determineLocation: DataInputStream.(MutablePrivateCar) -> Location TODO clean up
 ) : BinaryReader<MutablePrivateCar> {
 
-    override fun DataInputStream.decode(stringLength: Int): MutablePrivateCar {
-        return MutablePrivateCar(
-            CarId(readLong()),
-            householdConverter(HouseholdId(readLong()))
-        ).apply {
-            seats = readInt()
+    override fun ByteBuffer.decode(stringLength: Int): MutablePrivateCar? {
+        val id = CarId(long)
+        val household = householdConverter(HouseholdId(long))
+        val seats = int
+        val personId = PersonId(long)
+        val segment = CarSegment.decode(int)
+        val engineTyoe = EngineType.decode(int)
 
-            val personId = PersonId(readLong())
-            mainUser = if (personId != PersonId(Long.MIN_VALUE)) personConverter(personId) else null
-            segment = CarSegment.decode(readInt())
-            val engineType = EngineType.decode(readInt())
-            engine = carEngineStatistics.buildEngine(segment, engineType)
-//            location = determineLocation(this)
+        return household?.let {
+            MutablePrivateCar(id, it).apply {
+                this.seats = seats
+                this.mainUser = if (personId != PersonId(Long.MIN_VALUE)) personConverter(personId) else null
+                this.segment = segment
+                this.engine = carEngineStatistics.buildEngine(segment, engineTyoe)
+            }
         }
     }
 }

@@ -54,27 +54,37 @@ fun <T> T.toBins(
     val bins = generateSequence(min) { prev ->
         (prev + binSize).takeIf { it < threshold }
     }.map {
-        Bin(lower = it, upper = (it + binSize).coerceAtMost(max))
+        BaseBin(lower = it, upper = (it + binSize).coerceAtMost(max))
     }.toSet()
 
     return this.toDouble().mapToBins(bins)
 }
 
-open class Bin<T>(val lower: T, val upper: T) : Comparable<Bin<T>> where T : Comparable<T> {
+interface Bin<T> : Comparable<Bin<T>> where T : Comparable<T> {
+    val lower: T
+    val upper: T
 
-    init {
-        require(lower <= upper) { "The bins upper bound must not be lower than its lower bound: $lower <= $upper" }
-    }
+    operator fun contains(value: T): Boolean
 
-    fun contains(value: T): Boolean = lower <= value && value < upper
-
-    fun toPair() = lower to upper
+    fun toPair(): Pair<T, T> = lower to upper
 
     override fun compareTo(other: Bin<T>) = Comparator.comparing { b: Bin<T> ->
         b.lower
     }.thenComparing { b: Bin<T> ->
         b.upper
     }.compare(this, other)
+}
+
+class BaseBin<T>(
+    override val lower: T,
+    override val upper: T
+) : Bin<T> where T : Comparable<T> {
+
+    init {
+        require(lower <= upper) { "The bins upper bound must not be lower than its lower bound: $lower <= $upper" }
+    }
+
+    override fun contains(value: T): Boolean = lower <= value && value < upper
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -95,21 +105,45 @@ open class Bin<T>(val lower: T, val upper: T) : Comparable<Bin<T>> where T : Com
     override fun toString() = "[$lower, $upper)"
 }
 
-class LabeledBin<T>(
-    lower: T,
-    upper: T,
-    private val toLabel: (T, T) -> String,
-) : Bin<T>(lower, upper) where T : Comparable<T> {
+class OpenBin<T>(override val lower: T) : Bin<T> where T : Comparable<T> {
+    override val upper: T
+        get() = lower
 
-    override fun toString(): String = toLabel(lower, upper)
+    override fun contains(value: T): Boolean = value >= lower
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Bin<*>
+
+        if (lower != other.lower) return false
+        return upper == other.upper
+    }
+
+    override fun hashCode(): Int {
+        var result = lower.hashCode()
+        result = 31 * result + upper.hashCode()
+        return result
+    }
+
+    override fun toString() = "$lower+"
 }
 
-fun <B, T> B.addLabel(toLabel: (T, T) -> String) where B : Bin<T>, T : Comparable<T> =
-    LabeledBin(lower, upper, toLabel)
+fun <C, T> C.asBins(appendOpenBin: Boolean = false) where C : Collection<Pair<T, T>>, T : Comparable<T> = map {
+    BaseBin(it.first, it.second)
+}.distinct().sorted().let {
+    if (appendOpenBin) {
+        it + listOf(OpenBin(it.last().upper))
+    } else {
+        it
+    }
+}
 
-fun <C, T> C.asBins() where C : Collection<Pair<T, T>>, T : Comparable<T> = map {
-    Bin(it.first, it.second)
-}.distinct().sorted()
+fun <S, T> List<Bin<S>>.mapBounds(transform: (S) -> T): List<Bin<T>> where T : Comparable<T>, S : Comparable<S> =
+    map {
+        BaseBin(transform(it.lower), transform(it.upper))
+    }
 
 /**
  * Map to bins

@@ -145,19 +145,22 @@ interface SameValidationBehavior : ModelStep {
     }
 }
 
+interface AddResourceStep<E, I> : MutatingStep<E, I> where E : Identifiable<I> {
+    val resource: Resource<E>
+    override fun execute() {
+        repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements)
+    }
+}
+
 /**
  * Add a [Resource] of elements to the given [MutableRepository].
  *
  * @param E the generic type of entities to be added
  * @param I the generic entity id type
  */
-abstract class AddResourceStep<E, I> : MutatingStep<E, I> where E : Identifiable<I> {
+abstract class AbstractAddResourceStep<E, I> : AddResourceStep<E, I>where E : Identifiable<I> {
 
-    protected abstract val resource: Resource<E>
-
-    override fun execute() {
-        repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements)
-    }
+    abstract override val resource: Resource<E>
 
     override fun mockBehavior(): Warning? = validateScope("Mock elements of ${resource.name}") {
         repository.addElements("$name (mocked resource ${resource.name})", mockElementsForValidation())
@@ -172,7 +175,7 @@ abstract class AddResourceStep<E, I> : MutatingStep<E, I> where E : Identifiable
  * @param E the generic type of entities to be built
  * @param I the generic id type of entities
  */
-abstract class AddCsvStep<E, I> : AddResourceStep<E, I>() where E : Identifiable<I> {
+abstract class AddCsvStep<E, I> : AbstractAddResourceStep<E, I>() where E : Identifiable<I> {
 
     abstract override val resource: CsvResource<E>
 

@@ -36,11 +36,11 @@ import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
 import domain.synthesis.data.buildEngine
-import units.Distance
-import units.GPSCoordinate
-import units.euros
-import units.meters
-import units.share
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.meters
+import edu.kit.ifv.units.share
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import kotlin.random.Random

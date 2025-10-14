@@ -8,7 +8,7 @@ import utils.units.AbsoluteTime
 import kotlin.time.Duration
 
 /**
- * An Action is the central aspect of mobility behaviour in this simulation context. In its simplest form an action
+ * An Action is the central aspect of mobility behaviour in this simulation mobitopp. In its simplest form an action
  * consists of a [startLocation] and a [startTime], as well as an [endLocation] and an [endTime]. In this modelling
  * approach, an action is an atomic operation - There are no smaller representations of sub-actions. It is your duty
  * when modelling future problems to break your domain down to this level.
@@ -159,7 +159,7 @@ interface Activity : StationaryAction {
     companion object {
         /**
          * Generates an Activity with the provided [location], [startTime], and [duration].
-         * The [duration] parameter may be more intuitive in the context of activities rather than the end time.
+         * The [duration] parameter may be more intuitive in the mobitopp of activities rather than the end time.
          * The end time is calculated in accordance.
          *
          * @param location The location of the activity.
@@ -278,7 +278,7 @@ interface Leg : MovingAction {
     companion object {
         /**
          * Generates a leg with the provided [startLocation], [startTime], [endLocation] and [duration].
-         * The [duration] parameter may be more intuitive in the context of activities rather than the end time.
+         * The [duration] parameter may be more intuitive in the mobitopp of activities rather than the end time.
          * The end time is calculated in accordance.
          *
          * @param startLocation The start location of the leg.
@@ -305,7 +305,7 @@ interface Leg : MovingAction {
 
         /**
          * Generates a leg with the provided [startLocation], [startTime], [endLocation] and [endTime].
-         * The [endTime] parameter may be more intuitive in the context of activities rather than the end time.
+         * The [endTime] parameter may be more intuitive in the mobitopp of activities rather than the end time.
          * The end time is calculated in accordance.
          *
          * @param startLocation The start location of the leg.

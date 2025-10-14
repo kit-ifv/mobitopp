@@ -167,6 +167,14 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
             return if (first <= second) first else second
         }
     }
+
+    fun truncateMinutes() = AbsoluteTime(minutesSinceStart.minutes)
+    fun truncateHours() = AbsoluteTime(hoursSinceStart.hours)
+
+    fun roundToMultipleOf(duration: Duration) =
+        AbsoluteTime(
+            duration * (secondsSinceStart.div(duration.inWholeSeconds)).toInt()
+        )
 }
 
 /** Returns a [Duration] equal to this [Int] number of weeks. */

@@ -1,6 +1,6 @@
 package utils.units
 
-import units.Currency
+import edu.kit.ifv.units.Currency
 import kotlin.time.Duration
 
 fun max(first: Duration, second: Duration): Duration {

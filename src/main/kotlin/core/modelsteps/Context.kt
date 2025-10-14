@@ -1,7 +1,7 @@
 package core.modelsteps
 
-import units.CurrencyUnit
-import units.DistanceUnit
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.DistanceUnit
 import utils.units.AbsoluteTime
 import java.nio.file.Path
 import kotlin.time.Duration
@@ -19,6 +19,8 @@ interface Context {
     val scenarioName: String
     val dataFolder: Path
     val simulationSeed: Long
+
+    val resultDir: Path
 
     val simulationStart: AbsoluteTime
     val simulationEnd: AbsoluteTime

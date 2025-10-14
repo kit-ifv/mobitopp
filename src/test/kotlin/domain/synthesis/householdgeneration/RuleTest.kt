@@ -8,12 +8,12 @@ import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
 import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.euros
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import units.Currency
-import units.euros
 import kotlin.test.assertContentEquals
 
 class RuleTest : SynthesisTest() {
