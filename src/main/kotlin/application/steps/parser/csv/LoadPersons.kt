@@ -110,9 +110,10 @@ fun LoadPersonsContext.personsFromCsvStep(
         val drtProvidersByName: () -> Map<String, DrtProvider> = {
             drtProviderRepository.elements.associateBy { it.name.lowercase() }
         }
-        val csvParser = personCsvParser(errorHandling, columns, incomeUnit, sharingProvidersByName, drtProvidersByName) {
-            getHousehold(it)
-        }
+        val csvParser =
+            personCsvParser(errorHandling, columns, incomeUnit, sharingProvidersByName, drtProvidersByName) {
+                getHousehold(it)
+            }
 
         val internalFilter = { row: Row -> columns.filter(row, this@personsFromCsvStep) }
         val step = LoadCsvStep<MutablePerson, PersonId>(

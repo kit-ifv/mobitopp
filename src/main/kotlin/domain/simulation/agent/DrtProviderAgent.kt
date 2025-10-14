@@ -10,7 +10,7 @@ import domain.shared.location.Metrics
 import domain.shared.location.Zone
 import domain.simulation.events.PersonBehavior
 import domain.synthesis.data.DrtProvider
-import units.Currency
+import edu.kit.ifv.units.Currency
 import utils.units.AbsoluteTime
 import utils.units.Time
 import kotlin.time.Duration
