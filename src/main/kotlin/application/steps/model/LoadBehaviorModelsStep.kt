@@ -25,6 +25,7 @@ import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.DrtAvailabilitySelector
 import domain.simulation.behavior.ModeAvailabilityModel
+import domain.simulation.behavior.ModeAvailabilityFilter
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import domain.simulation.behavior.ProviderAvailability
 import domain.simulation.behavior.available
@@ -46,28 +47,42 @@ fun LoadBehaviorModelsContext.loadBehaviorModels(
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     modes: ChoiceModelModes,
 ) = this.loadBehaviorModels(
-    destinationChoiceModel,
-    modeChoiceModel,
-    modes,
-    StandardDestinationImplementation,
-    StandardModeImplementation
-)
-
-fun LoadBehaviorModelsContext.loadBehaviorModels(
-    destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
-    modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
-    modes: ChoiceModelModes,
-    spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
-    spawnModeChoiceCharacteristics: NewModeCharacteristics,
-) = runStep {
-    LoadBehaviorModelsStep(
-        this,
+    LoadBehaviorModelConfig(
         destinationChoiceModel,
         modeChoiceModel,
         modes,
-        spawnDestinationChoiceCharacteristics,
-        spawnModeChoiceCharacteristics
+        StandardDestinationImplementation,
+        StandardModeImplementation
     )
+)
+
+data class LoadBehaviorModelConfig(
+    val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+    val modes: ChoiceModelModes,
+    val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics = StandardDestinationImplementation,
+    val spawnModeChoiceCharacteristics: NewModeCharacteristics = StandardModeImplementation,
+)
+
+fun LoadBehaviorModelsContext.loadBehaviorModels(
+    config: LoadBehaviorModelConfig,
+) = runStep {
+    loadBehaviorModelsStep(config)
+}
+
+fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
+    config: LoadBehaviorModelConfig,
+): LoadBehaviorModelsStep {
+    return config.run {
+        LoadBehaviorModelsStep(
+            this@loadBehaviorModelsStep,
+            destinationChoiceModel,
+            modeChoiceModel,
+            modes,
+            spawnDestinationChoiceCharacteristics,
+            spawnModeChoiceCharacteristics
+        )
+    }
 }
 
 interface LoadBehaviorModelsContext : DemandSimContext {
@@ -79,10 +94,11 @@ interface LoadBehaviorModelsContext : DemandSimContext {
 
 typealias NewDestinationCharacteristics = GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>
 typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharacteristics>
-class LoadBehaviorModelsStep(
+
+open class LoadBehaviorModelsStep(
     private val context: LoadBehaviorModelsContext,
     private val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
-    private val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+    protected open val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     private val modes: ChoiceModelModes,
     private val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
     private val spawnModeChoiceCharacteristics: NewModeCharacteristics,

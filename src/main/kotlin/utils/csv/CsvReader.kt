@@ -111,8 +111,9 @@ open class DefaultRow(
         values[columnIndex]
     } catch (i: IndexOutOfBoundsException) { // Why is IndexOutOfBoundsException too generic?
         val columnName = column ?: columnIndex.toString()
-        val message = "The given column's index is out of range in row ${this.index} of $source. " +
-            "Column: $columnName, index: $columnIndex, values: $values."
+        val message = "The given column's index is out of range in row ${this.index} of $source.\n" +
+            "Column: $columnName, index: $columnIndex, values: $values.\n" +
+            "Columns and index: $columnIndexMap"
         throw IllegalArgumentException(message, i)
     }
 

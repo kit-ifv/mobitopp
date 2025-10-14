@@ -1,6 +1,6 @@
 package utils.units
-import units.DistanceUnit
-import units.toDistance
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.toDistance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

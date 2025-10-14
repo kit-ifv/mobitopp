@@ -8,9 +8,10 @@ import domain.synthesis.data.Graduation
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
 import domain.synthesis.data.SharingProvider
-import units.CurrencyUnit
+import edu.kit.ifv.units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -19,8 +20,8 @@ import utils.csv.boolean
 import utils.csv.currency
 import utils.csv.decode
 import utils.csv.decodeName
-import utils.csv.id
 import utils.csv.int
+import utils.csv.long
 import utils.csv.unitShare
 
 @Suppress("LongParameterList")
@@ -35,8 +36,8 @@ fun PersonCsvContext.personCsvParser(
     val csvParser = CsvParser.Companion<MutablePerson>(errorHandling) { row ->
 
         MutablePerson(
-            id = row.id(columns.idColumn),
-            household = householdProvider(row.id(columns.householdColumn)),
+            id = PersonId(row.long(columns.idColumn)),
+            household = householdProvider(HouseholdId(row.long(columns.householdColumn))),
             simulationSeed,
         ) {
             age = row.int(columns.ageColumn)

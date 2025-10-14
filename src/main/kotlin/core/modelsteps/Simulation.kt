@@ -4,11 +4,11 @@ import utils.units.logTime
 
 /**
  * Simulation allows to specify a simulation configuration in readable kotlin dsl.
- * Users can define a context object and model steps.
+ * Users can define a mobitopp object and model steps.
  * When executed, all specified [ModelStep]s are validated first.
  *
- * @param C the generic context type
- * @property contextFactory a factory to create new context objects
+ * @param C the generic mobitopp type
+ * @property contextFactory a factory to create new mobitopp objects
  */
 class Simulation<C>(private val contextFactory: () -> C) where C : Context {
 

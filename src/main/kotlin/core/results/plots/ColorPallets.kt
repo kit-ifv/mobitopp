@@ -2,10 +2,10 @@
 
 package core.results.plots
 
+import edu.kit.ifv.units.UnitIntervalValue
+import edu.kit.ifv.units.share
 import org.jetbrains.kotlinx.kandy.util.color.Color
 import org.jetbrains.kotlinx.kandy.util.color.StandardColor
-import units.UnitIntervalValue
-import units.share
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -57,7 +57,7 @@ fun randomColor() = RandomRGBProvider.next()
 fun boolColor(value: Boolean) = if (value) KIT_GREEN else KIT_BLUE
 
 @Suppress("CyclomaticComplexMethod")
-fun modeStringColor(modeString: String): RGB = when (modeString) {
+fun modeStringColor(modeString: String): RGB = when (modeString.lowercase()) {
     "bike" -> kitBlueShades[0]
     "e_scooter", "e scooter" -> kitBlueShades[1]
     "pedelec" -> kitBlueShades[2]
@@ -260,5 +260,19 @@ fun RGB.lighterShades(n: Int): List<RGB> {
         lightness + it * step
     }.map {
         this.withLightness(it.coerceIn(0.0, 1.0).share())
+    }.toList()
+}
+
+fun Color.hueScale(n: Int, range: Double = CIRCLE_DEGREES.toDouble()): List<Color> =
+    toRgb().hueScale(n, range).map { it.toColor() }
+
+fun RGB.hueScale(n: Int, range: Double = CIRCLE_DEGREES.toDouble()): List<RGB> {
+    val hue = this.toHsl().h
+    val step = range / n
+
+    return (0..n).map {
+        (hue + it * step) % CIRCLE_DEGREES
+    }.map {
+        this.withHue(it.coerceIn(0.0, CIRCLE_DEGREES.toDouble()))
     }.toList()
 }

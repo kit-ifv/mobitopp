@@ -1,139 +1,181 @@
 package core.results.plots
 
-import core.modelsteps.Context
-import core.modelsteps.ModelStep
-import core.modelsteps.Warning
-import core.modelsteps.validateScope
-import units.UnitIntervalValue
+import core.modelsteps.Resource
+import core.results.plots.data.AggregateValuesPlotData
+import core.results.plots.data.Aggregation
+import core.results.plots.data.AllValuesPlotData
+import core.results.plots.data.Count
+import core.results.plots.data.FillMissingXValues
+import core.results.plots.data.LowerMedianBy
+import core.results.plots.data.LowerQuantileBy
+import core.results.plots.data.MaxBy
+import core.results.plots.data.Mean
+import core.results.plots.data.MinBy
+import core.results.plots.data.NormalizeByGroup
+import core.results.plots.data.NormalizeByX
+import core.results.plots.data.Ordering
+import core.results.plots.data.PlotData
+import core.results.plots.data.PlotDataSource
+import core.results.plots.data.PlotDataSpecs
+import core.results.plots.data.SortGroups
+import core.results.plots.data.SortPoints
+import core.results.plots.data.Sum
+import core.results.plots.data.SummarizeBy
+import core.results.plots.data.Summary
+import core.results.plots.data.TransformedPlotData
+import core.results.plots.render.BoxPlotLayoutBuilder
+import core.results.plots.render.BoxPlotRenderer
+import core.results.plots.render.HistogramLayoutBuilder
+import core.results.plots.render.HistogramRenderer
+import core.results.plots.render.LinePlotLayoutBuilder
+import core.results.plots.render.LinePlotRenderer
+import core.results.plots.render.ScatterLayoutBuilder
+import core.results.plots.render.ScatterPlotRenderer
+import edu.kit.ifv.units.UnitIntervalValue
 
-data class PlotterBuilder<E, G, X, A, Y, C>(
-    val style: PlotStyling<G, X, C>,
-    val values: PlotDataSpecification<E, G, X, A, Y, C>
-)
+/**
+ * Entry point to build plot data from a lazy supplier of entities.
+ * Write
+ * ```kotlin
+ * forData {
+ *     elements
+ * }.groupBy { //optional
+ *      myGrouping
+ * }...
+ * ```
+ * to start a new plot definition.
+ */
+fun <E> forData(entities: () -> List<E>) = PlotDataBuilderWithEntities(entities)
 
-fun Context.addPlot(setup: () -> Plotter<*, *, *, *, *, *>) = runStep {
-    object : ModelStep {
+/**
+ * Entry point to build plot data from a Resource wrapper.
+ */
+fun <E> forData(resource: Resource<E>) = PlotDataBuilderWithEntities { resource.elements.toList() }
 
-        private val plotter = setup()
-        override val name = "Add Plot ${plotter.name}"
+/**
+ * Entry point to build plot data from an Iterable.
+ */
+fun <E> forData(iterable: Iterable<E>) = PlotDataBuilderWithEntities { iterable.toList() }
 
-        override fun execute() {
-            plotter.plot()
-        }
+/**
+ * Convenience grouping function for plots without a grouping attribute, uses Unit instead.
+ */
+fun <E> noGrouping(): (E) -> Unit = { _ -> }
 
-        override fun verifyInput(): Warning? = validateScope { }
+/**
+ * Stage 1 of the builder: entities are known, grouping not yet specified (defaults to no grouping).
+ */
+data class PlotDataBuilderWithEntities<E>(
+    override val entities: () -> List<E>
+) : PlotDataGroupingProvider<E, Unit> {
 
-        override fun mockBehavior(): Warning? = validateScope { }
-    }
+    override val groupBy: (E) -> Unit
+        get() = noGrouping()
+
+    /**
+     * Specify the grouping function. Each distinct value defines a series ([core.results.plots.data.Trace]).
+     */
+    fun <G> groupBy(groupBy: (E) -> G) = PlotDataBuilderWithGrouping(entities, groupBy)
 }
 
-fun <E> forData(entities: () -> List<E>) = PlotterBuilderWithEntities(entities)
+/**
+ * Stage 2 of the builder: entities plus grouping function are known.
+ */
+data class PlotDataBuilderWithGrouping<E, G>(
+    override val entities: () -> List<E>,
+    override val groupBy: (E) -> G,
+) : PlotDataGroupingProvider<E, G>
 
+/**
+ * Provides operations to configure which values are plotted and how they are aggregated.
+ */
 @Suppress("TooManyFunctions")
-data class PlotterBuilderWithEntities<E>(
-    val entities: () -> List<E>,
-) {
+interface PlotDataGroupingProvider<E, G> {
+    val entities: () -> List<E>
+    val groupBy: (E) -> G
 
-    private fun <E> noGrouping(): (E) -> Unit = { _ -> }
+    /**
+     * Plot all raw Y values against X for each group.
+     */
+    fun <Y> plot(yAttribute: (E) -> Y) = PlotDataBuilderAllValuesWithY(
+        entities,
+        groupBy,
+        yAttribute,
+    )
 
-    fun <G> groupBy(groupBy: (E) -> G) = PlotterBuilderWithGrouping(entities, groupBy)
+    /** Plot the minimum Y per X for each group. */
+    fun <Y : Comparable<Y>> plotMinOf(yAttribute: (E) -> Y) = PlotDataBuilderAggregateWithY(
+        entities,
+        groupBy,
+        yAttribute,
+        MinBy(sortBy = { it })
+    )
 
-    fun <Y> plot(yAttribute: (E) -> Y) = this.groupBy(noGrouping()).plot(yAttribute)
+    /** Plot the maximum Y per X for each group. */
+    fun <Y : Comparable<Y>> plotMaxOf(yAttribute: (E) -> Y) = PlotDataBuilderAggregateWithY(
+        entities,
+        groupBy,
+        yAttribute,
+        MaxBy(sortBy = { it })
+    )
 
-    fun <Y : Comparable<Y>> plotMinOf(yAttribute: (E) -> Y) = this.groupBy(noGrouping()).plotMinOf(yAttribute)
+    /** Plot the lower median (50th percentile) Y per X for each group. */
+    fun <Y : Comparable<Y>> plotMedianOf(yAttribute: (E) -> Y) = PlotDataBuilderAggregateWithY(
+        entities,
+        groupBy,
+        yAttribute,
+        LowerMedianBy(sortBy = { it })
+    )
 
-    fun <Y : Comparable<Y>> plotMaxOf(yAttribute: (E) -> Y) = this.groupBy(noGrouping()).plotMaxOf(yAttribute)
-
-    fun <Y : Comparable<Y>> plotMedianOf(yAttribute: (E) -> Y) = this.groupBy(noGrouping()).plotMedianOf(yAttribute)
-
+    /** Plot an arbitrary lower quantile of Y per X for each group. */
     fun <Y : Comparable<Y>> plotQuantileOf(yAttribute: (E) -> Y, quantile: UnitIntervalValue) =
-        this.groupBy(noGrouping()).plotQuantileOf(yAttribute, quantile)
-
-    fun <Y : Number> plotSumOf(yAttribute: (E) -> Y) = this.groupBy(noGrouping()).plotSumOf(yAttribute)
-
-    fun <Y : Number> plotMeanOf(yAttribute: (E) -> Y) = this.groupBy(noGrouping()).plotSumOf(yAttribute)
-
-    fun <Y : Comparable<Y>> summarize(yAttribute: (E) -> Y) = this.groupBy(noGrouping()).summarize(yAttribute)
-
-    fun <X> count(xAttribute: (E) -> X) = this.groupBy(noGrouping()).count(xAttribute)
-
-    fun <A, Y> aggregateBy(yAttribute: (E) -> A, aggregation: Aggregation<A, Y>) =
-        this.groupBy(noGrouping()).aggregateBy(yAttribute, aggregation)
-}
-
-data class PlotterBuilderWithGrouping<E, G>(
-    val entities: () -> List<E>,
-    val groupBy: (E) -> G,
-) {
-
-    fun <Y> plot(yAttribute: (E) -> Y) = PlotterBuilderWithYAxis(
-        entities,
-        groupBy,
-        yAttribute,
-        Aggregation.AllValues()
-    )
-
-    fun <Y : Comparable<Y>> plotMinOf(yAttribute: (E) -> Y) = PlotterBuilderWithYAxis(
-        entities,
-        groupBy,
-        yAttribute,
-        Aggregation.MinBy(sortBy = { it })
-    )
-
-    fun <Y : Comparable<Y>> plotMaxOf(yAttribute: (E) -> Y) = PlotterBuilderWithYAxis(
-        entities,
-        groupBy,
-        yAttribute,
-        Aggregation.MaxBy(sortBy = { it })
-    )
-
-    fun <Y : Comparable<Y>> plotMedianOf(yAttribute: (E) -> Y) = PlotterBuilderWithYAxis(
-        entities,
-        groupBy,
-        yAttribute,
-        Aggregation.LowerMedianBy(sortBy = { it })
-    )
-
-    fun <Y : Comparable<Y>> plotQuantileOf(yAttribute: (E) -> Y, quantile: UnitIntervalValue) =
-        PlotterBuilderWithYAxis(
+        PlotDataBuilderAggregateWithY(
             entities,
             groupBy,
             yAttribute,
-            Aggregation.LowerQuantileBy(quantile = quantile, sortBy = { it })
+            LowerQuantileBy(quantile = quantile, sortBy = { it })
         )
 
-    fun <Y : Number> plotSumOf(yAttribute: (E) -> Y) = PlotterBuilderWithYAxis(
+    /** Plot the sum of Y per X for each group. */
+    fun <Y : Number> plotSumOf(yAttribute: (E) -> Y) = PlotDataBuilderAggregateWithY(
         entities,
         groupBy,
         yAttribute,
-        Aggregation.Sum
+        Sum
     )
 
-    fun <Y : Number> plotMeanOf(yAttribute: (E) -> Y) = PlotterBuilderWithYAxis(
+    /** Plot the mean of Y per X for each group. */
+    fun <Y : Number> plotMeanOf(yAttribute: (E) -> Y) = PlotDataBuilderAggregateWithY(
         entities,
         groupBy,
         yAttribute,
-        Aggregation.Mean
+        Mean
     )
 
-    fun <Y : Comparable<Y>> summarize(yAttribute: (E) -> Y) = PlotterBuilderWithYAxis(
+    /** Summarize Y per X for each group into box-plot friendly statistics. */
+    fun <Y : Comparable<Y>> summarize(yAttribute: (E) -> Y) = PlotDataBuilderAggregateWithY(
         entities,
         groupBy,
         yAttribute,
-        Aggregation.SummarizeBy(sortBy = { it })
+        SummarizeBy(sortBy = { it })
     )
 
     private fun <E> noYAtt(): (E) -> Unit = { _ -> }
 
-    fun <X> count(xAttribute: (E) -> X) = PlotterBuilderWithXAxis(
-        entities,
-        groupBy,
-        noYAtt(),
-        Aggregation.Count,
-        xAttribute
-    )
+    /** Count elements by X for each group. */
+    fun <X> count(xAttribute: (E) -> X) =
+        PlotDataTransformationBuilder(
+            PlotDataSource(
+                elements = entities,
+                factory = AggregateValuesPlotData(
+                    specs = PlotDataSpecs(xAttribute, noYAtt(), groupBy),
+                    aggregation = Count,
+                )
+            )
+        )
 
-    fun <A, Y> aggregateBy(yAttribute: (E) -> A, aggregation: Aggregation<A, Y>) = PlotterBuilderWithYAxis(
+    /** Custom aggregation of a computed attribute yAttribute with the provided aggregation. */
+    fun <A, Y> aggregateBy(yAttribute: (E) -> A, aggregation: Aggregation<A, Y>) = PlotDataBuilderAggregateWithY(
         entities,
         groupBy,
         yAttribute,
@@ -141,98 +183,184 @@ data class PlotterBuilderWithGrouping<E, G>(
     )
 }
 
-data class PlotterBuilderWithYAxis<E, G, A, Y>(
+/**
+ * Stage 3 of the builder: all values of yAttribute will be kept for plotting.
+ */
+data class PlotDataBuilderAllValuesWithY<E, G, Y>(
     val entities: () -> List<E>,
     val groupBy: (E) -> G,
-    val yAttribute: (E) -> A,
-    val aggregation: Aggregation<A, Y>,
+    val yAttribute: (E) -> Y,
 ) {
-
-    fun <X> over(xAttribute: (E) -> X) = PlotterBuilderWithXAxis(
-        entities,
-        groupBy,
-        yAttribute,
-        aggregation,
-        xAttribute
+    /** Choose the X attribute used to group points along the x-axis. */
+    fun <X> over(xAttribute: (E) -> X) = PlotDataTransformationBuilder(
+        PlotDataSource(
+            elements = entities,
+            factory = AllValuesPlotData(
+                specs = PlotDataSpecs(xAttribute, yAttribute, groupBy),
+            )
+        )
     )
 }
 
-data class PlotterBuilderWithXAxis<E, G, X, A, Y>(
+/**
+ * Stage 3 of the builder: yAttribute will be aggregated with the given aggregation.
+ */
+data class PlotDataBuilderAggregateWithY<E, G, Y, V>(
     val entities: () -> List<E>,
     val groupBy: (E) -> G,
-    val yAttribute: (E) -> A,
-    val aggregation: Aggregation<A, Y>,
-    val xAttribute: (E) -> X,
+    val yAttribute: (E) -> Y,
+    val aggregation: Aggregation<Y, V>
 ) {
 
-    fun <C> colorBy(colorAttribute: (E?, G, X, Y) -> C) = PlotterBuilderWithColor(
-        PlotDataSpecification(
-            entities,
-            xAttribute,
-            yAttribute,
-            aggregation,
-            groupBy,
-            colorAttribute
+    /** Choose the X attribute used to group points along the x-axis. */
+    fun <X> over(xAttribute: (E) -> X) =
+        PlotDataTransformationBuilder(
+            PlotDataSource(
+                elements = entities,
+                factory = AggregateValuesPlotData(
+                    specs = PlotDataSpecs(xAttribute, yAttribute, groupBy),
+                    aggregation = aggregation,
+                )
+            )
+        )
+}
+
+/** Marker interface for builder stages that can be converted to a PlotterBuilder. */
+interface ReadyForRender<G, X, Y> {
+    /** Finalize the data stage into a PlotterBuilder. */
+    fun asPlotterBuilder(): PlotterBuilder<G, X, Y>
+}
+
+/**
+ * Stage that holds a PlotData and allows chaining transformations before rendering.
+ */
+data class PlotDataTransformationBuilder<G, X, Y>(
+    val plotData: PlotData<G, X, Y>
+) : ReadyForRender<G, X, Y> {
+
+    /** Fill missing x-values for all groups with a default provided by a lambda. */
+    fun fillMissingXValues(defaultScope: () -> Y) = fillMissingXValues(defaultScope())
+
+    /** Fill missing x-values for all groups with a constant default value. */
+    fun fillMissingXValues(defaultValue: Y) = PlotDataTransformationBuilder(
+        TransformedPlotData(
+            original = plotData,
+            transformer = FillMissingXValues(defaultValue)
         )
     )
 
-    fun colorByEntity() = colorBy { e, _, _, _ -> e }
+    /** Provide ordering for groups/series. */
+    fun sortGroups(sortScope: () -> Ordering<G>) = sortGroups(sortScope())
 
-    fun colorByGroup() = colorBy { _, g, _, _ -> g }
+    /** Provide ordering for groups/series. */
+    fun sortGroups(sortBy: Ordering<G>) = PlotDataTransformationBuilder(
+        TransformedPlotData(
+            original = plotData,
+            transformer = SortGroups(sortBy)
+        )
+    )
 
-    fun colorByX() = colorBy { _, _, x, _ -> x }
+    /** Provide ordering for x-values within each series. */
+    fun sortX(sortScope: () -> Ordering<X>) = sortX(sortScope())
 
-    fun colorByY() = colorBy { _, _, _, y -> y }
-}
+    /** Provide ordering for x-values within each series. */
+    fun sortX(sortBy: Ordering<X>) = PlotDataTransformationBuilder(
+        TransformedPlotData(
+            original = plotData,
+            transformer = SortPoints(sortBy)
+        )
+    )
 
-private fun <E, G, X, Y> noColoring(): (E?, G, X, Y) -> Unit = { _, _, _, _ -> }
+    /** Convert to a PlotterBuilder without comparison data. */
+    override fun asPlotterBuilder() = PlotterBuilder(plotData)
 
-data class PlotterBuilderWithColor<E, G, X, A, Y, C>(
-    val values: PlotDataSpecification<E, G, X, A, Y, C>
-) {
-
-    fun withStyle(lambda: PlotStyleBuilder<G, X, C>.() -> Unit): PlotterBuilder<E, G, X, A, Y, C> {
-        val style = PlotStyleBuilder<G, X, C>()
-
-        style.lambda()
-
-        return PlotterBuilder(style, values)
+    /** Pair this data with another as comparison; returns a PlotterBuilder carrying both. */
+    fun compareTo(compareScope: () -> PlotDataTransformationBuilder<G, X, Y>): PlotterBuilder<G, X, Y> {
+        val comparison = compareScope()
+        return PlotterBuilder(plotData, comparison.plotData)
     }
 }
 
-fun <B, E, G, X> B.withStyle(
-    lambda: PlotStyleBuilder<G, X, Unit>.() -> Unit
-) where B : PlotterBuilderWithXAxis<E, G, X, Unit, Int> = colorBy(noColoring()).withStyle(lambda)
+/** Normalize each group's Y values by the group's total (sum to 1). */
+fun <G, X, Y : Number> PlotDataTransformationBuilder<G, X, Y>.normalizeByGroup():
+    PlotDataTransformationBuilder<G, X, Double> =
+    PlotDataTransformationBuilder(
+        TransformedPlotData(
+            original = plotData,
+            NormalizeByGroup()
+        )
+    )
 
-data class PlotStyleBuilder<G, X, C>(
-    override var name: String = "plot",
-    override var xLabel: String = "x",
-    override var yLabel: String = "y",
-    override var groupLabel: String = "group",
-    override var colorLabel: String = "color",
-    override var xOrder: Ordering<X> = Ordering.Arbitrary(),
-    override var groupOrder: Ordering<G> = Ordering.Arbitrary(),
-    override var colorMap: (C) -> RGB = { _ -> randomColor() }
-) : PlotStyling<G, X, C>
+/** Normalize Y values at each x by the total across groups (stack sums to 1). */
+fun <G, X, Y : Number> PlotDataTransformationBuilder<G, X, Y>.normalizeByX():
+    PlotDataTransformationBuilder<G, X, Double> =
+    PlotDataTransformationBuilder(
+        TransformedPlotData(
+            original = plotData,
+            NormalizeByX()
+        )
+    )
 
-fun <B, E, G, X, C> B.asHistogram(
-    normalize: Boolean = true,
-    relative: Boolean = true,
-) where B : PlotterBuilder<E, G, X, Unit, Int, C> = HistogramPlotter(
-    style,
-    values,
-    normalize = normalize,
-    relative = relative,
-)
+// TODO add transformation context collecting data about relative/normalized
 
-fun <B, E, G, X, C> B.asLineChart(
-    normalize: Boolean = true,
-    relative: Boolean = true,
-    compareTo: ComparisonDataSpecification<Nothing, G, X, Int>? = null,
-) where B : PlotterBuilder<E, G, X, Unit, Int, C> = TimeChartPlotter(
-    style,
-    values,
-    comparisonData = compareTo,
-    normalize = normalize,
-    relative = relative,
-)
+/** Holds plot data and optional comparison; final stage before choosing a renderer. */
+data class PlotterBuilder<G, X, Y>(
+    val data: PlotData<G, X, Y>,
+    val comparison: PlotData<G, X, Y>? = null,
+) : ReadyForRender<G, X, Y> {
+
+    /** No-op: already a PlotterBuilder. */
+    override fun asPlotterBuilder() = this
+}
+
+/** Render as a stacked histogram. */
+fun <G, X, Y : Number> ReadyForRender<G, X, Y>.asHistogram(styleScope: HistogramLayoutBuilder<G, X>.() -> Unit) =
+    asPlotterBuilder().run {
+        val style = HistogramLayoutBuilder<G, X>()
+        style.styleScope()
+
+        Plotter(
+            data = data,
+            comparison = comparison,
+            renderer = HistogramRenderer(style)
+        )
+    }
+
+/** Render summary statistics as a box plot. */
+fun <G, X, Y : Number> ReadyForRender<G, X, Summary<Y>>.asBoxPlot(styleScope: BoxPlotLayoutBuilder<G, X>.() -> Unit) =
+    asPlotterBuilder().run {
+        val style = BoxPlotLayoutBuilder<G, X>()
+        style.styleScope()
+
+        Plotter(
+            data = data,
+            comparison = comparison,
+            renderer = BoxPlotRenderer(style)
+        )
+    }
+
+/** Render numeric pairs as a scatter plot. */
+fun <G, X : Number, Y : Number> ReadyForRender<G, X, Y>.asScatterPlot(styleScope: ScatterLayoutBuilder<G>.() -> Unit) =
+    asPlotterBuilder().run {
+        val style = ScatterLayoutBuilder<G>()
+        style.styleScope()
+
+        Plotter(
+            data = data,
+            comparison = comparison,
+            renderer = ScatterPlotRenderer(style)
+        )
+    }
+
+/** Render series as line plot. */
+fun <G, X, Y : Number> ReadyForRender<G, X, Y>.asLinePlot(styleScope: LinePlotLayoutBuilder<G>.() -> Unit) =
+    asPlotterBuilder().run {
+        val style = LinePlotLayoutBuilder<G>()
+        style.styleScope()
+
+        Plotter(
+            data = data,
+            comparison = comparison,
+            renderer = LinePlotRenderer(style)
+        )
+    }

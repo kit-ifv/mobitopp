@@ -55,10 +55,10 @@ import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.PersonOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
-import units.CurrencyUnit
-import units.kilometers
-import units.meters
-import units.toCurrency
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.kilometers
+import edu.kit.ifv.units.meters
+import edu.kit.ifv.units.toCurrency
 import utils.collections.addProgressBar
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path

@@ -13,10 +13,11 @@ import domain.synthesis.data.MutablePrivateCar
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 
-@Suppress("LongParameterList")
 fun AssignCarsContext.assignCarUsers() = runStep {
     AssignCarUserStep(this)
 }
+
+fun AssignCarsContext.assignCarUsersWithoutRun() = AssignCarUserStep(this)
 
 interface AssignCarsContext : DemandSimContext {
     val personRepository: Repository<Person, PersonId>

@@ -10,7 +10,7 @@ import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
-import units.`€`
+import edu.kit.ifv.units.`€`
 
 val YesTransitPass = TransitPassParameters(
     base = -0.312173681653899,

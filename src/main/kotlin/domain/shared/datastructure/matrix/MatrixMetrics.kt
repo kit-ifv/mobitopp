@@ -3,6 +3,7 @@ package domain.shared.datastructure.matrix
 import domain.shared.datastructure.matrix.optimized.DoubleToCurrency
 import domain.shared.datastructure.matrix.optimized.DoubleToDistance
 import domain.shared.datastructure.matrix.optimized.DoubleToDuration
+import domain.shared.datastructure.matrix.yaml.YamlInfo
 import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
@@ -11,14 +12,14 @@ import domain.shared.location.DurationMetric
 import domain.shared.location.Location
 import domain.shared.location.Metrics
 import domain.shared.location.ZoneId
-import units.Currency
-import units.CurrencyUnit
-import units.Distance
-import units.DistanceUnit
-import units.euros
-import units.kilometers
-import units.toCurrency
-import units.toDistance
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.kilometers
+import edu.kit.ifv.units.toCurrency
+import edu.kit.ifv.units.toDistance
 import utils.Decodable
 import utils.units.Time
 import java.nio.file.Path
@@ -115,7 +116,7 @@ class MatrixMetrics(
                 decoder,
             ).cached(matrixFactory)
 
-            val travelDistanceMatrix = matrixFactory.createMatrix(travelDistanceMatrixPath)
+            val travelDistanceMatrix = matrixFactory.createMatrix(YamlInfo("visum_matrix", travelDistanceMatrixPath))
             return MatrixMetrics(
                 travelTimeMultiMatrix,
                 travelCostMultiMatrix,

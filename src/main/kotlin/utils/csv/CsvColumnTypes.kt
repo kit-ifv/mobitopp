@@ -2,17 +2,16 @@
 
 package utils.csv
 
-import units.CurrencyUnit
-import units.DistanceUnit
-import units.euros
-import units.kilometers
-import units.meters
-import units.share
-import units.toCurrency
-import units.toDistance
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.kilometers
+import edu.kit.ifv.units.meters
+import edu.kit.ifv.units.share
+import edu.kit.ifv.units.toCurrency
+import edu.kit.ifv.units.toDistance
 import utils.CodePlan
 import utils.Encodable
-import utils.ID
 
 fun Row.byte(column: String) = this.invoke(column, String::toByte)
 fun Row.byte(index: Int) = this.valueAt(index, String::toByte)
@@ -37,8 +36,6 @@ fun Row.commaDouble(index: Int) = this.valueAt(index).replace(",", ".").toDouble
 
 fun Row.boolean(column: String) = this.invoke(column, String::toBoolean)
 fun Row.boolean(index: Int) = this.valueAt(index, String::toBoolean)
-fun <E> Row.id(column: String) = this.invoke(column) { s -> ID<E>(s.toLong()) }
-fun <E> Row.id(index: Int) = this.valueAt(index) { s -> ID<E>(s.toLong()) }
 fun <T : Encodable> Row.decode(column: String, codePlan: CodePlan<T>) =
     this.invoke(column) { s -> codePlan.decode(s.toInt()) }
 
@@ -73,7 +70,6 @@ fun Row.long() = TypedRow(this, String::toLong)
 fun Row.float() = TypedRow(this, String::toFloat)
 fun Row.double() = TypedRow(this, String::toDouble)
 fun Row.boolean() = TypedRow(this, String::toBoolean)
-fun <E> Row.id() = TypedRow(this) { s -> ID<E>(s.toLong()) }
 fun <T : Encodable> Row.decode(codePlan: CodePlan<T>) =
     TypedRow(this) { s -> codePlan.decode(s.toInt()) }
 

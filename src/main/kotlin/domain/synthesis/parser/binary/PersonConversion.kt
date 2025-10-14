@@ -9,34 +9,45 @@ import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
-import units.CurrencyUnit
-import units.UnitIntervalValue
-import units.euros
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.UnitIntervalValue
+import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
-import java.io.DataInputStream
+import utils.collections.addProgressBar
 import java.io.DataOutputStream
+import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
-class BinaryPersonReader(val map: (HouseholdId) -> MutableHousehold, private val contextSimulationSeed: Long) :
+class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold?, private val contextSimulationSeed: Long) :
     BinaryReader<MutablePerson> {
 
-    override fun DataInputStream.decode(stringLength: Int): MutablePerson {
-        return MutablePerson(
-            PersonId(readLong()),
-            map(HouseholdId(readLong())),
-            contextSimulationSeed
-        ).apply {
-            age = readInt()
-            employment = Employment.decode(readInt())
-            sex = Sex.decode(readInt())
-            income = readDouble().euros
-            hasBike = readBoolean()
-            hasCommuterTicket = readBoolean()
-            hasLicense = readBoolean()
-            eMobilityAcceptance = UnitIntervalValue(readDouble())
-            chargingInfluence = ChargingInfluence.decode(readInt())
-            graduation = Graduation.decode(readInt())
+    override fun ByteBuffer.decode(stringLength: Int): MutablePerson? {
+        val id = PersonId(long)
+        val household = converter(HouseholdId(long))
+        val age = int
+        val employment = Employment.decode(int)
+        val sex = Sex.decode(int)
+        val income = double.euros
+        val hasBike = getBoolean()
+        val hasCommuterTicket = getBoolean()
+        val hasLicense = getBoolean()
+        val eMobilityAcceptance = UnitIntervalValue(double)
+        val chargingInfluence = ChargingInfluence.decode(int)
+        val graduation = Graduation.decode(int)
+        return household?.let {
+            MutablePerson(id, it, contextSimulationSeed).apply {
+                this.age = age
+                this.employment = employment
+                this.sex = sex
+                this.income = income
+                this.hasBike = hasBike
+                this.hasCommuterTicket = hasCommuterTicket
+                this.hasLicense = hasLicense
+                this.eMobilityAcceptance = eMobilityAcceptance
+                this.chargingInfluence = chargingInfluence
+                this.graduation = graduation
+            }
         }
     }
 }
@@ -47,7 +58,7 @@ class BinaryPersonWriter : BinaryWriter<Person> {
         outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
         outStream.writeInt(-1) // standardized format requires a string length
 
-        elements.forEach { outStream.encodePerson(it) }
+        elements.addProgressBar("Writing binary persons").forEach { outStream.encodePerson(it) }
     }
 
     private fun DataOutputStream.encodePerson(person: Person) {

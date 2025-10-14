@@ -6,12 +6,13 @@ import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Graduation
 import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
 import domain.synthesis.parser.binary.BinaryPersonReader
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.euros
 import generateHousehold
 import org.junit.jupiter.api.Test
-import units.CurrencyUnit
-import units.euros
 import utils.binary.CSVBinaryConverter
 import utils.binary.DataType
 import utils.binary.WriteStrategy
@@ -20,7 +21,6 @@ import utils.csv.boolean
 import utils.csv.currency
 import utils.csv.decode
 import utils.csv.decodeName
-import utils.csv.id
 import utils.csv.int
 import utils.csv.unitShare
 import java.io.DataOutputStream
@@ -32,7 +32,7 @@ class PersonBinaryCsvConversionTest {
     val columns = PersonColumns()
     val personCSVParser = CsvParser.Companion { row ->
         MutablePerson(
-            id = row.id(columns.idColumn),
+            id = PersonId(row.invoke(columns.idColumn).toLong()),
             household = hh1,
             1,
         ) {

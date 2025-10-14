@@ -3,20 +3,41 @@ package domain.synthesis.data
 import Mutable
 import domain.shared.enums.ActivityType
 import domain.shared.location.Location
-import utils.ID
+import kotlinx.serialization.Serializable
 import utils.Identifiable
-import utils.random.SeededActor
+import utils.random.StochasticActor
 import utils.units.AbsoluteTime
+import kotlin.random.Random
 import kotlin.time.Duration
 
-typealias ActivityId = ID<PlannedActivity>
+@Serializable
+@JvmInline
+value class ActivityId(val value: Long) : Comparable<ActivityId> {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    override fun compareTo(other: ActivityId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * @return the next higher id.
+     */
+    fun next(): ActivityId {
+        return ActivityId(value + 1)
+    }
+}
 
 @Mutable
 abstract class PlannedActivity(
-    final override val id: ActivityId,
+    override val id: ActivityId,
     val person: MutablePerson,
-    seed: Long
-) : SeededActor<PlannedActivity>(seed), Identifiable<ActivityId> {
+    seed: Long,
+) : StochasticActor, Identifiable<ActivityId> { // : SeededActor<PlannedActivity>(seed), Identifiable<ActivityId> {
+
+    final override val random: Random by lazy { Random(id.value + seed) }
 
     init {
         this.addAsActivity()
