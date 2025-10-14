@@ -7,8 +7,8 @@ import application.steps.model.buildAgents
 import application.steps.model.dummyDrtAlgorithm
 import application.steps.model.everyoneIsMember
 import application.steps.model.householdHomeLocation
-import application.steps.model.newDrtProvider
 import application.steps.model.loadBehaviorModels
+import application.steps.model.newDrtProvider
 import application.steps.model.scaleFilter
 import application.steps.model.simulate
 import application.steps.parser.csv.assignFixedDestinations
@@ -32,15 +32,16 @@ import core.results.plots.forData
 import core.results.plots.modeStringColor
 import domain.shared.config.Yaml
 import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.LegacyMode
 import domain.shared.enums.MainModes
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
-import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
 import domain.simulation.config.ShortTermConfig
+import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
 import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid

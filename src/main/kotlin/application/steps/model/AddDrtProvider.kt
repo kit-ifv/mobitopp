@@ -83,7 +83,7 @@ fun AddDrtProviderContext.dummyDrtAlgorithm(
 class AddDrtProviderStep(
     context: AddDrtProviderContext,
     providers: List<MutableDrtProviderData>
-) : AddResourceStep<MutableDrtProviderData, DrtProviderId>() {
+) : AddResourceStep<MutableDrtProviderData, DrtProviderId> {
     override val name = "Add DrtProviders"
 
     override val resource: Resource<MutableDrtProviderData> = providers.asSequence().asResource(
@@ -91,7 +91,7 @@ class AddDrtProviderStep(
         "AddDrtProviderStep"
     )
 
-    override fun mockElementsForValidation() = emptyList<MutableDrtProviderData>()
+//    override fun mockElementsForValidation() = emptyList<MutableDrtProviderData>()
 
     override val repository = context.drtProviderRepository
 
@@ -99,4 +99,6 @@ class AddDrtProviderStep(
 
     override fun verifyInput(): Warning? = validate {
     }
+
+    override fun mockBehavior() = null
 }

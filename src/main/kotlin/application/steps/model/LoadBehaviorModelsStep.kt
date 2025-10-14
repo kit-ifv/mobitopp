@@ -25,7 +25,6 @@ import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.DrtAvailabilitySelector
 import domain.simulation.behavior.ModeAvailabilityModel
-import domain.simulation.behavior.ModeAvailabilityFilter
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import domain.simulation.behavior.ProviderAvailability
 import domain.simulation.behavior.available
