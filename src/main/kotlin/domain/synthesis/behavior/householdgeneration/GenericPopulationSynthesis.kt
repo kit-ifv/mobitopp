@@ -6,19 +6,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import kotlinx.html.AREA
+import org.apache.poi.ss.formula.functions.T
 import org.jgrapht.Graphs
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
-import utils.collections.addProgressBar
 import utils.collections.partitionValues
 import utils.collections.standardProgressBar
 
-interface GenericPopulationSynthesis<AREA, T> {
-    val ruleProvider: RuleProvider<AREA, T>
+fun interface GenericPopulationSynthesis<AREA, T> {
+
     fun synthesize(targetAreas: List<AREA>): Map<AREA, List<SynthesisHousehold<out T>>>
 }
 
-interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<AREA, T> {
+interface RuleBasedPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<AREA, T> {
+    val ruleProvider: RuleProvider<AREA, T>
+
+    fun synthesizeAll(): Map<AREA, List<SynthesisHousehold<out T>>>
+}
+
+interface HierarchicalPopulationSynthesis<AREA, T> : RuleBasedPopulationSynthesis<AREA, T> {
 
     override val ruleProvider: HierarchicalRuleProvider<AREA, T>
     override fun synthesize(
@@ -33,7 +40,6 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
         val progress = standardProgressBar("Hierarchical IPU", independentRegions.size.toLong())
 
         val out = runBlocking {
-
             independentRegions.entries.map { (root, childs) ->
                 async(Dispatchers.Default) {
                     val result = synthesize(root, hierarchy, childs)
@@ -43,7 +49,6 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
             }.awaitAll()
                 .flatMap { it.entries }
                 .associate { it.key to it.value }
-
         }
         return out.filterKeys { it in targetAreas }
     }
@@ -86,7 +91,7 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
     // We don't need to bother catering to areas that have no rules attached to them. TODO also if their ruleset is entirely dominated by the descendants.
     private fun isIrrelevant(area: AREA) = ruleProvider.getRules(area).isEmpty()
 
-    fun synthesizeAll(): Map<AREA, List<SynthesisHousehold<out T>>> {
+    override fun synthesizeAll(): Map<AREA, List<SynthesisHousehold<out T>>> {
         return synthesize(ruleProvider.getAllLeafs())
     }
 
@@ -100,11 +105,26 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
         hierarchy: HierarchicElement<AREA>,
         targetAreas: Collection<AREA>,
     ): Map<AREA, List<SynthesisHousehold<out T>>>
-
 }
 
 interface RuleProvider<AREA, T> {
     fun getRules(target: AREA): Collection<Rule<T>>
+    fun getAllRules(): Map<AREA, Collection<Rule<T>>>
+}
+
+class MapRuleProvider<AREA, T>(private val ruleMap: MutableMap<AREA, List<Rule<T>>> = mutableMapOf()) : RuleProvider<AREA, T> {
+
+    override fun getRules(target: AREA): Collection<Rule<T>> {
+        return ruleMap[target] ?: emptyList()
+    }
+
+    override fun getAllRules(): Map<AREA, Collection<Rule<T>>> {
+        return ruleMap
+    }
+
+    companion object {
+        fun fromMap(map: Map<AREA, List<Rule<T>>>): MapRuleProvider<AREA, T> = MapRuleProvider(map.toMutableMap())
+    }
 }
 
 fun interface HandleRuleConflicts<AREA> {
@@ -137,17 +157,17 @@ class UseLowestCoveredLeaf<AREA> : HandleRuleConflicts<AREA> {
         val mustRemove = unremovable.flatMap { hierarchicElement.getAllDescendants(it) }.toSet()
 
         return conflictingAreas.filter { it !in removable && it !in mustRemove }
-
     }
 }
 
 interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
     val hierarchy: HierarchicElement<AREA>
 
-    fun partition(predicate: (AREA)-> Boolean): Pair<HierarchicalRuleProvider<AREA, T>, HierarchicalRuleProvider<AREA, T>>
+    fun partition(predicate: (AREA) -> Boolean): Pair<HierarchicalRuleProvider<AREA, T>, HierarchicalRuleProvider<AREA, T>>
 
     fun getAllDescendants(target: AREA) = hierarchy.getAllDescendants(target)
     fun getAllDescendantRules(target: AREA) = getAllDescendants(target).associateWith { getRules(it) }
+
     @Deprecated("Use conflict free rules instead.")
     fun getAllRulesFor(target: AREA): Map<AREA, Collection<Rule<T>>> {
         val rules = getAllDescendantRules(target)
@@ -159,7 +179,7 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
     /**
      * Get all rules registered in this object and return all areas that have at least 1 rule attached
      */
-    fun getAllRules(): Map<AREA, Collection<Rule<T>>>
+
     fun getAllLeafs() = hierarchy.getAllLeafs()
 
     /**
@@ -198,7 +218,6 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
      */
     fun isFinal(target: AREA) = getSubAreas(target).isEmpty()
 
-
     fun getSubAreas(target: AREA) = hierarchy.getChildren(target)
 }
 
@@ -214,7 +233,6 @@ fun <T> Collection<Rule<T>>.fuse(descriptor: String): ZoneRule<T> {
     val sum = sumOf { it.target }
     return ZoneRule(description = descriptor, sum, logic)
 }
-
 
 interface HierarchicElement<T> {
     fun getParent(element: T): T?
@@ -258,7 +276,6 @@ class MutableHierarchyGraph<T> private constructor(
     constructor() : this(DefaultDirectedGraph(DefaultEdge::class.java), DefaultDirectedGraph(DefaultEdge::class.java))
 
     override fun addRelationship(child: T, parent: T) {
-
         if (parentGraph.containsVertex(child) && parentGraph.outgoingEdgesOf(child).isNotEmpty()) return
         Graphs.addEdgeWithVertices(parentGraph, child, parent)
         Graphs.addEdgeWithVertices(childGraph, parent, child)
@@ -274,12 +291,8 @@ class MutableHierarchyGraph<T> private constructor(
         childGraph.removeAllVertices(targets)
     }
 
-
     override fun addVertex(target: T) {
         parentGraph.addVertex(target)
         childGraph.addVertex(target)
     }
-
 }
-
-

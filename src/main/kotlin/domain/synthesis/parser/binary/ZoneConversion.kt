@@ -58,6 +58,7 @@ class BinaryZoneReader(
         }
     }
 }
+
 // TODO string really hampers the construction as the maxlength is unknown
 data class ZoneBinaryRecord(
     val id: Long,
@@ -70,7 +71,7 @@ data class ZoneBinaryRecord(
     val isDestination: Boolean,
     val relief: Double,
 
-    ): BinaryWritable {
+) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)

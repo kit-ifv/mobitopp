@@ -92,7 +92,7 @@ data class PersonBinaryRecord(
     val eMobilityAcceptance: Double,
     val chargingInfluenceCode: Int,
     val graduationCode: Int
-): BinaryWritable {
+) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)

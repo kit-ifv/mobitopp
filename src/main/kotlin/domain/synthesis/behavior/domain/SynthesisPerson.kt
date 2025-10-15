@@ -14,7 +14,7 @@ class SynthesisPerson<T>(
     override val sex: Sex,
     override val information: T,
     override val personId: Int
-): SurveyPerson<T> {
+) : SurveyPerson<T> {
 
     constructor(household: SynthesisHousehold<T>, age: Int, sex: Sex, info: T) : this(
         household,

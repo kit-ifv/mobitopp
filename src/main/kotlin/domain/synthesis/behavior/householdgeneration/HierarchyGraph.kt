@@ -8,7 +8,7 @@ import org.jgrapht.traverse.BreadthFirstIterator
 open class HierarchyGraph<T>(
     protected open val parentGraph: Graph<T, DefaultEdge>,
     protected open val childGraph: Graph<T, DefaultEdge>,
-): HierarchicElement<T> {
+) : HierarchicElement<T> {
 
     override fun getParent(element: T): T? {
         val outEdges = parentGraph.outgoingEdgesOf(element)
@@ -20,10 +20,14 @@ open class HierarchyGraph<T>(
         val (setA, setB) = getAllVertices().partition(predicate).run {
             Pair(first.toSet(), second.toSet())
         }
-        val subgraphA =  HierarchyGraph(AsSubgraph(parentGraph, setA),
-            AsSubgraph(childGraph, setA))
-        val subgraphB = HierarchyGraph(AsSubgraph(parentGraph, setB),
-            AsSubgraph(childGraph, setB))
+        val subgraphA = HierarchyGraph(
+            AsSubgraph(parentGraph, setA),
+            AsSubgraph(childGraph, setA)
+        )
+        val subgraphB = HierarchyGraph(
+            AsSubgraph(parentGraph, setB),
+            AsSubgraph(childGraph, setB)
+        )
         return subgraphA to subgraphB
     }
 

@@ -57,8 +57,9 @@ fun <K, V> Map<K, V>.invertMap(): Map<V, List<K>> {
 }
 
 fun <K, V> Map<K, Collection<V>>.flattenAndInvertMap(): Map<V, List<K>> {
-    return this.entries.flatMap { (k, v) -> v.map { it to k } }.groupBy({it.first}, {it.second})
+    return this.entries.flatMap { (k, v) -> v.map { it to k } }.groupBy({ it.first }, { it.second })
 }
+
 /**
  * Converts the return value of [binarySearch] to the index position
  */

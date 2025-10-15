@@ -107,7 +107,6 @@ data class ExampleProjectContext(
     AgentResultsContext {
     override val execMode: ExecutionMode = ExecutionMode()
 
-
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")

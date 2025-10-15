@@ -7,13 +7,9 @@ import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
-import domain.synthesis.parser.binary.LocationUtils.encodeLocation
-import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
 import utils.binary.DefaultBinaryWriter
-import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
 /**

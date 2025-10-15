@@ -121,10 +121,9 @@ class NamedCheckRule<T> private constructor(ruleDescription: String, override va
     ),
     CheckRule<T> by logic {
     constructor(desc: RuleDescription, logic: CheckRule<T>) : this(desc.logicDescription, logic)
-        override fun matches(surveyHousehold: ISurveyHousehold<out T>): Int {
+    override fun matches(surveyHousehold: ISurveyHousehold<out T>): Int {
         return super<NamedCountRule>.matches(surveyHousehold)
     }
-
 }
 
 open class NamedCountRule<T> protected constructor(val ruleDescription: String, open val logic: CountRule<T>) :
@@ -137,7 +136,6 @@ open class NamedCountRule<T> protected constructor(val ruleDescription: String, 
 
     override fun hashCode(): Int {
         return ruleDescription.hashCode()
-
     }
 
     override fun compareTo(other: NamedCountRule<T>): Int {
@@ -147,29 +145,22 @@ open class NamedCountRule<T> protected constructor(val ruleDescription: String, 
 
 sealed interface RuleDescription {
     val logicDescription: String
-
-
-
 }
-object UNKNOWN_LOGIC: RuleDescription{
+object UNKNOWN_LOGIC : RuleDescription {
     override val logicDescription: String
         get() = "Unknown logic descriptor."
-
 }
-class AgeRuleDescription(startAge: Int, endAge: Int): RuleDescription {
+class AgeRuleDescription(startAge: Int, endAge: Int) : RuleDescription {
     override val logicDescription: String = "Age in ($startAge..$endAge)"
-
 }
-class AgeSexRuleDescription(startAge: Int, endAge: Int, sex: Sex): RuleDescription {
+class AgeSexRuleDescription(startAge: Int, endAge: Int, sex: Sex) : RuleDescription {
     override val logicDescription: String = "Sex=$sex Age in ($startAge..$endAge)"
-
 }
-class HouseholdTypeDescription(type: String): RuleDescription {
-    constructor(type: Int): this(type.toString())
+class HouseholdTypeDescription(type: String) : RuleDescription {
+    constructor(type: Int) : this(type.toString())
     override val logicDescription: String = "Household type = $type"
-
 }
-class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityOp.EQUALS):RuleDescription {
+class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityOp.EQUALS) : RuleDescription {
     override val logicDescription: String = "Household Size ${operator.symbol} $targetSize "
     enum class EqualityOp(val symbol: String) {
         EQUALS("=="),
@@ -179,19 +170,18 @@ class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityO
         GREATER_THAN(">"),
         GREATER_OR_EQUAL(">=")
     }
-
 }
 
 //
-//class RuleDescription(
+// class RuleDescription(
 //    val ruleDescription: String,
 //    val logic:
-//)
+// )
 //
-//abstract class Logic() {
+// abstract class Logic() {
 //
-//}
-//class HouseholdSizeCheck(val householdSize: Int): Logic() {
+// }
+// class HouseholdSizeCheck(val householdSize: Int): Logic() {
 //    override fun equals(other: Any?): Boolean {
 //        if(other !is HouseholdSizeCheck) return false
 //        return other.householdSize == householdSize
@@ -200,8 +190,8 @@ class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityO
 //    override fun hashCode(): Int {
 //        return householdSize
 //    }
-//}
-//class AgeCheck(val lowerBound: Int, val upperBound: Int) : Logic() {
+// }
+// class AgeCheck(val lowerBound: Int, val upperBound: Int) : Logic() {
 //    override fun equals(other: Any?): Boolean {
 //        if (this === other) return true
 //        if(other !is AgeCheck) return false
@@ -213,8 +203,8 @@ class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityO
 //        result = 31 * result + upperBound
 //        return result
 //    }
-//}
-//class AgeGenderCheck<T>(val lowerBound: Int, val upperBound: Int, val sex: Sex) : Logic(), CountRule<T> {
+// }
+// class AgeGenderCheck<T>(val lowerBound: Int, val upperBound: Int, val sex: Sex) : Logic(), CountRule<T> {
 //
 //    /**
 //     * Evaluates how much the given [surveyHousehold] contributes to the target based on a specific attribute.
@@ -236,9 +226,7 @@ class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityO
 //        result = 31 * result + sex.hashCode()
 //        return result
 //    }
-//}
-
-
+// }
 
 /**
  * A named implementation of the [Rule] interface, using a [CountRule] to calculate a household's contribution to

@@ -78,7 +78,7 @@ class BinaryMatrixFileLookup(
         return try {
             format.deserialize(target)
         } catch (e: Exception) {
-            throw  e
+            throw e
             TODO("Not yet implemented")
         }
     }
