@@ -11,9 +11,10 @@ data class ShortTermConfig(
     /* impedance*/
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
-    val costMatrixConfigPath: Path,
-    val durationMatrixConfigPath: Path,
-    val distanceMatrixPath: Path,
+    val matrixRepo: Path,
+    val costMatrixConfig: Path,
+    val durationMatrixConfig: Path,
+    val distanceMatrix: Path,
     val cachePath: Path,
     val zoneMatrixCreationMethod: ZoneMatrixCreation,
 
@@ -46,9 +47,10 @@ data class ShortTermConfig(
     ) {
     fun validate() {
         val paths = listOf(
-            costMatrixConfigPath,
-            durationMatrixConfigPath,
-            distanceMatrixPath,
+            matrixRepo,
+            costMatrixConfig,
+            durationMatrixConfig,
+            distanceMatrix,
             simulationContext.dataFolder,
             cachePath,
         ).filter { !it.exists() }
