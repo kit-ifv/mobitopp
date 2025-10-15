@@ -1,12 +1,18 @@
 package domain.shared.config
 
+import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
+import domain.jackson.DestinationChoiceParameterDeserializer
 import domain.jackson.DestinationChoiceParameterModule
+import domain.jackson.DestinationChoiceParameterRepo
+import domain.jackson.GenericDeserializer
+import domain.jackson.RepoFactory
 import domain.jackson.ZoneMatrixCreation
+import domain.simulation.behavior.DestinationChoiceParameters
 import java.nio.file.Path
 
 /**
@@ -33,7 +39,10 @@ object Yaml {
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
         .registerModule(ZoneMatrixCreation())
-        .registerModule(DestinationChoiceParameterModule())
+        .registerModule(
+            RepoFactory("DestinationChoice", DestinationChoiceParameters().javaClass,
+            GenericDeserializer(DestinationChoiceParameters().javaClass, mapOf("default" to DestinationChoiceParameters()))
+        ))
         .findAndRegisterModules()
 
     inline fun <reified T> readYaml(path: Path): T {

@@ -2,6 +2,7 @@ package application.config
 
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.simulation.behavior.DestinationChoiceParameters
+import domain.simulation.behavior.ModeChoiceParameters
 import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -34,8 +35,9 @@ data class ShortTermConfig(
     /* repos*/
     val zoneRepo: Path,
 
-    /* behaviour */
-    val destinationChoiceParameterSet: DestinationChoiceParameters,
+    /* ChoiceParameters */
+    val destinationChoiceParameterSet: DestinationChoiceParameters? = null,
+    val modeChoiceParameterSet: ModeChoiceParameters? = null,
 
     /* vehicle sharing */
     val sharingProviderName: String,
