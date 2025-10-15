@@ -14,14 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger
  * usage of the household
  */
 class SynthesisHousehold<T>(
-    override val surveyHouseholdId: Int,
+    override val surveyHouseholdId: Int = 0,
     override var income: Currency = 0.euros,
 
 ): ISurveyHousehold<T>{
     val id = getNextId()
     // Whatever the type T is of my household class, the members must be at least that type or better
     override var members: MutableList<SynthesisPerson<out T>> = mutableListOf()
-    val size get() = members.size
     lateinit var location: Location
 
     fun locationIsAssigned() = ::location.isInitialized

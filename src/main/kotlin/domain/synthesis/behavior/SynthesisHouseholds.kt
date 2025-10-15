@@ -43,7 +43,7 @@ class SurveyHousehold<T>(
 ) :
     ISurveyHousehold<T> {
     lateinit var economicStatus: EconomicStatus
-    val size get() = members.size
+
     fun toScalableVector(rules: List<Rule<in T>>): ScalableVector {
         return ScalableVector.createFrom(this, rules)
     }
@@ -58,9 +58,7 @@ class SurveyHousehold<T>(
         }
     }
 
-    fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
-        return members.count(condition)
-    }
+
 
     override fun toString(): String {
         return "Survey Household($surveyHouseholdId) [${members.joinToString { it.toString() }}"
@@ -71,4 +69,8 @@ interface ISurveyHousehold<T> {
     val surveyHouseholdId: Int
     val income: Currency
     val members: List<SurveyPerson<out T>>
+    val size get() = members.size
+    fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
+        return members.count(condition)
+    }
 }

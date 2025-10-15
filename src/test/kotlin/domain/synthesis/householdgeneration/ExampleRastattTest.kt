@@ -1,6 +1,7 @@
 package domain.synthesis.householdgeneration
 
 import domain.shared.location.ZoneId
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.householdgeneration.Rule
@@ -188,6 +189,6 @@ val SurveyPerson<out Any>.groupCode
         else -> throw NoSuchElementException("Negative Age cannot be translated to a group code person=$this")
     }
 
-fun SurveyHousehold<out Any>.amount(sex: Sex, ageCode: Int): Int {
+fun ISurveyHousehold<out Any>.amount(sex: Sex, ageCode: Int): Int {
     return members.filter { it.sex == sex && it.groupCode == ageCode }.size
 }
