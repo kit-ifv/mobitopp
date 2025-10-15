@@ -17,7 +17,7 @@ import kotlin.collections.component2
  * @param wraps parameter to declare which class this Deserializer wraps. Needed for the collection of Repo<T>
  *     instances.
  */
-class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<String, T> = emptyMap()): JsonDeserializer<T>() {
+class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<String, T> = emptyMap(), val loadFromSubmodules: Boolean): JsonDeserializer<T>() {
 
     val deserializers: Map<String, T> by lazy {
         collectParameterSets()
@@ -30,13 +30,15 @@ class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<Strin
         val result = mutableMapOf<String, T>()
         result.putAll(default)
         // 2. Discover and register from subprojects via ServiceLoader
-        ServiceLoader.load(Repo::class.java)
-            .forEach { parameterRepo ->
-                println("Loading ${parameterRepo.name}")
-                if(parameterRepo.wraps == wraps) {
-                    parameterRepo.addAllPairs(result)
+        if (loadFromSubmodules) {
+            ServiceLoader.load(Repo::class.java)
+                .forEach { parameterRepo ->
+                    println("Loading ${parameterRepo.name}")
+                    if(parameterRepo.wraps == wraps) {
+                        parameterRepo.addAllPairs(result)
+                    }
                 }
-            }
+        }
         return result.toMap()
     }
 
