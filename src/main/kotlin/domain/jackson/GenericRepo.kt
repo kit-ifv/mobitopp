@@ -9,6 +9,9 @@ import java.util.ServiceLoader
 import kotlin.collections.component1
 import kotlin.collections.component2
 
+/**
+ * Registers custom deserializers through the service loader api to the yaml parsing.
+ */
 class RepoFactory<T>(val name: String, containedClass: Class<T>, deserializer: JsonDeserializer<T> ): SimpleModule(name) {
     init {
         addDeserializer(containedClass, deserializer)
@@ -16,10 +19,10 @@ class RepoFactory<T>(val name: String, containedClass: Class<T>, deserializer: J
 }
 
 /**
- * Collects all mappings from strings to DestinationChoiceParameters, even from subprojects through the ServiceLoader
+ * Collects all mappings from strings to T from subprojects through the ServiceLoader
  * API.
  */
-class GenericDeserializer<T>(val wraps: Class<T>, val default: Map<String, T> = emptyMap()): JsonDeserializer<T>() {
+class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<String, T> = emptyMap()): JsonDeserializer<T>() {
 
     val deserializers: Map<String, T> by lazy {
         collectParameterSets()

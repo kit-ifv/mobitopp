@@ -1,5 +1,6 @@
 package application.config
 
+import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.simulation.behavior.DestinationChoiceParameters
 import domain.simulation.behavior.ModeChoiceParameters
@@ -7,7 +8,7 @@ import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.exists
 
-data class ShortTermConfig(
+data class ShortTermConfig<MODECHOICEPARAMETERS>(
     /* impedance*/
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
@@ -33,12 +34,14 @@ data class ShortTermConfig(
     val attractivitiesCSV: Path? = null,
     val bikeSharingStationsCSV: Path? = null,
     val zonesCSV: Path? = null,
+
     /* repos*/
     val zoneRepo: Path,
 
     /* ChoiceParameters */
-    val destinationChoiceParameterSet: DestinationChoiceParameters? = null,
-    val modeChoiceParameterSet: ModeChoiceParameters? = null,
+    val destinationChoiceParameterSet: DestinationChoiceParameters,
+    val modeChoiceParameterSet: MODECHOICEPARAMETERS,
+    val choiceModelModes: ChoiceModelModes,
 
     /* vehicle sharing */
     val sharingProviderName: String,
