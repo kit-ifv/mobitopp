@@ -3,7 +3,7 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["zoneRepo", "matrixRepo","costMatrixConfig", "durationMatrixConfig", "distanceMatrix", "zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling","cachePath", "simulationContext", "sharingProviderName", "vehicleCountColumn","destinationChoiceParameterSet"],
+  "required": ["zoneRepo", "matrixRepo","costMatrixConfig", "durationMatrixConfig", "distanceMatrix", "zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling","cachePath", "simulationContext", "sharingProviderName", "vehicleCountColumn","destinationChoiceParameterSet", "modeChoiceParameterSet", "choiceModelModes"],
   "type": "object",
   "properties": {
     "zoneRepo": {
@@ -175,6 +175,18 @@
     },
     "destinationChoiceParameterSet": {
       "description": "What parameters should be used for destination choice. 'default' is always available. Register new/custom ones in a `DestinationChoiceParameterRepo`. Instructions on how to do that are in its documentation.",
+      "type": "string",
+      "pattern": "[a-zA-Z]+",
+      "default": "default"
+    },
+    "modeChoiceParameterSet": {
+      "description": "What parameters should be used for destination choice. 'default' is always available. Register new/custom ones in a `DestinationChoiceParameterRepo`. Instructions on how to do that are in its documentation.",
+      "type": "string",
+      "pattern": "[a-zA-Z]+",
+      "default": "default"
+    },
+    "choiceModelModes": {
+      "description": "What modes are used for the destination choice. 'default' is always available. Register new/custom ones in a `DestinationChoiceParameterRepo`. Instructions on how to do that are in its documentation.",
       "type": "string",
       "pattern": "[a-zA-Z]+",
       "default": "default"

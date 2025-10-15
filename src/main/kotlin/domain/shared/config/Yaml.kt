@@ -1,15 +1,11 @@
 package domain.shared.config
 
-import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.DestinationChoiceParameterDeserializer
-import domain.jackson.DestinationChoiceParameterModule
-import domain.jackson.DestinationChoiceParameterRepo
-import domain.jackson.GenericDeserializer
+import domain.jackson.GenericKeyValueDeserializer
 import domain.jackson.RepoFactory
 import domain.jackson.ZoneMatrixCreation
 import domain.simulation.behavior.DestinationChoiceParameters
@@ -39,9 +35,10 @@ object Yaml {
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
         .registerModule(ZoneMatrixCreation())
+        .registerGenericRepos()
         .registerModule(
             RepoFactory("DestinationChoice", DestinationChoiceParameters().javaClass,
-            GenericDeserializer(DestinationChoiceParameters().javaClass, mapOf("default" to DestinationChoiceParameters()))
+            GenericKeyValueDeserializer(DestinationChoiceParameters().javaClass, mapOf("default" to DestinationChoiceParameters()))
         ))
         .findAndRegisterModules()
 
@@ -50,4 +47,8 @@ object Yaml {
         return mapper.readValue(file)
     }
     inline fun <reified T> readYaml(string: String): T = readYaml(Path.of(string))
+}
+
+inline fun ObjectMapper.registerGenericRepos(): ObjectMapper {
+    return this.registerModule()
 }

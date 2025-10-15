@@ -28,6 +28,7 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
+import domain.simulation.behavior.ModeChoiceParameters
 import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
 import domain.simulation.events.personStateMachine
@@ -40,7 +41,7 @@ import utils.csv.Row
 import kotlin.io.path.Path
 
 fun main(args: Array<String>) {
-    val shortTermConfig: ShortTermConfig =
+    val shortTermConfig: ShortTermConfig<ModeChoiceParameters> =
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: error("No config argument handed.")
 
     shortTermConfig.validate()
