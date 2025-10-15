@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.module.SimpleModule
-import kotlinx.html.emptyMap
 import java.util.ServiceLoader
 import kotlin.collections.component1
 import kotlin.collections.component2

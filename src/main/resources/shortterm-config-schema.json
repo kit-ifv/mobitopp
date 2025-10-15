@@ -3,7 +3,7 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["zoneRepo", "costMatrixConfigPath", "durationMatrixConfigPath", "distanceMatrixPath", "zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling","cachePath", "simulationContext", "sharingProviderName", "vehicleCountColumn","destinationChoiceParameterSet"],
+  "required": ["zoneRepo", "matrixRepo","costMatrixConfig", "durationMatrixConfig", "distanceMatrix", "zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling","cachePath", "simulationContext", "sharingProviderName", "vehicleCountColumn","destinationChoiceParameterSet"],
   "type": "object",
   "properties": {
     "zoneRepo": {
@@ -11,17 +11,28 @@
       "type": "string",
       "default": "data/zone-repository"
     },
-    "costMatrixConfigPath": {
-      "description": "Path to the cost matrix config.",
-      "type": "string"
+    "matrixRepo": {
+      "description": "The path to the matrix repository folder. Should contain the constMatrixConfig and durationMatrixConfig file. However files can be set independently making this parameter essentially useless.",
+      "type": "string",
+      "default": "data/matrix"
     },
-    "durationMatrixConfigPath": {
-      "description": "Path to the duration matrix config.",
-      "type": "string"
+    "costMatrixConfig": {
+      "description": "Path to the cost matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be an absolute path to the cost matrix config file.",
+      "type": "string",
+      "default": "cost-matrix-configuration_transmove_turbo.yaml",
+      "pattern": ".+.yaml"
     },
-    "distanceMatrixPath": {
-      "description": "Path to the distance matrix",
-      "type": "string"
+    "durationMatrixConfig": {
+      "description": "Path to the time matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also take an absolute path to the duration config file.",
+      "type": "string",
+      "default": "time-matrix-configuration_transmove_turbo.yaml",
+      "pattern": ".+.yaml"
+    },
+    "distanceMatrix": {
+      "description": "Path to the distance matrix file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be set to an absolute path to that file.",
+      "type": "string",
+      "default": "DIS_Car.mtx.bz2",
+      "pattern": ".+.mtx.bz2"
     },
     "zoneMatrixCreationMethod": {
       "description": "How zoneMatrices should be created. On default either `visum` and `keyBased` are available. If you want others, they need to be registered in `ZoneMatrixCreationDeserializer.kt`",
@@ -69,7 +80,7 @@
           "type": "string"
         },
         "modes": {
-          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders. Default options can be found in CoreCodePlans in mobitopp-reengineering.",
+          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders. Default options can be found in CoreCodePlans in mobitopp-reengineering. You likely don't want 'coreModes', rather a subset of those modes.",
           "type": "string",
           "default": "coreModes"
         },

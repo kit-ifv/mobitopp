@@ -82,13 +82,13 @@ fun main(args: Array<String>) {
             purposes = legacyChoiceModelPurposes,
         )
 
-        val costMatrixConfigPath = shortTermConfig.costMatrixConfigPath
-        val durationMatrixConfigPath = shortTermConfig.durationMatrixConfigPath
-        val distanceMatrixPath = shortTermConfig.distanceMatrixPath
         loadImpedance(
-            costMatrixConfig = costMatrixConfigPath,
-            durationMatrixConfig = durationMatrixConfigPath,
-            distanceMatrix = distanceMatrixPath
+            costMatrixConfig = if(shortTermConfig.costMatrixConfig.isAbsolute)  shortTermConfig.costMatrixConfig
+            else shortTermConfig.matrixRepo.resolve(shortTermConfig.costMatrixConfig),
+            durationMatrixConfig = if(shortTermConfig.durationMatrixConfig.isAbsolute)  shortTermConfig.durationMatrixConfig
+            else shortTermConfig.matrixRepo.resolve(shortTermConfig.durationMatrixConfig),
+            distanceMatrix = if(shortTermConfig.distanceMatrix.isAbsolute) shortTermConfig.distanceMatrix
+            else shortTermConfig.matrixRepo.resolve(shortTermConfig.distanceMatrix),
         )
 
         loadBehaviorModels(legacyDestinationChoice, legacyModeChoice, legacyChoiceModelModes)
