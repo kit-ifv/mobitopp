@@ -146,7 +146,7 @@ open class NamedCountRule<T> protected constructor(val ruleDescription: String, 
 sealed interface RuleDescription {
     val logicDescription: String
 }
-object UNKNOWN_LOGIC : RuleDescription {
+object UnknownLogic : RuleDescription {
     override val logicDescription: String
         get() = "Unknown logic descriptor."
 }
@@ -244,7 +244,7 @@ class ZoneRule<T>(
     constructor(description: String, target: Int, logic: CountRule<T>) : this(
         description,
         target,
-        NamedCountRule(UNKNOWN_LOGIC, logic)
+        NamedCountRule(UnknownLogic, logic)
     )
     override fun evaluate(surveyHousehold: ISurveyHousehold<out T>): Int {
         return logic.matches(surveyHousehold)
@@ -276,7 +276,7 @@ class ZoneCheckRule<T>(
     constructor(description: String, target: Int, logic: CheckRule<T>) : this(
         description,
         target,
-        NamedCheckRule(UNKNOWN_LOGIC, logic)
+        NamedCheckRule(UnknownLogic, logic)
     )
 
     constructor(ruleDescription: RuleDescription, target: Int, logic: NamedCheckRule<T>) : this(

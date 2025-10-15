@@ -39,7 +39,7 @@ abstract class PlannedActivity(
     override val id: ActivityId,
     val person: MutablePerson,
     seed: Long,
-) : StochasticActor, Identifiable<ActivityId>, Simplifiable<ActivityBinaryRecord> { // : SeededActor<PlannedActivity>(seed), Identifiable<ActivityId> {
+) : StochasticActor, Identifiable<ActivityId>, Simplifiable<ActivityBinaryRecord> {
 
     final override val random: Random by lazy { Random(id.value + seed) }
 

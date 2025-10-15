@@ -83,7 +83,7 @@ class PopulationSynthesisKtTest {
 
         populationSynthesis.execute {
             synthesis(mapOf(TEST_ZONE to emptyList())) {
-                TrivialSynthesis()
+                TrivialSynthesis(surveyHouseholds)
             }
             val test = householdsByZone
             assertTrue(TEST_ZONE in test.keys)

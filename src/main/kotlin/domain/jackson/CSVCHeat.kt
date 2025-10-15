@@ -1,15 +1,6 @@
 package domain.jackson
 
-import core.modelsteps.AddResourceStep
-import core.modelsteps.BinaryFileResource
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
-import core.modelsteps.Resource
-import core.modelsteps.Warning
-import utils.Identifiable
-import utils.binary.BinaryReader
 import java.io.DataOutputStream
-import java.nio.file.Path
 
 interface Simplifiable<TO : BinaryWritable> {
     fun simplify(): TO
@@ -36,49 +27,5 @@ data class CarBinaryRecord(
             writeInt(segmentCode)
             writeInt(engineCode)
         }
-    }
-}
-
-class GuaranteedCache<E : Identifiable<I>, I>(
-    val cacheFilePath: Path,
-    val binaryReader: BinaryReader<E>,
-    val originalFilePath: Path,
-) : AddResourceStep<E, I> {
-
-    private val binaryResource: BinaryFileResource<E> = BinaryFileResource(
-        path = cacheFilePath,
-        reader = binaryReader
-    )
-    override val resource: Resource<E> by lazy {
-//        resourceProtect()
-        binaryResource
-    }
-    fun getOriginalResource() {
-//        val csv = CSVParser.parse(....) // Nicht Household, sondern BinaryRecord Object.
-//
-//        binaryWriter.write(csv)
-    }
-//    private fun resourceProtect() {
-//        if originalFilePath.crc32() != binaryReader.checksum(cacheFilePath)
-//
-//
-//    }
-
-    fun convertOriginalElement() {
-    }
-
-    override val repository: MutableRepository<E, I>
-        get() = TODO("Not yet implemented")
-    override val dependentRepositories: Set<Repository<*, *>>
-        get() = TODO("Not yet implemented")
-    override val name: String
-        get() = TODO("Not yet implemented")
-
-    override fun verifyInput(): Warning? {
-        TODO("Not yet implemented")
-    }
-
-    override fun mockBehavior(): Warning? {
-        TODO("Not yet implemented")
     }
 }
