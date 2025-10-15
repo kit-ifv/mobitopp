@@ -21,5 +21,6 @@ val MatrixDeserializer =
         mapOf(
             "visum" to VisumMatrixCreator,
             "keyBased" to KeyBasedMatrixCreation
-        )
+        ),
+        loadFromSubmodules = true
     )

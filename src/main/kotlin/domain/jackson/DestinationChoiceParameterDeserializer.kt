@@ -11,5 +11,6 @@ class DestinationChoiceParameterRepo: SimpleModule("DestinationChoice"){
 
 val DestinationChoiceDeserializer = GenericKeyValueDeserializer(
     DestinationChoiceParameters().javaClass,
-    mapOf("default" to DestinationChoiceParameters())
+    mapOf("default" to DestinationChoiceParameters()),
+    loadFromSubmodules = true
 )
