@@ -5,10 +5,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.GenericKeyValueDeserializer
-import domain.jackson.RepoFactory
+import domain.jackson.DestinationChoiceParameterRepo
 import domain.jackson.ZoneMatrixCreation
-import domain.simulation.behavior.DestinationChoiceParameters
 import java.nio.file.Path
 
 /**
@@ -35,11 +33,7 @@ object Yaml {
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
         .registerModule(ZoneMatrixCreation())
-        .registerGenericRepos()
-        .registerModule(
-            RepoFactory("DestinationChoice", DestinationChoiceParameters().javaClass,
-            GenericKeyValueDeserializer(DestinationChoiceParameters().javaClass, mapOf("default" to DestinationChoiceParameters()))
-        ))
+        .registerModule( DestinationChoiceParameterRepo())
         .findAndRegisterModules()
 
     inline fun <reified T> readYaml(path: Path): T {
@@ -47,8 +41,4 @@ object Yaml {
         return mapper.readValue(file)
     }
     inline fun <reified T> readYaml(string: String): T = readYaml(Path.of(string))
-}
-
-inline fun ObjectMapper.registerGenericRepos(): ObjectMapper {
-    return this.registerModule()
 }
