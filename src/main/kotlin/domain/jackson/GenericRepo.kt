@@ -33,7 +33,7 @@ class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<Strin
         if (loadFromSubmodules) {
             ServiceLoader.load(Repo::class.java)
                 .forEach { parameterRepo ->
-                    println("Loading ${parameterRepo.name}")
+                    println("Loading ${parameterRepo.name} in ${this::class.java.name}")
                     if(parameterRepo.wraps == wraps) {
                         parameterRepo.addAllPairs(result)
                     }
