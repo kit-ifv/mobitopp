@@ -9,10 +9,8 @@ import domain.synthesis.data.PersonId
 import domain.synthesis.data.PlannedActivity
 import utils.CodePlan
 import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
 import utils.binary.DefaultBinaryWriter
 import utils.units.sinceStart
-import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration

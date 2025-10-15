@@ -48,7 +48,7 @@ interface Car : Identifiable<CarId> {
     val seats: Int
 }
 
-interface IPrivateCar : Car, Simplifiable<CarBinaryRecord>  {
+interface IPrivateCar : Car, Simplifiable<CarBinaryRecord> {
     val owner: IHousehold
     val mainUser: IPerson?
 
@@ -57,7 +57,7 @@ interface IPrivateCar : Car, Simplifiable<CarBinaryRecord>  {
             id.value,
             owner.id.value,
             seats,
-            mainUser?.id?.value?: Long.MIN_VALUE,
+            mainUser?.id?.value ?: Long.MIN_VALUE,
             segment.code,
             engine.type.code
         )
@@ -71,7 +71,7 @@ interface IPrivateCar : Car, Simplifiable<CarBinaryRecord>  {
 abstract class PrivateCar(
     final override val id: CarId,
     override val owner: MutableHousehold,
-) : IPrivateCar{
+) : IPrivateCar {
 
     abstract override val mainUser: Person?
 

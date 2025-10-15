@@ -62,6 +62,10 @@ class IPU<AREA, T>(
         return generate(surveyHouseholds, conditions).mapValues { it.value.map { it.toSynthesisHousehold() } }
     }
 
+    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<SynthesisHousehold<out T>>> {
+        TODO("Not yet implemented")
+    }
+
     fun generate(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
         conditions: Map<AREA, List<Rule<in T>>>,
@@ -75,19 +79,6 @@ class IPU<AREA, T>(
                     val ipu = calculate(surveyHouseholds, rules)
                     ipu.extractFrom()
                 }
-            }
-    }
-
-    fun calculateGrouped(
-        surveyHouseholds: Collection<SurveyHousehold<T>>,
-        conditions: Map<AREA, List<Rule<in T>>>,
-    ): Map<AREA, Map<ScalableVector, List<SurveyHousehold<out T>>>> {
-        return conditions.entries
-            .addProgressBar(
-                label = IPU_GENERATION_LABEL,
-                expectedCount = conditions.size.toLong()
-            ).associate { (zone, rules) ->
-                zone to calculate(surveyHouseholds, rules)
             }
     }
 
@@ -108,7 +99,7 @@ class IPU<AREA, T>(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
         rules: List<Rule<in T>>,
 
-        ): Map<ScalableVector, List<SurveyHousehold<out T>>> {
+    ): Map<ScalableVector, List<SurveyHousehold<out T>>> {
         val vectorMapping = surveyHouseholds.associateWith { it.toScalableVector(rules) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
@@ -149,10 +140,8 @@ open class GenericCollector<X, T>(
         return amounts.zip(values).flatMap { (amount, households) ->
             households.pickWithReplacement(amount)
         }
-
     }
 }
-
 
 /**
  * There may be different strategies to pick a certain amount of survey households from a scalable vector. This
@@ -184,16 +173,7 @@ class SampleAndCollect<T>(
     random: Random = Random(1),
     roundingStrategy: RoundingStrategy = standardRoundingStrategy,
 ) : GenericCollector<ScalableVector, T>(random, { roundingStrategy.convertToInts(it.map { it.scalar }) }),
-    GenerateHouseholdsFromVector<T> {
-//    override fun Map<ScalableVector, List<SurveyHousehold<out T>>>.extract(): List<SurveyHousehold<out T>> {
-//        val wholeAmounts = standardRoundingStrategy.convertToInts(keys.map { it.scalar })
-//        return wholeAmounts.zip(values).flatMap { (amount, households) ->
-//            households.pickWithReplacement(amount)
-//
-//        }
-//
-//    }
-}
+    GenerateHouseholdsFromVector<T>
 
 fun interface RoundingStrategy {
     fun convertToInts(values: Collection<Double>): List<Int>

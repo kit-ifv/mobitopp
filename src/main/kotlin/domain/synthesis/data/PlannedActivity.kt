@@ -82,7 +82,7 @@ data class ActivityBinaryRecord(
     val startTime: Long,
     val duration: Int,
     val activityCode: Int,
-): BinaryWritable {
+) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)

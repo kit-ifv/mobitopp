@@ -8,16 +8,14 @@ import core.modelsteps.Resource
 import core.modelsteps.Warning
 import utils.Identifiable
 import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
 import java.io.DataOutputStream
 import java.nio.file.Path
 
-
-interface Simplifiable<TO: BinaryWritable> {
-    fun simplify() : TO
+interface Simplifiable<TO : BinaryWritable> {
+    fun simplify(): TO
 }
 
-interface BinaryWritable{
+interface BinaryWritable {
     fun writeTo(outStream: DataOutputStream)
 }
 
@@ -28,7 +26,7 @@ data class CarBinaryRecord(
     val mainUserId: Long,
     val segmentCode: Int,
     val engineCode: Int,
-): BinaryWritable {
+) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)
@@ -45,9 +43,7 @@ class GuaranteedCache<E : Identifiable<I>, I>(
     val cacheFilePath: Path,
     val binaryReader: BinaryReader<E>,
     val originalFilePath: Path,
-): AddResourceStep<E, I> {
-
-
+) : AddResourceStep<E, I> {
 
     private val binaryResource: BinaryFileResource<E> = BinaryFileResource(
         path = cacheFilePath,
@@ -69,7 +65,6 @@ class GuaranteedCache<E : Identifiable<I>, I>(
 //    }
 
     fun convertOriginalElement() {
-
     }
 
     override val repository: MutableRepository<E, I>

@@ -1,5 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
+import domain.synthesis.Signature
 import domain.synthesis.behavior.SurveyHousehold
 
 /**
@@ -20,7 +21,7 @@ import domain.synthesis.behavior.SurveyHousehold
  */
 class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1.0) {
     private val array: IntArray = vector.toIntArray()
-    val signature: Map<Int, Int> = array.withIndex().filter { it.value != 0 }.associate { (i, value) -> i to value }
+    val signature: Signature = array.withIndex().filter { it.value != 0 }.associate { (i, value) -> i to value }
 
     /**
      * A read-only property that provides a list view of the [array] for external access.
@@ -36,8 +37,8 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
      */
     fun currentValueForIndex(index: Int): Double = array[index] * scalar
 
+    fun attributeForIndex(index: Int): Int = array[index]
 
-    fun attributeForIndex(index: Int): Int  = array[index]
     /**
      * Determines whether this vector applies to a given rule based on the value at the [ruleIndex].
      * A value other than 0 at the [ruleIndex] indicates that the vector applies to the rule.

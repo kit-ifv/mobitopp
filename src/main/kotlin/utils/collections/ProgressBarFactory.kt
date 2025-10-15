@@ -31,8 +31,10 @@ fun <I, T> I.addProgressBar(
         this
     }
 }
-fun standardProgressBar(    label: String,
-                            expectedCount: Number) = defaultProgressBarBuilder(label, expectedCount).build()
+fun standardProgressBar(
+    label: String,
+    expectedCount: Number
+) = defaultProgressBarBuilder(label, expectedCount).build()
 fun <T> Collection<T>.addProgressBar(label: String, visible: Boolean = true) = this.addProgressBar(label, size, visible)
 fun <T> Iterable<T>.addProgressBar(
     label: String,

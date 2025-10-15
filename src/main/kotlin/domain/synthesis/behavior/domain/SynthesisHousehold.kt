@@ -2,7 +2,6 @@ package domain.synthesis.behavior.domain
 
 import domain.shared.location.Location
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.data.EconomicStatus
 import edu.kit.ifv.units.Currency
@@ -17,8 +16,9 @@ class SynthesisHousehold<T>(
     override val surveyHouseholdId: Int = 0,
     override var income: Currency = 0.euros,
 
-): ISurveyHousehold<T>{
+) : ISurveyHousehold<T> {
     val id = getNextId()
+
     // Whatever the type T is of my household class, the members must be at least that type or better
     override var members: MutableList<SynthesisPerson<out T>> = mutableListOf()
     lateinit var location: Location

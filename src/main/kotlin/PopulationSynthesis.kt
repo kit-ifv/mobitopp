@@ -40,7 +40,10 @@ import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
 import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
 import domain.synthesis.behavior.householdgeneration.IPU
+import domain.synthesis.behavior.householdgeneration.MapRuleProvider
 import domain.synthesis.behavior.householdgeneration.Rule
+import domain.synthesis.behavior.householdgeneration.RuleBasedPopulationSynthesis
+import domain.synthesis.behavior.householdgeneration.RuleProvider
 import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
@@ -188,14 +191,15 @@ class SynthesisSteps<T : Any>(
         lambda: () -> HouseholdSynthesis<Zone, T>
     ) {
         val generator = lambda()
-        // TODO reenable
-//        require(randsums.keys.all { it in zones }) {
-//            "Zone Ids: ${
-//                randsums.keys.filter { it !in zones }.map { it.id }
-//            } requested by the marginal sums are not found" +
-//                "in the configuration. The program will terminate"
-//        }
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
+    }
+
+    fun synthesisNew(
+        ruleProvider: RuleProvider<Zone, in T>,
+        lambda: () -> RuleBasedPopulationSynthesis<Zone, T>
+    ) {
+        val generator = lambda()
+        householdsByZone = generator.synthesizeAll()
     }
 
     // TODO refactor, use or discard this method
@@ -377,9 +381,6 @@ fun examplePopulationSynthesis() {
 
 //        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
         val rules: Map<Zone, List<Rule<Any>>> = emptyMap()
-//            targets.associate {
-//            zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
-//        }
 
         synthesis(rules) {
             IPU { vectors, observers ->
@@ -390,6 +391,7 @@ fun examplePopulationSynthesis() {
                 }
             }
         }
+
         assignLocations {
             AssignAroundZoneCentroid(100.meters)
         }

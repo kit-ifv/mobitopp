@@ -84,7 +84,7 @@ data class HouseholdBinaryRecord(
     val incomePerMonth: Double,
     val economicStatusCode: Int,
     val location: Location,
-): BinaryWritable {
+) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)
@@ -98,6 +98,7 @@ data class HouseholdBinaryRecord(
         }
     }
 }
+
 /**
  * The economic status as taken from the original mobiTopp codebase
  */

@@ -7,12 +7,9 @@ import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.parser.ActivityLocation
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
-import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import utils.CodePlan
 import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
 import utils.binary.DefaultBinaryWriter
-import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
@@ -44,7 +41,7 @@ class FixedDestinationWriter : DefaultBinaryWriter<ActivityLocation>() {
 //        act.run {
 //            writeLong(person.id.value) //  8 Bytes
 //            writeInt(activityType.code) // 12 Bytes
-////            writeLong(location.zone?.id?.value ?: -1) // 20 Bytes
+// //            writeLong(location.zone?.id?.value ?: -1) // 20 Bytes
 //            encodeLocation(location) // 60 Bytes
 //
 //            // TODO maybe add lateral distance if needed.

@@ -16,7 +16,6 @@ import utils.units.AbsoluteTime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-
 fun SynthesisContext.activityCsvParser(
     errorHandling: ErrorHandling,
     columns: ActivitiesColumns,
@@ -42,18 +41,17 @@ fun SynthesisContext.activityCsvParser(
 
 fun <T, S> CsvParser<T>.convert(converter: (T) -> S) {
     val parser = activityBinaryCsvParser()
-
 }
 
 fun main() {
     val parser = activityBinaryCsvParser()
     val functor: (PersonId) -> MutablePerson = TODO()
     parser.convert {
-        MutablePlannedActivity(ActivityId(it.id),
+        MutablePlannedActivity(
+            ActivityId(it.id),
             functor(PersonId(it.personId)),
             42
-            ).apply {
-
+        ).apply {
         }
     }
 }
@@ -68,9 +66,8 @@ fun activityBinaryCsvParser(columns: ActivitiesColumns = ActivitiesColumns(), er
             duration = row.int(columns.durationColumn),
             activityCode = row.int(columns.activityTypeColumn),
 
-            )
+        )
     }
-
 
 data class ActivitiesColumns(
     val personColumn: String = "personId",

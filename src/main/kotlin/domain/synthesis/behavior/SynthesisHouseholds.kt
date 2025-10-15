@@ -58,8 +58,6 @@ class SurveyHousehold<T>(
         }
     }
 
-
-
     override fun toString(): String {
         return "Survey Household($surveyHouseholdId) [${members.joinToString { it.toString() }}"
     }

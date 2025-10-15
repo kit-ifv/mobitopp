@@ -8,7 +8,7 @@ import domain.synthesis.data.Person
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import java.io.DataOutputStream
 
-data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: Location): Simplifiable<ActivityLocationBinaryRecord> {
+data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: Location) : Simplifiable<ActivityLocationBinaryRecord> {
     override fun simplify(): ActivityLocationBinaryRecord {
         return ActivityLocationBinaryRecord(
             person.id.value,
@@ -22,7 +22,7 @@ data class ActivityLocationBinaryRecord(
     val personId: Long,
     val activityCode: Int,
     val location: Location,
-): BinaryWritable {
+) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.writeLong(personId)
         outStream.writeInt(activityCode)

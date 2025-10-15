@@ -202,7 +202,6 @@ fun LoadHouseholdContext.householdsFromCsvStep(
 }
 
 fun LoadHouseholdContext.fillCache() {
-
 }
 
 fun LoadHouseholdContext.runStep(

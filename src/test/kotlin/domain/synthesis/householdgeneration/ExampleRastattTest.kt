@@ -2,7 +2,6 @@ package domain.synthesis.householdgeneration
 
 import domain.shared.location.ZoneId
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ZoneCheckRule

@@ -1,7 +1,6 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AbstractAddResourceStep
-import core.modelsteps.AddCsvStep
 import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
@@ -24,7 +23,6 @@ import domain.synthesis.parser.binary.BinaryActivityReader
 import domain.synthesis.parser.binary.BinaryActivityWriter
 import utils.CodePlan
 import utils.ErrorHandling
-import utils.Identifiable
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
 import utils.csv.CsvParser
@@ -66,7 +64,7 @@ class ConvertedCsvResource<X, E>(
     private val reusable: Boolean = false,
     val converter: (X) -> E
 
-    ) : Resource<E> {
+) : Resource<E> {
     override val name = path.fileName.toString()
     override val source: String = path.toString()
     override val elements: Sequence<E>
@@ -120,7 +118,7 @@ data class ActivityCsvConfig(
 fun LoadPlannedActivitiesContext.runStep(
     step: AbstractAddResourceStep<MutablePlannedActivity, ActivityId>,
 
-    ) = runStep {
+) = runStep {
     step
 }
 
@@ -173,9 +171,9 @@ interface LoadPlannedActivitiesContext : DemandSimContext {
         personRepository[personId]
     ) {
         "Referenced person id $personId could not be found in personRepo:" +
-                " ${
-                    personRepository.elements.map { it.id }.toList()
-                        .sortedBy { abs(it.value - personId.value) }.take(ERROR_OUTPUT_SIZE)
-                }"
+            " ${
+                personRepository.elements.map { it.id }.toList()
+                    .sortedBy { abs(it.value - personId.value) }.take(ERROR_OUTPUT_SIZE)
+            }"
     }
 }

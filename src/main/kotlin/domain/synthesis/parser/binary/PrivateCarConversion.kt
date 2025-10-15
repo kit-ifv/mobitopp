@@ -1,7 +1,5 @@
 package domain.synthesis.parser.binary
 
-import domain.jackson.BinaryWritable
-import domain.jackson.CarBinaryRecord
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
@@ -14,10 +12,7 @@ import domain.synthesis.data.PersonId
 import domain.synthesis.data.PrivateCar
 import domain.synthesis.data.buildEngine
 import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
 import utils.binary.DefaultBinaryWriter
-import utils.binary.RepresentativeBinaryWriter
-import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
@@ -47,9 +42,9 @@ class BinaryCarReader(
     }
 }
 
-class BinaryCarWriter: DefaultBinaryWriter<PrivateCar>()
+class BinaryCarWriter : DefaultBinaryWriter<PrivateCar>()
 
-//class BinaryCarWriter : RepresentativeBinaryWriter<PrivateCar> {
+// class BinaryCarWriter : RepresentativeBinaryWriter<PrivateCar> {
 //    override fun operateSimplifiedStream(
 //        outStream: DataOutputStream,
 //        elements: Collection<BinaryWritable>,
@@ -60,12 +55,12 @@ class BinaryCarWriter: DefaultBinaryWriter<PrivateCar>()
 //        elements.forEach { it.writeTo(outStream) }
 //    }
 //
-////    override fun operateStream(outStream: DataOutputStream, elements: Collection<PrivateCar>) {
-////        val size = elements.size
-////        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
-////        outStream.writeInt(0) // string length, not needed here, so 0.
-////        elements.forEach { outStream.encodePrivateCar(it) }
-////    }
+// //    override fun operateStream(outStream: DataOutputStream, elements: Collection<PrivateCar>) {
+// //        val size = elements.size
+// //        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
+// //        outStream.writeInt(0) // string length, not needed here, so 0.
+// //        elements.forEach { outStream.encodePrivateCar(it) }
+// //    }
 //
 //    private fun DataOutputStream.encodePrivateCar(car: PrivateCar) {
 //        car.run {
@@ -75,7 +70,7 @@ class BinaryCarWriter: DefaultBinaryWriter<PrivateCar>()
 //            writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bytes
 //            writeInt(segment.code) // 16 Bytes
 //            writeInt(engine.type.code) // 20 Bytes
-////            encodeLocation(location) // 60 Bytes
+// //            encodeLocation(location) // 60 Bytes
 //        }
 //    }
-//}
+// }

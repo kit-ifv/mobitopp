@@ -1,6 +1,5 @@
 @file:Suppress("UnusedPrivateProperty")
 
-import application.config.ExampleProjectContext
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
 import application.steps.model.householdHomeLocation
@@ -23,8 +22,6 @@ import application.steps.parser.loadVisumNetwork
 import core.modelsteps.Simulation
 import domain.shared.config.Yaml
 import domain.shared.enums.LegacyActivityType
-import domain.shared.enums.MainModes
-import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
@@ -33,7 +30,6 @@ import domain.simulation.behavior.legacyModeChoice
 import domain.simulation.config.ShortTermConfig
 import domain.simulation.events.personStateMachine
 import domain.synthesis.behavior.AssignAroundZoneCentroid
-import domain.synthesis.data.EconomicStatus
 import domain.synthesis.parser.NoActivityStartShifter
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share

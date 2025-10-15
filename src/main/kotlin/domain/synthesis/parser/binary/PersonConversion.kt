@@ -9,14 +9,10 @@ import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
-import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.UnitIntervalValue
 import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
 import utils.binary.DefaultBinaryWriter
-import utils.collections.addProgressBar
-import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
