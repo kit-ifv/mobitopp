@@ -4,23 +4,18 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.module.SimpleModule
 import java.util.ServiceLoader
 import kotlin.collections.component1
 import kotlin.collections.component2
 
 /**
- * Registers custom deserializers through the service loader api to the yaml parsing.
- */
-class RepoFactory<T>(val name: String, containedClass: Class<T>, deserializer: JsonDeserializer<T> ): SimpleModule(name) {
-    init {
-        addDeserializer(containedClass, deserializer)
-    }
-}
-
-/**
+ * Provides a simple deserializing from string to instance.
  * Collects all mappings from strings to T from subprojects through the ServiceLoader
- * API.
+ * API. (Collects all Repo<T> instances that are declared in a subproject).
+ *
+ * @param default default mappings from strings to their appropriate translation.
+ * @param wraps parameter to declare which class this Deserializer wraps. Needed for the collection of Repo<T>
+ *     instances.
  */
 class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<String, T> = emptyMap()): JsonDeserializer<T>() {
 
