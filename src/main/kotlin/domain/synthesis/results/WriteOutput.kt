@@ -195,7 +195,7 @@ object HouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
                 members.size,
 //                "TODO domcode",
 //                "TODO type",
-                location.zone ?: "NULL",
+                location.zone?.id ?: "NULL",
                 location,
                 location.coordinate.longitudeDegrees,
                 location.coordinate.latitudeDegrees,

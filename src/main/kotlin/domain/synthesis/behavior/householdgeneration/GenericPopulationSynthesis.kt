@@ -2,10 +2,16 @@ package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.jgrapht.Graphs
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
+import utils.collections.addProgressBar
 import utils.collections.partitionValues
+import utils.collections.standardProgressBar
 
 interface GenericPopulationSynthesis<AREA, T> {
     val ruleProvider: RuleProvider<AREA, T>
@@ -24,12 +30,22 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
         val rootRegions = hierarchy.traceRoots(targetAreas)
         val independentRegions = separateIrrelevantRegions(rootRegions)
 
+        val progress = standardProgressBar("Hierarchical IPU", independentRegions.size.toLong())
 
-        val ex = independentRegions.flatMap { (root, childs) ->
-            synthesize(root, hierarchy, childs).entries
-        }.associate { it.key to it.value }
+        val out = runBlocking {
 
-        return ex.filterKeys { it in targetAreas }
+            independentRegions.entries.map { (root, childs) ->
+                async(Dispatchers.Default) {
+                    val result = synthesize(root, hierarchy, childs)
+                    progress.step()
+                    result
+                }
+            }.awaitAll()
+                .flatMap { it.entries }
+                .associate { it.key to it.value }
+
+        }
+        return out.filterKeys { it in targetAreas }
     }
 
     private fun Map<AREA, *>.hasIrrelevantKeys(): Boolean {
