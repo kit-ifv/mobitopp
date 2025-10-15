@@ -3,10 +3,8 @@ package domain.synthesis.behavior.householdgeneration
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import org.jgrapht.Graphs
-import org.jgrapht.graph.AsSubgraph
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
- import org.jgrapht.traverse.BreadthFirstIterator
 import utils.collections.partitionValues
 
 interface GenericPopulationSynthesis<AREA, T> {
@@ -28,7 +26,6 @@ interface HierarchicalPopulationSynthesis<AREA, T> : GenericPopulationSynthesis<
 
 
         val ex = independentRegions.flatMap { (root, childs) ->
-            println("Working on $root subelements=${childs.size}")
             synthesize(root, hierarchy, childs).entries
         }.associate { it.key to it.value }
 
@@ -136,13 +133,17 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
     fun getAllDescendants(target: AREA) = hierarchy.getAllDescendants(target)
     fun getAllDescendantRules(target: AREA) = getAllDescendants(target).associateWith { getRules(it) }
     @Deprecated("Use conflict free rules instead.")
-    fun getAllRules(target: AREA): Map<AREA, Collection<Rule<T>>> {
+    fun getAllRulesFor(target: AREA): Map<AREA, Collection<Rule<T>>> {
         val rules = getAllDescendantRules(target)
         return rules + (target to getRules(target))
     }
     fun getAllRuleLogics(): List<NamedCountRule<RawSurveyInfo>>
     operator fun contains(area: AREA): Boolean
 
+    /**
+     * Get all rules registered in this object and return all areas that have at least 1 rule attached
+     */
+    fun getAllRules(): Map<AREA, Collection<Rule<T>>>
     fun getAllLeafs() = hierarchy.getAllLeafs()
 
     /**
@@ -157,7 +158,7 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
         target: AREA,
         conflictResolution: HandleRuleConflicts<AREA> = UseLowestCoveredLeaf(),
     ): List<Rule<T>> {
-        val rules = getAllRules(target)
+        val rules = getAllRulesFor(target)
 
         val logicSeparated = rules.entries.flatMap { (k, v) ->
             v.map { it.logic to k }
