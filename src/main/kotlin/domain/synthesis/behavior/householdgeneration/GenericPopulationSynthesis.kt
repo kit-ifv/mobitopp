@@ -112,7 +112,10 @@ interface RuleProvider<AREA, T> {
     fun getAllRules(): Map<AREA, Collection<Rule<T>>>
 }
 
-class MapRuleProvider<AREA, T>(private val ruleMap: MutableMap<AREA, List<Rule<T>>> = mutableMapOf()) : RuleProvider<AREA, T> {
+class MapRuleProvider<AREA, T>(
+    private val ruleMap: MutableMap<AREA, List<Rule<T>>> = mutableMapOf()
+) :
+    RuleProvider<AREA, T> {
 
     override fun getRules(target: AREA): Collection<Rule<T>> {
         return ruleMap[target] ?: emptyList()
@@ -163,7 +166,10 @@ class UseLowestCoveredLeaf<AREA> : HandleRuleConflicts<AREA> {
 interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
     val hierarchy: HierarchicElement<AREA>
 
-    fun partition(predicate: (AREA) -> Boolean): Pair<HierarchicalRuleProvider<AREA, T>, HierarchicalRuleProvider<AREA, T>>
+    fun partition(predicate: (AREA) -> Boolean): Pair<
+        HierarchicalRuleProvider<AREA, T>,
+        HierarchicalRuleProvider<AREA, T>
+        >
 
     fun getAllDescendants(target: AREA) = hierarchy.getAllDescendants(target)
     fun getAllDescendantRules(target: AREA) = getAllDescendants(target).associateWith { getRules(it) }
@@ -173,6 +179,7 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
         val rules = getAllDescendantRules(target)
         return rules + (target to getRules(target))
     }
+
     fun getAllRuleLogics(): List<NamedCountRule<RawSurveyInfo>>
     operator fun contains(area: AREA): Boolean
 

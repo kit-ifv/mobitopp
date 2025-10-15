@@ -58,21 +58,6 @@ interface LoadHouseholdContext : DemandSimContext {
     }
 }
 
-/**
- * ROBIN: I think extracting a parameter object may be helpful to avoid the long parameter list, and makes the method
- * significantly more readable.
- */
-data class HouseholdColumns(
-    val hhNumberColumn: String = "householdNumber",
-    val hhIdColumn: String = "householdId",
-    val yearColumn: String = "year",
-    val zoneColumn: String = "homeZone",
-    val locationColumn: String = "homeLocation",
-    val domCodeColumn: String = "domCode",
-    val typeColumn: String = "type",
-    val incomeColumn: String = "income",
-    val economicalStatusColumn: String = "economicalStatus",
-)
 fun interface HouseholdIDFilter : IDFilter<HouseholdId>
 
 class PercentOfPopulation(fraction: Double) : HouseholdIDFilter {
@@ -99,14 +84,6 @@ class HouseholdStepBuilder(val seed: Long, val converter: (ZoneId) -> Zone) :
     GroupedStepBuilder<MutableHousehold, HouseholdId>() {
     override val reader: BinaryReader<MutableHousehold> = BinaryHouseholdReader(converter, seed)
     override val writer: BinaryWriter<MutableHousehold> = BinaryHouseholdWriter()
-//    override fun fromCSV(
-//        source: Path,
-//        lambda: context(Path) () -> AbstractAddResourceStep<MutableHousehold, HouseholdId>,
-//    ): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
-//        return context(source) {
-//            FileBasedAddResourceStep(source, lambda(source))
-//        }
-//    }
 }
 
 @Suppress("LongParameterList", "UnusedParameter")

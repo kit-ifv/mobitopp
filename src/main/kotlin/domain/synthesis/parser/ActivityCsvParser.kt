@@ -39,25 +39,11 @@ fun SynthesisContext.activityCsvParser(
     }
 }
 
-fun <T, S> CsvParser<T>.convert(converter: (T) -> S) {
-    val parser = activityBinaryCsvParser()
-}
-
-fun main() {
-    val parser = activityBinaryCsvParser()
-    val functor: (PersonId) -> MutablePerson = TODO()
-    parser.convert {
-        MutablePlannedActivity(
-            ActivityId(it.id),
-            functor(PersonId(it.personId)),
-            42
-        ).apply {
-        }
-    }
-}
-
-fun activityBinaryCsvParser(columns: ActivitiesColumns = ActivitiesColumns(), errorHandling: ErrorHandling = ErrorHandling.WARNING) =
-    CsvParser<ActivityBinaryRecord>(errorHandling) { row ->
+fun activityBinaryCsvParser(
+    columns: ActivitiesColumns = ActivitiesColumns(),
+    errorHandling: ErrorHandling = ErrorHandling.WARNING
+) =
+    CsvParser(errorHandling) { row ->
         ActivityBinaryRecord(
             row.index.toLong(),
             row.long(columns.personColumn),

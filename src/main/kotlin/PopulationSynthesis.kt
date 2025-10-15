@@ -40,10 +40,7 @@ import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
 import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
 import domain.synthesis.behavior.householdgeneration.IPU
-import domain.synthesis.behavior.householdgeneration.MapRuleProvider
 import domain.synthesis.behavior.householdgeneration.Rule
-import domain.synthesis.behavior.householdgeneration.RuleBasedPopulationSynthesis
-import domain.synthesis.behavior.householdgeneration.RuleProvider
 import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
@@ -192,14 +189,6 @@ class SynthesisSteps<T : Any>(
     ) {
         val generator = lambda()
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
-    }
-
-    fun synthesisNew(
-        ruleProvider: RuleProvider<Zone, in T>,
-        lambda: () -> RuleBasedPopulationSynthesis<Zone, T>
-    ) {
-        val generator = lambda()
-        householdsByZone = generator.synthesizeAll()
     }
 
     // TODO refactor, use or discard this method
