@@ -3,7 +3,6 @@ package application.config
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.simulation.behavior.DestinationChoiceParameters
-import domain.simulation.behavior.ModeChoiceParameters
 import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -47,7 +46,7 @@ data class ShortTermConfig<MODECHOICEPARAMETERS>(
     val sharingProviderName: String,
     val vehicleCountColumn: String,
 
-    ) {
+) {
     fun validate() {
         val paths = listOf(
             matrixRepo,

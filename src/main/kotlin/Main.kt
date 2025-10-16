@@ -84,12 +84,21 @@ fun main(args: Array<String>) {
         )
 
         loadImpedance(
-            costMatrixConfig = if(shortTermConfig.costMatrixConfig.isAbsolute)  shortTermConfig.costMatrixConfig
-            else shortTermConfig.matrixRepo.resolve(shortTermConfig.costMatrixConfig),
-            durationMatrixConfig = if(shortTermConfig.durationMatrixConfig.isAbsolute)  shortTermConfig.durationMatrixConfig
-            else shortTermConfig.matrixRepo.resolve(shortTermConfig.durationMatrixConfig),
-            distanceMatrix = if(shortTermConfig.distanceMatrix.isAbsolute) shortTermConfig.distanceMatrix
-            else shortTermConfig.matrixRepo.resolve(shortTermConfig.distanceMatrix),
+            costMatrixConfig = if (shortTermConfig.costMatrixConfig.isAbsolute) {
+                shortTermConfig.costMatrixConfig
+            } else {
+                shortTermConfig.matrixRepo.resolve(shortTermConfig.costMatrixConfig)
+            },
+            durationMatrixConfig = if (shortTermConfig.durationMatrixConfig.isAbsolute) {
+                shortTermConfig.durationMatrixConfig
+            } else {
+                shortTermConfig.matrixRepo.resolve(shortTermConfig.durationMatrixConfig)
+            },
+            distanceMatrix = if (shortTermConfig.distanceMatrix.isAbsolute) {
+                shortTermConfig.distanceMatrix
+            } else {
+                shortTermConfig.matrixRepo.resolve(shortTermConfig.distanceMatrix)
+            },
         )
 
         loadBehaviorModels(legacyDestinationChoice, legacyModeChoice, legacyChoiceModelModes)
@@ -102,13 +111,12 @@ fun main(args: Array<String>) {
     }
 }
 
-
 fun StandardContext.toExampleContext(): ExampleProjectContext {
     return ExampleProjectContext(
         scenarioName = scenarioName,
         dataFolder = dataFolder,
         regionTypeCodes = regionTypeCodes,
-        economicalStatusCodes =economicalStatusCodes,
+        economicalStatusCodes = economicalStatusCodes,
         sexCodes = sexCodes,
         graduationCodes = graduationCodes,
         employmentCodes = employmentCodes,

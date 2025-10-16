@@ -17,7 +17,11 @@ import kotlin.collections.component2
  * @param wraps parameter to declare which class this Deserializer wraps. Needed for the collection of Repo<T>
  *     instances.
  */
-class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<String, T> = emptyMap(), val loadFromSubmodules: Boolean): JsonDeserializer<T>() {
+class GenericKeyValueDeserializer<T>(
+    val wraps: Class<T>,
+    val default: Map<String, T> = emptyMap(),
+    val loadFromSubmodules: Boolean
+) : JsonDeserializer<T>() {
 
     val deserializers: Map<String, T> by lazy {
         collectParameterSets()
@@ -26,15 +30,15 @@ class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<Strin
     /**
      * Collects all parameter sets of subprojects and ofc. the default one.
      */
-    private fun collectParameterSets() : Map<String, T>  {
+    private fun collectParameterSets(): Map<String, T> {
         val result = mutableMapOf<String, T>()
         result.putAll(default)
         // 2. Discover and register from subprojects via ServiceLoader
         if (loadFromSubmodules) {
             ServiceLoader.load(Repo::class.java)
                 .forEach { parameterRepo ->
-                    println("Loading ${parameterRepo.name} in ${this::class.java.name}")
-                    if(parameterRepo.wraps == wraps) {
+                    if (parameterRepo.wraps == wraps) {
+                        println("Loading ${parameterRepo.name}")
                         parameterRepo.addAllPairs(result)
                     }
                 }
@@ -52,8 +56,8 @@ class GenericKeyValueDeserializer<T>(val wraps: Class<T>, val default: Map<Strin
             node.isTextual -> node.asText()
             else -> node.get("type").asText()
         }
-        return deserializers[type] ?: error("Unknown type: $type. Can't deserialize $type. Known types: ${deserializers.keys}")
-
+        return deserializers[type] ?: error("Unknown type: $type. Can't deserialize $type. " +
+            "Known types: ${deserializers.keys}")
     }
 }
 
@@ -67,8 +71,10 @@ fun<T> Repo<*>.addAllPairs(map: MutableMap<String, T>) {
     getParameterSets().forEach { (key, value) ->
         val existing = map.putIfAbsent(key, value as T)
         if (existing != null) {
-            error("Duplicate Key-Value-Pair with key '$key' encountered. From " +
-                    "Repo with name '${name}'")
+            error(
+                "Duplicate Key-Value-Pair with key '$key' encountered. From " +
+                    "Repo with name '$name'"
+            )
         }
     }
 }
