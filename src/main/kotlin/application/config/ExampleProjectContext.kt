@@ -37,7 +37,10 @@ import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.config.DemandSimContext
 import domain.simulation.events.PersonBehavior
+import domain.simulation.events.PersonStateContext
 import domain.simulation.results.AgentResultsContext
+import domain.simulation.results.AvailabilityWriter
+import domain.simulation.results.ConcurrentAvailabilityWriter
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
@@ -83,7 +86,8 @@ interface StandardContext :
     RoadNetworkContext,
     BuildAgentsContext,
     AddDrtProviderContext,
-    AddDrtMembershipContext
+    AddDrtMembershipContext,
+    PersonStateContext
 
 data class ExampleProjectContext(
     override val scenarioName: String,
@@ -148,4 +152,8 @@ data class ExampleProjectContext(
     override val drtProviderAgents = MapRepository<DrtProviderAgent, DrtProviderId>(
         "drt providers agents"
     )
+
+    override val availabilityWriter: AvailabilityWriter by lazy {
+        ConcurrentAvailabilityWriter(resultDir.resolve("availability.csv"))
+    }
 }
