@@ -15,6 +15,7 @@ import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.DummyDrtAlgorithm
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.currentlyAffectedProviders
+import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
@@ -99,7 +100,7 @@ class RidepoolingScenario {
 
         val builder = BuildAgents(
             seed = 1L,
-            personStateMachine.withRecording(),
+            NoWriters.personStateMachine.withRecording(),
             syntheticBehavior,
             drtStateMachine = drtProviderStateMachine.withRecording(),
             drtAlgorithm = algorithm,
