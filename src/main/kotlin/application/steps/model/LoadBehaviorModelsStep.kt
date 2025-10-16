@@ -26,7 +26,6 @@ import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.DrtAvailabilitySelector
 import domain.simulation.behavior.ModeAvailabilityModel
 import domain.simulation.behavior.ModeChoiceCharacteristics
-import domain.simulation.behavior.ProviderAvailability
 import domain.simulation.behavior.available
 import domain.simulation.config.DemandSimContext
 import domain.simulation.events.GenerateDestinationCharacteristics
@@ -34,7 +33,10 @@ import domain.simulation.events.GenerateModeCharacteristics
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.IPerson
+import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
@@ -85,7 +87,8 @@ fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
 }
 
 interface LoadBehaviorModelsContext : DemandSimContext {
-    val sharingProviderAgents: Repository<SharingProviderAgent, SharingProviderId>
+    val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
+    val drtProviderRepository: Repository<DrtProvider, DrtProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
     val attractivenessModel: LateInit<AttractivenessModel>
@@ -106,15 +109,23 @@ open class LoadBehaviorModelsStep(
     override val name: String = "Load behavior models!"
     override val repository: MutableRepository<*, *>? = null
     override val dependentRepositories: Set<Repository<*, *>> = setOf(
-        context.zoneRepository, context.sharingProviderAgents
+        context.zoneRepository, context.sharingProviderRepository, context.drtProviderRepository
     )
 
     override fun execute() {
         val impedance = context.impedance.value
 
-        val providers = context.sharingProviderAgents.elements.associateBy { it.id }
+        val sharingProviders = context.sharingProviderRepository.elements.associateBy { it.id }
 
-        val providersByMode = providers.values.groupBy {
+        val sharingProvidersByMode = sharingProviders.values.groupBy {
+            it.mode
+        }.mapValues {
+            it.value.map { p -> p.id }.toSet()
+        }
+
+        val drtProviders = context.drtProviderRepository.elements.associateBy { it.id }
+
+        val drtProvidersByMode = drtProviders.values.groupBy {
             it.mode
         }.mapValues {
             it.value.map { p -> p.id }.toSet()
@@ -122,8 +133,12 @@ open class LoadBehaviorModelsStep(
 
         // TODO refactor availability model, as composite of availability rules
 
-        //TODO drtProvidersByMode!!!
-        val availability = AvailabilityModelWithSharing(modes, providersByMode, mapOf(), impedance)
+        val availability = AvailabilityModelWithSharing(
+            modes,
+            sharingProvidersByMode,
+            drtProvidersByMode,
+            impedance
+        )
 
         val modeChoice = modeChoiceModel.addFilter(availability.asResourceAvailabilityFilter())
 

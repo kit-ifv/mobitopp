@@ -6,6 +6,7 @@ import core.modelsteps.LateInit
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.Resource
+import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.asResource
 import domain.shared.location.Metrics
@@ -40,6 +41,10 @@ fun AddDrtProviderContext.newDrtProvider(scope: MutableDrtProviderData.() -> Uni
     val provider = MutableDrtProviderData(DrtProviderId(providerIdCounter++))
     provider.scope()
     AddDrtProviderStep(this, listOf(provider))
+}
+
+fun AddDrtProviderContext.finishDrtProviders() = runStep {
+    SealStep(drtProviderRepository)
 }
 
 fun AddDrtProviderContext.addDrtProvider(drtProvider: () -> MutableDrtProviderData) = runStep {
@@ -97,8 +102,7 @@ class AddDrtProviderStep(
 
     override val dependentRepositories = emptySet<Repository<*, *>>()
 
-    override fun verifyInput(): Warning? = validate {
-    }
+    override fun verifyInput(): Warning? = null
 
     override fun mockBehavior() = null
 }

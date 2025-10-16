@@ -317,7 +317,7 @@ class AvailabilityModelWithSharing(
     private fun isCarCurrentlyAvailable(): ProviderAvailability =
         takeIf {
             person.household.cars.isNotEmpty() &&
-                (isHome(person) || (person.lastTransportMode() == this))
+                (isHome(person) || (person.lastTransportMode() == modes.car))
         }?.let {
             modes.car.available( setOf(person.household))
         } ?: modes.car.notAvailable
@@ -332,15 +332,18 @@ class AvailabilityModelWithSharing(
                 val starts = it.stations.filter { s -> s.zonesByFoot.any { z -> person.location in z } }.toSet()
                 val ends = it.stations.filter { s -> s.zonesByFoot.any { z -> destination in z } }.toSet()
 
-                starts != ends && starts.isNotEmpty() && ends.isNotEmpty()
+                starts != ends && starts.isNotEmpty() && ends.isNotEmpty() //TODO
 
             }.flatMap {
                 it.stations
             }.filter {
                 it.zonesByFoot.any { zone -> person.location in zone }
+            }.takeIf {
+                it.isNotEmpty()
             }
+
         }?.let {
-            modes.bikeSharing.available( it)
+            modes.bikeSharing.available(it)
         } ?: modes.bikeSharing.notAvailable
 
 
