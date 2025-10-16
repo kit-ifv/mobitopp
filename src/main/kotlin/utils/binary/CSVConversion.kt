@@ -7,6 +7,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.exists
+import kotlin.io.path.notExists
 
 /**
  * Functional interface for writing a string encoded element onto a [DataOutputStream].
@@ -95,9 +96,11 @@ class CSVBinaryConverter {
         val numElements = reader.rows().count()
         val outputLocation: Path = outputFile ?: Path(csvFile.toString().replace(".csv", ".bin"))
         outputLocation.parent.toFile().mkdirs()
-        outputLocation.createFile()
+        outputLocation.takeIf { it.notExists() }?.createFile()
 
         outputLocation.bufferedDataOutputStream { outputStream ->
+            // Write sample hash code
+            outputStream.writeLong(0L)
             // Write the amount of elements that are expected to be found in this file.
             outputStream.writeInt(numElements)
             // Write the string length to be expected from this binary file.

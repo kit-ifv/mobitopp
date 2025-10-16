@@ -27,6 +27,7 @@ import domain.simulation.events.EndActivityMessage
 import domain.simulation.events.EndLegMessage
 import domain.simulation.events.FinishedPerson
 import domain.simulation.events.FirstActivityMessage
+import domain.simulation.events.NoWriters
 import domain.simulation.events.PerformLeg
 import domain.simulation.events.PerformingActivity
 import domain.simulation.events.PersonBehavior
@@ -206,7 +207,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 //        difficultAccess(zones[2], zones[2])
 //
 //    }
-    val stateMachine = RecordingStateMachineFactory(personStateMachine)
+    val stateMachine = RecordingStateMachineFactory(NoWriters.personStateMachine)
 
     fun statesOf(agent: PersonAgent) = stateMachine.of(agent)!!.history
     fun popStatesOf(agent: PersonAgent) = stateMachine.of(agent)!!.let { sm ->
