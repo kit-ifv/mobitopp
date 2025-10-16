@@ -112,7 +112,7 @@ fun ModeChoiceCharacteristics.travelTime(mode: Mode): Duration = impedance.durat
 fun ModeChoiceCharacteristics.travelCost(mode: Mode): Currency = impedance.cost(origin, destination, mode, time)
 
 @Suppress("MagicNumber")
-val legacyModeChoice = DiscreteStructure<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> {
+val legacyModeChoiceBuilder = DiscreteStructure<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> {
     option(LegacyMode.PEDESTRIAN) { mode, characteristics ->
         asc_ped +
             age_0_17_on_asc_ped * characteristics.isAgeIn0To17 +
@@ -210,6 +210,8 @@ val legacyModeChoice = DiscreteStructure<Mode, ModeChoiceCharacteristics, ModeCh
     }
 }.multinomialLogit(
     name = "LegacyModeChoiceModel"
-).build(
+)
+
+val legacyModeChoice = legacyModeChoiceBuilder.build(
     parameters = ModeChoiceParameters()
 )
