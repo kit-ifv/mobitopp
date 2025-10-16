@@ -75,7 +75,7 @@ val standardConfig = ShortTermConfig(
 
 @Suppress("LongMethod")
 fun main(args: Array<String>) {
-    val shortTermConfig: ShortTermConfig<ModeChoiceParameters> =
+    val shortTermConfig: ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters> =
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: standardConfig
 
     shortTermConfig.validate()
