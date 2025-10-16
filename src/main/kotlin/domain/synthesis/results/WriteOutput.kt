@@ -13,6 +13,7 @@ import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.employment
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter
+import kotlin.io.path.createDirectories
 
 //
 // Extension functions on existing classes.
@@ -47,6 +48,7 @@ interface CSVOutput<T> {
         }
 
     fun writeCSVToFile(path: Path, elements: Collection<T>) {
+        path.parent.createDirectories() // Ensure that the necessary parent directories exist.
         path.bufferedWriter().use { writer ->
             writer.write(header.joinToString(separator = ";",) { it })
             writer.newLine()
