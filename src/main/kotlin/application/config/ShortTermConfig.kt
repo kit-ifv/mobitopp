@@ -48,14 +48,29 @@ data class ShortTermConfig<MODECHOICEPARAMETERS>(
 
 ) {
     fun validate() {
-        val paths = listOf(
+        val paths = mutableListOf(
             matrixRepo,
-            costMatrixConfig,
-            durationMatrixConfig,
-            distanceMatrix,
             simulationContext.dataFolder,
             cachePath,
-        ).filter { !it.exists() }
+            zoneRepo
+        )
+        if (costMatrixConfig.isAbsolute) {
+            paths.add(costMatrixConfig)
+        } else {
+            paths.add(matrixRepo.resolve(costMatrixConfig))
+        }
+        if (durationMatrixConfig.isAbsolute) {
+            paths.add(durationMatrixConfig)
+        } else {
+            paths.add(matrixRepo.resolve(durationMatrixConfig))
+        }
+        if (distanceMatrix.isAbsolute) {
+            paths.add(distanceMatrix)
+        } else {
+            paths.add(matrixRepo.resolve(distanceMatrix))
+        }
+
+        paths.filter { !it.exists() }
         require(paths.isEmpty()) { "The following paths are not existing: $paths" }
     }
 }
