@@ -1,6 +1,5 @@
 @file:Suppress("UnusedPrivateProperty")
 
-import domain.simulation.behavior.legacyDestinationChoiceBuilder
 import application.config.ExampleProjectContext
 import application.config.ShortTermConfig
 import application.steps.model.assignCarUsers
@@ -26,7 +25,6 @@ import core.modelsteps.Simulation
 import domain.shared.config.Yaml
 import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.enums.LegacyActivityType
-import domain.shared.enums.LegacyMode
 import domain.shared.enums.MainModes
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.legacyChoiceModelModes
@@ -34,6 +32,7 @@ import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.DestinationChoiceParameters
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
 import domain.simulation.behavior.ModeChoiceParameters
+import domain.simulation.behavior.legacyDestinationChoiceBuilder
 import domain.simulation.behavior.legacyModeChoiceBuilder
 import domain.simulation.events.personStateMachine
 import domain.synthesis.behavior.AssignAroundZoneCentroid
@@ -44,31 +43,20 @@ import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
 
-private const val ROOT_FS = "\\\\ifv-fs/Forschung/Projekte_intern/mobitopp/Output"
-
-private val rootRastattPath = Path("$ROOT_FS/logiktram_rastatt_long-term-module/rastatt")
-
-private val rootKarlsruhePath = Path("$ROOT_FS/logiktram_karlsruhe_long-term-module/karlsruhe")
-
-private val rootHamburgPath = Path("$ROOT_FS/transmove-synthesis-city-bs/last-stable")
-
-
-private const val ROOT_TRANSMOVE_ENV =
-    "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input" +
-            "/transmove/mobitopp-env/data/zone-repository"
-
+val visum_network = Path("src/test/resources/rastatt.net")
+val attractivities = Path("data/attractivities.csv")
 val standardConfig = ShortTermConfig(
-    visumNetwork = Path("src/test/resources/rastatt.net"),
+    visumNetwork = visum_network,
     fractionOfPopulation = 1.0,
     matrixRepo = Path(ROOT_MTX),
-    costMatrixConfig = Path("cost-matrix-configuration_transmove_turbo.yaml"),
+    costMatrixConfig = Path( "cost-matrix-configuration_transmove_turbo.yaml"),
     durationMatrixConfig = Path("time-matrix-configuration_transmove_turbo.yaml"),
     distanceMatrix = Path("DIS_Car.mtx.bz2"),
     cachePath = Path("data/data-cache"),
     zoneMatrixCreationMethod = VisumMatrixCreator,
     simulationContext = ExampleProjectContext(
         scenarioName = "MobitoppReengineeringMain",
-        dataFolder = rootRastattPath,
+        dataFolder = Path("src/test/resources/testDemand/demand-data/"),
         modes = MainModes,
         simulationSeed = 42,
         regionTypeCodes = RegioStaR17
@@ -76,15 +64,16 @@ val standardConfig = ShortTermConfig(
     errorHandling = ErrorHandling.WARNING,
     resultPath = Path("results"),
     resultName = "mobitopp-main.csv",
-    zoneRepo = Path("src/test/resources/testDemand/zone-repository"),
+    zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
     destinationChoiceParameterSet = DestinationChoiceParameters(),
     modeChoiceParameterSet = ModeChoiceParameters(),
     choiceModelModes = legacyChoiceModelModes,
     sharingProviderName = "",
     vehicleCountColumn = "",
-    attractivitiesCSV = Path("data/attractivities.csv")
+    attractivitiesCSV = attractivities,
 )
 
+@Suppress("LongMethod")
 fun main(args: Array<String>) {
     val shortTermConfig: ShortTermConfig<ModeChoiceParameters> =
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: standardConfig
@@ -94,7 +83,7 @@ fun main(args: Array<String>) {
         shortTermConfig.simulationContext
     }.steps {
         loadZones()
-        loadVisumNetwork(shortTermConfig.visumNetwork ?: Path("src/test/resources/rastatt.net"))
+        loadVisumNetwork(shortTermConfig.visumNetwork ?: visum_network)
 
         val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
 
@@ -130,7 +119,7 @@ fun main(args: Array<String>) {
         finishPersons()
 
         loadAttractivities(
-            path = shortTermConfig.attractivitiesCSV ?: Path("data/attractivities.csv"),
+            path = shortTermConfig.attractivitiesCSV ?: attractivities,
             purposes = legacyChoiceModelPurposes,
         )
 
