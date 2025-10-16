@@ -40,8 +40,10 @@ class AddDrtMembershipsStep(
         }
     }
 
-    override fun verifyInput(): Warning? = validate {
-        //
+    override fun verifyInput(): Warning? = null
+
+    override fun validate(validationPrefix: Warning.() -> Unit): Warning? {
+        return super.validate(validationPrefix)
     }
 
     override val dependentRepositories: Set<Repository<*, *>> = setOf(

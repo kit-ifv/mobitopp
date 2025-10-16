@@ -66,7 +66,7 @@ fun PersonCsvContext.personCsvParser(
     return csvParser
 }
 
-private fun <R> String.parseMemberships(
+fun <R> String.parseMemberships(
     providersByName: Map<String, R>,
 ) = this
     .replace("{", "")

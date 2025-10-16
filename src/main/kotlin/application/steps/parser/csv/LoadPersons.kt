@@ -71,9 +71,14 @@ data class PersonCsvConfig(
  * Collects the instructions for initializing the person repository. Automatically sets the reader and writer
  * to the proper binary implementations.
  */
-class PersonStepBuilder(val seed: Long, val converter: (HouseholdId) -> MutableHousehold?) :
+class PersonStepBuilder(
+    val seed: Long,
+    val converter: (HouseholdId) -> MutableHousehold?,
+    val sharingConverter: (SharingProviderId) -> SharingProvider,
+    val drtConverter: (DrtProviderId) -> DrtProvider,
+) :
     GroupedStepBuilder<MutablePerson, PersonId>() {
-    override val reader = BinaryPersonReader(converter, seed)
+    override val reader = BinaryPersonReader(converter, sharingConverter, drtConverter, seed)
     override val writer: BinaryWriter<MutablePerson> = BinaryPersonWriter()
 
 //    override fun fromCSV(
@@ -90,7 +95,12 @@ class PersonStepBuilder(val seed: Long, val converter: (HouseholdId) -> MutableH
  * Operate on the context object. Apply the steps defined in the builder and then finalize the repository.
  */
 fun LoadPersonsContext.persons(lambda: PersonStepBuilder.() -> Unit) {
-    val lpcBuilder = PersonStepBuilder(this.simulationSeed, householdRepository::get)
+    val lpcBuilder = PersonStepBuilder(
+        this.simulationSeed,
+        householdRepository::get,
+        sharingProviderRepository::getValue,
+        drtProviderRepository::getValue,
+    )
     lambda(lpcBuilder)
     lpcBuilder.executeOn(this)
     finishPersons()
