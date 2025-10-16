@@ -8,9 +8,9 @@ import domain.shared.datastructure.matrix.ZoneMatrixCreation
 /**
  * Module for deserialization of ZoneMatrixCreation methods.
  */
-class ZoneMatrixCreation: SimpleModule("MatrixCreation") {
+class ZoneMatrixCreationDeserializer : SimpleModule("MatrixCreation") {
     init {
-        addDeserializer(ZoneMatrixCreation::class.java, MatrixDeserializer )
+        addDeserializer(ZoneMatrixCreation::class.java, MatrixDeserializer)
     }
 }
 

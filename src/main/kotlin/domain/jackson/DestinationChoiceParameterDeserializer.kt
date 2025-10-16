@@ -3,7 +3,7 @@ package domain.jackson
 import com.fasterxml.jackson.databind.module.SimpleModule
 import domain.simulation.behavior.DestinationChoiceParameters
 
-class DestinationChoiceParameterRepo: SimpleModule("DestinationChoice"){
+class DestinationChoiceParameterDeserializer : SimpleModule("DestinationChoice") {
     init {
         addDeserializer(DestinationChoiceParameters().javaClass, DestinationChoiceDeserializer)
     }

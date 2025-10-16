@@ -12,10 +12,6 @@ import domain.shared.enums.areatype.RegionType
 import utils.CodePlan
 import utils.Encodable
 import java.util.ServiceLoader
-import java.io.IOException
-import java.lang.IllegalArgumentException
-
-
 
 class CoreCodePlanModule : SimpleModule("CoreCodePlanModule") {
     init {

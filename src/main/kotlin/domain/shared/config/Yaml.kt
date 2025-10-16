@@ -5,8 +5,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.DestinationChoiceParameterRepo
-import domain.jackson.ZoneMatrixCreation
+import domain.jackson.DestinationChoiceParameterDeserializer
+import domain.jackson.ZoneMatrixCreationDeserializer
 import java.nio.file.Path
 
 /**
@@ -32,8 +32,8 @@ object Yaml {
     val mapper = ObjectMapper(YAMLFactory())
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
-        .registerModule(ZoneMatrixCreation())
-        .registerModule( DestinationChoiceParameterRepo())
+        .registerModule(ZoneMatrixCreationDeserializer())
+        .registerModule(DestinationChoiceParameterDeserializer())
         .findAndRegisterModules()
 
     inline fun <reified T> readYaml(path: Path): T {
