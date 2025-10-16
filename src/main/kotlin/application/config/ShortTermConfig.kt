@@ -7,7 +7,7 @@ import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.exists
 
-data class ShortTermConfig<MODECHOICEPARAMETERS>(
+data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     /* impedance*/
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
@@ -38,7 +38,7 @@ data class ShortTermConfig<MODECHOICEPARAMETERS>(
     val zoneRepo: Path,
 
     /* ChoiceParameters */
-    val destinationChoiceParameterSet: DestinationChoiceParameters,
+    val destinationChoiceParameterSet: DESTINATIONCHOICEPARAMETERS,
     val modeChoiceParameterSet: MODECHOICEPARAMETERS,
     val choiceModelModes: ChoiceModelModes,
 
