@@ -5,7 +5,6 @@ import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.exists
-import kotlin.io.path.Path
 
 data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     /* impedance*/
@@ -46,7 +45,7 @@ data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     val sharingProviderName: String,
     val vehicleCountColumn: String,
 
-    ) {
+) {
     fun validate() {
         val paths = mutableListOf(
             matrixRepo,
