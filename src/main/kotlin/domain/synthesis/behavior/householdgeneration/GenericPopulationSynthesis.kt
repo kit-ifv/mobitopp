@@ -185,7 +185,7 @@ interface HierarchicalRuleProvider<AREA, T> : RuleProvider<AREA, T> {
         return rules + (target to getRules(target))
     }
 
-    fun getAllRuleLogics(): List<NamedCountRule<RawSurveyInfo>>
+    fun getAllRuleLogics(): List<NamedCountRule<RawSurveyInfo, ISurveyHousehold<out RawSurveyInfo>>>
     operator fun contains(area: AREA): Boolean
 
     /**
