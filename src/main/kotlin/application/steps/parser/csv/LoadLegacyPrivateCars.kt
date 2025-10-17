@@ -44,7 +44,7 @@ interface LoadPrivateCarsContext : DemandSimContext {
     val personRepository: Repository<Person, PersonId>
 
     val defaultCarPath: Path
-        get() = dataFolder.resolve("car.csv")
+        get() = dataFolder.resolve("demand-data").resolve("car.csv")
 
     fun getOwnerHousehold(
         row: Row,
