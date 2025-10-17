@@ -1,7 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.data.Sex
 import org.jetbrains.annotations.TestOnly
 
