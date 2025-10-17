@@ -1,8 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.MostAbstractHousehold
-import domain.synthesis.behavior.MostAbstractPerson
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.data.Sex
 import org.jetbrains.annotations.TestOnly
 
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.TestOnly
  * @property descriptiveText A human-readable name or description of the rule.
  * @param T The shared property type required by a household to be evaluated against this rule.
  */
-interface Rule<T, in H: MostAbstractHousehold<out T>> {
+interface Rule<T, in H: MinimalistHousehold<out T>> {
     val target: Int
     val description: String
 
@@ -89,7 +88,7 @@ interface Rule<T, in H: MostAbstractHousehold<out T>> {
  * Represents a rule that evaluates a household's contribution to a target based on counting a specific attribute.
  * Example: Counting the number of female agents in households.
  */
-fun interface CountRule<T, in H: MostAbstractHousehold<out T>> {
+fun interface CountRule<T, in H: MinimalistHousehold<out T>> {
     /**
      * Evaluates how much the given [surveyHousehold] contributes to the target based on a specific attribute.
      *
@@ -103,7 +102,7 @@ fun interface CountRule<T, in H: MostAbstractHousehold<out T>> {
  * Represents a rule that evaluates a household's contribution to a target using a boolean condition.
  * The contribution is 1 if the condition is met, otherwise 0.
  */
-fun interface CheckRule<T, in H: MostAbstractHousehold<out T>> : CountRule<T, H> {
+fun interface CheckRule<T, in H: MinimalistHousehold<out T>> : CountRule<T, H> {
     /**
      * Checks whether the given [surveyHousehold] meets the condition defined by the rule.
      *
@@ -116,7 +115,7 @@ fun interface CheckRule<T, in H: MostAbstractHousehold<out T>> : CountRule<T, H>
     }
 }
 
-class NamedCheckRule<T, in H: MostAbstractHousehold<out T>> private constructor(ruleDescription: String, override val logic: CheckRule<T, H>) :
+class NamedCheckRule<T, in H: MinimalistHousehold<out T>> private constructor(ruleDescription: String, override val logic: CheckRule<T, H>) :
     NamedCountRule<T, H>(
         ruleDescription,
         logic
@@ -128,7 +127,7 @@ class NamedCheckRule<T, in H: MostAbstractHousehold<out T>> private constructor(
     }
 }
 
-open class NamedCountRule<T, in H: MostAbstractHousehold<out T>> protected constructor(val ruleDescription: String, open val logic: CountRule<T, H>) :
+open class NamedCountRule<T, in H: MinimalistHousehold<out T>> protected constructor(val ruleDescription: String, open val logic: CountRule<T, H>) :
     CountRule<T, H> by logic, Comparable<NamedCountRule<*, *>> {
     constructor(desc: RuleDescription, logic: CountRule<T, H>) : this(desc.logicDescription, logic)
     override fun equals(other: Any?): Boolean {
@@ -145,7 +144,7 @@ open class NamedCountRule<T, in H: MostAbstractHousehold<out T>> protected const
     }
 }
 
-sealed interface RuleDescription {
+interface RuleDescription {
     val logicDescription: String
 }
 object UnknownLogic : RuleDescription {
@@ -184,7 +183,7 @@ class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityO
  * @property target The numeric target for the rule.
  * @property logic The [CountRule] implementation defining the logic for evaluating households.
  */
-class ZoneRule<T, H: ISurveyHousehold<out T>>(
+class ZoneRule<T, H: MinimalistHousehold<out T>>(
     override val description: String = logic.ruleDescription,
     override val target: Int,
     override val logic: NamedCountRule<T, H>,
