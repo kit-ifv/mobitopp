@@ -52,12 +52,14 @@ class SurveyHousehold<T>(
 
 
 
-interface MostAbstractHousehold<T> {
-    val members: Collection<MostAbstractPerson<out T>>
+interface MinimalistHousehold<T> {
+    val members: Collection<MinimalistPerson<out T>>
     val size get() = members.size
+
+    fun toSynthesisHousehold(): SynthesisHousehold<T>
 }
 
-interface ISurveyHousehold<T>: MostAbstractHousehold<T> {
+interface ISurveyHousehold<T>: MinimalistHousehold<T> {
     val surveyHouseholdId: Int
     val income: Currency
     override val members: List<SurveyPerson<out T>>
@@ -71,7 +73,7 @@ interface ISurveyHousehold<T>: MostAbstractHousehold<T> {
         return ScalableVector.createFrom(this, rules)
     }
 
-    fun toSynthesisHousehold(): SynthesisHousehold<T> {
+    override fun toSynthesisHousehold(): SynthesisHousehold<T> {
         return SynthesisHousehold<T>(
             surveyHouseholdId = surveyHouseholdId,
             income = income,

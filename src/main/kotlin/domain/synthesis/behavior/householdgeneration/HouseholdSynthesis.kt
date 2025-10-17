@@ -2,6 +2,7 @@ package domain.synthesis.behavior.householdgeneration
 
 import domain.shared.location.Zone
 import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 
@@ -14,7 +15,7 @@ import domain.synthesis.behavior.domain.SynthesisHousehold
  *
  * @param T The type of data associated with the household (e.g., demographic information).
  */
-fun interface HouseholdSynthesis<AREA, T> : GenericPopulationSynthesis<AREA, T> {
+fun interface HouseholdSynthesis<AREA, T, H: MinimalistHousehold<out T>> : GenericPopulationSynthesis<AREA, T, H> {
     /**
      * Synthesizes households based on the provided survey data and rules for each zone.
      *
@@ -39,7 +40,7 @@ fun interface HouseholdSynthesis<AREA, T> : GenericPopulationSynthesis<AREA, T> 
  */
 class TrivialSynthesis<AREA, T>(
     private val surveyHouseholds: Collection<SurveyHousehold<out T>>
-) : HouseholdSynthesis<AREA, T> {
+) : HouseholdSynthesis<AREA, T, MinimalistHousehold<out T>> {
     override fun synthesize(
         targetAreas: List<AREA>
     ): Map<AREA, List<SynthesisHousehold<out T>>> {

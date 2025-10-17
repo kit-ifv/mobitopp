@@ -14,6 +14,7 @@ import domain.synthesis.behavior.DetermineEconomicStatus
 import domain.synthesis.behavior.GenerateCars
 import domain.synthesis.behavior.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SamplingCarGeneration
@@ -186,7 +187,7 @@ class SynthesisSteps<T : Any>(
     // TODO speaking type parameter names
     fun synthesis(
         randsums: Map<Zone, List<Rule<Any, ISurveyHousehold<out Any>>>>,
-        lambda: () -> HouseholdSynthesis<Zone, T>
+        lambda: () -> HouseholdSynthesis<Zone, T, MinimalistHousehold<out T>>
     ) {
         val generator = lambda()
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
