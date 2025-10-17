@@ -127,7 +127,7 @@ open class SynthesisTest {
             inner class ZoneRuleBuilder {
                 lateinit var description: String
                 var desiredAmount: Int = 0
-                lateinit var condition: CountRule<T>
+                lateinit var condition: CountRule<T, ISurveyHousehold<out T>>
                 fun toRule(): ZoneRule<T, ISurveyHousehold<out T>> {
                     return ZoneRule(description, desiredAmount, condition)
                 }
@@ -146,7 +146,7 @@ open class SynthesisTest {
             inner class ZoneCheckRuleBuilder {
                 lateinit var description: String
                 var desiredAmount: Int = 0
-                lateinit var condition: CheckRule<T>
+                lateinit var condition: CheckRule<T, ISurveyHousehold<out T>>
                 fun toRule(): ZoneCheckRule<T, ISurveyHousehold<out T>> {
                     return ZoneCheckRule(description, desiredAmount, condition)
                 }

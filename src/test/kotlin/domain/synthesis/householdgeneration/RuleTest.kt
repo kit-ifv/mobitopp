@@ -2,6 +2,7 @@ package domain.synthesis.householdgeneration
 
 import domain.synthesis.behavior.DefaultSurveyPerson
 import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.householdgeneration.CountRule
@@ -117,13 +118,13 @@ class RuleTest : SynthesisTest() {
             }
         }
 
-        val rule1 = CountRule<Any> { h -> h.count { it.age in 9..12 } }
+        val rule1 = CountRule<Any, ISurveyHousehold<out Any>> { h -> h.count { it.age in 9..12 } }
         assertEquals(rule1.matches(household), 2)
 
-        val rule2 = CountRule<Any> { h -> h.count { it.age in 11..12 } }
+        val rule2 = CountRule<Any, ISurveyHousehold<out Any>> { h -> h.count { it.age in 11..12 } }
         assertEquals(rule2.matches(household), 1)
 
-        val rule3 = CountRule<Any> { h -> h.count { it.age in 9..12 && it.sex == Sex.FEMALE } }
+        val rule3 = CountRule<Any, ISurveyHousehold<out Any>> { h -> h.count { it.age in 9..12 && it.sex == Sex.FEMALE } }
         assertEquals(rule3.matches(household), 1)
     }
 
