@@ -60,7 +60,7 @@ data class ZoneTarget(
 
 ) {
 
-    fun improvedTargets(): List<Rule<Any>> {
+    fun improvedTargets(): List<Rule<Any, ISurveyHousehold<out Any>>> {
         return listOf(
             ZoneCheckRule("HHSize == 1", numHH1) { it.members.size == 1 },
             ZoneCheckRule("HHSize == 2", numHH2) { it.members.size == 2 },

@@ -4,6 +4,7 @@ import TestZone
 import domain.shared.location.Location
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
@@ -28,7 +29,7 @@ class ToolTest : SynthesisTest() {
     val zone1 = TestZone(id = ZoneId(1))
     private val zones = listOf(zone1)
 
-    private fun <T> createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<T>>> {
+    private fun <T> createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<T, ISurveyHousehold<out T>>>> {
         return zones.createRules(lambda)
     }
 
@@ -107,7 +108,7 @@ open class SynthesisTest {
         synthesisHousehold.location = this
         return synthesisHousehold
     }
-    protected fun <T> Collection<Zone>.createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<T>>> {
+    protected fun <T> Collection<Zone>.createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<T, ISurveyHousehold<out T>>>> {
         val builder = ZoneBuilder<T>(this)
         builder.apply(lambda)
         val idMap = builder.createRules()
@@ -117,17 +118,17 @@ open class SynthesisTest {
 
     protected inner class ZoneBuilder<T>(zones: Collection<Zone>) {
 
-        private val associatedRules: MutableMap<ZoneId, List<Rule<T>>> =
-            zones.associate { it.id to listOf<Rule<T>>() }.toMutableMap()
+        private val associatedRules: MutableMap<ZoneId, List<Rule<T, ISurveyHousehold<out T>>>> =
+            zones.associate { it.id to listOf<Rule<T, ISurveyHousehold<out T>>>() }.toMutableMap()
 
         inner class RulesForZoneBuilder {
-            private val rules: MutableList<Rule<T>> = mutableListOf()
+            private val rules: MutableList<Rule<T, ISurveyHousehold<out T>>> = mutableListOf()
 
             inner class ZoneRuleBuilder {
                 lateinit var description: String
                 var desiredAmount: Int = 0
                 lateinit var condition: CountRule<T>
-                fun toRule(): ZoneRule<T> {
+                fun toRule(): ZoneRule<T, ISurveyHousehold<out T>> {
                     return ZoneRule(description, desiredAmount, condition)
                 }
             }
@@ -138,7 +139,7 @@ open class SynthesisTest {
                 rules.add(builder.toRule())
             }
 
-            fun createRules(): List<Rule<T>> {
+            fun createRules(): List<Rule<T, ISurveyHousehold<out T>>> {
                 return rules
             }
 
@@ -146,7 +147,7 @@ open class SynthesisTest {
                 lateinit var description: String
                 var desiredAmount: Int = 0
                 lateinit var condition: CheckRule<T>
-                fun toRule(): ZoneCheckRule<T> {
+                fun toRule(): ZoneCheckRule<T, ISurveyHousehold<out T>> {
                     return ZoneCheckRule(description, desiredAmount, condition)
                 }
             }
@@ -164,7 +165,7 @@ open class SynthesisTest {
             associatedRules[ZoneId(id.toLong())] = builder.createRules()
         }
 
-        fun createRules(): Map<ZoneId, List<Rule<T>>> = associatedRules
+        fun createRules(): Map<ZoneId, List<Rule<T, ISurveyHousehold<out T>>>> = associatedRules
     }
     protected fun fakeLocation() = Location(FakeCoord(), null, null)
     protected fun Zone.spawnFakeLoc(): Location {

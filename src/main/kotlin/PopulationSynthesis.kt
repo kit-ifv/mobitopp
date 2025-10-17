@@ -13,6 +13,7 @@ import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
 import domain.synthesis.behavior.GenerateCars
 import domain.synthesis.behavior.GroupAssignHouseholdLocations
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SamplingCarGeneration
@@ -184,7 +185,7 @@ class SynthesisSteps<T : Any>(
 
     // TODO speaking type parameter names
     fun synthesis(
-        randsums: Map<Zone, List<Rule<Any>>>,
+        randsums: Map<Zone, List<Rule<Any, ISurveyHousehold<out Any>>>>,
         lambda: () -> HouseholdSynthesis<Zone, T>
     ) {
         val generator = lambda()
@@ -254,7 +255,7 @@ class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
-    val rules: List<Rule<Any>>,
+    val rules: List<Rule<Any, ISurveyHousehold<out Any>>>,
     val attractivenessModel: AttractivenessModel,
 ) {
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
@@ -281,7 +282,7 @@ class PopulationSynthesis<T : Any>(
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
-            lateinit var rules: List<Rule<Any>>
+            lateinit var rules: List<Rule<Any, ISurveyHousehold<out Any>>>
             lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
 
@@ -369,7 +370,7 @@ fun examplePopulationSynthesis() {
         // TODO make this a bit more beautiful
 
 //        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<Any>>> = emptyMap()
+        val rules: Map<Zone, List<Rule<Any, ISurveyHousehold<out Any>>>> = emptyMap()
 
         synthesis(rules) {
             IPU { vectors, observers ->
