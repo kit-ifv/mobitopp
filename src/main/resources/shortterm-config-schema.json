@@ -80,24 +80,24 @@
           "type": "string"
         },
         "modes": {
-          "description": "Which transport mode set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders. Default options can be found in CoreCodePlans in mobitopp-reengineering. You likely don't want 'coreModes', rather a subset of those modes.",
+          "description": "Which transport mode code plan is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider. Default options can be found in CoreCodePlans in mobitopp-reengineering. You likely don't want 'coreModes', rather a subset of those modes.",
           "type": "string",
           "default": "coreModes"
         },
         "regionTypeCodes": {
-          "description": "Which region type codes are used. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders",
+          "description": "Which region type codes are used. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider",
           "type": "string"
         },
         "economicalStatusCodes": {
-          "description": "Which economical status codes are used. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders",
+          "description": "Which economical status codes are used. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider",
           "type": "string"
         },
         "sexCodes": {
-          "description": "Which sex codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders.",
+          "description": "Which sex codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
           "type": "string"
         },
         "graduationCodes": {
-          "description": "Which graduation codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProviders.",
+          "description": "Which graduation codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
           "type": "string"
         },
         "employmentCodes": {
