@@ -44,19 +44,6 @@ class SurveyHousehold<T>(
     ISurveyHousehold<T> {
     lateinit var economicStatus: EconomicStatus
 
-    fun toScalableVector(rules: List<Rule<in T>>): ScalableVector {
-        return ScalableVector.createFrom(this, rules)
-    }
-
-    fun toSynthesisHousehold(): SynthesisHousehold<T> {
-        return SynthesisHousehold<T>(
-            surveyHouseholdId = surveyHouseholdId,
-            income = income,
-        ).apply {
-            members = this@SurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
-                .toMutableList()
-        }
-    }
 
     override fun toString(): String {
         return "Survey Household($surveyHouseholdId) [${members.joinToString { it.toString() }}"
@@ -70,5 +57,20 @@ interface ISurveyHousehold<T> {
     val size get() = members.size
     fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
         return members.count(condition)
+    }
+
+
+    fun toScalableVector(rules: List<Rule<in T, ISurveyHousehold<out T>>>): ScalableVector {
+        return ScalableVector.createFrom(this, rules)
+    }
+
+    fun toSynthesisHousehold(): SynthesisHousehold<T> {
+        return SynthesisHousehold<T>(
+            surveyHouseholdId = surveyHouseholdId,
+            income = income,
+        ).apply {
+            members = this.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
+                .toMutableList()
+        }
     }
 }

@@ -1,6 +1,7 @@
 package domain.synthesis.householdgeneration
 
 import TEST_ZONE
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.householdgeneration.GenerateHouseholdsFromVector
@@ -19,9 +20,9 @@ import kotlin.test.assertTrue
 class IPUTest : SynthesisTest() {
 
     private val employmentRule =
-        ZoneRule<Employment>(description = "None Employment", 42) { it.count { it.information == Employment.NONE } }
-    private val ageRule = ZoneRule<Any>(description = "Age == 10", 42) { it.count { it.age == 10 } }
-    private val genderRule = ZoneRule<Any>(description = "Males", 42) { it.count { it.sex == Sex.MALE } }
+        ZoneRule<Employment, ISurveyHousehold<out Employment>>(description = "None Employment", 42) { it.count { it.information == Employment.NONE } }
+    private val ageRule = ZoneRule<Any,ISurveyHousehold<out Any>>(description = "Age == 10", 42) { it.count { it.age == 10 } }
+    private val genderRule = ZoneRule<Any,ISurveyHousehold<out Any>>(description = "Males", 42) { it.count { it.sex == Sex.MALE } }
 
     private val employmentHousehold = createHousehold {
         person(10, Sex.FEMALE) {

@@ -1,5 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
+import domain.synthesis.behavior.ISurveyHousehold
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -87,8 +88,8 @@ abstract class RuleObserver(
          * @param allHouseholdsEncoded The collection of all [ScalableVector]s representing encoded households.
          * @return A new [RuleObserver] instance.
          */
-        fun <T> fromRule(
-            rule: Rule<T>,
+        fun <T, H: ISurveyHousehold<T>> fromRule(
+            rule: Rule<T, H>,
             observedIndex: Int,
             allHouseholdsEncoded: Collection<ScalableVector>,
         ): TargetNumberObserver {

@@ -1,6 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
 import domain.shared.location.Zone
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 
@@ -24,7 +25,7 @@ fun interface HouseholdSynthesis<AREA, T> : GenericPopulationSynthesis<AREA, T> 
      */
     fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T>>>
+        conditions: Map<AREA, List<Rule<in T, ISurveyHousehold<out T>>>>
     ): Map<AREA, List<SynthesisHousehold<out T>>> {
         return synthesize(conditions.keys.toList())
     }
