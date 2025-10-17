@@ -50,11 +50,18 @@ class SurveyHousehold<T>(
     }
 }
 
-interface ISurveyHousehold<T> {
+
+
+interface MostAbstractHousehold<T> {
+    val members: Collection<MostAbstractPerson<out T>>
+    val size get() = members.size
+}
+
+interface ISurveyHousehold<T>: MostAbstractHousehold<T> {
     val surveyHouseholdId: Int
     val income: Currency
-    val members: List<SurveyPerson<out T>>
-    val size get() = members.size
+    override val members: List<SurveyPerson<out T>>
+
     fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
         return members.count(condition)
     }

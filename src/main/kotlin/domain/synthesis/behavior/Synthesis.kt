@@ -126,9 +126,13 @@ fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(
         }
 }
 
-interface SurveyPerson<T> {
-    val personId: Int
+interface MostAbstractPerson<T> {
     val information: T
+}
+
+interface SurveyPerson<T>: MostAbstractPerson<T> {
+    val personId: Int
+    override val information: T
     val age: Int
     val sex: Sex
 }
