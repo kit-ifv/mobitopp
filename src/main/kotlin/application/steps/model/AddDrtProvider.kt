@@ -11,7 +11,7 @@ import core.modelsteps.Warning
 import core.modelsteps.asResource
 import domain.shared.location.Metrics
 import domain.shared.location.Zone
-import domain.simulation.agent.DummyDrtAlgorithm
+import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
 import kotlin.time.Duration
@@ -77,7 +77,7 @@ fun AddDrtProviderContext.dummyDrtAlgorithm(
     numVehicles: Int = serviceArea.size,
     avgWaitingTime: Duration = 4.minutes,
     operationHours: Pair<Int, Int> = allDay,
-) = DummyDrtAlgorithm(
+) = SimpleMatrixDrtAlgorithm(
     impedance.value,
     avgWaitingTime,
     serviceArea,

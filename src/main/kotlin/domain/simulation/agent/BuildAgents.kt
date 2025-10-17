@@ -8,7 +8,6 @@ import domain.simulation.behavior.toSchedule
 import domain.simulation.events.PersonBehavior
 import domain.synthesis.data.CarId
 import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderData
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
