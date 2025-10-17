@@ -19,7 +19,6 @@ import domain.shared.location.ZoneId
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
-import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics

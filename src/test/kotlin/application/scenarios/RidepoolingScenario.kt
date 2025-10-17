@@ -12,7 +12,7 @@ import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.DrtAlgorithm
 import domain.simulation.agent.DrtProviderAgent
-import domain.simulation.agent.DummyDrtAlgorithm
+import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.currentlyAffectedProviders
 import domain.simulation.events.NoWriters
@@ -55,7 +55,7 @@ class RidepoolingScenario {
         }
 
         val impedance = ControllableImpedance()
-        val algorithm: DrtAlgorithm = DummyDrtAlgorithm(
+        val algorithm: DrtAlgorithm = SimpleMatrixDrtAlgorithm(
             impedance = impedance,
             avgWaitTime = 4.minutes,
             serviceArea = zones,

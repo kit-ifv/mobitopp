@@ -99,7 +99,7 @@ fun PersonBehavior.withDrtImpedance(offer: DrtOffer, drtMode: Mode) =
     this.copy(impedance = DrtImpedance(this.impedance, offer, drtMode))
 
 @Suppress("LongParameterList")
-class DummyDrtAlgorithm(
+class SimpleMatrixDrtAlgorithm(
     private val impedance: Metrics,
     private val avgWaitTime: Duration,
     private val serviceArea: Collection<Zone>,
