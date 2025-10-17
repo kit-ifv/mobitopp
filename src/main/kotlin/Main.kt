@@ -42,7 +42,6 @@ import domain.simulation.behavior.legacyModeChoiceBuilder
 import domain.simulation.events.personStateMachine
 import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid
-import domain.synthesis.data.EconomicStatus
 import domain.synthesis.parser.NoActivityStartShifter
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
