@@ -53,7 +53,7 @@ class SurveyHousehold<T>(
 
 
 interface MinimalistHousehold<T> {
-    val members: Collection<MinimalistPerson<out T>>
+    val members: Collection<MinimalistPerson<T>>
     val size get() = members.size
 
     fun toSynthesisHousehold(): SynthesisHousehold<T>
@@ -69,7 +69,7 @@ interface ISurveyHousehold<T>: MinimalistHousehold<T> {
     }
 
 
-    fun toScalableVector(rules: List<Rule<in T, ISurveyHousehold<out T>>>): ScalableVector {
+    fun toScalableVector(rules: List<Rule<ISurveyHousehold<T>>>): ScalableVector {
         return ScalableVector.createFrom(this, rules)
     }
 

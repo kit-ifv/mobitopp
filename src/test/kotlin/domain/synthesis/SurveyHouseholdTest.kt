@@ -31,7 +31,7 @@ class SurveyHouseholdTest : SynthesisTest() {
             }
         }
 
-        val rule = ZoneRule<Any, ISurveyHousehold<out Any>>("fake Description", 10) {
+        val rule = ZoneRule<ISurveyHousehold<out Any>>("fake Description", 10) {
             it.count { it.age == 10 }
         }
         val households = listOf(hh, hh2)

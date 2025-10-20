@@ -20,7 +20,7 @@ class SynthesisHousehold<T>(
     val id = getNextId()
 
     // Whatever the type T is of my household class, the members must be at least that type or better
-    override var members: MutableList<SynthesisPerson<out T>> = mutableListOf()
+    override var members: MutableList<SynthesisPerson<T>> = mutableListOf()
     lateinit var location: Location
 
     fun locationIsAssigned() = ::location.isInitialized
@@ -29,7 +29,7 @@ class SynthesisHousehold<T>(
     var amountOfCars = 0
     val cars: MutableList<SynthesisCar> = mutableListOf()
 
-    operator fun get(index: Int): SynthesisPerson<out T> = members[index]
+    operator fun get(index: Int): SynthesisPerson<T> = members[index]
 
     companion object {
         private val counter = AtomicInteger(0)

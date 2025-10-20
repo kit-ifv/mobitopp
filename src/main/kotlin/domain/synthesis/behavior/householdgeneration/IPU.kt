@@ -37,11 +37,11 @@ private const val IPU_GENERATION_LABEL = "IPU generation"
  * @property algorithm A function that defines the strategy for calculating a solution for the unique vectors and observers.
  *                     This function **mutates** the [ScalableVector] instances to adjust them to better fit the rules.
  */
-class IPU<AREA, T, H: MinimalistHousehold<out T>>(
-    val converter: GenerateHouseholdsFromVector<T, H> = SampleAndCollect(),
+class IPU<AREA, T>(
+    val converter: GenerateHouseholdsFromVector<ISurveyHousehold<T>> = SampleAndCollect(),
     val algorithm: (vectors: Collection<ScalableVector>, Collection<RuleObserver>) -> Unit,
 ) :
-    HouseholdSynthesis<AREA, T, MinimalistHousehold<out T>> {
+    HouseholdSynthesis<AREA, ISurveyHousehold<T>, SynthesisHousehold<T>> {
 
     /**
      * Synthesizes households for each zone based on the provided survey data and the conditions (rules) defined
@@ -58,20 +58,21 @@ class IPU<AREA, T, H: MinimalistHousehold<out T>>(
      *         [SynthesisHousehold] object.
      */
     override fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T, ISurveyHousehold<out T>>>>,
-    ): Map<AREA, List<SynthesisHousehold<out T>>> {
+        surveyHouseholds: Collection<ISurveyHousehold<T>>,
+        conditions: Map<AREA, List<Rule<ISurveyHousehold<T>>>>,
+    ): Map<AREA, List<SynthesisHousehold<T>>> {
         return generate(surveyHouseholds, conditions).mapValues { it.value.map { it.toSynthesisHousehold() } }
     }
 
-    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<SynthesisHousehold<out T>>> {
+
+    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<SynthesisHousehold<T>>> {
         TODO("Not yet implemented")
     }
 
     fun generate(
-        surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T, ISurveyHousehold<out T>>>>,
-    ): Map<AREA, List<H>> {
+        surveyHouseholds: Collection<ISurveyHousehold<T>>,
+        conditions: Map<AREA, List<Rule<ISurveyHousehold<T>>>>,
+    ): Map<AREA, List<ISurveyHousehold<T>>> {
         return conditions.entries
             .addProgressBar(
                 label = IPU_GENERATION_LABEL,
@@ -98,10 +99,10 @@ class IPU<AREA, T, H: MinimalistHousehold<out T>>(
      * @return A list of survey households that meet the conditions specified by the rules.
      */
     fun calculate(
-        surveyHouseholds: Collection<H>,
-        rules: List<Rule<in T, H>>,
+        surveyHouseholds: Collection<ISurveyHousehold<T>>,
+        rules: List<Rule<ISurveyHousehold<T>>>,
 
-        ): Map<ScalableVector, List<ISurveyHousehold<out T>>> {
+        ): Map<ScalableVector, List<ISurveyHousehold<T>>> {
         val vectorMapping = surveyHouseholds.associateWith { it.toScalableVector(rules) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
@@ -114,7 +115,7 @@ class IPU<AREA, T, H: MinimalistHousehold<out T>>(
 
 
     companion object {
-        fun <AREA, T, H: MinimalistHousehold<out T>>  standard() = IPU<AREA, T, H> { vectors, observers ->
+        fun <AREA, T> standard() = IPU<AREA, T> { vectors, observers ->
             var counter = 0
             while (observers.maxOf { it.quotientDifference } >= 1.001 && counter < 1000) {
                 val sorted = observers.sortedByDescending { it.quotientDifference }
@@ -126,7 +127,7 @@ class IPU<AREA, T, H: MinimalistHousehold<out T>>(
             }
         }
 
-        fun <AREA, T, H: MinimalistHousehold<out T>> legacy() = IPU<AREA, T, H> { vectors, observers ->
+        fun <AREA, T> legacy() = IPU<AREA, T> { vectors, observers ->
             var counter = 0
             while (observers.maxOf { it.quotientDifference } >= 1.001 && counter < 1000) {
 
@@ -144,16 +145,16 @@ data class IPUOutput<T>(
     private val result: Map<ScalableVector, List<SurveyHousehold<out T>>>,
 )
 
-fun interface GenerateHouseholds<X, T ,H: MinimalistHousehold<out T>> {
+fun interface GenerateHouseholds<X, H> {
     fun Map<X, List<H>>.extractFrom(): List<H>
 
     fun extract(map: Map<X, List<H>>) = map.extractFrom()
 }
 
-open class GenericCollector<X, T,  H: MinimalistHousehold<out T>>(
+open class GenericCollector<X, T, H : MinimalistHousehold<out T>>(
     val random: Random = Random(1),
     val amountDeterminer: (Collection<X>) -> Collection<Int>,
-) : GenerateHouseholds<X, T, H> {
+) : GenerateHouseholds<X, H> {
     override fun Map<X, List<H>>.extractFrom(): List<H> {
         val amounts = amountDeterminer(keys)
         return amounts.zip(values).flatMap { (amount, households) ->
@@ -166,7 +167,7 @@ open class GenericCollector<X, T,  H: MinimalistHousehold<out T>>(
  * There may be different strategies to pick a certain amount of survey households from a scalable vector. This
  * interface encapsulates different methods to convert a vector and an associated list of households.
  */
-fun interface GenerateHouseholdsFromVector<T, H: MinimalistHousehold<out T>> : GenerateHouseholds<ScalableVector, T, H> {
+fun interface GenerateHouseholdsFromVector<H> : GenerateHouseholds<ScalableVector, H> {
     override fun Map<ScalableVector, List<H>>.extractFrom(): List<H>
 
     companion object {
@@ -174,7 +175,7 @@ fun interface GenerateHouseholdsFromVector<T, H: MinimalistHousehold<out T>> : G
          * Coercion strategy cuts off the number of requested households. if the required number is 12.8, the number
          * of households picked is 12. Does not shuffle and maintains the order of the entries
          */
-        fun <T, H: MinimalistHousehold<out T>> coerceMaintainingOrder(): GenerateHouseholdsFromVector<T, H> {
+        fun <T, H : MinimalistHousehold<out T>> coerceMaintainingOrder(): GenerateHouseholdsFromVector<H> {
             return GenerateHouseholdsFromVector {
                 entries.flatMap {
                     it.value.selectExact(it.key.scalar.toInt())
@@ -188,11 +189,11 @@ fun interface GenerateHouseholdsFromVector<T, H: MinimalistHousehold<out T>> : G
  * This generation method tracks the amount of leftover decimals and adds one additional synthesis household once
  * a spillover occurs.
  */
-class SampleAndCollect<T, H: MinimalistHousehold<out T>>(
+class SampleAndCollect<T, H : MinimalistHousehold<out T>>(
     random: Random = Random(1),
     roundingStrategy: RoundingStrategy = standardRoundingStrategy,
 ) : GenericCollector<ScalableVector, T, H>(random, { roundingStrategy.convertToInts(it.map { it.scalar }) }),
-    GenerateHouseholdsFromVector<T, H>
+    GenerateHouseholdsFromVector<H>
 
 fun interface RoundingStrategy {
     fun convertToInts(values: Collection<Double>): List<Int>
