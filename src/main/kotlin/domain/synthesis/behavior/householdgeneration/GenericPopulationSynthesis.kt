@@ -40,7 +40,7 @@ interface HierarchicalPopulationSynthesis<AREA,  H> : RuleBasedPopulationSynthes
         val out = runBlocking {
             independentRegions.entries.map { (root, childs) ->
                 async(Dispatchers.Default) {
-                    val result = synthesize(root, hierarchy, childs)
+                    val result = synthesize(root, childs)
                     progress.step()
                     result
                 }
@@ -95,7 +95,7 @@ interface HierarchicalPopulationSynthesis<AREA,  H> : RuleBasedPopulationSynthes
 
     fun synthesize(targetArea: AREA): Map<AREA, List<H>> {
         val targets = ruleProvider.getAllDescendants(targetArea).filter { ruleProvider.isFinal(it) }
-        return synthesize(targetArea, ruleProvider.hierarchy, targets)
+        return synthesize(targetArea, targets)
     }
 
     /**
@@ -104,7 +104,6 @@ interface HierarchicalPopulationSynthesis<AREA,  H> : RuleBasedPopulationSynthes
      */
     fun synthesize(
         highestArea: AREA,
-        hierarchy: HierarchicElement<AREA>,
         targetAreas: Collection<AREA>,
     ): Map<AREA, List<H>>
 }

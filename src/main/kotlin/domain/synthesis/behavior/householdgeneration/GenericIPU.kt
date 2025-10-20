@@ -27,6 +27,8 @@ fun interface GenericIPU {
 
     }
 
+
+
     fun <I> calculateUnfiltered(elements: Collection<I>, rules: Collection<Rule<I>>): List<IPUOutput<I>> {
         val vectorMapping = elements.associateWith { rules.toScalableVector(it) }
         calculate(vectorMapping.values, rules)
@@ -70,15 +72,13 @@ fun interface GenericIPU {
         return resultConverter(inverseMap)
     }
     companion object {
+        /**
+         * The original algorithm of hierarchical IPU using no external interrupt criterion.
+         */
         val legacy = GenericIPU { vectors, observers ->
-            var counter = 0
-            while (observers.maxOf { it.quotientDifference } >= 1.001 && counter < 1000) {
 
-                observers.forEach {
-                    it.optimize()
-
-                }
-                counter++
+            repeat(1000) {
+                observers.forEach { it.optimize() }
             }
         }
 

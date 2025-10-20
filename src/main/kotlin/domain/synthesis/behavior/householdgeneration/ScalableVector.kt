@@ -78,6 +78,9 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
         return result
     }
 
+    override fun toString(): String {
+        return "ScalableVector(scalar=$scalar) [$content]"
+    }
     companion object {
         /**
          * creates a Scalable Vector for a target [surveyHousehold] based on the ruleset defined in [rules]
