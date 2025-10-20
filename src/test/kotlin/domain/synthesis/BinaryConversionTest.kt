@@ -5,11 +5,15 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.RegioStaR17
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarSegment
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.Graduation
 import domain.synthesis.data.Sex
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.buildEngine
 import domain.synthesis.parser.binary.BinaryActivityReader
 import domain.synthesis.parser.binary.BinaryActivityWriter
@@ -136,7 +140,12 @@ class BinaryConversionTest {
         val path = Path("src/test/resources/tempOutput/person.bin")
 
         val map = listOf(hh1, hh2).associateBy { it.id }
-        val reader = BinaryPersonReader(map::getValue, 1)
+        val reader = BinaryPersonReader(
+            map::getValue,
+            mapOf<SharingProviderId, SharingProvider>()::getValue,
+            mapOf<DrtProviderId, DrtProvider>()::getValue,
+            1
+        )
         val writer = BinaryPersonWriter()
 
         writer.toBinary(path, listOf(p1, p2))

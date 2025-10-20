@@ -1,6 +1,8 @@
 package domain.synthesis.parser.binary
 
 import domain.synthesis.data.ChargingInfluence
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Graduation
 import domain.synthesis.data.HouseholdId
@@ -9,6 +11,8 @@ import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.SharingProviderId
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.UnitIntervalValue
 import edu.kit.ifv.units.euros
@@ -19,7 +23,12 @@ import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
-class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold?, private val contextSimulationSeed: Long) :
+class BinaryPersonReader(
+    val converter: (HouseholdId) -> MutableHousehold?,
+    val sharingConverter: (SharingProviderId) -> SharingProvider,
+    val drtConverter: (DrtProviderId) -> DrtProvider,
+    private val contextSimulationSeed: Long
+) :
     BinaryReader<MutablePerson> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutablePerson? {
@@ -35,6 +44,15 @@ class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold?, priv
         val eMobilityAcceptance = UnitIntervalValue(double)
         val chargingInfluence = ChargingInfluence.decode(int)
         val graduation = Graduation.decode(int)
+
+        val sharingMemberships = List(int) {
+            sharingConverter(SharingProviderId(long))
+        }
+
+        val drtMemberships = List(int) {
+            drtConverter(DrtProviderId(long))
+        }
+
         return household?.let {
             MutablePerson(id, it, contextSimulationSeed).apply {
                 this.age = age
@@ -47,6 +65,8 @@ class BinaryPersonReader(val converter: (HouseholdId) -> MutableHousehold?, priv
                 this.eMobilityAcceptance = eMobilityAcceptance
                 this.chargingInfluence = chargingInfluence
                 this.graduation = graduation
+                this.sharingMemberships.addAll(sharingMemberships)
+                this.drtMemberships.addAll(drtMemberships)
             }
         }
     }
@@ -75,7 +95,16 @@ class BinaryPersonWriter : BinaryWriter<Person> {
             writeDouble(eMobilityAcceptance.toDouble())
             writeInt(chargingInfluence.code)
             writeInt(graduation.code)
-            // TODO add memberships, they are currently missing
+
+            writeInt(sharingMemberships.size)
+            sharingMemberships.forEach {
+                writeLong(it.id.value)
+            }
+
+            writeInt(drtMemberships.size)
+            drtMemberships.forEach {
+                writeLong(it.id.value)
+            }
         }
     }
 }

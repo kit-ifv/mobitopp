@@ -46,8 +46,8 @@ fun List<PlannedActivity>.toSchedule(
         }
     }
 
-    require(filteredActivities.isConsistent() && filteredActivities.size == this.size) {
-        "Cannot build a schedule from inconsistent data, please fix"
+    require(filteredActivities.size == this.size) {
+        "Not alle planned activities were translated to schedule activities, please fix"
     }
 
     val activityBlocks = filteredActivities.map { ActivityBlock(sortedSetOf(it)) }
@@ -74,6 +74,11 @@ fun List<PlannedActivity>.toSchedule(
             firstActivityBlock,
             filteredActivities.toSortedSet()
         )
+
+    require(targetModel.actions().isConsistent()) {
+        "The built schedule is inconsistent, please fix: \n${targetModel.actions().joinToString("\n -")}"
+    }
+
     return Schedule(targetModel)
 }
 
