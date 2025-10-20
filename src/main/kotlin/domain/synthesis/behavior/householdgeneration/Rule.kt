@@ -70,6 +70,11 @@ interface Rule<in T> {
     fun descriptiveText() = "[$description] expected = $target"
 }
 
+fun <T> Collection<Rule<T>>.toScalableVector(element: T): ScalableVector {
+    return ScalableVector.createFrom(element, this)
+}
+
+
 /*
    I really wanted to be able to specify rules as numeric rules and boolean rules. To avoid JVM-overload ambiguity different
    namespaces are required. This is the reason why the four classes below exist.

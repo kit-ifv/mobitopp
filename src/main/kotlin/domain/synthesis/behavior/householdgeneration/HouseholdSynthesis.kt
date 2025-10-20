@@ -2,7 +2,6 @@ package domain.synthesis.behavior.householdgeneration
 
 import domain.shared.location.Zone
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 
@@ -39,7 +38,7 @@ fun interface HouseholdSynthesis<AREA, I, out O: I> : GenericPopulationSynthesis
  * may exist.
  */
 class TrivialSynthesis<AREA, T>(
-    private val surveyHouseholds: Collection<SurveyHousehold<out T>>
+    private val surveyHouseholds: Collection<ISurveyHousehold<out T>>
 ) : HouseholdSynthesis<AREA,  ISurveyHousehold<out T>, SynthesisHousehold<out T>> {
     override fun synthesize(
         targetAreas: List<AREA>
