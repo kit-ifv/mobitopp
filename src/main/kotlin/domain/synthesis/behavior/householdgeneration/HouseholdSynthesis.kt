@@ -15,7 +15,7 @@ import domain.synthesis.behavior.domain.SynthesisHousehold
  *
  * @param T The type of data associated with the household (e.g., demographic information).
  */
-fun interface HouseholdSynthesis<AREA, T, H: MinimalistHousehold<out T>> : GenericPopulationSynthesis<AREA, T, H> {
+fun interface HouseholdSynthesis<AREA, I, out O: I> : GenericPopulationSynthesis<AREA, I> {
     /**
      * Synthesizes households based on the provided survey data and rules for each zone.
      *
@@ -25,13 +25,13 @@ fun interface HouseholdSynthesis<AREA, T, H: MinimalistHousehold<out T>> : Gener
      *         each zone.
      */
     fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T, ISurveyHousehold<out T>>>>
-    ): Map<AREA, List<SynthesisHousehold<out T>>> {
+        surveyHouseholds: Collection<I>,
+        conditions: Map<AREA, List<Rule<I>>>
+    ): Map<AREA, List<O>> {
         return synthesize(conditions.keys.toList())
     }
 
-    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<SynthesisHousehold<out T>>>
+    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<O>>
 }
 
 /**
@@ -40,7 +40,7 @@ fun interface HouseholdSynthesis<AREA, T, H: MinimalistHousehold<out T>> : Gener
  */
 class TrivialSynthesis<AREA, T>(
     private val surveyHouseholds: Collection<SurveyHousehold<out T>>
-) : HouseholdSynthesis<AREA, T, MinimalistHousehold<out T>> {
+) : HouseholdSynthesis<AREA,  ISurveyHousehold<out T>, SynthesisHousehold<out T>> {
     override fun synthesize(
         targetAreas: List<AREA>
     ): Map<AREA, List<SynthesisHousehold<out T>>> {

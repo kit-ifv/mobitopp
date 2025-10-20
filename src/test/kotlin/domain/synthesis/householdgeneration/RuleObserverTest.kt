@@ -116,6 +116,6 @@ class RuleObserverTest : SynthesisTest() {
  * @param encodedHouseholds A collection of [ScalableVector]s representing encoded households.
  * @return A new [RuleObserver] instance.
  */
-fun Rule<*, *>.createObserver(index: Int, encodedHouseholds: Collection<ScalableVector>): TargetNumberObserver {
+fun Rule<*>.createObserver(index: Int, encodedHouseholds: Collection<ScalableVector>): TargetNumberObserver {
     return RuleObserver.fromRule(this, index, encodedHouseholds)
 }

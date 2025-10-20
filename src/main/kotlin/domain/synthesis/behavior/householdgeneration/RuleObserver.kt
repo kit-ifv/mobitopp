@@ -88,8 +88,8 @@ abstract class RuleObserver(
          * @param allHouseholdsEncoded The collection of all [ScalableVector]s representing encoded households.
          * @return A new [RuleObserver] instance.
          */
-        fun <T, H: ISurveyHousehold<T>> fromRule(
-            rule: Rule<T, H>,
+        fun <H> fromRule(
+            rule: Rule<H>,
             observedIndex: Int,
             allHouseholdsEncoded: Collection<ScalableVector>,
         ): TargetNumberObserver {

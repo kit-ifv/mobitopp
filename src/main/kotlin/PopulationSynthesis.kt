@@ -186,8 +186,8 @@ class SynthesisSteps<T : Any>(
 
     // TODO speaking type parameter names
     fun synthesis(
-        randsums: Map<Zone, List<Rule<Any, ISurveyHousehold<out Any>>>>,
-        lambda: () -> HouseholdSynthesis<Zone, T, MinimalistHousehold<out T>>
+        randsums: Map<Zone, List<Rule<ISurveyHousehold<T>>>>,
+        lambda: () -> HouseholdSynthesis<Zone,  ISurveyHousehold<T>, SynthesisHousehold<T>>
     ) {
         val generator = lambda()
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
@@ -256,7 +256,7 @@ class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
-    val rules: List<Rule<Any, ISurveyHousehold<out Any>>>,
+    val rules: List<Rule<ISurveyHousehold<out Any>>>,
     val attractivenessModel: AttractivenessModel,
 ) {
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
@@ -283,7 +283,7 @@ class PopulationSynthesis<T : Any>(
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
-            lateinit var rules: List<Rule<Any, ISurveyHousehold<out Any>>>
+            lateinit var rules: List<Rule<ISurveyHousehold<out Any>>>
             lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
 
@@ -371,7 +371,7 @@ fun examplePopulationSynthesis() {
         // TODO make this a bit more beautiful
 
 //        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<Any, ISurveyHousehold<out Any>>>> = emptyMap()
+        val rules: Map<Zone, List<Rule<ISurveyHousehold<RawSurveyInfo>>>> = emptyMap()
 
         synthesis(rules) {
             IPU { vectors, observers ->

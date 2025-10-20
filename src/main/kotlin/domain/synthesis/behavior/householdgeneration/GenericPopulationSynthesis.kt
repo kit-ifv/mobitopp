@@ -1,8 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -14,23 +12,23 @@ import org.jgrapht.graph.DefaultEdge
 import utils.collections.partitionValues
 import utils.collections.standardProgressBar
 
-fun interface GenericPopulationSynthesis<AREA, T, H: MinimalistHousehold<out T>> {
+fun interface GenericPopulationSynthesis<AREA, out H> {
 
-    fun synthesize(targetAreas: List<AREA>): Map<AREA, List<SynthesisHousehold<out T>>>
+    fun synthesize(targetAreas: List<AREA>): Map<AREA, List<H>>
 }
 
-interface RuleBasedPopulationSynthesis<AREA, T, H: MinimalistHousehold<out T>> : GenericPopulationSynthesis<AREA, T, H> {
-    val ruleProvider: RuleProvider<AREA, T, H>
+interface RuleBasedPopulationSynthesis<AREA, H> : GenericPopulationSynthesis<AREA, H> {
+    val ruleProvider: RuleProvider<AREA, H>
 
-    fun synthesizeAll(): Map<AREA, List<SynthesisHousehold<out T>>>
+    fun synthesizeAll(): Map<AREA, List<H>>
 }
 
-interface HierarchicalPopulationSynthesis<AREA, T, H: MinimalistHousehold<out T>> : RuleBasedPopulationSynthesis<AREA, T, H> {
+interface HierarchicalPopulationSynthesis<AREA,  H> : RuleBasedPopulationSynthesis<AREA, H> {
 
-    override val ruleProvider: HierarchicalRuleProvider<AREA, T, H>
+    override val ruleProvider: HierarchicalRuleProvider<AREA, H>
     override fun synthesize(
         targetAreas: List<AREA>,
-    ): Map<AREA, List<SynthesisHousehold<out T>>> {
+    ): Map<AREA, List<H>> {
         val hierarchy = ruleProvider.hierarchy
         // Trace roots runs up to the highest ancestor, but we dont need that, rather having each district
         // for example.
@@ -91,11 +89,11 @@ interface HierarchicalPopulationSynthesis<AREA, T, H: MinimalistHousehold<out T>
     // We don't need to bother catering to areas that have no rules attached to them. TODO also if their ruleset is entirely dominated by the descendants.
     private fun isIrrelevant(area: AREA) = ruleProvider.getRules(area).isEmpty()
 
-    override fun synthesizeAll(): Map<AREA, List<SynthesisHousehold<out T>>> {
+    override fun synthesizeAll(): Map<AREA, List<H>> {
         return synthesize(ruleProvider.getAllLeafs())
     }
 
-    fun synthesize(targetArea: AREA): Map<AREA, List<SynthesisHousehold<out T>>> {
+    fun synthesize(targetArea: AREA): Map<AREA, List<H>> {
         val targets = ruleProvider.getAllDescendants(targetArea).filter { ruleProvider.isFinal(it) }
         return synthesize(targetArea, ruleProvider.hierarchy, targets)
     }
@@ -108,29 +106,29 @@ interface HierarchicalPopulationSynthesis<AREA, T, H: MinimalistHousehold<out T>
         highestArea: AREA,
         hierarchy: HierarchicElement<AREA>,
         targetAreas: Collection<AREA>,
-    ): Map<AREA, List<SynthesisHousehold<out T>>>
+    ): Map<AREA, List<H>>
 }
 
-interface RuleProvider<AREA, T, H : MinimalistHousehold<out T>> {
-    fun getRules(target: AREA): Collection<Rule<T, H>>
-    fun getAllRules(): Map<AREA, Collection<Rule<T, H>>>
+interface RuleProvider<AREA, H> {
+    fun getRules(target: AREA): Collection<Rule<H>>
+    fun getAllRules(): Map<AREA, Collection<Rule<H>>>
 }
 
-class MapRuleProvider<AREA, T, H : MinimalistHousehold<out T>>(
-    private val ruleMap: MutableMap<AREA, List<Rule<T, H>>> = mutableMapOf(),
+class MapRuleProvider<AREA, H>(
+    private val ruleMap: MutableMap<AREA, List<Rule<H>>> = mutableMapOf(),
 ) :
-    RuleProvider<AREA, T, H> {
+    RuleProvider<AREA, H> {
 
-    override fun getRules(target: AREA): Collection<Rule<T, H>> {
+    override fun getRules(target: AREA): Collection<Rule<H>> {
         return ruleMap[target] ?: emptyList()
     }
 
-    override fun getAllRules(): Map<AREA, Collection<Rule<T, H>>> {
+    override fun getAllRules(): Map<AREA, Collection<Rule<H>>> {
         return ruleMap
     }
 
     companion object {
-        fun <AREA, T, H : MinimalistHousehold<out T>> fromMap(map: Map<AREA, List<Rule<T, H>>>): MapRuleProvider<AREA, T, H> =
+        fun <AREA, T, H : MinimalistHousehold<out T>> fromMap(map: Map<AREA, List<Rule< H>>>): MapRuleProvider<AREA, H> =
             MapRuleProvider(map.toMutableMap())
     }
 }
@@ -168,24 +166,24 @@ class UseLowestCoveredLeaf<AREA> : HandleRuleConflicts<AREA> {
     }
 }
 
-interface HierarchicalRuleProvider<AREA, T, H : MinimalistHousehold<out T>> : RuleProvider<AREA, T, H> {
+interface HierarchicalRuleProvider<AREA, H > : RuleProvider<AREA, H> {
     val hierarchy: HierarchicElement<AREA>
 
     fun partition(predicate: (AREA) -> Boolean): Pair<
-            HierarchicalRuleProvider<AREA, T, H>,
-            HierarchicalRuleProvider<AREA, T, H>
+            HierarchicalRuleProvider<AREA, H>,
+            HierarchicalRuleProvider<AREA, H>
             >
 
     fun getAllDescendants(target: AREA) = hierarchy.getAllDescendants(target)
     fun getAllDescendantRules(target: AREA) = getAllDescendants(target).associateWith { getRules(it) }
 
     @Deprecated("Use conflict free rules instead.")
-    fun getAllRulesFor(target: AREA): Map<AREA, Collection<Rule<T, H>>> {
+    fun getAllRulesFor(target: AREA): Map<AREA, Collection<Rule<H>>> {
         val rules = getAllDescendantRules(target)
         return rules + (target to getRules(target))
     }
 
-    fun getAllRuleLogics(): List<NamedCountRule<T, H>>
+    fun getAllRuleLogics(): List<NamedCountRule<H>>
     operator fun contains(area: AREA): Boolean
 
     /**
@@ -205,7 +203,7 @@ interface HierarchicalRuleProvider<AREA, T, H : MinimalistHousehold<out T>> : Ru
     fun getConflictFreeRules(
         target: AREA,
         conflictResolution: HandleRuleConflicts<AREA> = UseLowestCoveredLeaf(),
-    ): List<Rule<T, H>> {
+    ): List<Rule<H>> {
         val rules = getAllRulesFor(target)
 
         val logicSeparated = rules.entries.flatMap { (k, v) ->
@@ -233,7 +231,7 @@ interface HierarchicalRuleProvider<AREA, T, H : MinimalistHousehold<out T>> : Ru
     fun getSubAreas(target: AREA) = hierarchy.getChildren(target)
 }
 
-fun <T, H: MinimalistHousehold<out T>> Collection<Rule<T, H>>.fuse(descriptor: String): ZoneRule<T, H> {
+fun <H> Collection<Rule<H>>.fuse(descriptor: String): ZoneRule<H> {
     require(isNotEmpty()) {
         "Cannot fuse empty"
     }
