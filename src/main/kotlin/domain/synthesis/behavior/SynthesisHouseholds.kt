@@ -78,7 +78,7 @@ interface ISurveyHousehold<T>: MinimalistHousehold<T> {
             surveyHouseholdId = surveyHouseholdId,
             income = income,
         ).apply {
-            members = this.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
+            members = this@ISurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
                 .toMutableList()
         }
     }

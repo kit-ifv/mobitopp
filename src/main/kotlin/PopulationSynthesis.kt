@@ -155,7 +155,7 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
 
 class SynthesisSteps<T : Any>(
     val zones: List<Zone>,
-    val surveyHouseholds: Collection<SurveyHousehold<T>>,
+    val surveyHouseholds: Collection<ISurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
     val opportunities: List<OpportunityOutput>
@@ -186,8 +186,8 @@ class SynthesisSteps<T : Any>(
 
     // TODO speaking type parameter names
     fun synthesis(
-        randsums: Map<Zone, List<Rule<ISurveyHousehold<T>>>>,
-        lambda: () -> HouseholdSynthesis<Zone,  ISurveyHousehold<T>, SynthesisHousehold<T>>
+        randsums: Map<Zone, List<Rule<ISurveyHousehold<out T>>>>,
+        lambda: () -> HouseholdSynthesis<Zone,  ISurveyHousehold<out T>, SynthesisHousehold<out T>>
     ) {
         val generator = lambda()
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
@@ -371,7 +371,7 @@ fun examplePopulationSynthesis() {
         // TODO make this a bit more beautiful
 
 //        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<ISurveyHousehold<RawSurveyInfo>>>> = emptyMap()
+        val rules: Map<Zone, List<Rule<ISurveyHousehold<out RawSurveyInfo>>>> = emptyMap()
 
         synthesis(rules) {
             IPU { vectors, observers ->

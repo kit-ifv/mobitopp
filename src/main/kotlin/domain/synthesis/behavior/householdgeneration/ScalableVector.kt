@@ -1,7 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.Signature
-import domain.synthesis.behavior.ISurveyHousehold
 
 /**
  * A [ScalableVector] represents a vectorized encoding of household attributes, where each element of the vector
@@ -83,7 +82,7 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
         /**
          * creates a Scalable Vector for a target [surveyHousehold] based on the ruleset defined in [rules]
          */
-        fun <T> createFrom(surveyHousehold: ISurveyHousehold<T>, rules: List<Rule<ISurveyHousehold<T>>>): ScalableVector {
+        fun <T> createFrom(surveyHousehold: T, rules: Collection<Rule<T>>): ScalableVector {
             return ScalableVector(rules.map { it.evaluate(surveyHousehold) })
         }
     }

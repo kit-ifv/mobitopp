@@ -104,7 +104,8 @@ open class SynthesisTest {
     protected fun <T> Location.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<T> {
         val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
-        val synthesisHousehold = builder.createHousehold().toSynthesisHousehold()
+        val createHousehold = builder.createHousehold()
+        val synthesisHousehold = createHousehold.toSynthesisHousehold()
         synthesisHousehold.location = this
         return synthesisHousehold
     }
