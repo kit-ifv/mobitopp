@@ -1,10 +1,14 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import application.config.ExampleProjectContext
+import application.steps.model.addDrtMemberships
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
+import application.steps.model.dummyDrtAlgorithm
+import application.steps.model.everyoneIsMember
 import application.steps.model.householdHomeLocation
 import application.steps.model.loadBehaviorModels
+import application.steps.model.newDrtProvider
 import application.steps.model.scaleFilter
 import application.steps.model.simulate
 import application.steps.parser.csv.assignFixedDestinations
@@ -28,6 +32,7 @@ import core.results.plots.forData
 import core.results.plots.modeStringColor
 import domain.shared.config.Yaml
 import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.LegacyMode
 import domain.shared.enums.MainModes
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.legacyChoiceModelModes
@@ -36,6 +41,7 @@ import domain.simulation.behavior.GaussianActivityDurationRandomizer
 import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
 import domain.simulation.config.ShortTermConfig
+import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
 import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid
@@ -77,9 +83,17 @@ fun main(args: Array<String>) {
             AssignAroundZoneCentroid(50.meters)
         )
 
+//        scalePopulation(0.1.share())
+
+        newDrtProvider {
+            name = "DummyDrt"
+            mode = LegacyMode.RIDE_POOLING
+        }
+
         finishHouseholds()
 
         preparePersons()
+        addDrtMemberships(everyoneIsMember)
 
         preparePrivateCars() // file = File("example/car.csv"))
         assignCarUsers()
@@ -112,7 +126,14 @@ fun main(args: Array<String>) {
 
         assignFixedDestinations(homeActivity = LegacyActivityType.HOME)
 
-        buildAgents(personStateMachine, GaussianActivityDurationRandomizer())
+        buildAgents(
+            personStateMachine,
+            drtStateMachine = drtProviderStateMachine,
+            drtAlgorithm = dummyDrtAlgorithm(
+                zoneRepository.elements.filter { it.isDestination }.toList()
+            ),
+            durationRandomizer = GaussianActivityDurationRandomizer()
+        )
 
         simulate()
 

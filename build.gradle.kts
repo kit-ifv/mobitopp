@@ -135,6 +135,7 @@ tasks.withType<Detekt>().configureEach {
         "**/OverridableModeChoiceModel.kt",
         "**/LoadBehaviorModelsStep.kt",
         "**/WriteTripsToCsvStep.kt",
+        "**/ModeAvailabilityModel.kt"
     )
 }
 
@@ -228,7 +229,6 @@ allprojects {
                         artifactId = project.name
                         version = project.version.toString()
                     }
-
 
                 }
 

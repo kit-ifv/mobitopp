@@ -5,6 +5,8 @@ import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.State
 import utils.units.AbsoluteTime
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedDeque
 
 /**
  * Interface for recording and looking up agent state changes and messages during execution of state machines.
@@ -28,13 +30,16 @@ object NullInteractionRecorder : AgentInteractions {
 
 class SimpleInteractionRecorder : AgentInteractions {
 
-    private val actionsByInstance = mutableMapOf<String, MutableList<Action>>()
+    private val actionsByInstance = ConcurrentHashMap<String, ConcurrentLinkedDeque<Action>>()
 
     @Suppress("CyclomaticComplexMethod")
     override fun getTransitiveRelatedActionsOf(agent: Agent<*>, maxDepth: Int): List<Action> {
         val visited = mutableListOf<String>()
         val instance = agent.instanceName
-        val actions = getTransitiveRelatedActionsOf(instance, level = 0, maxDepth, visited)
+
+        val actions = synchronized(this) {
+            getTransitiveRelatedActionsOf(instance, level = 0, maxDepth, visited)
+        }
 
         val instanceActions = actionsByInstance[instance]?.sortedBy { it.time } ?: emptyList()
         val start = instanceActions.firstOrNull()?.time ?: AbsoluteTime.START
@@ -64,7 +69,7 @@ class SimpleInteractionRecorder : AgentInteractions {
             emptyList()
         } else if (level == maxDepth) {
             visited.add(instance)
-            actionsByInstance[instance].orEmpty()
+            actionsByInstance[instance].orEmpty().toList()
         } else {
             visited.add(instance)
             val (relations, actions) = getActionsAndRelationsOf(instance)
@@ -89,14 +94,16 @@ class SimpleInteractionRecorder : AgentInteractions {
             }
         }
         relations.remove(instance)
-        return relations to actions
+        return relations to actions.toList()
     }
 
     override fun registerEnter(enteredState: State, response: Events) {
         val instance = enteredState.agent.instanceName
-        getActionListOf(instance).add(
-            Action.ChangeState(enteredState.time, instance, enteredState.label)
-        )
+
+        val action = Action.ChangeState(enteredState.time, instance, enteredState.label)
+        synchronized(instance) {
+            getActionListOf(instance).add(action)
+        }
 
         registerResponseActions(response, instance)
     }
@@ -110,33 +117,45 @@ class SimpleInteractionRecorder : AgentInteractions {
         registerResponseActions(response, instance)
 
         nextState?.let {
-            getActionListOf(instance).add(
-                Action.ChangeState(currentState.time, instance, it.label)
-            )
+            val action = Action.ChangeState(currentState.time, instance, it.label)
+            requireNotNull(action)
+
+            synchronized(instance) {
+                getActionListOf(instance).add(action)
+            }
         }
     }
 
     private fun SimpleInteractionRecorder.registerResponseActions(
         response: Events,
         instance: String
-    ) {
-        response.forEach { event ->
-            val sendAction = Action.SendMessage(
-                instance,
-                event.sendTime,
-                event.receiver.instanceName,
-                event.receiveTime,
-                event.content.label
-            )
+    ) = response.forEach { event ->
+        val sendAction = Action.SendMessage(
+            instance,
+            event.sendTime,
+            event.receiver.instanceName,
+            event.receiveTime,
+            event.content.label
+        )
 
-            getActionListOf(instance).add(sendAction)
-            getActionListOf(sendAction.to).add(sendAction)
+        requireNotNull(sendAction)
+
+        synchronized(instance) {
+            synchronized(sendAction.to) {
+                getActionListOf(instance).add(sendAction)
+                getActionListOf(sendAction.to).add(sendAction)
+            }
         }
     }
 
-    private fun getActionListOf(instance: String): MutableList<Action> = actionsByInstance.getOrPut(instance) {
-        mutableListOf()
-    }
+    private fun getActionListOf(instance: String): ConcurrentLinkedDeque<Action> =
+        synchronized(this) {
+            synchronized(instance) {
+                actionsByInstance.getOrPut(instance) {
+                    ConcurrentLinkedDeque<Action>()
+                }
+            }
+        }
 
     private val State.label get() = this.name.replace("state", "", ignoreCase = true)
 

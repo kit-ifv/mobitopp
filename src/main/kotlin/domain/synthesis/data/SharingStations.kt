@@ -76,13 +76,16 @@ interface ISharingStation : Identifiable<SharingStationId> {
     val location: Location
     val zonesByFoot: Set<Zone>
     val owner: ISharingProvider
+
+    fun isReachableFrom(origin: Location) = zonesByFoot.any { origin in it }
+    fun isReachableFrom(zone: Zone) = zone in zonesByFoot
 }
 
 @Mutable
 abstract class SharingStation(
     final override val id: SharingStationId,
     final override val owner: MutableSharingProvider,
-) : ISharingStation { // , Resource<Person>
+) : ISharingStation {
 
     abstract val initialVehicleCount: Int
 
