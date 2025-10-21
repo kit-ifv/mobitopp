@@ -1,7 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.domain.SynthesisHousehold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
