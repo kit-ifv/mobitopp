@@ -41,4 +41,10 @@ object Yaml {
         return mapper.readValue(file)
     }
     inline fun <reified T> readYaml(string: String): T = readYaml(Path.of(string))
+
+    inline fun <reified T> writeYaml(path: Path, obj: T) {
+        val file = path.toFile()
+        return mapper.writeValue(file, obj)
+    }
+    inline fun <reified T> writeYaml(string: String, obj: T) = writeYaml(Path.of(string), obj)
 }
