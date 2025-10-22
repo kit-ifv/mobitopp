@@ -1,6 +1,6 @@
 package application.steps.parser.csv
 
-import core.modelsteps.AddResourceStep
+import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.CsvResource
 import core.modelsteps.LazyResource
 import core.modelsteps.MutableRepository
@@ -100,7 +100,7 @@ fun LoadSharingProvidersContext.prepareStationsFile(
     path: Path = defaultSharingStationPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
-    object : AddResourceStep<MutableSharingProvider, SharingProviderId>() {
+    object : AbstractAddResourceStep<MutableSharingProvider, SharingProviderId>() {
         override val name = "Add sharing provider ${sharingProvider.name} and parse stations from csv: ${path.fileName}"
 
         private val csvResource = CsvResource(path, parser, delimiter)

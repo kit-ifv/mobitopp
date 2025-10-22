@@ -1,6 +1,6 @@
 package core.modelsteps.binary
 
-import core.modelsteps.AddResourceStep
+import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.Resource
@@ -17,7 +17,7 @@ class LoadBinaryStep<MUTABLE : Identifiable<ID>, ID>(
     override val repository: MutableRepository<MUTABLE, ID>,
     override val dependentRepositories: Set<Repository<*, *>>,
 
-) : AddResourceStep<MUTABLE, ID>() {
+) : AbstractAddResourceStep<MUTABLE, ID>() {
 
     override val name: String = "load ${path.fileName}"
     override val resource: Resource<MUTABLE> = parser.fromBinary(path).asResource(name, path.name)
