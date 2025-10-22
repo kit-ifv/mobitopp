@@ -1,5 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
+import domain.synthesis.IPUOutputLog
+import domain.synthesis.ZoneIPUOutput
 import domain.synthesis.behavior.MinimalistHousehold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -8,8 +10,10 @@ import kotlinx.coroutines.runBlocking
 import org.jgrapht.Graphs
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
+import utils.Metric
 import utils.collections.partitionValues
 import utils.collections.standardProgressBar
+import kotlin.system.exitProcess
 
 fun interface GenericPopulationSynthesis<AREA, out H> {
 
@@ -33,7 +37,6 @@ interface HierarchicalPopulationSynthesis<AREA,  H> : RuleBasedPopulationSynthes
         // for example.
         val rootRegions = hierarchy.traceRoots(targetAreas)
         val independentRegions = separateIrrelevantRegions(rootRegions)
-
         val progress = standardProgressBar("Hierarchical IPU", independentRegions.size.toLong())
 
         val out = runBlocking {
@@ -227,6 +230,33 @@ interface HierarchicalRuleProvider<AREA, H > : RuleProvider<AREA, H> {
     fun isFinal(target: AREA) = getSubAreas(target).isEmpty()
 
     fun getSubAreas(target: AREA) = hierarchy.getChildren(target)
+
+
+    fun results(area: AREA, output: List<H>): List<ZoneIPUOutput<AREA>> {
+        return getRules(area).map {
+            val data = IPUOutputLog(it.description, it.target, it.evaluate(output))
+            ZoneIPUOutput(area, data)
+
+
+        }
+    }
+    fun results(output: Map<AREA, List<H>>) = output.entries.flatMap { results(it.key, it.value) }
+    fun verify(output: Collection<Pair<AREA, Collection<H>>>,     metric: Metric = Metric.standardizedRootMeanSquaredResidual) = verify(output.toMap(), metric)
+
+    fun verify(output: Map<AREA, Collection<H>>, metric: Metric = Metric.standardizedRootMeanSquaredResidual): Double {
+        val ruleMapping = getAllRules()
+        val ruleResults = ruleMapping.flatMap { (area, rules) ->
+            if(area in output) {
+                val subareas = listOf(area) + getAllDescendants(area)
+                val currentHHs = subareas.flatMap {
+                    output[it] ?: emptyList()
+                }
+                rules.map { it.target to it.evaluate(currentHHs) }
+            } else {emptyList()}
+
+        }
+        return metric.evaluate(ruleResults)
+    }
 }
 
 fun <H> Collection<Rule<H>>.fuse(descriptor: String): ZoneRule<H> {
