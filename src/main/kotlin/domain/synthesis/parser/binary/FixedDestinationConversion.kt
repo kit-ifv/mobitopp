@@ -43,7 +43,7 @@ class FixedDestinationWriter : BinaryWriter<ActivityLocation> {
         act.run {
             writeLong(person.id.value) //  8 Bytes
             writeInt(activityType.code) // 12 Bytes
-            writeLong(location.zone?.id?.value ?: -1) // 20 Bytes
+//            writeLong(location.zone?.id?.value ?: -1) // 20 Bytes
             encodeLocation(location) // 60 Bytes
 
             // TODO maybe add lateral distance if needed.

@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
+  "title": "Short Term Configuration for Mobitopp Runs.",
+  "description": "Configuration for a mobitopp run using shared attributes",
+  "required": ["zoneRepo", "matrixRepo","costMatrixConfig", "durationMatrixConfig", "distanceMatrix", "zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling","cachePath", "simulationContext", "sharingProviderName", "vehicleCountColumn","destinationChoiceParameterSet", "modeChoiceParameterSet", "choiceModelModes"],
+  "type": "object",
+  "properties": {
+    "zoneRepo": {
+      "description": "The path to the zone repository folder. Should at least contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file.",
+      "type": "string",
+      "default": "data/zone-repository"
+    },
+    "matrixRepo": {
+      "description": "The path to the matrix repository folder. Should contain the constMatrixConfig and durationMatrixConfig file. However files can be set independently making this parameter essentially useless.",
+      "type": "string",
+      "default": "data/matrix"
+    },
+    "costMatrixConfig": {
+      "description": "Path to the cost matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be an absolute path to the cost matrix config file.",
+      "type": "string",
+      "default": "cost-matrix-configuration_transmove_turbo.yaml",
+      "pattern": ".+.yaml"
+    },
+    "durationMatrixConfig": {
+      "description": "Path to the time matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also take an absolute path to the duration config file.",
+      "type": "string",
+      "default": "time-matrix-configuration_transmove_turbo.yaml",
+      "pattern": ".+.yaml"
+    },
+    "distanceMatrix": {
+      "description": "Path to the distance matrix file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be set to an absolute path to that file.",
+      "type": "string",
+      "default": "DIS_Car.mtx.bz2",
+      "pattern": ".+.mtx.bz2"
+    },
+    "zoneMatrixCreationMethod": {
+      "description": "How zoneMatrices should be created. On default either `visum` and `keyBased` are available. If you want others, they need to be registered in `ZoneMatrixCreationDeserializer.kt`",
+      "type": "string",
+      "enum": ["visum", "keyBased"]
+    },
+    "fractionOfPopulation": {
+      "description": "How much of the population is simulated.",
+      "type": "number",
+      "maximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "default": 1.0
+    },
+    "errorHandling": {
+      "description": "How errors during a simulation run should be treated. Default is 'THROW'.",
+      "type": "string",
+      "enum": ["THROW","SILENT", "WARNING", "ERROR", "THROW_NO_LOG"]
+    },
+    "resultPath": {
+      "description": "The directory, results are written to",
+      "type": "string",
+      "default": "results"
+    },
+    "resultName": {
+      "description": "The name of the simulation output csv",
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9_-]*.csv$",
+      "default": "demandsimulation.csv"
+    },
+    "simulationContext": {
+      "description": "Each simulation gets a SimulationContext (in kotlin). This yaml object represents the values passed to the ExampleProjectContext object, which is passed to the simulation.",
+      "type": "object",
+      "required": ["scenarioName", "simulationSeed", "modes"],
+      "properties": {
+        "simulationSeed": {
+          "description": "The seed randomization is based on.",
+          "type": "integer"
+        },
+        "scenarioName": {
+          "description": "The name of this simulation.",
+          "type": "string"
+        },
+        "dataFolder": {
+          "description": "The directory most simulation files like car.csv, person.csv... reside in. You can also set single paths to those files by setting for example the carCSV property.",
+          "type": "string"
+        },
+        "modes": {
+          "description": "Which transport mode code plan is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider. Default options can be found in CoreCodePlans in mobitopp-reengineering. You likely don't want 'coreModes', rather a subset of those modes.",
+          "type": "string",
+          "default": "coreModes"
+        },
+        "regionTypeCodes": {
+          "description": "Which region type codes are used. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider",
+          "type": "string"
+        },
+        "economicalStatusCodes": {
+          "description": "Which economical status codes are used. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider",
+          "type": "string"
+        },
+        "sexCodes": {
+          "description": "Which sex codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "graduationCodes": {
+          "description": "Which graduation codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "employmentCodes": {
+          "description": "Which employment codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "engineCodes": {
+          "description": "Which engine codes set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "carSegmentCodes": {
+          "description": "Which car segment code set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "activityTypes": {
+          "description": "Which activity type code set is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider.",
+          "type": "string"
+        },
+        "costUnit": {
+          "description": "What unit is used for cost in the simulation. Currently only 'EUROS' is available.",
+          "type": "string",
+          "enum": ["EUROS"],
+          "$comment": "Currently only euros are available (see KotlinUnits)... costUnit is only in here for documentation purposes and enforcing correct values (only EUROS) if it is set in the yaml config for some reason."
+        },
+        "distanceUnit": {
+          "description": "What unit distance should be used like METERS, KILOMETERS... ",
+          "type": "string",
+          "enum": ["MICROMETERS", "MILLIMETERS", "CENTIMETERS", "INCH", "DECIMETERS", "YARD", "METERS", "KILOMETERS", "MILE", "SEA_MILE"]
+        },
+        "timeUnit": {
+          "description": "What unit is used for time like MINUTES, HOURS",
+          "type": "string",
+          "enum": ["SECONDS", "MINUTES", "HOURS", "DAYS"],
+          "$comment": "Theoretically the DurationUnit enum contains Nanoseconds and such, but they are pretty much nonsensical in the context of a simulation."
+        }
+      },
+      "default": {
+        "scenarioName": "New-Simulation",
+        "simulationSeed": 42,
+        "dataFolder": "data",
+        "modes": "coreModes"
+      }
+    },
+    "personCSV" :  {
+      "description": "The absolute path to person.csv. If not set, person.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "householdCSV":  {
+      "description": "The absolute path to household.csv. If not set, household.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "activityCSV":  {
+      "description": "The absolute path to activity.csv. If not set, activity.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "privateCarsCSV":  {
+      "description": "The absolute path to cars.csv. If not set, cars.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "fixedDestinationCSV":  {
+      "description": "The absolute path to fixedDestination.csv. If not set, fixedDestination.csv is assumed to be in the `dataFolder`.",
+      "type": "string"
+    },
+    "attractivitiesCSV":  {
+      "description": "The absolute path to attractivities.csv. If not set, attractivities.csv is assumed to be in the `zoneRepo`.",
+      "type": "string"
+    },
+    "bikeSharingStations":  {
+      "description": "The absolute path to bikesharing_stations.csv. If not set, bikesharing_stations.csv is assumed to be in the `zoneRepo`.",
+      "type": "string"
+    },
+    "zonesCSV":  {
+      "description": "The absolute path to zones.csv. If not set, zones.csv is assumed to be in the `zoneRepo`.",
+      "type": "string"
+    },
+    "destinationChoiceParameterSet": {
+      "description": "What parameters should be used for destination choice. <Since these can be a custom type in a subproject, you need to create and register a jackson 'SimpleModule' to register a deserializer (see 'GenericKeyValueDeserializer'). If it's the base 'DestinationChoiceParameters' type, a Repo<DestionationChoiceParameters> is enough (needs to be registered in the META-INF dir as a service).",
+      "type": "string",
+      "pattern": "[a-zA-Z]+",
+      "default": "default"
+    },
+    "modeChoiceParameterSet": {
+      "description": "What parameters should be used for mode choice. Since these can be a custom type in a subproject, you need to create and register a jackson 'SimpleModule' to register a deserializer (see 'GenericKeyValueDeserializer'). Register the module in the META-INF directory as a service, to make it visible for the yaml parser.",
+      "type": "string",
+      "pattern": "[a-zA-Z]+",
+      "default": "default"
+    },
+    "choiceModelModes": {
+      "description": "What modes are used for the destination choice. Since these are usually a custom type in a subproject, you need to create and register a jackson 'SimpleModule' to register a deserializer (see 'GenericKeyValueDeserializer').",
+      "type": "string",
+      "pattern": "[a-zA-Z]+",
+      "default": "default"
+    },
+    "sharingProviderName": {
+      "description": "Name of the (bike) sharing provider.",
+      "type": "string"
+    },
+    "vehicleCountColumn": {
+      "description": "The column name which indicates how many bikes/entities one sharing station provides.",
+      "type": "string"
+    },
+    "cachePath": {
+      "description": "Directory for cache files.",
+      "type": "string",
+      "default": "data/data-cache"
+    }
+  }
+}

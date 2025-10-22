@@ -15,8 +15,20 @@ allprojects {
     repositories {
         maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
     }
-}
+    // ChatGPT recommends this filter condition to avoid potential future problems with projects that are not kotlin
+    plugins.withType<org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper> {
+        kotlin {
+            jvmToolchain(21)
+            compilerOptions {
+                freeCompilerArgs.add("-Xcontext-parameters")
+            }
+        }
+    }
 
+}
+/**
+ * This block tells gradle where to fetch dependencies from. We require
+ */
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.osgeo.org/repository/release") }
@@ -54,11 +66,11 @@ dependencies {
     testImplementation(libs.junit.jupiter.params) //5.11.4
 
     // annotation processing libs
-    implementation(project(":annotations"))
+    api(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work
     api(project(":processor")) // to make KSP work
-    implementation(project(":annotations"))
+
     testImplementation(libs.kotlin.compile.testing.ksp) //1.5.0
 
     //detekt libs
@@ -79,13 +91,15 @@ dependencies {
     implementation(libs.kotlinx.html) //0.12.0
 
     // other libs
-    implementation(libs.snakeyaml) // SnakeYAML dependency, 2.2
+    implementation(libs.jackson.parser)
+    implementation(libs.jackson.kotlin.serialization)
     implementation(libs.commons.compress) //1.26.2
     implementation(libs.xz) //1.9
     implementation(libs.progressbar) //0.10.1
     implementation(libs.exp4j) //0.4.8
 
     implementation(libs.fast.util)
+
 
 }
 
@@ -120,6 +134,7 @@ tasks.withType<Detekt>().configureEach {
         "**/OverridableDestinationChoiceModel.kt",
         "**/OverridableModeChoiceModel.kt",
         "**/LoadBehaviorModelsStep.kt",
+        "**/WriteTripsToCsvStep.kt",
     )
 }
 
@@ -127,12 +142,6 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
 }
 
-kotlin {
-    jvmToolchain(21)
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
 
 application {
     mainClass.set("MainKt")
@@ -154,8 +163,34 @@ tasks.withType<JavaExec>().configureEach {
         "-Xmx60G"                                 // Example: Set max heap size to 60G
     )
 }
+// Add the schema definitions to the publish process, but only the core project needs to do so.
+if(checkProperty("doPublish")) {
+    publishing {
+        publications {
+            create("schema", type = MavenPublication::class) {
+                project.group = "edu.kit.ifv.mobitopp"
+                artifactId = "schemas"
+                version = requireProperty("buildVersion")
 
+                artifact("src/main/resources/shortterm-config-schema.json") {
+                    classifier = ""
+                    extension = "json"
+                }
+            }
+        }
+    }
+}
+
+
+/**
+ * Configures this project and each of its sub-projects.
+ *
+ * This method executes the given Action against this project and each of its sub-projects.
+ */
 allprojects {
+    /**
+     * Applies the plugin with the given ID. Does nothing if the plugin has already been applied.
+     */
     apply(plugin = "maven-publish")
 
     project.group = "edu.kit.ifv.mobitopp"
@@ -193,7 +228,10 @@ allprojects {
                         artifactId = project.name
                         version = project.version.toString()
                     }
+
+
                 }
+
 
                 repositories {
                     if (checkProperty("isRelease")) {

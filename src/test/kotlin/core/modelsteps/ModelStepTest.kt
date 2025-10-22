@@ -28,7 +28,7 @@ class ModelStepTest {
     private lateinit var resource: Resource<TestEntity>
     private lateinit var csvResource: CsvResource<TestEntity>
 
-    private lateinit var addResourceStep: AddResourceStep<TestEntity, TestId>
+    private lateinit var addResourceStep: AbstractAddResourceStep<TestEntity, TestId>
     private lateinit var addCsvStep: AddCsvStep<TestEntity, TestId>
     private lateinit var loadCsvStepWrapper: LoadCsvStep<TestEntity, TestId>
 
@@ -369,7 +369,7 @@ private fun addResourceStep(
     name: String,
     resource: Resource<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : AddResourceStep<TestEntity, TestId>() {
+) = object : AbstractAddResourceStep<TestEntity, TestId>() {
     override val name = name
     override val resource = resource
     override val repository = repository
