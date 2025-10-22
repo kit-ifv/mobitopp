@@ -1,0 +1,21 @@
+zoneRepo: data/zone-repository
+matrixRepo: data/matrix
+costMatrixConfig: cost-matrix-configuration_transmove_turbo.yaml
+durationMatrixConfig: time-matrix-configuration_transmove_turbo.yaml
+distanceMatrix: DIS_Car.mtx.bz2
+zoneMatrixCreationMethod: visum
+resultPath: results
+resultName: demandsimulation.csv
+errorHandling: THROW
+cachePath: data/data-cache
+simulationContext:
+  scenarioName: "New-Simulation"
+  simulationSeed: 42
+  dataFolder: "data"
+  modes: "coreModes"
+
+sharingProviderName: "testProvider"
+vehicleCountColumn: "something"
+destinationChoiceParameterSet: default
+modeChoiceParameterSet: default
+choiceModelModes: default
