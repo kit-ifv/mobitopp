@@ -24,13 +24,13 @@ class GenericKeyValueDeserializer<T>(
 ) : JsonDeserializer<T>() {
 
     val deserializers: Map<String, T> by lazy {
-        collectParameterSets()
+        collectDeserializers()
     }
 
     /**
-     * Collects all parameter sets of subprojects and ofc. the default one.
+     * Collects all deserializers of subprojects and the default ones.
      */
-    private fun collectParameterSets(): Map<String, T> {
+    private fun collectDeserializers(): Map<String, T> {
         val result = mutableMapOf<String, T>()
         result.putAll(default)
         // 2. Discover and register from subprojects via ServiceLoader

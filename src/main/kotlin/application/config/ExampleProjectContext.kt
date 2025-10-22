@@ -15,6 +15,8 @@ import application.steps.parser.csv.LoadPrivateCarsContext
 import application.steps.parser.csv.LoadSharingProvidersContext
 import application.steps.parser.csv.LoadZonesContext
 import application.steps.results.WriteTripsCsvContext
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import core.modelsteps.ExecutionMode
 import core.modelsteps.LateInit
 import core.modelsteps.MapRepository
@@ -78,6 +80,7 @@ interface StandardContext :
     RoadNetworkContext,
     BuildAgentsContext
 
+@JsonIgnoreProperties(value = ["execMode",  "zoneColumnIndex", "personAgents", "sharingProviderAgents"])
 data class ExampleProjectContext(
     override val scenarioName: String,
     override val dataFolder: Path,
@@ -109,8 +112,11 @@ data class ExampleProjectContext(
     AgentResultsContext {
     override val execMode: ExecutionMode = ExecutionMode()
 
+    @JsonIgnore
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
+    @JsonIgnore
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")
+    @JsonIgnore
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")
 
     override val zoneRepository = MapRepository<MutableLegacyZone, ZoneId>("zones")
@@ -120,7 +126,8 @@ data class ExampleProjectContext(
     )
     override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
     override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
-    override val plannedActivityRepository = MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
+    override val plannedActivityRepository =
+        MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
 
     override val zoneColumnIndex: Map<Int, LegacyZone> by lazy {
         require(zoneRepository.sealed) {
@@ -129,6 +136,7 @@ data class ExampleProjectContext(
         zoneRepository.elements.associateBy { it.matrixColumn }
     }
 
+    @JsonIgnore
     override val impedance = LateInit<Metrics>("Impedance")
 
     override val personAgents = MapRepository<PersonAgent, PersonId>("person agents")
