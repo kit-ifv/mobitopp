@@ -11,6 +11,7 @@ import domain.shared.datastructure.matrix.ZoneMatrixCreation
 class ZoneMatrixCreationDeserializer : SimpleModule("MatrixCreation") {
     init {
         addDeserializer(ZoneMatrixCreation::class.java, MatrixDeserializer)
+        addSerializer(ZoneMatrixCreation::class.java, MatrixSerializer)
     }
 }
 
@@ -21,6 +22,16 @@ val MatrixDeserializer =
         mapOf(
             "visum" to VisumMatrixCreator,
             "keyBased" to KeyBasedMatrixCreation
+        ),
+        loadFromSubmodules = true
+    )
+
+val MatrixSerializer =
+    GenericKeyValueSerializer(
+        ZoneMatrixCreation::class.java,
+        default = mapOf(
+            VisumMatrixCreator to "visum",
+            KeyBasedMatrixCreation to "keyBased"
         ),
         loadFromSubmodules = true
     )

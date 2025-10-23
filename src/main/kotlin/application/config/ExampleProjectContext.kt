@@ -80,20 +80,28 @@ interface StandardContext :
     RoadNetworkContext,
     BuildAgentsContext
 
-@JsonIgnoreProperties(value = ["execMode",  "zoneColumnIndex", "personAgents", "sharingProviderAgents"])
+@JsonIgnoreProperties(value = ["execMode",  "zoneColumnIndex", "personAgents", "sharingProviderAgents", "regionTypeCodes"])
 data class ExampleProjectContext(
     override val scenarioName: String,
     override val dataFolder: Path,
 
     override val resultDir: Path = Path("results"),
 
+    @JsonIgnore
     override val regionTypeCodes: CodePlan<RegionType> = RegioStaR17.Companion,
+    @JsonIgnore
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus.Companion,
+    @JsonIgnore
     override val sexCodes: CodePlan<Sex> = Sex.Companion,
+    @JsonIgnore
     override val graduationCodes: CodePlan<Graduation> = Graduation.Companion,
+    @JsonIgnore
     override val employmentCodes: CodePlan<Employment> = Employment.Companion,
+    @JsonIgnore
     override val engineCodes: CodePlan<EngineType> = EngineType.Companion,
+    @JsonIgnore
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment.Companion,
+    @JsonIgnore
     override val activityTypes: CodePlan<ActivityType> = LegacyActivityType.Companion,
     override val modes: CodePlan<Mode> = LegacyMode.Companion,
 
@@ -118,9 +126,11 @@ data class ExampleProjectContext(
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")
     @JsonIgnore
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")
-
+    @JsonIgnore
     override val zoneRepository = MapRepository<MutableLegacyZone, ZoneId>("zones")
+    @JsonIgnore
     override val householdRepository = MapRepository<MutableHousehold, HouseholdId>("households")
+    @JsonIgnore
     override val sharingProviderRepository = MapRepository<MutableSharingProvider, SharingProviderId>(
         "sharing providers"
     )
