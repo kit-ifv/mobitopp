@@ -3,6 +3,7 @@ package domain.shared.config
 import application.config.ShortTermConfig
 import com.fasterxml.jackson.databind.module.SimpleModule
 import domain.jackson.GenericKeyValueDeserializer
+import domain.jackson.GenericKeyValueSerializer
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
 import domain.simulation.behavior.DestinationChoiceParameters
@@ -16,9 +17,15 @@ val modeDeserializer = GenericKeyValueDeserializer(
     default = mapOf("default" to ModeChoiceParameters()),
     loadFromSubmodules = false
 )
+val modeSerializer = GenericKeyValueSerializer(
+    wraps = ModeChoiceParameters::class.java,
+    default = mapOf(ModeChoiceParameters() to "default"),
+    loadFromSubmodules = false
+)
 
 val modeModule = SimpleModule("ModeDeserializing module")
     .addDeserializer(ModeChoiceParameters::class.java, modeDeserializer)
+    .addSerializer(ModeChoiceParameters::class.java,modeSerializer)
 
 val destinationChoiceParameterDeserializer = GenericKeyValueDeserializer(
     wraps = DestinationChoiceParameters::class.java,
@@ -26,8 +33,15 @@ val destinationChoiceParameterDeserializer = GenericKeyValueDeserializer(
     loadFromSubmodules = false
 )
 
+val destinationChoiceParameterSerializer = GenericKeyValueSerializer(
+    wraps = DestinationChoiceParameters::class.java,
+    default = mapOf(DestinationChoiceParameters() to "default"),
+    loadFromSubmodules = false
+)
+
 val destinationChoiceParameterModule = SimpleModule("DestinationChoiceParamModule")
     .addDeserializer(DestinationChoiceParameters::class.java, destinationChoiceParameterDeserializer)
+    .addSerializer(DestinationChoiceParameters::class.java, destinationChoiceParameterSerializer)
 
 class TestCar(
     override val requiresVehicleTakeAlong: Boolean = false,
@@ -54,12 +68,21 @@ val choiceModelModesDeserializer = GenericKeyValueDeserializer(
     loadFromSubmodules = false
 )
 
+val choiceModelModesSerializer = GenericKeyValueSerializer(
+    wraps = ChoiceModelModes::class.java,
+    default = mapOf(testModes to "default"),
+    loadFromSubmodules = false,
+)
+
+
 val choiceModelModesModule = SimpleModule("ChoiceModelModes")
     .addDeserializer(ChoiceModelModes::class.java, choiceModelModesDeserializer)
+    .addSerializer(ChoiceModelModes::class.java, choiceModelModesSerializer)
 
 class YamlTest {
+
     @Test
-    fun `serialize and deserialize`() {
+    fun `equality of initial and written configs`() {
         val input = "src/test/resources/yamlParsing/basicConfig.yaml"
         val output = "src/test/resources/tempOutput/serializedConfig.yaml"
         Yaml.mapper
@@ -69,6 +92,7 @@ class YamlTest {
 
         val configObj = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(input)
         Yaml.writeYaml(output, configObj)
-        assertEquals(Path(input).toFile().readBytes(), Path(output).toFile().readBytes())
+        val writtenConfig = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(output)
+        assertEquals(configObj, writtenConfig)
     }
 }

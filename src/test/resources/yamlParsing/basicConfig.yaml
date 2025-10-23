@@ -3,7 +3,7 @@ matrixRepo: data/matrix
 costMatrixConfig: cost-matrix-configuration_transmove_turbo.yaml
 durationMatrixConfig: time-matrix-configuration_transmove_turbo.yaml
 distanceMatrix: DIS_Car.mtx.bz2
-zoneMatrixCreationMethod: visum
+zoneMatrixCreationMethod: keyBased
 resultPath: results
 resultName: demandsimulation.csv
 errorHandling: THROW
