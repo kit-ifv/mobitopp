@@ -14,6 +14,8 @@ simulationContext:
   dataFolder: "data"
   modes: "coreModes"
 
+personCSV: data/test/person.csv
+
 sharingProviderName: "testProvider"
 vehicleCountColumn: "something"
 destinationChoiceParameterSet: default
