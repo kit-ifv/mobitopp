@@ -1,11 +1,12 @@
 package domain.shared.config
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.DestinationChoiceParameterDeserializer
+import domain.jackson.DestinationChoiceParameterModule
 import domain.jackson.ZoneMatrixCreationDeserializer
 import java.nio.file.Path
 
@@ -30,10 +31,11 @@ import java.nio.file.Path
  */
 object Yaml {
     val mapper = ObjectMapper(YAMLFactory())
+        .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
         .registerModule(ZoneMatrixCreationDeserializer())
-        .registerModule(DestinationChoiceParameterDeserializer())
+        .registerModule(DestinationChoiceParameterModule)
         .findAndRegisterModules()
 
     inline fun <reified T> readYaml(path: Path): T {

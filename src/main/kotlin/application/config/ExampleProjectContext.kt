@@ -103,6 +103,7 @@ data class ExampleProjectContext(
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment.Companion,
     @JsonIgnore
     override val activityTypes: CodePlan<ActivityType> = LegacyActivityType.Companion,
+    @JsonIgnore
     override val modes: CodePlan<Mode> = LegacyMode.Companion,
 
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
@@ -134,8 +135,11 @@ data class ExampleProjectContext(
     override val sharingProviderRepository = MapRepository<MutableSharingProvider, SharingProviderId>(
         "sharing providers"
     )
+    @JsonIgnore
     override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
+    @JsonIgnore
     override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
+    @JsonIgnore
     override val plannedActivityRepository =
         MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
 
@@ -149,7 +153,9 @@ data class ExampleProjectContext(
     @JsonIgnore
     override val impedance = LateInit<Metrics>("Impedance")
 
+    @JsonIgnore
     override val personAgents = MapRepository<PersonAgent, PersonId>("person agents")
+    @JsonIgnore
     override val sharingProviderAgents = MapRepository<SharingProviderAgent, SharingProviderId>(
         "sharing providers agents"
     )
