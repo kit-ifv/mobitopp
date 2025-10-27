@@ -53,7 +53,9 @@ class CodePlanDeserializer : JsonDeserializer<CodePlan<*>>() {
     }
 }
 
-
+/**
+ * Serializes `CodePlan<*>`. If no serialization is known it maps to a default value using that codeplan's hashcode.
+ */
 class CodePlanSerializer: JsonSerializer<CodePlan<*>>() {
     override fun serialize(
         value: CodePlan<*>,
@@ -65,7 +67,7 @@ class CodePlanSerializer: JsonSerializer<CodePlan<*>>() {
             if (t != null) {
                 gen.writeString(t)
             } else {
-                val replacement = "unknown_codeplan_${value.javaClass}"
+                val replacement = "unknown_codeplan_${value.hashCode()}"
                 gen.writeString(replacement)
                 SurrogateRegistry.runtimeMappings[replacement] = value
                 println("Unkown codeplan ${value.javaClass}. Mapping it to '$replacement'")
