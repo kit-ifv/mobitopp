@@ -91,7 +91,6 @@ data class ExampleProjectContext(
 
     override val resultDir: Path = Path("results"),
 
-    @JsonIgnore
     override val regionTypeCodes: CodePlan<RegionType> = RegioStaR17.Companion,
     @JsonIgnore
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus.Companion,
@@ -107,7 +106,6 @@ data class ExampleProjectContext(
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment.Companion,
     @JsonIgnore
     override val activityTypes: CodePlan<ActivityType> = LegacyActivityType.Companion,
-    @JsonIgnore
     override val modes: CodePlan<Mode> = LegacyMode.Companion,
 
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,

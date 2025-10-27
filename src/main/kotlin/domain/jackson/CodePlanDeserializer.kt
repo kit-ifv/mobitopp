@@ -1,25 +1,26 @@
 package domain.jackson
 
+import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.databind.type.TypeFactory
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import utils.CodePlan
 import utils.Encodable
+import utils.collections.invertMap
 import java.util.*
-
-var targetType: JavaType = TypeFactory.defaultInstance().constructParametricType(CodePlan::class.java, Mode::class.java)
 
 class CoreCodePlanModule : SimpleModule("CoreCodePlanModule") {
     init {
         addDeserializer(CodePlan::class.java, CodePlanDeserializer())
+        addSerializer(CodePlan::class.java, CodePlanSerializer())
     }
 }
 
@@ -48,6 +49,21 @@ class CodePlanDeserializer : JsonDeserializer<CodePlan<*>>() {
     }
 }
 
+
+class CodePlanSerializer: JsonSerializer<CodePlan<*>>() {
+    override fun serialize(
+        value: CodePlan<*>,
+        gen: JsonGenerator?,
+        serializers: SerializerProvider?
+    ) {
+        if (gen != null) {
+            val t: String = SurrogateRegistry.inverseMapping[value.javaClass]
+                ?: error("Unkown codeplan ${value.javaClass}. No mapping known for serialization.")
+            gen.writeString(t)
+        }
+    }
+}
+
 /**
  * This object collects all registered code plan surrogates registered the loaded projects, and thus the subprojects.
  */
@@ -55,6 +71,11 @@ object SurrogateRegistry {
 
     val allSurrogates: Map<String, Class<out CodePlanSurrogate<*>>> by lazy {
         buildRegistry()
+    }
+
+    val inverseMapping: Map<Class<CodePlan<*>>, String> by lazy {
+        buildRegistry().mapValues { entry -> entry.value.getDeclaredConstructor().newInstance().resolve().javaClass}
+            .invertMap().mapValues { entry -> entry.value[0] }
     }
 
     private fun buildRegistry(): Map<String, Class<out CodePlanSurrogate<*>>> {
