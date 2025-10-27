@@ -139,6 +139,8 @@ open class NamedCountRule<in T> protected constructor(
     open val logic: CountRule<T>) :
     CountRule<T> by logic, Comparable<NamedCountRule<*>> {
     constructor(desc: RuleDescription, logic: CountRule<T>) : this(desc.logicDescription, logic)
+
+
     override fun equals(other: Any?): Boolean {
         if (other !is NamedCountRule<*>) return false
         return ruleDescription == other.ruleDescription
@@ -153,22 +155,30 @@ open class NamedCountRule<in T> protected constructor(
     }
 }
 
+enum class RuleLevel {
+    HOUSEHOLD, PERSON, UNKNOWN
+}
 interface RuleDescription {
     val logicDescription: String
+    val logicLevel: RuleLevel
 }
 object UnknownLogic : RuleDescription {
     override val logicDescription: String
         get() = "Unknown logic descriptor."
+    override val logicLevel = RuleLevel.UNKNOWN
 }
 class AgeRuleDescription(startAge: Int, endAge: Int) : RuleDescription {
     override val logicDescription: String = "Age in ($startAge..$endAge)"
+    override val logicLevel = RuleLevel.PERSON
 }
 class AgeSexRuleDescription(startAge: Int, endAge: Int, sex: Sex) : RuleDescription {
     override val logicDescription: String = "Sex=$sex Age in ($startAge..$endAge)"
+    override val logicLevel = RuleLevel.PERSON
 }
 class HouseholdTypeDescription(type: String) : RuleDescription {
     constructor(type: Int) : this(type.toString())
     override val logicDescription: String = "Household type = $type"
+    override val logicLevel = RuleLevel.HOUSEHOLD
 }
 class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityOp.EQUALS) : RuleDescription {
     override val logicDescription: String = "Household Size ${operator.symbol} $targetSize "
@@ -180,6 +190,7 @@ class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityO
         GREATER_THAN(">"),
         GREATER_OR_EQUAL(">=")
     }
+    override val logicLevel = RuleLevel.HOUSEHOLD
 }
 
 

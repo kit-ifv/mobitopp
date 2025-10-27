@@ -78,7 +78,9 @@ fun interface GenericIPU {
         val legacy = GenericIPU { vectors, observers ->
 
             repeat(1000) {
-                observers.forEach { it.optimize() }
+                observers.forEach {
+                    it.optimize()
+                }
             }
         }
 
