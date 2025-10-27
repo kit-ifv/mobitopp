@@ -11,11 +11,22 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import java.util.ServiceLoader
 import kotlin.collections.component1
 import kotlin.collections.component2
+import kotlin.collections.forEach
+
+/**
+ * Subprojects need to implement this interface and register it in the `META-INF` directory, if they want to add mappings
+ * to __existing__ KeyValueSerializers/Deserializers.
+ */
+interface Repo<T> {
+    val name: String
+    val wraps: Class<T>
+    fun getParameterSets(): Map<String, T>
+}
 
 /**
  * A builder for GenericKeyValueSerializers and Deserializers.
  * Collects all `Repo<T>` implementations from subprojects through the ServiceLoader
- * API (only if they are declared in the META-INF directory).
+ * API (only if they are declared in the `META-INF` directory).
  *
  * @param default default mappings from strings to their appropriate translation.
  * @param wraps parameter to declare which class this Deserializer wraps. Needed for the collection of Repo<T>
@@ -28,30 +39,11 @@ class GenericKeyValueBuilder<T>(
 ) {
 
     val serializerMapping: Map<T, String> by lazy {
-        deserializerMapping.map { (key, value) -> value to key }.toMap()
+        deserializerMapping.reverseMapping()
     }
 
     val deserializerMapping: Map<String, T> by lazy {
-        collectMappings()
-    }
-
-    /**
-     * Collects all deserializers of subprojects and the default ones.
-     */
-    private fun collectMappings(): Map<String, T> {
-        val result = mutableMapOf<String, T>()
-        result.putAll(default)
-        // 2. Discover and register from subprojects via ServiceLoader
-        if (loadFromSubmodules) {
-            ServiceLoader.load(Repo::class.java)
-                .forEach { parameterRepo ->
-                    if (parameterRepo.wraps == wraps) {
-                        println("Loading ${parameterRepo.name}")
-                        parameterRepo.addAllPairs(result)
-                    }
-                }
-        }
-        return result.toMap()
+        collectMappings(wraps, default, loadFromSubmodules)
     }
 
     fun getSerializer(): GenericKeyValueSerializer<T>  {
@@ -97,26 +89,7 @@ class GenericKeyValueDeserializer<T>(
 ) : JsonDeserializer<T>() {
 
     val mapping: Map<String, T> by lazy {
-        collectDeserializers()
-    }
-
-    /**
-     * Collects all deserializers of subprojects and the default ones.
-     */
-    private fun collectDeserializers(): Map<String, T> {
-        val result = mutableMapOf<String, T>()
-        result.putAll(default)
-        // 2. Discover and register from subprojects via ServiceLoader
-        if (loadFromSubmodules) {
-            ServiceLoader.load(Repo::class.java)
-                .forEach { parameterRepo ->
-                    if (parameterRepo.wraps == wraps) {
-                        println("Loading ${parameterRepo.name}")
-                        parameterRepo.addAllPairs(result)
-                    }
-                }
-        }
-        return result.toMap()
+        collectMappings(wraps, default, loadFromSubmodules)
     }
 
     override fun deserialize(
@@ -159,15 +132,9 @@ class GenericKeyValueSerializer<T>(
     private fun collectSerializers(): Map<T, String> {
         val result = mutableMapOf<T, String>()
         result.putAll(default)
-        // 2. Discover and register from subprojects via ServiceLoader
         if (loadFromSubmodules) {
-            ServiceLoader.load(Repo::class.java)
-                .forEach { parameterRepo ->
-                    if (parameterRepo.wraps == wraps) {
-                        println("Loading ${parameterRepo.name}")
-                        parameterRepo.addPairsReversed(result)
-                    }
-                }
+            val fromSubprojects = loadRepos(wraps)
+            result.putAllReversed(fromSubprojects)
         }
         return result.toMap()
     }
@@ -184,33 +151,79 @@ class GenericKeyValueSerializer<T>(
     }
 }
 
-interface Repo<T> {
-    val name: String
-    val wraps: Class<T>
-    fun getParameterSets(): Map<String, T>
-}
-
-fun<T> Repo<*>.addAllPairs(map: MutableMap<String, T>) {
-    getParameterSets().forEach { (key, value) ->
-        val existing = map.putIfAbsent(key, value as T)
+private fun<T> MutableMap<String, T>.addAllPairs(repo: Repo<T>) {
+    repo.getParameterSets().forEach { (key, value) ->
+        val existing = putIfAbsent(key, value)
         if (existing != null) {
             error(
                 "Duplicate Key-Value-Pair with key '$key' encountered. From " +
-                    "Repo with name '$name'"
+                    "Repo with name '${repo.name}'"
             )
         }
     }
 }
 
-fun<T> Repo<*>.addPairsReversed(map: MutableMap<T, String>) {
-    getParameterSets().forEach { (key, value) ->
-        val existing = map.putIfAbsent(value as T, key)
+private fun<T> Map<String, T>.reverseMapping(): Map<T, String> {
+    val result = mutableMapOf<T, String>()
+    result.putAllReversed(this)
+    return result.toMap()
+}
+
+private fun<T> MutableMap<T, String>.putAllReversed(map: Map<String, T>) {
+    map.forEach { (key, value) ->
+        val existing = putIfAbsent(value, key)
         if (existing != null) {
-            error(
-                "In Repo '$name': Duplicate class to string mapping found for class  $value encountered. " +
-                        "Mapping class  $value to ${map[value]} and ignoring all other string " +
+            println(
+                "[Warning]: Duplicate class to string mapping found for class  $value encountered. " +
+                        "Mapping class  $value to ${get(value)} and ignoring all other string " +
                         "representations of that class for serialization."
             )
         }
     }
 }
+
+/**
+ * Collects all registered `Repo<T>` of subprojects and collects their mappings together with the default ones.
+ * @param loadFromSubmodules only searches for `Repo<T>` if this is set to true.
+ * @return a map with the `default` pairs and
+ */
+private fun<T> collectMappings(wraps: Class<T>, default: Map<String, T>, loadFromSubmodules: Boolean): Map<String, T> {
+    val result = mutableMapOf<String, T>()
+    result.putAll(default)
+    // 2. Discover and register from subprojects via ServiceLoader
+    if (loadFromSubmodules) {
+        result.loadRepos(wraps)
+    }
+    return result.toMap()
+}
+
+/**
+ * Loads all `Repo<T>` from subprojects.
+ * Inserts all mappings from the repos into the map.
+ */
+private fun<T> MutableMap<String,T>.loadRepos(wraps: Class<T>) {
+    ServiceLoader.load(Repo::class.java)
+        .forEach { repo ->
+            if (repo.wraps == wraps) {
+                println("Loading ${repo.name}")
+                addAllPairs(repo as Repo<T>)
+            }
+        }
+}
+
+/**
+ * Loads all `Repo<T>` from subprojects.
+ * @return a map of all mappings found in registered `Repo<T>`.
+ */
+private fun<T> loadRepos(wraps: Class<T>): Map<String, T> {
+    val result = mutableMapOf<String, T>()
+    ServiceLoader.load(Repo::class.java)
+        .forEach { repo ->
+            if (repo.wraps == wraps) {
+                println("Loading ${repo.name}")
+                result.addAllPairs(repo as Repo<T>)
+            }
+        }
+    return result.toMap()
+}
+
