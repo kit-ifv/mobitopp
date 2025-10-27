@@ -19,11 +19,12 @@ import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.parseIsoString
 
+
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
  * in src/main/resources/ of the subproject.
  *
- * In there add a `package.name.myInterface/Class` so the serviceloader can look for implementations of myClass/
+ * In there add a `package.name.myInterface/Class` so the serviceloader can look for implementations of myClass or
  * myInterface in that subproject. The file should contain the package-path to the implementation of that class/
  * interface of that subproject.
  *
@@ -40,7 +41,7 @@ import kotlin.time.Duration.Companion.parseIsoString
  */
 object Yaml {
 
-    var mapper = ObjectMapper(YAMLFactory())
+    var mapper: ObjectMapper = ObjectMapper(YAMLFactory())
         .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
@@ -66,7 +67,7 @@ object Yaml {
 /**
  * Handles the serialization of kotlin durations.
  */
-private val durationModule = SimpleModule("Duration")
+val durationModule = SimpleModule("Duration")
     .addDeserializer(Duration::class.java, DurationDeserializer())
     .addSerializer(Duration::class.java, DurationSerializer())
 private class DurationDeserializer : JsonDeserializer<Duration>() {
@@ -95,7 +96,7 @@ private class DurationSerializer : JsonSerializer<Duration>() {
 /**
  * Handles the serialization of paths.
  */
-private val pathModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
+val pathModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
 private class PathSerializer : JsonSerializer<Path>() {
 
     override fun serialize(
