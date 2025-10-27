@@ -39,13 +39,17 @@ class CodePlanDeserializer : JsonDeserializer<CodePlan<*>>() {
             else -> node.get("type").asText()
         }
         val surrogateClass = SurrogateRegistry.allSurrogates[type]
-            ?: error("Unknown behavior type: $type")
-        val surrogate = when {
-            node.isTextual -> surrogateClass.getDeclaredConstructor().newInstance()
-            else -> p.codec.treeToValue(node, surrogateClass)
+        if (surrogateClass != null) {
+            val surrogate = when {
+                node.isTextual -> surrogateClass.getDeclaredConstructor().newInstance()
+                else -> p.codec.treeToValue(node, surrogateClass)
+            }
+
+            return surrogate.resolve()
+        } else {
+            return SurrogateRegistry.runtimeMappings[type] ?: error("Unknown behavior type: $type")
         }
 
-        return surrogate.resolve()
     }
 }
 
@@ -57,9 +61,15 @@ class CodePlanSerializer: JsonSerializer<CodePlan<*>>() {
         serializers: SerializerProvider?
     ) {
         if (gen != null) {
-            val t: String = SurrogateRegistry.inverseMapping[value.javaClass]
-                ?: error("Unkown codeplan ${value.javaClass}. No mapping known for serialization.")
-            gen.writeString(t)
+            val t: String? = SurrogateRegistry.inverseMapping[value.javaClass]
+            if (t != null) {
+                gen.writeString(t)
+            } else {
+                val replacement = "unknown_codeplan_${value.javaClass}"
+                gen.writeString(replacement)
+                SurrogateRegistry.runtimeMappings[replacement] = value
+                println("Unkown codeplan ${value.javaClass}. Mapping it to '$replacement'")
+            }
         }
     }
 }
@@ -75,8 +85,13 @@ object SurrogateRegistry {
 
     val inverseMapping: Map<Class<CodePlan<*>>, String> by lazy {
         buildRegistry().mapValues { entry -> entry.value.getDeclaredConstructor().newInstance().resolve().javaClass}
-            .invertMap().mapValues { entry -> entry.value[0] }
+            .invertMap().mapValues { entry -> entry.value[0] } // this is cursed but works I guess...
     }
+
+    /**
+     * Unknown codeplans that are serialized get registered here so they can be deserialized again.
+     */
+    val runtimeMappings: MutableMap<String, CodePlan<*>> = mutableMapOf()
 
     private fun buildRegistry(): Map<String, Class<out CodePlanSurrogate<*>>> {
         val result = mutableMapOf<String, Class<out CodePlanSurrogate<*>>>()
