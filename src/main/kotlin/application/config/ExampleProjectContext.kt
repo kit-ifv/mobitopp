@@ -80,7 +80,11 @@ interface StandardContext :
     RoadNetworkContext,
     BuildAgentsContext
 
-@JsonIgnoreProperties(value = ["execMode",  "zoneColumnIndex", "personAgents", "sharingProviderAgents", "regionTypeCodes"])
+@JsonIgnoreProperties(
+    value = ["execMode", "zoneColumnIndex", "personAgents", "sharingProviderAgents",
+        "regionTypeCodes", "defaultZonePath", "defaultSharingStationPath", "defaultHouseholdPath", "defaultPersonPath",
+        "defaultCarPath", "defaultActivityPath", "defaultFixedDestinationsPath"]
+)
 data class ExampleProjectContext(
     override val scenarioName: String,
     override val dataFolder: Path,
@@ -123,22 +127,30 @@ data class ExampleProjectContext(
 
     @JsonIgnore
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
+
     @JsonIgnore
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")
+
     @JsonIgnore
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")
+
     @JsonIgnore
     override val zoneRepository = MapRepository<MutableLegacyZone, ZoneId>("zones")
+
     @JsonIgnore
     override val householdRepository = MapRepository<MutableHousehold, HouseholdId>("households")
+
     @JsonIgnore
     override val sharingProviderRepository = MapRepository<MutableSharingProvider, SharingProviderId>(
         "sharing providers"
     )
+
     @JsonIgnore
     override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
+
     @JsonIgnore
     override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
+
     @JsonIgnore
     override val plannedActivityRepository =
         MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
@@ -155,6 +167,7 @@ data class ExampleProjectContext(
 
     @JsonIgnore
     override val personAgents = MapRepository<PersonAgent, PersonId>("person agents")
+
     @JsonIgnore
     override val sharingProviderAgents = MapRepository<SharingProviderAgent, SharingProviderId>(
         "sharing providers agents"
