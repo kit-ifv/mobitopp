@@ -1,13 +1,21 @@
 package application.config
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import domain.jackson.CoreCodePlanModule
+import domain.jackson.DestinationChoiceParameterModule
 import domain.jackson.GenericKeyValueBuilder
 import domain.jackson.GenericKeyValueDeserializer
 import domain.jackson.GenericKeyValueSerializer
+import domain.jackson.ZoneMatrixCreationModule
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.config.Yaml
+import domain.shared.config.durationModule
+import domain.shared.config.pathModule
 import domain.shared.enums.Mode
 import domain.simulation.behavior.DestinationChoiceParameters
 import domain.simulation.behavior.ModeChoiceParameters
@@ -100,11 +108,19 @@ private data class TestClass(
 )
 
 class YamlTest {
-    val defaultMapper: ObjectMapper = Yaml.mapper.copy()
 
     @BeforeEach
     fun resetObjectMapper() {
-        Yaml.mapper = defaultMapper.copy()
+        // needs to be in sync with the initial Yaml.mapper otherwise we change the behaviour for each test here.
+        Yaml.mapper = ObjectMapper(YAMLFactory())
+            .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
+            .registerKotlinModule()
+            .registerModule(CoreCodePlanModule())
+            .registerModule(ZoneMatrixCreationModule)
+            .registerModule(DestinationChoiceParameterModule)
+            .registerModule(durationModule)
+            .registerModule(pathModule)
+            .findAndRegisterModules()
     }
 
     @Test
@@ -120,7 +136,6 @@ class YamlTest {
         Yaml.writeYaml(output, configObj)
         val writtenConfig = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(output)
         assertEquals(configObj, writtenConfig)
-        // Path(output).deleteIfExists()
     }
 
     @Test
