@@ -92,19 +92,12 @@ data class ExampleProjectContext(
     override val resultDir: Path = Path("results"),
 
     override val regionTypeCodes: CodePlan<RegionType> = RegioStaR17.Companion,
-    @JsonIgnore
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus.Companion,
-    @JsonIgnore
     override val sexCodes: CodePlan<Sex> = Sex.Companion,
-    @JsonIgnore
     override val graduationCodes: CodePlan<Graduation> = Graduation.Companion,
-    @JsonIgnore
     override val employmentCodes: CodePlan<Employment> = Employment.Companion,
-    @JsonIgnore
     override val engineCodes: CodePlan<EngineType> = EngineType.Companion,
-    @JsonIgnore
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment.Companion,
-    @JsonIgnore
     override val activityTypes: CodePlan<ActivityType> = LegacyActivityType.Companion,
     override val modes: CodePlan<Mode> = LegacyMode.Companion,
 
@@ -113,8 +106,8 @@ data class ExampleProjectContext(
     override val timeUnit: DurationUnit = DurationUnit.MINUTES,
 
     override val simulationSeed: Long = 42,
-    override val simulationStart: AbsoluteTime = AbsoluteTime.Companion.START,
-    override val simulationEnd: AbsoluteTime = AbsoluteTime.Companion.START + 1.weeks,
+    override val simulationStart: AbsoluteTime = AbsoluteTime.START,
+    override val simulationEnd: AbsoluteTime = AbsoluteTime.START + 1.weeks,
     override val timeStep: Duration = 1.minutes,
 ) : DemandSimContext,
     StandardContext,
