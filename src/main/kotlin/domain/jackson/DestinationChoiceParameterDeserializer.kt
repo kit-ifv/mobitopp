@@ -4,7 +4,7 @@ import domain.simulation.behavior.DestinationChoiceParameters
 
 
 val DestinationChoiceParameterModule = GenericKeyValueBuilder(
-    DestinationChoiceParameters().javaClass,
+    DestinationChoiceParameters::class.java,
     mapOf("default" to DestinationChoiceParameters()),
     loadFromSubmodules = true
 ).getModule()

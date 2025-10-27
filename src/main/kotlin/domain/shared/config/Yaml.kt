@@ -7,7 +7,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
 import domain.jackson.DestinationChoiceParameterModule
-import domain.jackson.ZoneMatrixCreationDeserializer
+import domain.jackson.ZoneMatrixCreationModule
 import java.nio.file.Path
 
 /**
@@ -34,7 +34,7 @@ object Yaml {
         .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
-        .registerModule(ZoneMatrixCreationDeserializer())
+        .registerModule(ZoneMatrixCreationModule)
         .registerModule(DestinationChoiceParameterModule)
         .findAndRegisterModules()
 

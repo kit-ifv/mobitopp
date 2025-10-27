@@ -1,7 +1,9 @@
 package domain.shared.config
 
 import application.config.ShortTermConfig
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.module.SimpleModule
+import domain.jackson.GenericKeyValueBuilder
 import domain.jackson.GenericKeyValueDeserializer
 import domain.jackson.GenericKeyValueSerializer
 import domain.shared.behavior.ChoiceModelModes
@@ -10,6 +12,8 @@ import domain.simulation.behavior.DestinationChoiceParameters
 import domain.simulation.behavior.ModeChoiceParameters
 import org.junit.jupiter.api.Assertions.*
 import kotlin.io.path.Path
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.deleteRecursively
 import kotlin.test.Test
 
 val modeDeserializer = GenericKeyValueDeserializer(
@@ -79,6 +83,23 @@ val choiceModelModesModule = SimpleModule("ChoiceModelModes")
     .addDeserializer(ChoiceModelModes::class.java, choiceModelModesDeserializer)
     .addSerializer(ChoiceModelModes::class.java, choiceModelModesSerializer)
 
+
+private class MyParameterClass(val name: String) {
+    override fun equals(other: Any?): Boolean {
+        if(other !is MyParameterClass) return false
+        return this.name == other.name
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
+}
+
+private data class TestClass(
+    var t: MyParameterClass
+)
+
+
 class YamlTest {
 
     @Test
@@ -94,5 +115,68 @@ class YamlTest {
         Yaml.writeYaml(output, configObj)
         val writtenConfig = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(output)
         assertEquals(configObj, writtenConfig)
+        Path(output).deleteIfExists()
+    }
+
+    @Test
+    fun keyValueParserTest() {
+        val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
+        val output = "src/test/resources/tempOutput/keyValueTest.yaml"
+        val builder = GenericKeyValueBuilder(
+            wraps = MyParameterClass::class.java,
+            default = mapOf(
+                "custom" to MyParameterClass("test"),
+            ),
+            loadFromSubmodules = false
+        )
+
+        Yaml.mapper.registerModule(builder.getModule())
+
+        val parsed = Yaml.readYaml<TestClass>(input)
+        Yaml.writeYaml(output, parsed)
+        val writtenConfig = Yaml.readYaml<TestClass>(output)
+        assertEquals(parsed, writtenConfig)
+        Path(output).deleteIfExists()
+    }
+
+    @Test
+    fun nonExistentMappingTest() {
+        val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
+        val builder = GenericKeyValueBuilder(
+            wraps = MyParameterClass::class.java,
+            default = mapOf(
+                "thisDoesntExist" to MyParameterClass("test"),
+            ),
+            loadFromSubmodules = false
+        )
+        Yaml.mapper.registerModule(builder.getModule())
+        assertThrows(JsonMappingException::class.java) {
+            Yaml.readYaml<TestClass>(input)
+        }
+    }
+
+    @Test
+    fun changedParameterTest() {
+        val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
+        val output = "src/test/resources/tempOutput/keyValueTest.yaml"
+        val builder = GenericKeyValueBuilder(
+            wraps = MyParameterClass::class.java,
+            default = mapOf(
+                "custom" to MyParameterClass("test"),
+                "other" to MyParameterClass("test2"),
+            ),
+            loadFromSubmodules = false
+        )
+
+        Yaml.mapper.registerModule(builder.getModule())
+
+        val parsed = Yaml.readYaml<TestClass>(input)
+        assertEquals(MyParameterClass("test"), parsed.t)
+        parsed.t = MyParameterClass("test2") // replacing parsed value
+        Yaml.writeYaml(output, parsed)
+        val writtenConfig = Yaml.readYaml<TestClass>(output)
+        assertEquals(MyParameterClass("test2"), writtenConfig.t)
+        assertEquals(parsed, writtenConfig)
+        Path(output).deleteIfExists()
     }
 }

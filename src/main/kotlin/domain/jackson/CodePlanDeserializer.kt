@@ -2,16 +2,20 @@ package domain.jackson
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.type.TypeFactory
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import utils.CodePlan
 import utils.Encodable
-import java.util.ServiceLoader
+import java.util.*
+
+var targetType: JavaType = TypeFactory.defaultInstance().constructParametricType(CodePlan::class.java, Mode::class.java)
 
 class CoreCodePlanModule : SimpleModule("CoreCodePlanModule") {
     init {
