@@ -82,7 +82,7 @@ interface StandardContext :
 
 @JsonIgnoreProperties(
     value = ["execMode", "zoneColumnIndex", "personAgents", "sharingProviderAgents",
-        "regionTypeCodes", "defaultZonePath", "defaultSharingStationPath", "defaultHouseholdPath", "defaultPersonPath",
+        "defaultZonePath", "defaultSharingStationPath", "defaultHouseholdPath", "defaultPersonPath",
         "defaultCarPath", "defaultActivityPath", "defaultFixedDestinationsPath"]
 )
 data class ExampleProjectContext(
