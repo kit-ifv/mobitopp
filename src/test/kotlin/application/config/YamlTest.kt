@@ -1,20 +1,22 @@
-package domain.shared.config
+package application.config
 
-import application.config.ShortTermConfig
 import com.fasterxml.jackson.databind.JsonMappingException
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import domain.jackson.GenericKeyValueBuilder
 import domain.jackson.GenericKeyValueDeserializer
 import domain.jackson.GenericKeyValueSerializer
 import domain.shared.behavior.ChoiceModelModes
+import domain.shared.config.Yaml
 import domain.shared.enums.Mode
 import domain.simulation.behavior.DestinationChoiceParameters
 import domain.simulation.behavior.ModeChoiceParameters
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
 import kotlin.io.path.Path
 import kotlin.io.path.deleteIfExists
-import kotlin.io.path.deleteRecursively
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 val modeDeserializer = GenericKeyValueDeserializer(
     wraps = ModeChoiceParameters::class.java,
@@ -29,7 +31,7 @@ val modeSerializer = GenericKeyValueSerializer(
 
 val modeModule = SimpleModule("ModeDeserializing module")
     .addDeserializer(ModeChoiceParameters::class.java, modeDeserializer)
-    .addSerializer(ModeChoiceParameters::class.java,modeSerializer)
+    .addSerializer(ModeChoiceParameters::class.java, modeSerializer)
 
 val destinationChoiceParameterDeserializer = GenericKeyValueDeserializer(
     wraps = DestinationChoiceParameters::class.java,
@@ -78,15 +80,13 @@ val choiceModelModesSerializer = GenericKeyValueSerializer(
     loadFromSubmodules = false,
 )
 
-
 val choiceModelModesModule = SimpleModule("ChoiceModelModes")
     .addDeserializer(ChoiceModelModes::class.java, choiceModelModesDeserializer)
     .addSerializer(ChoiceModelModes::class.java, choiceModelModesSerializer)
 
-
 private class MyParameterClass(val name: String) {
     override fun equals(other: Any?): Boolean {
-        if(other !is MyParameterClass) return false
+        if (other !is MyParameterClass) return false
         return this.name == other.name
     }
 
@@ -99,8 +99,13 @@ private data class TestClass(
     var t: MyParameterClass
 )
 
-
 class YamlTest {
+    val defaultMapper: ObjectMapper = Yaml.mapper.copy()
+
+    @BeforeEach
+    fun resetObjectMapper() {
+        Yaml.mapper = defaultMapper.copy()
+    }
 
     @Test
     fun `equality of initial and written configs`() {
@@ -115,7 +120,7 @@ class YamlTest {
         Yaml.writeYaml(output, configObj)
         val writtenConfig = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(output)
         assertEquals(configObj, writtenConfig)
-        Path(output).deleteIfExists()
+        // Path(output).deleteIfExists()
     }
 
     @Test
@@ -136,6 +141,7 @@ class YamlTest {
         Yaml.writeYaml(output, parsed)
         val writtenConfig = Yaml.readYaml<TestClass>(output)
         assertEquals(parsed, writtenConfig)
+        Yaml.mapper
         Path(output).deleteIfExists()
     }
 
