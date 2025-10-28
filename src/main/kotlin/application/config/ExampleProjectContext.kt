@@ -1,5 +1,7 @@
 package application.config
 
+import application.steps.model.AddDrtMembershipContext
+import application.steps.model.AddDrtProviderContext
 import application.steps.model.AssignCarsContext
 import application.steps.model.BuildAgentsContext
 import application.steps.model.HomeLocationModelContext
@@ -30,19 +32,25 @@ import domain.shared.location.LegacyZone
 import domain.shared.location.Metrics
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
+import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.config.DemandSimContext
 import domain.simulation.events.PersonBehavior
+import domain.simulation.events.PersonStateContext
 import domain.simulation.results.AgentResultsContext
+import domain.simulation.results.AvailabilityWriter
+import domain.simulation.results.ConcurrentAvailabilityWriter
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.Graduation
 import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
@@ -76,7 +84,10 @@ interface StandardContext :
     WriteTripsCsvContext,
     RunSimContext,
     RoadNetworkContext,
-    BuildAgentsContext
+    BuildAgentsContext,
+    AddDrtProviderContext,
+    AddDrtMembershipContext,
+    PersonStateContext
 
 data class ExampleProjectContext(
     override val scenarioName: String,
@@ -118,6 +129,9 @@ data class ExampleProjectContext(
     override val sharingProviderRepository = MapRepository<MutableSharingProvider, SharingProviderId>(
         "sharing providers"
     )
+    override val drtProviderRepository = MapRepository<MutableDrtProviderData, DrtProviderId>(
+        "drt providers"
+    )
     override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
     override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
     override val plannedActivityRepository = MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
@@ -135,4 +149,11 @@ data class ExampleProjectContext(
     override val sharingProviderAgents = MapRepository<SharingProviderAgent, SharingProviderId>(
         "sharing providers agents"
     )
+    override val drtProviderAgents = MapRepository<DrtProviderAgent, DrtProviderId>(
+        "drt providers agents"
+    )
+
+    override val availabilityWriter: AvailabilityWriter by lazy {
+        ConcurrentAvailabilityWriter(resultDir.resolve("availability.csv"))
+    }
 }

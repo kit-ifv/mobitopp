@@ -20,7 +20,12 @@ import domain.synthesis.parser.binary.BinaryZoneWriter
 import java.nio.file.Path
 
 fun LoadPersonsContext.loadPersonsFromBinary(path: Path) {
-    val converter = BinaryPersonReader(householdRepository.elements.associateBy { it.id }::getValue, simulationSeed)
+    val converter = BinaryPersonReader(
+        householdRepository.elements.associateBy { it.id }::getValue,
+        sharingProviderRepository.elements.associateBy { it.id }::getValue,
+        drtProviderRepository.elements.associateBy { it.id }::getValue,
+        simulationSeed
+    )
     runStep {
         LoadBinaryStep(
             path,

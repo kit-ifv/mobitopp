@@ -16,6 +16,7 @@ import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.ChargingInfluence
+import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
@@ -165,6 +166,7 @@ fun Zone.generateHouseholds(
     spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
     personLimits: PersonSpawnLimits = PersonSpawnLimits(),
     memberships: MutableList<SharingProvider> = mutableListOf(),
+    drtMemberships: MutableList<DrtProvider>,
     personScope: (MutablePerson) -> Unit = {},
 ): List<Household> {
     return (0..<num).map {
@@ -183,6 +185,7 @@ fun Zone.generateHouseholds(
             random,
             personLimits,
             memberships,
+            drtMemberships,
             personScope
         )
         h
@@ -196,16 +199,29 @@ fun Collection<Zone>.generateHouseholds(
     spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
     personLimits: PersonSpawnLimits = PersonSpawnLimits(),
     memberships: MutableList<SharingProvider> = mutableListOf(),
+    drtMemberships: MutableList<DrtProvider> = mutableListOf(),
     personScope: (MutablePerson) -> Unit = {},
 ): List<Household> {
-    return flatMap { it.generateHouseholds(num, random, spawnLimits, personLimits, memberships, personScope) }
+    return flatMap {
+        it.generateHouseholds(
+            num,
+            random,
+            spawnLimits,
+            personLimits,
+            memberships,
+            drtMemberships,
+            personScope
+        )
+    }
 }
 
+@Suppress("LongParameterList")
 fun MutableHousehold.generatePersons(
     num: Int,
     random: Random = Random(1),
     spawnLimits: PersonSpawnLimits = PersonSpawnLimits(),
     memberships: List<SharingProvider>,
+    drtMemberships: MutableList<DrtProvider>,
     personScope: (MutablePerson) -> Unit = {},
 ): List<MutablePerson> {
     return (0..<num).map {
@@ -219,6 +235,7 @@ fun MutableHousehold.generatePersons(
             hasCommuterTicket = spawnLimits.hasCommuterTicket.random(random)
             hasLicense = spawnLimits.hasLicense.random(random)
             sharingMemberships.addAll(memberships)
+            this.drtMemberships.addAll(drtMemberships)
 
             personScope(this)
         }
@@ -230,7 +247,7 @@ fun MutablePerson.generateActivitySchedule(
     random: Random
 ) {
     val range = 0.days.sinceStart..1.days.sinceStart
-    val targets = List(num) { range.random(random) }.sorted()
+    val targets = List(num) { range.random(random) }.sorted().distinct()
 
     targets.zipWithNext { a, b ->
 

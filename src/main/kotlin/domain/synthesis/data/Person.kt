@@ -52,6 +52,7 @@ interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<Person
     val hasCommuterTicket: Boolean
     val hasLicense: Boolean
     val sharingMemberships: List<ISharingProvider>
+    val drtMemberships: List<DrtProvider>
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
 
@@ -75,6 +76,9 @@ interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<Person
 
 val IPerson.sharingMembershipIds: Set<SharingProviderId>
     get() = sharingMemberships.map { it.id }.toSet()
+
+val IPerson.drtMembershipIds: Set<DrtProviderId>
+    get() = drtMemberships.map { it.id }.toSet()
 
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)
@@ -122,6 +126,7 @@ abstract class Person(
     final override val random: Random by lazy { Random(id.value + seed) }
 
     abstract override val sharingMemberships: List<SharingProvider>
+    abstract override val drtMemberships: List<DrtProvider>
 
     abstract val plannedActivities: ClearableList<PlannedActivity>
 
