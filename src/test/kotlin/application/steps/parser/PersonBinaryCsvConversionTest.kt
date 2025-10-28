@@ -1,14 +1,22 @@
 package application.steps.parser
 
 import TEST_ZONE
+import domain.shared.enums.LegacyMode
 import domain.synthesis.data.ChargingInfluence
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Graduation
+import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.SharingProviderId
 import domain.synthesis.parser.binary.BinaryPersonReader
+import domain.synthesis.parser.parseMemberships
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.euros
 import generateHousehold
@@ -25,7 +33,9 @@ import utils.csv.int
 import utils.csv.unitShare
 import java.io.DataOutputStream
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class PersonBinaryCsvConversionTest {
 
@@ -46,9 +56,16 @@ class PersonBinaryCsvConversionTest {
             hasLicense = row.boolean(columns.licenseColumn)
             eMobilityAcceptance = row.unitShare(columns.eMobilityAcceptanceColumn)
             chargingInfluence = row.decodeName(columns.chargingInfluenceColumn, ChargingInfluence.Companion)
+            sharingMemberships.addAll(
+                row("mobilityProviderCustomership").parseMemberships(sharingMap)
+            )
+            drtMemberships.addAll(
+                row("mobilityProviderCustomership").parseMemberships(drtMap)
+            )
         }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun `binary vs CSV parsing`() {
         val testData = Path("src/test/resources/testDemand/demand-data/person.csv")
@@ -85,14 +102,45 @@ class PersonBinaryCsvConversionTest {
                 }
             ),
             Pair("graduation", DataType().INT),
+            Pair(
+                "mobilityProviderCustomership",
+                WriteStrategy { dataOutputStream: DataOutputStream, element: String, _ ->
+                    if ("BIKESHARING=true" in element) {
+                        println("sharing: $element")
+                        dataOutputStream.writeInt(1)
+                        dataOutputStream.writeLong(sharingProvider1.id.value)
+                    } else {
+                        dataOutputStream.writeInt(0)
+                    }
+
+                    if ("Stadtmobil=true" in element) {
+                        println("drt: $element")
+                        dataOutputStream.writeInt(1)
+                        dataOutputStream.writeLong(drtProvider1.id.value)
+                    } else {
+                        dataOutputStream.writeInt(0)
+                    }
+                }
+            ),
+            // TODO extend test
         )
 
-        val personConverter = BinaryPersonReader({ _ -> hh1 }, 1)
+        val personConverter = BinaryPersonReader(
+            { _ -> hh1 },
+            sharingId::getValue,
+            drtId::getValue,
+            1
+        )
 
         val testBin = binaryConverter.makeCSVBinary(testData, dataTypeMap, maxStringLength, tempOutput)
 
+        assertTrue { testData.exists() }
+        assertTrue { testBin.exists() }
+
         val binConverted = personConverter.fromBinary(testBin)
         val directRead = personCSVParser.parse(testData).toList()
+
+        assertEquals(directRead.size, binConverted.size)
 
         binConverted.forEachIndexed { index, mutablePerson ->
             assertEquals(mutablePerson.id, directRead[index].id)
@@ -107,7 +155,22 @@ class PersonBinaryCsvConversionTest {
             assertEquals(mutablePerson.hasCommuterTicket, directRead[index].hasCommuterTicket)
             assertEquals(mutablePerson.hasLicense, directRead[index].hasLicense)
             assertEquals(mutablePerson.eMobilityAcceptance, directRead[index].eMobilityAcceptance)
+            assertEquals(mutablePerson.sharingMemberships, directRead[index].sharingMemberships)
+            assertEquals(mutablePerson.drtMemberships, directRead[index].drtMemberships)
         }
+
+        assertTrue {
+            binConverted.any {
+                it.sharingMemberships.isNotEmpty()
+            }
+        }
+
+        assertTrue {
+            binConverted.any {
+                it.drtMemberships.isNotEmpty()
+            }
+        }
+
         tempOutput.toFile().delete()
     }
 
@@ -120,6 +183,20 @@ class PersonBinaryCsvConversionTest {
         economicStatus = EconomicStatus.MIDDLE
         incomePerMonth = 2.euros
     }
+
+    private val sharingProvider1: SharingProvider = MutableSharingProvider(SharingProviderId(1L)) {
+        name = "BIKESHARING"
+        mode = LegacyMode.BIKESHARING
+    }
+    private val sharingMap = mapOf(sharingProvider1.name.lowercase() to sharingProvider1)
+    private val sharingId = mapOf(sharingProvider1.id to sharingProvider1)
+
+    private val drtProvider1: DrtProvider = MutableDrtProviderData(DrtProviderId(1L)) {
+        name = "Stadtmobil"
+        mode = LegacyMode.RIDE_POOLING
+    }
+    private val drtMap = mapOf(drtProvider1.name.lowercase() to drtProvider1)
+    private val drtId = mapOf(drtProvider1.id to drtProvider1)
 
     data class PersonColumns(
         val idColumn: String = "personId",
