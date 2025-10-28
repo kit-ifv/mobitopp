@@ -44,9 +44,6 @@ import domain.simulation.behavior.GaussianActivityDurationRandomizer
 import domain.simulation.behavior.ModeChoiceParameters
 import domain.simulation.behavior.legacyDestinationChoiceBuilder
 import domain.simulation.behavior.legacyModeChoiceBuilder
-import domain.simulation.behavior.legacyDestinationChoice
-import domain.simulation.behavior.legacyModeChoice
-import domain.simulation.config.ShortTermConfig
 import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
 import domain.simulation.results.personLegs
