@@ -14,7 +14,7 @@ import domain.synthesis.behavior.domain.SynthesisHousehold
  *
  * @param T The type of data associated with the household (e.g., demographic information).
  */
-fun interface HouseholdSynthesis<AREA, I, out O: I> : GenericPopulationSynthesis<AREA, I> {
+fun interface HouseholdSynthesis<AREA, I, out O : I> : GenericPopulationSynthesis<AREA, I> {
     /**
      * Synthesizes households based on the provided survey data and rules for each zone.
      *
@@ -39,7 +39,7 @@ fun interface HouseholdSynthesis<AREA, I, out O: I> : GenericPopulationSynthesis
  */
 class TrivialSynthesis<AREA, T>(
     private val surveyHouseholds: Collection<ISurveyHousehold<out T>>
-) : HouseholdSynthesis<AREA,  ISurveyHousehold<out T>, SynthesisHousehold<out T>> {
+) : HouseholdSynthesis<AREA, ISurveyHousehold<out T>, SynthesisHousehold<out T>> {
     override fun synthesize(
         targetAreas: List<AREA>
     ): Map<AREA, List<SynthesisHousehold<out T>>> {

@@ -167,9 +167,10 @@ object FixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     }
 }
 
-object SurveyHouseholdOutput: CSVOutput<ISurveyHousehold<out SurveyInfo>> {
+object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<out SurveyInfo>> {
     override val header: List<String> = listOf("nominalSize", "numberOfMinors", "income")
 
+    @Suppress("MagicNumber")
     override fun convert(element: ISurveyHousehold<out SurveyInfo>): String {
         return element.run {
             toCSV(
@@ -221,7 +222,7 @@ object HouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
 //                "TODO can charge privately"
 
             )
-        }+";"+ SurveyHouseholdOutput.convert(element)
+        } + ";" + SurveyHouseholdOutput.convert(element)
     }
 }
 
@@ -250,9 +251,14 @@ object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
         }
     }
 }
-object SurveyPersonOutput: CSVOutput<SurveyPerson<out RawSurveyInfo>> {
+object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
     override val header: List<String> = listOf(
-        "personId",        "age",        "gender",   "householdIncome",     "hasBike", "hasLicence"
+        "personId",
+        "age",
+        "gender",
+        "householdIncome",
+        "hasBike",
+        "hasLicence"
     )
 
     override fun convert(element: SurveyPerson<out RawSurveyInfo>): String {
@@ -268,6 +274,7 @@ object SurveyPersonOutput: CSVOutput<SurveyPerson<out RawSurveyInfo>> {
         }
     }
 }
+
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object PersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
     override val header: List<String> = SurveyPersonOutput.header + listOf(

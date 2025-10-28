@@ -13,7 +13,6 @@ import org.jgrapht.graph.DefaultEdge
 import utils.Metric
 import utils.collections.partitionValues
 import utils.collections.standardProgressBar
-import kotlin.system.exitProcess
 
 fun interface GenericPopulationSynthesis<AREA, out H> {
 
@@ -26,7 +25,7 @@ interface RuleBasedPopulationSynthesis<AREA, H> : GenericPopulationSynthesis<ARE
     fun synthesizeAll(): Map<AREA, List<H>>
 }
 
-interface HierarchicalPopulationSynthesis<AREA,  H> : RuleBasedPopulationSynthesis<AREA, H> {
+interface HierarchicalPopulationSynthesis<AREA, H> : RuleBasedPopulationSynthesis<AREA, H> {
 
     override val ruleProvider: HierarchicalRuleProvider<AREA, H>
     override fun synthesize(
@@ -129,7 +128,9 @@ class MapRuleProvider<AREA, H>(
     }
 
     companion object {
-        fun <AREA, T, H : MinimalistHousehold<out T>> fromMap(map: Map<AREA, List<Rule< H>>>): MapRuleProvider<AREA, H> =
+        fun <AREA, T, H : MinimalistHousehold<out T>> fromMap(
+            map: Map<AREA, List<Rule<H>>>
+        ): MapRuleProvider<AREA, H> =
             MapRuleProvider(map.toMutableMap())
     }
 }
@@ -167,13 +168,14 @@ class UseLowestCoveredLeaf<AREA> : HandleRuleConflicts<AREA> {
     }
 }
 
-interface HierarchicalRuleProvider<AREA, H > : RuleProvider<AREA, H> {
+@Suppress("ComplexInterface", "TooManyFunctions")
+interface HierarchicalRuleProvider<AREA, H> : RuleProvider<AREA, H> {
     val hierarchy: HierarchicElement<AREA>
 
     fun partition(predicate: (AREA) -> Boolean): Pair<
-            HierarchicalRuleProvider<AREA, H>,
-            HierarchicalRuleProvider<AREA, H>
-            >
+        HierarchicalRuleProvider<AREA, H>,
+        HierarchicalRuleProvider<AREA, H>
+        >
 
     fun getAllDescendants(target: AREA) = hierarchy.getAllDescendants(target)
     fun getAllDescendantRules(target: AREA) = getAllDescendants(target).associateWith { getRules(it) }
@@ -231,29 +233,31 @@ interface HierarchicalRuleProvider<AREA, H > : RuleProvider<AREA, H> {
 
     fun getSubAreas(target: AREA) = hierarchy.getChildren(target)
 
-
     fun results(area: AREA, output: List<H>): List<ZoneIPUOutput<AREA>> {
         return getRules(area).map {
             val data = IPUOutputLog(it.description, it.target, it.evaluate(output))
             ZoneIPUOutput(area, data)
-
-
         }
     }
     fun results(output: Map<AREA, List<H>>) = output.entries.flatMap { results(it.key, it.value) }
-    fun verify(output: Collection<Pair<AREA, Collection<H>>>,     metric: Metric = Metric.standardizedRootMeanSquaredResidual) = verify(output.toMap(), metric)
+    fun verify(
+        output: Collection<Pair<AREA, Collection<H>>>,
+        metric: Metric = Metric.standardizedRootMeanSquaredResidual
+    ) = verify(
+        output.toMap(),
+        metric
+    )
 
     fun verify(output: Map<AREA, Collection<H>>, metric: Metric = Metric.standardizedRootMeanSquaredResidual): Double {
         val ruleMapping = getAllRules()
         val ruleResults = ruleMapping.flatMap { (area, rules) ->
-            if(area in output) {
+            if (area in output) {
                 val subareas = listOf(area) + getAllDescendants(area)
                 val currentHHs = subareas.flatMap {
                     output[it] ?: emptyList()
                 }
                 rules.map { it.target to it.evaluate(currentHHs) }
-            } else {emptyList()}
-
+            } else { emptyList() }
         }
         return metric.evaluate(ruleResults)
     }
@@ -272,6 +276,7 @@ fun <H> Collection<Rule<H>>.fuse(descriptor: String): ZoneRule<H> {
     return ZoneRule(description = descriptor, sum, logic)
 }
 
+@Suppress("TooManyFunctions")
 interface HierarchicElement<T> {
     fun getParent(element: T): T?
     fun getAllAncestors(element: T): Collection<T>

@@ -5,7 +5,6 @@ import utils.collections.invertMap
 
 fun interface GenericIPU {
 
-
     fun run(vectors: Collection<ScalableVector>, observers: Collection<RuleObserver>)
 
     /**
@@ -16,18 +15,13 @@ fun interface GenericIPU {
         vectors: Collection<ScalableVector>,
         rules: Collection<Rule<I>>,
     ) {
-
-
         val observers = rules.withIndex().map {
             RuleObserver.fromRule(it.value, it.index, vectors)
         }
         run(vectors, observers)
 
         return
-
     }
-
-
 
     fun <I> calculateUnfiltered(elements: Collection<I>, rules: Collection<Rule<I>>): List<IPUOutput<I>> {
         val vectorMapping = elements.associateWith { rules.toScalableVector(it) }
@@ -50,20 +44,17 @@ fun interface GenericIPU {
     fun <I> calculateSignature(
         elements: Collection<I>,
         rules: Collection<Rule<I>>,
-    ) : List<IPUOutput<Signature>>{
-
+    ): List<IPUOutput<Signature>> {
         return internalGroupedCalculation(elements, rules) {
             it.keys.map { IPUOutput(it.signature, it.scalar) }
         }
-
     }
-
 
     private fun <X, I> internalGroupedCalculation(
         elements: Collection<I>,
         rules: Collection<Rule<I>>,
         resultConverter: (Map<ScalableVector, List<I>>) -> X
-    ) : X{
+    ): X {
         val vectorMapping = elements.associateWith { rules.toScalableVector(it) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
@@ -75,6 +66,7 @@ fun interface GenericIPU {
         /**
          * The original algorithm of hierarchical IPU using no external interrupt criterion.
          */
+        @Suppress("MagicNumber")
         val legacy = GenericIPU { vectors, observers ->
 
             repeat(1000) {
@@ -84,6 +76,7 @@ fun interface GenericIPU {
             }
         }
 
+        @Suppress("MagicNumber")
         val newAlgorithm = GenericIPU { vectors, observers ->
             var counter = 0
 
@@ -91,13 +84,11 @@ fun interface GenericIPU {
                 val sorted = observers.sortedByDescending { it.quotientDifference }
                 sorted.forEach {
                     it.optimize()
-
                 }
                 counter++
             }
         }
     }
-
 }
 
 data class IPUOutput<I>(

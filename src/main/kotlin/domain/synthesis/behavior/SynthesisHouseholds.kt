@@ -44,13 +44,10 @@ class SurveyHousehold<T>(
     ISurveyHousehold<T> {
     lateinit var economicStatus: EconomicStatus
 
-
     override fun toString(): String {
         return "Survey Household($surveyHouseholdId) [${members.joinToString { it.toString() }}"
     }
 }
-
-
 
 interface MinimalistHousehold<T> {
     val members: Collection<MinimalistPerson<T>>
@@ -59,7 +56,7 @@ interface MinimalistHousehold<T> {
     fun toSynthesisHousehold(): SynthesisHousehold<T>
 }
 
-interface ISurveyHousehold<T>: MinimalistHousehold<T> {
+interface ISurveyHousehold<T> : MinimalistHousehold<T> {
     val surveyHouseholdId: Int
     val income: Currency
     override val members: List<SurveyPerson<out T>>
@@ -67,7 +64,6 @@ interface ISurveyHousehold<T>: MinimalistHousehold<T> {
     fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
         return members.count(condition)
     }
-
 
     fun toScalableVector(rules: List<Rule<ISurveyHousehold<T>>>): ScalableVector {
         return ScalableVector.createFrom(this, rules)

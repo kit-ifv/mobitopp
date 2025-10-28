@@ -2,12 +2,12 @@ package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.pickWithReplacement
 import domain.synthesis.behavior.selectExact
 import utils.collections.addProgressBar
 import utils.collections.invertMap
+import java.lang.UnsupportedOperationException
 import kotlin.random.Random
 
 private const val IPU_GENERATION_LABEL = "IPU generation"
@@ -39,7 +39,7 @@ private const val IPU_GENERATION_LABEL = "IPU generation"
  */
 class IPU<AREA, T>(
     val converter: GenerateHouseholdsFromVector<ISurveyHousehold<out T>> = SampleAndCollect(),
-    val algorithm: (vectors: Collection<ScalableVector>, Collection<RuleObserver>) -> Unit,
+    val algorithm: GenericIPU,
 ) :
     HouseholdSynthesis<AREA, ISurveyHousehold<out T>, SynthesisHousehold<out T>> {
 
@@ -64,9 +64,8 @@ class IPU<AREA, T>(
         return generate(surveyHouseholds, conditions).mapValues { it.value.map { it.toSynthesisHousehold() } }
     }
 
-
     override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<SynthesisHousehold<T>>> {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException("The original implementation of IPU cannot handle this signature")
     }
 
     fun generate(
@@ -102,45 +101,23 @@ class IPU<AREA, T>(
         surveyHouseholds: Collection<ISurveyHousehold<out T>>,
         rules: List<Rule<ISurveyHousehold<out T>>>,
 
-        ): Map<ScalableVector, List<ISurveyHousehold<out T>>> {
+    ): Map<ScalableVector, List<ISurveyHousehold<out T>>> {
         val vectorMapping = surveyHouseholds.associateWith { it.toScalableVector(rules) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
         val ruleObservers = rules.withIndex().map {
             RuleObserver.fromRule(it.value, it.index, uniqueVectors)
         }
-        algorithm(uniqueVectors, ruleObservers)
+        algorithm.run(uniqueVectors, ruleObservers)
         return inverseMap
     }
 
-
     companion object {
-        fun <AREA, T> standard() = IPU<AREA, T> { vectors, observers ->
-            var counter = 0
-            while (observers.maxOf { it.quotientDifference } >= 1.001 && counter < 1000) {
-                val sorted = observers.sortedByDescending { it.quotientDifference }
-                sorted.forEach {
-                    it.optimize()
+        fun <AREA, T> standard() = IPU<AREA, T>(algorithm = GenericIPU.newAlgorithm)
 
-                }
-                counter++
-            }
-        }
-
-        fun <AREA, T> legacy() = IPU<AREA, T> { vectors, observers ->
-            var counter = 0
-            while (observers.maxOf { it.quotientDifference } >= 1.001 && counter < 1000) {
-
-                observers.forEach {
-                    it.optimize()
-
-                }
-                counter++
-            }
-        }
+        fun <AREA, T> legacy() = IPU<AREA, T>(algorithm = GenericIPU.legacy)
     }
 }
-
 
 fun interface GenerateHouseholds<X, H> {
     fun Map<X, List<H>>.extractFrom(): List<H>

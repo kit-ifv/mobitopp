@@ -1,6 +1,5 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.ISurveyHousehold
 import kotlin.math.abs
 import kotlin.math.max
 

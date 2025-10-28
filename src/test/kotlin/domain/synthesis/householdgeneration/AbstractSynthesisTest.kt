@@ -109,7 +109,9 @@ open class SynthesisTest {
         synthesisHousehold.location = this
         return synthesisHousehold
     }
-    protected fun <T> Collection<Zone>.createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<ISurveyHousehold<out T>>>> {
+    protected fun <T> Collection<Zone>.createRules(
+        lambda: ZoneBuilder<T>.() -> Unit
+    ): Map<Zone, List<Rule<ISurveyHousehold<out T>>>> {
         val builder = ZoneBuilder<T>(this)
         builder.apply(lambda)
         val idMap = builder.createRules()
@@ -119,7 +121,7 @@ open class SynthesisTest {
 
     protected inner class ZoneBuilder<T>(zones: Collection<Zone>) {
 
-        private val associatedRules: MutableMap<ZoneId, List<Rule< ISurveyHousehold<out T>>>> =
+        private val associatedRules: MutableMap<ZoneId, List<Rule<ISurveyHousehold<out T>>>> =
             zones.associate { it.id to listOf<Rule<ISurveyHousehold<out T>>>() }.toMutableMap()
 
         inner class RulesForZoneBuilder {
