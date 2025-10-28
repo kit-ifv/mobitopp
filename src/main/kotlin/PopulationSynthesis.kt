@@ -13,6 +13,7 @@ import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
 import domain.synthesis.behavior.GenerateCars
 import domain.synthesis.behavior.GroupAssignHouseholdLocations
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SamplingCarGeneration
@@ -153,7 +154,7 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
 
 class SynthesisSteps<T : Any>(
     val zones: List<Zone>,
-    val surveyHouseholds: Collection<SurveyHousehold<T>>,
+    val surveyHouseholds: Collection<ISurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
     val opportunities: List<OpportunityOutput>
@@ -184,17 +185,10 @@ class SynthesisSteps<T : Any>(
 
     // TODO speaking type parameter names
     fun synthesis(
-        randsums: Map<Zone, List<Rule<Any>>>,
-        lambda: () -> HouseholdSynthesis<Zone, T>
+        randsums: Map<Zone, List<Rule<ISurveyHousehold<out T>>>>,
+        lambda: () -> HouseholdSynthesis<Zone, ISurveyHousehold<out T>, SynthesisHousehold<out T>>
     ) {
         val generator = lambda()
-        // TODO reenable
-//        require(randsums.keys.all { it in zones }) {
-//            "Zone Ids: ${
-//                randsums.keys.filter { it !in zones }.map { it.id }
-//            } requested by the marginal sums are not found" +
-//                "in the configuration. The program will terminate"
-//        }
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
     }
 
@@ -261,7 +255,7 @@ class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
-    val rules: List<Rule<Any>>,
+    val rules: List<Rule<ISurveyHousehold<out Any>>>,
     val attractivenessModel: AttractivenessModel,
 ) {
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
@@ -288,7 +282,7 @@ class PopulationSynthesis<T : Any>(
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
-            lateinit var rules: List<Rule<Any>>
+            lateinit var rules: List<Rule<ISurveyHousehold<out Any>>>
             lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
 
@@ -376,10 +370,7 @@ fun examplePopulationSynthesis() {
         // TODO make this a bit more beautiful
 
 //        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<Any>>> = emptyMap()
-//            targets.associate {
-//            zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
-//        }
+        val rules: Map<Zone, List<Rule<ISurveyHousehold<out RawSurveyInfo>>>> = emptyMap()
 
         synthesis(rules) {
             IPU { vectors, observers ->
@@ -390,6 +381,7 @@ fun examplePopulationSynthesis() {
                 }
             }
         }
+
         assignLocations {
             AssignAroundZoneCentroid(100.meters)
         }

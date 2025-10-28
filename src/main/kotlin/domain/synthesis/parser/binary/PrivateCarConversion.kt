@@ -12,8 +12,7 @@ import domain.synthesis.data.PersonId
 import domain.synthesis.data.PrivateCar
 import domain.synthesis.data.buildEngine
 import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
-import java.io.DataOutputStream
+import utils.binary.DefaultBinaryWriter
 import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
@@ -43,23 +42,35 @@ class BinaryCarReader(
     }
 }
 
-class BinaryCarWriter : BinaryWriter<PrivateCar> {
-    override fun operateStream(outStream: DataOutputStream, elements: Collection<PrivateCar>) {
-        val size = elements.size
-        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
-        outStream.writeInt(0) // string length, not needed here, so 0.
-        elements.forEach { outStream.encodePrivateCar(it) }
-    }
+class BinaryCarWriter : DefaultBinaryWriter<PrivateCar>()
 
-    private fun DataOutputStream.encodePrivateCar(car: PrivateCar) {
-        car.run {
-            writeLong(id.value) //  8 Bytes
-            writeLong(owner.id.value) // 16 Bytes
-            writeInt(seats) //  4 Bytes
-            writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bytes
-            writeInt(segment.code) // 16 Bytes
-            writeInt(engine.type.code) // 20 Bytes
-//            encodeLocation(location) // 60 Bytes
-        }
-    }
-}
+// class BinaryCarWriter : RepresentativeBinaryWriter<PrivateCar> {
+//    override fun operateSimplifiedStream(
+//        outStream: DataOutputStream,
+//        elements: Collection<BinaryWritable>,
+//    ) {
+//        val size = elements.size
+//        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
+//        outStream.writeInt(0) // string length, not needed here, so 0.
+//        elements.forEach { it.writeTo(outStream) }
+//    }
+//
+// //    override fun operateStream(outStream: DataOutputStream, elements: Collection<PrivateCar>) {
+// //        val size = elements.size
+// //        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
+// //        outStream.writeInt(0) // string length, not needed here, so 0.
+// //        elements.forEach { outStream.encodePrivateCar(it) }
+// //    }
+//
+//    private fun DataOutputStream.encodePrivateCar(car: PrivateCar) {
+//        car.run {
+//            writeLong(id.value) //  8 Bytes
+//            writeLong(owner.id.value) // 16 Bytes
+//            writeInt(seats) //  4 Bytes
+//            writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bytes
+//            writeInt(segment.code) // 16 Bytes
+//            writeInt(engine.type.code) // 20 Bytes
+// //            encodeLocation(location) // 60 Bytes
+//        }
+//    }
+// }

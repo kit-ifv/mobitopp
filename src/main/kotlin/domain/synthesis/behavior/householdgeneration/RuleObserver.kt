@@ -28,6 +28,10 @@ abstract class RuleObserver(
         return vectors.sumOf { it.currentValueForIndex(observedIndex) }
     }
 
+    fun fallbackSize(): Double {
+        return vectors.sumOf { it.attributeForIndex(observedIndex).toDouble() }
+    }
+
     /**
      * Performs a sanity check to ensure that no vector has a zero value at the [observedIndex]. An Observer should never
      * track a household which is irrelevant for the underlying rule, which is equivalent to having a 0 as the encoding
@@ -62,6 +66,10 @@ abstract class RuleObserver(
 
     abstract val quotientDifference: Double
 
+    abstract val expected: Int
+    val expectedD get() = expected.toDouble()
+    val actual: Double get() = sum()
+
     /**
      * Optimizes the vectors by scaling all of them proportionally, ensuring that the sum matches the expected value.
      */
@@ -79,8 +87,8 @@ abstract class RuleObserver(
          * @param allHouseholdsEncoded The collection of all [ScalableVector]s representing encoded households.
          * @return A new [RuleObserver] instance.
          */
-        fun <T> fromRule(
-            rule: Rule<T>,
+        fun <H> fromRule(
+            rule: Rule<H>,
             observedIndex: Int,
             allHouseholdsEncoded: Collection<ScalableVector>,
         ): TargetNumberObserver {
@@ -98,7 +106,7 @@ class TargetNumberObserver(
     name: String,
     observedIndex: Int,
     vectors: List<ScalableVector>,
-    val expected: Int,
+    override val expected: Int,
 
 ) : RuleObserver(
     name,
@@ -117,7 +125,11 @@ class TargetNumberObserver(
             return max(exp / act, act / exp)
         }
     override fun optimize() {
-        if (expected == 0 && sum() == 0.0) return
-        this.timesAssign((expected / sum()))
+        val sum = sum()
+//        if(sum == 0.0) return // There is no remaining vector with a scalar > 0.0. This observer can no longer be optimized.
+        val currentSum = if (sum == 0.0) fallbackSize() else sum
+
+        // TODO fallback calculation if expected != 0.0 and sum is 0.0
+        this.timesAssign((expected / currentSum))
     }
 }

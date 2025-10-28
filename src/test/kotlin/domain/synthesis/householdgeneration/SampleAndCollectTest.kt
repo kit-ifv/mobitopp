@@ -1,5 +1,6 @@
 package domain.synthesis.householdgeneration
 
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.householdgeneration.SampleAndCollect
 import domain.synthesis.behavior.householdgeneration.ScalableVector
 import domain.synthesis.data.Sex
@@ -10,7 +11,7 @@ class SampleAndCollectTest : SynthesisTest() {
 
     @Test
     fun properOverflow() {
-        val strategy = SampleAndCollect<Unit>()
+        val strategy = SampleAndCollect<MinimalistHousehold<Unit>>()
         val firstHousehold = createHousehold<Unit> {
             person(20, Sex.MALE) {}
             person(30, Sex.MALE) {}
@@ -35,7 +36,7 @@ class SampleAndCollectTest : SynthesisTest() {
             vector3 to listOf(thirdHousehold)
         )
         val output = strategy.run {
-            map.extract()
+            map.extractFrom()
         }
         assertEquals(output.size, 5)
         // To quickly differentiate between the outputs we don't compare the entire household structure but just the size
