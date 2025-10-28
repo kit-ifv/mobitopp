@@ -77,13 +77,15 @@ class BandwidthLocator(
      * Determine which locations are within the band radius of an agents home location, using the [parameters] pole
      * radius.
      */
-    fun validTargetsForAgent(agent: SynthesisPerson<out CommuteDistance>) =
-        locationTree.sequenceFor(
+    fun validTargetsForAgent(agent: SynthesisPerson<out CommuteDistance>): Set<WithMetric<Location, Distance>> {
+        val poleRadius = parameters.poleRadius
+        return locationTree.sequenceFor(
             agent.homeLocation,
         )
-            .dropWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork - parameters.poleRadius }
-            .takeWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork + parameters.poleRadius }
+            .dropWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork - poleRadius }
+            .takeWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork + poleRadius }
             .toSet()
+    }
 
     private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)
 }

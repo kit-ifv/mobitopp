@@ -1,7 +1,5 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.data.Sex
 import org.jetbrains.annotations.TestOnly
 
@@ -74,7 +72,6 @@ fun <T> Collection<Rule<T>>.toScalableVector(element: T): ScalableVector {
     return ScalableVector.createFrom(element, this)
 }
 
-
 /*
    I really wanted to be able to specify rules as numeric rules and boolean rules. To avoid JVM-overload ambiguity different
    namespaces are required. This is the reason why the four classes below exist.
@@ -122,7 +119,8 @@ fun interface CheckRule<in T> : CountRule<T> {
 
 class NamedCheckRule<in T> private constructor(
     ruleDescription: String,
-    override val logic: CheckRule<T>) :
+    override val logic: CheckRule<T>
+) :
     NamedCountRule<T>(
         ruleDescription,
         logic
@@ -136,10 +134,10 @@ class NamedCheckRule<in T> private constructor(
 
 open class NamedCountRule<in T> protected constructor(
     val ruleDescription: String,
-    open val logic: CountRule<T>) :
+    open val logic: CountRule<T>
+) :
     CountRule<T> by logic, Comparable<NamedCountRule<*>> {
     constructor(desc: RuleDescription, logic: CountRule<T>) : this(desc.logicDescription, logic)
-
 
     override fun equals(other: Any?): Boolean {
         if (other !is NamedCountRule<*>) return false
@@ -193,8 +191,6 @@ class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityO
     override val logicLevel = RuleLevel.HOUSEHOLD
 }
 
-
-
 /**
  * A named implementation of the [Rule] interface, using a [CountRule] to calculate a household's contribution to
  * the target. Example: Counting the number of households with a specific attribute.
@@ -220,7 +216,6 @@ class ZoneRule<H>(
     override fun toString(): String {
         return descriptiveText()
     }
-
 }
 
 /**
@@ -255,6 +250,4 @@ class ZoneCheckRule<H>(
     override fun toString(): String {
         return descriptiveText()
     }
-
-
 }

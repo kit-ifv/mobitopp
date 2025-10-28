@@ -128,15 +128,13 @@ fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(
 
 interface MinimalistPerson<out T> {
     val information: T
-
 }
 
-interface SurveyPerson<T>: MinimalistPerson<T> {
+interface SurveyPerson<T> : MinimalistPerson<T> {
     val personId: Int
     override val information: T
     val age: Int
     val sex: Sex
-
 }
 
 data class SmallestSurveyPerson<T>(
@@ -144,9 +142,7 @@ data class SmallestSurveyPerson<T>(
     override val information: T,
     override val age: Int,
     override val sex: Sex
-) : SurveyPerson<T> {
-
-}
+) : SurveyPerson<T>
 
 data class DefaultSurveyPerson<T : SurveyInfo>(
     override val personId: Int,

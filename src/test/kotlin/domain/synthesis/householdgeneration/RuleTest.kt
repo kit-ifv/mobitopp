@@ -2,7 +2,6 @@ package domain.synthesis.householdgeneration
 
 import domain.synthesis.behavior.DefaultSurveyPerson
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.householdgeneration.CountRule
@@ -30,7 +29,7 @@ class RuleTest : SynthesisTest() {
                 Employment.NONE
             }
         }
-        val rule = ZoneCheckRule< ISurveyHousehold<out Any>>("Fake description", 10) { it.size == 3 }
+        val rule = ZoneCheckRule<ISurveyHousehold<out Any>>("Fake description", 10) { it.size == 3 }
         assertTrue(rule.appliesTo(household1))
         assertEquals(rule.evaluate(household1), 1)
 
@@ -56,7 +55,7 @@ class RuleTest : SynthesisTest() {
             person(9, Sex.FEMALE) {}
             person(25, Sex.MALE) {}
         }
-        val rule = ZoneRule< ISurveyHousehold<out Any>>(description = "Test description", 42) {
+        val rule = ZoneRule<ISurveyHousehold<out Any>>(description = "Test description", 42) {
             it.members.count { it.age in 5..10 }
         }
         assertEquals(rule.evaluate(household), 2)
@@ -65,7 +64,7 @@ class RuleTest : SynthesisTest() {
     @Test
     fun advancedRules() {
         val (household1, household2, household3) = generateHouseholds()
-        val rule = ZoneCheckRule< ISurveyHousehold<out ExampleInterface>>("Attempt", 10) { household ->
+        val rule = ZoneCheckRule<ISurveyHousehold<out ExampleInterface>>("Attempt", 10) { household ->
             household.members.any { it.information.employment == Employment.NONE }
         }
 
@@ -118,13 +117,13 @@ class RuleTest : SynthesisTest() {
             }
         }
 
-        val rule1 = CountRule< ISurveyHousehold<out Any>> { h -> h.count { it.age in 9..12 } }
+        val rule1 = CountRule<ISurveyHousehold<out Any>> { h -> h.count { it.age in 9..12 } }
         assertEquals(rule1.matches(household), 2)
 
-        val rule2 = CountRule< ISurveyHousehold<out Any>> { h -> h.count { it.age in 11..12 } }
+        val rule2 = CountRule<ISurveyHousehold<out Any>> { h -> h.count { it.age in 11..12 } }
         assertEquals(rule2.matches(household), 1)
 
-        val rule3 = CountRule< ISurveyHousehold<out Any>> { h -> h.count { it.age in 9..12 && it.sex == Sex.FEMALE } }
+        val rule3 = CountRule<ISurveyHousehold<out Any>> { h -> h.count { it.age in 9..12 && it.sex == Sex.FEMALE } }
         assertEquals(rule3.matches(household), 1)
     }
 
@@ -132,7 +131,7 @@ class RuleTest : SynthesisTest() {
     fun testFilter() {
         val (household1, household2, household3) = generateHouseholds()
         val households = listOf(household1, household2, household3)
-        val rule = ZoneCheckRule< ISurveyHousehold<out ExampleInterface>>("Attempt", 10) { household ->
+        val rule = ZoneCheckRule<ISurveyHousehold<out ExampleInterface>>("Attempt", 10) { household ->
             household.members.any { it.information.employment == Employment.NONE }
         }
         assertContentEquals(rule.filter(households), listOf(household1, household3))
@@ -151,7 +150,7 @@ class RuleTest : SynthesisTest() {
             person(10, Sex.MALE) {}
             person(10, Sex.MALE) {}
         }
-        val rule = ZoneRule< ISurveyHousehold<out Any>>("Test Rule", 10) { it.size }
+        val rule = ZoneRule<ISurveyHousehold<out Any>>("Test Rule", 10) { it.size }
         assertEquals(rule.verify(listOf(household)), 5.0)
         assertEquals(rule.verify(listOf(household, household2)), 3.0)
         assertEquals(rule.verify(listOf(household, household, household2)), -2.0)
