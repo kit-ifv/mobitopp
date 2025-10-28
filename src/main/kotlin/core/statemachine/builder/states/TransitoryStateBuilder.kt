@@ -48,7 +48,18 @@ internal class TransitoryStateBuilder<D>(
      */
     override fun build(resolver: StateResolver): StateBehavior<D> = TransitoryStateBehavior(
         onEnterScope = onEnter,
-        nextStateTransition = nextTransition,
+        nextStateTransition = if (::nextTransition.isInitialized) { nextTransition } else {
+            error(
+                "No next state was defined for transitory state '${type.simpleName}'!\n" +
+                    "Use:\n" +
+                    "  transState(${type.simpleName}::class) {\n" +
+                    "      send -> /*init block if necessary*/\n" +
+                    "  }.next {\n" +
+                    "      NEXT STATE HERE\n" +
+                    "  }\n" +
+                    "to define the next state following this transitory state!"
+            )
+        },
         stateResolver = resolver,
     )
 }
