@@ -69,7 +69,9 @@ interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<Person
             hasLicense,
             eMobilityAcceptance.toDouble(),
             chargingInfluence.code,
-            graduation.code
+            graduation.code,
+            sharingMemberships.map { it.id.value },
+            drtMemberships.map { it.id.value }
         )
     }
 }
@@ -95,7 +97,9 @@ data class PersonBinaryRecord(
     val hasLicense: Boolean,
     val eMobilityAcceptance: Double,
     val chargingInfluenceCode: Int,
-    val graduationCode: Int
+    val graduationCode: Int,
+    val sharingMemberships: List<Long>,
+    val drtMemberships: List<Long>,
 ) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
@@ -111,6 +115,10 @@ data class PersonBinaryRecord(
             writeDouble(eMobilityAcceptance)
             writeInt(chargingInfluenceCode)
             writeInt(graduationCode)
+            writeInt(sharingMemberships.size)
+            sharingMemberships.forEach { writeLong(it) }
+            writeInt(drtMemberships.size)
+            drtMemberships.forEach { writeLong(it) }
         }
     }
 }
