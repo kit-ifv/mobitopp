@@ -165,7 +165,7 @@ interface LoadPlannedActivitiesContext : DemandSimContext {
     val personRepository: MutableRepository<MutablePerson, PersonId>
 
     val defaultActivityPath: Path
-        get() = dataFolder.resolve("activity.csv")
+        get() = dataFolder.resolve("demand-data").resolve("activity.csv")
 
     fun getPerson(personId: PersonId) = requireNotNull(
         personRepository[personId]

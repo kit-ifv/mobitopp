@@ -15,6 +15,16 @@ allprojects {
     repositories {
         maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
     }
+    // ChatGPT recommends this filter condition to avoid potential future problems with projects that are not kotlin
+    plugins.withType<org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper> {
+        kotlin {
+            jvmToolchain(21)
+            compilerOptions {
+                freeCompilerArgs.add("-Xcontext-parameters")
+            }
+        }
+    }
+
 }
 /**
  * This block tells gradle where to fetch dependencies from. We require
@@ -133,12 +143,6 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
 }
 
-kotlin {
-    jvmToolchain(21)
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
 
 application {
     mainClass.set("MainKt")

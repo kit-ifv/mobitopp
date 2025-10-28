@@ -129,6 +129,9 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
         return this.offset.compareTo(other.offset)
     }
 
+    operator fun rangeTo(other: AbsoluteTime): AbsoluteTimeProgression =
+        AbsoluteTimeProgression(this, other, 1.minutes)
+
     /**
      * Using + mod cheat to always get a positive number
      */
@@ -150,9 +153,6 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
     fun floorDiv(time: AbsoluteTime): Long {
         return floorDiv(time.sinceStart)
     }
-    operator fun rangeTo(other: AbsoluteTime): AbsoluteTimeProgression =
-        AbsoluteTimeProgression(this, other, 1.minutes)
-
     companion object {
         val START = AbsoluteTime(Duration.ZERO)
         val MINUS_INFINITY = AbsoluteTime(-Duration.INFINITE)
@@ -166,6 +166,14 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
             return if (first <= second) first else second
         }
     }
+
+    fun truncateMinutes() = AbsoluteTime(minutesSinceStart.minutes)
+    fun truncateHours() = AbsoluteTime(hoursSinceStart.hours)
+
+    fun roundToMultipleOf(duration: Duration) =
+        AbsoluteTime(
+            duration * (secondsSinceStart.div(duration.inWholeSeconds)).toInt()
+        )
 }
 
 /** Returns a [Duration] equal to this [Int] number of weeks. */

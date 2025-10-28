@@ -265,7 +265,7 @@ inline operator fun Number.plus(bool: Boolean) = this.toDouble() + bool.D
 inline operator fun Boolean.plus(number: Number) = this.D + number.toDouble()
 
 @Suppress("MagicNumber")
-val legacyDestinationChoice =
+val legacyDestinationChoiceBuilder =
     RuleBasedStructure<Location, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
         ruleForAll { destination, tripchoice ->
             val it = tripchoice.with(destination)
@@ -431,6 +431,8 @@ val legacyDestinationChoice =
                         )
                     )
         }
-    }.openMultinomialLogit("LegacyDestinationChoiceModel").build(
-        parameters = DestinationChoiceParameters()
-    )
+    }.openMultinomialLogit("LegacyDestinationChoiceModel")
+
+val legacyDestinationChoice = legacyDestinationChoiceBuilder.build(
+    parameters = DestinationChoiceParameters()
+)

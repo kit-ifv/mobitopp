@@ -45,8 +45,6 @@ fun LoadBehaviorModelsContext.loadBehaviorModels(
         destinationChoiceModel,
         modeChoiceModel,
         modes,
-        StandardDestinationImplementation,
-        StandardModeImplementation
     )
 )
 
@@ -160,8 +158,8 @@ open class LoadBehaviorModelsStep(
             context.attractivenessModel.value,
             DummyAvailability,
             BikeSharingConnectionSelector { null },
-            StandardDestinationImplementation,
-            StandardModeImplementation
+            spawnDestinationCharacteristics = StandardDestinationImplementation,
+            spawnModeCharacteristics = StandardModeImplementation
         )
     }
 
