@@ -42,6 +42,7 @@ import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
 import domain.synthesis.behavior.householdgeneration.IPU
 import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.randomCoordinate
+import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
@@ -221,6 +222,27 @@ class SynthesisSteps<T : Any>(
         ).forEach { it.person.fixedDestinations[it.activityType] = it.location }
         fixedDestinations = allFixedDestinations
     }
+    fun assignSharingMemberships(lambda: SharingMembershipsBuilder<T>.() -> Unit) {
+        val builder = SharingMembershipsBuilder<T>().apply(lambda)
+        val steps = builder.build()
+        households.addProgressBar("assign sharing memberships").forEach {  hh ->
+            hh.members.forEach {
+                context(Random(it.personId)) {
+                    val membership = steps.mapValues { (_, step )->
+
+                        step.assign(it)
+
+                    }
+                    membership.forEach { providerName, accepted ->
+                        if(accepted) it.addMembership(providerName)
+                    }
+
+                }
+
+            }
+
+        }
+    }
 
     // TODO speaking type parameter names
     fun synthesis(
@@ -278,6 +300,7 @@ class SynthesisSteps<T : Any>(
             }
         }
     }
+
 
     fun generateCars(strategy: GenerateCars<in T>) {
         households.addProgressBar("Generate Cars").forEach { it.cars += strategy.generate(it) }
@@ -473,11 +496,21 @@ fun examplePopulationSynthesis() {
                 )
             }
         }
-//        generateCars (TrivialCarGeneration::generateCars)
+
         generateCars(strategy = SamplingCarGeneration)
         assignActivities {
             ActiToppNGGenerator(legacyChoiceModelPurposes) {
                 ZoneRegionType.DEFAULT
+            }
+        }
+        assignSharingMemberships {
+            provider("Stadtmobil") {
+                AssignmentStrategy.viaChoiceModel(
+                    modelStructure = TODO(),
+                    parameters = TODO()
+                ) {
+                    it.household
+                }
             }
         }
         writeLegacyOutput()
