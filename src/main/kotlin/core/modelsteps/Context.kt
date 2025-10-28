@@ -23,6 +23,8 @@ interface Context {
         get() = Path("data/zone-repository")
     val simulationSeed: Long
 
+    val resultDir: Path
+
     val simulationStart: AbsoluteTime
     val simulationEnd: AbsoluteTime
     val timeStep: Duration
