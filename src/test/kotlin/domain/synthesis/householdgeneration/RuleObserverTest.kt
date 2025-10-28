@@ -1,5 +1,6 @@
 package domain.synthesis.householdgeneration
 
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.RuleObserver
@@ -25,13 +26,13 @@ class RuleObserverTest : SynthesisTest() {
 
     @Test
     fun ruleVectorization() {
-        val rule1 = ZoneCheckRule<Any>("hhsize == 1", 20) { it.size == 1 }
-        val rule2 = ZoneCheckRule<Any>("hhsize == 2", 10) { it.size == 2 }
+        val rule1 = ZoneCheckRule<ISurveyHousehold<out Any>>("hhsize == 1", 20) { it.size == 1 }
+        val rule2 = ZoneCheckRule<ISurveyHousehold<out Any>>("hhsize == 2", 10) { it.size == 2 }
         val firstRuleSet = listOf(rule1, rule2)
         assertContentEquals(ScalableVector.createFrom(hh1, firstRuleSet).content, listOf(1, 0))
         assertContentEquals(ScalableVector.createFrom(hh2, firstRuleSet).content, listOf(0, 1))
 
-        val rule3 = ZoneRule<Any>("aged 10", -0) { it.members.count { it.age == 10 } }
+        val rule3 = ZoneRule<ISurveyHousehold<out Any>>("aged 10", -0) { it.members.count { it.age == 10 } }
         val secondRuleSet = listOf(rule1, rule2, rule3)
         assertContentEquals(ScalableVector.createFrom(hh1, secondRuleSet).content, listOf(1, 0, 1))
         assertContentEquals(ScalableVector.createFrom(hh2, secondRuleSet).content, listOf(0, 1, 2))
@@ -39,8 +40,8 @@ class RuleObserverTest : SynthesisTest() {
 
     @Test
     fun observerCreation() {
-        val rule1 = ZoneCheckRule<Any>("hhsize == 1", 20) { it.size == 1 }
-        val rule2 = ZoneCheckRule<Any>("hhsize == 2", 10) { it.size == 2 }
+        val rule1 = ZoneCheckRule<ISurveyHousehold<out Any>>("hhsize == 1", 20) { it.size == 1 }
+        val rule2 = ZoneCheckRule<ISurveyHousehold<out Any>>("hhsize == 2", 10) { it.size == 2 }
 
         val vector1 = ScalableVector.createFrom(hh1, listOf(rule1, rule2))
         val vector2 = ScalableVector.createFrom(hh2, listOf(rule1, rule2))
@@ -64,7 +65,7 @@ class RuleObserverTest : SynthesisTest() {
     @Test
     fun observerManipulation() {
         // Both households match this rule, but hh2 = 2 and hh1 = 1, for different impacts on the rule
-        val rule = ZoneRule<Any>("hhsize == 1", 20) { it.size }
+        val rule = ZoneRule<ISurveyHousehold<out Any>>("hhsize == 1", 20) { it.size }
 
         val vector1 = ScalableVector.createFrom(hh1, listOf(rule))
         val vector2 = ScalableVector.createFrom(hh2, listOf(rule))
@@ -91,7 +92,7 @@ class RuleObserverTest : SynthesisTest() {
      */
     @Test
     fun vectorManipulation() {
-        val rule = ZoneRule<Any>("hhsize == 1", 20) { it.size }
+        val rule = ZoneRule<ISurveyHousehold<out Any>>("hhsize == 1", 20) { it.size }
 
         val vector1 = ScalableVector.createFrom(hh1, listOf(rule))
         val vector2 = ScalableVector.createFrom(hh2, listOf(rule))

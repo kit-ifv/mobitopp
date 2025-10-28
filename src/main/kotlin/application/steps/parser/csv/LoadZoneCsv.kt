@@ -31,7 +31,7 @@ interface LoadZonesContext : DemandSimContext {
     val regionTypeCodes: CodePlan<RegionType>
 
     val defaultZonePath: Path
-        get() = dataFolder.resolve("zone-repository").resolve("zones.csv")
+        get() = zoneFolder.resolve("zones.csv")
 }
 
 data class ZoneColumns(

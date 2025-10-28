@@ -123,7 +123,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         metric[home1, work2] = 0.0
         metric[home1, work3] = 0.5
 
-        val mimicHousehold = home1.createHousehold {
+        val mimicHousehold = home1.createHousehold<Any> {
             person(20, Sex.MALE) {}
         }
         val mimicPerson = mimicHousehold[0]
