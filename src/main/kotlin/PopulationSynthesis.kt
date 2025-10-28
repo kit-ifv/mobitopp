@@ -22,7 +22,6 @@ import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
 import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
-import domain.synthesis.behavior.carownership.CarOwnershipAssignStrategy
 import domain.synthesis.behavior.carownership.standardAssignmentByRegionSize
 import domain.synthesis.behavior.discreteChoice.TicketCharacteristics
 import domain.synthesis.behavior.discreteChoice.TransitPassParameters
@@ -55,6 +54,7 @@ import domain.synthesis.results.OpportunitiesOutput
 import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.PersonOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
@@ -124,9 +124,47 @@ fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Seq
     return parser.parse(path)
 }
 
-fun interface AssignTransitCardOwnership<T> {
-    fun assignFor(person: SynthesisPerson<out T>): Boolean
+
+fun interface AssignmentStep<in I, out O> {
+    context(random: Random)
+    fun assign(input: I): O
 }
+
+class AssignmentStrategy<I,C,  O>(
+    val model: FixedChoiceModel<O, C>,
+    private val situation: (I) -> C
+): AssignmentStep<I, O> {
+    context(random: Random)
+    override fun assign(input: I): O {
+
+        return context(situation(input)) {
+            model.select()
+        }
+
+    }
+
+    companion object {
+        fun <I, C, O> viaChoiceModel(
+            model: FixedChoiceModel<O, C>,
+            situation: (I) -> C
+        ): AssignmentStrategy<I, C, O> = AssignmentStrategy(model, situation)
+
+        fun <I, C, O, P> viaChoiceModel(
+            modelStructure: EnumeratedDiscreteModelBuilder<O, C, P>,
+            parameters: P,
+            situation: (I) -> C
+        ) = viaChoiceModel(modelStructure.build(parameters), situation)
+    }
+}
+
+fun interface AssignTransitCardOwnership<T>: AssignmentStep<SynthesisPerson<out T>, Boolean> {
+    fun assignFor(person: SynthesisPerson<out T>): Boolean
+    context(random: Random)
+    override fun assign(input: SynthesisPerson<out T>): Boolean =
+        assignFor(input)
+
+}
+
 
 class AssignByDiscreteChoice(
     val model: FixedChoiceModel<Boolean, TicketCharacteristics> =
@@ -144,6 +182,7 @@ class AssignByDiscreteChoice(
             model.select()
         }
     }
+
 }
 
 object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
@@ -217,18 +256,25 @@ class SynthesisSteps<T : Any>(
         households.forEach { it.economicStatus = strategy.determineStatus(it) }
     }
 
-    fun assignAmountOfCars(lambda: () -> CarOwnershipAssignStrategy<in T>) {
+    fun assignAmountOfCars(lambda: () -> AssignmentStep<SynthesisHousehold<out T>,  Int>) {
         val strategy = lambda()
         households.addProgressBar(
             "Assign car amount"
-        ).forEach { household -> household.amountOfCars = strategy.determineNumberOfCars(household) }
+        ).forEach { household ->
+            context(Random(household.id)) {
+                household.amountOfCars = strategy.assign(household)
+            }
+ }
     }
 
-    fun assignTransitCardOwnership(lambda: () -> AssignTransitCardOwnership<in T>) {
+    fun  assignTransitCardOwnership(lambda: () -> AssignmentStep<SynthesisPerson<out T>, Boolean>) {
         val strategy = lambda()
         households.addProgressBar("assign Transit Car").forEach { hh ->
             hh.members.forEach {
-                it.hasTransitPass = strategy.assignFor(it)
+                context(Random(it.personId)) {
+                    it.hasTransitPass = strategy.assign(it)
+                }
+
             }
         }
     }
@@ -388,7 +434,7 @@ fun examplePopulationSynthesis() {
 
         assignEconomicStatus {
             OECDAssigner.fromPath(
-                Path("src/test/resources/synthesis/economical-status-oecd2017.csv")
+                Path("src/main/resources/synthesis/economical-status-oecd2017.csv")
             )
         }
 
