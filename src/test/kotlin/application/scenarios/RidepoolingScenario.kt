@@ -3,7 +3,6 @@ package application.scenarios
 import application.syntheticsim.ControllableImpedance
 import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
-import core.modelsteps.asResource
 import core.statemachine.usage.RecordingStateMachine
 import core.statemachine.usage.renderAsPumlSequenceDiagram
 import core.statemachine.usage.renderAsPumlStateCharts
@@ -11,31 +10,33 @@ import core.statemachine.usage.renderAsPumlTimingDiagram
 import core.statemachine.usage.withRecording
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
-import domain.simulation.agent.SharingStationAgent
+import domain.simulation.agent.DrtAlgorithm
+import domain.simulation.agent.DrtProviderAgent
+import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.currentlyAffectedProviders
 import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
+import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
-import domain.synthesis.data.MutableSharingProvider
-import domain.synthesis.data.SharingProviderId
+import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.MutableDrtProviderData
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import generateActivitySchedule
 import generateHouseholds
-import generateSharingStation
 import generateZones
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.RepeatedTest
-import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class RidesharingOnlyScenario {
+class RidepoolingScenario {
 
     @Suppress("LongMethod")
     @RepeatedTest(value = 10, name = RepeatedTest.LONG_DISPLAY_NAME)
@@ -44,29 +45,36 @@ class RidesharingOnlyScenario {
 
         val random = Random(1)
 
-        val car = legacyChoiceModelModes.car
-        val bikeSharing = legacyChoiceModelModes.bikeSharing
+        val ridePooling = legacyChoiceModelModes.ridePooling
         val pedestrian = legacyChoiceModelModes.pedestrian
         val zones = generateZones(10)
 
-        val provider = MutableSharingProvider(SharingProviderId(1L)) {
-            name = "Testprovider"
-            mode = bikeSharing
+        val provider = MutableDrtProviderData(DrtProviderId(1L)) {
+            name = "TestDrtProvider"
+            mode = ridePooling
         }
-        zones.map { it.generateSharingStation(provider, 1) }
+
+        val impedance = ControllableImpedance()
+        val algorithm: DrtAlgorithm = SimpleMatrixDrtAlgorithm(
+            impedance = impedance,
+            avgWaitTime = 4.minutes,
+            serviceArea = zones,
+            operationHours = 5 to 18,
+            numVehicles = zones.size,
+        )
 
         val households = zones.generateHouseholds(
             10,
-            memberships = mutableListOf(provider),
+            memberships = mutableListOf(),
+            drtMemberships = mutableListOf(provider),
             personScope = { it.generateActivitySchedule(10, random) }
         )
 
         // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
-        val impedance = ControllableImpedance()
         val availability = AvailabilityModelWithSharing(
             legacyChoiceModelModes,
-            mapOf(bikeSharing to setOf(provider.id)),
             mapOf(),
+            mapOf(ridePooling to setOf(provider.id)),
             impedance
         )
 
@@ -76,8 +84,8 @@ class RidesharingOnlyScenario {
                 zones.map { it.centroid }.toSet()
             ),
             modeChoice = FixedOrderChoiceModel(
-                "prefer ridesharing",
-                setOf(bikeSharing, pedestrian),
+                "prefer ridepooling",
+                setOf(ridePooling, pedestrian),
                 availability.asResourceAvailabilityFilter()
             ),
             modes = legacyChoiceModelModes,
@@ -93,26 +101,27 @@ class RidesharingOnlyScenario {
         val builder = BuildAgents(
             seed = 1L,
             NoWriters.personStateMachine.withRecording(),
-            syntheticBehavior
+            syntheticBehavior,
+            drtStateMachine = drtProviderStateMachine.withRecording(),
+            drtAlgorithm = algorithm,
         )
         val agents = builder.buildPersonAgents(households)
 
         agents.forEach { person ->
             val dest = zones.first { it != person.location.zone }
             val sharedResources =
-                context(person, AbsoluteTime.START, dest.centroid) {
+                context(person, 5.hours.sinceStart, dest.centroid) {
                     availability.currentlyAffectedProviders(legacyChoiceModelModes.options)
                 }
             assertTrue(
-                sharedResources.any { it is SharingStationAgent },
+                sharedResources.any { it is DrtProviderAgent },
                 "No sharing station available for person $person, from: ${person.location}, to: $dest"
             )
         }
 
         val sim = ParallelSimulator(timeStep = 1.minutes) // TODO test again with parallel sim
-        val resource = agents.asResource("EO", "none")
-        val testAgents = resource.elements.toList()
-        sim.addAgents(testAgents)
+//        val testAgents = agents.asResource("EO", "none").elements.toList()
+        sim.addAgents(agents)
         sim.run(0.days.sinceStart, 7.days.sinceStart)
 
         RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()

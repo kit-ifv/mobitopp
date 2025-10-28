@@ -2,6 +2,7 @@ package domain.synthesis.parser
 
 import domain.shared.config.SynthesisContext
 import domain.synthesis.data.ChargingInfluence
+import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Graduation
 import domain.synthesis.data.HouseholdId
@@ -23,11 +24,13 @@ import utils.csv.int
 import utils.csv.long
 import utils.csv.unitShare
 
+@Suppress("LongParameterList")
 fun PersonCsvContext.personCsvParser(
     errorHandling: ErrorHandling,
     columns: PersonColumns,
     incomeUnit: CurrencyUnit,
-    providersByNameFunction: () -> Map<String, SharingProvider>,
+    sharingProvidersByName: () -> Map<String, SharingProvider>,
+    drtProvidersByName: () -> Map<String, DrtProvider>,
     householdProvider: (HouseholdId) -> MutableHousehold,
 ): DefaultCsvParser<MutablePerson> {
     val csvParser = CsvParser.Companion<MutablePerson>(errorHandling) { row ->
@@ -48,9 +51,14 @@ fun PersonCsvContext.personCsvParser(
             eMobilityAcceptance = row.unitShare(columns.eMobilityAcceptanceColumn)
             chargingInfluence = row.decodeName(columns.chargingInfluenceColumn, ChargingInfluence.Companion)
 
-            val providersByName = providersByNameFunction()
+            val sharingProviders = sharingProvidersByName()
             sharingMemberships.addAll(
-                row(columns.membershipColumn).parseMemberships(providersByName)
+                row(columns.membershipColumn).parseMemberships(sharingProviders)
+            )
+
+            val drtProviders = drtProvidersByName()
+            drtMemberships.addAll(
+                row(columns.membershipColumn).parseMemberships(drtProviders)
             )
         }
     }
@@ -58,8 +66,8 @@ fun PersonCsvContext.personCsvParser(
     return csvParser
 }
 
-private fun String.parseMemberships(
-    providersByName: Map<String, SharingProvider>,
+fun <R> String.parseMemberships(
+    providersByName: Map<String, R>,
 ) = this
     .replace("{", "")
     .replace("}", "")
@@ -67,12 +75,8 @@ private fun String.parseMemberships(
     .map { it.split("=") }
     .filter { it[0].lowercase() in providersByName }
     .filter { it[1].toBoolean() }
-    .map { membership ->
-        requireNotNull(
-            providersByName[membership[0].lowercase()]
-        ) {
-            "Could not find sharing provider named ${membership[0]}"
-        }
+    .mapNotNull { membership ->
+        providersByName[membership[0].lowercase()]
     }
 
 interface PersonCsvContext : SynthesisContext {

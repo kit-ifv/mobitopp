@@ -52,6 +52,7 @@ interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<Person
     val hasCommuterTicket: Boolean
     val hasLicense: Boolean
     val sharingMemberships: List<ISharingProvider>
+    val drtMemberships: List<DrtProvider>
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
 
@@ -68,13 +69,18 @@ interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<Person
             hasLicense,
             eMobilityAcceptance.toDouble(),
             chargingInfluence.code,
-            graduation.code
+            graduation.code,
+            sharingMemberships.map { it.id.value },
+            drtMemberships.map { it.id.value }
         )
     }
 }
 
 val IPerson.sharingMembershipIds: Set<SharingProviderId>
     get() = sharingMemberships.map { it.id }.toSet()
+
+val IPerson.drtMembershipIds: Set<DrtProviderId>
+    get() = drtMemberships.map { it.id }.toSet()
 
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)
@@ -91,7 +97,9 @@ data class PersonBinaryRecord(
     val hasLicense: Boolean,
     val eMobilityAcceptance: Double,
     val chargingInfluenceCode: Int,
-    val graduationCode: Int
+    val graduationCode: Int,
+    val sharingMemberships: List<Long>,
+    val drtMemberships: List<Long>,
 ) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
@@ -107,6 +115,10 @@ data class PersonBinaryRecord(
             writeDouble(eMobilityAcceptance)
             writeInt(chargingInfluenceCode)
             writeInt(graduationCode)
+            writeInt(sharingMemberships.size)
+            sharingMemberships.forEach { writeLong(it) }
+            writeInt(drtMemberships.size)
+            drtMemberships.forEach { writeLong(it) }
         }
     }
 }
@@ -122,6 +134,7 @@ abstract class Person(
     final override val random: Random by lazy { Random(id.value + seed) }
 
     abstract override val sharingMemberships: List<SharingProvider>
+    abstract override val drtMemberships: List<DrtProvider>
 
     abstract val plannedActivities: ClearableList<PlannedActivity>
 
