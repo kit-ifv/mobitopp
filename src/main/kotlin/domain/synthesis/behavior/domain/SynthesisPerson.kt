@@ -30,4 +30,10 @@ class SynthesisPerson<T>(
     var hasTransitPass = false
     var plannedActivities: PreliminaryActivitySchedule = PreliminaryActivitySchedule.Companion.STAY_AT_HOME
     val fixedDestinations: MutableMap<ActivityType, Location> = mutableMapOf()
+
+    private val sharingMemberships: MutableMap<String, Boolean> = mutableMapOf()
+
+    fun addMembership(name: String) {
+        sharingMemberships[name] = true
+    }
 }
