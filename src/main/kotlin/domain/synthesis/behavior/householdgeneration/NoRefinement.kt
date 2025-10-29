@@ -1,7 +1,4 @@
-package domain.synthesis.behavior.householdgeneration.refinement.algorithms
-
-import domain.synthesis.behavior.householdgeneration.Partition
-import domain.synthesis.behavior.householdgeneration.refinement.Refinement
+package domain.synthesis.behavior.householdgeneration
 
 object NoRefinement : Refinement {
     override fun refine(partitions: List<Partition>) {

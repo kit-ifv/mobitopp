@@ -1,10 +1,5 @@
-package domain.synthesis.behavior.householdgeneration.refinement
+package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.householdgeneration.BestTargetTracker
-import domain.synthesis.behavior.householdgeneration.BucketList
-import domain.synthesis.behavior.householdgeneration.Moved
-import domain.synthesis.behavior.householdgeneration.TempPartition
-import domain.synthesis.behavior.householdgeneration.prepSignatures
 import kotlin.time.measureTime
 
 class FMRun(
@@ -28,6 +23,8 @@ class FMRun(
     }
 
     var i = 0
+
+    @Suppress("LoopWithTooManyJumpStatements")
     fun runIteration(
         buckets: BucketList<Moved>,
         recalculator: MoveRecalculator,
@@ -59,7 +56,7 @@ class FMRun(
         }
     }
 
-    override fun refine(partitions: List<domain.synthesis.behavior.householdgeneration.Partition>) {
+    override fun refine(partitions: List<Partition>) {
         val maxGain = partitions.first().signatures.largestDifference
         require(partitions.all { it.signatures === partitions.first().signatures }) {
             "How did we get here, they should all have the same signature tracker"
@@ -92,9 +89,8 @@ class FMRun(
         otherPartitions.forEach {
             it.verifyAll()
         }
-
-        for (x in 0..this.amountOfPasses) {
-            val duration = measureTime {
+        repeat(amountOfPasses) {
+            measureTime {
                 runIteration(buckets, recalculator, bestTargetTracker)
                 refreshRound(otherPartitions, buckets, bestTargetTracker)
             }

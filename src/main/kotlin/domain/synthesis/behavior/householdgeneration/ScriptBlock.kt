@@ -3,8 +3,6 @@ package domain.synthesis.behavior.householdgeneration
 import domain.synthesis.Signature
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.householdgeneration.refinement.Refinement
-import domain.synthesis.behavior.householdgeneration.refinement.SignatureTracker
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -34,7 +32,8 @@ fun prepSignatures(signatures: SignatureTracker, attributeSize: Int): AttributeU
         val relevantSigs = signatures.getByAttribute(attrIdx)
         val contentNums = relevantSigs.map {
             it[attrIdx]
-                ?: throw IllegalStateException("A relevant sig must have a value greater than 0 for the target attribute")
+                ?: throw IllegalStateException("A relevant sig must have a value greater than 0 " +
+                    "for the target attribute")
         }
 
         for (j in 0..maxSigContent) {
@@ -52,7 +51,7 @@ class AttributeUpdater(
 ) {
     var counter = 0
 
-    // Return true if any of the sigs changed, because in this scenario the gains of certain moves need to be recalculated.
+    // Return true if any of the sigs changed, because in this scenario the gains of certain moves need to be recalced.
     fun performUpdate(attributeIndex: Int, originalDiff: Int, newDiff: Int, target: IntArray): List<Int> {
         counter++
         val updater = internalUpdaters[attributeIndex]
@@ -66,7 +65,7 @@ class AttributeUpdater(
             target[sigs[i]] += newA[i] - origA[i]
 
             if (abs(target[sigs[i]]) > maxGain) {
-                throw IllegalStateException("There should never be an update so that the maxgain is exceeded.")
+                error("There should never be an update so that the maxgain is exceeded.")
             }
         }
         return sigs.toList()
@@ -148,6 +147,7 @@ fun interface PartitionMetric {
     fun calculate(expected: IntArray, actual: IntArray, signature: Signature): Double
 }
 
+@Suppress("MagicNumber")
 val SquaredDiff = PartitionMetric { expected, actual, signature ->
     var origDiff = .0
     var newDiff = .0
@@ -171,11 +171,12 @@ class GreedyAmountDistro(
 ) : InitialSignatureDistributor {
     override fun distribute(partitions: List<Partition>, signatureAmounts: Collection<SignatureAmount>) {
         val elements = signatureAmounts.withIndex().map { it.value.toMutable(it.index) }.toMutableList()
-        elements.removeAll { it.amount == 0 } // Don't need to bother evaluating signatures that should not be placed (also causes buggy behaviour if left untouched)
+        elements.removeAll { it.amount == 0 } // Don't need to bother evaluating signatures that should not be placed
         elements.assignGreedy(partitions)
         elements.assignEmergency(partitions)
     }
 
+    @Suppress("CognitiveComplexMethod", "MagicNumber")
     fun MutableList<MutableSignatureAmount>.assignGreedy(partitions: List<Partition>) {
         var i = 0
         var improvementFound = true
@@ -216,6 +217,7 @@ class GreedyAmountDistro(
         }
     }
 
+    @Suppress("MagicNumber")
     fun MutableList<MutableSignatureAmount>.assignEmergency(regions: List<Partition>) {
         var i = 0
         while (isNotEmpty()) {

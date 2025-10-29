@@ -1,14 +1,12 @@
-package domain.synthesis.behavior.householdgeneration.refinement.algorithms
+package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.householdgeneration.AttributeStomper
-import domain.synthesis.behavior.householdgeneration.averagePercentError
 import kotlin.math.min
 
 class AlternateBetweenFMAndStomp(
     private val passes: Int = 10
-) : domain.synthesis.behavior.householdgeneration.refinement.Refinement {
+) : Refinement {
 
-    val fmStep = _root_ide_package_.domain.synthesis.behavior.householdgeneration.refinement.FMRun(
+    val fmStep = FMRun(
         amountOfPasses = 10
     ) {
 
@@ -23,7 +21,7 @@ class AlternateBetweenFMAndStomp(
 
     val stompStep =
         AttributeStomper(repetitions = 10)
-    override fun refine(partitions: List<domain.synthesis.behavior.householdgeneration.Partition>) {
+    override fun refine(partitions: List<Partition>) {
         println("InitialFM")
         fmStep.refine(partitions)
         println(partitions.averagePercentError())

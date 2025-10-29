@@ -126,16 +126,19 @@ fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Seq
     return parser.parse(path)
 }
 
+@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
 fun interface AssignmentStep<in I, out O> {
-    context(random : Random)
+    context(random: Random)
     fun assign(input: I): O
 }
 
+@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
 class AssignmentStrategy<I, C, O>(
     val model: FixedChoiceModel<O, C>,
     private val situation: (I) -> C,
 ) : AssignmentStep<I, O> {
-    context(random : Random)
+
+    context(random: Random)
     override fun assign(input: I): O {
         return context(situation(input)) {
             model.select()
@@ -156,10 +159,11 @@ class AssignmentStrategy<I, C, O>(
     }
 }
 
+@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
 fun interface AssignTransitCardOwnership<T> : AssignmentStep<SynthesisPerson<out T>, Boolean> {
     fun assignFor(person: SynthesisPerson<out T>): Boolean
 
-    context(random : Random)
+    context(random: Random)
     override fun assign(input: SynthesisPerson<out T>): Boolean =
         assignFor(input)
 }

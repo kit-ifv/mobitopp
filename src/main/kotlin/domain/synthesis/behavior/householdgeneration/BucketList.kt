@@ -79,10 +79,6 @@ class BucketList<T>(
 
     fun elements() = buckets.flatMap { it }
 
-    fun popBest(predicate: (T) -> Boolean): T {
-        TODO("Not implemented as buckets currently keep removing elements rather than operating over flags.")
-    }
-
     fun validateElements(predicate: (T) -> Boolean): Boolean {
         return elements().all(predicate)
     }

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.nio.file.Path
 
-class LenientIntDeserializer : com.fasterxml.jackson.databind.JsonDeserializer<Int?>() {
+class LenientIntDeserializer : JsonDeserializer<Int?>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Int? {
         val text = p.text.trim()
         if (text == "–") {

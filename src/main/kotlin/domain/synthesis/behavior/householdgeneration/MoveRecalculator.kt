@@ -1,14 +1,12 @@
-package domain.synthesis.behavior.householdgeneration.refinement
-
-import domain.synthesis.behavior.householdgeneration.Moved
+package domain.synthesis.behavior.householdgeneration
 
 class MoveRecalculator(
-    val partitions: List<domain.synthesis.behavior.householdgeneration.TempPartition>,
+    val partitions: List<TempPartition>,
     val maxGain: Int,
-    val bestTargetTracker: domain.synthesis.behavior.householdgeneration.BestTargetTracker
+    val bestTargetTracker: BestTargetTracker
 ) {
 
-    fun recalculate(buckets: domain.synthesis.behavior.householdgeneration.BucketList<Moved>, dirtyMoves: Collection<Moved>) {
+    fun recalculate(buckets: BucketList<Moved>, dirtyMoves: Collection<Moved>) {
         if (dirtyMoves.isEmpty()) return
 
         dirtyMoves.forEach {
@@ -17,9 +15,8 @@ class MoveRecalculator(
 
         dirtyMoves.filter { !it.isEmpty && !it.isLocked }.forEach {
             val sigIdx = it.signatureIndex.index
-            if (bestTargetTracker.isBest(sigIdx, it.to)) {
-            } else {
-                val bestTarget: domain.synthesis.behavior.householdgeneration.TempPartition = bestTargetTracker.getRandom(
+            if (!bestTargetTracker.isBest(sigIdx, it.to)) {
+                val bestTarget: TempPartition = bestTargetTracker.getRandom(
                     sigIdx
                 )
                 it.to.myIncomingMoves[sigIdx].remove(it)
