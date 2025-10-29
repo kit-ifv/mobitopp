@@ -12,7 +12,7 @@ data class NewAlgorithmConfig(
     val ipu: GenericIPU = GenericIPU.legacy,
     val refinement: Refinement = Refinement { },
 
-    )
+)
 
 fun prepSignatures(signatures: SignatureTracker, attributeSize: Int): AttributeUpdater {
     val updaters = (0..<attributeSize).map { attrIdx ->
@@ -233,4 +233,3 @@ class GreedyAmountDistro(
         }
     }
 }
-

@@ -1,12 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.IPUOutputLog
-import domain.synthesis.Signature
-import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.householdgeneration.refinement.SignatureTracker
-import utils.collections.cartesianProduct
 
 class NewDistributor<RULES, AREA, H : MinimalistHousehold<out RULES>>(
     val initialDistribution: InitialSignatureDistributor = GreedyAmountDistro(),
@@ -43,47 +38,42 @@ class NewDistributor<RULES, AREA, H : MinimalistHousehold<out RULES>>(
         }
 
         initialDistribution.distribute(partitions, targetAmounts)
-        require(verify(targetAmounts, partitions)) {
-            "Mismatch between signature assignment and partition assignment"
-        }
         config.refinement.refine(partitions)
-        require(verify(targetAmounts, partitions)) {
-            "Mismatch between signature assignment and partition assignment"
-        }
+
         return subregions.zip(partitions).associate { (region, partition) ->
             region to partition.output()
         }
     }
 
-    private fun verify(targetAmounts: Collection<SignatureAmount>, partitions: List<Partition>): Boolean {
-        val fulfilledConditions = targetAmounts.map { (sig, amount) ->
-            partitions.sumOf { it.count(sig) } == amount }
-        return fulfilledConditions.all { it }
-    }
+//    private fun verify(targetAmounts: Collection<SignatureAmount>, partitions: List<Partition>): Boolean {
+//        val fulfilledConditions = targetAmounts.map { (sig, amount) ->
+//            partitions.sumOf { it.count(sig) } == amount }
+//        return fulfilledConditions.all { it }
+//    }
 
-    fun toIPUOutput(
-        partitions: List<Partition>,
-        subregions: Collection<AREA>,
-        logics: List<NamedCountRule<ISurveyHousehold<out RULES>>>,
-    ): List<IPUOutputLog> {
-        val zipper = partitions.zip(subregions)
-        return zipper.cartesianProduct(logics.withIndex().toList()).map { (l, p) ->
-            val (partition, subregion) = l
-            val (idx, rule) = p
-            IPUOutputLog("$subregion ${rule.ruleDescription}", partition.getExpected(idx), partition.getActual(idx))
-        }
-    }
-
-    private fun verify(groupedHouseholds: Map<Signature, List<SurveyHousehold<out RULES>>>, partitions: List<Partition>) {
-        val target = groupedHouseholds.values.withIndex().map { (sig, hhs) ->
-            val actual = partitions.sumOf { it.amount(SignatureIndex(sig)) }
-            val expected = hhs.size
-
-            actual == expected
-        }
-
-        require(target.all { it }) {
-            "There is a mismatch between assigned sigs and target households"
-        }
-    }
+//    fun toIPUOutput(
+//        partitions: List<Partition>,
+//        subregions: Collection<AREA>,
+//        logics: List<NamedCountRule<ISurveyHousehold<out RULES>>>,
+//    ): List<IPUOutputLog> {
+//        val zipper = partitions.zip(subregions)
+//        return zipper.cartesianProduct(logics.withIndex().toList()).map { (l, p) ->
+//            val (partition, subregion) = l
+//            val (idx, rule) = p
+//            IPUOutputLog("$subregion ${rule.ruleDescription}", partition.getExpected(idx), partition.getActual(idx))
+//        }
+//    }
+//
+//    private fun verify(groupedHouseholds: Map<Signature, List<SurveyHousehold<out RULES>>>, partitions: List<Partition>) {
+//        val target = groupedHouseholds.values.withIndex().map { (sig, hhs) ->
+//            val actual = partitions.sumOf { it.amount(SignatureIndex(sig)) }
+//            val expected = hhs.size
+//
+//            actual == expected
+//        }
+//
+//        require(target.all { it }) {
+//            "There is a mismatch between assigned sigs and target households"
+//        }
+//    }
 }

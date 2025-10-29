@@ -18,7 +18,7 @@ class BucketList<T>(
     fun insert(element: T, gain: Int) {
         val idx = offsetGain(gain)
         if (idx !in buckets.indices) {
-            throw IndexOutOfBoundsException()
+            throw IndexOutOfBoundsException("No Bucket with that index")
         }
         buckets[idx].add(element)
         positionTracker[element] = idx
