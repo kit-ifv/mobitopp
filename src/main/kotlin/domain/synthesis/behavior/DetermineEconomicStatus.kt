@@ -47,7 +47,7 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
 
     companion object {
         fun <T : SurveyInfo> fromPath(
-            path: Path = Path.of("src/main/resources/synthesis/economical-status-oecd2017.csv")
+            path: Path = Path.of("src/main/resources/economical-status-oecd2017.csv")
         ): OECDAssigner<T> {
             val parser = DefaultCsvParser { row ->
                 FileEntry(
