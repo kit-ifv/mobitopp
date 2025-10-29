@@ -302,11 +302,7 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : PersonS
                         }
                         availabilityWriter.notify(time, person.id, "resource", mcAvail)
 
-                        modeChoice.select().also {
-                            if (it != modes.bikeSharing && modes.bikeSharing in mcAvail) {
-                                print("decided not to take bs")
-                            }
-                        }
+                        modeChoice.select()
                     }
                 }
 

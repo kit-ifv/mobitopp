@@ -81,12 +81,12 @@ interface StandardContext :
     LoadFixedDestinationsContext,
     LoadBehaviorModelsContext,
     AssignCarsContext,
+    AddDrtProviderContext,
+    AddDrtMembershipContext,
     WriteTripsCsvContext,
     RunSimContext,
     RoadNetworkContext,
     BuildAgentsContext,
-    AddDrtProviderContext,
-    AddDrtMembershipContext,
     PersonStateContext
 
 data class ExampleProjectContext(
