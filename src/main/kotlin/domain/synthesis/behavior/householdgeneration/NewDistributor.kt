@@ -1,7 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.householdgeneration.refinement.SignatureTracker
 
 class NewDistributor<RULES, AREA, H : MinimalistHousehold<out RULES>>(
     val initialDistribution: InitialSignatureDistributor = GreedyAmountDistro(),
@@ -22,7 +21,7 @@ class NewDistributor<RULES, AREA, H : MinimalistHousehold<out RULES>>(
         val subregionRules = subregions.associateWith { ruleProvider.getConflictFreeRules(it) }
 //        val subregionRules = subregions.associateWith { ruleProvider.getAllRules(it) }
 
-        val logics = subregionRules.values.flatMap { it.map { it.logic } }.distinct()
+//        val logics = subregionRules.values.flatMap { it.map { it.logic } }.distinct()
         val signatureTracker = SignatureTracker(signatures, signatures.maxOf {
             it.keys.max()
         } + 1)

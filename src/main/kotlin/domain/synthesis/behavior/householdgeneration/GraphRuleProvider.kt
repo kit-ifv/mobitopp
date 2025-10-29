@@ -49,7 +49,8 @@ private constructor(
         return allAscendingNodes.all { rules[it]?.isEmpty() ?: true }
     }
 
-    override fun partition(predicate: (AREA) -> Boolean): Pair<HierarchicalRuleProvider<AREA, H>, HierarchicalRuleProvider<AREA, H>> {
+    override fun partition(predicate: (AREA) -> Boolean):
+        Pair<HierarchicalRuleProvider<AREA, H>, HierarchicalRuleProvider<AREA, H>> {
         val (setA, setB) = hierarchy.partition(predicate)
         val orig = GraphRuleProvider(setA, rules.filterKeys { it in setA.getAllVertices() }.toMutableMap())
         val other = GraphRuleProvider(setB, rules.filterKeys { it in setB.getAllVertices() }.toMutableMap())

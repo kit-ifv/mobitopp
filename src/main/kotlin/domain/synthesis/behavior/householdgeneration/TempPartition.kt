@@ -150,17 +150,16 @@ class TempPartition(
         }
     }
 
-    fun updateDirtyMoves() {
-    }
-
     fun amount(signature: SignatureIndex): Int {
         return partition.amount(signature)
     }
 
     fun add(signature: SignatureIndex, amount: Int) {
+        delta(signature, amount)
     }
 
     fun remove(signature: SignatureIndex, amount: Int) {
+        delta(signature, -amount)
     }
 
     fun initialize(bestTargetTracker: BestTargetTracker) {

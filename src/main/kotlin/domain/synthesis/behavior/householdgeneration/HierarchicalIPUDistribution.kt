@@ -69,9 +69,9 @@ class HierarchicalIPUDistribution<AREA, H : MinimalistHousehold<out RawSurveyInf
         amounts: Collection<SignatureAmount>,
         signatures: Map<Signature, List<H>>,
     ): List<H> {
-        val targetMap = amounts.associate { it: SignatureAmount ->
+        val targetMap = amounts.associateWith {
             val targetHouseholds = signatures[it.signature] ?: error("No households for the signature ${it.signature}")
-            it to targetHouseholds
+            targetHouseholds
         }
         return collector.extract(targetMap).map { it }
     }
@@ -93,7 +93,11 @@ class HierarchicalIPUDistribution<AREA, H : MinimalistHousehold<out RawSurveyInf
         return sigs
     }
 
-    fun distributeToChildren(inheritedRules: List<Rule<H>>, target: AREA, calculatedAmounts: List<SignatureAmount>): Map<AREA, List<SignatureAmount>> {
+    fun distributeToChildren(
+        inheritedRules: List<Rule<H>>,
+        target: AREA,
+        calculatedAmounts: List<SignatureAmount>
+    ): Map<AREA, List<SignatureAmount>> {
         // If no further subspecification can be done then we are donzo
         val subAreas = ruleProvider.getSubAreas(target)
         if (subAreas.isEmpty()) return mapOf(target to calculatedAmounts)

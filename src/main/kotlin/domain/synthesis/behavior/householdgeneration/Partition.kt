@@ -20,16 +20,16 @@ data class PotentialTransfer(
 
 @Suppress("TooManyFunctions")
 class Partition(
-    private val _expected: IntArray,
-    val signatures: domain.synthesis.behavior.householdgeneration.refinement.SignatureTracker,
-    private val mask: BooleanArray = BooleanArray(_expected.size) { true },
+    private val expectedArray: IntArray,
+    val signatures: SignatureTracker,
+    private val mask: BooleanArray = BooleanArray(expectedArray.size) { true },
 ) {
-    private val _actual: IntArray = IntArray(_expected.size) { 0 }
+    private val _actual: IntArray = IntArray(expectedArray.size) { 0 }
     private val _counts: IntArray = IntArray(signatures.size) { 0 }
 
-    val attributeIndices = _expected.indices
-    val attributeSize = _expected.size
-    fun getExpected(index: Int) = _expected[index]
+    val attributeIndices = expectedArray.indices
+    val attributeSize = expectedArray.size
+    fun getExpected(index: Int) = expectedArray[index]
     fun getActual(index: Int) = _actual[index]
     fun getCounts(index: Int) = _counts[index]
     fun getMask(index: Int) = mask[index]
@@ -39,8 +39,8 @@ class Partition(
      * This means that a positive delta means that thie attribute would like to receive more items, and a negative
      * delta means that elements want to be removed.
      */
-    fun getDelta(index: Int) = _expected[index] - _actual[index]
-    private val expected get() = _expected.toList()
+    fun getDelta(index: Int) = expectedArray[index] - _actual[index]
+    private val expected get() = expectedArray.toList()
     private val actual get() = _actual.toList()
     val countsList get() = _counts.toList()
 
@@ -91,9 +91,9 @@ class Partition(
     /**
      * Return a collection of the errors found in this partition.
      */
-    fun errors() = _expected.zip(_actual).map { (expected, actual) -> expected - actual }
-    fun absoluteErrors() = _expected.zip(_actual).map { (expected, actual) -> abs(expected - actual) }
-    fun relativeErrors() = _expected.zip(
+    fun errors() = expectedArray.zip(_actual).map { (expected, actual) -> expected - actual }
+    fun absoluteErrors() = expectedArray.zip(_actual).map { (expected, actual) -> abs(expected - actual) }
+    fun relativeErrors() = expectedArray.zip(
         _actual
     ).map { (expected, actual) -> abs(expected - actual).toDouble() / max(expected, 1) }
 
@@ -101,7 +101,7 @@ class Partition(
      * Returns the delta of comparing the actual amount of an attribute index in comparison to the
      * expected value. Positive if there are too many elements and negative if there are too few.
      */
-    fun errorFor(index: Int) = _actual[index] - _expected[index]
+    fun errorFor(index: Int) = _actual[index] - expectedArray[index]
     fun worstIndex() = absoluteErrors().withIndex().maxBy { it.value }.index
 
     fun worstRelativeIndex() = relativeErrors().withIndex().maxBy { it.value }.index
@@ -124,9 +124,9 @@ class Partition(
         delta(signature, amount)
     }
 
-    fun error() = Metric.meanAbsolutePercentError.evaluateNumber(_expected.toList(), _actual.toList())
+    fun error() = Metric.meanAbsolutePercentError.evaluateNumber(expectedArray.toList(), _actual.toList())
     fun evaluateMetric(sigIdx: Int, function: PartitionMetric): Double {
-        return function.calculate(_expected, _actual, resolve(sigIdx))
+        return function.calculate(expectedArray, _actual, resolve(sigIdx))
     }
 
     /**
@@ -137,7 +137,7 @@ class Partition(
         val sig = signatures[sigIdx]
         val minAmountMoves = sig.entries.minOf { (k, v) ->
             // positive diff means i need that signature, but go on
-            val diff = (_expected[k] - _actual[k]) * searchDirection
+            val diff = (expectedArray[k] - _actual[k]) * searchDirection
 
             val intDiv = diff / v
             if (intDiv >= 0) intDiv else Int.MAX_VALUE

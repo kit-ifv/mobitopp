@@ -1,10 +1,9 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.householdgeneration.refinement.Refinement
 import kotlin.math.min
 import kotlin.math.sign
 import kotlin.random.Random
-
+@Suppress("MagicNumber")
 fun Partition.eval(): Double {
     val elements = countsList.sum()
     val bias = elements.toDouble() / (elements + 1000)

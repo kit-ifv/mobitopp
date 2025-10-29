@@ -9,9 +9,10 @@ class BestTargetTracker(allPartitions: Collection<TempPartition>, private val ra
 
     private val maxGain: Int = allPartitions.first().signatureTracker.largestDifference
 
-    private val signatureBuckets: Array<BucketList<TempPartition>> = allPartitions.first().signatureTracker.indices.map {
-        BucketList<TempPartition>(maxGain)
-    }.toTypedArray()
+    private val signatureBuckets: Array<BucketList<TempPartition>> = allPartitions.first()
+        .signatureTracker.indices.map {
+            BucketList<TempPartition>(maxGain)
+        }.toTypedArray()
 
     init {
         signatureBuckets.withIndex().forEach { (i, bucket) ->

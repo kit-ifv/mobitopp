@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.householdgeneration.refinement
+package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.Signature
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
@@ -12,9 +12,10 @@ class SignatureTracker(
 ) {
 
     val indices = signatures.indices
-    private val signatureIndexMapper = signatures.withIndex().associate { it.value to _root_ide_package_.domain.synthesis.behavior.householdgeneration.SignatureIndex(
-        it.index
-    )
+    private val signatureIndexMapper = signatures.withIndex().associate {
+        it.value to SignatureIndex(
+            it.index
+        )
     }
     val size = signatures.size
     private val inverseIndices = Array(amountOfAttributes) { IntOpenHashSet() }
@@ -56,11 +57,8 @@ class SignatureTracker(
         return getByAttributeIndex(attrIdx).map { signatures[it] }
     }
 
-    fun findSignatureIndex(signature: Signature): domain.synthesis.behavior.householdgeneration.SignatureIndex {
-        return signatureIndexMapper[signature] ?: throw NoSuchElementException("There is no signature $signature in $signatureIndexMapper")
-    }
-
-    fun mask(keep: BooleanArray): SignatureTracker {
-        return TODO()
+    fun findSignatureIndex(signature: Signature): SignatureIndex {
+        return signatureIndexMapper[signature] ?: throw NoSuchElementException("There is no signature $signature" +
+            " in $signatureIndexMapper")
     }
 }
