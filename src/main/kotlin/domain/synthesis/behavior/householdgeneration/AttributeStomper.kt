@@ -1,10 +1,11 @@
-package domain.synthesis.behavior.householdgeneration.refinement
+package domain.synthesis.behavior.householdgeneration
 
+import domain.synthesis.behavior.householdgeneration.refinement.Refinement
 import kotlin.math.min
 import kotlin.math.sign
 import kotlin.random.Random
 
-fun domain.synthesis.behavior.householdgeneration.Partition.eval(): Double {
+fun Partition.eval(): Double {
     val elements = countsList.sum()
     val bias = elements.toDouble() / (elements + 1000)
     return relativeErrors().max() * bias
@@ -19,8 +20,8 @@ class AttributeStomper(
     private val repetitions: Int = 4,
     private val random: Random = Random(1),
     val stompTargetSelector: (
-        Collection<domain.synthesis.behavior.householdgeneration.Partition>
-    ) -> Collection<domain.synthesis.behavior.householdgeneration.Partition> = {
+        Collection<Partition>
+    ) -> Collection<Partition> = {
         it.sortedByDescending { p ->
 
             p.eval()
@@ -28,7 +29,7 @@ class AttributeStomper(
     },
 ) : Refinement {
 
-    override fun refine(partitions: List<domain.synthesis.behavior.householdgeneration.Partition>) {
+    override fun refine(partitions: List<Partition>) {
         repeat(repetitions) {
             val worstPartition = stompTargetSelector(partitions).first()
 
@@ -51,9 +52,9 @@ class AttributeStomper(
     // We have no idea about other qualities. This means that we want to transfer roughly equally to each
     // receiving partition
     private fun resolveOverload(
-        worstPartition: domain.synthesis.behavior.householdgeneration.Partition,
+        worstPartition: Partition,
         attrIdx: Int,
-        suitableCandidates: List<domain.synthesis.behavior.householdgeneration.Partition>
+        suitableCandidates: List<Partition>
     ) {
         suitableCandidates.shuffled(random).forEach { candidate ->
             intern(worstPartition, candidate, attrIdx)
@@ -64,18 +65,25 @@ class AttributeStomper(
     // default, so in this case we need to make sure that the transfer error is maintained, and sending a roughly
     // equal amount of the elements from the target partition.
     private fun resolveUnderload(
-        worstPartition: domain.synthesis.behavior.householdgeneration.Partition,
+        worstPartition: Partition,
         attrIdx: Int,
-        suitableCandidates: List<domain.synthesis.behavior.householdgeneration.Partition>
+        suitableCandidates: List<Partition>
     ) {
         suitableCandidates.shuffled(random).forEach {
             intern(it, worstPartition, attrIdx)
         }
     }
 
-    private fun intern(senderPartition: domain.synthesis.behavior.householdgeneration.Partition, receiverPartition: domain.synthesis.behavior.householdgeneration.Partition, attrIdx: Int) {
+    private fun intern(
+        senderPartition: Partition,
+        receiverPartition: Partition,
+        attrIdx: Int
+    ) {
         val transferTargets = senderPartition.currentElementsForAttribute(attrIdx)
-        val maxTransferAmount: Int = min(senderPartition.errorFor(attrIdx), -receiverPartition.errorFor(attrIdx))
+        val maxTransferAmount: Int = min(
+            senderPartition.errorFor(attrIdx),
+            -receiverPartition.errorFor(attrIdx)
+        )
 
         val sum = transferTargets.sumOf { it.amountOfElements }
 
@@ -87,7 +95,11 @@ class AttributeStomper(
             // This target is rounded down
             val integerTarget = (v * maxTransferAmount).toInt() / k.impact
             if (integerTarget != 0) {
-                senderPartition.transferTo(receiverPartition, k.signatureIndex, integerTarget)
+                senderPartition.transferTo(
+                    receiverPartition,
+                    k.signatureIndex,
+                    integerTarget
+                )
             }
 
             integerTarget * k.impact
@@ -109,7 +121,11 @@ class AttributeStomper(
             val desiredTransfers = 1
             remainingTransferTarget -= desiredTransfers * target.impact
             target.amountOfElements -= desiredTransfers
-            senderPartition.transferTo(receiverPartition, target.signatureIndex, desiredTransfers)
+            senderPartition.transferTo(
+                receiverPartition,
+                target.signatureIndex,
+                desiredTransfers
+            )
             i++
         }
     }

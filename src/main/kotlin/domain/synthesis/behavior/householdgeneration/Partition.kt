@@ -18,6 +18,7 @@ data class PotentialTransfer(
     fun isEmpty(): Boolean = amountOfElements <= 0
 }
 
+@Suppress("TooManyFunctions")
 class Partition(
     private val _expected: IntArray,
     val signatures: domain.synthesis.behavior.householdgeneration.refinement.SignatureTracker,

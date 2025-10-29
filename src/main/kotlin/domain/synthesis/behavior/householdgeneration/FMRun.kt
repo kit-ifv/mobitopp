@@ -1,6 +1,9 @@
 package domain.synthesis.behavior.householdgeneration.refinement
 
+import domain.synthesis.behavior.householdgeneration.BestTargetTracker
+import domain.synthesis.behavior.householdgeneration.BucketList
 import domain.synthesis.behavior.householdgeneration.Moved
+import domain.synthesis.behavior.householdgeneration.TempPartition
 import domain.synthesis.behavior.householdgeneration.prepSignatures
 import kotlin.time.measureTime
 
@@ -9,7 +12,11 @@ class FMRun(
     val amountStrategy: (Moved) -> Int,
 ) : Refinement {
 
-    fun refreshRound(partitions: List<domain.synthesis.behavior.householdgeneration.TempPartition>, buckets: domain.synthesis.behavior.householdgeneration.BucketList<Moved>, bestTargetTracker: domain.synthesis.behavior.householdgeneration.BestTargetTracker) {
+    fun refreshRound(
+        partitions: List<TempPartition>,
+        buckets: BucketList<Moved>,
+        bestTargetTracker: BestTargetTracker
+    ) {
         buckets.clear()
 
         partitions.forEach {
@@ -22,9 +29,9 @@ class FMRun(
 
     var i = 0
     fun runIteration(
-        buckets: domain.synthesis.behavior.householdgeneration.BucketList<Moved>,
+        buckets: BucketList<Moved>,
         recalculator: MoveRecalculator,
-        bestTargetTracker: domain.synthesis.behavior.householdgeneration.BestTargetTracker
+        bestTargetTracker: BestTargetTracker
     ) {
         while (true) {
             val (element, gain) = buckets.popBest() ?: break
@@ -57,12 +64,15 @@ class FMRun(
         require(partitions.all { it.signatures === partitions.first().signatures }) {
             "How did we get here, they should all have the same signature tracker"
         }
-        val buckets = _root_ide_package_.domain.synthesis.behavior.householdgeneration.BucketList<Moved>(maxGain)
+        val buckets = BucketList<Moved>(maxGain)
 
-        val updater = prepSignatures(partitions.first().signatures, partitions.first().attributeSize)
+        val updater = prepSignatures(
+            partitions.first().signatures,
+            partitions.first().attributeSize
+        )
 
         val otherPartitions = partitions.map {
-            _root_ide_package_.domain.synthesis.behavior.householdgeneration.TempPartition(
+            TempPartition(
                 it,
                 updater,
                 buckets
@@ -70,7 +80,7 @@ class FMRun(
         }
 
         val bestTargetTracker =
-            _root_ide_package_.domain.synthesis.behavior.householdgeneration.BestTargetTracker(otherPartitions)
+            BestTargetTracker(otherPartitions)
 
         val recalculator = MoveRecalculator(otherPartitions, maxGain, bestTargetTracker)
         otherPartitions.forEach {
