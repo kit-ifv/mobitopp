@@ -12,5 +12,4 @@ class SharingMembershipsBuilder<T> {
     }
 
     fun build(): Map<String, AssignmentStep<SynthesisPerson<out T>, Boolean>> = steps
-
 }
