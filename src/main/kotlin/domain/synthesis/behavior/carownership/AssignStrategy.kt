@@ -1,5 +1,6 @@
 package domain.synthesis.behavior.carownership
 
+import AssignmentStep
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.toSizebasedClassification
 import domain.synthesis.behavior.SurveyInfo
@@ -12,10 +13,15 @@ import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.toCarOwnershipAttributes
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import kotlin.random.Random
-
-fun interface CarOwnershipAssignStrategy<T> {
+@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
+fun interface CarOwnershipAssignStrategy<T> : AssignmentStep<SynthesisHousehold<out T>, Int> {
 
     fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out T>): Int
+
+    context(random: Random)
+    override fun assign(input: SynthesisHousehold<out T>): Int {
+        return determineNumberOfCars(input)
+    }
 }
 
 class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any> {
