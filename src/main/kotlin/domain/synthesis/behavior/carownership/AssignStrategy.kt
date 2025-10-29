@@ -14,7 +14,7 @@ import domain.synthesis.behavior.toCarOwnershipAttributes
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import kotlin.random.Random
 
-fun interface CarOwnershipAssignStrategy<T>: AssignmentStep<SynthesisHousehold<out T>, Int> {
+fun interface CarOwnershipAssignStrategy<T> : AssignmentStep<SynthesisHousehold<out T>, Int> {
 
     fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out T>): Int
 

@@ -1,4 +1,3 @@
-
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
@@ -41,6 +40,8 @@ import domain.synthesis.behavior.fixedDestinations.work
 import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
 import domain.synthesis.behavior.householdgeneration.IPU
 import domain.synthesis.behavior.householdgeneration.Rule
+import domain.synthesis.behavior.householdgeneration.RuleBasedPopulationSynthesis
+import domain.synthesis.behavior.householdgeneration.RuleProvider
 import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.behavior.toSurveyHouseholds
@@ -55,12 +56,12 @@ import domain.synthesis.results.OpportunitiesOutput
 import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.PersonOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
-import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toCurrency
+import utils.Metric
 import utils.collections.addProgressBar
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
@@ -125,57 +126,53 @@ fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Seq
     return parser.parse(path)
 }
 
-
 fun interface AssignmentStep<in I, out O> {
     context(random: Random)
     fun assign(input: I): O
 }
 
-class AssignmentStrategy<I,C,  O>(
+class AssignmentStrategy<I, C, O>(
     val model: FixedChoiceModel<O, C>,
-    private val situation: (I) -> C
-): AssignmentStep<I, O> {
+    private val situation: (I) -> C,
+) : AssignmentStep<I, O> {
     context(random: Random)
     override fun assign(input: I): O {
-
         return context(situation(input)) {
             model.select()
         }
-
     }
 
     companion object {
         fun <I, C, O> viaChoiceModel(
             model: FixedChoiceModel<O, C>,
-            situation: (I) -> C
+            situation: (I) -> C,
         ): AssignmentStrategy<I, C, O> = AssignmentStrategy(model, situation)
 
         fun <I, C, O, P> viaChoiceModel(
             modelStructure: EnumeratedDiscreteModelBuilder<O, C, P>,
             parameters: P,
-            situation: (I) -> C
+            situation: (I) -> C,
         ) = viaChoiceModel(modelStructure.build(parameters), situation)
     }
 }
 
-fun interface AssignTransitCardOwnership<T>: AssignmentStep<SynthesisPerson<out T>, Boolean> {
+fun interface AssignTransitCardOwnership<T> : AssignmentStep<SynthesisPerson<out T>, Boolean> {
     fun assignFor(person: SynthesisPerson<out T>): Boolean
+
     context(random: Random)
     override fun assign(input: SynthesisPerson<out T>): Boolean =
         assignFor(input)
-
 }
-
 
 class AssignByDiscreteChoice(
     val model: FixedChoiceModel<Boolean, TicketCharacteristics> =
-        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false))
+        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false)),
 ) : AssignTransitCardOwnership<SurveyInfo> {
 
     constructor(
         parameters: TransitPassParameters,
         model: EnumeratedDiscreteModelBuilder<Boolean, TicketCharacteristics, TransitPassParameters> =
-            transitPassChoiceModel
+            transitPassChoiceModel,
     ) : this(model.build(parameters))
 
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
@@ -183,7 +180,6 @@ class AssignByDiscreteChoice(
             model.select()
         }
     }
-
 }
 
 object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
@@ -197,7 +193,7 @@ class SynthesisSteps<T : Any>(
     val surveyHouseholds: Collection<ISurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
-    val opportunities: List<OpportunityOutput>
+    val opportunities: List<OpportunityOutput>,
 ) {
 
     lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<out T>>>
@@ -222,32 +218,56 @@ class SynthesisSteps<T : Any>(
         ).forEach { it.person.fixedDestinations[it.activityType] = it.location }
         fixedDestinations = allFixedDestinations
     }
+
     fun assignSharingMemberships(lambda: SharingMembershipsBuilder<T>.() -> Unit) {
         val builder = SharingMembershipsBuilder<T>().apply(lambda)
         val steps = builder.build()
-        households.addProgressBar("assign sharing memberships").forEach {  hh ->
+        households.addProgressBar("assign sharing memberships").forEach { hh ->
             hh.members.forEach {
                 context(Random(it.personId)) {
-                    val membership = steps.mapValues { (_, step )->
+                    val membership = steps.mapValues { (_, step) ->
 
                         step.assign(it)
-
                     }
                     membership.forEach { providerName, accepted ->
-                        if(accepted) it.addMembership(providerName)
+                        if (accepted) it.addMembership(providerName)
                     }
-
                 }
-
             }
-
         }
+    }
+
+    fun populationSynthesis(
+        verification: Boolean = true,
+        supplier: () -> RuleBasedPopulationSynthesis<Zone, ISurveyHousehold<out T>>,
+    ) {
+        val algorithm = supplier()
+        val output = algorithm.synthesizeAll()
+        householdsByZone = output.mapValues { it.value.map { it.toSynthesisHousehold() } }
+
+        if (verification) {
+            println("Population Synthesis has error: ${verify(algorithm.ruleProvider, householdsByZone)}")
+        }
+    }
+
+    private fun verify(
+        ruleProvider: RuleProvider<Zone, ISurveyHousehold<out T>>,
+        output: Map<Zone, List<SynthesisHousehold<out T>>>,
+        metric: Metric = Metric.standardizedRootMeanSquaredResidual,
+    ): Double {
+        val ruleMapping = ruleProvider.getAllRules()
+        val ruleResults = ruleMapping.flatMap { (area, rules) ->
+
+            val currentHHs = output[area] ?: emptyList()
+            rules.map { it.target to it.evaluate(currentHHs) }
+        }
+        return metric.evaluate(ruleResults)
     }
 
     // TODO speaking type parameter names
     fun synthesis(
         randsums: Map<Zone, List<Rule<ISurveyHousehold<out T>>>>,
-        lambda: () -> HouseholdSynthesis<Zone, ISurveyHousehold<out T>, SynthesisHousehold<out T>>
+        lambda: () -> HouseholdSynthesis<Zone, ISurveyHousehold<out T>, SynthesisHousehold<out T>>,
     ) {
         val generator = lambda()
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
@@ -278,7 +298,7 @@ class SynthesisSteps<T : Any>(
         households.forEach { it.economicStatus = strategy.determineStatus(it) }
     }
 
-    fun assignAmountOfCars(lambda: () -> AssignmentStep<SynthesisHousehold<out T>,  Int>) {
+    fun assignAmountOfCars(lambda: () -> AssignmentStep<SynthesisHousehold<out T>, Int>) {
         val strategy = lambda()
         households.addProgressBar(
             "Assign car amount"
@@ -286,21 +306,19 @@ class SynthesisSteps<T : Any>(
             context(Random(household.id)) {
                 household.amountOfCars = strategy.assign(household)
             }
- }
+        }
     }
 
-    fun  assignTransitCardOwnership(lambda: () -> AssignmentStep<SynthesisPerson<out T>, Boolean>) {
+    fun assignTransitCardOwnership(lambda: () -> AssignmentStep<SynthesisPerson<out T>, Boolean>) {
         val strategy = lambda()
         households.addProgressBar("assign Transit Car").forEach { hh ->
             hh.members.forEach {
                 context(Random(it.personId)) {
                     it.hasTransitPass = strategy.assign(it)
                 }
-
             }
         }
     }
-
 
     fun generateCars(strategy: GenerateCars<in T>) {
         households.addProgressBar("Generate Cars").forEach { it.cars += strategy.generate(it) }
