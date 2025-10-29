@@ -479,7 +479,7 @@ fun examplePopulationSynthesis() {
 
         assignEconomicStatus {
             OECDAssigner.fromPath(
-                Path("src/main/resources/synthesis/economical-status-oecd2017.csv")
+                Path("src/main/resources/economical-status-oecd2017.csv")
             )
         }
 
