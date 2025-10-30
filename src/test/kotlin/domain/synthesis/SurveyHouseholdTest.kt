@@ -1,5 +1,6 @@
 package domain.synthesis
 
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
@@ -30,7 +31,7 @@ class SurveyHouseholdTest : SynthesisTest() {
             }
         }
 
-        val rule = ZoneRule<Any>("fake Description", 10) {
+        val rule = ZoneRule<ISurveyHousehold<out Any>>("fake Description", 10) {
             it.count { it.age == 10 }
         }
         val households = listOf(hh, hh2)

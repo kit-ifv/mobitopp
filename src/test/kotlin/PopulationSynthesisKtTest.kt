@@ -83,7 +83,7 @@ class PopulationSynthesisKtTest {
 
         populationSynthesis.execute {
             synthesis(mapOf(TEST_ZONE to emptyList())) {
-                TrivialSynthesis()
+                TrivialSynthesis(surveyHouseholds)
             }
             val test = householdsByZone
             assertTrue(TEST_ZONE in test.keys)
@@ -96,16 +96,16 @@ class PopulationSynthesisKtTest {
             val hh3 = hh[2]
             val p3 = hh3.members.first()
             assertEquals(
-                p1.info,
+                p1.information,
                 child
             )
 
             assertEquals(
-                p2.info,
+                p2.information,
                 working
             )
             assertEquals(
-                p3.info,
+                p3.information,
                 senior
             )
             assertFalse(hh1.locationIsAssigned())

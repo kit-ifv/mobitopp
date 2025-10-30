@@ -1,7 +1,7 @@
 package domain.synthesis.householdgeneration
 
 import domain.shared.location.ZoneId
-import domain.synthesis.behavior.SurveyHousehold
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
@@ -60,7 +60,7 @@ data class ZoneTarget(
 
 ) {
 
-    fun improvedTargets(): List<Rule<Any>> {
+    fun improvedTargets(): List<Rule<ISurveyHousehold<out Any>>> {
         return listOf(
             ZoneCheckRule("HHSize == 1", numHH1) { it.members.size == 1 },
             ZoneCheckRule("HHSize == 2", numHH2) { it.members.size == 2 },
@@ -188,6 +188,6 @@ val SurveyPerson<out Any>.groupCode
         else -> throw NoSuchElementException("Negative Age cannot be translated to a group code person=$this")
     }
 
-fun SurveyHousehold<out Any>.amount(sex: Sex, ageCode: Int): Int {
+fun ISurveyHousehold<out Any>.amount(sex: Sex, ageCode: Int): Int {
     return members.filter { it.sex == sex && it.groupCode == ageCode }.size
 }

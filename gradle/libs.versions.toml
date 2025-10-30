@@ -14,6 +14,7 @@ kotlinx-html = "0.12.0"
 kotlin-statistics = "0.2.1"
 # other libs
 jackson-parser = "2.20.0"
+jackson-dataformat-csv = "2.20.0"
 jackson-kotlin-serialization = "2.20.0"
 commons-compress = "1.28.0"
 xz = "1.10"
@@ -73,6 +74,7 @@ kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref 
 
 # other libs
 jackson-parser = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson-parser" }
+jackson-dataformat-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-csv", version.ref = "jackson-dataformat-csv" }
 jackson-kotlin-serialization = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson-kotlin-serialization" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }

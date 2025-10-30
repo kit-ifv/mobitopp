@@ -76,7 +76,7 @@ object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
             val segment = context(CarSegmentChoice(person, householdBuilder), random) {
                 segmentModel.select()
             }
-            val engineType = context(EngineAlternative(person.info, householdBuilder), random) {
+            val engineType = context(EngineAlternative(person.information, householdBuilder), random) {
                 engineModel.select()
             }
 

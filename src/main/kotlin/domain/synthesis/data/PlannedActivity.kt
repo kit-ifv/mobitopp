@@ -1,14 +1,18 @@
 package domain.synthesis.data
 
 import Mutable
+import domain.jackson.BinaryWritable
+import domain.jackson.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.Location
 import kotlinx.serialization.Serializable
 import utils.Identifiable
 import utils.random.StochasticActor
 import utils.units.AbsoluteTime
+import java.io.DataOutputStream
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 @Serializable
 @JvmInline
@@ -35,7 +39,7 @@ abstract class PlannedActivity(
     override val id: ActivityId,
     val person: MutablePerson,
     seed: Long,
-) : StochasticActor, Identifiable<ActivityId> { // : SeededActor<PlannedActivity>(seed), Identifiable<ActivityId> {
+) : StochasticActor, Identifiable<ActivityId>, Simplifiable<ActivityBinaryRecord> {
 
     final override val random: Random by lazy { Random(id.value + seed) }
 
@@ -56,7 +60,37 @@ abstract class PlannedActivity(
     val endTime: AbsoluteTime
         get() = startTime + duration
 
+    override fun simplify(): ActivityBinaryRecord {
+        return ActivityBinaryRecord(
+            id.value,
+            person.id.value,
+            observedTripDuration.toInt(DurationUnit.MINUTES),
+            startTime.minutesSinceStart,
+            duration.toInt(DurationUnit.MINUTES),
+            activityType.code
+        )
+    }
     override fun toString(): String {
         return "${activityType.description.first()}(${activityType.code}) start=$startTime duration=$duration"
+    }
+}
+
+data class ActivityBinaryRecord(
+    val id: Long,
+    val personId: Long,
+    val observedTripDuration: Int,
+    val startTime: Long,
+    val duration: Int,
+    val activityCode: Int,
+) : BinaryWritable {
+    override fun writeTo(outStream: DataOutputStream) {
+        outStream.run {
+            writeLong(id)
+            writeLong(personId)
+            writeInt(observedTripDuration)
+            writeLong(startTime)
+            writeInt(duration)
+            writeInt(activityCode)
+        }
     }
 }

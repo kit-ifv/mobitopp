@@ -53,7 +53,9 @@ fun PersonCsvContext.personCsvParser(
 
             val sharingProviders = sharingProvidersByName()
             sharingMemberships.addAll(
-                row(columns.membershipColumn).parseMemberships(sharingProviders)
+                row(
+                    columns.membershipColumn
+                ).parseMemberships(sharingProviders) // TODO lambda (Row) -> List<Provider> as csv parameter
             )
 
             val drtProviders = drtProvidersByName()
