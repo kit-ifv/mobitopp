@@ -7,6 +7,7 @@ detekt = "1.23.8"
 junit = "5.13.2"
 kover = "0.9.1"
 kandy = "0.8.0"
+shadowjar = "8.1.1"
 # kotlinx libs
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
@@ -34,6 +35,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+shadowjar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowjar"}
 
 
 [libraries]
