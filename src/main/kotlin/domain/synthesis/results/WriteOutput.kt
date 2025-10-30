@@ -5,14 +5,18 @@ import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.Location
 import domain.shared.location.Zone
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SurveyInfo
+import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.employment
 import java.nio.file.Path
+import kotlin.collections.plus
 import kotlin.io.path.bufferedWriter
+import kotlin.io.path.createDirectories
 
 //
 // Extension functions on existing classes.
@@ -47,6 +51,7 @@ interface CSVOutput<T> {
         }
 
     fun writeCSVToFile(path: Path, elements: Collection<T>) {
+        path.parent.createDirectories() // Ensure that the necessary parent directories exist.
         path.bufferedWriter().use { writer ->
             writer.write(header.joinToString(separator = ";",) { it })
             writer.newLine()
@@ -162,6 +167,21 @@ object FixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     }
 }
 
+object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<out SurveyInfo>> {
+    override val header: List<String> = listOf("nominalSize", "numberOfMinors", "income")
+
+    @Suppress("MagicNumber")
+    override fun convert(element: ISurveyHousehold<out SurveyInfo>): String {
+        return element.run {
+            toCSV(
+                members.size,
+                members.count { it.age < 18 },
+                income
+            )
+        }
+    }
+}
+
 // Sorry detekt, householdId and other strings may occur more often.
 @Suppress("StringLiteralDuplication", "MagicNumber")
 object HouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
@@ -170,21 +190,18 @@ object HouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
         "householdId",
 //        "year",
 //        "householdNumber",
-        "nominalSize",
 //        "domCode",
 //        "type",
         "homeZone",
         "homeLocation",
         "homeX",
         "homeY",
-        "numberOfMinors",
 //        "numberOfNotSimulatedChildren",
         "totalNumberOfCars",
-        "income",
 //        "incomeClass",
         "economicalStatus",
 //        "canChargePrivately"
-    )
+    ) + SurveyHouseholdOutput.header
 
     override fun convert(element: SynthesisHousehold<out SurveyInfo>): String {
         return element.run {
@@ -192,23 +209,20 @@ object HouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
                 id,
 //                "TODO year",
 //                "TODO householdNumber",
-                members.size,
 //                "TODO domcode",
 //                "TODO type",
-                location.zone ?: "NULL",
+                location.zone?.id ?: "NULL",
                 location,
                 location.coordinate.longitudeDegrees,
                 location.coordinate.latitudeDegrees,
-                members.count { it.age < 18 },
 //                "TODO nomberofnotsimulatdchildren",
                 amountOfCars,
-                income,
 //                "TODO incomeclass",
                 economicStatus,
 //                "TODO can charge privately"
 
             )
-        }
+        } + ";" + SurveyHouseholdOutput.convert(element)
     }
 }
 
@@ -237,23 +251,45 @@ object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
         }
     }
 }
+object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
+    override val header: List<String> = listOf(
+        "personId",
+        "age",
+        "gender",
+        "householdIncome",
+        "hasBike",
+        "hasLicence"
+    )
+
+    override fun convert(element: SurveyPerson<out RawSurveyInfo>): String {
+        return element.run {
+            toCSV(
+                personId,
+                age,
+                sex,
+                information.householdIncome,
+                information.hasBicycle,
+                information.hasLicence
+            )
+        }
+    }
+}
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object PersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
-    override val header: List<String> = listOf(
-        "personId",
+    override val header: List<String> = SurveyPersonOutput.header + listOf(
+
 //        "personNumber",
         "householdId",
-        "age",
+
         "employment",
-        "gender",
+
 //        "graduation",
-//        "income",
-        "hasBike",
+
 //        "hasAccessToCar",
 //        "hasPersonalCar",
         "hasCommuterTicket",
-        "hasLicense",
+
 //        "preferencesSurvey",
 //        "preferencesSimulation",
 //        "eMobilityAcceptance",
@@ -263,21 +299,20 @@ object PersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
     )
 
     override fun convert(element: SynthesisPerson<out RawSurveyInfo>): String {
-        element.info
-        return element.run {
+        val first = SurveyPersonOutput.convert(element)
+        val second = element.run {
             toCSV(
-                personId,
-                "TODO personNumber",
+
+//                "TODO personNumber",
                 household.id,
-                age,
+
                 employment,
-                sex,
+
 //                this.info.graduation TODO this is not in
-                this.info.householdIncome,
-                this.info.hasBicycle,
+
 //                "TODO hasAccessToCar",
                 hasTransitPass,
-                this.info.hasLicence,
+
 //                "TODO preferencesSurvey",
 //                "TODO preferencesSimulation",
 //                "TODO emobilityAcceptance",
@@ -285,6 +320,7 @@ object PersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
 //                "TODO mobilityProviderCustomership"
             )
         }
+        return "$first; $second"
     }
 }
 

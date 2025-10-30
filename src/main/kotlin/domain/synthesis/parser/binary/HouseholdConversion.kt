@@ -7,12 +7,9 @@ import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
-import domain.synthesis.parser.binary.LocationUtils.encodeLocation
-import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
-import java.io.DataOutputStream
+import utils.binary.DefaultBinaryWriter
 import java.nio.ByteBuffer
 
 /**
@@ -54,24 +51,24 @@ class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private
 /**
  * Writes a collection of households into a binary file.
  */
-class BinaryHouseholdWriter : BinaryWriter<Household> {
-    override fun operateStream(outStream: DataOutputStream, elements: Collection<Household>) {
-        outStream.writeInt(elements.size) // Write Size as Int in the beginning of the file
-        outStream.writeInt(0) // Format requires string size to be specified.
-
-        elements.forEach { outStream.encodeHousehold(it) } // write all elements
-    }
-
-    private fun DataOutputStream.encodeHousehold(element: Household) {
-        writeLong(element.id.value)
-        element.run {
-            writeLong(householdNumber)
-            writeInt(surveyYear)
-            writeInt(domCode)
-            writeInt(type)
-            writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS))
-            writeInt(economicStatus.code)
-            encodeLocation(location)
-        }
-    }
+class BinaryHouseholdWriter : DefaultBinaryWriter<Household>() {
+//    override fun operateStream(outStream: DataOutputStream, elements: Collection<Household>) {
+//        outStream.writeInt(elements.size) // Write Size as Int in the beginning of the file
+//        outStream.writeInt(0) // Format requires string size to be specified.
+//
+//        elements.forEach { outStream.encodeHousehold(it) } // write all elements
+//    }
+//
+//    private fun DataOutputStream.encodeHousehold(element: Household) {
+//        writeLong(element.id.value)
+//        element.run {
+//            writeLong(householdNumber)
+//            writeInt(surveyYear)
+//            writeInt(domCode)
+//            writeInt(type)
+//            writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS))
+//            writeInt(economicStatus.code)
+//            encodeLocation(location)
+//        }
+//    }
 }
