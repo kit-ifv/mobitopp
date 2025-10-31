@@ -122,11 +122,8 @@ class CommuterDemandsMatrixTest {
     @Test
     fun parseNonexistingCommunity() {
         val demands = CommuterDemandsMatrix.parseRastatt()
-        val exception = assertThrows<IllegalArgumentException> {
-            demands.convert(42.toZone().point(BIELEFELD))
-        }
-        assertContains(exception.message!!, "zone-to-community.csv")
-        assertContains(exception.message!!, ZoneId(42).toString())
+        assertEquals(CommunityNumber.INVALID, demands.convert(42.toZone().point(BIELEFELD)))
+
     }
 
     private fun Number.toZone(): TestZone {
