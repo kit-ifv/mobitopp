@@ -12,14 +12,15 @@ import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
 import domain.synthesis.data.SharingProvider
 import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.euros
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultCsvParser
 import utils.csv.boolean
-import utils.csv.currency
-import utils.csv.decode
+import utils.csv.currencyOrNull
 import utils.csv.decodeName
+import utils.csv.decodeOrNull
 import utils.csv.int
 import utils.csv.long
 import utils.csv.unitShare
@@ -43,8 +44,8 @@ fun PersonCsvContext.personCsvParser(
             age = row.int(columns.ageColumn)
             employment = row.decodeName(columns.employmentColumn, employmentCodes)
             sex = row.decodeName(columns.sexColumn, sexCodes)
-            graduation = row.decode(columns.graduationColumn, graduationCodes)
-            income = row.int().currency(columns.incomeColumn, incomeUnit)
+            graduation = row.decodeOrNull(columns.graduationColumn, graduationCodes) ?: Graduation.UNDEFINED
+            income = row.int().currencyOrNull(columns.incomeColumn, incomeUnit) ?: (-1).euros
             hasBike = row.boolean(columns.bikeColumn)
             hasCommuterTicket = row.boolean(columns.commuterTicketColumn)
             hasLicense = row.boolean(columns.licenseColumn)
