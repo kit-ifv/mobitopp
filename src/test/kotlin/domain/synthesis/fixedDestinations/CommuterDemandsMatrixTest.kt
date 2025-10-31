@@ -7,10 +7,8 @@ import domain.shared.location.ZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import point
 import kotlin.io.path.Path
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -123,7 +121,6 @@ class CommuterDemandsMatrixTest {
     fun parseNonexistingCommunity() {
         val demands = CommuterDemandsMatrix.parseRastatt()
         assertEquals(CommunityNumber.INVALID, demands.convert(42.toZone().point(BIELEFELD)))
-
     }
 
     private fun Number.toZone(): TestZone {
