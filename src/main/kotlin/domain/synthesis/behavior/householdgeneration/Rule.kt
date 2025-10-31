@@ -1,6 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.SurveyHousehold
+import domain.synthesis.data.Sex
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Defines a rule for population synthesis, which describes a condition to be met by the synthetic population.
@@ -15,7 +16,7 @@ import domain.synthesis.behavior.SurveyHousehold
  * @property descriptiveText A human-readable name or description of the rule.
  * @param T The shared property type required by a household to be evaluated against this rule.
  */
-interface Rule<T> {
+interface Rule<in T> {
     val target: Int
     val description: String
 
@@ -30,9 +31,9 @@ interface Rule<T> {
      * @param surveyHousehold The household to evaluate.
      * @return An integer representing the contribution of the household to the rule's target.
      */
-    fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int
+    fun evaluate(surveyHousehold: T): Int
 
-    fun evaluate(households: Collection<SurveyHousehold<out T>>): Int = households.sumOf { evaluate(it) }
+    fun evaluate(households: Collection<T>): Int = households.sumOf { evaluate(it) }
 
     /**
      * Determines whether a given [surveyHousehold] contributes to the rule's target.
@@ -40,7 +41,7 @@ interface Rule<T> {
      * @param surveyHousehold The household to check.
      * @return `true` if the household contributes to the rule's target; `false` otherwise.
      */
-    fun appliesTo(surveyHousehold: SurveyHousehold<out T>): Boolean = evaluate(surveyHousehold) != 0
+    fun appliesTo(surveyHousehold: T): Boolean = evaluate(surveyHousehold) != 0
 
     /**
      * Calculates the difference (offset) between the desired [target] and the aggregate contributions from a
@@ -49,7 +50,7 @@ interface Rule<T> {
      * @param output A collection of households to evaluate.
      * @return The difference between the target and the sum of contributions from the households.
      */
-    fun verify(output: Collection<SurveyHousehold<out T>>): Double {
+    fun verify(output: Collection<T>): Double {
         return target.toDouble() - output.sumOf { evaluate(it) }
     }
 
@@ -59,11 +60,16 @@ interface Rule<T> {
      * @param target The collection of households to filter.
      * @return A list of households that contribute to the rule.
      */
-    fun filter(target: Collection<SurveyHousehold<out T>>): List<SurveyHousehold<out T>> {
+    @TestOnly
+    fun filter(target: Collection<T>): List<@UnsafeVariance T> {
         return target.filter { appliesTo(it) }
     }
 
     fun descriptiveText() = "[$description] expected = $target"
+}
+
+fun <T> Collection<Rule<T>>.toScalableVector(element: T): ScalableVector {
+    return ScalableVector.createFrom(element, this)
 }
 
 /*
@@ -84,47 +90,106 @@ interface Rule<T> {
  * Represents a rule that evaluates a household's contribution to a target based on counting a specific attribute.
  * Example: Counting the number of female agents in households.
  */
-fun interface CountRule<T> {
+fun interface CountRule<in T> {
     /**
      * Evaluates how much the given [surveyHousehold] contributes to the target based on a specific attribute.
      *
      * @param surveyHousehold The household to evaluate.
      * @return An integer representing the contribution.
      */
-    fun matches(surveyHousehold: SurveyHousehold<out T>): Int
+    fun matches(surveyHousehold: T): Int
 }
 
 /**
  * Represents a rule that evaluates a household's contribution to a target using a boolean condition.
  * The contribution is 1 if the condition is met, otherwise 0.
  */
-fun interface CheckRule<T> : CountRule<T> {
+fun interface CheckRule<in T> : CountRule<T> {
     /**
      * Checks whether the given [surveyHousehold] meets the condition defined by the rule.
      *
      * @param surveyHousehold The household to evaluate.
      * @return `true` if the condition is met; `false` otherwise.
      */
-    fun fits(surveyHousehold: SurveyHousehold<out T>): Boolean
-    override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
+    fun fits(surveyHousehold: T): Boolean
+    override fun matches(surveyHousehold: T): Int {
         return if (fits(surveyHousehold)) 1 else 0
     }
 }
 
-class NamedCheckRule<T>(ruleDescription: String, override val logic: CheckRule<T>) :
+class NamedCheckRule<in T> private constructor(
+    ruleDescription: String,
+    override val logic: CheckRule<T>
+) :
     NamedCountRule<T>(
         ruleDescription,
         logic
     ),
     CheckRule<T> by logic {
-    override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
+    constructor(desc: RuleDescription, logic: CheckRule<T>) : this(desc.logicDescription, logic)
+    override fun matches(surveyHousehold: T): Int {
         return super<NamedCountRule>.matches(surveyHousehold)
     }
 }
 
-open class NamedCountRule<T>(val ruleDescription: String, open val logic: CountRule<T>) : CountRule<T> by logic
+open class NamedCountRule<in T> protected constructor(
+    val ruleDescription: String,
+    open val logic: CountRule<T>
+) :
+    CountRule<T> by logic, Comparable<NamedCountRule<*>> {
+    constructor(desc: RuleDescription, logic: CountRule<T>) : this(desc.logicDescription, logic)
 
-private const val UNNAMED_RULE = "Unnamed rule"
+    override fun equals(other: Any?): Boolean {
+        if (other !is NamedCountRule<*>) return false
+        return ruleDescription == other.ruleDescription
+    }
+
+    override fun hashCode(): Int {
+        return ruleDescription.hashCode()
+    }
+
+    override fun compareTo(other: NamedCountRule<*>): Int {
+        return ruleDescription.compareTo(other.ruleDescription)
+    }
+}
+
+enum class RuleLevel {
+    HOUSEHOLD, PERSON, UNKNOWN
+}
+interface RuleDescription {
+    val logicDescription: String
+    val logicLevel: RuleLevel
+}
+object UnknownLogic : RuleDescription {
+    override val logicDescription: String
+        get() = "Unknown logic descriptor."
+    override val logicLevel = RuleLevel.UNKNOWN
+}
+class AgeRuleDescription(startAge: Int, endAge: Int) : RuleDescription {
+    override val logicDescription: String = "Age in ($startAge..$endAge)"
+    override val logicLevel = RuleLevel.PERSON
+}
+class AgeSexRuleDescription(startAge: Int, endAge: Int, sex: Sex) : RuleDescription {
+    override val logicDescription: String = "Sex=$sex Age in ($startAge..$endAge)"
+    override val logicLevel = RuleLevel.PERSON
+}
+class HouseholdTypeDescription(type: String) : RuleDescription {
+    constructor(type: Int) : this(type.toString())
+    override val logicDescription: String = "Household type = $type"
+    override val logicLevel = RuleLevel.HOUSEHOLD
+}
+class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityOp.EQUALS) : RuleDescription {
+    override val logicDescription: String = "Household Size ${operator.symbol} $targetSize "
+    enum class EqualityOp(val symbol: String) {
+        EQUALS("=="),
+        NOT_EQUALS("!="),
+        LESS_THAN("<"),
+        LESS_OR_EQUAL("<="),
+        GREATER_THAN(">"),
+        GREATER_OR_EQUAL(">=")
+    }
+    override val logicLevel = RuleLevel.HOUSEHOLD
+}
 
 /**
  * A named implementation of the [Rule] interface, using a [CountRule] to calculate a household's contribution to
@@ -134,17 +199,23 @@ private const val UNNAMED_RULE = "Unnamed rule"
  * @property target The numeric target for the rule.
  * @property logic The [CountRule] implementation defining the logic for evaluating households.
  */
-class ZoneRule<T>(
+class ZoneRule<H>(
     override val description: String = logic.ruleDescription,
     override val target: Int,
-    override val logic: NamedCountRule<T>,
-) : Rule<T> {
-    constructor(description: String, target: Int, logic: CountRule<T>) : this(
+    override val logic: NamedCountRule<H>,
+) : Rule<H> {
+    @Deprecated("Do not use this constructor, as it does not add a meaningful logic description")
+    constructor(description: String, target: Int, logic: CountRule<H>) : this(
         description,
         target,
-        NamedCountRule(UNNAMED_RULE, logic)
+        NamedCountRule(UnknownLogic, logic)
     )
-    override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
+    constructor(ruleDescription: RuleDescription, target: Int, logic: CountRule<H>) : this(
+        ruleDescription.logicDescription,
+        target,
+        NamedCountRule(ruleDescription, logic)
+    )
+    override fun evaluate(surveyHousehold: H): Int {
         return logic.matches(surveyHousehold)
     }
 
@@ -161,17 +232,24 @@ class ZoneRule<T>(
  * @property target The numeric target for the rule.
  * @property logic The [CheckRule] implementation defining the logic for evaluating households.
  */
-class ZoneCheckRule<T>(
+class ZoneCheckRule<H>(
     override val description: String = logic.ruleDescription,
     override val target: Int,
-    override val logic: NamedCheckRule<T>,
-) : Rule<T> {
-    constructor(description: String, target: Int, logic: CheckRule<T>) : this(
+    override val logic: NamedCheckRule<H>,
+) : Rule<H> {
+    @TestOnly
+    constructor(description: String, target: Int, logic: CheckRule<H>) : this(
         description,
         target,
-        NamedCheckRule(UNNAMED_RULE, logic)
+        NamedCheckRule(UnknownLogic, logic)
     )
-    override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
+
+    constructor(ruleDescription: RuleDescription, target: Int, logic: CheckRule<H>) : this(
+        ruleDescription.logicDescription,
+        target,
+        NamedCheckRule(ruleDescription, logic)
+    )
+    override fun evaluate(surveyHousehold: H): Int {
         return logic.matches(surveyHousehold)
     }
 

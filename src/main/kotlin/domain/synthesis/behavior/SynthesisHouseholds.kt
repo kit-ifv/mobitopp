@@ -18,11 +18,11 @@ fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipA
     )
 }
 
-val SynthesisPerson<out SurveyInfo>.householdId get() = info.householdId
+val SynthesisPerson<out SurveyInfo>.householdId get() = information.householdId
 
-val SynthesisPerson<out SurveyInfo>.householdIncome get() = info.householdIncome
-val SynthesisPerson<out SurveyInfo>.hasLicence get() = info.hasLicence
-val SynthesisPerson<out SurveyEmployment>.employment get() = info.employment
+val SynthesisPerson<out SurveyInfo>.householdIncome get() = information.householdIncome
+val SynthesisPerson<out SurveyInfo>.hasLicence get() = information.hasLicence
+val SynthesisPerson<out SurveyEmployment>.employment get() = information.employment
 fun SynthesisPerson<out SurveyEmployment>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
 fun SynthesisPerson<out SurveyEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
 fun SynthesisPerson<out SurveyEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
@@ -37,38 +37,45 @@ var GLOBAL_PERSON_ID_GENERATOR = 0
     private set
 
 class SurveyHousehold<T>(
-    override val householdId: Int,
+    override val surveyHouseholdId: Int,
     override val income: Currency,
     override val members: List<SurveyPerson<out T>>
 ) :
-    ISurveyHousehold {
+    ISurveyHousehold<T> {
     lateinit var economicStatus: EconomicStatus
-    val size get() = members.size
-    fun toScalableVector(rules: List<Rule<in T>>): ScalableVector {
-        return ScalableVector.createFrom(this, rules)
-    }
 
-    fun toSynthesisHousehold(): SynthesisHousehold<T> {
-        return SynthesisHousehold<T>(
-            id = householdId,
-            income = income,
-        ).apply {
-            members = this@SurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
-                .toMutableList()
-        }
+    override fun toString(): String {
+        return "Survey Household($surveyHouseholdId) [${members.joinToString { it.toString() }}"
     }
+}
+
+interface MinimalistHousehold<T> {
+    val members: Collection<MinimalistPerson<T>>
+    val size get() = members.size
+
+    fun toSynthesisHousehold(): SynthesisHousehold<T>
+}
+
+interface ISurveyHousehold<T> : MinimalistHousehold<T> {
+    val surveyHouseholdId: Int
+    val income: Currency
+    override val members: List<SurveyPerson<out T>>
 
     fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
         return members.count(condition)
     }
 
-    override fun toString(): String {
-        return "Survey Household($householdId) [${members.joinToString { it.toString() }}"
+    fun toScalableVector(rules: List<Rule<ISurveyHousehold<T>>>): ScalableVector {
+        return ScalableVector.createFrom(this, rules)
     }
-}
 
-interface ISurveyHousehold {
-    val householdId: Int
-    val income: Currency
-    val members: List<SurveyPerson<*>>
+    override fun toSynthesisHousehold(): SynthesisHousehold<T> {
+        return SynthesisHousehold<T>(
+            surveyHouseholdId = surveyHouseholdId,
+            income = income,
+        ).apply {
+            members = this@ISurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
+                .toMutableList()
+        }
+    }
 }

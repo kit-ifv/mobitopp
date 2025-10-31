@@ -8,6 +8,8 @@ import core.modelsteps.validateFileWriteAccess
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.datastructure.schedule.LinkedLeg
 import domain.simulation.agent.PersonAgent
+import domain.simulation.behavior.euros
+import domain.simulation.behavior.kilometers
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.PersonId
 import domain.synthesis.results.toCSV
@@ -28,30 +30,44 @@ interface WriteTripsCsvContext : DemandSimContext {
 
 interface WriteLegToCSV {
     val header: String
-    fun generateCSVLine(leg: LinkedLeg, person: PersonAgent) : String
+    fun generateCSVLine(index: Int, leg: LinkedLeg, person: PersonAgent, context: WriteTripsCsvContext) : String
 }
 
 object StandardCSVLegWriter: WriteLegToCSV {
-    override val header: String = "id;duration;mode;activityType;tripStart;tripEnd;ZoneStart;ZoneEnd;previousActivityType"
+    override val header: String = "legId;personId;duration_sec;mode;activityType;tripStart_sec;tripEnd_sec;ZoneStart;ZoneEnd;previousActivityType;distance_km;cost_euro"
 
     override fun generateCSVLine(
+        index: Int,
         leg: LinkedLeg,
         person: PersonAgent,
+        context: WriteTripsCsvContext,
     ) : String{
         val previous = leg.previous
         val next = leg.next
-        val output = if (next is Activity) next.type.toString() else "-"
-        val previousOutput = if (previous is Activity) previous.type.toString() else "-"
+        val purpose = if (next is Activity) next.type.code.toString() else "-"
+        val previousPurpose = if (previous is Activity) previous.type.code.toString() else "-"
+
+        val dist = leg.run {
+            context.impedance.value.distance(startLocation, endLocation, transportType)
+        }
+
+        val cost = leg.run {
+            context.impedance.value.cost(startLocation, endLocation, transportType, startTime)
+        }
+
         return toCSV(
+            index,
             person.id,
-            leg.duration,
-            leg.transportType,
-            output,
-            leg.startTime,
-            leg.endTime,
-            leg.startLocation.requireZone().id,
-            leg.endLocation.requireZone().id,
-            previousOutput,
+            leg.duration.inWholeSeconds,
+            leg.transportType.code,
+            purpose,
+            leg.startTime.secondsSinceStart,
+            leg.endTime.secondsSinceStart,
+            leg.startLocation.requireZone().id.value,
+            leg.endLocation.requireZone().id.value,
+            previousPurpose,
+            dist.kilometers,
+            cost.euros
         )
     }
 }
@@ -72,8 +88,8 @@ class WriteTripsToCsvStep(
                 .filter { it.schedule.pastLegs().isNotEmpty() }
                 .forEach { person ->
                     val legs = person.schedule.pastLegs() as List<LinkedLeg>
-                    legs.forEach { leg ->
-                        writer.appendLine(legWriter.generateCSVLine(leg, person))
+                    legs.forEachIndexed { index, leg ->
+                        writer.appendLine(legWriter.generateCSVLine(index, leg, person, context))
                     }
                 }
         }

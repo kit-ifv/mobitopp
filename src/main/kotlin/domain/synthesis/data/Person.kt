@@ -1,7 +1,10 @@
 package domain.synthesis.data
 
 import Mutable
+import domain.jackson.BinaryWritable
+import domain.jackson.Simplifiable
 import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.UnitIntervalValue
 import kotlinx.serialization.Serializable
 import utils.Encodable
@@ -9,6 +12,7 @@ import utils.EnumDecodable
 import utils.Identifiable
 import utils.collections.ClearableList
 import utils.random.StochasticActor
+import java.io.DataOutputStream
 import kotlin.random.Random
 
 @Serializable
@@ -37,7 +41,7 @@ value class PersonId(val value: Long) : Comparable<PersonId> {
 const val ADULT_AGE_GER = 18
 
 @Suppress("ComplexInterface")
-interface IPerson : Identifiable<PersonId>, StochasticActor {
+interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<PersonBinaryRecord> {
     val household: IHousehold
     val age: Int
     val employment: Employment
@@ -48,15 +52,76 @@ interface IPerson : Identifiable<PersonId>, StochasticActor {
     val hasCommuterTicket: Boolean
     val hasLicense: Boolean
     val sharingMemberships: List<ISharingProvider>
+    val drtMemberships: List<DrtProvider>
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
+
+    override fun simplify(): PersonBinaryRecord {
+        return PersonBinaryRecord(
+            id.value,
+            household.id.value,
+            age,
+            employment.code,
+            sex.code,
+            income.toDouble(CurrencyUnit.EUROS),
+            hasBike,
+            hasCommuterTicket,
+            hasLicense,
+            eMobilityAcceptance.toDouble(),
+            chargingInfluence.code,
+            graduation.code,
+            sharingMemberships.map { it.id.value },
+            drtMemberships.map { it.id.value }
+        )
+    }
 }
 
 val IPerson.sharingMembershipIds: Set<SharingProviderId>
     get() = sharingMemberships.map { it.id }.toSet()
 
+val IPerson.drtMembershipIds: Set<DrtProviderId>
+    get() = drtMemberships.map { it.id }.toSet()
+
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)
+
+data class PersonBinaryRecord(
+    val id: Long,
+    val householdId: Long,
+    val age: Int,
+    val employmentCode: Int,
+    val sexCode: Int,
+    val income: Double,
+    val hasBike: Boolean,
+    val hasCommuterTicket: Boolean,
+    val hasLicense: Boolean,
+    val eMobilityAcceptance: Double,
+    val chargingInfluenceCode: Int,
+    val graduationCode: Int,
+    val sharingMemberships: List<Long>,
+    val drtMemberships: List<Long>,
+) : BinaryWritable {
+    override fun writeTo(outStream: DataOutputStream) {
+        outStream.run {
+            writeLong(id)
+            writeLong(householdId)
+            writeInt(age)
+            writeInt(employmentCode)
+            writeInt(sexCode)
+            writeDouble(income)
+            writeBoolean(hasBike)
+            writeBoolean(hasCommuterTicket)
+            writeBoolean(hasLicense)
+            writeDouble(eMobilityAcceptance)
+            writeInt(chargingInfluenceCode)
+            writeInt(graduationCode)
+            writeInt(sharingMemberships.size)
+            sharingMemberships.forEach { writeLong(it) }
+            writeInt(drtMemberships.size)
+            drtMemberships.forEach { writeLong(it) }
+        }
+    }
+}
 
 @Mutable
 abstract class Person(
@@ -69,6 +134,7 @@ abstract class Person(
     final override val random: Random by lazy { Random(id.value + seed) }
 
     abstract override val sharingMemberships: List<SharingProvider>
+    abstract override val drtMemberships: List<DrtProvider>
 
     abstract val plannedActivities: ClearableList<PlannedActivity>
 

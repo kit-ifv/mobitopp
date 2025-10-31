@@ -94,8 +94,8 @@ fun String.parseRoadPosition(): Location {
         coordinate = GPSCoordinate.decimalDegree(res[1].toDouble(), res[0].toDouble()),
         zone = null,
         roadAccess = RoadAccess(
-            roadId = res[2].toLong(),
-            position = res[3].toDouble().share(),
+            roadId = res[2].toLongOrNull() ?: Long.MIN_VALUE,
+            position = (res[3].toDoubleOrNull() ?: 0.5).share(),
         )
     )
 }

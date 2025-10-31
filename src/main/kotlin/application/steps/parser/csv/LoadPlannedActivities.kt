@@ -5,7 +5,10 @@ import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
+import core.modelsteps.Resource
 import core.modelsteps.SealStep
+import core.modelsteps.asResource
+import core.modelsteps.reusable
 import domain.shared.enums.ActivityType
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId
@@ -22,12 +25,15 @@ import utils.CodePlan
 import utils.ErrorHandling
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
+import utils.csv.CsvParser
+import utils.csv.CsvReader
 import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.withFilter
 import java.nio.file.Path
 import kotlin.math.abs
 import kotlin.time.DurationUnit
+
 private const val ERROR_OUTPUT_SIZE = 5
 
 @Suppress("LongParameterList")
@@ -51,9 +57,33 @@ fun LoadPlannedActivitiesContext.prepareActivities(
     this.runStep(step)
 }
 
+class ConvertedCsvResource<X, E>(
+    val path: Path,
+    val parser: CsvParser<X>,
+    val delimiter: String = SEMICOLON,
+    private val reusable: Boolean = false,
+    val converter: (X) -> E
+
+) : Resource<E> {
+    override val name = path.fileName.toString()
+    override val source: String = path.toString()
+    override val elements: Sequence<E>
+        get() = rowSequence.elements
+    private val rowSequence by lazy {
+        parser.parse(CsvReader.of(path, delimiter)).map { converter(it) }
+            .asResource(name, source).let {
+                if (reusable) {
+                    it.reusable()
+                } else {
+                    it
+                }
+            }
+    }
+}
+
 fun LoadPlannedActivitiesContext.activitiesCsvConfig(
     path: Path = defaultActivityPath,
-    lambda: ActivityCsvConfig.() -> Unit
+    lambda: ActivityCsvConfig.() -> Unit,
 ): FileBasedAddResourceStep<MutablePlannedActivity, ActivityId> {
     val config = ActivityCsvConfig(path = path, durationUnit = this.timeUnit)
     config.apply(lambda)
@@ -86,11 +116,12 @@ data class ActivityCsvConfig(
 )
 
 fun LoadPlannedActivitiesContext.runStep(
-    step: AbstractAddResourceStep<MutablePlannedActivity, ActivityId>
+    step: AbstractAddResourceStep<MutablePlannedActivity, ActivityId>,
 
 ) = runStep {
     step
 }
+
 fun LoadPlannedActivitiesContext.activities(lambda: ActivityBuild.() -> Unit) {
     val builder = ActivityBuild(simulationSeed, personRepository::get, activityTypes)
     builder.apply(lambda)
@@ -119,6 +150,7 @@ class ActivityBuild(
 //        }
 //    }
 }
+
 fun LoadPlannedActivitiesContext.finishActivities() = runStep {
     SealStep(plannedActivityRepository)
 }
@@ -139,7 +171,9 @@ interface LoadPlannedActivitiesContext : DemandSimContext {
         personRepository[personId]
     ) {
         "Referenced person id $personId could not be found in personRepo:" +
-            " ${personRepository.elements.map { it.id }.toList()
-                .sortedBy{abs(it.value - personId.value)}.take(ERROR_OUTPUT_SIZE)}"
+            " ${
+                personRepository.elements.map { it.id }.toList()
+                    .sortedBy { abs(it.value - personId.value) }.take(ERROR_OUTPUT_SIZE)
+            }"
     }
 }

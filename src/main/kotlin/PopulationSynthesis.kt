@@ -1,4 +1,3 @@
-
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
@@ -13,6 +12,7 @@ import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
 import domain.synthesis.behavior.GenerateCars
 import domain.synthesis.behavior.GroupAssignHouseholdLocations
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SamplingCarGeneration
@@ -21,7 +21,6 @@ import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
 import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
-import domain.synthesis.behavior.carownership.CarOwnershipAssignStrategy
 import domain.synthesis.behavior.carownership.standardAssignmentByRegionSize
 import domain.synthesis.behavior.discreteChoice.TicketCharacteristics
 import domain.synthesis.behavior.discreteChoice.TransitPassParameters
@@ -41,24 +40,28 @@ import domain.synthesis.behavior.fixedDestinations.work
 import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
 import domain.synthesis.behavior.householdgeneration.IPU
 import domain.synthesis.behavior.householdgeneration.Rule
+import domain.synthesis.behavior.householdgeneration.RuleBasedPopulationSynthesis
+import domain.synthesis.behavior.householdgeneration.RuleProvider
 import domain.synthesis.behavior.randomCoordinate
+import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
-import domain.synthesis.results.ActivityOutput
-import domain.synthesis.results.CarOutput
 import domain.synthesis.results.FixedDestinationElements
-import domain.synthesis.results.FixedDestinationOutput
-import domain.synthesis.results.HouseholdOutput
-import domain.synthesis.results.OpportunitiesOutput
+import domain.synthesis.results.LegacyActivityOutput
+import domain.synthesis.results.LegacyCarOutput
+import domain.synthesis.results.LegacyFixedDestinationOutput
+import domain.synthesis.results.LegacyHouseholdOutput
+import domain.synthesis.results.LegacyOpportunitiesOutput
+import domain.synthesis.results.LegacyPersonOutput
 import domain.synthesis.results.OpportunityOutput
-import domain.synthesis.results.PersonOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toCurrency
+import utils.Metric
 import utils.collections.addProgressBar
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
@@ -123,19 +126,57 @@ fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Seq
     return parser.parse(path)
 }
 
-fun interface AssignTransitCardOwnership<T> {
+@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
+fun interface AssignmentStep<in I, out O> {
+    context(random: Random)
+    fun assign(input: I): O
+}
+
+@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
+class AssignmentStrategy<I, C, O>(
+    val model: FixedChoiceModel<O, C>,
+    private val situation: (I) -> C,
+) : AssignmentStep<I, O> {
+
+    context(random: Random)
+    override fun assign(input: I): O {
+        return context(situation(input)) {
+            model.select()
+        }
+    }
+
+    companion object {
+        fun <I, C, O> viaChoiceModel(
+            model: FixedChoiceModel<O, C>,
+            situation: (I) -> C,
+        ): AssignmentStrategy<I, C, O> = AssignmentStrategy(model, situation)
+
+        fun <I, C, O, P> viaChoiceModel(
+            modelStructure: EnumeratedDiscreteModelBuilder<O, C, P>,
+            parameters: P,
+            situation: (I) -> C,
+        ) = viaChoiceModel(modelStructure.build(parameters), situation)
+    }
+}
+
+@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
+fun interface AssignTransitCardOwnership<T> : AssignmentStep<SynthesisPerson<out T>, Boolean> {
     fun assignFor(person: SynthesisPerson<out T>): Boolean
+
+    context(random: Random)
+    override fun assign(input: SynthesisPerson<out T>): Boolean =
+        assignFor(input)
 }
 
 class AssignByDiscreteChoice(
     val model: FixedChoiceModel<Boolean, TicketCharacteristics> =
-        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false))
+        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false)),
 ) : AssignTransitCardOwnership<SurveyInfo> {
 
     constructor(
         parameters: TransitPassParameters,
         model: EnumeratedDiscreteModelBuilder<Boolean, TicketCharacteristics, TransitPassParameters> =
-            transitPassChoiceModel
+            transitPassChoiceModel,
     ) : this(model.build(parameters))
 
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
@@ -153,10 +194,10 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
 
 class SynthesisSteps<T : Any>(
     val zones: List<Zone>,
-    val surveyHouseholds: Collection<SurveyHousehold<T>>,
+    val surveyHouseholds: Collection<ISurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
-    val opportunities: List<OpportunityOutput>
+    val opportunities: List<OpportunityOutput>,
 ) {
 
     lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<out T>>>
@@ -182,19 +223,57 @@ class SynthesisSteps<T : Any>(
         fixedDestinations = allFixedDestinations
     }
 
+    fun assignSharingMemberships(lambda: SharingMembershipsBuilder<T>.() -> Unit) {
+        val builder = SharingMembershipsBuilder<T>().apply(lambda)
+        val steps = builder.build()
+        households.addProgressBar("assign sharing memberships").forEach { hh ->
+            hh.members.forEach {
+                context(Random(it.personId)) {
+                    val membership = steps.mapValues { (_, step) ->
+
+                        step.assign(it)
+                    }
+                    membership.forEach { providerName, accepted ->
+                        if (accepted) it.addMembership(providerName)
+                    }
+                }
+            }
+        }
+    }
+
+    fun populationSynthesis(
+        verification: Boolean = true,
+        supplier: () -> RuleBasedPopulationSynthesis<Zone, ISurveyHousehold<out T>>,
+    ) {
+        val algorithm = supplier()
+        val output = algorithm.synthesizeAll()
+        householdsByZone = output.mapValues { it.value.map { it.toSynthesisHousehold() } }
+
+        if (verification) {
+            println("Population Synthesis has error: ${verify(algorithm.ruleProvider, householdsByZone)}")
+        }
+    }
+
+    private fun verify(
+        ruleProvider: RuleProvider<Zone, ISurveyHousehold<out T>>,
+        output: Map<Zone, List<SynthesisHousehold<out T>>>,
+        metric: Metric = Metric.standardizedRootMeanSquaredResidual,
+    ): Double {
+        val ruleMapping = ruleProvider.getAllRules()
+        val ruleResults = ruleMapping.flatMap { (area, rules) ->
+
+            val currentHHs = output[area] ?: emptyList()
+            rules.map { it.target to it.evaluate(currentHHs) }
+        }
+        return metric.evaluate(ruleResults)
+    }
+
     // TODO speaking type parameter names
     fun synthesis(
-        randsums: Map<Zone, List<Rule<Any>>>,
-        lambda: () -> HouseholdSynthesis<Zone, T>
+        randsums: Map<Zone, List<Rule<ISurveyHousehold<out T>>>>,
+        lambda: () -> HouseholdSynthesis<Zone, ISurveyHousehold<out T>, SynthesisHousehold<out T>>,
     ) {
         val generator = lambda()
-        // TODO reenable
-//        require(randsums.keys.all { it in zones }) {
-//            "Zone Ids: ${
-//                randsums.keys.filter { it !in zones }.map { it.id }
-//            } requested by the marginal sums are not found" +
-//                "in the configuration. The program will terminate"
-//        }
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
     }
 
@@ -223,18 +302,24 @@ class SynthesisSteps<T : Any>(
         households.forEach { it.economicStatus = strategy.determineStatus(it) }
     }
 
-    fun assignAmountOfCars(lambda: () -> CarOwnershipAssignStrategy<in T>) {
+    fun assignAmountOfCars(lambda: () -> AssignmentStep<SynthesisHousehold<out T>, Int>) {
         val strategy = lambda()
         households.addProgressBar(
             "Assign car amount"
-        ).forEach { household -> household.amountOfCars = strategy.determineNumberOfCars(household) }
+        ).forEach { household ->
+            context(Random(household.id)) {
+                household.amountOfCars = strategy.assign(household)
+            }
+        }
     }
 
-    fun assignTransitCardOwnership(lambda: () -> AssignTransitCardOwnership<in T>) {
+    fun assignTransitCardOwnership(lambda: () -> AssignmentStep<SynthesisPerson<out T>, Boolean>) {
         val strategy = lambda()
         households.addProgressBar("assign Transit Car").forEach { hh ->
             hh.members.forEach {
-                it.hasTransitPass = strategy.assignFor(it)
+                context(Random(it.personId)) {
+                    it.hasTransitPass = strategy.assign(it)
+                }
             }
         }
     }
@@ -261,7 +346,7 @@ class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
-    val rules: List<Rule<Any>>,
+    val rules: List<Rule<ISurveyHousehold<out Any>>>,
     val attractivenessModel: AttractivenessModel,
 ) {
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
@@ -288,7 +373,7 @@ class PopulationSynthesis<T : Any>(
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
-            lateinit var rules: List<Rule<Any>>
+            lateinit var rules: List<Rule<ISurveyHousehold<out Any>>>
             lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
 
@@ -376,10 +461,7 @@ fun examplePopulationSynthesis() {
         // TODO make this a bit more beautiful
 
 //        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<Any>>> = emptyMap()
-//            targets.associate {
-//            zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
-//        }
+        val rules: Map<Zone, List<Rule<ISurveyHousehold<out RawSurveyInfo>>>> = emptyMap()
 
         synthesis(rules) {
             IPU { vectors, observers ->
@@ -390,13 +472,14 @@ fun examplePopulationSynthesis() {
                 }
             }
         }
+
         assignLocations {
             AssignAroundZoneCentroid(100.meters)
         }
 
         assignEconomicStatus {
             OECDAssigner.fromPath(
-                Path("src/test/resources/synthesis/economical-status-oecd2017.csv")
+                Path("src/main/resources/economical-status-oecd2017.csv")
             )
         }
 
@@ -435,11 +518,21 @@ fun examplePopulationSynthesis() {
                 )
             }
         }
-//        generateCars (TrivialCarGeneration::generateCars)
+
         generateCars(strategy = SamplingCarGeneration)
         assignActivities {
             ActiToppNGGenerator(legacyChoiceModelPurposes) {
                 ZoneRegionType.DEFAULT
+            }
+        }
+        assignSharingMemberships {
+            provider("Stadtmobil") {
+                AssignmentStrategy.viaChoiceModel(
+                    modelStructure = TODO(),
+                    parameters = TODO()
+                ) {
+                    it.household
+                }
             }
         }
         writeLegacyOutput()
@@ -448,13 +541,13 @@ fun examplePopulationSynthesis() {
 }
 
 fun SynthesisSteps<out RawSurveyInfo>.writeLegacyOutput() {
-    HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
-    PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
-    FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
+    LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
+    LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
+    LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
     val flatActivities = activities.flatMap { it.entries.map { it.key to it.value } }
-    ActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)
-    CarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
-    OpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
+    LegacyActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)
+    LegacyCarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
+    LegacyOpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
 }
 
 fun main() {

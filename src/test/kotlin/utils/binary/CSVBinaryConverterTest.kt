@@ -24,6 +24,7 @@ class CSVBinaryConverterTest {
         val binary = CSVBinaryConverter().makeCSVBinary(testData, datatypeMap, stringLength)
         binary.toFile().inputStream().use { fileInputStream ->
             DataInputStream(fileInputStream).use {
+                assertEquals(0L, it.readLong())
                 assertEquals(10, it.readInt())
                 assertEquals(20, it.readInt())
 
@@ -43,6 +44,7 @@ class CSVBinaryConverterTest {
         binary.toFile().delete()
     }
 
+    @Suppress("LongMethod")
     @Test
     fun allTypesTest() {
         val testData = Path("src/test/resources/binary/allDatatypes.csv")
@@ -62,6 +64,7 @@ class CSVBinaryConverterTest {
         val binary = CSVBinaryConverter().makeCSVBinary(testData, datatypeMap, stringLength)
         binary.toFile().inputStream().use { fileInputStream ->
             DataInputStream(fileInputStream).use {
+                assertEquals(0L, it.readLong())
                 assertEquals(4, it.readInt())
                 assertEquals(stringLength, it.readInt())
 
@@ -129,6 +132,7 @@ class CSVBinaryConverterTest {
         val binary = CSVBinaryConverter().makeCSVBinary(testData, datatypeMap, stringLength, outputPath)
         binary.toFile().inputStream().use { fileInputStream ->
             DataInputStream(fileInputStream).use {
+                assertEquals(0L, it.readLong())
                 assertEquals(4, it.readInt())
                 assertEquals(stringLength, it.readInt())
 

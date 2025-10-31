@@ -7,10 +7,8 @@ import domain.shared.location.ZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import point
 import kotlin.io.path.Path
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -122,11 +120,7 @@ class CommuterDemandsMatrixTest {
     @Test
     fun parseNonexistingCommunity() {
         val demands = CommuterDemandsMatrix.parseRastatt()
-        val exception = assertThrows<IllegalArgumentException> {
-            demands.convert(42.toZone().point(BIELEFELD))
-        }
-        assertContains(exception.message!!, "zone-to-community.csv")
-        assertContains(exception.message!!, ZoneId(42).toString())
+        assertEquals(CommunityNumber.INVALID, demands.convert(42.toZone().point(BIELEFELD)))
     }
 
     private fun Number.toZone(): TestZone {

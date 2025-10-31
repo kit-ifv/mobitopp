@@ -13,6 +13,7 @@ import core.statemachine.usage.withRecording
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.behavior.AvailabilityModelWithSharing
+import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
@@ -53,6 +54,7 @@ class CarOnlyScenario {
         val availability = AvailabilityModelWithSharing(
             legacyModes,
             mapOf(),
+            mapOf(),
             impedance
         )
 
@@ -63,11 +65,16 @@ class CarOnlyScenario {
                 zones.map { it.centroid }.toSet()
             ),
             impedance = impedance,
-            modeChoice = FixedOrderChoiceModel("prefer car", setOf(car, legacyModes.pedestrian), availability),
+            modeChoice = FixedOrderChoiceModel(
+                "prefer car",
+                setOf(car, legacyModes.pedestrian),
+                availability.asResourceAvailabilityFilter()
+            ),
             modes = legacyChoiceModelModes,
             attractivityModel = testAttractivenessModel,
             availabilityModel = availability,
             bikeSharingConnectionSelector = availability,
+            drtAvailabilitySelector = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
             spawnModeCharacteristics = StandardModeImplementation
 
@@ -75,7 +82,7 @@ class CarOnlyScenario {
 
         val agents = BuildAgents(
             seed = 1L,
-            personStateMachine.withRecording(),
+            NoWriters.personStateMachine.withRecording(),
             syntheticBehavior
         ).buildPersonAgents(households)
 

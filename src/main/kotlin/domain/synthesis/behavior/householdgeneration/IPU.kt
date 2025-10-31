@@ -1,11 +1,13 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.SurveyHousehold
+import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.pickWithReplacement
 import domain.synthesis.behavior.selectExact
 import utils.collections.addProgressBar
 import utils.collections.invertMap
+import java.lang.UnsupportedOperationException
 import kotlin.random.Random
 
 private const val IPU_GENERATION_LABEL = "IPU generation"
@@ -36,10 +38,10 @@ private const val IPU_GENERATION_LABEL = "IPU generation"
  *                     This function **mutates** the [ScalableVector] instances to adjust them to better fit the rules.
  */
 class IPU<AREA, T>(
-    val converter: GenerateHouseholdsFromVector<T> = SampleAndCollect(),
-    val algorithm: (vectors: Collection<ScalableVector>, Collection<RuleObserver>) -> Unit,
+    val converter: GenerateHouseholdsFromVector<ISurveyHousehold<out T>> = SampleAndCollect(),
+    val algorithm: GenericIPU,
 ) :
-    HouseholdSynthesis<AREA, T> {
+    HouseholdSynthesis<AREA, ISurveyHousehold<out T>, SynthesisHousehold<out T>> {
 
     /**
      * Synthesizes households for each zone based on the provided survey data and the conditions (rules) defined
@@ -56,16 +58,20 @@ class IPU<AREA, T>(
      *         [SynthesisHousehold] object.
      */
     override fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T>>>,
+        surveyHouseholds: Collection<ISurveyHousehold<out T>>,
+        conditions: Map<AREA, List<Rule<ISurveyHousehold<out T>>>>,
     ): Map<AREA, List<SynthesisHousehold<out T>>> {
         return generate(surveyHouseholds, conditions).mapValues { it.value.map { it.toSynthesisHousehold() } }
     }
 
+    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<SynthesisHousehold<T>>> {
+        throw UnsupportedOperationException("The original implementation of IPU cannot handle this signature")
+    }
+
     fun generate(
-        surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T>>>,
-    ): Map<AREA, List<SurveyHousehold<out T>>> {
+        surveyHouseholds: Collection<ISurveyHousehold<out T>>,
+        conditions: Map<AREA, List<Rule<ISurveyHousehold<out T>>>>,
+    ): Map<AREA, List<ISurveyHousehold<out T>>> {
         return conditions.entries
             .addProgressBar(
                 label = IPU_GENERATION_LABEL,
@@ -73,21 +79,8 @@ class IPU<AREA, T>(
             ).associate { (zone, rules) ->
                 zone to converter.run {
                     val ipu = calculate(surveyHouseholds, rules)
-                    ipu.extract()
+                    ipu.extractFrom()
                 }
-            }
-    }
-
-    fun calculateGrouped(
-        surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T>>>,
-    ): Map<AREA, Map<ScalableVector, List<SurveyHousehold<out T>>>> {
-        return conditions.entries
-            .addProgressBar(
-                label = IPU_GENERATION_LABEL,
-                expectedCount = conditions.size.toLong()
-            ).associate { (zone, rules) ->
-                zone to calculate(surveyHouseholds, rules)
             }
     }
 
@@ -105,48 +98,58 @@ class IPU<AREA, T>(
      * @return A list of survey households that meet the conditions specified by the rules.
      */
     fun calculate(
-        surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        rules: List<Rule<in T>>,
+        surveyHouseholds: Collection<ISurveyHousehold<out T>>,
+        rules: List<Rule<ISurveyHousehold<out T>>>,
 
-    ): Map<ScalableVector, List<SurveyHousehold<out T>>> {
+    ): Map<ScalableVector, List<ISurveyHousehold<out T>>> {
         val vectorMapping = surveyHouseholds.associateWith { it.toScalableVector(rules) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
         val ruleObservers = rules.withIndex().map {
             RuleObserver.fromRule(it.value, it.index, uniqueVectors)
         }
-        algorithm(uniqueVectors, ruleObservers)
+        algorithm.run(uniqueVectors, ruleObservers)
         return inverseMap
     }
 
-    fun calculateConverter(
-        surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        rules: List<Rule<in T>>,
-    ): List<SurveyHousehold<out T>> {
-        val output = calculate(surveyHouseholds, rules)
-        return converter.run {
-            output.extract()
-        }
+    companion object {
+        fun <AREA, T> standard() = IPU<AREA, T>(algorithm = GenericIPU.newAlgorithm)
+
+        fun <AREA, T> legacy() = IPU<AREA, T>(algorithm = GenericIPU.legacy)
     }
 }
 
-data class IPUOutput<T>(
-    private val result: Map<ScalableVector, List<SurveyHousehold<out T>>>
-)
+fun interface GenerateHouseholds<X, H> {
+    fun Map<X, List<H>>.extractFrom(): List<H>
+
+    fun extract(map: Map<X, List<H>>) = map.extractFrom()
+}
+
+open class GenericCollector<X, H>(
+    val random: Random = Random(1),
+    val amountDeterminer: (Collection<X>) -> Collection<Int>,
+) : GenerateHouseholds<X, H> {
+    override fun Map<X, List<H>>.extractFrom(): List<H> {
+        val amounts = amountDeterminer(keys)
+        return amounts.zip(values).flatMap { (amount, households) ->
+            households.pickWithReplacement(amount)
+        }
+    }
+}
 
 /**
  * There may be different strategies to pick a certain amount of survey households from a scalable vector. This
  * interface encapsulates different methods to convert a vector and an associated list of households.
  */
-fun interface GenerateHouseholdsFromVector<T> {
-    fun Map<ScalableVector, List<SurveyHousehold<out T>>>.extract(): List<SurveyHousehold<out T>>
+fun interface GenerateHouseholdsFromVector<H> : GenerateHouseholds<ScalableVector, H> {
+    override fun Map<ScalableVector, List<H>>.extractFrom(): List<H>
 
     companion object {
         /**
          * Coercion strategy cuts off the number of requested households. if the required number is 12.8, the number
          * of households picked is 12. Does not shuffle and maintains the order of the entries
          */
-        fun <T> coerceMaintainingOrder(): GenerateHouseholdsFromVector<T> {
+        fun <T, H : MinimalistHousehold<out T>> coerceMaintainingOrder(): GenerateHouseholdsFromVector<H> {
             return GenerateHouseholdsFromVector {
                 entries.flatMap {
                     it.value.selectExact(it.key.scalar.toInt())
@@ -160,21 +163,35 @@ fun interface GenerateHouseholdsFromVector<T> {
  * This generation method tracks the amount of leftover decimals and adds one additional synthesis household once
  * a spillover occurs.
  */
-class SampleAndCollect<T>(val random: Random = Random(1)) : GenerateHouseholdsFromVector<T> {
-    private var overflowCounter: Double = 0.0
-    override fun Map<ScalableVector, List<SurveyHousehold<out T>>>.extract(): List<SurveyHousehold<out T>> {
-        return entries.flatMap {
-            // Update the offset decimal to be added to the overflow counter
-            val offset = it.key.scalar - it.key.scalar.toInt()
-            overflowCounter += offset
-            val amount = if (overflowCounter >= 1.0) {
-                // If the overflow counter spills, add one extra household
-                overflowCounter--
-                it.key.scalar.toInt() + 1
-            } else {
-                it.key.scalar.toInt()
-            }
-            it.value.pickWithReplacement(amount, random)
+class SampleAndCollect<H>(
+    random: Random = Random(1),
+    roundingStrategy: RoundingStrategy = standardRoundingStrategy,
+) : GenericCollector<ScalableVector, H>(random, { roundingStrategy.convertToInts(it.map { it.scalar }) }),
+    GenerateHouseholdsFromVector<H>
+
+fun interface RoundingStrategy {
+    fun convertToInts(values: Collection<Double>): List<Int>
+
+    fun <I> integerizeIPUOutput(elements: Collection<IPUOutput<I>>): List<IntegerIPUOutput<I>> {
+        val newValues = convertToInts(elements.map { it.amount })
+        return elements.zip(newValues).map { (e, num) -> e.discretize(num) }
+    }
+}
+
+fun Collection<Double>.roundVia(strategy: RoundingStrategy): List<Int> = strategy.convertToInts(this)
+
+val standardRoundingStrategy = RoundingStrategy { values ->
+    var overflowCounter = 0.0
+    values.map {
+        val intVal = it.toInt()
+        val offset = it - intVal
+        overflowCounter += offset
+        val amount = if (overflowCounter >= 1.0) {
+            overflowCounter--
+            intVal + 1
+        } else {
+            intVal
         }
+        amount
     }
 }
