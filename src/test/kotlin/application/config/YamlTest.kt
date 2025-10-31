@@ -7,8 +7,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
 import domain.jackson.CoreDestinationChoiceParameterModule
-import domain.jackson.GenericKeyValueBuilder
 import domain.jackson.CoreZoneMatrixCreationModule
+import domain.jackson.GenericKeyValueBuilder
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.config.Yaml
 import domain.shared.config.durationModule
@@ -24,22 +24,22 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private val modeTestModule = GenericKeyValueBuilder(
-        wraps = ModeChoiceParameters::class.java,
-        default = mapOf("default" to ModeChoiceParameters()),
-        loadFromSubmodules = false
-    ).getModule()
+    wraps = ModeChoiceParameters::class.java,
+    default = mapOf("default" to ModeChoiceParameters()),
+    loadFromSubmodules = false
+).getModule()
 
 private val destinationChoiceParameterTestModule = GenericKeyValueBuilder(
-        wraps = DestinationChoiceParameters::class.java,
-        default = mapOf("default" to DestinationChoiceParameters()),
-        loadFromSubmodules = false
-    ).getModule()
+    wraps = DestinationChoiceParameters::class.java,
+    default = mapOf("default" to DestinationChoiceParameters()),
+    loadFromSubmodules = false
+).getModule()
 
 private class TestCar(
-        override val requiresVehicleTakeAlong: Boolean = false,
-        override val code: Int = 0,
-        override val description: String = ""
-    ) : Mode
+    override val requiresVehicleTakeAlong: Boolean = false,
+    override val code: Int = 0,
+    override val description: String = ""
+) : Mode
 
 private val testModes = ChoiceModelModes(
     car = TestCar(),
@@ -56,10 +56,10 @@ private val testModes = ChoiceModelModes(
 )
 
 private val choiceModelModesTestModule = GenericKeyValueBuilder(
-        wraps = ChoiceModelModes::class.java,
-        default = mapOf("default" to testModes),
-        loadFromSubmodules = false
-    ).getModule()
+    wraps = ChoiceModelModes::class.java,
+    default = mapOf("default" to testModes),
+    loadFromSubmodules = false
+).getModule()
 
 private class MyParameterClass(val name: String) {
     override fun equals(other: Any?): Boolean {
