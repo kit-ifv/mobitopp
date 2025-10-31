@@ -33,6 +33,8 @@ class SynthesisPerson<T>(
 
     private val sharingMemberships: MutableMap<String, Boolean> = mutableMapOf()
 
+    fun getSharingMemberships(): Map<String, Boolean> = sharingMemberships
+
     fun addMembership(name: String) {
         sharingMemberships[name] = true
     }
