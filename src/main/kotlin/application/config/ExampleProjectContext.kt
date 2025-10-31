@@ -92,9 +92,10 @@ interface StandardContext :
     PersonStateContext
 
 @JsonIgnoreProperties(
-    value = ["execMode", "zoneColumnIndex", "personAgents", "sharingProviderAgents",
+    value = ["zoneColumnIndex", "personAgents", "sharingProviderAgents",
         "defaultZonePath", "defaultSharingStationPath", "defaultHouseholdPath", "defaultPersonPath",
-        "defaultCarPath", "defaultActivityPath", "defaultFixedDestinationsPath"]
+        "defaultCarPath", "defaultActivityPath", "defaultFixedDestinationsPath",
+        "availabilityWriter", "zoneFolder"] // ignoring all properties not
 )
 data class ExampleProjectContext(
     override val scenarioName: String,
@@ -125,6 +126,8 @@ data class ExampleProjectContext(
     HomeLocationModelContext,
     LoadBehaviorModelsContext,
     AgentResultsContext {
+
+    @JsonIgnore
     override val execMode: ExecutionMode = ExecutionMode()
 
     @JsonIgnore
@@ -179,6 +182,8 @@ data class ExampleProjectContext(
     override val sharingProviderAgents = MapRepository<SharingProviderAgent, SharingProviderId>(
         "sharing providers agents"
     )
+
+    @JsonIgnore
     override val drtProviderAgents = MapRepository<DrtProviderAgent, DrtProviderId>(
         "drt providers agents"
     )
