@@ -72,7 +72,8 @@ class CodePlanSerializer : JsonSerializer<CodePlan<*>>() {
                 gen.writeString(t)
             } else {
                 error(
-                    "Unkown codeplan ${value.javaClass}. Codeplans that can be serialized: ${SurrogateRegistry.inverseMapping}"
+                    "Unkown codeplan ${value.javaClass}. \n Codeplans that can be serialized:" +
+                        " ${SurrogateRegistry.inverseMapping}"
                 )
             }
         }
