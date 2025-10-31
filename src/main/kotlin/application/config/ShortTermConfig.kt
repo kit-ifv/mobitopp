@@ -1,27 +1,34 @@
 package application.config
 
 import domain.shared.behavior.ChoiceModelModes
+import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
+import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import utils.ErrorHandling
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.exists
+
+
+
 
 data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     /* impedance*/
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
-    val matrixRepo: Path,
+
     val costMatrixConfig: Path,
     val durationMatrixConfig: Path,
     val distanceMatrix: Path,
-    val cachePath: Path,
-    val zoneMatrixCreationMethod: ZoneMatrixCreation,
+    // Robin: Caching is optional, if the end user doesn't want caches then they shouldn't be forced to specify this
+    val cachePath: Path? = null,
+    val zoneMatrixCreationMethod: ZoneMatrixCreation = KeyBasedMatrixCreation,
 
     /* simulation */
     val simulationContext: ExampleProjectContext,
     val errorHandling: ErrorHandling = ErrorHandling.THROW,
-    val resultPath: Path,
-    val resultName: String,
+    val resultPath: Path  = Path("results"),
+
 
     /*  paths to individual csv files   */
     val personCSV: Path? = null,
@@ -34,18 +41,25 @@ data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     val zonesCSV: Path? = null,
 
     /* repos*/
-    val zoneRepo: Path,
+
 
     /* ChoiceParameters */
     val destinationChoiceParameterSet: DESTINATIONCHOICEPARAMETERS,
     val modeChoiceParameterSet: MODECHOICEPARAMETERS,
-    val choiceModelModes: ChoiceModelModes,
+
 
     /* vehicle sharing */
     val sharingProviderName: String,
-    val vehicleCountColumn: String,
 
-) {
+
+    ) {
+
+    lateinit var matrixRepo: Path
+    lateinit var resultName: String
+    lateinit var zoneRepo: Path
+    lateinit var choiceModelModes: ChoiceModelModes
+    lateinit var vehicleCountColumn: String
+
     fun validate() {
         val paths = mutableListOf(
             matrixRepo,
@@ -69,7 +83,7 @@ data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
             paths.add(matrixRepo.resolve(distanceMatrix))
         }
 
-        val nonExistantPaths = paths.filter { !it.exists() }
+        val nonExistantPaths = paths.filter { !(it?.exists() ?: true) }
         require(nonExistantPaths.isEmpty()) { "The following paths are not existing: $nonExistantPaths" }
     }
 }

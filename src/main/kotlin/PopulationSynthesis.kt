@@ -47,14 +47,14 @@ import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
-import domain.synthesis.results.ActivityOutput
-import domain.synthesis.results.CarOutput
+import domain.synthesis.results.LegacyActivityOutput
+import domain.synthesis.results.LegacyCarOutput
 import domain.synthesis.results.FixedDestinationElements
-import domain.synthesis.results.FixedDestinationOutput
-import domain.synthesis.results.HouseholdOutput
-import domain.synthesis.results.OpportunitiesOutput
+import domain.synthesis.results.LegacyFixedDestinationOutput
+import domain.synthesis.results.LegacyHouseholdOutput
+import domain.synthesis.results.LegacyOpportunitiesOutput
 import domain.synthesis.results.OpportunityOutput
-import domain.synthesis.results.PersonOutput
+import domain.synthesis.results.LegacyPersonOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.CurrencyUnit
@@ -540,14 +540,24 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun SynthesisSteps<out RawSurveyInfo>.writeLegacyOutput() {
-    HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
-    PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
-    FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
+fun SynthesisSteps<out RawSurveyInfo>.writeModernizedOutput() {
+    LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
+    LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
+    LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
     val flatActivities = activities.flatMap { it.entries.map { it.key to it.value } }
-    ActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)
-    CarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
-    OpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
+    LegacyActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)
+    LegacyCarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
+    LegacyOpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
+}
+
+fun SynthesisSteps<out RawSurveyInfo>.writeLegacyOutput() {
+    LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
+    LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
+    LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
+    val flatActivities = activities.flatMap { it.entries.map { it.key to it.value } }
+    LegacyActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)
+    LegacyCarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
+    LegacyOpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
 }
 
 fun main() {
