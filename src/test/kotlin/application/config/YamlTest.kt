@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import kotlin.io.path.Path
 import kotlin.io.path.createFile
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.test.Test
@@ -98,6 +99,7 @@ class YamlTest {
     fun `equality of initial and written configs`() {
         val input = "src/test/resources/yamlParsing/basicConfig.yaml"
         val output = "src/test/resources/tempOutput/serializedConfig.yaml"
+        Path(output).createParentDirectories()
         if (!Path(output).exists()) Path(output).createFile()
         Yaml.mapper
             .registerModule(modeTestModule)
@@ -115,6 +117,7 @@ class YamlTest {
     fun keyValueParserTest() {
         val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
         val output = "src/test/resources/tempOutput/keyValueTest.yaml"
+        Path(output).createParentDirectories()
         if (!Path(output).exists()) Path(output).createFile()
         val builder = GenericKeyValueBuilder(
             wraps = MyParameterClass::class.java,
@@ -154,6 +157,7 @@ class YamlTest {
     fun changedParameterTest() {
         val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
         val output = "src/test/resources/tempOutput/keyValueTest.yaml"
+        Path(output).createParentDirectories()
         if (!Path(output).exists()) Path(output).createFile()
         val builder = GenericKeyValueBuilder(
             wraps = MyParameterClass::class.java,
