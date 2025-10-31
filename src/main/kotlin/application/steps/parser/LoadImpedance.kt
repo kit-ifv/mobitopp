@@ -5,9 +5,9 @@ import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
+import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.MatrixMetrics
 import domain.shared.datastructure.matrix.UnitConverter
-import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
@@ -34,7 +34,7 @@ fun DemandSimContext.loadImpedance(
     distanceUnit: DistanceUnit? = null,
     currencyUnit: CurrencyUnit? = null,
     durationUnit: DurationUnit? = null,
-    matrixCreator: ZoneMatrixCreation = VisumMatrixCreator
+    matrixCreator: ZoneMatrixCreation = KeyBasedMatrixCreation
 ) = runStep {
     LoadImpedanceStep(
         costMatrixConfig,

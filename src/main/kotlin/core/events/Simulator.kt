@@ -3,10 +3,11 @@ package core.events
 import core.statemachine.Agent
 import core.statemachine.Event
 import core.statemachine.Events
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import utils.Identifiable
 import utils.collections.addProgressBar
@@ -101,6 +102,15 @@ interface EventListener {
     fun notify(event: Event<*>)
 }
 
+object AppScope : CoroutineScope {
+    private val job = SupervisorJob()
+    override val coroutineContext = job + Dispatchers.Default
+
+    fun cancel() {
+        job.cancel()
+    }
+}
+
 class ParallelSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
     eventListeners: Collection<EventListener> = emptyList(),
@@ -109,13 +119,13 @@ class ParallelSimulator(
 ) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
     override fun executePresentEvents(present: Events): Events = runBlocking {
-        coroutineScope {
-            val deferredNewEvents = present.map {
-                async(Dispatchers.Default) { it.execute() }
-            }
-
-            deferredNewEvents.awaitAll().flatten()
+//        coroutineScope {
+        val deferredNewEvents = present.map {
+            AppScope.async(Dispatchers.Default) { it.execute() }
         }
+
+        deferredNewEvents.awaitAll().flatten()
+//        }
     }
 }
 

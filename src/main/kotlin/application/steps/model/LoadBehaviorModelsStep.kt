@@ -16,12 +16,14 @@ import domain.shared.location.LegacyZone
 import domain.shared.location.Location
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.simulation.agent.DrtOffer
+import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
-import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
-import domain.simulation.behavior.ModeAvailabilityFilter
+import domain.simulation.behavior.DrtAvailabilitySelector
+import domain.simulation.behavior.ModeAvailabilityModel
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import domain.simulation.behavior.available
 import domain.simulation.config.DemandSimContext
@@ -30,11 +32,15 @@ import domain.simulation.events.GenerateModeCharacteristics
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.IPerson
+import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
+import utils.units.AbsoluteTime
 
 fun LoadBehaviorModelsContext.loadBehaviorModels(
     destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
@@ -45,6 +51,8 @@ fun LoadBehaviorModelsContext.loadBehaviorModels(
         destinationChoiceModel,
         modeChoiceModel,
         modes,
+        StandardDestinationImplementation,
+        StandardModeImplementation
     )
 )
 
@@ -78,7 +86,8 @@ fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
 }
 
 interface LoadBehaviorModelsContext : DemandSimContext {
-    val sharingProviderAgents: Repository<SharingProviderAgent, SharingProviderId>
+    val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
+    val drtProviderRepository: Repository<DrtProvider, DrtProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
     val attractivenessModel: LateInit<AttractivenessModel>
@@ -99,24 +108,38 @@ open class LoadBehaviorModelsStep(
     override val name: String = "Load behavior models!"
     override val repository: MutableRepository<*, *>? = null
     override val dependentRepositories: Set<Repository<*, *>> = setOf(
-        context.zoneRepository, context.sharingProviderAgents
+        context.zoneRepository, context.sharingProviderRepository, context.drtProviderRepository
     )
 
     override fun execute() {
         val impedance = context.impedance.value
 
-        val providers = context.sharingProviderAgents.elements.associateBy { it.id }
+        val sharingProviders = context.sharingProviderRepository.elements.associateBy { it.id }
 
-        val providersByMode = providers.values.groupBy {
+        val sharingProvidersByMode = sharingProviders.values.groupBy {
+            it.mode
+        }.mapValues {
+            it.value.map { p -> p.id }.toSet()
+        }
+
+        val drtProviders = context.drtProviderRepository.elements.associateBy { it.id }
+
+        val drtProvidersByMode = drtProviders.values.groupBy {
             it.mode
         }.mapValues {
             it.value.map { p -> p.id }.toSet()
         }
 
         // TODO refactor availability model, as composite of availability rules
-        val availability = AvailabilityModelWithSharing(modes, providersByMode, impedance)
 
-        val modeChoice = modeChoiceModel.addFilter(availability)//.addFilter(FixedModesFilter)
+        val availability = AvailabilityModelWithSharing(
+            modes,
+            sharingProvidersByMode,
+            drtProvidersByMode,
+            impedance
+        )
+
+        val modeChoice = modeChoiceModel.addFilter(availability.asResourceAvailabilityFilter())
 
         val destinationChoice = destinationChoiceModel.fixed(
             context.zoneRepository.elements.map { it.centroid }.toSet()
@@ -128,6 +151,7 @@ open class LoadBehaviorModelsStep(
             modes,
             impedance,
             context.attractivenessModel.value,
+            availability,
             availability,
             availability,
             spawnDestinationChoiceCharacteristics,
@@ -157,19 +181,30 @@ open class LoadBehaviorModelsStep(
             impedance = impedance,
             context.attractivenessModel.value,
             DummyAvailability,
-            BikeSharingConnectionSelector { null },
-            spawnDestinationCharacteristics = StandardDestinationImplementation,
-            spawnModeCharacteristics = StandardModeImplementation
+            BikeSharingConnectionSelector { p, l -> null },
+            DummyDrtAvailabilitySelector,
+            StandardDestinationImplementation,
+            StandardModeImplementation
         )
     }
 
 }
 
-object DummyAvailability : ModeAvailabilityFilter {
+object DummyAvailability : ModeAvailabilityModel {
 
     context(person: IPerson) override fun staticAvailability(mode: Mode) = true
 
-    context(agent: PersonAgent) override fun currentAvailability(mode: Mode) = available(mode)
+    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    override fun providerAvailability(mode: Mode) = mode.available()
 
-    context(characteristics: ModeChoiceCharacteristics) override fun choiceAvailability(mode: Mode) = true
+    context(characteristics: ModeChoiceCharacteristics) override fun resourceAvailability(mode: Mode) = true
+}
+
+object DummyDrtAvailabilitySelector: DrtAvailabilitySelector {
+
+    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    override fun getDrtProvidersCurrentlyOperating(): List<DrtProviderAgent> = emptyList()
+
+    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    override fun findDrtOffers(): List<DrtOffer> = emptyList()
 }

@@ -153,6 +153,7 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
     fun floorDiv(time: AbsoluteTime): Long {
         return floorDiv(time.sinceStart)
     }
+
     companion object {
         val START = AbsoluteTime(Duration.ZERO)
         val MINUS_INFINITY = AbsoluteTime(-Duration.INFINITE)

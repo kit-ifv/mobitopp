@@ -8,6 +8,8 @@ import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import domain.simulation.config.DemandSimContext
+import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
@@ -69,9 +71,14 @@ data class PersonCsvConfig(
  * Collects the instructions for initializing the person repository. Automatically sets the reader and writer
  * to the proper binary implementations.
  */
-class PersonStepBuilder(val seed: Long, val converter: (HouseholdId) -> MutableHousehold?) :
+class PersonStepBuilder(
+    val seed: Long,
+    val converter: (HouseholdId) -> MutableHousehold?,
+    val sharingConverter: (SharingProviderId) -> SharingProvider,
+    val drtConverter: (DrtProviderId) -> DrtProvider,
+) :
     GroupedStepBuilder<MutablePerson, PersonId>() {
-    override val reader = BinaryPersonReader(converter, seed)
+    override val reader = BinaryPersonReader(converter, sharingConverter, drtConverter, seed)
     override val writer: BinaryWriter<MutablePerson> = BinaryPersonWriter()
 
 //    override fun fromCSV(
@@ -88,7 +95,12 @@ class PersonStepBuilder(val seed: Long, val converter: (HouseholdId) -> MutableH
  * Operate on the context object. Apply the steps defined in the builder and then finalize the repository.
  */
 fun LoadPersonsContext.persons(lambda: PersonStepBuilder.() -> Unit) {
-    val lpcBuilder = PersonStepBuilder(this.simulationSeed, householdRepository::get)
+    val lpcBuilder = PersonStepBuilder(
+        this.simulationSeed,
+        householdRepository::get,
+        sharingProviderRepository::getValue,
+        drtProviderRepository::getValue,
+    )
     lambda(lpcBuilder)
     lpcBuilder.executeOn(this)
     finishPersons()
@@ -101,12 +113,17 @@ fun LoadPersonsContext.personsFromCsvStep(
     val config = PersonCsvConfig(path = path, incomeUnit = costUnit)
     config.apply(lambda)
     return config.run {
-        val providersByNameFunction: () -> Map<String, SharingProvider> = {
+        val sharingProvidersByName: () -> Map<String, SharingProvider> = {
             sharingProviderRepository.elements.associateBy { it.name.lowercase() }
         }
-        val csvParser = personCsvParser(errorHandling, columns, incomeUnit, providersByNameFunction) {
-            getHousehold(it)
+
+        val drtProvidersByName: () -> Map<String, DrtProvider> = {
+            drtProviderRepository.elements.associateBy { it.name.lowercase() }
         }
+        val csvParser =
+            personCsvParser(errorHandling, columns, incomeUnit, sharingProvidersByName, drtProvidersByName) {
+                getHousehold(it)
+            }
 
         val internalFilter = { row: Row -> columns.filter(row, this@personsFromCsvStep) }
         val step = LoadCsvStep<MutablePerson, PersonId>(
@@ -144,6 +161,7 @@ interface LoadPersonsContext : DemandSimContext, PersonCsvContext {
     val personRepository: MutableRepository<MutablePerson, PersonId>
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
     val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
+    val drtProviderRepository: Repository<DrtProvider, DrtProviderId>
 
     val defaultPersonPath: Path
         get() = dataFolder.resolve("demand-data").resolve("person.csv")

@@ -13,7 +13,8 @@ import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
-import domain.simulation.behavior.currentlyAffectedResources
+import domain.simulation.behavior.currentlyAffectedProviders
+import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
@@ -28,6 +29,7 @@ import generateSharingStation
 import generateZones
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.RepeatedTest
+import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.days
@@ -64,6 +66,7 @@ class RidesharingOnlyScenario {
         val availability = AvailabilityModelWithSharing(
             legacyChoiceModelModes,
             mapOf(bikeSharing to setOf(provider.id)),
+            mapOf(),
             impedance
         )
 
@@ -72,27 +75,38 @@ class RidesharingOnlyScenario {
                 "random destination",
                 zones.map { it.centroid }.toSet()
             ),
-            modeChoice = FixedOrderChoiceModel("prefer ridesharing", setOf(bikeSharing, pedestrian), availability),
+            modeChoice = FixedOrderChoiceModel(
+                "prefer ridesharing",
+                setOf(bikeSharing, pedestrian),
+                availability.asResourceAvailabilityFilter()
+            ),
             modes = legacyChoiceModelModes,
             impedance = impedance,
             attractivityModel = testAttractivenessModel,
             availabilityModel = availability,
             bikeSharingConnectionSelector = availability,
+            drtAvailabilitySelector = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
             spawnModeCharacteristics = StandardModeImplementation
         )
 
         val builder = BuildAgents(
             seed = 1L,
-            personStateMachine.withRecording(),
+            NoWriters.personStateMachine.withRecording(),
             syntheticBehavior
         )
         val agents = builder.buildPersonAgents(households)
 
         agents.forEach { person ->
+            val dest = zones.first { it != person.location.zone }
             val sharedResources =
-                context(person) { availability.currentlyAffectedResources(legacyChoiceModelModes.options) }
-            assertTrue(sharedResources.any { it is SharingStationAgent })
+                context(person, AbsoluteTime.START, dest.centroid) {
+                    availability.currentlyAffectedProviders(legacyChoiceModelModes.options)
+                }
+            assertTrue(
+                sharedResources.any { it is SharingStationAgent },
+                "No sharing station available for person $person, from: ${person.location}, to: $dest"
+            )
         }
 
         val sim = ParallelSimulator(timeStep = 1.minutes) // TODO test again with parallel sim

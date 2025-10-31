@@ -33,7 +33,7 @@ interface LoadSharingProvidersContext : DemandSimContext {
     val zoneColumnIndex: Map<Int, LegacyZone>
 
     val defaultSharingStationPath: Path
-        get() = dataFolder.resolve("zone-repository").resolve("sharing-stations.csv")
+        get() = zoneFolder.resolve("sharing-stations.csv")
 }
 
 data class StationColumns(

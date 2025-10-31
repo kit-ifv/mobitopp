@@ -143,7 +143,7 @@ class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMe
             metric.evaluate(
                 agent.homeLocation,
                 location
-            ) - agent.info.distanceWork
+            ) - agent.information.distanceWork
         )
     }
 }
@@ -174,7 +174,7 @@ open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
         return abs(
 
             agent.homeLocation.distance(location) -
-                agent.info.distanceWork
+                agent.information.distanceWork
         )
     }
 

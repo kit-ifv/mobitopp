@@ -232,22 +232,17 @@ val DestinationAlternative.travelCostFixedCar: Currency
         LegacyMode.CAR,
         nextFixedActivityEnd
     )
-private val alternative = LegacyMode.entries.toSet()
 
 // availability properties
-val DestinationAlternative.availableModes: Set<Mode>
-    get() {
-        return context(ModeChoiceCharacteristics(person, time, origin, choice, impedance)) {
-            alternative.filter { modeAvailabilityFilter.filter(it) }.toSet()
-        }
-    }
+fun DestinationAlternative.isAvailable(mode: Mode) =
+    modeAvailabilityFilter.filter(mode)
 
-val DestinationAlternative.isPedAvailable get() = LegacyMode.PEDESTRIAN in availableModes
-val DestinationAlternative.isBikeAvailable get() = LegacyMode.BIKE in availableModes
-val DestinationAlternative.isCarAvailable get() = LegacyMode.CAR in availableModes
-val DestinationAlternative.isPassengerAvailable get() = LegacyMode.PASSENGER in availableModes
-val DestinationAlternative.isPutAvailable get() = LegacyMode.PUBLICTRANSPORT in availableModes
-val DestinationAlternative.isBikesharingAvailable get() = LegacyMode.BIKESHARING in availableModes
+val DestinationAlternative.isPedAvailable get() = isAvailable(LegacyMode.PEDESTRIAN)
+val DestinationAlternative.isBikeAvailable get() = isAvailable(LegacyMode.BIKE)
+val DestinationAlternative.isCarAvailable get() = isAvailable(LegacyMode.CAR)
+val DestinationAlternative.isPassengerAvailable get() = isAvailable(LegacyMode.PASSENGER)
+val DestinationAlternative.isPutAvailable get() = isAvailable(LegacyMode.PUBLICTRANSPORT)
+val DestinationAlternative.isBikesharingAvailable get() = isAvailable(LegacyMode.BIKESHARING)
 
 val studentTypes = listOf(
     Employment.STUDENT,

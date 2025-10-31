@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.behavior.SurveyHousehold
+import domain.synthesis.Signature
 
 /**
  * A [ScalableVector] represents a vectorized encoding of household attributes, where each element of the vector
@@ -20,7 +20,7 @@ import domain.synthesis.behavior.SurveyHousehold
  */
 class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1.0) {
     private val array: IntArray = vector.toIntArray()
-    val signature: Map<Int, Int> = array.withIndex().filter { it.value != 0 }.associate { (i, value) -> i to value }
+    val signature: Signature = array.withIndex().filter { it.value != 0 }.associate { (i, value) -> i to value }
 
     /**
      * A read-only property that provides a list view of the [array] for external access.
@@ -35,6 +35,8 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
      * @return The value at the specified [index] in the vector, multiplied by the [scalar].
      */
     fun currentValueForIndex(index: Int): Double = array[index] * scalar
+
+    fun attributeForIndex(index: Int): Int = array[index]
 
     /**
      * Determines whether this vector applies to a given rule based on the value at the [ruleIndex].
@@ -76,11 +78,14 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
         return result
     }
 
+    override fun toString(): String {
+        return "ScalableVector(scalar=$scalar) [$content]"
+    }
     companion object {
         /**
          * creates a Scalable Vector for a target [surveyHousehold] based on the ruleset defined in [rules]
          */
-        fun <T> createFrom(surveyHousehold: SurveyHousehold<out T>, rules: List<Rule<in T>>): ScalableVector {
+        fun <T> createFrom(surveyHousehold: T, rules: Collection<Rule<T>>): ScalableVector {
             return ScalableVector(rules.map { it.evaluate(surveyHousehold) })
         }
     }

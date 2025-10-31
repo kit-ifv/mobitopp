@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kover) // id("org.jetbrains.kotlinx.kover") version "0.9.1" //
     alias(libs.plugins.detekt) // id("io.gitlab.arturbosch.detekt") version "1.23.7" //
     alias(libs.plugins.kotlin.serialization) // kotlin("plugin.serialization") version "2.0.10" //
+    alias(libs.plugins.shadowjar)
     application
     id("maven-publish")
 }
@@ -92,6 +93,7 @@ dependencies {
 
     // other libs
     implementation(libs.jackson.parser)
+    implementation(libs.jackson.dataformat.csv)
     implementation(libs.jackson.kotlin.serialization)
     implementation(libs.commons.compress) //1.26.2
     implementation(libs.xz) //1.9
@@ -106,7 +108,12 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-
+tasks {
+    shadowJar {
+        archiveClassifier.set("all") // produces e.g. myapp-all.jar
+        mergeServiceFiles() // optional: handles META-INF/services
+    }
+}
 
 tasks.withType<Detekt>().configureEach {
     reports {
@@ -135,6 +142,7 @@ tasks.withType<Detekt>().configureEach {
         "**/OverridableModeChoiceModel.kt",
         "**/LoadBehaviorModelsStep.kt",
         "**/WriteTripsToCsvStep.kt",
+        "**/ModeAvailabilityModel.kt"
     )
 }
 
@@ -228,7 +236,6 @@ allprojects {
                         artifactId = project.name
                         version = project.version.toString()
                     }
-
 
                 }
 

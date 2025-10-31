@@ -6,6 +6,7 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.zip.CRC32
 import kotlin.io.path.fileSize
+import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.inputStream
 import kotlin.io.path.readBytes
 @Suppress("MagicNumber")
@@ -22,7 +23,9 @@ fun Path.sampledCrc32(sampleSize: Int = 1 shl 20, chunks: Int = 4): PathChecksum
         crc.update(bb.array(), 0, bb.position())
     }
     channel.close()
-
+    val lastModified = getLastModifiedTime().toMillis()
+    val timeStampBuffer = ByteBuffer.allocate(Long.SIZE_BYTES).putLong(lastModified).array()
+    crc.update(timeStampBuffer)
     return PathChecksum.from(crc.value)
 }
 fun Path.bufferedCRC32(): PathChecksum {

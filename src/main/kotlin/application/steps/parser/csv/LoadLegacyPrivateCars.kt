@@ -97,7 +97,11 @@ data class CarColumns(
     val engineTypeColumn: String = "carType",
     val segmentColumnIndex: Int = 7,
     val seatsColumnIndex: Int = 8,
-)
+) {
+    companion object {
+        val NEW_FORMAT = CarColumns(segmentColumnIndex = 4, seatsColumnIndex = 5)
+    }
+}
 fun LoadPrivateCarsContext.privateCarCsvParser(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: CarColumns = CarColumns(),
@@ -112,7 +116,7 @@ fun LoadPrivateCarsContext.privateCarCsvParser(
             seats = row.int(columns.seatsColumnIndex)
             mainUser = getMainUser(row, columns.mainUserColumn)
             segment = row.decodeName(columns.segmentColumnIndex, carSegmentCodes)
-            val engineType = row(columns.engineTypeColumn, ::parseEngineType)
+            val engineType = row(columns.engineTypeColumn, EngineType.Companion::parseEngineType)
             engine = carEngineStatistics.buildEngine(segment, engineType)
 //            location = owner.location
         }
@@ -182,13 +186,4 @@ fun LoadPrivateCarsContext.finishPrivateCars() = runStep {
 fun LoadPrivateCarsContext.loadPrivateCars() {
     this.preparePrivateCars()
     this.finishPrivateCars()
-}
-
-internal fun parseEngineType(string: String): EngineType = when (string) {
-    "conventional" -> EngineType.COMBUSTION
-    "bev" -> EngineType.ELECTRIC
-    "erev" -> EngineType.HYBRID
-    else -> throw IllegalArgumentException(
-        "Cannot parse string $string to EngineType: expected 'conventional', 'bev' or 'erev'!"
-    )
 }

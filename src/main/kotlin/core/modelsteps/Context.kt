@@ -4,6 +4,7 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import utils.units.AbsoluteTime
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
@@ -18,6 +19,8 @@ interface Context {
 
     val scenarioName: String
     val dataFolder: Path
+    val zoneFolder: Path
+        get() = Path("data/zone-repository")
     val simulationSeed: Long
 
     val resultDir: Path

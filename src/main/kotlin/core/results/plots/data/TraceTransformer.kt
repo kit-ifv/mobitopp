@@ -1,6 +1,5 @@
 package core.results.plots.data
 
-import kotlin.collections.sumOf
 import kotlin.math.abs
 
 fun interface TraceTransformer<G, X, V, T> {
