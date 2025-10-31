@@ -19,7 +19,9 @@ import domain.simulation.behavior.ModeChoiceParameters
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import kotlin.io.path.Path
+import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -96,6 +98,7 @@ class YamlTest {
     fun `equality of initial and written configs`() {
         val input = "src/test/resources/yamlParsing/basicConfig.yaml"
         val output = "src/test/resources/tempOutput/serializedConfig.yaml"
+        if (!Path(output).exists()) Path(output).createFile()
         Yaml.mapper
             .registerModule(modeTestModule)
             .registerModule(destinationChoiceParameterTestModule)
@@ -105,12 +108,14 @@ class YamlTest {
         Yaml.writeYaml(output, configObj)
         val writtenConfig = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(output)
         assertEquals(configObj, writtenConfig)
+        Path(output).deleteIfExists()
     }
 
     @Test
     fun keyValueParserTest() {
         val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
         val output = "src/test/resources/tempOutput/keyValueTest.yaml"
+        if (!Path(output).exists()) Path(output).createFile()
         val builder = GenericKeyValueBuilder(
             wraps = MyParameterClass::class.java,
             default = mapOf(
@@ -149,6 +154,7 @@ class YamlTest {
     fun changedParameterTest() {
         val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
         val output = "src/test/resources/tempOutput/keyValueTest.yaml"
+        if (!Path(output).exists()) Path(output).createFile()
         val builder = GenericKeyValueBuilder(
             wraps = MyParameterClass::class.java,
             default = mapOf(
