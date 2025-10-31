@@ -15,6 +15,9 @@ import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.buildEngine
+import kotlin.concurrent.atomics.AtomicLong
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.random.Random
 
 fun interface GenerateCars<T> {
@@ -22,7 +25,6 @@ fun interface GenerateCars<T> {
 }
 
 class SynthesisCar(
-    householdBuilder: SynthesisHousehold<*>,
     override val segment: CarSegment,
     engineType: EngineType,
     override val seats: Int,
@@ -30,7 +32,15 @@ class SynthesisCar(
 ) : Car {
 
     override val engine: CarEngine = CarEngineStatistics().buildEngine(segment, engineType)
-    override val id: CarId = CarId(1L)
+    override val id: CarId = CarId(nextId)
+
+    companion object {
+        @OptIn(ExperimentalAtomicApi::class)
+        private var idCounter: AtomicLong = AtomicLong(0L)
+
+        @OptIn(ExperimentalAtomicApi::class)
+        private val nextId: Long get() = idCounter.incrementAndFetch()
+    }
 }
 
 object TrivialCarGeneration : GenerateCars<Any> {
@@ -42,7 +52,6 @@ object TrivialCarGeneration : GenerateCars<Any> {
     private fun buildCars(householdBuilder: SynthesisHousehold<out Any>) =
         (0..<householdBuilder.amountOfCars).map {
             SynthesisCar(
-                householdBuilder,
                 CarSegment.SMALL,
                 EngineType.COMBUSTION,
                 4
@@ -80,7 +89,7 @@ object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
                 engineModel.select()
             }
 
-            SynthesisCar(householdBuilder, segment, engineType, segment.toSeats(), person)
+            SynthesisCar(segment, engineType, segment.toSeats(), person)
             // TODO there already is a model to determine main user, does selectExact match that definition?
         }
     }
