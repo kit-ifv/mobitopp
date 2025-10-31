@@ -108,6 +108,7 @@ object LegacyCarOutput : CSVOutput<SynthesisCar> {
         "car attributes"
     )
 
+    @Suppress("MagicNumber")
     override fun convert(element: SynthesisCar): String {
         return element.run {
             toCSV(
@@ -123,7 +124,6 @@ object LegacyCarOutput : CSVOutput<SynthesisCar> {
                 0.0, // TODO this appears to be a fixed value.
                 1.0, // TODO this appears to be a fixed value.
                 1000.0, // TODO this appears to be a fixed value.
-
 
             )
         }
@@ -151,6 +151,7 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
         "locationY"
     )
 
+    @Suppress("MagicNumber")
     override fun convert(element: FixedDestinationElements): String {
         return element.run {
             toCSV(
@@ -184,7 +185,7 @@ object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<out SurveyInfo>> {
         }
     }
 }
-object ModernizedHouseholdOutput: CSVOutput<SynthesisHousehold<out SurveyInfo>> {
+object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
     override val header: List<String> = listOf()
     override fun convert(element: SynthesisHousehold<out SurveyInfo>): String {
         return element.run {
@@ -202,6 +203,7 @@ object ModernizedHouseholdOutput: CSVOutput<SynthesisHousehold<out SurveyInfo>> 
         }
     }
 }
+
 // Sorry detekt, householdId and other strings may occur more often.
 @Suppress("StringLiteralDuplication", "MagicNumber")
 object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
@@ -239,7 +241,7 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
                 location.coordinate.latitudeDegrees,
                 -1, // ActiTopp once cared about the number of childern, but it is entirely irrelevant
                 amountOfCars,
-                5,  // I would assume that this is the encoding of the income based on some classes, but used it is not.
+                5, // I would assume that this is the encoding of the income based on some classes, but used it is not.
                 economicStatus.code,
                 "true", // Everyone can charge privately. Why this field was added to the general output / No one knows
 
@@ -299,15 +301,13 @@ object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object LegacyPersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
-    private val surveyDummy = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
+    private const val SURVEY_DUMMY = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
     override val header: List<String> = SurveyPersonOutput.header + listOf(
 
         "personNumber",
         "householdId",
 
         "employment",
-
-        "hasBike",
         "hasAccessToCar",
         "hasPersonalCar",
         "hasCommuterTicket",
@@ -320,6 +320,7 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
 
     )
 
+    @Suppress("MagicNumber")
     override fun convert(element: SynthesisPerson<out RawSurveyInfo>): String {
         val first = SurveyPersonOutput.convert(element)
         val second = element.run {
@@ -328,13 +329,12 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
                 household.id,
 
                 employment,
-                information.hasBicycle,
                 household.amountOfCars > 0,
                 household.amountOfCars <= household.numberOfDrivingLicences,
                 hasTransitPass,
                 information.hasLicence,
-                surveyDummy,
-                surveyDummy,
+                SURVEY_DUMMY,
+                SURVEY_DUMMY,
                 0.5,
                 "NEVER",
                 this.getSharingMemberships()

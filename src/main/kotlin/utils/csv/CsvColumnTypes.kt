@@ -46,19 +46,16 @@ fun <T : Encodable> Row.decodeOrNull(index: Int, codePlan: CodePlan<T>): T? {
     return this.valueAt(index) { s -> codePlan.decodeOrNull(s.toInt()) }
 }
 
-fun <T : Encodable> Row.decodeOrNull(column: String, codePlan: CodePlan<T>): T?  {
-    return if(this.hasColumn(column)) {
+fun <T : Encodable> Row.decodeOrNull(column: String, codePlan: CodePlan<T>): T? {
+    return if (this.hasColumn(column)) {
         this.invoke(column) { s -> codePlan.decodeOrNull(s) }
     } else {
         null
     }
-
 }
 
 fun <T : Encodable> Row.decodeName(column: String, codePlan: CodePlan<T>) =
     this.invoke(column) { s -> codePlan.decode(s) }
-
-
 
 fun <T : Encodable> Row.decodeName(index: Int, codePlan: CodePlan<T>) =
     this.valueAt(index) { s -> codePlan.decode(s) }
@@ -104,8 +101,8 @@ fun <T> T.kilometers(column: String) where T : TypedRow<Int> = this.wrap { it.ki
 fun <T> T.currency(unit: CurrencyUnit) where T : TypedRow<Int> = this.wrap { it.toCurrency(unit) }
 fun <T> T.currency(column: String, unit: CurrencyUnit) where T : TypedRow<Int> =
     this.wrap { it.toCurrency(unit) }.invoke(column)
-fun <T> T.currencyOrNull(column: String, unit: CurrencyUnit): Currency? where T : TypedRow<Int>{
-    return if(this.row.hasColumn(column)) {
+fun <T> T.currencyOrNull(column: String, unit: CurrencyUnit): Currency? where T : TypedRow<Int> {
+    return if (this.row.hasColumn(column)) {
         this.wrap { it.toCurrency(unit) }.invoke(column)
     } else {
         null

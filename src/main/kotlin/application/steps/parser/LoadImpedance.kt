@@ -8,7 +8,6 @@ import core.modelsteps.validateScope
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.MatrixMetrics
 import domain.shared.datastructure.matrix.UnitConverter
-import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
