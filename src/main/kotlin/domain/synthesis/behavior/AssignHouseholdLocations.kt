@@ -5,6 +5,7 @@ import LanduseDistributedCoordinates
 import domain.VisumPolyZone
 import domain.VisumZoneId
 import domain.shared.location.Location
+import domain.shared.location.RoadAccess
 import domain.shared.location.Zone
 import edu.kit.ifv.units.Coordinate
 import edu.kit.ifv.units.Distance
@@ -45,7 +46,6 @@ class TrivialGroupStrategy<AREA, H>(
 class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<Zone, H> {
     override fun generateLocation(zone: Zone, household: H): Location {
         return Location(zone.centroid.coordinate.randomCoordinate(radius, zone.random), zone, null)
-        // TODO zone rng or hh rng?, if hh rng -> require H: StochasticActor
     }
 }
 

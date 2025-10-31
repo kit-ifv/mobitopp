@@ -111,13 +111,34 @@ fun CarEngine.identical(other: CarEngine): Boolean {
 }
 
 enum class EngineType(override val code: Int) : Encodable {
-    COMBUSTION(1),
-    ELECTRIC(2),
-    HYBRID(3);
+    COMBUSTION(1) {
+        override val asText: String = "conventional"
+    },
+    ELECTRIC(2) {
+        override val asText: String = "bev"
+
+    },
+    HYBRID(3) {
+        override val asText: String = "erev"
+    };
 
     override val description: String = name
+    abstract val asText: String
+    companion object : EnumDecodable<EngineType>(EngineType::class) {
+        fun parseEngineType(string: String): EngineType = when (string) {
+                "conventional" -> COMBUSTION
+                "bev" -> ELECTRIC
+                "erev" -> HYBRID
+                else -> throw IllegalArgumentException(
+                    "Cannot parse string $string to EngineType: expected 'conventional', 'bev' or 'erev'!"
+                )
 
-    companion object : EnumDecodable<EngineType>(EngineType::class)
+        }
+
+
+
+
+    }
 }
 
 interface CombustionEngine : CarEngine {

@@ -61,7 +61,7 @@ val attractivities = Path("data/attractivities.csv")
 val standardConfig = ShortTermConfig(
     visumNetwork = visum_network,
     fractionOfPopulation = 1.0,
-    matrixRepo = Path(ROOT_MTX),
+
     costMatrixConfig = Path("cost-matrix-configuration_transmove_turbo.yaml"),
     durationMatrixConfig = Path("time-matrix-configuration_transmove_turbo.yaml"),
     distanceMatrix = Path("DIS_Car.mtx.bz2"),
@@ -76,15 +76,20 @@ val standardConfig = ShortTermConfig(
     ),
     errorHandling = ErrorHandling.WARNING,
     resultPath = Path("results"),
-    resultName = "mobitopp-main.csv",
-    zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
+
     destinationChoiceParameterSet = DestinationChoiceParameters(),
     modeChoiceParameterSet = ModeChoiceParameters(),
-    choiceModelModes = legacyChoiceModelModes,
+
     sharingProviderName = "",
-    vehicleCountColumn = "",
+
     attractivitiesCSV = attractivities,
-)
+).apply {
+    matrixRepo = Path(ROOT_MTX)
+    resultName = "mobitopp-main.csv"
+    zoneRepo = Path("src/test/resources/testDemand/zone-repository/")
+    vehicleCountColumn = ""
+    choiceModelModes = legacyChoiceModelModes
+}
 
 @Suppress("LongMethod")
 fun main(args: Array<String>) {
