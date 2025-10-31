@@ -73,7 +73,7 @@ class CommuterDemandsMatrix(
 
                 match[zoneID] ?: CommunityNumber.INVALID.also {
                     "Zone id $zoneID cannot be converted to a community number." +
-                            " Check that the file: $mappingFile contains the zone ID"
+                        " Check that the file: $mappingFile contains the zone ID"
                 }
             }
         }

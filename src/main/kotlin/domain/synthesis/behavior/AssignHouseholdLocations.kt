@@ -5,7 +5,6 @@ import LanduseDistributedCoordinates
 import domain.VisumPolyZone
 import domain.VisumZoneId
 import domain.shared.location.Location
-import domain.shared.location.RoadAccess
 import domain.shared.location.Zone
 import edu.kit.ifv.units.Coordinate
 import edu.kit.ifv.units.Distance

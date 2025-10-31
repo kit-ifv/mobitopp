@@ -24,7 +24,7 @@ fun interface GenerateCars<T> {
     fun generate(householdBuilder: SynthesisHousehold<out T>): List<SynthesisCar>
 }
 
-class SynthesisCar (
+class SynthesisCar(
     override val segment: CarSegment,
     engineType: EngineType,
     override val seats: Int,
@@ -40,7 +40,6 @@ class SynthesisCar (
 
         @OptIn(ExperimentalAtomicApi::class)
         private val nextId: Long get() = idCounter.incrementAndFetch()
-
     }
 }
 

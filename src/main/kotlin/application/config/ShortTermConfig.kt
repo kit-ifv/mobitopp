@@ -2,15 +2,11 @@ package application.config
 
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
-import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
-
-
-
 
 data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     /* impedance*/
@@ -27,8 +23,7 @@ data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     /* simulation */
     val simulationContext: ExampleProjectContext,
     val errorHandling: ErrorHandling = ErrorHandling.THROW,
-    val resultPath: Path  = Path("results"),
-
+    val resultPath: Path = Path("results"),
 
     /*  paths to individual csv files   */
     val personCSV: Path? = null,
@@ -42,17 +37,14 @@ data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
 
     /* repos*/
 
-
     /* ChoiceParameters */
     val destinationChoiceParameterSet: DESTINATIONCHOICEPARAMETERS,
     val modeChoiceParameterSet: MODECHOICEPARAMETERS,
 
-
     /* vehicle sharing */
     val sharingProviderName: String,
 
-
-    ) {
+) {
 
     lateinit var matrixRepo: Path
     lateinit var resultName: String
