@@ -13,12 +13,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.DestinationChoiceParameterModule
-import domain.jackson.ZoneMatrixCreationModule
+import domain.jackson.CoreDestinationChoiceParameterModule
+import domain.jackson.CoreZoneMatrixCreationModule
 import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.parseIsoString
-
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
@@ -45,8 +44,8 @@ object Yaml {
         .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
-        .registerModule(ZoneMatrixCreationModule)
-        .registerModule(DestinationChoiceParameterModule)
+        .registerModule(CoreZoneMatrixCreationModule)
+        .registerModule(CoreDestinationChoiceParameterModule)
         .registerModule(durationModule)
         .registerModule(pathModule)
         .findAndRegisterModules()

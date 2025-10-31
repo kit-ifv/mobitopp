@@ -7,7 +7,7 @@ import domain.shared.datastructure.matrix.ZoneMatrixCreation
 /**
  * Module for deserialization of ZoneMatrixCreation methods.
  */
-val ZoneMatrixCreationModule = GenericKeyValueBuilder(
+val CoreZoneMatrixCreationModule = GenericKeyValueBuilder(
     ZoneMatrixCreation::class.java,
     /* Register mappings here, to make them available in yaml configs.*/
     mapOf(

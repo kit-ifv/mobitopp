@@ -2,7 +2,7 @@ package domain.jackson
 
 import domain.simulation.behavior.DestinationChoiceParameters
 
-val DestinationChoiceParameterModule = GenericKeyValueBuilder(
+val CoreDestinationChoiceParameterModule = GenericKeyValueBuilder(
     DestinationChoiceParameters::class.java,
     mapOf("default" to DestinationChoiceParameters()),
     loadFromSubmodules = true

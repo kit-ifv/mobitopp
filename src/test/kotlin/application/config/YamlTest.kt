@@ -3,15 +3,12 @@ package application.config
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.DestinationChoiceParameterModule
+import domain.jackson.CoreDestinationChoiceParameterModule
 import domain.jackson.GenericKeyValueBuilder
-import domain.jackson.GenericKeyValueDeserializer
-import domain.jackson.GenericKeyValueSerializer
-import domain.jackson.ZoneMatrixCreationModule
+import domain.jackson.CoreZoneMatrixCreationModule
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.config.Yaml
 import domain.shared.config.durationModule
@@ -26,44 +23,25 @@ import kotlin.io.path.deleteIfExists
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-val modeDeserializer = GenericKeyValueDeserializer(
-    wraps = ModeChoiceParameters::class.java,
-    default = mapOf("default" to ModeChoiceParameters()),
-    loadFromSubmodules = false
-)
-val modeSerializer = GenericKeyValueSerializer(
-    wraps = ModeChoiceParameters::class.java,
-    default = mapOf(ModeChoiceParameters() to "default"),
-    loadFromSubmodules = false
-)
+private val modeTestModule = GenericKeyValueBuilder(
+        wraps = ModeChoiceParameters::class.java,
+        default = mapOf("default" to ModeChoiceParameters()),
+        loadFromSubmodules = false
+    ).getModule()
 
-val modeModule = SimpleModule("ModeDeserializing module")
-    .addDeserializer(ModeChoiceParameters::class.java, modeDeserializer)
-    .addSerializer(ModeChoiceParameters::class.java, modeSerializer)
+private val destinationChoiceParameterTestModule = GenericKeyValueBuilder(
+        wraps = DestinationChoiceParameters::class.java,
+        default = mapOf("default" to DestinationChoiceParameters()),
+        loadFromSubmodules = false
+    ).getModule()
 
-val destinationChoiceParameterDeserializer = GenericKeyValueDeserializer(
-    wraps = DestinationChoiceParameters::class.java,
-    default = mapOf("default" to DestinationChoiceParameters()),
-    loadFromSubmodules = false
-)
+private class TestCar(
+        override val requiresVehicleTakeAlong: Boolean = false,
+        override val code: Int = 0,
+        override val description: String = ""
+    ) : Mode
 
-val destinationChoiceParameterSerializer = GenericKeyValueSerializer(
-    wraps = DestinationChoiceParameters::class.java,
-    default = mapOf(DestinationChoiceParameters() to "default"),
-    loadFromSubmodules = false
-)
-
-val destinationChoiceParameterModule = SimpleModule("DestinationChoiceParamModule")
-    .addDeserializer(DestinationChoiceParameters::class.java, destinationChoiceParameterDeserializer)
-    .addSerializer(DestinationChoiceParameters::class.java, destinationChoiceParameterSerializer)
-
-class TestCar(
-    override val requiresVehicleTakeAlong: Boolean = false,
-    override val code: Int = 0,
-    override val description: String = ""
-) : Mode
-
-val testModes = ChoiceModelModes(
+private val testModes = ChoiceModelModes(
     car = TestCar(),
     passenger = TestCar(),
     bike = TestCar(),
@@ -76,21 +54,12 @@ val testModes = ChoiceModelModes(
     taxi = TestCar(),
     eScooter = TestCar()
 )
-val choiceModelModesDeserializer = GenericKeyValueDeserializer(
-    wraps = ChoiceModelModes::class.java,
-    default = mapOf("default" to testModes),
-    loadFromSubmodules = false
-)
 
-val choiceModelModesSerializer = GenericKeyValueSerializer(
-    wraps = ChoiceModelModes::class.java,
-    default = mapOf(testModes to "default"),
-    loadFromSubmodules = false,
-)
-
-val choiceModelModesModule = SimpleModule("ChoiceModelModes")
-    .addDeserializer(ChoiceModelModes::class.java, choiceModelModesDeserializer)
-    .addSerializer(ChoiceModelModes::class.java, choiceModelModesSerializer)
+private val choiceModelModesTestModule = GenericKeyValueBuilder(
+        wraps = ChoiceModelModes::class.java,
+        default = mapOf("default" to testModes),
+        loadFromSubmodules = false
+    ).getModule()
 
 private class MyParameterClass(val name: String) {
     override fun equals(other: Any?): Boolean {
@@ -116,8 +85,8 @@ class YamlTest {
             .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
             .registerKotlinModule()
             .registerModule(CoreCodePlanModule())
-            .registerModule(ZoneMatrixCreationModule)
-            .registerModule(DestinationChoiceParameterModule)
+            .registerModule(CoreZoneMatrixCreationModule)
+            .registerModule(CoreDestinationChoiceParameterModule)
             .registerModule(durationModule)
             .registerModule(pathModule)
             .findAndRegisterModules()
@@ -128,9 +97,9 @@ class YamlTest {
         val input = "src/test/resources/yamlParsing/basicConfig.yaml"
         val output = "src/test/resources/tempOutput/serializedConfig.yaml"
         Yaml.mapper
-            .registerModule(modeModule)
-            .registerModule(destinationChoiceParameterModule)
-            .registerModule(choiceModelModesModule)
+            .registerModule(modeTestModule)
+            .registerModule(destinationChoiceParameterTestModule)
+            .registerModule(choiceModelModesTestModule)
 
         val configObj = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(input)
         Yaml.writeYaml(output, configObj)
