@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.IPUOutputLog
 import domain.synthesis.AreaIPUOutput
+import domain.synthesis.IPUOutputLog
 import domain.synthesis.behavior.MinimalistHousehold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -257,7 +257,7 @@ interface HierarchicalRuleProvider<AREA, H> : RuleProvider<AREA, H> {
                     output[it] ?: emptyList()
                 }
                 rules.toIPUOutput(area, currentHHs)
-            } else { emptyList()}
+            } else { emptyList() }
         }
         return ruleResults
     }

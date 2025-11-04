@@ -25,7 +25,7 @@ fast-utils = "8.5.16"
 # ifv units
 ifv-units= "1.0.1"
 ifv-visum-netparser = "0.11.2"
-ifv-actitopp-NG = "0.10.0"
+ifv-actitopp-NG = "0.10.4"
 ifv-discrete-choice = "0.1.2"
 
 

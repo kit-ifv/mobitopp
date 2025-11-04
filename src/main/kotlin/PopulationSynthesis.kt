@@ -9,7 +9,6 @@ import domain.shared.location.Location
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.AreaIPUCSVOutput
-import domain.synthesis.AreaIPUOutput
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
@@ -271,8 +270,8 @@ class SynthesisSteps<T : Any>(
             )
             algorithm.ruleProvider.evaluate(output)
         }
-        if(writeResults) {
-            outputDirectory.resolve("IPUResults.csv").let {it ->
+        if (writeResults) {
+            outputDirectory.resolve("IPUResults.csv").let {
                 AreaIPUCSVOutput.writeCSVToFile(it, algorithm.ruleProvider.evaluate(output))
             }
         }
@@ -285,8 +284,6 @@ class SynthesisSteps<T : Any>(
     ) {
         populationSynthesis(verification, writeResults, { it }, supplier)
     }
-
-
 
     // TODO speaking type parameter names
     fun synthesis(
