@@ -1,21 +1,34 @@
 package domain.jackson
 
+import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import domain.shared.enums.ActivityType
+import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.synthesis.data.CarSegment
+import domain.synthesis.data.EconomicStatus
+import domain.synthesis.data.Employment
+import domain.synthesis.data.EngineType
+import domain.synthesis.data.Graduation
+import domain.synthesis.data.Sex
 import utils.CodePlan
 import utils.Encodable
-import java.util.ServiceLoader
+import utils.collections.invertMap
+import java.util.*
 
 class CoreCodePlanModule : SimpleModule("CoreCodePlanModule") {
     init {
         addDeserializer(CodePlan::class.java, CodePlanDeserializer())
+        addSerializer(CodePlan::class.java, CodePlanSerializer())
     }
 }
 
@@ -33,8 +46,8 @@ class CodePlanDeserializer : JsonDeserializer<CodePlan<*>>() {
             node.isTextual -> node.asText()
             else -> node.get("type").asText()
         }
-        val surrogateClass = SurrogateRegistry.allSurrogates[type]
-            ?: error("Unknown behavior type: $type")
+        val surrogateClass = SurrogateRegistry.allSurrogates[type] ?: error("Unknown behavior type: $type")
+
         val surrogate = when {
             node.isTextual -> surrogateClass.getDeclaredConstructor().newInstance()
             else -> p.codec.treeToValue(node, surrogateClass)
@@ -45,12 +58,40 @@ class CodePlanDeserializer : JsonDeserializer<CodePlan<*>>() {
 }
 
 /**
+ * Serializes `CodePlan<*>`. If no serialization is known it maps to a default value using that codeplan's hashcode.
+ */
+class CodePlanSerializer : JsonSerializer<CodePlan<*>>() {
+    override fun serialize(
+        value: CodePlan<*>,
+        gen: JsonGenerator?,
+        serializers: SerializerProvider?
+    ) {
+        if (gen != null) {
+            val t: String? = SurrogateRegistry.inverseMapping[value.javaClass]
+            if (t != null) {
+                gen.writeString(t)
+            } else {
+                error(
+                    "Unkown codeplan ${value.javaClass}. \n Codeplans that can be serialized:" +
+                        " ${SurrogateRegistry.inverseMapping}"
+                )
+            }
+        }
+    }
+}
+
+/**
  * This object collects all registered code plan surrogates registered the loaded projects, and thus the subprojects.
  */
 object SurrogateRegistry {
 
     val allSurrogates: Map<String, Class<out CodePlanSurrogate<*>>> by lazy {
         buildRegistry()
+    }
+
+    val inverseMapping: Map<Class<CodePlan<*>>, String> by lazy {
+        buildRegistry().mapValues { entry -> entry.value.getDeclaredConstructor().newInstance().resolve().javaClass }
+            .invertMap().mapValues { entry -> entry.value[0] } // this is cursed but works I guess...
     }
 
     private fun buildRegistry(): Map<String, Class<out CodePlanSurrogate<*>>> {
@@ -97,6 +138,13 @@ class CoreCodePlans : CodePlanSurrogateProvider {
     init {
         registry["coreModes"] = CoreModeSurrogate::class.java
         registry["coreRegionType"] = CoreRegionTypeSurrogate::class.java
+        registry["coreSexCodes"] = CoreSexSurrogate::class.java
+        registry["coreGraduationCodes"] = CoreGraduationSurrogate::class.java
+        registry["coreEmploymentCodes"] = CoreEmploymentSurrogate::class.java
+        registry["coreEngineTypeCodes"] = CoreEngineTypeSurrogate::class.java
+        registry["coreCarSegmentCodes"] = CoreCarSegmentSurrogate::class.java
+        registry["coreActivityTypeCodes"] = CoreActivityTypeSurrogate::class.java
+        registry["coreEconomicStatusCodes"] = CoreEconomicStatusSurrogate::class.java
     }
 
     override fun getSurrogateTypes(): Map<String, Class<out CodePlanSurrogate<*>>> {
@@ -121,5 +169,47 @@ class CoreRegionTypeSurrogate : RegionTypeSurrogate() {
 class CoreModeSurrogate : ModeSurrogate() {
     override fun resolve(): CodePlan<Mode> {
         return LegacyMode.Companion
+    }
+}
+
+class CoreSexSurrogate : CodePlanSurrogate<Sex>() {
+    override fun resolve(): CodePlan<Sex> {
+        return Sex.Companion
+    }
+}
+
+class CoreGraduationSurrogate : CodePlanSurrogate<Graduation>() {
+    override fun resolve(): CodePlan<Graduation> {
+        return Graduation.Companion
+    }
+}
+
+class CoreEmploymentSurrogate : CodePlanSurrogate<Employment>() {
+    override fun resolve(): CodePlan<Employment> {
+        return Employment.Companion
+    }
+}
+
+class CoreEngineTypeSurrogate : CodePlanSurrogate<EngineType>() {
+    override fun resolve(): CodePlan<EngineType> {
+        return EngineType.Companion
+    }
+}
+
+class CoreCarSegmentSurrogate : CodePlanSurrogate<CarSegment>() {
+    override fun resolve(): CodePlan<CarSegment> {
+        return CarSegment.Companion
+    }
+}
+
+class CoreActivityTypeSurrogate : CodePlanSurrogate<ActivityType>() {
+    override fun resolve(): CodePlan<ActivityType> {
+        return LegacyActivityType.Companion
+    }
+}
+
+class CoreEconomicStatusSurrogate : CodePlanSurrogate<EconomicStatus>() {
+    override fun resolve(): CodePlan<EconomicStatus> {
+        return EconomicStatus.Companion
     }
 }

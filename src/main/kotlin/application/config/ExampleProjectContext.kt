@@ -17,6 +17,8 @@ import application.steps.parser.csv.LoadPrivateCarsContext
 import application.steps.parser.csv.LoadSharingProvidersContext
 import application.steps.parser.csv.LoadZonesContext
 import application.steps.results.WriteTripsCsvContext
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import core.modelsteps.ExecutionMode
 import core.modelsteps.LateInit
 import core.modelsteps.MapRepository
@@ -89,6 +91,12 @@ interface StandardContext :
     BuildAgentsContext,
     PersonStateContext
 
+@JsonIgnoreProperties(
+    value = ["zoneColumnIndex", "personAgents", "sharingProviderAgents",
+        "defaultZonePath", "defaultSharingStationPath", "defaultHouseholdPath", "defaultPersonPath",
+        "defaultCarPath", "defaultActivityPath", "defaultFixedDestinationsPath",
+        "availabilityWriter", "zoneFolder"] // ignoring all properties not
+)
 data class ExampleProjectContext(
     override val scenarioName: String,
     override val dataFolder: Path,
@@ -110,31 +118,52 @@ data class ExampleProjectContext(
     override val timeUnit: DurationUnit = DurationUnit.MINUTES,
 
     override val simulationSeed: Long = 42,
-    override val simulationStart: AbsoluteTime = AbsoluteTime.Companion.START,
-    override val simulationEnd: AbsoluteTime = AbsoluteTime.Companion.START + 1.weeks,
+    override val simulationStart: AbsoluteTime = AbsoluteTime.START,
+    override val simulationEnd: AbsoluteTime = AbsoluteTime.START + 1.weeks,
     override val timeStep: Duration = 1.minutes,
 ) : DemandSimContext,
     StandardContext,
     HomeLocationModelContext,
     LoadBehaviorModelsContext,
     AgentResultsContext {
+
+    @JsonIgnore
     override val execMode: ExecutionMode = ExecutionMode()
 
+    @JsonIgnore
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
+
+    @JsonIgnore
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")
+
+    @JsonIgnore
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")
 
+    @JsonIgnore
     override val zoneRepository = MapRepository<MutableLegacyZone, ZoneId>("zones")
+
+    @JsonIgnore
     override val householdRepository = MapRepository<MutableHousehold, HouseholdId>("households")
+
+    @JsonIgnore
     override val sharingProviderRepository = MapRepository<MutableSharingProvider, SharingProviderId>(
         "sharing providers"
     )
+
+    @JsonIgnore
     override val drtProviderRepository = MapRepository<MutableDrtProviderData, DrtProviderId>(
         "drt providers"
     )
+
+    @JsonIgnore
     override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
+
+    @JsonIgnore
     override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
-    override val plannedActivityRepository = MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
+
+    @JsonIgnore
+    override val plannedActivityRepository =
+        MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
 
     override val zoneColumnIndex: Map<Int, LegacyZone> by lazy {
         require(zoneRepository.sealed) {
@@ -143,12 +172,18 @@ data class ExampleProjectContext(
         zoneRepository.elements.associateBy { it.matrixColumn }
     }
 
+    @JsonIgnore
     override val impedance = LateInit<Metrics>("Impedance")
 
+    @JsonIgnore
     override val personAgents = MapRepository<PersonAgent, PersonId>("person agents")
+
+    @JsonIgnore
     override val sharingProviderAgents = MapRepository<SharingProviderAgent, SharingProviderId>(
         "sharing providers agents"
     )
+
+    @JsonIgnore
     override val drtProviderAgents = MapRepository<DrtProviderAgent, DrtProviderId>(
         "drt providers agents"
     )

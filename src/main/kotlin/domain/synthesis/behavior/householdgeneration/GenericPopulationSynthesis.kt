@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
+import domain.synthesis.AreaIPUOutput
 import domain.synthesis.IPUOutputLog
-import domain.synthesis.ZoneIPUOutput
 import domain.synthesis.behavior.MinimalistHousehold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -36,13 +36,13 @@ interface HierarchicalPopulationSynthesis<AREA, H> : RuleBasedPopulationSynthesi
         // for example.
         val rootRegions = hierarchy.traceRoots(targetAreas)
         val independentRegions = separateIrrelevantRegions(rootRegions)
-        val progress = standardProgressBar("Hierarchical IPU", independentRegions.size.toLong())
+        val progressBar = standardProgressBar("Hierarchical IPU", independentRegions.size.toLong())
 
         val out = runBlocking {
             independentRegions.entries.map { (root, childs) ->
                 async(Dispatchers.Default) {
                     val result = synthesize(root, childs)
-                    progress.step()
+                    progressBar.step()
                     result
                 }
             }.awaitAll()
@@ -233,10 +233,10 @@ interface HierarchicalRuleProvider<AREA, H> : RuleProvider<AREA, H> {
 
     fun getSubAreas(target: AREA) = hierarchy.getChildren(target)
 
-    fun results(area: AREA, output: List<H>): List<ZoneIPUOutput<AREA>> {
+    fun results(area: AREA, output: List<H>): List<AreaIPUOutput<AREA>> {
         return getRules(area).map {
             val data = IPUOutputLog(it.description, it.target, it.evaluate(output))
-            ZoneIPUOutput(area, data)
+            AreaIPUOutput(area, data)
         }
     }
     fun results(output: Map<AREA, List<H>>) = output.entries.flatMap { results(it.key, it.value) }
@@ -248,7 +248,7 @@ interface HierarchicalRuleProvider<AREA, H> : RuleProvider<AREA, H> {
         metric
     )
 
-    fun verify(output: Map<AREA, Collection<H>>, metric: Metric = Metric.standardizedRootMeanSquaredResidual): Double {
+    fun evaluate(output: Map<AREA, Collection<H>>): List<AreaIPUOutput<AREA>> {
         val ruleMapping = getAllRules()
         val ruleResults = ruleMapping.flatMap { (area, rules) ->
             if (area in output) {
@@ -256,10 +256,15 @@ interface HierarchicalRuleProvider<AREA, H> : RuleProvider<AREA, H> {
                 val currentHHs = subareas.flatMap {
                     output[it] ?: emptyList()
                 }
-                rules.map { it.target to it.evaluate(currentHHs) }
+                rules.toIPUOutput(area, currentHHs)
             } else { emptyList() }
         }
-        return metric.evaluate(ruleResults)
+        return ruleResults
+    }
+
+    fun verify(output: Map<AREA, Collection<H>>, metric: Metric = Metric.standardizedRootMeanSquaredResidual): Double {
+        val output = evaluate(output)
+        return metric.evaluate(output.map { it.original.expected to it.original.actual })
     }
 }
 
