@@ -7,6 +7,7 @@ import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.Location
 import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
@@ -37,11 +38,11 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistan
 import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
+import domain.synthesis.behavior.householdgeneration.HierarchicalPopulationSynthesis
+import domain.synthesis.behavior.householdgeneration.HierarchicalRuleProvider
 import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
 import domain.synthesis.behavior.householdgeneration.IPU
 import domain.synthesis.behavior.householdgeneration.Rule
-import domain.synthesis.behavior.householdgeneration.RuleBasedPopulationSynthesis
-import domain.synthesis.behavior.householdgeneration.RuleProvider
 import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.behavior.toSurveyHouseholds
@@ -61,8 +62,13 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toCurrency
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import utils.Metric
 import utils.collections.addProgressBar
+import utils.collections.standardProgressBar
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -199,6 +205,10 @@ class SynthesisSteps<T : Any>(
     val outputDirectory: Path,
     val opportunities: List<OpportunityOutput>,
 ) {
+    private val zoneMapping by lazy { zones.associateBy { it.id } }
+
+    fun getZone(zoneId: ZoneId) = zoneMapping[zoneId]
+        ?: throw NoSuchElementException("There is no zone with id $zoneId in the mapping")
 
     lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<out T>>>
     val households get() = householdsByZone.flatMap { it.value }
@@ -241,28 +251,43 @@ class SynthesisSteps<T : Any>(
         }
     }
 
-    fun populationSynthesis(
+    fun <X> populationSynthesis(
         verification: Boolean = true,
-        supplier: () -> RuleBasedPopulationSynthesis<Zone, ISurveyHousehold<out T>>,
+        converter: (X) -> Zone,
+        supplier: () -> HierarchicalPopulationSynthesis<X, ISurveyHousehold<out T>>,
     ) {
         val algorithm = supplier()
         val output = algorithm.synthesizeAll()
-        householdsByZone = output.mapValues { it.value.map { it.toSynthesisHousehold() } }
+        householdsByZone = output.mapKeys { converter(it.key) }.mapValues { it.value.map { it.toSynthesisHousehold() } }
 
         if (verification) {
-            println("Population Synthesis has error: ${verify(algorithm.ruleProvider, householdsByZone)}")
+            println(
+                "Population Synthesis has error: ${
+                    algorithm.ruleProvider.verify(
+                        output
+                    )
+                }"
+            )
         }
     }
 
-    private fun verify(
-        ruleProvider: RuleProvider<Zone, ISurveyHousehold<out T>>,
+    fun populationSynthesis(
+        verification: Boolean = true,
+        supplier: () -> HierarchicalPopulationSynthesis<Zone, ISurveyHousehold<out T>>,
+    ) {
+        populationSynthesis(verification, { it }, supplier)
+    }
+
+    private fun <X> verify(
+        ruleProvider: HierarchicalRuleProvider<X, ISurveyHousehold<out T>>,
         output: Map<Zone, List<SynthesisHousehold<out T>>>,
         metric: Metric = Metric.standardizedRootMeanSquaredResidual,
+        converter: (X) -> Zone,
     ): Double {
         val ruleMapping = ruleProvider.getAllRules()
         val ruleResults = ruleMapping.flatMap { (area, rules) ->
-
-            val currentHHs = output[area] ?: emptyList()
+            val subareas = ruleProvider.hierarchy.getAllLeafsFrom(area)
+            val currentHHs = subareas.flatMap { output[converter(it)] ?: emptyList() }
             rules.map { it.target to it.evaluate(currentHHs) }
         }
         return metric.evaluate(ruleResults)
@@ -331,17 +356,28 @@ class SynthesisSteps<T : Any>(
 
     fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<in T>) {
         val strategy = lambda()
-        households.addProgressBar("Generate Activities").forEach { h ->
-            val output = strategy.generate(h)
-            output.entries.forEach { (k, v) ->
-                k.plannedActivities = v
-            }
+        val progressBar = standardProgressBar("Generate Activities", households.size)
+        runBlocking {
+            households.map { household ->
+                launch(Dispatchers.Default) {
+                    val output = strategy.generate(household)
+                    output.entries.forEach { (k, v) ->
+                        k.plannedActivities = v
+                    }
+                    progressBar.step()
+                }
+            }.joinAll()
         }
+//        households.addProgressBar("Generate Activities").forEach { h ->
+//            val output = strategy.generate(h)
+//            output.entries.forEach { (k, v) ->
+//                k.plannedActivities = v
+//            }
+//        }
 
         activities = households.map { it.members.associateWith { it.plannedActivities } }
     }
 }
-
 class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
@@ -349,6 +385,7 @@ class PopulationSynthesis<T : Any>(
     val rules: List<Rule<ISurveyHousehold<out Any>>>,
     val attractivenessModel: AttractivenessModel,
 ) {
+
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
     fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
         SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
