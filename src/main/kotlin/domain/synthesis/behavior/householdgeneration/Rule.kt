@@ -204,10 +204,16 @@ class ZoneRule<H>(
     override val target: Int,
     override val logic: NamedCountRule<H>,
 ) : Rule<H> {
+    @Deprecated("Do not use this constructor, as it does not add a meaningful logic description")
     constructor(description: String, target: Int, logic: CountRule<H>) : this(
         description,
         target,
         NamedCountRule(UnknownLogic, logic)
+    )
+    constructor(ruleDescription: RuleDescription, target: Int, logic: CountRule<H>) : this(
+        ruleDescription.logicDescription,
+        target,
+        NamedCountRule(ruleDescription, logic)
     )
     override fun evaluate(surveyHousehold: H): Int {
         return logic.matches(surveyHousehold)
@@ -238,10 +244,10 @@ class ZoneCheckRule<H>(
         NamedCheckRule(UnknownLogic, logic)
     )
 
-    constructor(ruleDescription: RuleDescription, target: Int, logic: NamedCheckRule<H>) : this(
+    constructor(ruleDescription: RuleDescription, target: Int, logic: CheckRule<H>) : this(
         ruleDescription.logicDescription,
         target,
-        logic
+        NamedCheckRule(ruleDescription, logic)
     )
     override fun evaluate(surveyHousehold: H): Int {
         return logic.matches(surveyHousehold)
