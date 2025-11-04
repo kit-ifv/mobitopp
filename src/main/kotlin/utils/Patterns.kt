@@ -22,17 +22,17 @@ interface Encodable {
 interface Decodable<out T : Encodable> {
 
     fun decode(i: Int): T = requireNotNull(
-        values().find { it.code == i }
+        decodeOrNull(i)
     ) {
         errorMessage(i)
     }
-
+    fun decodeOrNull(i: Int): T? = values().find { it.code == i }
     fun decode(s: String): T = requireNotNull(
-        values().find { it.description == s }
+        decodeOrNull(s)
     ) {
         errorMessage(s)
     }
-
+    fun decodeOrNull(s: String) = values().find { it.description == s }
     fun errorMessage(value: Any): String =
         "The given code '$value' is not a valid ${this::class.simpleName} encoding!\n" +
             "Available encodings:\n" +
