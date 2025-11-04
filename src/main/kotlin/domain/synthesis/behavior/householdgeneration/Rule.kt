@@ -1,5 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
+import domain.synthesis.IPUOutputLog
+import domain.synthesis.AreaIPUOutput
 import domain.synthesis.data.Sex
 import org.jetbrains.annotations.TestOnly
 
@@ -67,7 +69,20 @@ interface Rule<in T> {
 
     fun descriptiveText() = "[$description] expected = $target"
 }
+fun <T, X> Rule<T>.toIPUOutput(area: X, households: Collection<T>): AreaIPUOutput<X> {
+    return AreaIPUOutput<X>(
+        zone = area,
+        IPUOutputLog(
+            description,
+            target,
+            evaluate(households)
+        )
+    )
+}
 
+fun <T, X> Collection<Rule<T>>.toIPUOutput(area: X, households: Collection<T>): List<AreaIPUOutput<X>> {
+    return map { it.toIPUOutput(area, households) }
+}
 fun <T> Collection<Rule<T>>.toScalableVector(element: T): ScalableVector {
     return ScalableVector.createFrom(element, this)
 }
