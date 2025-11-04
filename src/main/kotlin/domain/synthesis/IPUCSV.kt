@@ -17,8 +17,6 @@ object IPUCSV : CSVOutput<IPUOutputLog> {
                 quotientDifference,
                 percentDifference
             )
-
-
         }
     }
 }

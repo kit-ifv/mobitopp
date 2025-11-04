@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
-import domain.synthesis.IPUOutputLog
 import domain.synthesis.AreaIPUOutput
+import domain.synthesis.IPUOutputLog
 import domain.synthesis.data.Sex
 import org.jetbrains.annotations.TestOnly
 
