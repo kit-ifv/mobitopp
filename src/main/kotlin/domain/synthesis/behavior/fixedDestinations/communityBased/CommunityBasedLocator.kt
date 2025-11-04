@@ -19,8 +19,10 @@ import utils.collections.addProgressBar
 class CommunityBasedGroupLocator<T>(
     val demands: CommuterDemandsMatrix,
     val strategy: AssignAgentsInCommunity<T>,
-    private val potentialLocations: Collection<Location>,
+    potentialLocations: Collection<Location>,
 ) : SimpleGroupLocator<T> {
+
+    private val filteredLocations: Collection<Location> = potentialLocations.filter { it.hasCommunityMapping() }
     override fun match(
         agents: Collection<SynthesisPerson<out T>>,
     ): List<AssignedLocation<T>> {
@@ -32,7 +34,7 @@ class CommunityBasedGroupLocator<T>(
             "Assigning demands for communities"
         ).flatMap { (communityNumber, agents) ->
             val demandsForCommunity = demands[communityNumber]
-            val locationsInTargetCommunities = potentialLocations.filter { it.toCommunity() in demandsForCommunity }
+            val locationsInTargetCommunities = filteredLocations.filter { it.toCommunity() in demandsForCommunity }
             strategy.assign(agents, demandsForCommunity, locationsInTargetCommunities)
         }
     }
@@ -46,7 +48,7 @@ class CommunityBasedGroupLocator<T>(
     }
 
     private fun verifyLocationsPresent(targets: Collection<CommunityNumber>) {
-        val badTargets = targets.filter { potentialLocations.none { loc -> loc.toCommunity() in demands[it] } }
+        val badTargets = targets.filter { filteredLocations.none { loc -> loc.toCommunity() in demands[it] } }
         require(badTargets.isEmpty()) {
             "The following communities have demand, but no location is found in the" +
                 " target communities: ${badTargets.joinToString()}"
@@ -55,6 +57,10 @@ class CommunityBasedGroupLocator<T>(
 
     private fun Location.toCommunity(): CommunityNumber {
         return demands.convert(this)
+    }
+
+    private fun Location.hasCommunityMapping(): Boolean {
+        return runCatching { toCommunity() }.isSuccess
     }
 }
 
