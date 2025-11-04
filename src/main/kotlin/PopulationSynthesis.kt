@@ -8,6 +8,7 @@ import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.Location
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.synthesis.AreaIPUCSVOutput
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
@@ -39,7 +40,6 @@ import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
 import domain.synthesis.behavior.householdgeneration.HierarchicalPopulationSynthesis
-import domain.synthesis.behavior.householdgeneration.HierarchicalRuleProvider
 import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
 import domain.synthesis.behavior.householdgeneration.IPU
 import domain.synthesis.behavior.householdgeneration.Rule
@@ -66,7 +66,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import utils.Metric
 import utils.collections.addProgressBar
 import utils.collections.standardProgressBar
 import utils.csv.DefaultCsvParser
@@ -253,6 +252,7 @@ class SynthesisSteps<T : Any>(
 
     fun <X> populationSynthesis(
         verification: Boolean = true,
+        writeResults: Boolean = false,
         converter: (X) -> Zone,
         supplier: () -> HierarchicalPopulationSynthesis<X, ISurveyHousehold<out T>>,
     ) {
@@ -268,29 +268,21 @@ class SynthesisSteps<T : Any>(
                     )
                 }"
             )
+            algorithm.ruleProvider.evaluate(output)
+        }
+        if (writeResults) {
+            outputDirectory.resolve("IPUResults.csv").let {
+                AreaIPUCSVOutput.writeCSVToFile(it, algorithm.ruleProvider.evaluate(output))
+            }
         }
     }
 
     fun populationSynthesis(
         verification: Boolean = true,
+        writeResults: Boolean = false,
         supplier: () -> HierarchicalPopulationSynthesis<Zone, ISurveyHousehold<out T>>,
     ) {
-        populationSynthesis(verification, { it }, supplier)
-    }
-
-    private fun <X> verify(
-        ruleProvider: HierarchicalRuleProvider<X, ISurveyHousehold<out T>>,
-        output: Map<Zone, List<SynthesisHousehold<out T>>>,
-        metric: Metric = Metric.standardizedRootMeanSquaredResidual,
-        converter: (X) -> Zone,
-    ): Double {
-        val ruleMapping = ruleProvider.getAllRules()
-        val ruleResults = ruleMapping.flatMap { (area, rules) ->
-            val subareas = ruleProvider.hierarchy.getAllLeafsFrom(area)
-            val currentHHs = subareas.flatMap { output[converter(it)] ?: emptyList() }
-            rules.map { it.target to it.evaluate(currentHHs) }
-        }
-        return metric.evaluate(ruleResults)
+        populationSynthesis(verification, writeResults, { it }, supplier)
     }
 
     // TODO speaking type parameter names
