@@ -36,13 +36,13 @@ interface HierarchicalPopulationSynthesis<AREA, H> : RuleBasedPopulationSynthesi
         // for example.
         val rootRegions = hierarchy.traceRoots(targetAreas)
         val independentRegions = separateIrrelevantRegions(rootRegions)
-        val progress = standardProgressBar("Hierarchical IPU", independentRegions.size.toLong())
+        val progressBar = standardProgressBar("Hierarchical IPU", independentRegions.size.toLong())
 
         val out = runBlocking {
             independentRegions.entries.map { (root, childs) ->
                 async(Dispatchers.Default) {
                     val result = synthesize(root, childs)
-                    progress.step()
+                    progressBar.step()
                     result
                 }
             }.awaitAll()
