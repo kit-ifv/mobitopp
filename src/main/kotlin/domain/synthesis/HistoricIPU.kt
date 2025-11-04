@@ -23,9 +23,7 @@ class HistoricIPU<AREA, H>(
         // Now the vectors should be scaled via side effect
         return vectors.entries.associate { (k, v) ->
             k to extractor.extract(v)
-
         }
-
     }
 
     fun calculate(
@@ -43,7 +41,6 @@ class HistoricIPU<AREA, H>(
                 RuleObserver.Companion.fromRule(it.value, it.index, uniqueVectors)
             }
             inverseMap to ruleObservers
-
         }
         val (vectors, observers) = temp.values.unzip()
         val allHouseholdsEncoded = vectors.map { it.keys }.flatten()
@@ -54,6 +51,4 @@ class HistoricIPU<AREA, H>(
         ipu.run(allHouseholdsEncoded, additionalObservers + observers.flatten())
         return temp.mapValues { it.value.first }
     }
-
-
 }
