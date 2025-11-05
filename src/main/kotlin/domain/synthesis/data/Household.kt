@@ -120,9 +120,12 @@ enum class HouseholdType(override val code: Int) : Encodable {
     SINGLE_HH(2),
     COUPLE_WITH_CHILDREN(3),
     COUPLE_WITHOUT_CHILDREN(4),
-    OTHER_MULTI_PERSON_HH(5);
+    OTHER_MULTI_PERSON_HH(5),
+    UNDEFINED(-1);
 
     override val description: String = name
 
-    companion object : EnumDecodable<HouseholdType>(HouseholdType::class)
+    companion object : EnumDecodable<HouseholdType>(HouseholdType::class) {
+
+    }
 }
