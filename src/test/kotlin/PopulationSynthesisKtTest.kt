@@ -1,4 +1,5 @@
 import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.Location
 import domain.synthesis.behavior.AlwaysAssignSameStatus
 import domain.synthesis.behavior.AssignAroundZoneCentroid
@@ -67,7 +68,7 @@ class PopulationSynthesisKtTest {
             // TODO make this a code based attractiveness model instead of parsing a file.
             attractivenessModel = attractivenessFromFile {
                 path = Path("src/test/resources/synthesis/attractivities.csv")
-                activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
+                purposes = legacyChoiceModelPurposes
             }
         }
 

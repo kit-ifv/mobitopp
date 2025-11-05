@@ -8,6 +8,7 @@ import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ScalableVector
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
+import domain.synthesis.data.HouseholdType
 import edu.kit.ifv.units.Currency
 
 fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipAttributes {
@@ -37,9 +38,10 @@ var GLOBAL_PERSON_ID_GENERATOR = 0
     private set
 
 class SurveyHousehold<T>(
-    override val surveyHouseholdId: Int,
+    override val surveyHouseholdId: Long,
     override val income: Currency,
-    override val members: List<SurveyPerson<out T>>
+    override val members: List<SurveyPerson<out T>>,
+    override val type: HouseholdType = HouseholdType.UNDEFINED
 ) :
     ISurveyHousehold<T> {
     lateinit var economicStatus: EconomicStatus
@@ -57,10 +59,10 @@ interface MinimalistHousehold<T> {
 }
 
 interface ISurveyHousehold<T> : MinimalistHousehold<T> {
-    val surveyHouseholdId: Int
+    val surveyHouseholdId: Long
     val income: Currency
     override val members: List<SurveyPerson<out T>>
-
+    val type: HouseholdType
     fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
         return members.count(condition)
     }
@@ -73,6 +75,7 @@ interface ISurveyHousehold<T> : MinimalistHousehold<T> {
         return SynthesisHousehold<T>(
             surveyHouseholdId = surveyHouseholdId,
             income = income,
+            type = type,
         ).apply {
             members = this@ISurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
                 .toMutableList()
