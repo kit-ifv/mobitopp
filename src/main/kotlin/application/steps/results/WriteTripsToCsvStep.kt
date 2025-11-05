@@ -18,7 +18,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.bufferedWriter
 
 fun WriteTripsCsvContext.writeTripsToCsv(
-    file: Path = Path("results/demandsimulation.csv"),
+    file: Path = resultDir.resolve("demandsimulation.csv"),
     legCSVWriter: WriteLegToCSV = StandardCSVLegWriter,
 ) = runStep {
     WriteTripsToCsvStep(file, this, legWriter = legCSVWriter)
@@ -57,7 +57,7 @@ object StandardCSVLegWriter: WriteLegToCSV {
 
         return toCSV(
             index,
-            person.id,
+            person.id.value,
             leg.duration.inWholeSeconds,
             leg.transportType.code,
             purpose,
