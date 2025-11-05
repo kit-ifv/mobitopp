@@ -70,7 +70,6 @@ class PopulationSynthesisKtTest {
                 path = Path("src/test/resources/synthesis/attractivities.csv")
                 purposes = legacyChoiceModelPurposes
             }
-
         }
 
         val primarySchools: List<Location> =

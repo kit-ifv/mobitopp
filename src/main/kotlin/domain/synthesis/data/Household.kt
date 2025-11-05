@@ -125,7 +125,5 @@ enum class HouseholdType(override val code: Int) : Encodable {
 
     override val description: String = name
 
-    companion object : EnumDecodable<HouseholdType>(HouseholdType::class) {
-
-    }
+    companion object : EnumDecodable<HouseholdType>(HouseholdType::class)
 }
