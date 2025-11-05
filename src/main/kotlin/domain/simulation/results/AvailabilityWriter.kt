@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import utils.units.AbsoluteTime
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 
 interface AvailabilityWriter {
 
@@ -32,6 +33,8 @@ class ConcurrentAvailabilityWriter(
     private val channel: Channel<String> = Channel(Channel.UNLIMITED)
 
     private val job: Job = AppScope.launch {
+
+        filePath.parent.createDirectories()
 
         filePath.toFile().bufferedWriter().use { writer ->
             writer.write("time;id;tag;mode")
