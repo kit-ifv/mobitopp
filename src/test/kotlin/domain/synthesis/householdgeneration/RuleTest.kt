@@ -169,7 +169,7 @@ private class DifferentExampleInstantiation(override val employment: Employment,
     ExampleInterface
 
 private class DefaultSurveyInfo(
-    override val householdId: Int,
+    override val householdId: Long,
     override val sex: Sex,
     override val age: Int,
     override val householdIncome: Currency,

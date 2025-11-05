@@ -190,13 +190,13 @@ open class SynthesisTest {
         }
 
         companion object {
-            var counter: Int = 0
+            var counter: Long = 0
                 get() = field++
                 private set
         }
     }
     protected class HouseholdBuilder<T> {
-        var id: Int = 0
+        var id: Long = 0
         var income = 0.euros
         val members: MutableList<SurveyPerson<out T>> = mutableListOf()
 
