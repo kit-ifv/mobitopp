@@ -4,6 +4,7 @@ import domain.shared.location.Location
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.data.EconomicStatus
+import domain.synthesis.data.HouseholdType
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.euros
 import java.util.concurrent.atomic.AtomicInteger
@@ -12,9 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger
  * A Synthesis household consists of multiple synthesis persons. The fields are variable to be modified within the
  * usage of the household
  */
-class SynthesisHousehold<T>(
-    override val surveyHouseholdId: Int = 0,
+class SynthesisHousehold<T> constructor(
+    override val surveyHouseholdId: Long = 0,
     override var income: Currency = 0.euros,
+    override val type: HouseholdType = HouseholdType.UNDEFINED
 
 ) : ISurveyHousehold<T> {
     val id = getNextId()
