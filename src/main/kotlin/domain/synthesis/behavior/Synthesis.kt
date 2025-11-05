@@ -1,7 +1,6 @@
 package domain.synthesis.behavior
 
 import domain.synthesis.data.Employment
-import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Currency
@@ -82,6 +81,7 @@ interface SurveyAge {
 interface SurveyType {
     val type: HouseholdType
 }
+
 /**
  * All the information from the survey file, including all irrelevant information
  */
@@ -97,7 +97,7 @@ data class RawSurveyInfo(
     val hasCommuterTicket: Boolean,
     override val householdIncome: Currency,
     val householdIncomeClass: Int, // TODO what is this? it is in a range between 0-8 ???
-    override val type: HouseholdType, // TODO what even is this? It Could be raumtype NVM it is Household Type (SINGLE_HH_ETC
+    override val type: HouseholdType, // TODO what even is this? It Could be raumtype NVM it is Household Type
     val cars: Int,
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,

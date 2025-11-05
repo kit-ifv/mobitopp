@@ -19,7 +19,6 @@ import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SamplingCarGeneration
-import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
@@ -404,7 +403,7 @@ class PopulationSynthesis<T : Any>(
      */
     fun generateFilteredLocations(activityType: ActivityType): List<Location> {
         return generateLocations(activityType, 1) { zone, model, act ->
-            if(model.attractivenessFor(zone.id, act) > 0.0) zone.generateLocations(1) else emptyList()
+            if (model.attractivenessFor(zone.id, act) > 0.0) zone.generateLocations(1) else emptyList()
         }
     }
     companion object {
@@ -419,6 +418,7 @@ class PopulationSynthesis<T : Any>(
             inner class AttractivenessModelParser {
 
                 var path = attractivenessModelPath
+
                 @Deprecated("This parameter does nothing")
                 var activityTypes: Set<ActivityType> = emptySet()
                 lateinit var purposes: ChoiceModelPurposes

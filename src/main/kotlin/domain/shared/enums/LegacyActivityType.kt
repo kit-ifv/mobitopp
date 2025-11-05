@@ -49,6 +49,7 @@ enum class LegacyActivityType(override val code: Int) : ActivityType {
         override fun values(): Set<LegacyActivityType> = LegacyActivityType.entries.toSet()
     }
 }
+
 @Deprecated("Avoid legacy references at all cost, only use this when you know what you are doing")
 val legacyChoiceModelPurposes = ChoiceModelPurposes(
     home = LegacyActivityType.HOME,
