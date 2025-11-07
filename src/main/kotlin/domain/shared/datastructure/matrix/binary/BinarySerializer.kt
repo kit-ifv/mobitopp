@@ -73,7 +73,7 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
             input.readFully(buffer)
             val bb = ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN)
             val doubleArray = readContentFromBuffer(bb, amountOfElements)
-            StandardMatrix.fromValues(doubleArray, zoneIds)
+            StandardMatrix.fromValues(doubleArray, zoneIds, path)
         }
     }
 
@@ -83,7 +83,11 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
      */
     fun checksum(path: Path): PathChecksum {
         return path.inputStream().buffered().use {
-            PathChecksum.from(DataInputStream(it).readLong())
+           val result = runCatching {  PathChecksum.from(DataInputStream(it).readLong())}
+            if(result.isFailure) {
+                println("The failure path is $path")
+            }
+            result.getOrThrow()
         }
     }
 
