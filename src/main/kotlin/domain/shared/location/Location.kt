@@ -57,6 +57,10 @@ data class LocationImpl(
     override fun zoneID(): ZoneId? {
         return zone?.id
     }
+
+    override fun toString(): String {
+        return "Location(coordinate=$coordinate, zone=${zone?.id?.value}, roadAccess=$roadAccess)"
+    }
 //    fun requireZone(): Zone = requireNotNull(zone) {
 //        "Expected Location $this to specify a zone, but found null!"
 //    }

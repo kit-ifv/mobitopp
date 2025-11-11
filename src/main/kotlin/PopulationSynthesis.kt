@@ -1,5 +1,6 @@
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
@@ -18,7 +19,6 @@ import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SamplingCarGeneration
-import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
@@ -47,6 +47,7 @@ import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
+import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import domain.synthesis.results.FixedDestinationElements
 import domain.synthesis.results.LegacyActivityOutput
@@ -108,7 +109,7 @@ fun parseSurvey(path: Path, lambda: SurveyColumns.() -> Unit): List<RawSurveyInf
 fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Sequence<RawSurveyInfo> {
     val parser = DefaultCsvParser { row ->
         RawSurveyInfo(
-            householdId = row(surveyColumns.ID).toInt(),
+            householdId = row(surveyColumns.ID).toLong(),
             year = row(surveyColumns.year).toInt(),
             areaType = row(surveyColumns.areatype).toInt(),
             householdSize = row(surveyColumns.size).toInt(),
@@ -119,7 +120,7 @@ fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Seq
             hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
             householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
             householdIncomeClass = row(surveyColumns.hhincomeClass).toInt(),
-            type = row(surveyColumns.type).toInt(),
+            type = HouseholdType.decode(row(surveyColumns.type).toInt()),
             cars = row(surveyColumns.cars).toInt(),
             hasBicycle = row(surveyColumns.bicycle).toBooleanNumeric(),
             hasLicence = row(surveyColumns.licence).toBooleanNumeric(),
@@ -373,7 +374,7 @@ class SynthesisSteps<T : Any>(
 class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
-    val surveyHouseholds: Collection<SurveyHousehold<T>>,
+    val surveyHouseholds: Collection<ISurveyHousehold<T>>,
     val rules: List<Rule<ISurveyHousehold<out Any>>>,
     val attractivenessModel: AttractivenessModel,
 ) {
@@ -397,23 +398,34 @@ class PopulationSynthesis<T : Any>(
         return generatedLocations
     }
 
+    /**
+     * Spawn a single location in the zone if the attractiveness is higher than 0.0
+     */
+    fun generateFilteredLocations(activityType: ActivityType): List<Location> {
+        return generateLocations(activityType, 1) { zone, model, act ->
+            if (model.attractivenessFor(zone.id, act) > 0.0) zone.generateLocations(1) else emptyList()
+        }
+    }
     companion object {
         class SynthesisConfiguration<T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
             lateinit var rules: List<Rule<ISurveyHousehold<out Any>>>
-            lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
+            lateinit var surveyHouseholds: Collection<ISurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
 
             inner class AttractivenessModelParser {
 
                 var path = attractivenessModelPath
+
+                @Deprecated("This parameter does nothing")
                 var activityTypes: Set<ActivityType> = emptySet()
+                lateinit var purposes: ChoiceModelPurposes
                 fun build(): AttractivenessModel {
                     return AttractivenessFromCsv(
                         path = path,
-                        purposes = legacyChoiceModelPurposes
+                        purposes = purposes
                     )
                 }
             }
