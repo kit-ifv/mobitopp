@@ -26,6 +26,7 @@ class CachedMatrixLookup<M>(
     private val matrixCreator: ZoneMatrixCreation,
 ) : ZoneMatrixLookup<M> {
     private val cache: MatrixCache<M> = MatrixCache()
+
     // TODO this code is not parallel safe, because two threads will cause a double read from matrixCreator
     //
     override fun get(mode: M, time: AbsoluteTime): ZoneIdMatrix {

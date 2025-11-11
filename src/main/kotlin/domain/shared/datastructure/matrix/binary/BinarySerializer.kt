@@ -83,8 +83,8 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
      */
     fun checksum(path: Path): PathChecksum {
         return path.inputStream().buffered().use {
-           val result = runCatching {  PathChecksum.from(DataInputStream(it).readLong())}
-            if(result.isFailure) {
+            val result = runCatching { PathChecksum.from(DataInputStream(it).readLong()) }
+            if (result.isFailure) {
                 println("The failure path is $path")
             }
             result.getOrThrow()
