@@ -6,6 +6,7 @@ import utils.Decodable
 /**
  * The default activity encoding from legacy mobiTopp
  */
+@Deprecated("Avoid using Legacy whenever possible")
 enum class LegacyActivityType(override val code: Int) : ActivityType {
     WORK(1),
     BUSINESS(2),
@@ -49,6 +50,7 @@ enum class LegacyActivityType(override val code: Int) : ActivityType {
     }
 }
 
+@Deprecated("Avoid legacy references at all cost, only use this when you know what you are doing")
 val legacyChoiceModelPurposes = ChoiceModelPurposes(
     home = LegacyActivityType.HOME,
     work = LegacyActivityType.WORK,

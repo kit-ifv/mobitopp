@@ -1,6 +1,7 @@
 package domain.synthesis.behavior
 
 import domain.synthesis.data.Employment
+import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
@@ -41,7 +42,7 @@ fun <T> Collection<T>.repeatExact(amount: Int): List<T> {
  * person information.
  */
 interface SurveyInfo : SurveyEmployment, SurveyAge {
-    val householdId: Int
+    val householdId: Long
     val sex: Sex
     override val age: Int
     val householdIncome: Currency
@@ -77,12 +78,15 @@ interface SurveyEmployment {
 interface SurveyAge {
     val age: Int
 }
+interface SurveyType {
+    val type: HouseholdType
+}
 
 /**
  * All the information from the survey file, including all irrelevant information
  */
 data class RawSurveyInfo(
-    override val householdId: Int,
+    override val householdId: Long,
     val year: Int,
     val areaType: Int, // TODO what is this?
     val householdSize: Int, // TODO remove?. If I determine household size over the household object, this is useless
@@ -93,13 +97,13 @@ data class RawSurveyInfo(
     val hasCommuterTicket: Boolean,
     override val householdIncome: Currency,
     val householdIncomeClass: Int, // TODO what is this? it is in a range between 0-8 ???
-    val type: Int, // TODO what even is this? It Could be raumtype NVM it is Household Type (SINGLE_HH_ETC
+    override val type: HouseholdType, // TODO what even is this? It Could be raumtype NVM it is Household Type
     val cars: Int,
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,
     override val distanceWork: Distance,
     override val distanceEducation: Distance
-) : SurveyWithCommute {
+) : SurveyWithCommute, SurveyType {
     override val age = year - birthyear
 }
 
@@ -122,6 +126,27 @@ fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(
                         person
                     )
                 }
+            )
+        }
+}
+
+fun Collection<RawSurveyInfo>.toTypedSurveyHouseholds(
+    converter: (List<Currency>) -> Currency = {
+        it.first()
+    }
+): List<SurveyHousehold<RawSurveyInfo>> {
+    return groupBy { it.householdId }
+        .map { line ->
+            val income = converter(line.value.map { it.householdIncome })
+            SurveyHousehold(
+                line.value.first().householdId,
+                income,
+                line.value.map { person ->
+                    DefaultSurveyPerson.create(
+                        person
+                    )
+                },
+                type = line.value.first().type
             )
         }
 }
