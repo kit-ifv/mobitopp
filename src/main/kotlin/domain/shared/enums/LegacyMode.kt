@@ -48,6 +48,8 @@ object MainModes : EnumDecodable<LegacyMode>(LegacyMode::class) {
         return modes
     }
 }
+
+@Deprecated("Dont use legacy stuff")
 val legacyChoiceModelModes = ChoiceModelModes(
     car = LegacyMode.CAR,
     passenger = LegacyMode.PASSENGER,

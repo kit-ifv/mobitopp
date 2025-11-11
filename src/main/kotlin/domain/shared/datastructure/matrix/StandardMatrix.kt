@@ -9,12 +9,17 @@ import java.nio.file.Path
 
 class StandardMatrix private constructor(
     override val matrix: DoubleMatrix,
-    private val indexLookup: Map<ZoneId, Int>
+    private val indexLookup: Map<ZoneId, Int>,
+    private val sourcePath: Path?,
 ) :
     ZoneIdMatrix,
     MappedDoubleMatrix<ZoneId> {
 
-    override val converter: IndexEncoder<ZoneId> = IndexEncoder { indexLookup[it]!! }
+    override val converter: IndexEncoder<ZoneId> = IndexEncoder {
+        indexLookup[it] ?: throw NoSuchElementException(
+            "There is no zone id in the lookup $it"
+        )
+    }
     val size get() = keys.size
     val keys = indexLookup.keys
 
@@ -37,16 +42,16 @@ class StandardMatrix private constructor(
          */
         fun parseAsVisumMatrix(path: Path): StandardMatrix {
             val (matrixData, indexData) = VisumMatrixParser(path)
-            return fromValues(matrixData, indexData)
+            return fromValues(matrixData, indexData, path)
         }
 
-        fun fromValues(values: DoubleArray, zoneIds: Array<ZoneId>): StandardMatrix {
+        fun fromValues(values: DoubleArray, zoneIds: Array<ZoneId>, sourcePath: Path? = null): StandardMatrix {
             require(values.size == zoneIds.size * zoneIds.size) {
                 "Cannot create a matrix from values ${values.size} when ${zoneIds.size} is not matching"
             }
             val doubleMatrix = DoubleMatrix(values, zoneIds.size)
             val indexLookup = zoneIds.withIndex().associate { (index, zoneId) -> zoneId to index }
-            return StandardMatrix(doubleMatrix, indexLookup)
+            return StandardMatrix(doubleMatrix, indexLookup, sourcePath)
         }
 
         fun fromValues(values: Collection<Double>, zoneIds: Collection<ZoneId>): StandardMatrix {
