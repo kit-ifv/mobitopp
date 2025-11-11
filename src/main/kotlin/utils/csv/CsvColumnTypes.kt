@@ -48,7 +48,7 @@ fun <T : Encodable> Row.decodeOrNull(index: Int, codePlan: CodePlan<T>): T? {
 
 fun <T : Encodable> Row.decodeOrNull(column: String, codePlan: CodePlan<T>): T? {
     return if (this.hasColumn(column)) {
-        this.invoke(column) { s -> codePlan.decodeOrNull(s) }
+        this.invoke(column) { s -> codePlan.decodeOrNull(s.toInt()) }
     } else {
         null
     }
@@ -59,6 +59,14 @@ fun <T : Encodable> Row.decodeName(column: String, codePlan: CodePlan<T>) =
 
 fun <T : Encodable> Row.decodeName(index: Int, codePlan: CodePlan<T>) =
     this.valueAt(index) { s -> codePlan.decode(s) }
+
+fun <T : Encodable> Row.decodeNameOrNull(column: String, codePlan: CodePlan<T>): T? {
+    return if (this.hasColumn(column)) {
+        this.invoke(column) { s -> codePlan.decodeOrNull(s) }
+    } else {
+        null
+    }
+}
 
 fun Row.unitShare(column: String) = this.invoke(column) { s -> s.toDouble().share() }
 fun Row.unitShare(index: Int) = this.valueAt(index) { s -> s.toDouble().share() }
