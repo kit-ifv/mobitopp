@@ -23,6 +23,26 @@ interface Repo<T> {
     fun getParameterSets(): Map<String, T>
 }
 
+abstract class Builder<T, K> (
+    val wraps: Class<T>,
+    val default: Map<String, K> = emptyMap(),
+    val loadFromSubmodules: Boolean
+) {
+    val serializerMapping: Map<T, String> by lazy {
+        deserializerMapping.reverseMapping()
+    }
+
+    val deserializerMapping: Map<String, T> by lazy {
+        collectMappings(wraps, default.mapValues { (k, v) -> transform(v) }, loadFromSubmodules)
+    }
+
+    abstract fun transform(element: K): T
+
+    fun resolve(s: String): T {
+
+    }
+}
+
 /**
  * A builder for GenericKeyValueSerializers and Deserializers.
  * Collects all `Repo<T>` implementations from subprojects through the ServiceLoader

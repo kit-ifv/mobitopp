@@ -1,5 +1,7 @@
 package domain.jackson
 
+import domain.shared.location.Location
+import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.DestinationChoiceParameters
 import domain.simulation.behavior.ModeChoiceParameters
 import domain.simulation.behavior.legacyDestinationChoiceBuilder
@@ -7,9 +9,10 @@ import domain.simulation.behavior.legacyModeChoiceBuilder
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
+class DestinationChoiceModelProvider(model: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>)
 
 val DestinationChoiceModule = GenericKeyValueBuilder(
-    UtilityBasedChoiceModel::class.java,
+    DestinationChoiceModelProvider::class.java,
     mapOf("default" to legacyDestinationChoiceBuilder.build(DestinationChoiceParameters())),
     loadFromSubmodules = true
 ).getModule()
