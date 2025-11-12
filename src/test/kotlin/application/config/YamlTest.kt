@@ -6,9 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.CoreDestinationChoiceParameterModule
+import domain.jackson.DestinationChoiceModule
 import domain.jackson.CoreZoneMatrixCreationModule
 import domain.jackson.GenericKeyValueBuilder
+import domain.jackson.ModeChoiceModule
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.config.Yaml
 import domain.shared.config.durationModule
@@ -89,7 +90,8 @@ class YamlTest {
             .registerKotlinModule()
             .registerModule(CoreCodePlanModule())
             .registerModule(CoreZoneMatrixCreationModule)
-            .registerModule(CoreDestinationChoiceParameterModule)
+            .registerModule(DestinationChoiceModule)
+            .registerModule(ModeChoiceModule)
             .registerModule(durationModule)
             .registerModule(pathModule)
             .findAndRegisterModules()
@@ -106,9 +108,9 @@ class YamlTest {
             .registerModule(destinationChoiceParameterTestModule)
             .registerModule(choiceModelModesTestModule)
 
-        val configObj = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(input)
+        val configObj = Yaml.readYaml<ShortTermConfig>(input)
         Yaml.writeYaml(output, configObj)
-        val writtenConfig = Yaml.readYaml<ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters>>(output)
+        val writtenConfig = Yaml.readYaml<ShortTermConfig>(output)
         assertEquals(configObj, writtenConfig)
         Path(output).deleteIfExists()
     }

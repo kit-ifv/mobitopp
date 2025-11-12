@@ -18,6 +18,6 @@ personCSV: data/test/person.csv
 
 sharingProviderName: "testProvider"
 vehicleCountColumn: "something"
-destinationChoiceParameterSet: default
-modeChoiceParameterSet: default
 choiceModelModes: default
+destinationChoiceModel: default
+modeChoiceModel: default

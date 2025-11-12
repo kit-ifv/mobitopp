@@ -13,8 +13,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.CoreDestinationChoiceParameterModule
+import domain.jackson.DestinationChoiceModule
 import domain.jackson.CoreZoneMatrixCreationModule
+import domain.jackson.ModeChoiceModule
 import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.parseIsoString
@@ -45,7 +46,8 @@ object Yaml {
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
         .registerModule(CoreZoneMatrixCreationModule)
-        .registerModule(CoreDestinationChoiceParameterModule)
+        .registerModule(DestinationChoiceModule)
+        .registerModule(ModeChoiceModule)
         .registerModule(durationModule)
         .registerModule(pathModule)
         .findAndRegisterModules()

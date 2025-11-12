@@ -3,12 +3,18 @@ package application.config
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
+import domain.shared.enums.Mode
+import domain.shared.location.Location
+import domain.simulation.behavior.DestinationChoiceCharacteristics
+import domain.simulation.behavior.ModeChoiceCharacteristics
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
-data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
+data class ShortTermConfig(
     /* impedance*/
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
@@ -38,13 +44,13 @@ data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     /* repos*/
 
     /* ChoiceParameters */
-    val destinationChoiceParameterSet: DESTINATIONCHOICEPARAMETERS,
-    val modeChoiceParameterSet: MODECHOICEPARAMETERS,
+    val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
 
     /* vehicle sharing */
     val sharingProviderName: String,
 
-) {
+    ) {
 
     lateinit var matrixRepo: Path
     lateinit var resultName: String

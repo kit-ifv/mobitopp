@@ -77,8 +77,8 @@ val standardConfig = ShortTermConfig(
     errorHandling = ErrorHandling.WARNING,
     resultPath = Path("results"),
 
-    destinationChoiceParameterSet = DestinationChoiceParameters(),
-    modeChoiceParameterSet = ModeChoiceParameters(),
+    destinationChoiceModel = legacyDestinationChoiceBuilder.build(DestinationChoiceParameters()),
+    modeChoiceModel = legacyModeChoiceBuilder.build(ModeChoiceParameters()),
 
     sharingProviderName = "",
 
@@ -93,7 +93,7 @@ val standardConfig = ShortTermConfig(
 
 @Suppress("LongMethod")
 fun main(args: Array<String>) {
-    val shortTermConfig: ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters> =
+    val shortTermConfig: ShortTermConfig =
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: standardConfig
 
     shortTermConfig.validate()
@@ -168,8 +168,8 @@ fun main(args: Array<String>) {
         )
 
         loadBehaviorModels(
-            legacyDestinationChoiceBuilder.build(shortTermConfig.destinationChoiceParameterSet),
-            legacyModeChoiceBuilder.build(shortTermConfig.modeChoiceParameterSet),
+            shortTermConfig.destinationChoiceModel,
+            shortTermConfig.modeChoiceModel,
             shortTermConfig.choiceModelModes
         )
 
