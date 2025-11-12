@@ -112,7 +112,7 @@ class YamlTest {
         Yaml.writeYaml(output, configObj)
         val writtenConfig = Yaml.readYaml<ShortTermConfig>(output)
         assertEquals(configObj, writtenConfig)
-        Path(output).deleteIfExists()
+       // Path(output).deleteIfExists()
     }
 
     @Test
