@@ -174,13 +174,13 @@
       "type": "string"
     },
     "destinationChoiceModel": {
-      "description": "A destination choice model. The creation needs to be handled somewhere else. Create a Repo<UtilityBasedChoiceModel<> in your subproject and expose it in the META-INF repository, to register custom choice models.",
+      "description": "A destination choice model. Create a Repo<UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>> in your subproject and expose it in the META-INF repository, to register custom destination choice models.",
       "type": "string",
       "pattern": "[a-zA-Z]+",
       "default": "legacyDestinationChoiceModel"
     },
     "modeChoiceModel": {
-      "description": "A destination choice model. The creation needs to be handled somewhere else. Create a Repo<UtilityBasedChoiceModel> in your subproject and expose it in the META-INF repository, to register custom choice models.",
+      "description": "A destination choice model. Create a Repo<FixedChoiceModel<Mode, ModeChoiceCharacteristics>> in your subproject and expose it in the META-INF repository, to register custom mode choice models.",
       "type": "string",
       "pattern": "[a-zA-Z]+",
       "default": "legacyModeChoiceModel"
