@@ -18,7 +18,6 @@ val destinationChoiceModelType: JavaType = TypeFactory.defaultInstance().constru
 
 val DestinationChoiceModule = GenericKeyValueBuilder(
     destinationChoiceModelType,
-    UtilityBasedChoiceModel::class.java,
     mapOf("default" to legacyDestinationChoiceBuilder.build(DestinationChoiceParameters())),
     loadFromSubmodules = true
 ).getModule()
@@ -29,7 +28,6 @@ val modeChoiceModelType: JavaType = TypeFactory.defaultInstance().constructParam
 
 val ModeChoiceModule = GenericKeyValueBuilder(
     modeChoiceModelType,
-    FixedChoiceModel::class.java,
     mapOf("default" to legacyModeChoiceBuilder.build(ModeChoiceParameters())),
     loadFromSubmodules = true
 ).getModule()

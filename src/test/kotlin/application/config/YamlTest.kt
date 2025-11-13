@@ -3,6 +3,7 @@ package application.config
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
@@ -10,13 +11,13 @@ import domain.jackson.DestinationChoiceModule
 import domain.jackson.CoreZoneMatrixCreationModule
 import domain.jackson.GenericKeyValueBuilder
 import domain.jackson.ModeChoiceModule
+import domain.jackson.isSameOrSubtypeOf
+import domain.jackson.javaType
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.config.Yaml
 import domain.shared.config.durationModule
 import domain.shared.config.pathModule
 import domain.shared.enums.Mode
-import domain.simulation.behavior.DestinationChoiceParameters
-import domain.simulation.behavior.ModeChoiceParameters
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import kotlin.io.path.Path
@@ -26,18 +27,6 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
-private val modeTestModule = GenericKeyValueBuilder(
-    wraps = ModeChoiceParameters::class.java,
-    default = mapOf("default" to ModeChoiceParameters()),
-    loadFromSubmodules = false
-).getModule()
-
-private val destinationChoiceParameterTestModule = GenericKeyValueBuilder(
-    wraps = DestinationChoiceParameters::class.java,
-    default = mapOf("default" to DestinationChoiceParameters()),
-    loadFromSubmodules = false
-).getModule()
 
 private class TestCar(
     override val requiresVehicleTakeAlong: Boolean = false,
@@ -60,7 +49,7 @@ private val testModes = ChoiceModelModes(
 )
 
 private val choiceModelModesTestModule = GenericKeyValueBuilder(
-    wraps = ChoiceModelModes::class.java,
+    javaType(ChoiceModelModes::class.java),
     default = mapOf("default" to testModes),
     loadFromSubmodules = false
 ).getModule()
@@ -104,8 +93,6 @@ class YamlTest {
         Path(output).createParentDirectories()
         if (!Path(output).exists()) Path(output).createFile()
         Yaml.mapper
-            .registerModule(modeTestModule)
-            .registerModule(destinationChoiceParameterTestModule)
             .registerModule(choiceModelModesTestModule)
 
         val configObj = Yaml.readYaml<ShortTermConfig>(input)
@@ -122,7 +109,7 @@ class YamlTest {
         Path(output).createParentDirectories()
         if (!Path(output).exists()) Path(output).createFile()
         val builder = GenericKeyValueBuilder(
-            wraps = MyParameterClass::class.java,
+            javaType(MyParameterClass::class.java),
             default = mapOf(
                 "custom" to MyParameterClass("test"),
             ),
@@ -143,7 +130,7 @@ class YamlTest {
     fun nonExistentMappingTest() {
         val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
         val builder = GenericKeyValueBuilder(
-            wraps = MyParameterClass::class.java,
+            javaType(MyParameterClass::class.java),
             default = mapOf(
                 "thisDoesntExist" to MyParameterClass("test"),
             ),
@@ -162,7 +149,7 @@ class YamlTest {
         Path(output).createParentDirectories()
         if (!Path(output).exists()) Path(output).createFile()
         val builder = GenericKeyValueBuilder(
-            wraps = MyParameterClass::class.java,
+            javaType(MyParameterClass::class.java),
             default = mapOf(
                 "custom" to MyParameterClass("test"),
                 "other" to MyParameterClass("test2"),
@@ -181,4 +168,46 @@ class YamlTest {
         assertEquals(parsed, writtenConfig)
         Path(output).deleteIfExists()
     }
+
+    @Test
+    fun typeTest() {
+        val a1 = TypeFactory.defaultInstance().constructParametricType(A::class.java, B::class.java, C::class.java)
+        val a2 = TypeFactory.defaultInstance().constructParametricType(A::class.java, B::class.java, D::class.java)
+        val a3 = javaType(A::class.java)
+        val a4 = TypeFactory.defaultInstance().constructParametricType(A::class.java, B::class.java, B::class.java)
+        val e1 = TypeFactory.defaultInstance().constructParametricType(E::class.java, B::class.java)
+        val f1 = TypeFactory.defaultInstance().constructParametricType(F::class.java, B::class.java)
+        val x = javaType(TestInterface::class.java)
+
+        assert(a1 != a2)
+        assert(a1 != a3)
+        assert(a2 != a3)
+
+        assert(!a3.isSameOrSubtypeOf(a1))
+        assert(!a3.isSameOrSubtypeOf(a2))
+        assert(!a1.isSameOrSubtypeOf(a3))
+        assert(!a2.isSameOrSubtypeOf(a3))
+
+        assert(a4.isSameOrSubtypeOf(a4))
+        assert(e1.isSameOrSubtypeOf(a4))
+        assert(f1.isSameOrSubtypeOf(e1))
+        assert(f1.isSameOrSubtypeOf(a4))
+
+        assert(a1.isSameOrSubtypeOf(x))
+        assert(x.isSameOrSubtypeOf(x))
+        assert(a4.isSameOrSubtypeOf(x))
+        assert(e1.isSameOrSubtypeOf(x))
+        assert(f1.isSameOrSubtypeOf(x))
+    }
 }
+
+
+
+private class B
+private class C
+private class D
+private open class A<X, Y>: TestInterface
+private open class E<Z>: A<Z, Z>()
+private class F<Z>: E<Z>()
+
+private interface TestInterface
