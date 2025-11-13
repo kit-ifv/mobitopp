@@ -19,5 +19,5 @@ personCSV: data/test/person.csv
 sharingProviderName: "testProvider"
 vehicleCountColumn: "something"
 choiceModelModes: default
-destinationChoiceModel: default
-modeChoiceModel: default
+destinationChoiceModel: legacyDestinationChoiceModel
+modeChoiceModel: legacyModeChoiceModel

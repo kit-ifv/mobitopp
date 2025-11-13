@@ -40,7 +40,9 @@ interface Repo<T> {
 class SpecificTypeDeserializers(private val targetType: JavaType, private val deserializer: JsonDeserializer<*>) :
     SimpleDeserializers() {
     override fun findBeanDeserializer(
-        type: JavaType, config: DeserializationConfig?, beanDesc: BeanDescription?
+        type: JavaType,
+        config: DeserializationConfig?,
+        beanDesc: BeanDescription?
     ): JsonDeserializer<*>? {
         if (type.isSameOrSubtypeOf(targetType)) {
             return deserializer
@@ -115,12 +117,12 @@ open class GenericKeyValueBuilder<T>(
      */
     open fun getModule(): SimpleModule {
         return SimpleModule("KeyValueSerializer of $type").apply {
-                setSerializers(SpecificTypeSerializers(
-                    type,
-                    getSerializer(),
-                ))
-                setDeserializers(SpecificTypeDeserializers(type, getDeserializer()))
-            }
+            setSerializers(SpecificTypeSerializers(
+                type,
+                getSerializer(),
+            ))
+            setDeserializers(SpecificTypeDeserializers(type, getDeserializer()))
+        }
     }
 }
 
@@ -152,7 +154,6 @@ class GenericKeyValueDeserializer<T>(
         }
 
         val node = p.codec.readTree<JsonNode>(p)
-
 
         val fieldValue = when {
             node.isTextual -> node.asText()
@@ -305,6 +306,6 @@ fun JavaType.isSubtypeOf(other: JavaType): Boolean {
  * TypeFactory.defaultInstance().constructParametricType(A::class.java, B::class.java)
  * ```
  */
-fun javaType(type: Class<*>):JavaType {
+fun javaType(type: Class<*>): JavaType {
     return TypeFactory.defaultInstance().constructType(type)
 }

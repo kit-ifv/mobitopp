@@ -50,7 +50,7 @@ data class ShortTermConfig(
     /* vehicle sharing */
     val sharingProviderName: String,
 
-    ) {
+) {
 
     lateinit var matrixRepo: Path
     lateinit var resultName: String

@@ -174,16 +174,16 @@
       "type": "string"
     },
     "destinationChoiceModel": {
-      "description": "A destination choice model. The creation needs to be handled somewhere else. Create a Repo<UtilityBasedChoiceModel> in your subproject and expose it in the META-INF repository, to register custom choice models.",
+      "description": "A destination choice model. The creation needs to be handled somewhere else. Create a Repo<UtilityBasedChoiceModel<> in your subproject and expose it in the META-INF repository, to register custom choice models.",
       "type": "string",
       "pattern": "[a-zA-Z]+",
-      "default": "default"
+      "default": "legacyDestinationChoiceModel"
     },
     "modeChoiceModel": {
       "description": "A destination choice model. The creation needs to be handled somewhere else. Create a Repo<UtilityBasedChoiceModel> in your subproject and expose it in the META-INF repository, to register custom choice models.",
       "type": "string",
       "pattern": "[a-zA-Z]+",
-      "default": "default"
+      "default": "legacyModeChoiceModel"
     },
     "choiceModelModes": {
       "description": "What modes are used for the destination choice. Since these are usually a custom type in a subproject, you need to create and register a jackson 'SimpleModule' to register a deserializer (see 'GenericKeyValueDeserializer').",

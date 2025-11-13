@@ -13,23 +13,26 @@ import domain.simulation.behavior.legacyModeChoiceBuilder
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
-
-val destinationChoiceModelType: JavaType = TypeFactory.defaultInstance().constructParametricType(UtilityBasedChoiceModel::class.java, Location::class.java, DestinationChoiceCharacteristics::class.java)
+val destinationChoiceModelType: JavaType = TypeFactory.defaultInstance().constructParametricType(
+    UtilityBasedChoiceModel::class.java,
+    Location::class.java,
+    DestinationChoiceCharacteristics::class.java
+)
 
 val DestinationChoiceModule = GenericKeyValueBuilder(
     destinationChoiceModelType,
-    mapOf("default" to legacyDestinationChoiceBuilder.build(DestinationChoiceParameters())),
+    mapOf("legacyDestinationChoiceModel" to legacyDestinationChoiceBuilder.build(DestinationChoiceParameters())),
     loadFromSubmodules = true
 ).getModule()
 
-val modeChoiceModelType: JavaType = TypeFactory.defaultInstance().constructParametricType(FixedChoiceModel::class.java, Mode::class.java,
-    ModeChoiceCharacteristics::class.java)
-
+val modeChoiceModelType: JavaType = TypeFactory.defaultInstance().constructParametricType(
+    FixedChoiceModel::class.java,
+    Mode::class.java,
+    ModeChoiceCharacteristics::class.java
+)
 
 val ModeChoiceModule = GenericKeyValueBuilder(
     modeChoiceModelType,
-    mapOf("default" to legacyModeChoiceBuilder.build(ModeChoiceParameters())),
+    mapOf("legacyModeChoiceModel" to legacyModeChoiceBuilder.build(ModeChoiceParameters())),
     loadFromSubmodules = true
 ).getModule()
-
-

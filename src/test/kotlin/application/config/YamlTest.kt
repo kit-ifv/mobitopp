@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.DestinationChoiceModule
 import domain.jackson.CoreZoneMatrixCreationModule
+import domain.jackson.DestinationChoiceModule
 import domain.jackson.GenericKeyValueBuilder
 import domain.jackson.ModeChoiceModule
 import domain.jackson.isSameOrSubtypeOf
@@ -99,7 +99,7 @@ class YamlTest {
         Yaml.writeYaml(output, configObj)
         val writtenConfig = Yaml.readYaml<ShortTermConfig>(output)
         assertEquals(configObj, writtenConfig)
-       // Path(output).deleteIfExists()
+        Path(output).deleteIfExists()
     }
 
     @Test
@@ -132,7 +132,7 @@ class YamlTest {
         val builder = GenericKeyValueBuilder(
             javaType(MyParameterClass::class.java),
             default = mapOf(
-                "thisDoesntExist" to MyParameterClass("test"),
+                "fileDoesntUseThisKey" to MyParameterClass("test"),
             ),
             loadFromSubmodules = false
         )
@@ -201,13 +201,11 @@ class YamlTest {
     }
 }
 
-
-
 private class B
 private class C
 private class D
-private open class A<X, Y>: TestInterface
-private open class E<Z>: A<Z, Z>()
-private class F<Z>: E<Z>()
+private open class A<X, Y> : TestInterface
+private open class E<Z> : A<Z, Z>()
+private class F<Z> : E<Z>()
 
 private interface TestInterface
