@@ -218,7 +218,6 @@
       "description": "What modes are used for the destination choice. Since these are usually a custom type in a subproject, you need to create and register a jackson 'SimpleModule' to register a deserializer (see 'GenericKeyValueDeserializer').",
       "type": "string",
       "pattern": "[a-zA-Z]+",
-      "default": "default"
     },
     "sharingProviderName": {
       "description": "Name of the (bike) sharing provider.",

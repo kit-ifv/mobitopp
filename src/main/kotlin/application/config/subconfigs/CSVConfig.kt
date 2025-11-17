@@ -1,6 +1,7 @@
 package application.config.subconfigs
 
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -31,6 +32,7 @@ data class CSVConfig(
      *
      * `zoneDirectory`: attractivities.csv, bikesharing_stations.csv, zones.csv
      */
+    @JsonCreator
     constructor(
         dataDirectory: Path,
         zoneDirectory: Path,

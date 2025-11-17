@@ -44,15 +44,13 @@ data class ShortTermConfig(
 ) {
     lateinit var matrixConfig: MatrixConfig
     lateinit var resultName: String
-    lateinit var zoneRepo: Path
     lateinit var choiceModelModes: ChoiceModelModes
     lateinit var vehicleCountColumn: String
 
     fun validate() {
         val paths = mutableListOf(
             simulationContext.dataFolder,
-            cachePath,
-            zoneRepo
+            cachePath
         )
 
         val nonExistentPaths =

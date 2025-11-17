@@ -88,7 +88,6 @@ val standardConfig = ShortTermConfig(
 ).apply {
     matrixConfig = MatrixConfig(matrixRepo = Path(ROOT_MTX)   )
     resultName = "mobitopp-main.csv"
-    zoneRepo = Path("src/test/resources/testDemand/zone-repository/")
     vehicleCountColumn = ""
     choiceModelModes = legacyChoiceModelModes
 }

@@ -1,6 +1,7 @@
 package application.config.subconfigs
 
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -35,6 +36,7 @@ class MatrixConfig (
      * expected to be a direct child of the matrixRepo directory.When given an absolute path, only that path is
      * considered and no resolution takes place.
      */
+    @JsonCreator
     constructor(
         matrixRepo: Path,
         costMatrixConfig: Path = Path(defaultCostMatrixName),
