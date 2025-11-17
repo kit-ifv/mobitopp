@@ -41,4 +41,11 @@ class BestTargetTracker(allPartitions: Collection<TempPartition>, private val ra
     }
 }
 
+class UnidirectionalBestTargetTracker(originPartition: TempPartition, destinationPartitions: Collection<TempPartition>, private val random: Random = Random(1)) {
+    private val maxGain: Int = originPartition.signatureTracker.largestDifference
+
+
+}
+
+
 typealias Bucket<T> = MutableSet<T>
