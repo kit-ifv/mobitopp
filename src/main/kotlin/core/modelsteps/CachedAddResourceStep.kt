@@ -9,6 +9,7 @@ import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.nameWithoutExtension
+import kotlin.math.exp
 
 /**
  * A resource-loading step that adds binary caching on top of an [AbstractAddResourceStep].
@@ -112,10 +113,14 @@ abstract class CachedFileInput(
     }
 
     protected fun hasValidCache(): Boolean {
+
+        println("Checking valid cache path $expectedCachePath")
         if (!expectedCachePath.exists()) return false
         val cachedChecksum = runCatching { calculateChecksum(expectedCachePath) }
         if (cachedChecksum.isFailure) return false
-        return cachedChecksum.getOrNull() == originalFileChecksum
+        return (cachedChecksum.getOrNull() == originalFileChecksum).also {
+            println("Cache for ${expectedCachePath} is $it")
+        }
     }
 
     abstract fun calculateChecksum(expectedCachePath: Path): PathChecksum

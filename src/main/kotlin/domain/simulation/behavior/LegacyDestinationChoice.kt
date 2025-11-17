@@ -259,6 +259,7 @@ inline operator fun Boolean.times(number: Number) = this.D * number.toDouble()
 inline operator fun Number.plus(bool: Boolean) = this.toDouble() + bool.D
 inline operator fun Boolean.plus(number: Number) = this.D + number.toDouble()
 
+@Deprecated("Dont use")
 @Suppress("MagicNumber")
 val legacyDestinationChoiceBuilder =
     RuleBasedStructure<Location, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
