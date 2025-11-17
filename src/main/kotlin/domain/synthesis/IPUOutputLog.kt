@@ -19,5 +19,7 @@ data class IPUOutputLog(
         max(exp / act, act / exp)
     }
 
+    fun isImperfect() = expected != actual
+
     val percentDifference = abs(difference.toDouble()) / max(1, expected)
 }
