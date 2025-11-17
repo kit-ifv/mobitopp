@@ -3,36 +3,97 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["zoneRepo", "matrixRepo","costMatrixConfig", "durationMatrixConfig", "distanceMatrix", "zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling","cachePath", "simulationContext", "sharingProviderName", "vehicleCountColumn","destinationChoiceModel", "modeChoiceModel", "choiceModelModes"],
+  "required": ["matrixConfig", "sourceFiles","zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling", "simulationContext", "sharingProviderName", "vehicleCountColumn", "destinationChoiceModel", "modeChoiceModel", "choiceModelModes"],
   "type": "object",
   "properties": {
-    "zoneRepo": {
-      "description": "The path to the zone repository folder. Should at least contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file.",
-      "type": "string",
-      "default": "data/zone-repository"
+    "sourceFiles": {
+      "description": "Paths to csv files needed for the simulation. Provide either all paths to all csv's or set a data and a zone-directory containing those files.",
+      "type": "object",
+      "default": {
+        "zoneDirectory": "SET-ME",
+        "dataDirectory": "data"
+      },
+      "properties": {
+        "zoneDirectory": {
+          "description": "The path to the zone repository folder. Should contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file.",
+          "type": "string"
+        },
+        "dataDirectory": {
+          "description": "The path to the data repository folder. Should contain person.csv, household.csv, activity.csv, car.csv, fixedDestination.csv. If not, relative paths to the data directory can be set or fully independent absolute paths to the files.",
+          "type": "string"
+        },
+        "personCSV" :  {
+          "description": "Optional path to person.csv relative to the data directory or an absolute path to person.csv.",
+          "type": "string"
+        },
+        "householdCSV":  {
+          "description": "Optional path to household.csv relative to the data directory or an absolute path to household.csv.",
+          "type": "string"
+        },
+        "activityCSV":  {
+          "description": "Optional path to activity.csv relative to the data directory or an absolute path to activity.csv.",
+          "type": "string"
+        },
+        "privateCarsCSV":  {
+          "description": "Optional path to car.csv relative to the data directory or an absolute path to car.csv.",
+          "type": "string"
+        },
+        "fixedDestinationCSV":  {
+          "description": "Optional path to fixedDestination.csv relative to the data directory or an absolute path to fixedDestination.csv.",
+          "type": "string"
+        },
+        "attractivitiesCSV":  {
+          "description": "Optional path to attractivities.csv relative to the zone directory or an absolute path to attractivities.csv.",
+          "type": "string"
+        },
+        "bikeSharingStations":  {
+          "description": "Optional path to bikesharing_stations.csv relative to the zone directory or an absolute path to bikesharing_stations.csv.",
+          "type": "string"
+        },
+        "zonesCSV":  {
+          "description": "Optional path to zones.csv relative to the zone directory or an absolute path to zones.csv.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["zoneDirectory", "dataDirectory"]
+        },
+        {
+          "required": ["personCSV", "householdCSV", "activityCSV", "privateCarsCSV", "fixedDestinationCSV", "attractivitiesCSV", "bikeSharingStations", "zonesCSV"]
+        }
+      ]
     },
-    "matrixRepo": {
-      "description": "The path to the matrix repository folder. Should contain the constMatrixConfig and durationMatrixConfig file. However files can be set independently making this parameter essentially useless.",
-      "type": "string",
-      "default": "data/matrix"
-    },
-    "costMatrixConfig": {
-      "description": "Path to the cost matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be an absolute path to the cost matrix config file.",
-      "type": "string",
-      "default": "cost-matrix-configuration_transmove_turbo.yaml",
-      "pattern": ".+.yaml"
-    },
-    "durationMatrixConfig": {
-      "description": "Path to the time matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also take an absolute path to the duration config file.",
-      "type": "string",
-      "default": "time-matrix-configuration_transmove_turbo.yaml",
-      "pattern": ".+.yaml"
-    },
-    "distanceMatrix": {
-      "description": "Path to the distance matrix file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be set to an absolute path to that file.",
-      "type": "string",
-      "default": "DIS_Car.mtx.bz2",
-      "pattern": ".+.mtx.bz2"
+    "matrixConfig": {
+      "description": "Set the matrixRepo path or all three other paths to the respective cost-, duration-, and distance-files.",
+      "type": "object",
+      "properties": {
+        "matrixRepo": {
+          "description": "The path to the matrix repository folder. Should contain the constMatrixConfig and durationMatrixConfig file. However files can be set independently making this parameter essentially useless.",
+          "type": "string",
+          "default": "data/matrix"
+        },
+        "costMatrixConfig": {
+          "description": "Path to the cost matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be an absolute path to the cost matrix config file.",
+          "type": "string",
+          "default": "cost-matrix-configuration_transmove_turbo.yaml",
+          "pattern": ".+.yaml"
+        },
+        "durationMatrixConfig": {
+          "description": "Path to the time matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also take an absolute path to the duration config file.",
+          "type": "string",
+          "default": "time-matrix-configuration_transmove_turbo.yaml",
+          "pattern": ".+.yaml"
+        },
+        "distanceMatrix": {
+          "description": "Path to the distance matrix file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be set to an absolute path to that file.",
+          "type": "string",
+          "default": "DIS_Car.mtx.bz2",
+          "pattern": ".+.mtx.bz2"
+        }
+      },
+      "additionalProperties": false
     },
     "zoneMatrixCreationMethod": {
       "description": "How zoneMatrices should be created. On default either `visum` and `keyBased` are available. If you want others, they need to be registered in `ZoneMatrixCreationDeserializer.kt`",
@@ -76,8 +137,8 @@
           "type": "string"
         },
         "dataFolder": {
-          "description": "The directory most simulation files like car.csv, person.csv... reside in. You can also set single paths to those files by setting for example the carCSV property.",
-          "type": "string"
+          "description": "The ShortTermConfig tries to circumvent using this property.",
+          "type": "string",
         },
         "modes": {
           "description": "Which transport mode code plan is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider. Default options can be found in CoreCodePlans in mobitopp-reengineering. You likely don't want 'coreModes', rather a subset of those modes.",
@@ -137,41 +198,9 @@
       "default": {
         "scenarioName": "New-Simulation",
         "simulationSeed": 42,
-        "dataFolder": "data",
+        "dataFolder": "",
         "modes": "coreModes"
       }
-    },
-    "personCSV" :  {
-      "description": "The absolute path to person.csv. If not set, person.csv is assumed to be in the `dataFolder`.",
-      "type": "string"
-    },
-    "householdCSV":  {
-      "description": "The absolute path to household.csv. If not set, household.csv is assumed to be in the `dataFolder`.",
-      "type": "string"
-    },
-    "activityCSV":  {
-      "description": "The absolute path to activity.csv. If not set, activity.csv is assumed to be in the `dataFolder`.",
-      "type": "string"
-    },
-    "privateCarsCSV":  {
-      "description": "The absolute path to cars.csv. If not set, cars.csv is assumed to be in the `dataFolder`.",
-      "type": "string"
-    },
-    "fixedDestinationCSV":  {
-      "description": "The absolute path to fixedDestination.csv. If not set, fixedDestination.csv is assumed to be in the `dataFolder`.",
-      "type": "string"
-    },
-    "attractivitiesCSV":  {
-      "description": "The absolute path to attractivities.csv. If not set, attractivities.csv is assumed to be in the `zoneRepo`.",
-      "type": "string"
-    },
-    "bikeSharingStations":  {
-      "description": "The absolute path to bikesharing_stations.csv. If not set, bikesharing_stations.csv is assumed to be in the `zoneRepo`.",
-      "type": "string"
-    },
-    "zonesCSV":  {
-      "description": "The absolute path to zones.csv. If not set, zones.csv is assumed to be in the `zoneRepo`.",
-      "type": "string"
     },
     "destinationChoiceModel": {
       "description": "A destination choice model. Create a Repo<UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>> in your subproject and expose it in the META-INF repository, to register custom destination choice models.",

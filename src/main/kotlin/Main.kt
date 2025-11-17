@@ -2,6 +2,8 @@
 
 import application.config.ExampleProjectContext
 import application.config.ShortTermConfig
+import application.config.subconfigs.CSVConfig
+import application.config.subconfigs.MatrixConfig
 import application.steps.model.addDrtMemberships
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
@@ -62,9 +64,6 @@ val standardConfig = ShortTermConfig(
     visumNetwork = visum_network,
     fractionOfPopulation = 1.0,
 
-    costMatrixConfig = Path("cost-matrix-configuration_transmove_turbo.yaml"),
-    durationMatrixConfig = Path("time-matrix-configuration_transmove_turbo.yaml"),
-    distanceMatrix = Path("DIS_Car.mtx.bz2"),
     cachePath = Path("data/data-cache"),
     zoneMatrixCreationMethod = VisumMatrixCreator,
     simulationContext = ExampleProjectContext(
@@ -81,10 +80,13 @@ val standardConfig = ShortTermConfig(
     modeChoiceModel = legacyModeChoiceBuilder.build(ModeChoiceParameters()),
 
     sharingProviderName = "",
-
-    attractivitiesCSV = attractivities,
+    sourceFiles = CSVConfig(
+        dataDirectory = Path("src/test/resources/testDemand/demand-data/"),
+        zoneDirectory = Path("src/test/resources/testDemand/zone-repository/"),
+        attractivitiesCSV = attractivities,
+    ),
 ).apply {
-    matrixRepo = Path(ROOT_MTX)
+    matrixConfig = MatrixConfig(matrixRepo = Path(ROOT_MTX)   )
     resultName = "mobitopp-main.csv"
     zoneRepo = Path("src/test/resources/testDemand/zone-repository/")
     vehicleCountColumn = ""
@@ -106,7 +108,7 @@ fun main(args: Array<String>) {
         val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
 
         prepareHouseholds(
-            path = shortTermConfig.householdCSV ?: defaultHouseholdPath,
+            path = shortTermConfig.sourceFiles.householdCSV,
             filter = { filter(it) }
         )
 
@@ -124,19 +126,19 @@ fun main(args: Array<String>) {
         finishHouseholds()
 
         preparePersons(
-            path = shortTermConfig.personCSV ?: defaultPersonPath,
+            path = shortTermConfig.sourceFiles.personCSV,
         )
         addDrtMemberships(everyoneIsMember)
 
         preparePrivateCars(
-            path = shortTermConfig.privateCarsCSV ?: defaultCarPath,
+            path = shortTermConfig.sourceFiles.privateCarsCSV
         )
 
         assignCarUsers()
         finishPrivateCars()
 
         prepareActivities(
-            path = shortTermConfig.activityCSV ?: defaultActivityPath,
+            path = shortTermConfig.sourceFiles.activityCSV,
             errorHandling = ErrorHandling.WARNING,
             shiftActivityStart = NoActivityStartShifter
         )
@@ -145,26 +147,14 @@ fun main(args: Array<String>) {
         finishPersons()
 
         loadAttractivities(
-            path = shortTermConfig.attractivitiesCSV ?: attractivities,
+            path = shortTermConfig.sourceFiles.attractivitiesCSV,
             purposes = legacyChoiceModelPurposes,
         )
 
         loadImpedance(
-            costMatrixConfig = if (shortTermConfig.costMatrixConfig.isAbsolute) {
-                shortTermConfig.costMatrixConfig
-            } else {
-                shortTermConfig.matrixRepo.resolve(shortTermConfig.costMatrixConfig)
-            },
-            durationMatrixConfig = if (shortTermConfig.durationMatrixConfig.isAbsolute) {
-                shortTermConfig.durationMatrixConfig
-            } else {
-                shortTermConfig.matrixRepo.resolve(shortTermConfig.durationMatrixConfig)
-            },
-            distanceMatrix = if (shortTermConfig.distanceMatrix.isAbsolute) {
-                shortTermConfig.distanceMatrix
-            } else {
-                shortTermConfig.matrixRepo.resolve(shortTermConfig.distanceMatrix)
-            },
+            costMatrixConfig = shortTermConfig.matrixConfig.costMatrixConfig,
+            durationMatrixConfig = shortTermConfig.matrixConfig.durationMatrixConfig,
+            distanceMatrix = shortTermConfig.matrixConfig.distanceMatrix,
         )
 
         loadBehaviorModels(
