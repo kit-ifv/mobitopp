@@ -1,6 +1,8 @@
 package application.config.subconfigs
 
+
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.exists
 
 
@@ -22,28 +24,34 @@ data class CSVConfig(
     /**
      * Creation method based on two directories. All files are expected to reside in either the dataFolder or the
      * zoneFolder.
+     *
+     * __Default expected structure__ applied when only dataDirectory and zoneDirectory are given:
+     *
+     * `dataDirectory`: person.csv, household.csv, activity.csv, car.csv, fixedDestination.csv
+     *
+     * `zoneDirectory`: attractivities.csv, bikesharing_stations.csv, zones.csv
      */
     constructor(
         dataDirectory: Path,
         zoneDirectory: Path,
-        personCSV: Path = dataDirectory.resolve("person.csv"),
-        householdCSV: Path = dataDirectory.resolve("household.csv"),
-        activityCSV: Path = dataDirectory.resolve("activity.csv"),
-        privateCarsCSV: Path = dataDirectory.resolve("car.csv"),
-        fixedDestinationCSV: Path = dataDirectory.resolve("fixedDestination.csv"),
-        attractivitiesCSV: Path = zoneDirectory.resolve("attractivities.csv"),
-        bikeSharingStationsCSV: Path = zoneDirectory.resolve("bikesharing_stations.csv"),
-        zonesCSV: Path = zoneDirectory.resolve("zones.csv"),
+        personCSV: Path = Path("person.csv"),
+        householdCSV: Path = Path("household.csv"),
+        activityCSV: Path = Path("activity.csv"),
+        privateCarsCSV: Path = Path("car.csv"),
+        fixedDestinationCSV: Path = Path("fixedDestination.csv"),
+        attractivitiesCSV: Path = Path("attractivities.csv"),
+        bikeSharingStationsCSV: Path = Path("bikesharing_stations.csv"),
+        zonesCSV: Path = Path("zones.csv"),
         ) :
             this(
-                personCSV = personCSV,
-                householdCSV = householdCSV,
-                activityCSV = activityCSV,
-                privateCarsCSV = privateCarsCSV,
-                fixedDestinationCSV = fixedDestinationCSV,
-                attractivitiesCSV = attractivitiesCSV,
-                bikeSharingStationsCSV = bikeSharingStationsCSV,
-                zonesCSV = zonesCSV
+                personCSV = dataDirectory.resolve(personCSV),
+                householdCSV = dataDirectory.resolve(householdCSV),
+                activityCSV = dataDirectory.resolve(activityCSV),
+                privateCarsCSV = dataDirectory.resolve(privateCarsCSV),
+                fixedDestinationCSV = dataDirectory.resolve(fixedDestinationCSV),
+                attractivitiesCSV = zoneDirectory.resolve(attractivitiesCSV),
+                bikeSharingStationsCSV = zoneDirectory.resolve(bikeSharingStationsCSV),
+                zonesCSV = zoneDirectory.resolve(zonesCSV)
             )
 
     /**

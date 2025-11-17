@@ -1,6 +1,8 @@
 package application.config.subconfigs
 
+
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.exists
 
 private const val defaultCostMatrixName = "cost-matrix-configuration_transmove_turbo.yaml"
@@ -35,14 +37,14 @@ class MatrixConfig (
      */
     constructor(
         matrixRepo: Path,
-        costMatrixConfig: Path = matrixRepo.resolve(defaultCostMatrixName),
-        durationMatrixConfig: Path = matrixRepo.resolve(defaultDurationMatrixName),
-        distanceMatrix: Path = matrixRepo.resolve(defaultDistanceMatrixName)
+        costMatrixConfig: Path = Path(defaultCostMatrixName),
+        durationMatrixConfig: Path = Path(defaultDurationMatrixName),
+        distanceMatrix: Path = Path(defaultDistanceMatrixName)
     ):
             this(
-                costMatrixConfig =  costMatrixConfig,
-                durationMatrixConfig = durationMatrixConfig,
-                distanceMatrix = distanceMatrix
+                costMatrixConfig = matrixRepo.resolve(costMatrixConfig),
+                durationMatrixConfig = matrixRepo.resolve(durationMatrixConfig),
+                distanceMatrix = matrixRepo.resolve(distanceMatrix)
             )
 
     /**
