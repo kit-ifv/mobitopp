@@ -56,7 +56,7 @@
         }
       },
       "additionalProperties": false,
-      "oneOf": [
+      "anyOf": [
         {
           "required": ["zoneDirectory", "dataDirectory"]
         },
@@ -68,11 +68,13 @@
     "matrixConfig": {
       "description": "Set the matrixRepo path or all three other paths to the respective cost-, duration-, and distance-files.",
       "type": "object",
+      "default": {
+        "matrixRepo": "data/matrix"
+      },
       "properties": {
         "matrixRepo": {
           "description": "The path to the matrix repository folder. Should contain the constMatrixConfig and durationMatrixConfig file. However files can be set independently making this parameter essentially useless.",
-          "type": "string",
-          "default": "data/matrix"
+          "type": "string"
         },
         "costMatrixConfig": {
           "description": "Path to the cost matrix config file relative to the 'matrixRepo'. Default is directly in the 'matrixRepo'. This parameter can also be an absolute path to the cost matrix config file.",
@@ -93,6 +95,14 @@
           "pattern": ".+.mtx.bz2"
         }
       },
+      "anyOf": [
+        {
+          "required": ["matrixRepo"]
+        },
+        {
+          "required": ["costMatrixConfig", "durationMatrixConfig", "distanceMatrix"]
+        }
+      ],
       "additionalProperties": false
     },
     "zoneMatrixCreationMethod": {
