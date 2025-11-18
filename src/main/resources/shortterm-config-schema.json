@@ -148,7 +148,7 @@
         },
         "dataFolder": {
           "description": "The ShortTermConfig tries to circumvent using this property.",
-          "type": "string",
+          "type": "string"
         },
         "modes": {
           "description": "Which transport mode code plan is chosen. Possible values need to be registered in subprojects in a CodePlanSurrogateProvider. Default options can be found in CoreCodePlans in mobitopp-reengineering. You likely don't want 'coreModes', rather a subset of those modes.",
@@ -227,7 +227,7 @@
     "choiceModelModes": {
       "description": "What modes are used for the destination choice. Since these are usually a custom type in a subproject, you need to create and register a jackson 'SimpleModule' to register a deserializer (see 'GenericKeyValueDeserializer').",
       "type": "string",
-      "pattern": "[a-zA-Z]+",
+      "pattern": "[a-zA-Z]+"
     },
     "sharingProviderName": {
       "description": "Name of the (bike) sharing provider.",
