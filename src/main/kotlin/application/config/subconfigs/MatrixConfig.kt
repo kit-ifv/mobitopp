@@ -1,7 +1,6 @@
 package application.config.subconfigs
 
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -17,7 +16,7 @@ private const val defaultDistanceMatrixName = "DIS_Car.mtx.bz2"
  * @param durationMatrixConfig An absolute path to the duration-matrix.yaml.
  * @param distanceMatrix An absolute path to the .mtx.bz2 distance matrix.
  */
-class MatrixConfig (
+data class MatrixConfig (
     val costMatrixConfig: Path,
     val durationMatrixConfig: Path,
     val distanceMatrix: Path
@@ -36,7 +35,6 @@ class MatrixConfig (
      * expected to be a direct child of the matrixRepo directory.When given an absolute path, only that path is
      * considered and no resolution takes place.
      */
-    @JsonCreator
     constructor(
         matrixRepo: Path,
         costMatrixConfig: Path = Path(defaultCostMatrixName),
