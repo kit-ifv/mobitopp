@@ -68,7 +68,7 @@ object Yaml {
 /**
  * Handles the serialization of kotlin durations.
  */
-val durationModule = SimpleModule("Duration")
+val durationModule: SimpleModule = SimpleModule("Duration")
     .addDeserializer(Duration::class.java, DurationDeserializer())
     .addSerializer(Duration::class.java, DurationSerializer())
 private class DurationDeserializer : JsonDeserializer<Duration>() {
@@ -97,7 +97,7 @@ private class DurationSerializer : JsonSerializer<Duration>() {
 /**
  * Handles the serialization of paths.
  */
-val pathModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
+val pathModule: SimpleModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
 private class PathSerializer : JsonSerializer<Path>() {
 
     override fun serialize(
