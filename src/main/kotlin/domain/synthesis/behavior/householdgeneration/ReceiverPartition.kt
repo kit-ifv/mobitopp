@@ -31,7 +31,7 @@ class ReceiverPartition(
     }
 
 
-    fun remove(signature : SignatureIndex) {
+    fun kill(signature : SignatureIndex) {
         movePotential.remove(signature.index)
     }
 
@@ -49,11 +49,11 @@ class ReceiverPartition(
             updater.performUpdate(k, currentDelta, nextDelta, expectedGains)
 
         }
-        // Dont bothe3r updating elements that you will never see
+        // Dont bother updating elements that you will never see
         dirtyIndices.filter { activeSignatures[it] }.forEach {
             movePotential.update(it, expectedGains[it])
         }
-        partition.delta(sig, amount)
+        partition.delta(signature, amount)
         return emptyList()
     }
 

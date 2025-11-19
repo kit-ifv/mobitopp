@@ -6,7 +6,7 @@ import domain.synthesis.behavior.RawSurveyInfo
 // : MinimalistHousehold<out RawSurveyInfo>
 class HierarchicalIPUDistribution<AREA, H>(
     override val ruleProvider: HierarchicalRuleProvider<AREA, H>,
-    val config: NewAlgorithmConfig,
+    val config: NewAlgorithmConfig = NewAlgorithmConfig(),
     val seedHouseholds: Collection<H>,
 ) : HierarchicalPopulationSynthesis<AREA, H> {
 

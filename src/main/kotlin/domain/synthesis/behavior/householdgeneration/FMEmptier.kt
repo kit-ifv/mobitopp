@@ -1,6 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
 import it.unimi.dsi.fastutil.PriorityQueue
+import utils.scaleToInts
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
@@ -59,7 +60,7 @@ class CyclicAccessor<T>(private val list: MutableList<T>) {
 }
 
 class FMEmptier(
-
+    val emplaceUndesireds: Boolean = true,
     val amountStrategy: (Move) -> Int = { 1 },
 ) : InitialSignatureDistributor {
     override fun distribute(
@@ -89,7 +90,13 @@ class FMEmptier(
                 maxGain1
             )
         }
+        senderPartition.emptyElements().forEach {
 
+            senderPartition.activeSignatures[it.first.index] = false
+            otherPartitions.forEach { otherPartition ->
+                otherPartition.kill(it.first)
+            }
+        }
         val removeablePartitions = otherPartitions.toMutableList().cyclicAccessor()
 
         while (removeablePartitions.isNotEmpty()) {
@@ -104,16 +111,18 @@ class FMEmptier(
                 currentReceiver.delta(sigIdx, amount)
                 kill?.let { kill ->
                     otherPartitions.forEach {
-                        it.remove(kill)
+                        it.kill(kill)
                     }
                 }
             }
         }
-        senderPartition
-        emplaceDead(
-            senderPartition,
-            otherPartitions
-        )
+        if(emplaceUndesireds) {
+            emplaceDead(
+                senderPartition,
+                otherPartitions
+            )
+        }
+
 
 
     }
@@ -147,17 +156,7 @@ class FMEmptier(
     }
 
     fun scaleDistribution(distribution: Collection<Double>, total: Int): List<Int> {
-        val scaled = distribution.map { it * total }
-        val floored = scaled.map { it.toInt() }.toMutableList()
-        val leftOver = total - floored.sum()
-
-        val remainders = scaled.mapIndexed { i, v -> i to (v - floored[i]) }
-
-        remainders.sortedByDescending { it.second }
-            .take(leftOver)
-            .forEach { (i, _) -> floored[i]++ }
-
-        return floored
+        return distribution.scaleToInts(total)
     }
 
 

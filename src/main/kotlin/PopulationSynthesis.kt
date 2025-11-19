@@ -77,6 +77,7 @@ import kotlin.random.Random
 fun String.toBooleanNumeric(): Boolean = when (this) {
     "1" -> true
     "0" -> false
+    "-1" -> false // TODO thi
     else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
 }
 

@@ -1,5 +1,7 @@
 package domain.synthesis.behavior.householdgeneration
 
+import kotlin.system.exitProcess
+
 //: MinimalistHousehold<out RULES>
 class NewDistributor<RULES, AREA, H>(
 

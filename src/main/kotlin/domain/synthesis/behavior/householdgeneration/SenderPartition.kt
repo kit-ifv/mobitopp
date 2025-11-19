@@ -34,12 +34,18 @@ class SenderPartition(
     val activeSignatures: BooleanArray = BooleanArray(partition.signatures.size) {
         true
     }
+    fun emptyElements()  = pairs {
+        it.value == 0
+    }
 
+    fun remainingElements() = pairs {
+        it.value > 0
+    }
 
-    fun remainingElements() = partition.countsList
-        .withIndex()
-        .filter { it.value > 0}
-        .map { SignatureIndex(it.index) to it.value }
+    private fun pairs(predicate: (IndexedValue<Int>) -> Boolean): List<Pair<SignatureIndex, Int>> = partition.countsList
+            .withIndex()
+            .filter(predicate)
+            .map { SignatureIndex(it.index) to it.value }
 
     override fun delta(signature: SignatureIndex, amount: Int): List<Move> {
         throw NotImplementedError()
@@ -54,9 +60,7 @@ class SenderPartition(
             "Wants to move $amount but I only have ${amount(signature)}"
         }
 
-        val sig = partition.signatures[signature.index]
-
-        partition.delta(sig, amount)
+        partition.delta(signature, amount)
         if(amount(signature) == 0) {
             activeSignatures[signature.index] = false
             return signature

@@ -160,7 +160,8 @@ abstract class Person(
  */
 enum class Sex(override val code: Int) : Encodable {
     MALE(1),
-    FEMALE(2);
+    FEMALE(2),
+    UNKNOWN(9);
 
     fun isFemale(): Boolean {
         return this == FEMALE
