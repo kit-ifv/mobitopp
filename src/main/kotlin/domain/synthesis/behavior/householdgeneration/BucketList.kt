@@ -36,7 +36,10 @@ class BucketList<T>(
             }
         }
     }
-
+    @Deprecated("This method is slow and should only be used for debugging")
+    operator fun contains(element: T): Boolean {
+        return buckets.any { element in it }
+    }
     private fun updateBestBucketIndex() {
         var idx = bestBucketIndex
         while (idx >= 0 && buckets[idx].isEmpty()) {

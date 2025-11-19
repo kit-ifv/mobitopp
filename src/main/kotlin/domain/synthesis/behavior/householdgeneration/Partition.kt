@@ -29,6 +29,8 @@ class Partition(
 
     val attributeIndices = expectedArray.indices
     val attributeSize = expectedArray.size
+
+    fun expectedSum() = expectedArray.sum()
     fun getExpected(index: Int) = expectedArray[index]
     fun getActual(index: Int) = _actual[index]
     fun getCounts(index: Int) = _counts[index]
@@ -45,7 +47,8 @@ class Partition(
     val countsList get() = _counts.toList()
 
     val error: Double = Double.MAX_VALUE
-
+    fun isEmpty() = actual.all { it == 0 }
+    fun isNotEmpty() = actual.any{it != 0}
     fun getExpecteds(signature: Signature) = signature.keys.map { getExpected(it) }
     fun getActuals(signature: Signature) = signature.keys.map { getActual(it) }
     fun verify() {
@@ -110,7 +113,7 @@ class Partition(
      * Get the count of indices that currently populate a target attribute in the partition
      */
     fun currentElementsForAttribute(attrIdx: Int): List<PotentialTransfer> {
-        return signatures.getByAttributeIndex(attrIdx).map { sigIdx ->
+        return signatures.getSetByAttributeIndex(attrIdx).map { sigIdx ->
             PotentialTransfer(
                 SignatureIndex(sigIdx),
                 signatures[sigIdx][attrIdx]!!,

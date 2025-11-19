@@ -2,20 +2,19 @@ package domain.synthesis.behavior.householdgeneration
 
 import kotlin.math.min
 
-class TempPartition(
+open class TempPartition(
     val partition: Partition,
     val updater: AttributeUpdater,
-    val buckets: BucketList<Moved>,
+    val buckets: BucketList<Move>,
 ) {
 
     val signatureTracker get() = partition.signatures
 
-    companion object {
-        private var counter = 0
-            get() = field++
-    }
+    fun isNotEmpty() = partition.isNotEmpty()
 
-    val id = counter
+    fun expectedAttributeSum() = partition.expectedSum()
+
+    val id = partition.id
 
     override fun toString(): String {
         return "Temp Partition $id"
@@ -24,7 +23,7 @@ class TempPartition(
     /**
      * The expected gain when receiving a signature with index i
      */
-    private val expectedGains = IntArray(partition.signatures.size) {
+    protected val expectedGains = IntArray(partition.signatures.size) {
         0
     }
 
@@ -39,7 +38,7 @@ class TempPartition(
      * is not identical to -gain because attributes may differ by given numbers and needs to be calculate4d
      * individually.
      */
-    private val expectedLosses = IntArray(partition.signatures.size) {
+    protected val expectedLosses = IntArray(partition.signatures.size) {
         0
     }
 
@@ -68,18 +67,27 @@ class TempPartition(
     }
 
     fun error() = partition.error()
-    val myOutgoingMoves: Array<Moved> = Array<Moved>(partition.signatures.size) {
-        Moved(this, this, SignatureIndex(it))
+
+    /**
+     * THe moves. for each signature index i the partition keeps track of where it wants to send the signature index
+     */
+    open val myOutgoingMoves: Array<MutableSet<Move>> = Array<MutableSet<Move>>(partition.signatures.size) {
+        mutableSetOf(Moved(this, this, SignatureIndex(it)))
     }
 
-    val myIncomingMoves: Array<MutableSet<Moved>> = Array(partition.signatures.size) {
+    /**
+     * Keeps track of the incoming moves targeting a signature index. Could be that multiple other partitions
+     * want to send signature i to this parititon.
+     */
+    open val myIncomingMoves: Array<MutableSet<Move>> = Array(partition.signatures.size) {
         mutableSetOf()
     }
 
     /**
-     * Performs update immediately. Contracts that even after the delta the gains and losses are accurate
+     * Performs update immediately. Contracts that even after the delta the gains and losses are accurate.
+     * Return a list of moves that are considered dirty after performing the move.
      */
-    fun delta(signature: SignatureIndex, amount: Int): List<Moved> {
+    open fun delta(signature: SignatureIndex, amount: Int): List<Move> {
         require(partition.getCounts(signature.index) + amount >= 0) {
             "Thats a too large move, don't please"
         }
@@ -90,7 +98,6 @@ class TempPartition(
         val dirtyIndices = sig.entries.filter { partition.getMask(it.key) }.flatMap { (k, factor) ->
             val currentDelta = partition.getDelta(k)
             val nextDelta = currentDelta - amount * factor
-//            println("Perform update on Partition $id for key $k current delta $currentDelta $nextDelta")
             val gainindices = updater.performUpdate(k, currentDelta, nextDelta, expectedGains)
             val lossindices = updater.performUpdate(k, -currentDelta, -nextDelta, expectedLosses)
             gainindices + lossindices
@@ -98,7 +105,10 @@ class TempPartition(
         // Perform actual move after recalculation of gains
         partition.delta(signature, amount)
 
-        return dirtyIndices.map { myOutgoingMoves[it] } + dirtyIndices.flatMap { myIncomingMoves[it] }
+        return dirtyIndices.flatMap {
+            myOutgoingMoves[it]
+
+        } + dirtyIndices.flatMap { myIncomingMoves[it] }
     }
 
     fun verifyAll(): Boolean {
@@ -135,8 +145,8 @@ class TempPartition(
     fun updateGains(signature: SignatureIndex) {
         val sig = partition.signatures[signature.index]
     }
-
-    val hasBeenMoved: BooleanArray = BooleanArray(partition.signatures.size) {
+    // TODO this array is never used.
+    private val hasBeenMoved: BooleanArray = BooleanArray(partition.signatures.size) {
         false
     }
 
@@ -146,10 +156,17 @@ class TempPartition(
         }
 
         myOutgoingMoves.forEach {
-            it.isLocked = false
+            it.forEach {
+                it.isLocked = false
+            }
+
         }
     }
 
+    /**
+     * Return the amount of a signature in this partition.
+     * Read it as: How many elements of the signatureIndex are present in the partition.
+     */
     fun amount(signature: SignatureIndex): Int {
         return partition.amount(signature)
     }
@@ -162,16 +179,26 @@ class TempPartition(
         delta(signature, -amount)
     }
 
-    fun initialize(bestTargetTracker: BestTargetTracker) {
+    /**
+     * Initializes the moves based on the best target partition from the target tracker.
+     */
+    open fun initialize(bestTargetTracker: BestTargetTracker) {
         for (i in partition.signatures.indices) {
             if (this.partition.amount(SignatureIndex(i)) < 1) continue
             val targetPartition = bestTargetTracker.getRandom(i)
 
             myOutgoingMoves[i].apply {
-                to = targetPartition
-                targetPartition.myIncomingMoves[i].add(this)
-                buckets.insert(this, gain)
+                val move = first()
+                move.apply {
+                    to = targetPartition
+                    targetPartition.myIncomingMoves[i].add(this)
+                    buckets.insert(this, gain)
+                }
+
             }
         }
     }
+
+
 }
+

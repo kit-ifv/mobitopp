@@ -6,6 +6,10 @@ import it.unimi.dsi.fastutil.ints.IntSet
 import it.unimi.dsi.fastutil.ints.IntSets
 import kotlin.math.abs
 
+/**
+ * Tasked with mapping signatures to ints(read Signature index) and a lot of bijection
+ * between attribute indices and the corresponding signature indices.
+ */
 class SignatureTracker(
     val signatures: List<Signature>,
     amountOfAttributes: Int
@@ -49,12 +53,12 @@ class SignatureTracker(
     /**
      * Return the indices of all signatures that have a nonzero entry for the requested attribute index.
      */
-    fun getByAttributeIndex(attrIdx: Int): IntSet {
+    fun getSetByAttributeIndex(attrIdx: Int): IntSet {
         return IntSets.unmodifiable(inverseIndices[attrIdx])
     }
 
     fun getByAttribute(attrIdx: Int): List<Signature> {
-        return getByAttributeIndex(attrIdx).map { signatures[it] }
+        return getSetByAttributeIndex(attrIdx).map { signatures[it] }
     }
 
     fun findSignatureIndex(signature: Signature): SignatureIndex {
