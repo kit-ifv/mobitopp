@@ -47,7 +47,6 @@ import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
-import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import domain.synthesis.results.FixedDestinationElements
 import domain.synthesis.results.LegacyActivityOutput
@@ -120,7 +119,7 @@ fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Seq
             hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
             householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
             householdIncomeClass = row(surveyColumns.hhincomeClass).toInt(),
-            type = HouseholdType.decode(row(surveyColumns.type).toInt()),
+            typeCode = row(surveyColumns.type).toInt(),
             cars = row(surveyColumns.cars).toInt(),
             hasBicycle = row(surveyColumns.bicycle).toBooleanNumeric(),
             hasLicence = row(surveyColumns.licence).toBooleanNumeric(),
