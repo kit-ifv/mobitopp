@@ -12,7 +12,9 @@ import kotlin.io.path.exists
  * default structure and possible creation methods.
  */
 data class CSVConfig(
-    val personCSV: Path,
+    private val dataRepo: Path? = null,
+    private val zoneRepo: Path? = null,
+    private val personCSV: Path,
     val householdCSV: Path,
     val activityCSV: Path,
     val privateCarsCSV: Path,
@@ -21,7 +23,15 @@ data class CSVConfig(
     val bikeSharingStationsCSV: Path,
     val zonesCSV: Path,
 ) {
-
+    val personCSVPath: Path
+        get() = dataRepo.resolve(personCSV)
+//    val householdCSV: Path,
+//    val activityCSV: Path,
+//    val privateCarsCSV: Path,
+//    val fixedDestinationCSV: Path,
+//    val attractivitiesCSV: Path,
+//    val bikeSharingStationsCSV: Path,
+//    val zonesCSV: Path,
     /**
      * Creation method based on two directories. All files are expected to reside in either the dataFolder or the
      * zoneFolder.
@@ -34,8 +44,8 @@ data class CSVConfig(
      */
     @JsonCreator
     constructor(
-        dataDirectory: Path,
-        zoneDirectory: Path,
+        dataRepo: Path,
+        zoneRepo: Path,
         personCSV: Path = Path("person.csv"),
         householdCSV: Path = Path("household.csv"),
         activityCSV: Path = Path("activity.csv"),
@@ -46,14 +56,14 @@ data class CSVConfig(
         zonesCSV: Path = Path("zones.csv"),
         ) :
             this(
-                personCSV = dataDirectory.resolve(personCSV),
-                householdCSV = dataDirectory.resolve(householdCSV),
-                activityCSV = dataDirectory.resolve(activityCSV),
-                privateCarsCSV = dataDirectory.resolve(privateCarsCSV),
-                fixedDestinationCSV = dataDirectory.resolve(fixedDestinationCSV),
-                attractivitiesCSV = zoneDirectory.resolve(attractivitiesCSV),
-                bikeSharingStationsCSV = zoneDirectory.resolve(bikeSharingStationsCSV),
-                zonesCSV = zoneDirectory.resolve(zonesCSV)
+                personCSV = dataRepo.resolve(personCSV),
+                householdCSV = dataRepo.resolve(householdCSV),
+                activityCSV = dataRepo.resolve(activityCSV),
+                privateCarsCSV = dataRepo.resolve(privateCarsCSV),
+                fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV),
+                attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV),
+                bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV),
+                zonesCSV = zoneRepo.resolve(zonesCSV)
             )
 
     /**
@@ -64,5 +74,27 @@ data class CSVConfig(
         val paths = listOf(personCSV, householdCSV, activityCSV, privateCarsCSV, fixedDestinationCSV,
             attractivitiesCSV, bikeSharingStationsCSV, zonesCSV)
         return paths.filter { !it.exists() }
+    }
+
+    /**
+     * Copies this and replaces the zoneRepo files to have the new zoneRepo as the root with the default paths.
+     */
+    fun overrideZoneRepo(
+        zoneRepo: Path,
+        attractivitiesCSV: Path = Path("attractivities.csv"),
+        bikeSharingStationsCSV: Path = Path("bikesharing_stations.csv"),
+        zonesCSV: Path = Path("zones.csv")
+    ): CSVConfig {
+        return CSVConfig(
+            personCSV = personCSV,
+            householdCSV = householdCSV,
+            activityCSV = activityCSV,
+            privateCarsCSV = privateCarsCSV,
+            fixedDestinationCSV = fixedDestinationCSV,
+            attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV),
+            bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV),
+            zonesCSV = zoneRepo.resolve(zonesCSV)
+        )
+
     }
 }

@@ -81,8 +81,8 @@ val standardConfig = ShortTermConfig(
 
     sharingProviderName = "",
     sourceFiles = CSVConfig(
-        dataDirectory = Path("src/test/resources/testDemand/demand-data/"),
-        zoneDirectory = Path("src/test/resources/testDemand/zone-repository/"),
+        dataRepo = Path("src/test/resources/testDemand/demand-data/"),
+        zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
         attractivitiesCSV = attractivities,
     ),
 ).apply {
