@@ -12,9 +12,7 @@ import kotlin.io.path.exists
  * default structure and possible creation methods.
  */
 data class CSVConfig(
-    private val dataRepo: Path? = null,
-    private val zoneRepo: Path? = null,
-    private val personCSV: Path,
+    val personCSV: Path,
     val householdCSV: Path,
     val activityCSV: Path,
     val privateCarsCSV: Path,
@@ -23,15 +21,7 @@ data class CSVConfig(
     val bikeSharingStationsCSV: Path,
     val zonesCSV: Path,
 ) {
-    val personCSVPath: Path
-        get() = dataRepo.resolve(personCSV)
-//    val householdCSV: Path,
-//    val activityCSV: Path,
-//    val privateCarsCSV: Path,
-//    val fixedDestinationCSV: Path,
-//    val attractivitiesCSV: Path,
-//    val bikeSharingStationsCSV: Path,
-//    val zonesCSV: Path,
+
     /**
      * Creation method based on two directories. All files are expected to reside in either the dataFolder or the
      * zoneFolder.
@@ -77,13 +67,18 @@ data class CSVConfig(
     }
 
     /**
-     * Copies this and replaces the zoneRepo files to have the new zoneRepo as the root with the default paths.
+     * Returns new CSVConfig with changed attractivities, bikeSharingStations and zones paths.
+     * @param attractivitiesCSV The path to attractivities.csv relative to the new zone repo, or an absolute path.
+     * @param bikeSharingStationsCSV The path to bikesharing_stations.csv relative to the new zone repo, or an
+     * absolute path.
+     * @param zonesCSV The path to zones.csv relative to the new zone repo, or an
+     * absolute path.
+     * @return A new CSVConfig with the attractivities, bikesharingstations, and zones based on the new zone repo.
      */
-    fun overrideZoneRepo(
-        zoneRepo: Path,
-        attractivitiesCSV: Path = Path("attractivities.csv"),
-        bikeSharingStationsCSV: Path = Path("bikesharing_stations.csv"),
-        zonesCSV: Path = Path("zones.csv")
+    fun overrideZoneRepo(zoneRepo: Path,
+                         attractivitiesCSV: Path = Path("attractivities.csv"),
+                         bikeSharingStationsCSV: Path = Path("bikesharing_stations.csv"),
+                         zonesCSV: Path = Path("zones.csv")
     ): CSVConfig {
         return CSVConfig(
             personCSV = personCSV,
@@ -95,6 +90,38 @@ data class CSVConfig(
             bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV),
             zonesCSV = zoneRepo.resolve(zonesCSV)
         )
+    }
 
+    /**
+     * Returns new CSVConfig with changed person, household, activity, private_cars and fixed_destination paths.
+     * @param personCSV The path to person.csv relative to the new dataRepo, or an
+     * absolute path.
+     * @param householdCSV The path to household.csv relative to the new dataRepo, or an
+     * absolute path.
+     * @param activityCSV The path to activity.csv relative to the new dataRepo, or an
+     * absolute path.
+     * @param privateCarsCSV The path to car.csv relative to the new dataRepo, or an
+     * absolute path.
+     * @param fixedDestinationCSV The path to fixedDestination.csv relative to the new dataRepo, or an
+     * absolute path.
+     * @return A new CSVConfig person, household, activity, cars and fixed_destinations based on the given dataRepo.
+     */
+    fun overrideDataRepo(dataRepo: Path,
+                         personCSV: Path = Path("person.csv"),
+                         householdCSV: Path = Path("household.csv"),
+                         activityCSV: Path = Path("activity.csv"),
+                         privateCarsCSV: Path = Path("car.csv"),
+                         fixedDestinationCSV: Path = Path("fixedDestination.csv")
+    ): CSVConfig {
+        return CSVConfig(
+            personCSV = dataRepo.resolve(personCSV),
+            householdCSV = dataRepo.resolve(householdCSV),
+            activityCSV = dataRepo.resolve(activityCSV),
+            privateCarsCSV = dataRepo.resolve(privateCarsCSV),
+            fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV),
+            attractivitiesCSV = attractivitiesCSV,
+            bikeSharingStationsCSV = bikeSharingStationsCSV,
+            zonesCSV = zonesCSV
+        )
     }
 }
