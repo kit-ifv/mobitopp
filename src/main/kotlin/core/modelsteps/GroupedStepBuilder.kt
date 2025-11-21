@@ -4,6 +4,7 @@ import utils.Identifiable
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
 import java.nio.file.Path
+import kotlin.io.path.exists
 
 /**
  * Builds a collection of steps that operate on a shared mutable repository within the simulation. The idea
@@ -36,9 +37,20 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
 //        lambda: context(Path) () -> AbstractAddResourceStep<E, I>,
 //    ): FileBasedAddResourceStep<E, I>
 
-    // If you dont want to use a binary cache.
+    // If you don't want to use a binary cache.
     fun FileBasedAddResourceStep<E, I>.disableCache(): AddResourceStep<E, I> {
         return step
+    }
+
+    /**
+     * Enables binary caching (through `enableCache`) if the cacheRootPath isn't null and exists.
+     * Otherwise, no caching is done.
+     */
+    fun FileBasedAddResourceStep<E, I>.optionalCache(cacheRootPath: Path?): AddResourceStep<E, I> {
+        if (cacheRootPath != null && cacheRootPath.exists()) {
+            enableCache(cacheRootPath)
+        }
+        return disableCache()
     }
 
     // Enable the binary cache at the cacheRootPath.

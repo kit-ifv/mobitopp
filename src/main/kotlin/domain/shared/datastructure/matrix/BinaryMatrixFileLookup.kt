@@ -78,3 +78,18 @@ class BinaryMatrixFileLookup(
         return format.deserialize(target)
     }
 }
+
+/**
+ * Returns a cached matrix creator if rootCachePath exists, otherwise no caching is done.
+ * @param rootCachePath Null or a path to an existing directory, where binary cache files can be stored.
+ * @param defaultCreation The appropriate method for parsing the matrix format this creator is later used for.
+ * @return BinaryMatrixFileLookup with the given parameters or 'defaultCreation'  if rootCachePath is null or does not
+ * exist.
+ */
+fun optionalCachedMatrixCreator(rootCachePath: Path?, defaultCreation: ZoneMatrixCreation): ZoneMatrixCreation {
+    return if (rootCachePath != null && rootCachePath.exists()) {
+        BinaryMatrixFileLookup(rootCachePath, defaultCreation = defaultCreation)
+    } else {
+        defaultCreation
+    }
+}

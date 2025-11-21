@@ -239,8 +239,7 @@
     },
     "cachePath": {
       "description": "Directory for cache files.",
-      "type": "string",
-      "default": "data/data-cache"
+      "type": "string"
     }
   }
 }
