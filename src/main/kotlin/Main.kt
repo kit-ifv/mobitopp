@@ -25,6 +25,7 @@ import application.steps.parser.csv.prepareActivities
 import application.steps.parser.csv.prepareHouseholds
 import application.steps.parser.csv.preparePersons
 import application.steps.parser.csv.preparePrivateCars
+import application.steps.parser.csv.prepareZones
 import application.steps.parser.loadImpedance
 import application.steps.parser.loadVisumNetwork
 import application.steps.results.addPlot
@@ -35,6 +36,7 @@ import core.results.plots.forData
 import core.results.plots.modeStringColor
 import domain.shared.config.Yaml
 import domain.shared.datastructure.matrix.VisumMatrixCreator
+import domain.shared.datastructure.matrix.optionalCachedMatrixCreator
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.MainModes
@@ -101,6 +103,7 @@ fun main(args: Array<String>) {
     Simulation {
         shortTermConfig.simulationContext
     }.steps {
+        prepareZones(shortTermConfig.sourceFiles.zonesCSV)
         loadZones()
         loadVisumNetwork(shortTermConfig.visumNetwork ?: visum_network)
 
