@@ -1,35 +1,8 @@
 package domain.synthesis.behavior.householdgeneration
 
-import it.unimi.dsi.fastutil.PriorityQueue
 import utils.scaleToInts
 import kotlin.random.Random
 import kotlin.system.exitProcess
-
-fun PriorityQueue<SymmetricalMoved>.pullClean(): Move? {
-    while (!isEmpty) {
-        val element = dequeue()
-        if (element.maxSendAmount == 0) continue
-
-        if (element.isLocked) {
-            element.isLocked = false
-            enqueue(element)
-
-
-        } else {
-            return element
-        }
-    }
-    return null
-}
-
-data class FlaggedMove(
-    override val from: TempPartition,
-    override var to: TempPartition,
-    override val signatureIndex: SignatureIndex,
-) : Move {
-    override var isLocked: Boolean = false
-    var isDirty: Boolean = false
-}
 
 
 fun <T> MutableList<T>.cyclicAccessor(): CyclicAccessor<T> {
@@ -67,11 +40,11 @@ class FMEmptier(
         partitions: List<Partition>,
         signatureAmounts: Collection<SignatureAmount>,
     ) {
-        val maxGain = partitions.first().signatures.largestDifference
+        val maxGain = partitions.first().signatureTracker.largestDifference
         val buckets = BucketList<Move>(maxGain)
 
         val updater = AttributeUpdater.fromSignatureTracker(
-            partitions.first().signatures,
+            partitions.first().signatureTracker,
             partitions.first().attributeSize
         )
 
@@ -161,7 +134,7 @@ class FMEmptier(
 
 
     fun createFakePartition(elements: Collection<SignatureAmount>, copyPartition: Partition): Partition {
-        val signatureTracker: SignatureTracker = copyPartition.signatures
+        val signatureTracker: SignatureTracker = copyPartition.signatureTracker
         val size = copyPartition.attributeSize
         val newPartition = Partition(IntArray(size) { 0 }, signatureTracker)
 

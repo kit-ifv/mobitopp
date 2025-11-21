@@ -20,7 +20,7 @@ class ReceiverPartition(
         }
     }
 
-    override val myOutgoingMoves: Array<MutableSet<Move>> = Array(partition.signatures.size) {
+    override val myOutgoingMoves: Array<MutableSet<Move>> = Array(partition.signatureTracker.size) {
         mutableSetOf()
     }
 
@@ -42,7 +42,7 @@ class ReceiverPartition(
             "Receiver partition can only gain elements but amount=$amount "
         }
 
-        val sig = partition.signatures[signature.index]
+        val sig = partition.signatureTracker[signature.index]
         val dirtyIndices = sig.entries.filter { partition.getMask(it.key) }.flatMap { (k, factor) ->
             val currentDelta = partition.getDelta(k)
             val nextDelta = currentDelta - amount * factor

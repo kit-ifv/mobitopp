@@ -21,11 +21,11 @@ data class PotentialTransfer(
 @Suppress("TooManyFunctions")
 class Partition(
     private val expectedArray: IntArray,
-    val signatures: SignatureTracker,
+    val signatureTracker: SignatureTracker,
     private val mask: BooleanArray = BooleanArray(expectedArray.size) { true },
 ) {
     private val _actual: IntArray = IntArray(expectedArray.size) { 0 }
-    private val _counts: IntArray = IntArray(signatures.size) { 0 }
+    private val _counts: IntArray = IntArray(signatureTracker.size) { 0 }
 
     val attributeIndices = expectedArray.indices
     val attributeSize = expectedArray.size
@@ -53,16 +53,19 @@ class Partition(
     fun getActuals(signature: Signature) = signature.keys.map { getActual(it) }
     fun verify() {
         val attributeCount = mutableMapOf<Int, Int>()
-        _counts.zip(signatures.signatures).map { (amount, signature) ->
+        _counts.zip(signatureTracker.signatures).map { (amount, signature) ->
             signature.entries.forEach {
                 val currentValue = attributeCount.getOrPut(it.key) { 0 }
                 attributeCount[it.key] = currentValue + amount * it.value
             }
         }
-        val actualsMatch = _actual.zip(attributeCount.toSortedMap().values).withIndex().all { (i, element) ->
-            val (a, b) = element
-            a == b || !mask[i]
-        }
+        val actualsMatch = _actual
+            .zip(attributeCount.toSortedMap().values)
+            .withIndex()
+            .all { (i, element) ->
+                val (a, b) = element
+                a == b || !mask[i]
+            }
 
         require(actualsMatch) {
             "The counts and actual things do not match"
@@ -82,11 +85,11 @@ class Partition(
         }
     }
     fun count(signature: Signature): Int {
-        return _counts[signatures.findSignatureIndex(signature).index]
+        return _counts[signatureTracker.findSignatureIndex(signature).index]
     }
 
     fun output(): List<SignatureAmount> {
-        return signatures.signatures.zip(_counts.toList()).map {
+        return signatureTracker.signatures.zip(_counts.toList()).map {
             SignatureAmount(it.first, it.second)
         }
     }
@@ -113,10 +116,10 @@ class Partition(
      * Get the count of indices that currently populate a target attribute in the partition
      */
     fun currentElementsForAttribute(attrIdx: Int): List<PotentialTransfer> {
-        return signatures.getSetByAttributeIndex(attrIdx).map { sigIdx ->
+        return signatureTracker.getSetByAttributeIndex(attrIdx).map { sigIdx ->
             PotentialTransfer(
                 SignatureIndex(sigIdx),
-                signatures[sigIdx][attrIdx]!!,
+                signatureTracker[sigIdx][attrIdx]!!,
                 _counts[sigIdx]
             )
         }.filter { !it.isEmpty() }
@@ -137,7 +140,7 @@ class Partition(
      * until either metric switches context.
      */
     fun untilFlagChange(sigIdx: Int, searchDirection: Int): Int {
-        val sig = signatures[sigIdx]
+        val sig = signatureTracker[sigIdx]
         val minAmountMoves = sig.entries.minOf { (k, v) ->
             // positive diff means i need that signature, but go on
             val diff = (expectedArray[k] - _actual[k]) * searchDirection
@@ -155,7 +158,7 @@ class Partition(
 
     @TestOnly
     fun delta(signature: Signature, amount: Int) {
-        delta(signatures.findSignatureIndex(signature), amount)
+        delta(signatureTracker.findSignatureIndex(signature), amount)
     }
 
     fun transferTo(to: Partition, signatureIndex: SignatureIndex, amount: Int) {
@@ -174,7 +177,7 @@ class Partition(
         updateActual(signature.index, amount)
     }
 
-    private val _signatures = signatures.signatures.map { signature ->
+    private val _signatures = signatureTracker.signatures.map { signature ->
         signature.filterKeys { mask[it] }
     }.toTypedArray()
     private fun resolve(sigIdx: Int): Signature = _signatures[sigIdx]

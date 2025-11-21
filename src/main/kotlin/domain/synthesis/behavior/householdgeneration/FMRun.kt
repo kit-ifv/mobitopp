@@ -57,14 +57,14 @@ class FMRun(
     }
 
     override fun refine(partitions: List<Partition>) {
-        val maxGain = partitions.first().signatures.largestDifference
-        require(partitions.all { it.signatures === partitions.first().signatures }) {
+        val maxGain = partitions.first().signatureTracker.largestDifference
+        require(partitions.all { it.signatureTracker === partitions.first().signatureTracker }) {
             "How did we get here, they should all have the same signature tracker"
         }
         val buckets = BucketList<Move>(maxGain)
 
         val updater = AttributeUpdater.fromSignatureTracker(
-            partitions.first().signatures,
+            partitions.first().signatureTracker,
             partitions.first().attributeSize
         )
 

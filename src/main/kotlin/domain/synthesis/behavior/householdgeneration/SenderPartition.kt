@@ -18,7 +18,7 @@ class SenderPartition(
     override fun initialize(bestTargetTracker: BestTargetTracker) {
 
 
-        for (i in partition.signatures.indices) {
+        for (i in partition.signatureTracker.indices) {
             if (this.partition.amount(SignatureIndex(i)) < 1) continue
 
 
@@ -31,7 +31,7 @@ class SenderPartition(
         }
     }
 
-    val activeSignatures: BooleanArray = BooleanArray(partition.signatures.size) {
+    val activeSignatures: BooleanArray = BooleanArray(partition.signatureTracker.size) {
         true
     }
     fun emptyElements()  = pairs {

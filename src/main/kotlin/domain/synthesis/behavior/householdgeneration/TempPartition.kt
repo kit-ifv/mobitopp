@@ -8,7 +8,7 @@ open class TempPartition(
     val buckets: BucketList<Move>,
 ) {
 
-    val signatureTracker get() = partition.signatures
+    val signatureTracker get() = partition.signatureTracker
 
     fun isNotEmpty() = partition.isNotEmpty()
 
@@ -23,7 +23,7 @@ open class TempPartition(
     /**
      * The expected gain when receiving a signature with index i
      */
-    protected val expectedGains = IntArray(partition.signatures.size) {
+    protected val expectedGains = IntArray(partition.signatureTracker.size) {
         0
     }
 
@@ -38,7 +38,7 @@ open class TempPartition(
      * is not identical to -gain because attributes may differ by given numbers and needs to be calculate4d
      * individually.
      */
-    protected val expectedLosses = IntArray(partition.signatures.size) {
+    protected val expectedLosses = IntArray(partition.signatureTracker.size) {
         0
     }
 
@@ -71,7 +71,7 @@ open class TempPartition(
     /**
      * THe moves. for each signature index i the partition keeps track of where it wants to send the signature index
      */
-    open val myOutgoingMoves: Array<MutableSet<Move>> = Array<MutableSet<Move>>(partition.signatures.size) {
+    open val myOutgoingMoves: Array<MutableSet<Move>> = Array<MutableSet<Move>>(partition.signatureTracker.size) {
         mutableSetOf(Moved(this, this, SignatureIndex(it)))
     }
 
@@ -79,7 +79,7 @@ open class TempPartition(
      * Keeps track of the incoming moves targeting a signature index. Could be that multiple other partitions
      * want to send signature i to this parititon.
      */
-    open val myIncomingMoves: Array<MutableSet<Move>> = Array(partition.signatures.size) {
+    open val myIncomingMoves: Array<MutableSet<Move>> = Array(partition.signatureTracker.size) {
         mutableSetOf()
     }
 
@@ -93,7 +93,7 @@ open class TempPartition(
         }
         hasBeenMoved[signature.index] = true
 
-        val sig = partition.signatures[signature.index]
+        val sig = partition.signatureTracker[signature.index]
 
         val dirtyIndices = sig.entries.filter { partition.getMask(it.key) }.flatMap { (k, factor) ->
             val currentDelta = partition.getDelta(k)
@@ -112,7 +112,7 @@ open class TempPartition(
     }
 
     fun verifyAll(): Boolean {
-        for (i in partition.signatures.indices) {
+        for (i in partition.signatureTracker.indices) {
             val t = verifyInternal(i)
             if (!t) {
                 return false
@@ -123,13 +123,13 @@ open class TempPartition(
 
     fun verify(signature: SignatureIndex) = verifyInternal(signature.index)
     fun calculateAll(): List<Int> {
-        return partition.signatures.indices.map {
+        return partition.signatureTracker.indices.map {
             calculateInternal(it)
         }
     }
 
     fun calculateInternal(sigIdx: Int): Int {
-        val sig = partition.signatures[sigIdx]
+        val sig = partition.signatureTracker[sigIdx]
         val trgt = sig.entries.sumOf { (key, value) ->
             val currentDiff = partition.getDelta(key)
             min(value, -value + 2 * currentDiff.coerceAtLeast(0))
@@ -143,10 +143,10 @@ open class TempPartition(
     }
 
     fun updateGains(signature: SignatureIndex) {
-        val sig = partition.signatures[signature.index]
+        val sig = partition.signatureTracker[signature.index]
     }
     // TODO this array is never used.
-    private val hasBeenMoved: BooleanArray = BooleanArray(partition.signatures.size) {
+    private val hasBeenMoved: BooleanArray = BooleanArray(partition.signatureTracker.size) {
         false
     }
 
@@ -183,7 +183,7 @@ open class TempPartition(
      * Initializes the moves based on the best target partition from the target tracker.
      */
     open fun initialize(bestTargetTracker: BestTargetTracker) {
-        for (i in partition.signatures.indices) {
+        for (i in partition.signatureTracker.indices) {
             if (this.partition.amount(SignatureIndex(i)) < 1) continue
             val targetPartition = bestTargetTracker.getRandom(i)
 
