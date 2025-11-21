@@ -15,7 +15,6 @@ import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.employment
 import domain.synthesis.behavior.numberOfDrivingLicences
 import java.nio.file.Path
-import kotlin.collections.plus
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
 
@@ -54,7 +53,7 @@ interface CSVOutput<T> {
     fun writeCSVToFile(path: Path, elements: Collection<T>) {
         path.parent.createDirectories() // Ensure that the necessary parent directories exist.
         path.bufferedWriter().use { writer ->
-            writer.write(header.joinToString(separator = ";",) { it })
+            writer.write(header.joinToString(separator = ";") { it })
             writer.newLine()
             elements.forEach { element ->
                 writer.write(convert(element))
@@ -185,13 +184,25 @@ object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<out SurveyInfo>> {
         }
     }
 }
+
 object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
-    override val header: List<String> = listOf()
+    override val header: List<String> = listOf(
+        "id",
+        "zoneId",
+        "surveyHouseholdId",
+        "location",
+        "longitudeDegrees",
+        "latitudeDegrees",
+        "amountOfCars",
+        "economicStatusCode"
+    )
+
     override fun convert(element: SynthesisHousehold<out SurveyInfo>): String {
         return element.run {
             toCSV(
                 id,
                 location.zone?.id?.value ?: "NULL",
+                surveyHouseholdId,
                 location,
                 location.coordinate.longitudeDegrees,
                 location.coordinate.latitudeDegrees,
@@ -275,6 +286,7 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
         }
     }
 }
+
 object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
     override val header: List<String> = listOf(
         "personId",
