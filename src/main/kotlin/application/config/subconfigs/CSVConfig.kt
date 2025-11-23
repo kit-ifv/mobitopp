@@ -1,11 +1,18 @@
 package application.config.subconfigs
 
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
+private val defaultPersonCSV: Path = Path("person.csv")
+private val defaultHouseholdCSV: Path = Path("household.csv")
+private val defaultActivityCSV: Path = Path("activity.csv")
+private val defaultPrivateCarsCSV: Path = Path("car.csv")
+private val defaultFixedDestinationCSV: Path = Path("fixedDestination.csv")
+private val defaultAttractivitiesCSV: Path = Path("attractivities.csv")
+private val defaultBikeSharingStationsCSV: Path = Path("bikesharing_stations.csv")
+private val defaultZonesCSV: Path = Path("zones.csv")
 
 /**
  * This data class contains all paths to csv files for a short term simulation. It handles the
@@ -32,28 +39,27 @@ data class CSVConfig(
      *
      * `zoneDirectory`: attractivities.csv, bikesharing_stations.csv, zones.csv
      */
-    @JsonCreator
     constructor(
         dataRepo: Path,
         zoneRepo: Path,
-        personCSV: Path = Path("person.csv"),
-        householdCSV: Path = Path("household.csv"),
-        activityCSV: Path = Path("activity.csv"),
-        privateCarsCSV: Path = Path("car.csv"),
-        fixedDestinationCSV: Path = Path("fixedDestination.csv"),
-        attractivitiesCSV: Path = Path("attractivities.csv"),
-        bikeSharingStationsCSV: Path = Path("bikesharing_stations.csv"),
-        zonesCSV: Path = Path("zones.csv"),
-        ) :
+        personCSV: Path? = null,
+        householdCSV: Path? = null,
+        activityCSV: Path? = null,
+        privateCarsCSV: Path? = null,
+        fixedDestinationCSV: Path? = null,
+        attractivitiesCSV: Path? = null,
+        bikeSharingStationsCSV: Path? = null,
+        zonesCSV: Path? = null,
+    ) :
             this(
-                personCSV = dataRepo.resolve(personCSV),
-                householdCSV = dataRepo.resolve(householdCSV),
-                activityCSV = dataRepo.resolve(activityCSV),
-                privateCarsCSV = dataRepo.resolve(privateCarsCSV),
-                fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV),
-                attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV),
-                bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV),
-                zonesCSV = zoneRepo.resolve(zonesCSV)
+                personCSV = dataRepo.resolve(personCSV ?: defaultPersonCSV),
+                householdCSV = dataRepo.resolve(householdCSV ?: defaultHouseholdCSV),
+                activityCSV = dataRepo.resolve(activityCSV ?: defaultActivityCSV),
+                privateCarsCSV = dataRepo.resolve(privateCarsCSV ?: defaultPrivateCarsCSV),
+                fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV ?: defaultFixedDestinationCSV),
+                attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV ?: defaultAttractivitiesCSV),
+                bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
+                zonesCSV = zoneRepo.resolve(zonesCSV ?: defaultZonesCSV),
             )
 
     /**

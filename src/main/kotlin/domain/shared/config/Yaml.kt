@@ -16,6 +16,8 @@ import domain.jackson.CoreCodePlanModule
 import domain.jackson.CoreZoneMatrixCreationModule
 import domain.jackson.DestinationChoiceModule
 import domain.jackson.ModeChoiceModule
+import domain.jackson.CSVConfigModule
+import domain.jackson.MatrixConfigModule
 import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.parseIsoString
@@ -48,6 +50,8 @@ object Yaml {
         .registerModule(CoreZoneMatrixCreationModule)
         .registerModule(DestinationChoiceModule)
         .registerModule(ModeChoiceModule)
+        .registerModule(CSVConfigModule)
+        .registerModule(MatrixConfigModule)
         .registerModule(durationModule)
         .registerModule(pathModule)
         .findAndRegisterModules()

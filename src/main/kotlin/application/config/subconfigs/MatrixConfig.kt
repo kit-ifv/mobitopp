@@ -37,14 +37,14 @@ data class MatrixConfig (
      */
     constructor(
         matrixRepo: Path,
-        costMatrixConfig: Path = Path(defaultCostMatrixName),
-        durationMatrixConfig: Path = Path(defaultDurationMatrixName),
-        distanceMatrix: Path = Path(defaultDistanceMatrixName)
+        costMatrixConfig: Path? = null,
+        durationMatrixConfig: Path? = null,
+        distanceMatrix: Path? = null
     ):
             this(
-                costMatrixConfig = matrixRepo.resolve(costMatrixConfig),
-                durationMatrixConfig = matrixRepo.resolve(durationMatrixConfig),
-                distanceMatrix = matrixRepo.resolve(distanceMatrix)
+                costMatrixConfig = matrixRepo.resolve(costMatrixConfig ?: Path(defaultCostMatrixName)),
+                durationMatrixConfig = matrixRepo.resolve(durationMatrixConfig ?: Path(defaultDurationMatrixName)),
+                distanceMatrix = matrixRepo.resolve(distanceMatrix ?: Path(defaultDistanceMatrixName))
             )
 
     /**
