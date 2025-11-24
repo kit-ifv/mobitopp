@@ -45,7 +45,7 @@ fun PersonCsvContext.personCsvParser(
             employment = row.decodeName(columns.employmentColumn, employmentCodes)
             sex = row.decodeName(columns.sexColumn, sexCodes)
             graduation = row.decodeOrNull(columns.graduationColumn, graduationCodes) ?: Graduation.UNDEFINED
-            income = row.int().currencyOrNull(columns.incomeColumn, incomeUnit) ?: (-1).euros //TODO warn on default
+            income = row.int().currencyOrNull(columns.incomeColumn, incomeUnit) ?: (-1).euros // TODO warn on default
             hasBike = row.boolean(columns.bikeColumn)
             hasCommuterTicket = row.boolean(columns.commuterTicketColumn)
             hasLicense = row.boolean(columns.licenseColumn)
