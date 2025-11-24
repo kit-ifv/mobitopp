@@ -447,7 +447,9 @@ fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
     var returned = false
     val checkBikeReturn = AfterLegAction { a, t ->
         if (a.location == endStation.location && !returned) {
-            vehicle.returnTo(endStation)
+            synchronized(endStation) {
+                vehicle.returnTo(endStation)
+            }
             returned = true
         }
     }
