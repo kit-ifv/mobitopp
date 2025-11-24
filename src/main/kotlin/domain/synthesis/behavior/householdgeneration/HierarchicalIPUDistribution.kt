@@ -8,12 +8,14 @@ class HierarchicalIPUDistribution<AREA, H>(
     override val ruleProvider: HierarchicalRuleProvider<AREA, H>,
     val config: NewAlgorithmConfig = NewAlgorithmConfig(),
     val seedHouseholds: Collection<H>,
+
 ) : HierarchicalPopulationSynthesis<AREA, H> {
 
     private val distributor: NewDistributor<RawSurveyInfo, AREA, H> = NewDistributor(
         ruleProvider = ruleProvider,
         config = config,
     )
+
     private val allRuleLogics = ruleProvider.getAllRuleLogics()
     private val householdMapping = initializeHouseholdMapping()
 
@@ -82,10 +84,10 @@ class HierarchicalIPUDistribution<AREA, H>(
      */
     fun initialSolution(target: AREA): List<SignatureAmount> {
         val rules = ruleProvider.getConflictFreeRules(target)
-        val oIpu = config.ipu.calculateSignature(seedHouseholds, rules)
+        val oIpu = config.ipu.calculateSignature(seedHouseholds, rules, config.ipuCalculationCallback)
 
         val integerIPUResult = standardRoundingStrategy.integerizeIPUOutput(oIpu)
-
+        // TODO would be nice to see how much the integerization causes the initial solution quality to drop.
         val sigs = integerIPUResult.map { (element, amount) ->
             SignatureAmount(element, amount)
         }

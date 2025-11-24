@@ -9,23 +9,23 @@ fun interface GenericIPU {
 
     /**
      * THe most generic version of IPU does not care about unifying vectors. If you put in multiple identical vecotrs
-     * well then thats on you
+     * well then thats on you. Returns the observed values and expected values.
      */
-    fun <I> calculate(
+    fun <I> calculateDirect(
         vectors: Collection<ScalableVector>,
         rules: Collection<Rule<I>>,
-    ) {
+    ): List<Pair<Rule<I>, Double>> {
         val observers = rules.withIndex().map {
             RuleObserver.fromRule(it.value, it.index, vectors)
         }
         run(vectors, observers)
 
-        return
+        return rules.zip(observers.map { it.actual })
     }
 
     fun <I> calculateUnfiltered(elements: Collection<I>, rules: Collection<Rule<I>>): List<IPUOutput<I>> {
         val vectorMapping = elements.associateWith { rules.toScalableVector(it) }
-        calculate(vectorMapping.values, rules)
+        calculateDirect(vectorMapping.values, rules)
         return vectorMapping.map { (k, v) ->
             IPUOutput(k, v.scalar)
         }
@@ -44,8 +44,9 @@ fun interface GenericIPU {
     fun <I> calculateSignature(
         elements: Collection<I>,
         rules: Collection<Rule<I>>,
+        ipuCalculationCallback: (List<Pair<Rule<I>, Double>>) -> Unit = {},
     ): List<IPUOutput<Signature>> {
-        return internalGroupedCalculation(elements, rules) {
+        return internalGroupedCalculation(elements, rules, ipuCalculationCallback) {
             it.keys.map { IPUOutput(it.signature, it.scalar) }
         }
     }
@@ -53,13 +54,15 @@ fun interface GenericIPU {
     private fun <X, I> internalGroupedCalculation(
         elements: Collection<I>,
         rules: Collection<Rule<I>>,
+        ipuCalculationCallback: (List<Pair<Rule<I>, Double>>) -> Unit = {},
         resultConverter: (Map<ScalableVector, List<I>>) -> X
     ): X {
         val vectorMapping = elements.associateWith { rules.toScalableVector(it) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
 
-        calculate(uniqueVectors, rules)
+        val errors = calculateDirect(uniqueVectors, rules)
+        ipuCalculationCallback(errors)
         return resultConverter(inverseMap)
     }
     companion object {
@@ -86,6 +89,32 @@ fun interface GenericIPU {
                     it.optimize()
                 }
                 counter++
+            }
+        }
+
+        val tabooList = GenericIPU { vectors, observers ->
+
+            var counter = 0
+            while(counter < 1000) {
+                val observerCopy = observers.toMutableList()
+                while(observerCopy.isNotEmpty()) {
+                    val best = observers.maxBy { it.absoluteDifference }
+                    best.optimize()
+                    observerCopy.remove(best)
+                }
+                counter++
+
+            }
+        }
+        val aggressiveStomping = GenericIPU { vectors, observers ->
+            var counter = 0
+            while(counter < 1000 * observers.size) {
+
+                val best = observers.maxBy { it.absoluteDifference }
+                best.optimize()
+
+                counter++
+
             }
         }
     }

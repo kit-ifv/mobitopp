@@ -7,7 +7,7 @@ data class NewAlgorithmConfig(
     val ipu: GenericIPU = GenericIPU.legacy,
     val refinement: Refinement = Refinement { },
     val signatureDistributor: InitialSignatureDistributor = GreedyAmountDistro(),
-
+    val ipuCalculationCallback: (List<Pair<Rule<*>, Double>>) -> Unit = {},
 )
 
 
