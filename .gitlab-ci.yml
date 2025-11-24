@@ -48,6 +48,8 @@ unit-test-job:
   needs: ["build-job"]
   script:
     - ./gradlew test koverXmlReport koverLog
+  rules:
+    - when: always
   artifacts:
     when: always
     reports:
