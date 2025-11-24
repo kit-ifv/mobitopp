@@ -73,31 +73,6 @@ data class DrtOffer(
 
 data class DrtRide(val offer: DrtOffer) // TODO maybe add car in the future here
 
-// TODO temporary solution to get offer information into characteristics without creating whole new set of ModeChoiceCharacteristics sub class
-data class DrtImpedance(
-    private val impedance: Metrics,
-    private val offer: DrtOffer,
-    private val drtMode: Mode
-) : Metrics by impedance {
-
-    override fun cost(from: Location, to: Location, mode: Mode, time: Time): Currency =
-        if (mode == drtMode) {
-            offer.cost
-        } else {
-            super.cost(from, to, mode, time)
-        }
-
-    override fun duration(from: Location, to: Location, mode: Mode, time: Time): Duration =
-        if (mode == drtMode) {
-            offer.totalDuration
-        } else {
-            super.duration(from, to, mode, time)
-        }
-}
-
-fun PersonBehavior.withDrtImpedance(offer: DrtOffer, drtMode: Mode) =
-    this.copy(impedance = DrtImpedance(this.impedance, offer, drtMode))
-
 @Suppress("LongParameterList")
 class SimpleMatrixDrtAlgorithm(
     private val impedance: Metrics,

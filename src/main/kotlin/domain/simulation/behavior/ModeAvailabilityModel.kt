@@ -85,6 +85,7 @@ interface ModeChoiceCharacteristics {
     val destination: Location
     val impedance: Metrics
     val currentChoices: Collection<Mode> //cache of filtered modes before mode choice
+    val custom: Any?
 
     companion object {
         operator fun invoke(
@@ -94,13 +95,15 @@ interface ModeChoiceCharacteristics {
             destination: Location,
             impedance: Metrics,
             currentChoices: Collection<Mode>,
+            custom: Any?
         ): ModeChoiceCharacteristics = ModeChoiceCharacteristicsImpl(
             person,
             time,
             origin,
             destination,
             impedance,
-            currentChoices
+            currentChoices,
+            custom
         )
     }
 }
@@ -115,6 +118,7 @@ data class ModeChoiceCharacteristicsImpl(
     override val destination: Location,
     override val impedance: Metrics,
     override val currentChoices: Collection<Mode>,
+    override val custom: Any? = null
 ) : ModeChoiceCharacteristics {
     val random: Random get() = person.random
     fun with(choice: Mode) = ModeChoiceAlternative(
