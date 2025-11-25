@@ -20,24 +20,17 @@ class CSVConfigDeserializer : JsonDeserializer<CSVConfig>() {
         p0: JsonParser?,
         p1: DeserializationContext?
     ): CSVConfig? {
-        if (p0 == null) return null
-
+        if (p0 == null || p1 == null) return null
         if (p0.currentToken == JsonToken.START_OBJECT) {
             p0.nextToken()
         }
+        val node = p0.codec.readTree<JsonNode>(p0)
         val givenParams = mutableMapOf<String, String>()
-        do {
-            if (p0.currentToken == JsonToken.FIELD_NAME) {
-                val name = p0.text
-                if (p0.nextToken() == JsonToken.VALUE_STRING) {
-                    val value = p0.valueAsString
-                    givenParams[name] = value
-                } else {
-                    error("Unexpected JsonToken. After a field_name a string value should follow for CSVConfig objects")
-                }
-            }
-        } while (p0.nextToken() != JsonToken.END_OBJECT)
-
+        val parameterNames = CSVConfig.getParameterNames()
+        for(name in parameterNames) {
+            if (node.get(name) != null)
+            givenParams[name] = node.get(name).textValue()
+        }
         return initConfig(givenParams)
     }
 

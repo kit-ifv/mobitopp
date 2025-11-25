@@ -19,6 +19,6 @@ matrixConfig:
   matrixRepo: "data/matrix"
 
 sourceFiles:
-  zoneDirectory: "SET-ME"
-  dataDirectory: "data"
-  personCSV: data/test/person.csv
+  zoneRepo: "zone-test"
+  dataRepo: "data"
+

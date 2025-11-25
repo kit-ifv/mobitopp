@@ -1,3 +1,22 @@
-dataRepo: testD
-zoneRepo: testZ
-householdCSV: testH
+- dataRepo: testD
+  zoneRepo: testZ
+  householdCSV: testH
+
+- personCSV: a
+  householdCSV: b
+  activityCSV: c
+  privateCarsCSV: d
+  fixedDestinationCSV: e
+  attractivitiesCSV: f
+  bikeSharingStationsCSV: g
+  zonesCSV: h
+
+- # mixed order
+  fixedDestinationCSV: e
+  zonesCSV: h
+  personCSV: a
+  householdCSV: b
+  attractivitiesCSV: f
+  bikeSharingStationsCSV: g
+  activityCSV: c
+  privateCarsCSV: d

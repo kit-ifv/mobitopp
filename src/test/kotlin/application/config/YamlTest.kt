@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import domain.jackson.CSVConfigModule
 import domain.jackson.CoreCodePlanModule
 import domain.jackson.CoreZoneMatrixCreationModule
 import domain.jackson.DestinationChoiceModule
 import domain.jackson.GenericKeyValueBuilder
+import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
 import domain.jackson.isSameOrSubtypeOf
 import domain.jackson.javaType
@@ -81,6 +83,8 @@ class YamlTest {
             .registerModule(CoreZoneMatrixCreationModule)
             .registerModule(DestinationChoiceModule)
             .registerModule(ModeChoiceModule)
+            .registerModule(CSVConfigModule)
+            .registerModule(MatrixConfigModule)
             .registerModule(durationModule)
             .registerModule(pathModule)
             .findAndRegisterModules()

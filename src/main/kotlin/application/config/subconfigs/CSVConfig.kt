@@ -140,4 +140,24 @@ data class CSVConfig(
             zonesCSV = zonesCSV
         )
     }
+
+    companion object {
+        /**
+         * @return all the constructor parameter names, including dataRepo and zoneRepo.
+         */
+        fun getParameterNames(): Set<String> {
+            return setOf(
+                "dataRepo",
+                "zoneRepo",
+                "personCSV",
+                "householdCSV",
+                "activityCSV",
+                "privateCarsCSV",
+                "fixedDestinationCSV",
+                "attractivitiesCSV",
+                "bikeSharingStationsCSV",
+                "zonesCSV"
+            )
+        }
+    }
 }
