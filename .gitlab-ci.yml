@@ -37,6 +37,8 @@ build-job:
   image: amazoncorretto:21
   script:
     - ./gradlew compileJava
+  rules:
+    - when: always
   artifacts:
     when: always
     paths:
