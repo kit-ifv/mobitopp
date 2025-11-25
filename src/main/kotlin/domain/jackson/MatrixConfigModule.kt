@@ -1,10 +1,12 @@
 package domain.jackson
 
+import application.config.subconfigs.CSVConfig
 import application.config.subconfigs.MatrixConfig
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.module.SimpleModule
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -24,21 +26,13 @@ class MatrixConfigDeserializer : JsonDeserializer<MatrixConfig>() {
         if (p0.currentToken == JsonToken.START_OBJECT) {
             p0.nextToken()
         }
+        val matrixNode = p0.codec.readTree<JsonNode>(p0)
         val givenParams = mutableMapOf<String, String>()
-        do {
-            if (p0.currentToken == JsonToken.FIELD_NAME) {
-                val name = p0.text
-                if (p0.nextToken() == JsonToken.VALUE_STRING) {
-                    val value = p0.valueAsString
-                    givenParams[name] = value
-                } else {
-                    error(
-                        "Unexpected JsonToken. After a field_name a string value should follow for MatrixConfig objects"
-                    )
-                }
-            }
-        } while (p0.nextToken() != JsonToken.END_OBJECT)
-
+        val parameterNames = MatrixConfig.getParameterNames()
+        for(name in parameterNames) {
+            if (matrixNode.get(name) != null)
+                givenParams[name] = matrixNode.get(name).textValue()
+        }
         return initConfig(givenParams)
     }
 

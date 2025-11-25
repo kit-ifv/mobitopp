@@ -41,19 +41,17 @@ class CSVConfigParsingTest {
     fun basicParsingTest() {
         val path = "src/test/resources/yamlParsing/CSVConfigTest.yaml"
         val parsed: List<CSVConfig> = Yaml.readYaml(path)
-
         assertEquals(expected, parsed)
     }
 
     @Test
     fun readWriteTest() {
+        val tempFile = Path("src/test/resources/tempOutput/readWriteCSVConfigTest.yaml")
         for (testConfig in expected) {
-            val tempFile = Path("src/test/resources/tempOutput/readWriteCSVConfigTest.yaml")
             Yaml.writeYaml(tempFile, testConfig)
             val parsed = Yaml.readYaml<CSVConfig>(tempFile)
             assertEquals(testConfig, parsed)
             tempFile.deleteIfExists()
         }
-
     }
 }

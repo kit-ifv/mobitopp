@@ -1,5 +1,6 @@
 package application.config.subconfigs
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -50,8 +51,23 @@ data class MatrixConfig(
      * Checks whether the cost-, duration-, and distance-matrix-path exists and returns the ones not existing.
      * @return list containing any of the three paths this class manages, if they don't exist.
      */
+    @JsonIgnore
     fun getNonexistentPaths(): List<Path> {
         val paths = listOf(costMatrixConfig, durationMatrixConfig, distanceMatrix)
         return paths.filter { !it.exists() }
+    }
+
+    companion object {
+        /**
+         * @return all the constructor parameter names, including matrixRepo.
+         */
+        fun getParameterNames(): Set<String> {
+            return setOf(
+                "matrixRepo",
+                "costMatrixConfig",
+                "durationMatrixConfig",
+                "distanceMatrix"
+            )
+        }
     }
 }
