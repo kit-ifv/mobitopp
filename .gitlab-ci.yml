@@ -37,6 +37,8 @@ build-job:
   image: amazoncorretto:21
   script:
     - ./gradlew compileJava
+  rules:
+    - when: always
   artifacts:
     when: always
     paths:
@@ -48,6 +50,8 @@ unit-test-job:
   needs: ["build-job"]
   script:
     - ./gradlew test koverXmlReport koverLog
+  rules:
+    - when: always
   artifacts:
     when: always
     reports:
@@ -64,9 +68,7 @@ regression-test-job:
   stage: test
   needs: [ "unit-test-job" ]
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" &&
-           $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "dev" &&
-           $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "dev" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
   trigger:
     project: kit/ifv/intern/mobitopp/mobitopp-restatt
     branch: main
