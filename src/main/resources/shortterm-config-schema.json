@@ -10,15 +10,15 @@
       "description": "Paths to csv files needed for the simulation. Provide either all paths to all csv's or set a data and a zone-directory containing those files.",
       "type": "object",
       "default": {
-        "zoneDirectory": "SET-ME",
-        "dataDirectory": "data"
+        "zoneRepo": "SET-ME",
+        "dataRepo": "data"
       },
       "properties": {
-        "zoneDirectory": {
+        "zoneRepo": {
           "description": "The path to the zone repository folder. Should contain zones.csv, bikesharing_stations.csv and attractivities.csv. If not, manual paths need to be set for the respective file.",
           "type": "string"
         },
-        "dataDirectory": {
+        "dataRepo": {
           "description": "The path to the data repository folder. Should contain person.csv, household.csv, activity.csv, car.csv, fixedDestination.csv. If not, relative paths to the data directory can be set or fully independent absolute paths to the files.",
           "type": "string"
         },
@@ -58,7 +58,7 @@
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": ["zoneDirectory", "dataDirectory"]
+          "required": ["zoneRepo", "dataRepo"]
         },
         {
           "required": ["personCSV", "householdCSV", "activityCSV", "privateCarsCSV", "fixedDestinationCSV", "attractivitiesCSV", "bikeSharingStations", "zonesCSV"]
