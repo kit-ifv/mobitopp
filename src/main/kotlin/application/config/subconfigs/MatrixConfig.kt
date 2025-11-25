@@ -1,13 +1,12 @@
 package application.config.subconfigs
 
-
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
-private const val defaultCostMatrixName = "cost-matrix-configuration_transmove_turbo.yaml"
-private const val defaultDurationMatrixName = "time-matrix-configuration_transmove_turbo.yaml"
-private const val defaultDistanceMatrixName = "DIS_Car.mtx.bz2"
+private const val DEFAULT_COST_MATRIX_FILENAME = "cost-matrix-configuration_transmove_turbo.yaml"
+private const val DEFAULT_DURATION_MATRIX_FILENAME = "time-matrix-configuration_transmove_turbo.yaml"
+private const val DEFAULT_DISTANCE_MATRIX_FILENAME = "DIS_Car.mtx.bz2"
 
 /**
  * This data class contains all necessary paths for cost, duration and distance matrices. It handles the
@@ -16,7 +15,7 @@ private const val defaultDistanceMatrixName = "DIS_Car.mtx.bz2"
  * @param durationMatrixConfig An absolute path to the duration-matrix.yaml.
  * @param distanceMatrix An absolute path to the .mtx.bz2 distance matrix.
  */
-data class MatrixConfig (
+data class MatrixConfig(
     val costMatrixConfig: Path,
     val durationMatrixConfig: Path,
     val distanceMatrix: Path
@@ -40,12 +39,12 @@ data class MatrixConfig (
         costMatrixConfig: Path? = null,
         durationMatrixConfig: Path? = null,
         distanceMatrix: Path? = null
-    ):
-            this(
-                costMatrixConfig = matrixRepo.resolve(costMatrixConfig ?: Path(defaultCostMatrixName)),
-                durationMatrixConfig = matrixRepo.resolve(durationMatrixConfig ?: Path(defaultDurationMatrixName)),
-                distanceMatrix = matrixRepo.resolve(distanceMatrix ?: Path(defaultDistanceMatrixName))
-            )
+    ) :
+        this(
+            costMatrixConfig = matrixRepo.resolve(costMatrixConfig ?: Path(DEFAULT_COST_MATRIX_FILENAME)),
+            durationMatrixConfig = matrixRepo.resolve(durationMatrixConfig ?: Path(DEFAULT_DURATION_MATRIX_FILENAME)),
+            distanceMatrix = matrixRepo.resolve(distanceMatrix ?: Path(DEFAULT_DISTANCE_MATRIX_FILENAME))
+        )
 
     /**
      * Checks whether the cost-, duration-, and distance-matrix-path exists and returns the ones not existing.

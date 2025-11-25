@@ -16,7 +16,6 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
-
 data class ShortTermConfig(
     /* impedance*/
     val visumNetwork: Path? = null,
@@ -55,8 +54,8 @@ data class ShortTermConfig(
 
         val nonExistentPaths =
             paths.filter { !(it?.exists() ?: true) } +
-            matrixConfig.getNonexistentPaths() +
-            sourceFiles.getNonexistentPaths()
+                matrixConfig.getNonexistentPaths() +
+                sourceFiles.getNonexistentPaths()
         require(nonExistentPaths.isEmpty()) { "The following paths are not existing: $nonExistentPaths" }
     }
 }

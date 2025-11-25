@@ -1,6 +1,5 @@
 package application.config.subconfigs
 
-
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -51,24 +50,32 @@ data class CSVConfig(
         bikeSharingStationsCSV: Path? = null,
         zonesCSV: Path? = null,
     ) :
-            this(
-                personCSV = dataRepo.resolve(personCSV ?: defaultPersonCSV),
-                householdCSV = dataRepo.resolve(householdCSV ?: defaultHouseholdCSV),
-                activityCSV = dataRepo.resolve(activityCSV ?: defaultActivityCSV),
-                privateCarsCSV = dataRepo.resolve(privateCarsCSV ?: defaultPrivateCarsCSV),
-                fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV ?: defaultFixedDestinationCSV),
-                attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV ?: defaultAttractivitiesCSV),
-                bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
-                zonesCSV = zoneRepo.resolve(zonesCSV ?: defaultZonesCSV),
-            )
+        this(
+            personCSV = dataRepo.resolve(personCSV ?: defaultPersonCSV),
+            householdCSV = dataRepo.resolve(householdCSV ?: defaultHouseholdCSV),
+            activityCSV = dataRepo.resolve(activityCSV ?: defaultActivityCSV),
+            privateCarsCSV = dataRepo.resolve(privateCarsCSV ?: defaultPrivateCarsCSV),
+            fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV ?: defaultFixedDestinationCSV),
+            attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV ?: defaultAttractivitiesCSV),
+            bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
+            zonesCSV = zoneRepo.resolve(zonesCSV ?: defaultZonesCSV),
+        )
 
     /**
      * Checks whether all paths exist and returns the ones not existing.
      * @return list containing any of the paths this class manages, if they don't exist.
      */
     fun getNonexistentPaths(): List<Path> {
-        val paths = listOf(personCSV, householdCSV, activityCSV, privateCarsCSV, fixedDestinationCSV,
-            attractivitiesCSV, bikeSharingStationsCSV, zonesCSV)
+        val paths = listOf(
+            personCSV,
+            householdCSV,
+            activityCSV,
+            privateCarsCSV,
+            fixedDestinationCSV,
+            attractivitiesCSV,
+            bikeSharingStationsCSV,
+            zonesCSV
+        )
         return paths.filter { !it.exists() }
     }
 
@@ -81,10 +88,11 @@ data class CSVConfig(
      * absolute path.
      * @return A new CSVConfig with the attractivities, bikesharingstations, and zones based on the new zone repo.
      */
-    fun overrideZoneRepo(zoneRepo: Path,
-                         attractivitiesCSV: Path = Path("attractivities.csv"),
-                         bikeSharingStationsCSV: Path = Path("bikesharing_stations.csv"),
-                         zonesCSV: Path = Path("zones.csv")
+    fun overrideZoneRepo(
+        zoneRepo: Path,
+        attractivitiesCSV: Path = defaultAttractivitiesCSV,
+        bikeSharingStationsCSV: Path = defaultBikeSharingStationsCSV,
+        zonesCSV: Path = defaultZonesCSV
     ): CSVConfig {
         return CSVConfig(
             personCSV = personCSV,
@@ -112,12 +120,14 @@ data class CSVConfig(
      * absolute path.
      * @return A new CSVConfig person, household, activity, cars and fixed_destinations based on the given dataRepo.
      */
-    fun overrideDataRepo(dataRepo: Path,
-                         personCSV: Path = Path("person.csv"),
-                         householdCSV: Path = Path("household.csv"),
-                         activityCSV: Path = Path("activity.csv"),
-                         privateCarsCSV: Path = Path("car.csv"),
-                         fixedDestinationCSV: Path = Path("fixedDestination.csv")
+    @Suppress("LongParameterList")
+    fun overrideDataRepo(
+        dataRepo: Path,
+        personCSV: Path = defaultPersonCSV,
+        householdCSV: Path = defaultHouseholdCSV,
+        activityCSV: Path = defaultActivityCSV,
+        privateCarsCSV: Path = defaultPrivateCarsCSV,
+        fixedDestinationCSV: Path = defaultFixedDestinationCSV,
     ): CSVConfig {
         return CSVConfig(
             personCSV = dataRepo.resolve(personCSV),

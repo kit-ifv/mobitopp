@@ -11,11 +11,11 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 val CSVConfigModule = SimpleModule("CSVConfigModule").apply {
-    addDeserializer(CSVConfig::class.java, CSVConfigDeserializer() )
+    addDeserializer(CSVConfig::class.java, CSVConfigDeserializer())
     // serialization is straight forward.
 }
 
-class CSVConfigDeserializer(): JsonDeserializer<CSVConfig>() {
+class CSVConfigDeserializer : JsonDeserializer<CSVConfig>() {
     override fun deserialize(
         p0: JsonParser?,
         p1: DeserializationContext?
@@ -41,8 +41,8 @@ class CSVConfigDeserializer(): JsonDeserializer<CSVConfig>() {
         return initConfig(givenParams)
     }
 
-    private fun Map<String, String>.retrieveParam(name: String, ): Path? {
-        return if (containsKey(name)) {Path(get(name)!!)} else null
+    private fun Map<String, String>.retrieveParam(name: String): Path? {
+        return if (containsKey(name)) { Path(get(name)!!) } else null
     }
 
     /**
@@ -64,7 +64,7 @@ class CSVConfigDeserializer(): JsonDeserializer<CSVConfig>() {
 
         if (dataRepo != null && zoneRepo != null) {
             return CSVConfig(
-                dataRepo =  dataRepo,
+                dataRepo = dataRepo,
                 zoneRepo = zoneRepo,
                 personCSV = personCSV,
                 householdCSV = householdCSV,
@@ -75,29 +75,31 @@ class CSVConfigDeserializer(): JsonDeserializer<CSVConfig>() {
                 bikeSharingStationsCSV = bikeSharingStationsCSV,
                 zonesCSV = zonesCSV
             )
-        } else if (
-            personCSV != null &&
-            householdCSV != null &&
-            activityCSV != null &&
-            privateCarsCSV != null &&
-            fixedDestinationCSV != null &&
-            attractivitiesCSV != null &&
-            bikeSharingStationsCSV != null &&
-            zonesCSV != null
-        ) {
-            return CSVConfig(
-                personCSV = personCSV,
-                householdCSV = householdCSV,
-                activityCSV = activityCSV,
-                privateCarsCSV = privateCarsCSV,
-                fixedDestinationCSV = fixedDestinationCSV,
-                attractivitiesCSV = attractivitiesCSV,
-                bikeSharingStationsCSV = bikeSharingStationsCSV,
-                zonesCSV = zonesCSV
-            )
         } else {
-            error("Missing mandatory fields. Either set 'dataRepo' and 'zoneRepo' or all other fields.")
+            @Suppress("ComplexCondition")
+            if (
+                personCSV != null &&
+                householdCSV != null &&
+                activityCSV != null &&
+                privateCarsCSV != null &&
+                fixedDestinationCSV != null &&
+                attractivitiesCSV != null &&
+                bikeSharingStationsCSV != null &&
+                zonesCSV != null
+            ) {
+                return CSVConfig(
+                    personCSV = personCSV,
+                    householdCSV = householdCSV,
+                    activityCSV = activityCSV,
+                    privateCarsCSV = privateCarsCSV,
+                    fixedDestinationCSV = fixedDestinationCSV,
+                    attractivitiesCSV = attractivitiesCSV,
+                    bikeSharingStationsCSV = bikeSharingStationsCSV,
+                    zonesCSV = zonesCSV
+                )
+            } else {
+                error("Missing mandatory fields. Either set 'dataRepo' and 'zoneRepo' or all other fields.")
+            }
         }
     }
-
 }

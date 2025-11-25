@@ -10,11 +10,11 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 val MatrixConfigModule = SimpleModule("MatrixConfigModule").apply {
-    addDeserializer(MatrixConfig::class.java, MatrixConfigDeserializer() )
+    addDeserializer(MatrixConfig::class.java, MatrixConfigDeserializer())
     // serialization is straight forward.
 }
 
-class MatrixConfigDeserializer(): JsonDeserializer<MatrixConfig>() {
+class MatrixConfigDeserializer : JsonDeserializer<MatrixConfig>() {
     override fun deserialize(
         p0: JsonParser?,
         p1: DeserializationContext?
@@ -32,7 +32,9 @@ class MatrixConfigDeserializer(): JsonDeserializer<MatrixConfig>() {
                     val value = p0.valueAsString
                     givenParams[name] = value
                 } else {
-                    error("Unexpected JsonToken. After a field_name a string value should follow for MatrixConfig objects")
+                    error(
+                        "Unexpected JsonToken. After a field_name a string value should follow for MatrixConfig objects"
+                    )
                 }
             }
         } while (p0.nextToken() != JsonToken.END_OBJECT)
@@ -40,8 +42,8 @@ class MatrixConfigDeserializer(): JsonDeserializer<MatrixConfig>() {
         return initConfig(givenParams)
     }
 
-    private fun Map<String, String>.retrieveParam(name: String, ): Path? {
-        return if (containsKey(name)) {Path(get(name)!!)} else null
+    private fun Map<String, String>.retrieveParam(name: String,): Path? {
+        return if (containsKey(name)) { Path(get(name)!!) } else null
     }
 
     /**
@@ -76,5 +78,4 @@ class MatrixConfigDeserializer(): JsonDeserializer<MatrixConfig>() {
             error("Missing mandatory fields. Either set 'matrixRepo' or all other fields.")
         }
     }
-
 }
