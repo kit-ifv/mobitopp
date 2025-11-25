@@ -20,3 +20,8 @@
   bikeSharingStationsCSV: g
   activityCSV: c
   privateCarsCSV: d
+
+- dataRepo: x1
+  zoneRepo: x2
+  householdCSV: x3
+  attractivitiesCSV: x4

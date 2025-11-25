@@ -1,5 +1,6 @@
 package application.config.subconfigs
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -65,6 +66,7 @@ data class CSVConfig(
      * Checks whether all paths exist and returns the ones not existing.
      * @return list containing any of the paths this class manages, if they don't exist.
      */
+    @JsonIgnore
     fun getNonexistentPaths(): List<Path> {
         val paths = listOf(
             personCSV,

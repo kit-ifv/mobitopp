@@ -3,6 +3,7 @@ package application.config
 import application.config.subconfigs.CSVConfig
 import domain.shared.config.Yaml
 import kotlin.io.path.Path
+import kotlin.io.path.deleteIfExists
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,10 +23,18 @@ class CSVConfigParsingTest {
         bikeSharingStationsCSV = Path("g"),
         zonesCSV = Path("h"),
     )
+    val anotherConfig = CSVConfig(
+        dataRepo = Path("x1"),
+        zoneRepo = Path("x2"),
+        householdCSV = Path("x3"),
+        attractivitiesCSV = Path("x4"),
+    )
+
     val expected = listOf(
         instantiatedWithRepos,
         instatiatedWithSingleParam,
         instatiatedWithSingleParam,
+        anotherConfig,
     )
 
     @Test
@@ -34,5 +43,17 @@ class CSVConfigParsingTest {
         val parsed: List<CSVConfig> = Yaml.readYaml(path)
 
         assertEquals(expected, parsed)
+    }
+
+    @Test
+    fun readWriteTest() {
+        for (testConfig in expected) {
+            val tempFile = Path("src/test/resources/tempOutput/readWriteCSVConfigTest.yaml")
+            Yaml.writeYaml(tempFile, testConfig)
+            val parsed = Yaml.readYaml<CSVConfig>(tempFile)
+            assertEquals(testConfig, parsed)
+            tempFile.deleteIfExists()
+        }
+
     }
 }
