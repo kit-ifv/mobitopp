@@ -62,10 +62,8 @@ unit-test-job:
 
 regression-test-job:
   stage: test
-  needs: [ "unit-test-job" ]
-  only:
-    - main
-    # - dev # disable while gitlab runner has not enough ram for regression tests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "dev" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
   trigger:
     project: kit/ifv/intern/mobitopp/mobitopp-restatt
     branch: main

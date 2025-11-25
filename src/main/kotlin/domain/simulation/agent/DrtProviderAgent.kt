@@ -4,15 +4,12 @@ import core.statemachine.Message
 import core.statemachine.StateBasedAgent
 import core.statemachine.StateMachine
 import core.statemachine.StateMachineFactory
-import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.Metrics
 import domain.shared.location.Zone
-import domain.simulation.events.PersonBehavior
 import domain.synthesis.data.DrtProvider
 import edu.kit.ifv.units.Currency
 import utils.units.AbsoluteTime
-import utils.units.Time
 import kotlin.time.Duration
 
 interface DrtProviderMessage : Message
@@ -72,31 +69,6 @@ data class DrtOffer(
 } // TODO derive access, wait, ride and egress time
 
 data class DrtRide(val offer: DrtOffer) // TODO maybe add car in the future here
-
-// TODO temporary solution to get offer information into characteristics without creating whole new set of ModeChoiceCharacteristics sub class
-data class DrtImpedance(
-    private val impedance: Metrics,
-    private val offer: DrtOffer,
-    private val drtMode: Mode
-) : Metrics by impedance {
-
-    override fun cost(from: Location, to: Location, mode: Mode, time: Time): Currency =
-        if (mode == drtMode) {
-            offer.cost
-        } else {
-            super.cost(from, to, mode, time)
-        }
-
-    override fun duration(from: Location, to: Location, mode: Mode, time: Time): Duration =
-        if (mode == drtMode) {
-            offer.totalDuration
-        } else {
-            super.duration(from, to, mode, time)
-        }
-}
-
-fun PersonBehavior.withDrtImpedance(offer: DrtOffer, drtMode: Mode) =
-    this.copy(impedance = DrtImpedance(this.impedance, offer, drtMode))
 
 @Suppress("LongParameterList")
 class SimpleMatrixDrtAlgorithm(
