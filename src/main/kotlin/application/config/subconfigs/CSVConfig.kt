@@ -1,6 +1,7 @@
 package application.config.subconfigs
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import domain.jackson.JSONInitializer
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -143,11 +144,11 @@ data class CSVConfig(
         )
     }
 
-    companion object {
+    companion object : JSONInitializer<CSVConfig> {
         /**
          * @return all the constructor parameter names, including dataRepo and zoneRepo.
          */
-        fun getParameterNames(): Set<String> {
+        override fun getParameterNames(): Set<String> {
             return setOf(
                 "dataRepo",
                 "zoneRepo",
@@ -160,6 +161,73 @@ data class CSVConfig(
                 "bikeSharingStationsCSV",
                 "zonesCSV"
             )
+        }
+
+        private fun Map<String, String>.retrieveAsPath(name: String,): Path? {
+            return if (containsKey(name)) { Path(get(name)!!) } else null
+        }
+
+        private fun allNotNull(vararg paths: Path?): Boolean {
+            return paths.all { it != null }
+        }
+
+        /**
+         * Constructs a config out of the given params.
+         * @throws error If the given params don't contain either 'dataRepo' and 'zoneRepo' or all other fields since
+         * no sensible config can be constructed then.
+         */
+        override fun init(givenParams: Map<String, String>): CSVConfig {
+            val dataRepo: Path? = givenParams.retrieveAsPath("dataRepo")
+            val zoneRepo: Path? = givenParams.retrieveAsPath("zoneRepo")
+            val personCSV: Path? = givenParams.retrieveAsPath("personCSV")
+            val householdCSV: Path? = givenParams.retrieveAsPath("householdCSV")
+            val activityCSV: Path? = givenParams.retrieveAsPath("activityCSV")
+            val privateCarsCSV: Path? = givenParams.retrieveAsPath("privateCarsCSV")
+            val fixedDestinationCSV: Path? = givenParams.retrieveAsPath("fixedDestinationCSV")
+            val attractivitiesCSV: Path? = givenParams.retrieveAsPath("attractivitiesCSV")
+            val bikeSharingStationsCSV: Path? = givenParams.retrieveAsPath("bikeSharingStationsCSV")
+            val zonesCSV: Path? = givenParams.retrieveAsPath("zonesCSV")
+
+            if (dataRepo != null && zoneRepo != null) {
+                return CSVConfig(
+                    dataRepo = dataRepo,
+                    zoneRepo = zoneRepo,
+                    personCSV = personCSV,
+                    householdCSV = householdCSV,
+                    activityCSV = activityCSV,
+                    privateCarsCSV = privateCarsCSV,
+                    fixedDestinationCSV = fixedDestinationCSV,
+                    attractivitiesCSV = attractivitiesCSV,
+                    bikeSharingStationsCSV = bikeSharingStationsCSV,
+                    zonesCSV = zonesCSV
+                )
+            } else {
+                if (allNotNull(
+                        personCSV,
+                        householdCSV,
+                        activityCSV,
+                        privateCarsCSV,
+                        fixedDestinationCSV,
+                        attractivitiesCSV,
+                        bikeSharingStationsCSV,
+                        zonesCSV
+                    )
+                ) {
+                    return CSVConfig(
+                        personCSV = personCSV!!,
+                        householdCSV = householdCSV!!,
+                        activityCSV = activityCSV!!,
+                        privateCarsCSV = privateCarsCSV!!,
+                        fixedDestinationCSV = fixedDestinationCSV!!,
+                        attractivitiesCSV = attractivitiesCSV!!,
+                        bikeSharingStationsCSV = bikeSharingStationsCSV!!,
+                        zonesCSV = zonesCSV!!
+                    )
+                } else {
+                    error("Missing mandatory fields. Either set 'dataRepo' and 'zoneRepo' or all other fields.")
+                }
+            }
+
         }
     }
 }

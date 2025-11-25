@@ -1,6 +1,7 @@
 package application.config.subconfigs
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import domain.jackson.JSONInitializer
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -57,17 +58,54 @@ data class MatrixConfig(
         return paths.filter { !it.exists() }
     }
 
-    companion object {
+    companion object: JSONInitializer<MatrixConfig> {
         /**
          * @return all the constructor parameter names, including matrixRepo.
          */
-        fun getParameterNames(): Set<String> {
+        override fun getParameterNames(): Set<String> {
             return setOf(
                 "matrixRepo",
                 "costMatrixConfig",
                 "durationMatrixConfig",
                 "distanceMatrix"
             )
+        }
+
+        private fun Map<String, String>.retrieveAsPath(name: String): Path? {
+            return if (containsKey(name)) { Path(get(name)!!) } else null
+        }
+
+        /**
+         * Constructs a config out of the given params.
+         * @throws error If the given params do not contain either 'matrixRepo' or all other fields since
+         * no sensible config can be constructed then.
+         */
+        override fun init(givenParams: Map<String, String>): MatrixConfig {
+            val matrixRepo: Path? = givenParams.retrieveAsPath("matrixRepo")
+            val costMatrixConfig: Path? = givenParams.retrieveAsPath("costMatrixConfig")
+            val durationMatrixConfig: Path? = givenParams.retrieveAsPath("durationMatrixConfig")
+            val distanceMatrix: Path? = givenParams.retrieveAsPath("distanceMatrix")
+
+            if (matrixRepo != null) {
+                return MatrixConfig(
+                    matrixRepo = matrixRepo,
+                    costMatrixConfig = costMatrixConfig,
+                    durationMatrixConfig = durationMatrixConfig,
+                    distanceMatrix = distanceMatrix
+                )
+            } else if (
+                costMatrixConfig != null &&
+                durationMatrixConfig != null &&
+                distanceMatrix != null
+            ) {
+                return MatrixConfig(
+                    costMatrixConfig = costMatrixConfig,
+                    durationMatrixConfig = durationMatrixConfig,
+                    distanceMatrix = distanceMatrix
+                )
+            } else {
+                error("Missing mandatory fields. Either set 'matrixRepo' or all other fields.")
+            }
         }
     }
 }

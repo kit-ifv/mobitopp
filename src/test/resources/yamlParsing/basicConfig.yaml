@@ -1,4 +1,3 @@
-zoneRepo: data/zone-repository
 zoneMatrixCreationMethod: keyBased
 resultPath: results
 resultName: demandsimulation.csv
@@ -15,6 +14,7 @@ vehicleCountColumn: "something"
 choiceModelModes: default
 destinationChoiceModel: legacyDestinationChoiceModel
 modeChoiceModel: legacyModeChoiceModel
+
 matrixConfig:
   matrixRepo: "data/matrix"
 
