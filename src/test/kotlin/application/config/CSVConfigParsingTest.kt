@@ -3,7 +3,10 @@ package application.config
 import application.config.subconfigs.CSVConfig
 import domain.shared.config.Yaml
 import kotlin.io.path.Path
+import kotlin.io.path.createFile
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -39,7 +42,7 @@ class CSVConfigParsingTest {
 
     @Test
     fun basicParsingTest() {
-        val path = "src/test/resources/yamlParsing/CSVConfigTest.yaml"
+        val path = Path("src/test/resources/yamlParsing/CSVConfigTest.yaml")
         val parsed: List<CSVConfig> = Yaml.readYaml(path)
         assertEquals(expected, parsed)
     }
@@ -47,6 +50,8 @@ class CSVConfigParsingTest {
     @Test
     fun readWriteTest() {
         val tempFile = Path("src/test/resources/tempOutput/readWriteCSVConfigTest.yaml")
+        tempFile.createParentDirectories()
+        if (!tempFile.exists()) tempFile.createFile()
         for (testConfig in expected) {
             Yaml.writeYaml(tempFile, testConfig)
             val parsed = Yaml.readYaml<CSVConfig>(tempFile)

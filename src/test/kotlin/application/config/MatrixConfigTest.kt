@@ -3,7 +3,10 @@ package application.config
 import application.config.subconfigs.MatrixConfig
 import domain.shared.config.Yaml
 import kotlin.io.path.Path
+import kotlin.io.path.createFile
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -18,12 +21,14 @@ class MatrixConfigTest {
         MatrixConfig(
             matrixRepo = Path("c"),
             durationMatrixConfig = Path("b")
-        ), MatrixConfig(
+        ),
+        MatrixConfig(
             costMatrixConfig = Path("e"),
             durationMatrixConfig = Path("f"),
             distanceMatrix = Path("g")
         )
     )
+
     @Test
     fun readTest() {
         val testConfig = Path("src/test/resources/yamlParsing/MatrixConfigTest.yaml")
@@ -34,6 +39,8 @@ class MatrixConfigTest {
     @Test
     fun writeTest() {
         val tempFile = Path("src/test/resources/tempOutput/readWriteMatrixConfigTest.yaml")
+        tempFile.createParentDirectories()
+        if (!tempFile.exists()) tempFile.createFile()
         for (testConfig in expected) {
             Yaml.writeYaml(tempFile, testConfig)
             val parsed = Yaml.readYaml<MatrixConfig>(tempFile)

@@ -14,11 +14,12 @@ import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
 /**
- * Getter for the `DestinationChoiceModelType` aka `UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>`.
+ * Getter for the `DestinationChoiceModelType` aka
+ * `UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>`.
  *
- * *(This is not a val because weird stuff happens when subprojects use that val. Serviceloader tries to access it
+ * (This is not a val because weird stuff happens when subprojects use that val. Serviceloader tries to access it
  * before it is initialized. Generally initialization dependencies between top level vals seem to not be well-defined
- * in kotlin.)*
+ * in kotlin.)
  */
 fun getDestinationChoiceModelType(): JavaType = TypeFactory.defaultInstance().constructParametricType(
     UtilityBasedChoiceModel::class.java,
