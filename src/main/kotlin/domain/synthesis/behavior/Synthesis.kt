@@ -97,7 +97,7 @@ data class RawSurveyInfo(
     val hasCommuterTicket: Boolean,
     override val householdIncome: Currency,
     val householdIncomeClass: Int, // TODO what is this? it is in a range between 0-8 ???
-    override val type: HouseholdType, // TODO what even is this? It Could be raumtype NVM it is Household Type
+    val typeCode: Int,
     val cars: Int,
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,
@@ -105,6 +105,8 @@ data class RawSurveyInfo(
     override val distanceEducation: Distance
 ) : SurveyWithCommute, SurveyType {
     override val age = year - birthyear
+
+    override val type: HouseholdType = HouseholdType.decodeOrNull(typeCode) ?: HouseholdType.UNDEFINED
 }
 
 /**

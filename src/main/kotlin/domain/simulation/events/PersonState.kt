@@ -20,12 +20,12 @@ import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
 import domain.shared.location.Metrics
+import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtRide
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PersonMessage
 import domain.simulation.agent.PrivateCarAgent
 import domain.simulation.agent.getBestCar
-import domain.simulation.agent.withDrtImpedance
 import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.DrtAvailabilitySelector
@@ -286,14 +286,15 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : PersonS
 
             synchronizeAll(sharedResources.distinct().toSet()) {
 
-                val (mode, drtRide) = modeChoiceDrtWrapper(choices, send) { choiceSet, choiceBehavior ->
+                val (mode, drtRide) = modeChoiceDrtWrapper(choices, send) { choiceSet, drtOffer ->
                     val modeSituation = behavior.spawnModeCharacteristics(
                         person,
                         time,
-                        choiceBehavior,
+                        behavior,
                         origin,
                         destination,
-                        choiceSet
+                        choiceSet,
+                        drtOffer,
                     )
 
                     context(modeSituation, person.random) {
@@ -446,7 +447,9 @@ fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
     var returned = false
     val checkBikeReturn = AfterLegAction { a, t ->
         if (a.location == endStation.location && !returned) {
-            vehicle.returnTo(endStation)
+            synchronized(endStation) {
+                vehicle.returnTo(endStation)
+            }
             returned = true
         }
     }
@@ -467,7 +470,7 @@ fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPicku
 private fun StartingTripState.modeChoiceDrtWrapper(
     choices: List<Mode>,
     send: Send,
-    modeChoiceScope: StartingTripState.(List<Mode>, PersonBehavior) -> Mode
+    modeChoiceScope: StartingTripState.(List<Mode>, DrtOffer?) -> Mode
 ): Pair<Mode, DrtRide?> {
     val drtOffers = takeIf { modes.ridePooling in choices }?.let {
         context(person, time, destination) {
@@ -476,11 +479,8 @@ private fun StartingTripState.modeChoiceDrtWrapper(
     } ?: emptyList()
 
     val drtOffer = drtOffers.minByOrNull { it.totalDuration }
-    val drtBehavior = drtOffer?.let {
-        behavior.withDrtImpedance(it, modes.ridePooling)
-    } ?: behavior
 
-    var mode = modeChoiceScope(choices, drtBehavior)
+    var mode = modeChoiceScope(choices, drtOffer)
 
     var drtRide: DrtRide? = null
     if (mode == modes.ridePooling) {
@@ -493,7 +493,7 @@ private fun StartingTripState.modeChoiceDrtWrapper(
 
         if (drtRide == null) {
             val modesNoDrt = choices - modes.ridePooling
-            mode = modeChoiceScope(modesNoDrt, behavior)
+            mode = modeChoiceScope(modesNoDrt, null)
         } else {
             // TODO since request/booking/revoke not via messages currently,
             // trigger provider state machine in case it went inactive
