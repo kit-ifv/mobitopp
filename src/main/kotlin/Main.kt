@@ -36,6 +36,7 @@ import core.results.plots.forData
 import core.results.plots.modeStringColor
 import domain.shared.config.Yaml
 import domain.shared.datastructure.matrix.VisumMatrixCreator
+import domain.shared.datastructure.matrix.optionalCachedMatrixCreator
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.MainModes
@@ -157,6 +158,8 @@ fun main(args: Array<String>) {
             costMatrixConfig = shortTermConfig.matrixConfig.costMatrixConfig,
             durationMatrixConfig = shortTermConfig.matrixConfig.durationMatrixConfig,
             distanceMatrix = shortTermConfig.matrixConfig.distanceMatrix,
+            matrixCreator = optionalCachedMatrixCreator(shortTermConfig.cachePath,
+                shortTermConfig.zoneMatrixCreationMethod)
         )
 
         loadBehaviorModels(
