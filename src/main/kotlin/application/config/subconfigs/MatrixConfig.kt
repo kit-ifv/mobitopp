@@ -58,16 +58,21 @@ data class MatrixConfig(
         return paths.filter { !it.exists() }
     }
 
-    companion object: JSONInitializer<MatrixConfig> {
+    companion object : JSONInitializer<MatrixConfig> {
+        private const val REPO_PARAM = "matrixRepo"
+        private const val COST_PARAM = "costMatrixConfig"
+        private const val DURATION_PARAM = "durationMatrixConfig"
+        private const val DISTANCE_PARAM = "distanceMatrix"
+
         /**
          * @return all the constructor parameter names, including matrixRepo.
          */
         override fun getParameterNames(): Set<String> {
             return setOf(
-                "matrixRepo",
-                "costMatrixConfig",
-                "durationMatrixConfig",
-                "distanceMatrix"
+                REPO_PARAM,
+                COST_PARAM,
+                DURATION_PARAM,
+                DISTANCE_PARAM
             )
         }
 
@@ -81,10 +86,10 @@ data class MatrixConfig(
          * no sensible config can be constructed then.
          */
         override fun init(givenParams: Map<String, String>): MatrixConfig {
-            val matrixRepo: Path? = givenParams.retrieveAsPath("matrixRepo")
-            val costMatrixConfig: Path? = givenParams.retrieveAsPath("costMatrixConfig")
-            val durationMatrixConfig: Path? = givenParams.retrieveAsPath("durationMatrixConfig")
-            val distanceMatrix: Path? = givenParams.retrieveAsPath("distanceMatrix")
+            val matrixRepo: Path? = givenParams.retrieveAsPath(REPO_PARAM)
+            val costMatrixConfig: Path? = givenParams.retrieveAsPath(COST_PARAM)
+            val durationMatrixConfig: Path? = givenParams.retrieveAsPath(DURATION_PARAM)
+            val distanceMatrix: Path? = givenParams.retrieveAsPath(DISTANCE_PARAM)
 
             if (matrixRepo != null) {
                 return MatrixConfig(

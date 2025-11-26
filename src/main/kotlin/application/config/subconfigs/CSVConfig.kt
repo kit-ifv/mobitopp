@@ -6,15 +6,6 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
-private val defaultPersonCSV: Path = Path("person.csv")
-private val defaultHouseholdCSV: Path = Path("household.csv")
-private val defaultActivityCSV: Path = Path("activity.csv")
-private val defaultPrivateCarsCSV: Path = Path("car.csv")
-private val defaultFixedDestinationCSV: Path = Path("fixedDestination.csv")
-private val defaultAttractivitiesCSV: Path = Path("attractivities.csv")
-private val defaultBikeSharingStationsCSV: Path = Path("bikesharing_stations.csv")
-private val defaultZonesCSV: Path = Path("zones.csv")
-
 /**
  * This data class contains all paths to csv files for a short term simulation. It handles the
  * default structure and possible creation methods.
@@ -145,21 +136,41 @@ data class CSVConfig(
     }
 
     companion object : JSONInitializer<CSVConfig> {
+        private const val DATA_REPO_PARAM = "dataRepo"
+        private const val ZONE_REPO_PARAM = "zoneRepo"
+        private const val PERSON_PARAM = "personCSV"
+        private const val HOUSEHOLD_PARAM = "householdCSV"
+        private const val ACTIVITY_PARAM = "activityCSV"
+        private const val CAR_PARAM = "privateCarsCSV"
+        private const val DESTINATION_PARAM = "fixedDestinationCSV"
+        private const val ATTRACTIVITY_PARAM = "attractivitiesCSV"
+        private const val SHARING_PARAM = "bikeSharingStationsCSV"
+        private const val ZONES_PARAM = "zonesCSV"
+
+        private val defaultPersonCSV: Path = Path("person.csv")
+        private val defaultHouseholdCSV: Path = Path("household.csv")
+        private val defaultActivityCSV: Path = Path("activity.csv")
+        private val defaultPrivateCarsCSV: Path = Path("car.csv")
+        private val defaultFixedDestinationCSV: Path = Path("fixedDestination.csv")
+        private val defaultAttractivitiesCSV: Path = Path("attractivities.csv")
+        private val defaultBikeSharingStationsCSV: Path = Path("bikesharing_stations.csv")
+        private val defaultZonesCSV: Path = Path("zones.csv")
+
         /**
          * @return all the constructor parameter names, including dataRepo and zoneRepo.
          */
         override fun getParameterNames(): Set<String> {
             return setOf(
-                "dataRepo",
-                "zoneRepo",
-                "personCSV",
-                "householdCSV",
-                "activityCSV",
-                "privateCarsCSV",
-                "fixedDestinationCSV",
-                "attractivitiesCSV",
-                "bikeSharingStationsCSV",
-                "zonesCSV"
+                DATA_REPO_PARAM,
+                ZONE_REPO_PARAM,
+                PERSON_PARAM,
+                HOUSEHOLD_PARAM,
+                ACTIVITY_PARAM,
+                CAR_PARAM,
+                DESTINATION_PARAM,
+                ATTRACTIVITY_PARAM,
+                SHARING_PARAM,
+                ZONES_PARAM
             )
         }
 
@@ -177,16 +188,16 @@ data class CSVConfig(
          * no sensible config can be constructed then.
          */
         override fun init(givenParams: Map<String, String>): CSVConfig {
-            val dataRepo: Path? = givenParams.retrieveAsPath("dataRepo")
-            val zoneRepo: Path? = givenParams.retrieveAsPath("zoneRepo")
-            val personCSV: Path? = givenParams.retrieveAsPath("personCSV")
-            val householdCSV: Path? = givenParams.retrieveAsPath("householdCSV")
-            val activityCSV: Path? = givenParams.retrieveAsPath("activityCSV")
-            val privateCarsCSV: Path? = givenParams.retrieveAsPath("privateCarsCSV")
-            val fixedDestinationCSV: Path? = givenParams.retrieveAsPath("fixedDestinationCSV")
-            val attractivitiesCSV: Path? = givenParams.retrieveAsPath("attractivitiesCSV")
-            val bikeSharingStationsCSV: Path? = givenParams.retrieveAsPath("bikeSharingStationsCSV")
-            val zonesCSV: Path? = givenParams.retrieveAsPath("zonesCSV")
+            val dataRepo: Path? = givenParams.retrieveAsPath(DATA_REPO_PARAM)
+            val zoneRepo: Path? = givenParams.retrieveAsPath(ZONE_REPO_PARAM)
+            val personCSV: Path? = givenParams.retrieveAsPath(PERSON_PARAM)
+            val householdCSV: Path? = givenParams.retrieveAsPath(HOUSEHOLD_PARAM)
+            val activityCSV: Path? = givenParams.retrieveAsPath(ACTIVITY_PARAM)
+            val privateCarsCSV: Path? = givenParams.retrieveAsPath(CAR_PARAM)
+            val fixedDestinationCSV: Path? = givenParams.retrieveAsPath(DESTINATION_PARAM)
+            val attractivitiesCSV: Path? = givenParams.retrieveAsPath(ATTRACTIVITY_PARAM)
+            val bikeSharingStationsCSV: Path? = givenParams.retrieveAsPath(SHARING_PARAM)
+            val zonesCSV: Path? = givenParams.retrieveAsPath(ZONES_PARAM)
 
             if (dataRepo != null && zoneRepo != null) {
                 return CSVConfig(
@@ -227,7 +238,6 @@ data class CSVConfig(
                     error("Missing mandatory fields. Either set 'dataRepo' and 'zoneRepo' or all other fields.")
                 }
             }
-
         }
     }
 }
