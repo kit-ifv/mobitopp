@@ -36,6 +36,9 @@ interface Repo<T> {
 
 /**
  * This class allows for granular filtering on when to apply the given `deserializer`.
+ * @param targetType The type the deserializer matches against. Only if the passed type is the same or subtype of
+ * the target type, this deserializer deserializes it (is returned as a matching deserializer).
+ * @param deserializer A deserializer capable of serializing objects of the targetType.
  */
 class SpecificTypeDeserializers(private val targetType: JavaType, private val deserializer: JsonDeserializer<*>) :
     SimpleDeserializers() {
@@ -53,6 +56,9 @@ class SpecificTypeDeserializers(private val targetType: JavaType, private val de
 
 /**
  * This class allows for granular filtering on when to apply the given `serializer`.
+ * @param targetType The type the serializer matches against. Only if the passed object is the same or subtype of
+ * the target type, this serializer serializes it.
+ * @param serializer A serializer capable of serializing objects of the targetType.
  */
 class SpecificTypeSerializers(private val targetType: JavaType, private val serializer: JsonSerializer<*>) :
     SimpleSerializers() {
@@ -82,12 +88,6 @@ open class GenericKeyValueBuilder<T>(
     val default: Map<String, T> = emptyMap(),
     val loadFromSubmodules: Boolean
 ) {
-
-    /**
-     * Use this constructor to ensure correct interpretation of parameterized types (like `A<B, C, D>`). If you only
-     * want to parse `A<B, C>` this is the constructor to use.
-     */
-
     val serializerMapping: Map<T, String> by lazy {
         deserializerMapping.reverseMapping()
     }
