@@ -158,8 +158,10 @@ fun main(args: Array<String>) {
             costMatrixConfig = shortTermConfig.matrixConfig.costMatrixConfig,
             durationMatrixConfig = shortTermConfig.matrixConfig.durationMatrixConfig,
             distanceMatrix = shortTermConfig.matrixConfig.distanceMatrix,
-            matrixCreator = optionalCachedMatrixCreator(shortTermConfig.cachePath,
-                shortTermConfig.zoneMatrixCreationMethod)
+            matrixCreator = optionalCachedMatrixCreator(
+                shortTermConfig.cachePath,
+                shortTermConfig.zoneMatrixCreationMethod
+            )
         )
 
         loadBehaviorModels(
