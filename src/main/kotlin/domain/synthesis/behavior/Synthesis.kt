@@ -87,7 +87,7 @@ interface SurveyType {
  * Accessor interface for graduation property
  */
 interface HasGraduation {
-    val graduation: Graduation
+    val graduationCode: Int
 }
 
 
