@@ -1,6 +1,8 @@
 package utils
 
 import kotlin.math.abs
+import kotlin.math.ln
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 fun interface Metric {
@@ -8,10 +10,12 @@ fun interface Metric {
         expected.map { it.toDouble() },
         actual.map { it.toDouble() }
     )
+
     fun evaluateNumber(pair: Pair<Collection<Number>, Collection<Number>>) = evaluateNumber(pair.first, pair.second)
     fun evaluate(expected: Collection<Double>, actual: Collection<Double>): Double
 
     fun evaluate(input: Collection<Pair<Number, Number>>) = evaluateNumber(input.unzip())
+
     companion object {
         val meanAbsoluteError = Metric { expected, actual ->
             require(expected.size == actual.size) {
@@ -74,6 +78,47 @@ fun interface Metric {
             }
 
             sum / expected.size * 100.0
+        }
+        // This value is needed for avoiding log(0) calculations. At least for
+        private const val LOG_LOWER_BOUND: Double = 0.5
+        val meanAbsoluteLogError = Metric { expected, actual ->
+
+            require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 })  {
+                "Log error cannot handle negative values, the cheat to avoid log(0) by adding epsilon log(0 + e) could" +
+                        "now result in a log(-e + e)"
+            }
+            val sum = expected.zip(actual).sumOf { (exp, act) ->
+                abs(ln(exp.coerceAtLeast(LOG_LOWER_BOUND)) - ln(act.coerceAtLeast(LOG_LOWER_BOUND)))
+
+            }
+            sum / expected.size
+        }
+
+        val rootMeanSquareLogError = Metric { expected, actual ->
+
+            require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 })  {
+                "Log error cannot handle negative values, the cheat to avoid log(0) by adding epsilon log(0 + e) could" +
+                        "now result in a log(-e + e)"
+            }
+            val sum = expected.zip(actual).sumOf { (exp, act) ->
+                (ln(exp.coerceAtLeast(LOG_LOWER_BOUND)) - ln(act.coerceAtLeast(LOG_LOWER_BOUND))).pow(2)
+
+            }
+            sqrt(sum / expected.size)
+
+        }
+
+        val absolutePercentageError = Metric { expected, actual ->
+            val sum = expected.zip(actual).sumOf { (exp, act) ->
+                if (exp == 0.0) {
+                    if (act == 0.0) 0.0 else 1.0
+                } else {
+                    abs(exp - act) / abs(exp)
+                }
+            }
+
+            sum
+
         }
     }
 }

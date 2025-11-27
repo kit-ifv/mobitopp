@@ -1,6 +1,7 @@
 package domain.synthesis.behavior
 
 import domain.synthesis.data.Employment
+import domain.synthesis.data.Graduation
 import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Currency
@@ -41,7 +42,7 @@ fun <T> Collection<T>.repeatExact(amount: Int): List<T> {
  * This is the class that holds the data extract from the survey population csv. The file merges household and
  * person information.
  */
-interface SurveyInfo : SurveyEmployment, SurveyAge {
+interface SurveyInfo : HasSurveyEmployment, SurveyAge {
     val householdId: Long
     val sex: Sex
     override val age: Int
@@ -68,7 +69,7 @@ interface SurveyWithCommute : SurveyInfo, CommuteDistance, EducationDistance
  * to the class holding the information block
  */
 
-interface SurveyEmployment {
+interface HasSurveyEmployment {
     val employment: Employment
 }
 
@@ -83,27 +84,59 @@ interface SurveyType {
 }
 
 /**
+ * Accessor interface for graduation property
+ */
+interface HasGraduation {
+    val graduation: Graduation
+}
+
+
+/**
+ * Raw Survey Info as taken from the usual population input from legacy mobitopp. Lots of the attributes are useless,
+ * and this interface should not be targeted, rather all relevant information should be extracted in compositve interfaces
+ */
+interface RawSurveyInfo: SurveyWithCommute, SurveyType {
+    override val householdId: Long
+    val year: Int
+    val areaType: Int
+    val householdSize: Int
+    val personNumber: Int
+    override val sex: Sex
+    val birthyear: Int
+    override val employment: Employment
+    val hasCommuterTicket: Boolean
+    override val householdIncome: Currency
+    val householdIncomeClass: Int
+    override val type: HouseholdType
+    val cars: Int
+    val hasBicycle: Boolean
+    override val hasLicence: Boolean
+    override val distanceWork: Distance
+    override val distanceEducation: Distance
+
+}
+/**
  * All the information from the survey file, including all irrelevant information
  */
-data class RawSurveyInfo(
+data class RawSurveyInfoImpl(
     override val householdId: Long,
-    val year: Int,
-    val areaType: Int, // TODO what is this?
-    val householdSize: Int, // TODO remove?. If I determine household size over the household object, this is useless
-    val personNumber: Int,
+    override val year: Int,
+    override val areaType: Int, // TODO what is this?
+    override val householdSize: Int, // TODO remove?. If I determine household size over the household object, this is useless
+    override val personNumber: Int,
     override val sex: Sex,
-    val birthyear: Int,
+    override val birthyear: Int,
     override val employment: Employment,
-    val hasCommuterTicket: Boolean,
+    override val hasCommuterTicket: Boolean,
     override val householdIncome: Currency,
-    val householdIncomeClass: Int, // TODO what is this? it is in a range between 0-8 ???
+    override val householdIncomeClass: Int, // TODO what is this? it is in a range between 0-8 ???
     override val type: HouseholdType, // TODO what even is this? It Could be raumtype NVM it is Household Type
-    val cars: Int,
-    val hasBicycle: Boolean,
+    override val cars: Int,
+    override val hasBicycle: Boolean,
     override val hasLicence: Boolean,
     override val distanceWork: Distance,
     override val distanceEducation: Distance
-) : SurveyWithCommute, SurveyType {
+) : RawSurveyInfo {
     override val age = year - birthyear
 }
 

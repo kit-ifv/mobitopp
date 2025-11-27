@@ -198,7 +198,11 @@ enum class Employment(override val code: Int) : Encodable {
 
     override val description: String = name
 
-    companion object : EnumDecodable<Employment>(Employment::class)
+    fun isStudent() = this.code in studentCodes
+
+    companion object : EnumDecodable<Employment>(Employment::class) {
+        private val studentCodes = setOf(4, 40, 41, 42)
+    }
 }
 
 enum class Graduation(override val code: Int) : Encodable { // TODO split into school and higher education

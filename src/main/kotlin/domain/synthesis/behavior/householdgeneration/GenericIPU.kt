@@ -97,15 +97,32 @@ fun interface GenericIPU {
             var counter = 0
             while(counter < 1000) {
                 val observerCopy = observers.toMutableList()
-                while(observerCopy.isNotEmpty()) {
+                while(observerCopy.isNotEmpty() && counter < 1000) {
                     val best = observers.maxBy { it.absoluteDifference }
                     best.optimize()
                     observerCopy.remove(best)
+                    counter++
                 }
-                counter++
+
 
             }
         }
+        val limitOptimization = GenericIPU { vectors, observers ->
+            val indexedObservers = observers.withIndex().toMutableList()
+            val counters = indexedObservers.map { 100 }.toIntArray()
+            while(indexedObservers.size >= 2) {
+                val target = indexedObservers.maxBy { (i, observer) -> observer.absoluteDifference }
+                val (idx, candidate) = target
+                candidate.optimize()
+                counters[idx]--
+
+                if(counters[idx] <= 0) {
+                    indexedObservers.remove(target)
+                }
+            }
+
+        }
+
         val aggressiveStomping = GenericIPU { vectors, observers ->
             var counter = 0
             while(counter < 1000 * observers.size) {
