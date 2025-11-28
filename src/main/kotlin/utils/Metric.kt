@@ -120,5 +120,18 @@ fun interface Metric {
             sum
 
         }
+        val chiSquaredError = Metric { expected, actual ->
+            val sum = expected.zip(actual).sumOf { (exp, act) ->
+                    (exp - act).pow(2) / exp.coerceAtLeast(1.0)
+            }
+            sum
+        }
+
+        val relativeSquaredError = Metric { expected, actual ->
+            val sum = expected.zip(actual).sumOf { (exp, act) ->
+                ((exp - act)/ exp.coerceAtLeast(1.0)).pow(2)
+            }
+            sum
+        }
     }
 }
