@@ -2,6 +2,11 @@ package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.Signature
 import utils.collections.invertMap
+import java.nio.file.Path
+import kotlin.io.path.appendText
+import kotlin.io.path.exists
+import kotlin.io.path.writeText
+import kotlin.time.measureTime
 
 fun interface GenericIPU {
 
@@ -124,6 +129,7 @@ fun interface GenericIPU {
         }
 
         val aggressiveStomping = GenericIPU { vectors, observers ->
+
             var counter = 0
             while(counter < 1000 * observers.size) {
 
@@ -134,6 +140,19 @@ fun interface GenericIPU {
 
             }
         }
+    }
+}
+fun GenericIPU.withLogging(path: Path) = PerformanceLoggingIPU(this, path)
+data class PerformanceLoggingIPU(val original: GenericIPU, val path: Path): GenericIPU {
+    override fun run(
+        vectors: Collection<ScalableVector>,
+        observers: Collection<RuleObserver>
+    ) {
+
+        val duration = measureTime { original.run(vectors, observers) }
+        val text = "$original; ${vectors.size}; ${observers.size}; $duration\n"
+        if(path.exists()) path.appendText(text) else path.writeText(text)
+
     }
 }
 
