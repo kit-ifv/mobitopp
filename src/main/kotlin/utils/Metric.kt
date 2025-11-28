@@ -133,5 +133,8 @@ fun interface Metric {
             }
             sum
         }
+        val reducedChiSquaredError = Metric {expected, actual ->
+            relativeSquaredError.evaluate(expected, actual) / (expected.size.toDouble() - 1).coerceAtLeast(1.0)
+        }
     }
 }
