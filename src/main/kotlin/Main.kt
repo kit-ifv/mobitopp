@@ -4,6 +4,7 @@ import application.config.ExampleProjectContext
 import application.config.ShortTermConfig
 import application.config.subconfigs.CSVConfig
 import application.config.subconfigs.MatrixConfig
+import application.steps.model.AssignCarUserStep
 import application.steps.model.addDrtMemberships
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
@@ -14,21 +15,33 @@ import application.steps.model.loadBehaviorModels
 import application.steps.model.newDrtProvider
 import application.steps.model.scaleFilter
 import application.steps.model.simulate
+import application.steps.parser.csv.activities
+import application.steps.parser.csv.activitiesCsvConfig
 import application.steps.parser.csv.assignFixedDestinations
+import application.steps.parser.csv.filterHouseholds
 import application.steps.parser.csv.finishActivities
 import application.steps.parser.csv.finishHouseholds
 import application.steps.parser.csv.finishPersons
 import application.steps.parser.csv.finishPrivateCars
+import application.steps.parser.csv.finishZones
+import application.steps.parser.csv.households
+import application.steps.parser.csv.householdsFromCsvStep
 import application.steps.parser.csv.loadAttractivities
 import application.steps.parser.csv.loadZones
+import application.steps.parser.csv.persons
+import application.steps.parser.csv.personsFromCsvStep
 import application.steps.parser.csv.prepareActivities
 import application.steps.parser.csv.prepareHouseholds
 import application.steps.parser.csv.preparePersons
 import application.steps.parser.csv.preparePrivateCars
 import application.steps.parser.csv.prepareZones
+import application.steps.parser.csv.privateCars
+import application.steps.parser.csv.privateCarsFromCsvStep
 import application.steps.parser.loadImpedance
 import application.steps.parser.loadVisumNetwork
 import application.steps.results.addPlot
+import attractivities
+import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.Simulation
 import core.results.plots.asLinePlot
 import core.results.plots.data.Ordering
@@ -53,6 +66,7 @@ import domain.simulation.events.personStateMachine
 import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.parser.NoActivityStartShifter
+import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
 import utils.ErrorHandling
@@ -65,9 +79,8 @@ val attractivities = Path("data/attractivities.csv")
 val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 val standardConfig = ShortTermConfig(
     visumNetwork = visum_network,
-    fractionOfPopulation = 1.0,
+    fractionOfPopulation = 0.2,
 
-    cachePath = Path("data/data-cache"),
     zoneMatrixCreationMethod = VisumMatrixCreator,
     simulationContext = ExampleProjectContext(
         scenarioName = "MobitoppReengineeringMain",
@@ -86,7 +99,7 @@ val standardConfig = ShortTermConfig(
     sourceFiles = CSVConfig(
         dataRepo = dataFolder,
         zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
-        attractivitiesCSV = attractivities,
+        attractivitiesCSV = attractivities.toAbsolutePath(),
     ),
 ).apply {
     matrixConfig = MatrixConfig(matrixRepo = Path(ROOT_MTX))
@@ -106,48 +119,48 @@ fun main(args: Array<String>) {
     }.steps {
         prepareZones(shortTermConfig.sourceFiles.zonesCSV)
         loadZones()
+        finishZones()
+
         loadVisumNetwork(shortTermConfig.visumNetwork ?: visum_network)
 
         val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
 
-        prepareHouseholds(
-            path = shortTermConfig.sourceFiles.householdCSV,
-            filter = { filter(it) }
-        )
-
-        householdHomeLocation(
-            AssignAroundZoneCentroid(50.meters)
-        )
-
-//        scalePopulation(0.1.share())
+        households {
+            householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
+            ) {
+                this.filter = { filter(it) }
+            }.optionalCache(shortTermConfig.cachePath)
+            householdHomeLocation(
+                AssignAroundZoneCentroid(50.meters)
+            )
+        }
 
         newDrtProvider {
             name = "DummyDrt"
             mode = LegacyMode.RIDE_POOLING
         }
 
-        finishHouseholds()
+        persons {
+            personsFromCsvStep { path = shortTermConfig.sourceFiles.personCSV }
+                .optionalCache(shortTermConfig.cachePath)
+        }
 
-        preparePersons(
-            path = shortTermConfig.sourceFiles.personCSV,
-        )
         addDrtMemberships(everyoneIsMember)
 
-        preparePrivateCars(
-            path = shortTermConfig.sourceFiles.privateCarsCSV
-        )
+        privateCars {
+            privateCarsFromCsvStep { path = shortTermConfig.sourceFiles.privateCarsCSV }
+                .optionalCache(shortTermConfig.cachePath)
+            AssignCarUserStep(this@steps)
+        }
 
-        assignCarUsers()
-        finishPrivateCars()
+        activities {
+            activitiesCsvConfig {
+                path = shortTermConfig.sourceFiles.activityCSV
+                errorHandling = shortTermConfig.errorHandling
+                shiftActivityStart = NoActivityStartShifter
+            }
+        }
 
-        prepareActivities(
-            path = shortTermConfig.sourceFiles.activityCSV,
-            errorHandling = ErrorHandling.WARNING,
-            shiftActivityStart = NoActivityStartShifter
-        )
-
-        finishActivities()
-        finishPersons()
 
         loadAttractivities(
             path = shortTermConfig.sourceFiles.attractivitiesCSV,
