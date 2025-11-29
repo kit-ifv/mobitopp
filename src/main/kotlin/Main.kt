@@ -34,6 +34,7 @@ import application.steps.parser.csv.prepareActivities
 import application.steps.parser.csv.prepareHouseholds
 import application.steps.parser.csv.preparePersons
 import application.steps.parser.csv.preparePrivateCars
+import application.steps.parser.csv.prepareZoneFile
 import application.steps.parser.csv.prepareZones
 import application.steps.parser.csv.privateCars
 import application.steps.parser.csv.privateCarsFromCsvStep
@@ -74,7 +75,7 @@ import utils.csv.Row
 import kotlin.io.path.Path
 import kotlin.time.Duration.Companion.minutes
 
-val visum_network = Path("src/test/resources/rastatt.net")
+val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
 val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 val standardConfig = ShortTermConfig(
@@ -99,10 +100,11 @@ val standardConfig = ShortTermConfig(
     sourceFiles = CSVConfig(
         dataRepo = dataFolder,
         zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
+        bikeSharingStationsCSV = Path(""),
         attractivitiesCSV = attractivities.toAbsolutePath(),
     ),
 ).apply {
-    matrixConfig = MatrixConfig(matrixRepo = Path(ROOT_MTX))
+    matrixConfig = MatrixConfig(matrixRepo = Path("src/test/resources/test_matrix"))
     resultName = "mobitopp-main.csv"
     vehicleCountColumn = ""
     choiceModelModes = legacyChoiceModelModes
@@ -118,7 +120,6 @@ fun main(args: Array<String>) {
         shortTermConfig.simulationContext
     }.steps {
         prepareZones(shortTermConfig.sourceFiles.zonesCSV)
-        loadZones()
         finishZones()
 
         loadVisumNetwork(shortTermConfig.visumNetwork ?: visum_network)
@@ -126,8 +127,9 @@ fun main(args: Array<String>) {
         val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
 
         households {
-            householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
+            source = householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
             ) {
+                errorHandling = shortTermConfig.errorHandling
                 this.filter = { filter(it) }
             }.optionalCache(shortTermConfig.cachePath)
             householdHomeLocation(
@@ -141,24 +143,27 @@ fun main(args: Array<String>) {
         }
 
         persons {
-            personsFromCsvStep { path = shortTermConfig.sourceFiles.personCSV }
+            source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV){
+                errorHandling = shortTermConfig.errorHandling
+            }
                 .optionalCache(shortTermConfig.cachePath)
         }
 
         addDrtMemberships(everyoneIsMember)
 
         privateCars {
-            privateCarsFromCsvStep { path = shortTermConfig.sourceFiles.privateCarsCSV }
+            source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV){
+                errorHandling = shortTermConfig.errorHandling
+            }
                 .optionalCache(shortTermConfig.cachePath)
             AssignCarUserStep(this@steps)
         }
 
         activities {
-            activitiesCsvConfig {
-                path = shortTermConfig.sourceFiles.activityCSV
+            source = activitiesCsvConfig (path = shortTermConfig.sourceFiles.activityCSV){
                 errorHandling = shortTermConfig.errorHandling
                 shiftActivityStart = NoActivityStartShifter
-            }
+            }.optionalCache(shortTermConfig.cachePath)
         }
 
 
@@ -183,7 +188,10 @@ fun main(args: Array<String>) {
             shortTermConfig.choiceModelModes
         )
 
-        assignFixedDestinations(homeActivity = LegacyActivityType.HOME)
+        assignFixedDestinations(
+            path = shortTermConfig.sourceFiles.fixedDestinationCSV,
+            homeActivity = LegacyActivityType.HOME
+        )
 
         buildAgents(
             personStateMachine,
