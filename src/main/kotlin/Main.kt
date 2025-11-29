@@ -5,11 +5,12 @@ import application.config.ShortTermConfig
 import application.config.subconfigs.CSVConfig
 import application.config.subconfigs.MatrixConfig
 import application.steps.model.AssignCarUserStep
+import application.steps.model.HomeLocationStep
 import application.steps.model.addDrtMemberships
-import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
 import application.steps.model.dummyDrtAlgorithm
 import application.steps.model.everyoneIsMember
+import application.steps.model.finishDrtProviders
 import application.steps.model.householdHomeLocation
 import application.steps.model.loadBehaviorModels
 import application.steps.model.newDrtProvider
@@ -18,31 +19,20 @@ import application.steps.model.simulate
 import application.steps.parser.csv.activities
 import application.steps.parser.csv.activitiesCsvConfig
 import application.steps.parser.csv.assignFixedDestinations
-import application.steps.parser.csv.filterHouseholds
-import application.steps.parser.csv.finishActivities
-import application.steps.parser.csv.finishHouseholds
-import application.steps.parser.csv.finishPersons
-import application.steps.parser.csv.finishPrivateCars
+import application.steps.parser.csv.finishSharingStations
 import application.steps.parser.csv.finishZones
 import application.steps.parser.csv.households
 import application.steps.parser.csv.householdsFromCsvStep
 import application.steps.parser.csv.loadAttractivities
-import application.steps.parser.csv.loadZones
+import application.steps.parser.csv.loadSharingStations
 import application.steps.parser.csv.persons
 import application.steps.parser.csv.personsFromCsvStep
-import application.steps.parser.csv.prepareActivities
-import application.steps.parser.csv.prepareHouseholds
-import application.steps.parser.csv.preparePersons
-import application.steps.parser.csv.preparePrivateCars
-import application.steps.parser.csv.prepareZoneFile
 import application.steps.parser.csv.prepareZones
 import application.steps.parser.csv.privateCars
 import application.steps.parser.csv.privateCarsFromCsvStep
 import application.steps.parser.loadImpedance
 import application.steps.parser.loadVisumNetwork
 import application.steps.results.addPlot
-import attractivities
-import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.Simulation
 import core.results.plots.asLinePlot
 import core.results.plots.data.Ordering
@@ -67,9 +57,9 @@ import domain.simulation.events.personStateMachine
 import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.parser.NoActivityStartShifter
-import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
+import org.jetbrains.kotlinx.dataframe.io.ArrowWriter.Mode
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
@@ -119,20 +109,25 @@ fun main(args: Array<String>) {
     Simulation {
         shortTermConfig.simulationContext
     }.steps {
-        prepareZones(shortTermConfig.sourceFiles.zonesCSV)
-        finishZones()
 
-        loadVisumNetwork(shortTermConfig.visumNetwork ?: visum_network)
+        loadVisumNetwork(shortTermConfig.visumNetwork ?: visum_network
+        ) {
+            connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
+        }
+
 
         val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
 
+        prepareZones(shortTermConfig.sourceFiles.zonesCSV, errorHandling = shortTermConfig.errorHandling)
+        finishZones()
         households {
             source = householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
             ) {
                 errorHandling = shortTermConfig.errorHandling
                 this.filter = { filter(it) }
             }.optionalCache(shortTermConfig.cachePath)
-            householdHomeLocation(
+            +HomeLocationStep(
+                this@steps,
                 AssignAroundZoneCentroid(50.meters)
             )
         }
@@ -141,6 +136,8 @@ fun main(args: Array<String>) {
             name = "DummyDrt"
             mode = LegacyMode.RIDE_POOLING
         }
+        addDrtMemberships(everyoneIsMember)
+        finishDrtProviders()
 
         persons {
             source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV){
@@ -148,8 +145,6 @@ fun main(args: Array<String>) {
             }
                 .optionalCache(shortTermConfig.cachePath)
         }
-
-        addDrtMemberships(everyoneIsMember)
 
         privateCars {
             source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV){
@@ -203,7 +198,6 @@ fun main(args: Array<String>) {
         )
 
         simulate()
-
         addPlot {
             forData {
                 personLegs
