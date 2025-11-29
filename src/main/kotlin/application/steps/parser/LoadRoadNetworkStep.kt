@@ -42,13 +42,15 @@ class LoadRoadNetworkStep<C>(
     override val name: String = "Load visum road network from ${file.name}"
 
     override fun execute() {
+        val locale = VisumLocale()
+            locale.localeLambda()
         context.roadNetwork.value = LocatableGraph(
             NetfileParser(
                 file = file,
-                locale = VisumLocale(),
+                locale = locale,
                 utmZone = 32,
                 utmHemisphere = Hemisphere.NORTHERN
-            ).parseNetwork(localeLambda)
+            ).parseNetwork {}
         )
     }
 
