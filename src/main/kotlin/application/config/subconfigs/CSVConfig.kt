@@ -82,7 +82,7 @@ data class CSVConfig(
      * absolute path.
      * @return A new CSVConfig with the attractivities, bikesharingstations, and zones based on the new zone repo.
      */
-    fun overrideZoneRepo(
+    fun overwriteZoneRepo(
         zoneRepo: Path,
         attractivitiesCSV: Path = defaultAttractivitiesCSV,
         bikeSharingStationsCSV: Path = defaultBikeSharingStationsCSV,
@@ -115,7 +115,7 @@ data class CSVConfig(
      * @return A new CSVConfig person, household, activity, cars and fixed_destinations based on the given dataRepo.
      */
     @Suppress("LongParameterList")
-    fun overrideDataRepo(
+    fun overwriteDataRepo(
         dataRepo: Path,
         personCSV: Path = defaultPersonCSV,
         householdCSV: Path = defaultHouseholdCSV,
