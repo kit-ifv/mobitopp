@@ -137,15 +137,13 @@ fun main(args: Array<String>) {
         persons {
             source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV) {
                 errorHandling = shortTermConfig.errorHandling
-            }
-                .optionalCache(shortTermConfig.cachePath)
+            }.optionalCache(shortTermConfig.cachePath)
         }
 
         privateCars {
             source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV) {
                 errorHandling = shortTermConfig.errorHandling
-            }
-                .optionalCache(shortTermConfig.cachePath)
+            }.optionalCache(shortTermConfig.cachePath)
             AssignCarUserStep(this@steps)
         }
 

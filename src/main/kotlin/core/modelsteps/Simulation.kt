@@ -3,14 +3,22 @@ package core.modelsteps
 import utils.units.logTime
 
 /**
+ * Simple interface for a copy function.
+ */
+interface Copyable<T> {
+    fun copy(): T
+}
+
+/**
  * Simulation allows to specify a simulation configuration in readable kotlin dsl.
  * Users can define a mobitopp object and model steps.
  * When executed, all specified [ModelStep]s are validated first.
  *
- * @param C the generic mobitopp type
+ * @param C the generic mobitopp type. Since the contextFactory is not guaranteed to produce new instances of C,
+ * but we need different instances of C objects, C must be Copyable.
  * @property contextFactory a factory to create new mobitopp objects
  */
-class Simulation<C>(private val contextFactory: () -> C) where C : Context {
+class Simulation<C>(private val contextFactory: () -> C) where C : Context, C : Copyable<C> {
 
     /**
      * Steps scope defines execution (order) of model steps.
@@ -24,7 +32,7 @@ class Simulation<C>(private val contextFactory: () -> C) where C : Context {
         if (validate(lambda)) {
             println("\nExecute")
 
-            val simulationContext = contextFactory()
+            val simulationContext = contextFactory().copy()
             simulationContext.execMode.setExecute()
             logTime("    Execution") {
                 simulationContext.lambda()
