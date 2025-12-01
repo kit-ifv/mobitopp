@@ -4,6 +4,7 @@ import domain.synthesis.Signature
 import utils.collections.invertMap
 import java.nio.file.Path
 import kotlin.io.path.appendText
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
 import kotlin.time.measureTime
@@ -151,7 +152,10 @@ data class PerformanceLoggingIPU(val original: GenericIPU, val path: Path): Gene
 
         val duration = measureTime { original.run(vectors, observers) }
         val text = "$original; ${vectors.size}; ${observers.size}; $duration\n"
-        if(path.exists()) path.appendText(text) else path.writeText(text)
+        if(path.exists()) path.appendText(text) else {
+            path.parent.createDirectories()
+            path.writeText(text)
+        }
 
     }
 }
