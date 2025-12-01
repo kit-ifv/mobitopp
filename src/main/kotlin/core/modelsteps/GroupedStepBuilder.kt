@@ -36,13 +36,13 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
 //        lambda: context(Path) () -> AbstractAddResourceStep<E, I>,
 //    ): FileBasedAddResourceStep<E, I>
 
-    // If you don't want to use a binary cache.
+    // If you dont want to use a binary cache.
     fun FileBasedAddResourceStep<E, I>.disableCache(): AddResourceStep<E, I> {
         return step
     }
 
     /**
-     * Enables binary caching (through `enableCache`) if the cacheRootPath isn't null.
+     * Enables binary caching (using `enableCache`) if the cacheRootPath is not null.
      * Otherwise, no caching is done.
      */
     fun FileBasedAddResourceStep<E, I>.optionalCache(cacheRootPath: Path?): AddResourceStep<E, I> {

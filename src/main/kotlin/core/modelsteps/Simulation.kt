@@ -14,8 +14,7 @@ interface Cloneable<T> {
  * Users can define a mobitopp object and model steps.
  * When executed, all specified [ModelStep]s are validated first.
  *
- * @param C the generic mobitopp type. Since the contextFactory is not guaranteed to produce new instances of C,
- * but we need different instances of C objects, C must be Copyable.
+ * @param C the generic mobitopp type.
  * @property contextFactory a factory to create new mobitopp objects
  */
 class Simulation<C>(private val contextFactory: () -> C) where C : Context, C : Cloneable<C> {
