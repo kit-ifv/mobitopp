@@ -19,7 +19,7 @@ import application.steps.parser.csv.LoadZonesContext
 import application.steps.results.WriteTripsCsvContext
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import core.modelsteps.Copyable
+import core.modelsteps.Cloneable
 import core.modelsteps.ExecutionMode
 import core.modelsteps.LateInit
 import core.modelsteps.MapRepository
@@ -127,7 +127,7 @@ data class ExampleProjectContext(
     HomeLocationModelContext,
     LoadBehaviorModelsContext,
     AgentResultsContext,
-    Copyable<ExampleProjectContext> {
+    Cloneable<ExampleProjectContext> {
 
     @JsonIgnore
     override val execMode: ExecutionMode = ExecutionMode()
@@ -194,7 +194,7 @@ data class ExampleProjectContext(
         ConcurrentAvailabilityWriter(resultDir.resolve("availability.csv"))
     }
 
-    override fun copy(): ExampleProjectContext {
+    override fun clone(): ExampleProjectContext {
         return this.copy()
     }
 }

@@ -3,10 +3,10 @@ package core.modelsteps
 import utils.units.logTime
 
 /**
- * Simple interface for a copy function.
+ * Simple interface for a clone function.
  */
-interface Copyable<T> {
-    fun copy(): T
+interface Cloneable<T> {
+    fun clone(): T
 }
 
 /**
@@ -18,7 +18,7 @@ interface Copyable<T> {
  * but we need different instances of C objects, C must be Copyable.
  * @property contextFactory a factory to create new mobitopp objects
  */
-class Simulation<C>(private val contextFactory: () -> C) where C : Context, C : Copyable<C> {
+class Simulation<C>(private val contextFactory: () -> C) where C : Context, C : Cloneable<C> {
 
     /**
      * Steps scope defines execution (order) of model steps.
@@ -32,7 +32,7 @@ class Simulation<C>(private val contextFactory: () -> C) where C : Context, C : 
         if (validate(lambda)) {
             println("\nExecute")
 
-            val simulationContext = contextFactory().copy()
+            val simulationContext = contextFactory().clone()
             simulationContext.execMode.setExecute()
             logTime("    Execution") {
                 simulationContext.lambda()
