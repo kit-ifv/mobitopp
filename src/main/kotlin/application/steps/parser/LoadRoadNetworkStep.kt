@@ -43,7 +43,7 @@ class LoadRoadNetworkStep<C>(
 
     override fun execute() {
         val locale = VisumLocale()
-            locale.localeLambda()
+        locale.localeLambda()
         context.roadNetwork.value = LocatableGraph(
             NetfileParser(
                 file = file,

@@ -11,7 +11,6 @@ import application.steps.model.buildAgents
 import application.steps.model.dummyDrtAlgorithm
 import application.steps.model.everyoneIsMember
 import application.steps.model.finishDrtProviders
-import application.steps.model.householdHomeLocation
 import application.steps.model.loadBehaviorModels
 import application.steps.model.newDrtProvider
 import application.steps.model.scaleFilter
@@ -19,12 +18,10 @@ import application.steps.model.simulate
 import application.steps.parser.csv.activities
 import application.steps.parser.csv.activitiesCsvConfig
 import application.steps.parser.csv.assignFixedDestinations
-import application.steps.parser.csv.finishSharingStations
 import application.steps.parser.csv.finishZones
 import application.steps.parser.csv.households
 import application.steps.parser.csv.householdsFromCsvStep
 import application.steps.parser.csv.loadAttractivities
-import application.steps.parser.csv.loadSharingStations
 import application.steps.parser.csv.persons
 import application.steps.parser.csv.personsFromCsvStep
 import application.steps.parser.csv.prepareZones
@@ -59,7 +56,6 @@ import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.parser.NoActivityStartShifter
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
-import org.jetbrains.kotlinx.dataframe.io.ArrowWriter.Mode
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
@@ -109,12 +105,11 @@ fun main(args: Array<String>) {
     Simulation {
         shortTermConfig.simulationContext
     }.steps {
-
-        loadVisumNetwork(shortTermConfig.visumNetwork ?: visum_network
+        loadVisumNetwork(
+            shortTermConfig.visumNetwork ?: visum_network
         ) {
             connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
         }
-
 
         val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
 
@@ -140,14 +135,14 @@ fun main(args: Array<String>) {
         finishDrtProviders()
 
         persons {
-            source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV){
+            source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV) {
                 errorHandling = shortTermConfig.errorHandling
             }
                 .optionalCache(shortTermConfig.cachePath)
         }
 
         privateCars {
-            source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV){
+            source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV) {
                 errorHandling = shortTermConfig.errorHandling
             }
                 .optionalCache(shortTermConfig.cachePath)
@@ -155,12 +150,11 @@ fun main(args: Array<String>) {
         }
 
         activities {
-            source = activitiesCsvConfig (path = shortTermConfig.sourceFiles.activityCSV){
+            source = activitiesCsvConfig(path = shortTermConfig.sourceFiles.activityCSV) {
                 errorHandling = shortTermConfig.errorHandling
                 shiftActivityStart = NoActivityStartShifter
             }.optionalCache(shortTermConfig.cachePath)
         }
-
 
         loadAttractivities(
             path = shortTermConfig.sourceFiles.attractivitiesCSV,
