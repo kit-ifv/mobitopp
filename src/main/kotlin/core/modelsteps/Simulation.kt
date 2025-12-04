@@ -3,21 +3,19 @@ package core.modelsteps
 import utils.units.logTime
 
 /**
- * Simple interface for a clone function.
- */
-interface Cloneable<T> {
-    fun clone(): T
-}
-
-/**
  * Simulation allows to specify a simulation configuration in readable kotlin dsl.
  * Users can define a mobitopp object and model steps.
  * When executed, all specified [ModelStep]s are validated first.
  *
- * @param C the generic mobitopp type.
+ * @param C the generic mobitopp type. A type that is a `Context` and a `Cloneable<C>`.
  * @property contextFactory a factory to create new mobitopp objects
  */
-class Simulation<C>(private val contextFactory: () -> C) where C : Context, C : Cloneable<C> {
+class Simulation<C>(contextFactory: () -> C) where C : Context, C : Cloneable<C> {
+
+    /**
+     * A context factory that guarantees shallow independent instances of `C` as long as `clone` works correctly.
+     */
+    private var contextFactory: () -> C = { contextFactory().clone() }
 
     /**
      * Steps scope defines execution (order) of model steps.
@@ -31,7 +29,7 @@ class Simulation<C>(private val contextFactory: () -> C) where C : Context, C : 
         if (validate(lambda)) {
             println("\nExecute")
 
-            val simulationContext = contextFactory().clone()
+            val simulationContext = contextFactory()
             simulationContext.execMode.setExecute()
             logTime("    Execution") {
                 simulationContext.lambda()

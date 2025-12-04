@@ -44,6 +44,16 @@ interface Context {
     }
 }
 
+/**
+ * Simple interface with a clone function.
+ */
+interface Cloneable<T : Cloneable<T>> {
+    /**
+     * @return a shallow copy of this.
+     */
+    fun clone(): T
+}
+
 class LateInit<T>( // TODO can we get rid of lateinit? after validation execMode refactoring?
     val name: String,
 ) {

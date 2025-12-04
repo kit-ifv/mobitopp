@@ -195,6 +195,6 @@ data class ExampleProjectContext(
     }
 
     override fun clone(): ExampleProjectContext {
-        return this.copy()
+        return copy()
     }
 }
