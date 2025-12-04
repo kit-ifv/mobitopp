@@ -1,5 +1,8 @@
 package core.modelsteps
 
+import application.config.ExampleProjectContext
+import application.steps.parser.csv.finishZones
+import application.steps.parser.csv.prepareZones
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import org.junit.jupiter.api.Test
@@ -116,6 +119,22 @@ class SimulationContextInitTest {
             setDuringValidation = true
             list[0] = true
             count++
+        }
+    }
+
+    @Test
+    fun repositorySealFix() {
+        val myContext = ExampleProjectContext(
+            scenarioName = "",
+            dataFolder = Path(""),
+        )
+        Simulation{
+            myContext
+        }.steps {
+            prepareZones(Path("src/test/resources/testDemand/zone-repository/zones.csv"))
+            assert(!zoneRepository.sealed) { "Repository sealing should be fixed by a shallow copy. " +
+                    "Why does this fail?"}
+            finishZones()
         }
     }
 }
