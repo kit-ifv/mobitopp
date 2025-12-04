@@ -2,6 +2,7 @@ package application.config
 
 import application.steps.parser.csv.finishZones
 import application.steps.parser.csv.prepareZones
+import core.modelsteps.Simulation
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import org.junit.jupiter.api.Test
@@ -34,7 +35,7 @@ data class MyContext(
 class SimulationContextInitTest {
     @Test
     fun noSideEffectWhenInitInLambda() {
-        _root_ide_package_.core.modelsteps.Simulation {
+        Simulation {
             MyContext()
         }.steps {
             assert(!setDuringValidation) { "If this fails, the variable was set during the " +
@@ -46,7 +47,7 @@ class SimulationContextInitTest {
     @Test
     fun withValFactory() {
         val myContext = MyContext()
-        _root_ide_package_.core.modelsteps.Simulation {
+        Simulation {
             myContext
         }.steps {
             assert(!setDuringValidation) { "If this fails, the variable was set during the " +
@@ -58,7 +59,7 @@ class SimulationContextInitTest {
     @Test
     fun withFactoryMethodFactory() {
         val myContext: () -> MyContext = { MyContext() }
-        _root_ide_package_.core.modelsteps.Simulation(
+        Simulation(
             myContext
         ).steps {
             assert(!setDuringValidation) { "If this fails, the variable was set during the " +
@@ -73,7 +74,7 @@ class SimulationContextInitTest {
             scenarioName = "",
             dataFolder = Path(""),
         )
-        _root_ide_package_.core.modelsteps.Simulation {
+        Simulation {
             myContext
         }.steps {
             prepareZones(Path("src/test/resources/testDemand/zone-repository/zones.csv"))
