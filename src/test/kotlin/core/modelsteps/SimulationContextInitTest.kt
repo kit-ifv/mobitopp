@@ -86,26 +86,4 @@ class SimulationContextInitTest {
             setDuringValidation = true
         }
     }
-
-    /**
-     * This test does not test anything useful. It demonstrates inconsistencies between validation and run when
-     * clone is not a shallow copy.
-     */
-    @Test
-    fun failureWhenCloneIsNotImplementedCorrectly() {
-        val myContext = MyWrongCloneableContext()
-        var num = 0
-        Simulation {
-            myContext
-        }.steps {
-            if (num == 0) assert(!setDuringValidation) // On the first iteration, the validation,
-            // we expect the variable to be false.
-            if (num == 1) assert(setDuringValidation) // On the second iteration, the actual simulation run,
-            // we expect the variable to be true, because
-            // MyWrongCloneableContext does not clone correctly (it does not
-            // clone at all) and therefore the change below
-            setDuringValidation = true
-            num++
-        }
-    }
 }
