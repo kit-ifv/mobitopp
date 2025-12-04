@@ -29,10 +29,7 @@ data class MyContext(
     }
 }
 
-/**
- * Class that does not implement clone correctly.
- */
-data class MyWrongCloneableContext(
+data class DeepCopyFailure(
     override val execMode: ExecutionMode = ExecutionMode(),
     override val scenarioName: String = "",
     override val dataFolder: Path = Path(""),
@@ -44,10 +41,11 @@ data class MyWrongCloneableContext(
     override val timeUnit: DurationUnit = DurationUnit.MINUTES,
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
-    var setDuringValidation: Boolean = false
-) : Context, Cloneable<MyWrongCloneableContext> {
-    override fun clone(): MyWrongCloneableContext {
-        return this
+    var setDuringValidation: Boolean = false,
+    val list: MutableList<Boolean> = mutableListOf(false)
+) : Context, Cloneable<DeepCopyFailure> {
+    override fun clone(): DeepCopyFailure {
+        return this.copy()
     }
 }
 
@@ -84,6 +82,40 @@ class SimulationContextInitTest {
             assert(!setDuringValidation) { "If this fails, the variable was set during the " +
                 "validation and not reset for the run. This behaviour should be prevented." }
             setDuringValidation = true
+        }
+    }
+
+
+    @Test
+    fun deepCopyFailure() {
+        val myContext: () -> DeepCopyFailure = { DeepCopyFailure() }
+        // with lambda that creates new instances, everything is fine.
+        Simulation(
+            myContext
+        ).steps {
+            assert(!list[0]){ "If this fails, the list element was set during the " +
+                    "validation and not reset for the run. This behaviour should be prevented." }
+            assert(!setDuringValidation) { "If this fails, the variable was set during the " +
+                    "validation and not reset for the run. This behaviour should be prevented." }
+            setDuringValidation = true
+            list[0] = true
+        }
+
+        var count = 0
+        val singleInstance = DeepCopyFailure()
+        // if we use a lambda that returns the same instance, the copy saves us from changes to shallow variables,
+        // like the setDuringValidation variable, but changes to dataStructures like the list, are still
+        Simulation {
+            singleInstance
+        }.steps {
+            if (count == 0) assert(!list[0]) // on first iteration list item is false
+            if (count == 1) assert(list[0]) // on second iteration list item was changed. Because clone does not provide
+                                            // deep copies this is expected behaviour.
+            assert(!setDuringValidation) { "If this fails, the variable was set during the " +
+                    "validation and not reset for the run. This behaviour should be prevented." }
+            setDuringValidation = true
+            list[0] = true
+            count++
         }
     }
 }
