@@ -48,10 +48,16 @@ data class CoreCSVConfig(
             householdCSV = existsOrDefault(householdCSV, defaultHouseholdCSV, dataRepo),
             activityCSV = existsOrDefault(activityCSV, defaultActivityCSV, dataRepo),
             privateCarsCSV = existsOrDefault(privateCarsCSV, defaultPrivateCarsCSV, dataRepo),
-            fixedDestinationCSV = existsOrDefault(fixedDestinationCSV, defaultFixedDestinationCSV,
-                dataRepo),
-            attractivitiesCSV = existsOrDefault(attractivitiesCSV, defaultAttractivitiesCSV,
-                zoneRepo),
+            fixedDestinationCSV = existsOrDefault(
+                fixedDestinationCSV,
+                defaultFixedDestinationCSV,
+                dataRepo
+            ),
+            attractivitiesCSV = existsOrDefault(
+                attractivitiesCSV,
+                defaultAttractivitiesCSV,
+                zoneRepo
+            ),
             zonesCSV = existsOrDefault(zonesCSV, defaultZonesCSV, zoneRepo)
         )
 
@@ -167,9 +173,9 @@ data class CoreCSVConfig(
         }
 
         fun existsOrDefault(path: Path?, defaultPath: Path, resolveTarget: Path): Path {
-            if (path == null) return resolveTarget.resolve( defaultPath )
+            if (path == null) return resolveTarget.resolve(defaultPath)
             if (path.exists()) return path
-            return resolveTarget.resolve( path )
+            return resolveTarget.resolve(path)
         }
 
         /**

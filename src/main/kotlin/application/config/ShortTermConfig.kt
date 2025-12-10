@@ -37,14 +37,10 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
     val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
 
-    /* vehicle sharing */
-    val sharingProviderName: String,
-
 ) {
     lateinit var matrixConfig: MatrixConfig
     lateinit var resultName: String
     lateinit var choiceModelModes: ChoiceModelModes
-    lateinit var vehicleCountColumn: String
 
     fun validate() {
         val paths = mutableListOf(

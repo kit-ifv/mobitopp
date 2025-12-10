@@ -3,7 +3,7 @@
   "$id": "https://mobitopp.kit.ifv.edu/schemas/myschema.json",
   "title": "Short Term Configuration for Mobitopp Runs.",
   "description": "Configuration for a mobitopp run using shared attributes",
-  "required": ["matrixConfig", "sourceFiles","zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling", "simulationContext", "sharingProviderName", "vehicleCountColumn", "destinationChoiceModel", "modeChoiceModel", "choiceModelModes"],
+  "required": ["matrixConfig", "sourceFiles","zoneMatrixCreationMethod", "resultPath", "resultName", "errorHandling", "simulationContext", "destinationChoiceModel", "modeChoiceModel", "choiceModelModes"],
   "type": "object",
   "properties": {
     "sourceFiles": {
@@ -24,35 +24,44 @@
         },
         "personCSV" :  {
           "description": "Optional path to person.csv relative to the data directory or an absolute path to person.csv.",
-          "type": "string"
+          "type": "string",
+          "pattern": ".+.csv"
         },
         "householdCSV":  {
           "description": "Optional path to household.csv relative to the data directory or an absolute path to household.csv.",
-          "type": "string"
+          "type": "string",
+          "pattern": ".+.csv"
         },
         "activityCSV":  {
           "description": "Optional path to activity.csv relative to the data directory or an absolute path to activity.csv.",
-          "type": "string"
+          "type": "string",
+          "pattern": ".+.csv"
         },
         "privateCarsCSV":  {
           "description": "Optional path to car.csv relative to the data directory or an absolute path to car.csv.",
-          "type": "string"
+          "type": "string",
+          "pattern": ".+.csv"
         },
         "fixedDestinationCSV":  {
           "description": "Optional path to fixedDestination.csv relative to the data directory or an absolute path to fixedDestination.csv.",
-          "type": "string"
+          "type": "string",
+          "pattern": ".+.csv"
         },
         "attractivitiesCSV":  {
           "description": "Optional path to attractivities.csv relative to the zone directory or an absolute path to attractivities.csv.",
-          "type": "string"
+          "type": "string",
+          "pattern": ".+.csv"
+
         },
         "bikeSharingStations":  {
-          "description": "Optional path to bikesharing_stations.csv relative to the zone directory or an absolute path to bikesharing_stations.csv.",
-          "type": "string"
+          "description": "Optional path to bikesharing_stations.csv relative to the zone directory or an absolute path to bikesharing_stations.csv. Set this only if the ShortTermConfig<BikeSharingConfig> is used, as the base config does not have a variable for bikesharing_stations.",
+          "type": "string",
+          "pattern": ".+.csv"
         },
         "zonesCSV":  {
           "description": "Optional path to zones.csv relative to the zone directory or an absolute path to zones.csv.",
-          "type": "string"
+          "type": "string",
+          "pattern": ".+.csv"
         }
       },
       "additionalProperties": false,
@@ -61,7 +70,7 @@
           "required": ["zoneRepo", "dataRepo"]
         },
         {
-          "required": ["personCSV", "householdCSV", "activityCSV", "privateCarsCSV", "fixedDestinationCSV", "attractivitiesCSV", "bikeSharingStations", "zonesCSV"]
+          "required": ["personCSV", "householdCSV", "activityCSV", "privateCarsCSV", "fixedDestinationCSV", "attractivitiesCSV", "zonesCSV"]
         }
       ]
     },
@@ -215,13 +224,11 @@
     "destinationChoiceModel": {
       "description": "A destination choice model. Create a Repo<UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>> in your subproject and expose it in the META-INF repository, to register custom destination choice models.",
       "type": "string",
-      "pattern": "[a-zA-Z]+",
       "default": "legacyDestinationChoiceModel"
     },
     "modeChoiceModel": {
       "description": "A destination choice model. Create a Repo<FixedChoiceModel<Mode, ModeChoiceCharacteristics>> in your subproject and expose it in the META-INF repository, to register custom mode choice models.",
       "type": "string",
-      "pattern": "[a-zA-Z]+",
       "default": "legacyModeChoiceModel"
     },
     "choiceModelModes": {
@@ -240,6 +247,11 @@
     "cachePath": {
       "description": "Directory for cache files.",
       "type": "string"
+    },
+    "visumNetwork": {
+      "description": "Path to a .net file containing a visum network.",
+      "type": "string",
+      "pattern": ".+.net"
     }
   }
 }

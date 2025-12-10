@@ -75,16 +75,14 @@ val standardConfig = ShortTermConfig(
     destinationChoiceModel = legacyDestinationChoiceBuilder.build(DestinationChoiceParameters()),
     modeChoiceModel = legacyModeChoiceBuilder.build(ModeChoiceParameters()),
 
-    sharingProviderName = "",
     sourceFiles = CoreCSVConfig(
         dataRepo = dataFolder,
         zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
-        attractivitiesCSV = attractivities.toAbsolutePath(),
+        attractivitiesCSV = attractivities,
     ),
 ).apply {
     matrixConfig = MatrixConfig(matrixRepo = Path("src/test/resources/test_matrix"))
     resultName = "mobitopp-main.csv"
-    vehicleCountColumn = ""
     choiceModelModes = legacyChoiceModelModes
 }
 
