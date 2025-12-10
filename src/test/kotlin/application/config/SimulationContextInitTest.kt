@@ -1,5 +1,8 @@
-package core.modelsteps
+package application.config
 
+import application.steps.parser.csv.finishZones
+import application.steps.parser.csv.prepareZones
+import core.modelsteps.Simulation
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import org.junit.jupiter.api.Test
@@ -11,7 +14,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
 data class MyContext(
-    override val execMode: ExecutionMode = ExecutionMode(),
+    override val execMode: core.modelsteps.ExecutionMode = _root_ide_package_.core.modelsteps.ExecutionMode(),
     override val scenarioName: String = "",
     override val dataFolder: Path = Path(""),
     override val simulationSeed: Long = 0,
@@ -23,31 +26,9 @@ data class MyContext(
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
     var setDuringValidation: Boolean = false
-) : Context, Cloneable<MyContext> {
+) : core.modelsteps.Context, core.modelsteps.Cloneable<MyContext> {
     override fun clone(): MyContext {
         return this.copy()
-    }
-}
-
-/**
- * Class that does not implement clone correctly.
- */
-data class MyWrongCloneableContext(
-    override val execMode: ExecutionMode = ExecutionMode(),
-    override val scenarioName: String = "",
-    override val dataFolder: Path = Path(""),
-    override val simulationSeed: Long = 0,
-    override val resultDir: Path = Path(""),
-    override val simulationStart: AbsoluteTime = AbsoluteTime(0.minutes),
-    override val simulationEnd: AbsoluteTime = AbsoluteTime(0.minutes),
-    override val timeStep: Duration = 0.minutes,
-    override val timeUnit: DurationUnit = DurationUnit.MINUTES,
-    override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
-    override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
-    var setDuringValidation: Boolean = false
-) : Context, Cloneable<MyWrongCloneableContext> {
-    override fun clone(): MyWrongCloneableContext {
-        return this
     }
 }
 
@@ -84,6 +65,22 @@ class SimulationContextInitTest {
             assert(!setDuringValidation) { "If this fails, the variable was set during the " +
                 "validation and not reset for the run. This behaviour should be prevented." }
             setDuringValidation = true
+        }
+    }
+
+    @Test
+    fun repositorySealFix() {
+        val myContext = ExampleProjectContext(
+            scenarioName = "",
+            dataFolder = Path(""),
+        )
+        Simulation {
+            myContext
+        }.steps {
+            prepareZones(Path("src/test/resources/testDemand/zone-repository/zones.csv"))
+            assert(!zoneRepository.sealed) { "Repository sealing should be fixed by a shallow copy. " +
+                "Why does this fail?" }
+            finishZones()
         }
     }
 }
