@@ -190,21 +190,21 @@ fun main(args: Array<String>) {
         )
 
         simulate()
-        addPlot {
-            forData {
-                personLegs
-            }.groupBy {
-                it.leg.transportType
-            }.count {
-                it.leg.startTime.roundToMultipleOf(5.minutes)
-            }.sortX {
-                Ordering.Ascending()
-            }.asLinePlot {
-                name = "timeline by mode"
-                xAxisLabel = "time"
-                yAxisLabel = "trip count"
-                coloring = { modeStringColor(it.description) }
-            }
-        }
+//        addPlot {
+//            forData {
+//                personLegs
+//            }.groupBy {
+//                it.leg.transportType
+//            }.count {
+//                it.leg.startTime.roundToMultipleOf(5.minutes)
+//            }.sortX {
+//                Ordering.Ascending()
+//            }.asLinePlot {
+//                name = "timeline by mode"
+//                xAxisLabel = "time"
+//                yAxisLabel = "trip count"
+//                coloring = { modeStringColor(it.description) }
+//            }
+//        }
     }
 }
