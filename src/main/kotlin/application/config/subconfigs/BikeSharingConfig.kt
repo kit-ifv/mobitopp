@@ -8,7 +8,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.exists
 
 /**
- * CSVConfig with bikesharing.
+ * Base csv files with additional bikesharingstations file.
  * On default the bikesharing_stations.csv is expected to be a child of the zoneRepo.
  */
 data class BikeSharingConfig(
@@ -52,6 +52,9 @@ data class BikeSharingConfig(
         )
     )
 
+    /**
+     * Simple constructor requiring every path.
+     */
     constructor(
         personCSV: Path,
         householdCSV: Path,
@@ -96,13 +99,13 @@ data class BikeSharingConfig(
     }
 
     /**
-     * Returns new BikeSharinConfig with changed attractivities, bikeSharingStations and zones paths.
+     * Returns new BikeSharingConfig with changed attractivities, bikeSharingStations and zones paths.
      * @param attractivitiesCSV The path to attractivities.csv relative to the new zone repo, or an absolute path.
      * @param bikeSharingStationsCSV The path to bikesharing_stations.csv relative to the new zone repo, or an
      * absolute path.
      * @param zonesCSV The path to zones.csv relative to the new zone repo, or an
      * absolute path.
-     * @return A new CSVConfig with the attractivities, bikesharingstations, and zones based on the new zone repo.
+     * @return A new BikeSharingConfig with the attractivities, bikesharingstations, and zones based on the new zone repo.
      */
     fun overwriteZoneRepo(
         zoneRepo: Path,
@@ -117,7 +120,7 @@ data class BikeSharingConfig(
     }
 
     /**
-     * Returns new CSVConfig with changed person, household, activity, private_cars and fixed_destination paths.
+     * Returns new BikeSharingConfig with changed person, household, activity, private_cars and fixed_destination paths.
      * @param personCSV The path to person.csv relative to the new dataRepo, or an
      * absolute path.
      * @param householdCSV The path to household.csv relative to the new dataRepo, or an
@@ -128,7 +131,7 @@ data class BikeSharingConfig(
      * absolute path.
      * @param fixedDestinationCSV The path to fixedDestination.csv relative to the new dataRepo, or an
      * absolute path.
-     * @return A new CSVConfig person, household, activity, cars and fixed_destinations based on the given dataRepo.
+     * @return A new BikeSharingConfig with person, household, activity, cars and fixed_destinations based on the given dataRepo.
      */
     @Suppress("LongParameterList")
     fun overwriteDataRepo(
