@@ -1,7 +1,6 @@
 package application.config
 
 import application.config.subconfigs.BikeSharingConfig
-import application.config.subconfigs.CoreCSVConfig
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper

@@ -19,7 +19,7 @@ data class CoreCSVConfig(
     override val fixedDestinationCSV: Path,
     override val attractivitiesCSV: Path,
     override val zonesCSV: Path,
-): BaseCSVFiles {
+) : BaseCSVFiles {
 
     /**
      * Creation method based on two directories. All files are expected to reside in either the dataFolder or the
@@ -149,7 +149,6 @@ data class CoreCSVConfig(
         fun Map<String, String>.retrieveAsPath(name: String,): Path? {
             return if (containsKey(name)) { Path(get(name)!!) } else null
         }
-
 
         fun allNotNull(vararg paths: Path?): Boolean {
             return paths.all { it != null }

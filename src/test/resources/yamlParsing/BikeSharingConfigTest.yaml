@@ -8,7 +8,7 @@
   privateCarsCSV: d
   fixedDestinationCSV: e
   attractivitiesCSV: f
-  bikeSharingStations: g
+  bikeSharingStationsCSV: g
   zonesCSV: h
 
 
@@ -17,7 +17,7 @@
   zonesCSV: h
   personCSV: a
   householdCSV: b
-  bikeSharingStations: g
+  bikeSharingStationsCSV: g
   attractivitiesCSV: f
   activityCSV: c
   privateCarsCSV: d
@@ -26,3 +26,4 @@
   zoneRepo: x2
   householdCSV: x3
   attractivitiesCSV: x4
+  bikeSharingStationsCSV: x5

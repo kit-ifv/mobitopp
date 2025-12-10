@@ -1,7 +1,5 @@
-package application.config
+package application.config.subconfigs
 
-import application.config.subconfigs.BikeSharingConfig
-import application.config.subconfigs.CoreCSVConfig
 import domain.shared.config.Yaml
 import kotlin.io.path.Path
 import kotlin.io.path.createFile
@@ -44,13 +42,6 @@ class CoreCSVConfigParsingTest {
     fun basicParsingTest() {
         val path = Path("src/test/resources/yamlParsing/CSVConfigTest.yaml")
         val parsed: List<CoreCSVConfig> = Yaml.readYaml(path)
-        assertEquals(expected, parsed)
-    }
-
-    @Test
-    fun bikeSharingParsingTest() {
-        val path = Path("src/test/resources/yamlParsing/CSVConfigTest.yaml")
-        val parsed: List<BikeSharingConfig> = Yaml.readYaml(path)
         assertEquals(expected, parsed)
     }
 

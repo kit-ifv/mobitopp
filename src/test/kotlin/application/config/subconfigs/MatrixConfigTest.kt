@@ -1,6 +1,5 @@
-package application.config
+package application.config.subconfigs
 
-import application.config.subconfigs.MatrixConfig
 import domain.shared.config.Yaml
 import kotlin.io.path.Path
 import kotlin.io.path.createFile

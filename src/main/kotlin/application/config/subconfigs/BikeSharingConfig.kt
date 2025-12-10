@@ -53,6 +53,28 @@ data class BikeSharingConfig(
     )
 
     constructor(
+        personCSV: Path,
+        householdCSV: Path,
+        activityCSV: Path,
+        privateCarsCSV: Path,
+        fixedDestinationCSV: Path,
+        attractivitiesCSV: Path,
+        bikeSharingStationsCSV: Path,
+        zonesCSV: Path,
+    ) : this(
+        bikeSharingStationsCSV = bikeSharingStationsCSV,
+        coreCSVConfig = CoreCSVConfig(
+            personCSV,
+            householdCSV,
+            activityCSV,
+            privateCarsCSV,
+            fixedDestinationCSV,
+            attractivitiesCSV,
+            zonesCSV,
+        )
+    )
+
+    constructor(
         zoneRepo: Path,
         bikeSharingStationsCSV: Path? = defaultBikeSharingStationsCSV,
         coreCSVConfig: CoreCSVConfig,
@@ -157,15 +179,15 @@ data class BikeSharingConfig(
                     bikeSharingStationsCSV,
                     core,
                 )
-            } else if (bikeSharingStationsCSV != null && bikeSharingStationsCSV.exists()) {
+            } else if (bikeSharingStationsCSV != null) {
                 return BikeSharingConfig(
                     bikeSharingStationsCSV,
                     core,
                 )
             } else {
                 error(
-                    "A BikeSharingConfig was being initialized without enough information. At least a zoneRepo " +
-                        "or a valid path to a bikeSharingStationsCSV must be specified in the yaml. " +
+                    "A BikeSharingConfig was being initialized without sufficient information. At least a zoneRepo " +
+                        "or a path to a bikeSharingStationsCSV must be specified in the yaml. " +
                         "Neither is given rn. \nzoneRepo=$zoneRepo, bikeSharingStationsCSV=$bikeSharingStationsCSV"
                 )
             }
