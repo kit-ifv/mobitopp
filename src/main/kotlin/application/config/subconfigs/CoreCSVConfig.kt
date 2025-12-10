@@ -44,13 +44,15 @@ data class CoreCSVConfig(
         zonesCSV: Path? = null,
     ) :
         this(
-            personCSV = dataRepo.resolve(personCSV ?: defaultPersonCSV),
-            householdCSV = dataRepo.resolve(householdCSV ?: defaultHouseholdCSV),
-            activityCSV = dataRepo.resolve(activityCSV ?: defaultActivityCSV),
-            privateCarsCSV = dataRepo.resolve(privateCarsCSV ?: defaultPrivateCarsCSV),
-            fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV ?: defaultFixedDestinationCSV),
-            attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV ?: defaultAttractivitiesCSV),
-            zonesCSV = zoneRepo.resolve(zonesCSV ?: defaultZonesCSV),
+            personCSV = existsOrDefault(personCSV, defaultPersonCSV, dataRepo),
+            householdCSV = existsOrDefault(householdCSV, defaultHouseholdCSV, dataRepo),
+            activityCSV = existsOrDefault(activityCSV, defaultActivityCSV, dataRepo),
+            privateCarsCSV = existsOrDefault(privateCarsCSV, defaultPrivateCarsCSV, dataRepo),
+            fixedDestinationCSV = existsOrDefault(fixedDestinationCSV, defaultFixedDestinationCSV,
+                dataRepo),
+            attractivitiesCSV = existsOrDefault(attractivitiesCSV, defaultAttractivitiesCSV,
+                zoneRepo),
+            zonesCSV = existsOrDefault(zonesCSV, defaultZonesCSV, zoneRepo)
         )
 
     /**
@@ -162,6 +164,12 @@ data class CoreCSVConfig(
 
         fun allNotNull(vararg paths: Path?): Boolean {
             return paths.all { it != null }
+        }
+
+        fun existsOrDefault(path: Path?, defaultPath: Path, resolveTarget: Path): Path {
+            if (path == null) return resolveTarget.resolve( defaultPath )
+            if (path.exists()) return path
+            return resolveTarget.resolve( path )
         }
 
         /**

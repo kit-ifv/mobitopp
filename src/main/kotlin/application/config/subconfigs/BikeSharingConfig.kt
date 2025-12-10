@@ -12,6 +12,8 @@ import kotlin.io.path.exists
  * On default the bikesharing_stations.csv is expected to be a child of the zoneRepo.
  */
 data class BikeSharingConfig(
+    val sharingProviderName: String,
+    val vehicleCountColumn: String,
     val bikeSharingStationsCSV: Path,
     val coreCSVConfig: CoreCSVConfig
 ) : BaseCSVFiles by coreCSVConfig {
@@ -29,6 +31,8 @@ data class BikeSharingConfig(
     constructor(
         dataRepo: Path,
         zoneRepo: Path,
+        sharingProviderName: String,
+        vehicleCountColumn: String,
         personCSV: Path? = null,
         householdCSV: Path? = null,
         activityCSV: Path? = null,
@@ -38,7 +42,10 @@ data class BikeSharingConfig(
         bikeSharingStationsCSV: Path? = null,
         zonesCSV: Path? = null,
     ) : this(
-        bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
+        sharingProviderName = sharingProviderName,
+        vehicleCountColumn = vehicleCountColumn,
+        bikeSharingStationsCSV = CoreCSVConfig.existsOrDefault(bikeSharingStationsCSV,
+            defaultBikeSharingStationsCSV, zoneRepo),
         coreCSVConfig = CoreCSVConfig(
             dataRepo,
             zoneRepo,
@@ -52,10 +59,9 @@ data class BikeSharingConfig(
         )
     )
 
-    /**
-     * Simple constructor requiring every path.
-     */
     constructor(
+        sharingProviderName: String,
+        vehicleCountColumn: String,
         personCSV: Path,
         householdCSV: Path,
         activityCSV: Path,
@@ -65,6 +71,8 @@ data class BikeSharingConfig(
         bikeSharingStationsCSV: Path,
         zonesCSV: Path,
     ) : this(
+        sharingProviderName = sharingProviderName,
+        vehicleCountColumn = vehicleCountColumn,
         bikeSharingStationsCSV = bikeSharingStationsCSV,
         coreCSVConfig = CoreCSVConfig(
             personCSV,
@@ -78,11 +86,16 @@ data class BikeSharingConfig(
     )
 
     constructor(
+        sharingProviderName: String,
+        vehicleCountColumn: String,
         zoneRepo: Path,
         bikeSharingStationsCSV: Path? = defaultBikeSharingStationsCSV,
         coreCSVConfig: CoreCSVConfig,
     ) : this(
-        bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
+        sharingProviderName = sharingProviderName,
+        vehicleCountColumn = vehicleCountColumn,
+        bikeSharingStationsCSV = CoreCSVConfig.existsOrDefault(bikeSharingStationsCSV,
+            defaultBikeSharingStationsCSV, zoneRepo),
         coreCSVConfig
     )
 
@@ -114,6 +127,8 @@ data class BikeSharingConfig(
         zonesCSV: Path = defaultZonesCSV
     ): BikeSharingConfig {
         return BikeSharingConfig(
+            sharingProviderName = sharingProviderName,
+            vehicleCountColumn = vehicleCountColumn,
             bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV),
             coreCSVConfig = coreCSVConfig.overwriteZoneRepo(zoneRepo, attractivitiesCSV, zonesCSV),
         )
@@ -143,6 +158,8 @@ data class BikeSharingConfig(
         fixedDestinationCSV: Path,
     ): BikeSharingConfig {
         return BikeSharingConfig(
+            sharingProviderName = sharingProviderName,
+            vehicleCountColumn = vehicleCountColumn,
             bikeSharingStationsCSV = bikeSharingStationsCSV,
             coreCSVConfig = coreCSVConfig.overwriteDataRepo(
                 dataRepo,
@@ -157,13 +174,15 @@ data class BikeSharingConfig(
 
     companion object : JSONInitializer<BikeSharingConfig> {
         private const val SHARING_PARAM = "bikeSharingStationsCSV"
+        private const val PROVIDER_PARAM = "sharingProviderName"
+        private const val COUNT_COLUMN_PARAM = "vehicleCountColumn"
         private val defaultBikeSharingStationsCSV: Path = Path("bikesharing_stations.csv")
 
         /**
          * @return all the constructor parameter names, including dataRepo and zoneRepo.
          */
         override fun getParameterNames(): Set<String> {
-            return CoreCSVConfig.getParameterNames() + SHARING_PARAM
+            return CoreCSVConfig.getParameterNames() + SHARING_PARAM + PROVIDER_PARAM + COUNT_COLUMN_PARAM
         }
 
         /**
@@ -173,17 +192,26 @@ data class BikeSharingConfig(
          */
         override fun init(givenParams: Map<String, String>): BikeSharingConfig {
             val bikeSharingStationsCSV: Path? = givenParams.retrieveAsPath(SHARING_PARAM)
+            val providerName = givenParams[PROVIDER_PARAM]
+            val countColumn = givenParams[COUNT_COLUMN_PARAM]
             val zoneRepo: Path? = givenParams.retrieveAsPath(CoreCSVConfig.ZONE_REPO_PARAM)
             val core = CoreCSVConfig.init(givenParams)
 
+            if (providerName == null || countColumn == null) {
+                error("Bikesharing can not be used without a provider name and a count column $providerName")
+            }
             if (zoneRepo != null) {
                 return BikeSharingConfig(
+                    sharingProviderName = providerName,
+                    vehicleCountColumn = countColumn,
                     zoneRepo,
                     bikeSharingStationsCSV,
                     core,
                 )
             } else if (bikeSharingStationsCSV != null) {
                 return BikeSharingConfig(
+                    sharingProviderName = providerName,
+                    vehicleCountColumn = countColumn,
                     bikeSharingStationsCSV,
                     core,
                 )
