@@ -2,7 +2,7 @@
 
 import application.config.ExampleProjectContext
 import application.config.ShortTermConfig
-import application.config.subconfigs.CSVConfig
+import application.config.subconfigs.CoreCSVConfig
 import application.config.subconfigs.MatrixConfig
 import application.steps.model.AssignCarUserStep
 import application.steps.model.HomeLocationStep
@@ -29,12 +29,7 @@ import application.steps.parser.csv.privateCars
 import application.steps.parser.csv.privateCarsFromCsvStep
 import application.steps.parser.loadImpedance
 import application.steps.parser.loadVisumNetwork
-import application.steps.results.addPlot
 import core.modelsteps.Simulation
-import core.results.plots.asLinePlot
-import core.results.plots.data.Ordering
-import core.results.plots.forData
-import core.results.plots.modeStringColor
 import domain.shared.config.Yaml
 import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.datastructure.matrix.optionalCachedMatrixCreator
@@ -51,7 +46,6 @@ import domain.simulation.behavior.legacyDestinationChoiceBuilder
 import domain.simulation.behavior.legacyModeChoiceBuilder
 import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
-import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.parser.NoActivityStartShifter
 import edu.kit.ifv.units.meters
@@ -59,7 +53,6 @@ import edu.kit.ifv.units.share
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
-import kotlin.time.Duration.Companion.minutes
 
 val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
@@ -83,10 +76,9 @@ val standardConfig = ShortTermConfig(
     modeChoiceModel = legacyModeChoiceBuilder.build(ModeChoiceParameters()),
 
     sharingProviderName = "",
-    sourceFiles = CSVConfig(
+    sourceFiles = CoreCSVConfig(
         dataRepo = dataFolder,
         zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
-        bikeSharingStationsCSV = Path(""),
         attractivitiesCSV = attractivities.toAbsolutePath(),
     ),
 ).apply {
@@ -98,7 +90,7 @@ val standardConfig = ShortTermConfig(
 
 @Suppress("LongMethod")
 fun main(args: Array<String>) {
-    val shortTermConfig: ShortTermConfig =
+    val shortTermConfig: ShortTermConfig<CoreCSVConfig> =
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: standardConfig
 
     shortTermConfig.validate()

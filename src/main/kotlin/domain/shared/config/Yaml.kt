@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import domain.jackson.BikeSharingConfigModule
 import domain.jackson.CSVConfigModule
 import domain.jackson.CoreCodePlanModule
 import domain.jackson.CoreZoneMatrixCreationModule
@@ -51,6 +52,7 @@ object Yaml {
         .registerModule(DestinationChoiceModule)
         .registerModule(ModeChoiceModule)
         .registerModule(CSVConfigModule)
+        .registerModule(BikeSharingConfigModule)
         .registerModule(MatrixConfigModule)
         .registerModule(durationModule)
         .registerModule(pathModule)

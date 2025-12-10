@@ -1,6 +1,6 @@
 package application.config
 
-import application.config.subconfigs.CSVConfig
+import application.config.subconfigs.CoreCSVConfig
 import application.config.subconfigs.MatrixConfig
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
@@ -16,7 +16,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
-data class ShortTermConfig(
+data class ShortTermConfig<CSVConfig : CoreCSVConfig>(
     /* impedance*/
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,

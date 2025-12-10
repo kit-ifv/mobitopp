@@ -7,18 +7,25 @@ import kotlin.io.path.Path
 import kotlin.io.path.exists
 
 /**
- * This data class contains all paths to csv files for a short term simulation. It handles the
- * default structure and possible creation methods.
+ * CSVConfig with bikesharing.
  */
-data class CSVConfig(
-    val personCSV: Path,
-    val householdCSV: Path,
-    val activityCSV: Path,
-    val privateCarsCSV: Path,
-    val fixedDestinationCSV: Path,
-    val attractivitiesCSV: Path,
-    val bikeSharingStationsCSV: Path,
-    val zonesCSV: Path,
+data class BikeSharingConfig(
+    override val personCSV: Path,
+    override val householdCSV: Path,
+    override val activityCSV: Path,
+    override val privateCarsCSV: Path,
+    override val fixedDestinationCSV: Path,
+    override val attractivitiesCSV: Path,
+    override val zonesCSV: Path,
+    val bikeSharingStationsCSV: Path
+) : CoreCSVConfig(
+    personCSV,
+    householdCSV,
+    activityCSV,
+    privateCarsCSV,
+    fixedDestinationCSV,
+    attractivitiesCSV,
+    zonesCSV
 ) {
 
     /**
@@ -59,22 +66,15 @@ data class CSVConfig(
      * @return list containing any of the paths this class manages, if they don't exist.
      */
     @JsonIgnore
-    fun getNonexistentPaths(): List<Path> {
-        val paths = listOf(
-            personCSV,
-            householdCSV,
-            activityCSV,
-            privateCarsCSV,
-            fixedDestinationCSV,
-            attractivitiesCSV,
-            bikeSharingStationsCSV,
-            zonesCSV
-        )
-        return paths.filter { !it.exists() }
+    override fun getNonexistentPaths(): List<Path> {
+        if (bikeSharingStationsCSV.exists()) {
+            return super.getNonexistentPaths()
+        }
+        return super.getNonexistentPaths().plusElement(bikeSharingStationsCSV)
     }
 
     /**
-     * Returns new CSVConfig with changed attractivities, bikeSharingStations and zones paths.
+     * Returns new BikeSharinConfig with changed attractivities, bikeSharingStations and zones paths.
      * @param attractivitiesCSV The path to attractivities.csv relative to the new zone repo, or an absolute path.
      * @param bikeSharingStationsCSV The path to bikesharing_stations.csv relative to the new zone repo, or an
      * absolute path.
@@ -87,8 +87,8 @@ data class CSVConfig(
         attractivitiesCSV: Path = defaultAttractivitiesCSV,
         bikeSharingStationsCSV: Path = defaultBikeSharingStationsCSV,
         zonesCSV: Path = defaultZonesCSV
-    ): CSVConfig {
-        return CSVConfig(
+    ): BikeSharingConfig {
+        return BikeSharingConfig(
             personCSV = personCSV,
             householdCSV = householdCSV,
             activityCSV = activityCSV,
@@ -115,15 +115,15 @@ data class CSVConfig(
      * @return A new CSVConfig person, household, activity, cars and fixed_destinations based on the given dataRepo.
      */
     @Suppress("LongParameterList")
-    fun overwriteDataRepo(
+    override fun overwriteDataRepo(
         dataRepo: Path,
-        personCSV: Path = defaultPersonCSV,
-        householdCSV: Path = defaultHouseholdCSV,
-        activityCSV: Path = defaultActivityCSV,
-        privateCarsCSV: Path = defaultPrivateCarsCSV,
-        fixedDestinationCSV: Path = defaultFixedDestinationCSV,
-    ): CSVConfig {
-        return CSVConfig(
+        personCSV: Path,
+        householdCSV: Path,
+        activityCSV: Path,
+        privateCarsCSV: Path,
+        fixedDestinationCSV: Path,
+    ): BikeSharingConfig {
+        return BikeSharingConfig(
             personCSV = dataRepo.resolve(personCSV),
             householdCSV = dataRepo.resolve(householdCSV),
             activityCSV = dataRepo.resolve(activityCSV),
@@ -135,51 +135,15 @@ data class CSVConfig(
         )
     }
 
-    companion object : JSONInitializer<CSVConfig> {
-        private const val DATA_REPO_PARAM = "dataRepo"
-        private const val ZONE_REPO_PARAM = "zoneRepo"
-        private const val PERSON_PARAM = "personCSV"
-        private const val HOUSEHOLD_PARAM = "householdCSV"
-        private const val ACTIVITY_PARAM = "activityCSV"
-        private const val CAR_PARAM = "privateCarsCSV"
-        private const val DESTINATION_PARAM = "fixedDestinationCSV"
-        private const val ATTRACTIVITY_PARAM = "attractivitiesCSV"
+    companion object : JSONInitializer<BikeSharingConfig> {
         private const val SHARING_PARAM = "bikeSharingStationsCSV"
-        private const val ZONES_PARAM = "zonesCSV"
-
-        private val defaultPersonCSV: Path = Path("person.csv")
-        private val defaultHouseholdCSV: Path = Path("household.csv")
-        private val defaultActivityCSV: Path = Path("activity.csv")
-        private val defaultPrivateCarsCSV: Path = Path("car.csv")
-        private val defaultFixedDestinationCSV: Path = Path("fixedDestination.csv")
-        private val defaultAttractivitiesCSV: Path = Path("attractivities.csv")
         private val defaultBikeSharingStationsCSV: Path = Path("bikesharing_stations.csv")
-        private val defaultZonesCSV: Path = Path("zones.csv")
 
         /**
          * @return all the constructor parameter names, including dataRepo and zoneRepo.
          */
         override fun getParameterNames(): Set<String> {
-            return setOf(
-                DATA_REPO_PARAM,
-                ZONE_REPO_PARAM,
-                PERSON_PARAM,
-                HOUSEHOLD_PARAM,
-                ACTIVITY_PARAM,
-                CAR_PARAM,
-                DESTINATION_PARAM,
-                ATTRACTIVITY_PARAM,
-                SHARING_PARAM,
-                ZONES_PARAM
-            )
-        }
-
-        private fun Map<String, String>.retrieveAsPath(name: String,): Path? {
-            return if (containsKey(name)) { Path(get(name)!!) } else null
-        }
-
-        private fun allNotNull(vararg paths: Path?): Boolean {
-            return paths.all { it != null }
+            return CoreCSVConfig.getParameterNames() + SHARING_PARAM
         }
 
         /**
@@ -187,7 +151,7 @@ data class CSVConfig(
          * @throws error If the given params don't contain either 'dataRepo' and 'zoneRepo' or all other fields since
          * no sensible config can be constructed then.
          */
-        override fun init(givenParams: Map<String, String>): CSVConfig {
+        override fun init(givenParams: Map<String, String>): BikeSharingConfig {
             val dataRepo: Path? = givenParams.retrieveAsPath(DATA_REPO_PARAM)
             val zoneRepo: Path? = givenParams.retrieveAsPath(ZONE_REPO_PARAM)
             val personCSV: Path? = givenParams.retrieveAsPath(PERSON_PARAM)
@@ -200,7 +164,7 @@ data class CSVConfig(
             val zonesCSV: Path? = givenParams.retrieveAsPath(ZONES_PARAM)
 
             if (dataRepo != null && zoneRepo != null) {
-                return CSVConfig(
+                return BikeSharingConfig(
                     dataRepo = dataRepo,
                     zoneRepo = zoneRepo,
                     personCSV = personCSV,
@@ -224,7 +188,7 @@ data class CSVConfig(
                         zonesCSV
                     )
                 ) {
-                    return CSVConfig(
+                    return BikeSharingConfig(
                         personCSV = personCSV!!,
                         householdCSV = householdCSV!!,
                         activityCSV = activityCSV!!,
