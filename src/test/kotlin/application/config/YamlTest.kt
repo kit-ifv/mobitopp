@@ -9,6 +9,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import domain.jackson.BikeSharingConfigModule
 import domain.jackson.CSVConfigModule
+import domain.jackson.CoreChoiceModelModes
 import domain.jackson.CoreCodePlanModule
 import domain.jackson.CoreZoneMatrixCreationModule
 import domain.jackson.DestinationChoiceModule
@@ -31,32 +32,6 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
-private class TestCar(
-    override val requiresVehicleTakeAlong: Boolean = false,
-    override val code: Int = 0,
-    override val description: String = ""
-) : Mode
-
-private val testModes = ChoiceModelModes(
-    car = TestCar(),
-    passenger = TestCar(),
-    bike = TestCar(),
-    pedestrian = TestCar(),
-    publicTransport = TestCar(),
-    bikeSharing = TestCar(),
-    ridePooling = TestCar(),
-    carSharingFree = TestCar(),
-    carSharingStation = TestCar(),
-    taxi = TestCar(),
-    eScooter = TestCar()
-)
-
-private val choiceModelModesTestModule = GenericKeyValueBuilder(
-    javaType(ChoiceModelModes::class.java),
-    default = mapOf("default" to testModes),
-    loadFromSubmodules = false
-).getModule()
 
 private class MyParameterClass(val name: String) {
     override fun equals(other: Any?): Boolean {
@@ -83,6 +58,7 @@ class YamlTest {
             .registerKotlinModule()
             .registerModule(CoreCodePlanModule())
             .registerModule(CoreZoneMatrixCreationModule)
+            .registerModule(CoreChoiceModelModes)
             .registerModule(DestinationChoiceModule)
             .registerModule(ModeChoiceModule)
             .registerModule(CSVConfigModule)
@@ -99,8 +75,6 @@ class YamlTest {
         val output = "src/test/resources/tempOutput/serializedConfig.yaml"
         Path(output).createParentDirectories()
         if (!Path(output).exists()) Path(output).createFile()
-        Yaml.mapper
-            .registerModule(choiceModelModesTestModule)
 
         val configObj = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(input)
         Yaml.writeYaml(output, configObj)

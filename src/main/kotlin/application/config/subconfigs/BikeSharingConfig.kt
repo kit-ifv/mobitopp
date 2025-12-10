@@ -204,7 +204,10 @@ data class BikeSharingConfig(
             val core = CoreCSVConfig.init(givenParams)
 
             if (providerName == null || countColumn == null) {
-                error("Bikesharing can not be used without a provider name and a count column $providerName")
+                error("Bikesharing can not be used without a provider name and a count column. " +
+                        "Please provide both '$PROVIDER_PARAM' and '$COUNT_COLUMN_PARAM' parameters for the " +
+                        "BikeSharingConfig. \nOnly received [$providerName] as provider name and [$countColumn] as " +
+                        "count column.")
             }
             if (zoneRepo != null) {
                 return BikeSharingConfig(

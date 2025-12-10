@@ -9,9 +9,7 @@ simulationContext:
   dataFolder: "data"
   modes: "coreModes"
 
-sharingProviderName: "testProvider"
-vehicleCountColumn: "something"
-choiceModelModes: default
+choiceModelModes: legacyChoiceModelModes
 destinationChoiceModel: legacyDestinationChoiceModel
 modeChoiceModel: legacyModeChoiceModel
 
@@ -21,4 +19,7 @@ matrixConfig:
 sourceFiles:
   zoneRepo: "zone-test"
   dataRepo: "data"
+  sharingProviderName: "testSharingProvider"
+  vehicleCountColumn: ""
+
 
