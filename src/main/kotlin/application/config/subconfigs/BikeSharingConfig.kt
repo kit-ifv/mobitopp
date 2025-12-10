@@ -44,8 +44,11 @@ data class BikeSharingConfig(
     ) : this(
         sharingProviderName = sharingProviderName,
         vehicleCountColumn = vehicleCountColumn,
-        bikeSharingStationsCSV = CoreCSVConfig.existsOrDefault(bikeSharingStationsCSV,
-            defaultBikeSharingStationsCSV, zoneRepo),
+        bikeSharingStationsCSV = CoreCSVConfig.existsOrDefault(
+            bikeSharingStationsCSV,
+            defaultBikeSharingStationsCSV,
+            zoneRepo
+        ),
         coreCSVConfig = CoreCSVConfig(
             dataRepo,
             zoneRepo,
@@ -94,8 +97,11 @@ data class BikeSharingConfig(
     ) : this(
         sharingProviderName = sharingProviderName,
         vehicleCountColumn = vehicleCountColumn,
-        bikeSharingStationsCSV = CoreCSVConfig.existsOrDefault(bikeSharingStationsCSV,
-            defaultBikeSharingStationsCSV, zoneRepo),
+        bikeSharingStationsCSV = CoreCSVConfig.existsOrDefault(
+            bikeSharingStationsCSV,
+            defaultBikeSharingStationsCSV,
+            zoneRepo
+        ),
         coreCSVConfig
     )
 

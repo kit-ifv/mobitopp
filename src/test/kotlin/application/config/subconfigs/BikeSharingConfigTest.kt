@@ -12,9 +12,12 @@ import kotlin.test.assertEquals
 class BikeSharingConfigTest {
 
     val instantiatedWithRepos = BikeSharingConfig(
+
         dataRepo = Path("testD"),
         zoneRepo = Path("testZ"),
-        householdCSV = Path("testH")
+        householdCSV = Path("testH"),
+        sharingProviderName = "name",
+        vehicleCountColumn = "column",
     )
 
     val instatiatedWithSingleParam: BikeSharingConfig = BikeSharingConfig(
@@ -26,6 +29,8 @@ class BikeSharingConfigTest {
         attractivitiesCSV = Path("f"),
         bikeSharingStationsCSV = Path("g"),
         zonesCSV = Path("h"),
+        sharingProviderName = "name",
+        vehicleCountColumn = "column",
     )
 
     val anotherConfig = BikeSharingConfig(
@@ -34,6 +39,8 @@ class BikeSharingConfigTest {
         householdCSV = Path("x3"),
         bikeSharingStationsCSV = Path("x5"),
         attractivitiesCSV = Path("x4"),
+        sharingProviderName = "name",
+        vehicleCountColumn = "column",
     )
 
     val expected = listOf(

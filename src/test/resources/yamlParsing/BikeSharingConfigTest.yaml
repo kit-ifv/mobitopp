@@ -1,8 +1,12 @@
 - dataRepo: testD
   zoneRepo: testZ
   householdCSV: testH
+  sharingProviderName: name
+  vehicleCountColumn: column
 
 - personCSV: a
+  sharingProviderName: name
+  vehicleCountColumn: column
   householdCSV: b
   activityCSV: c
   privateCarsCSV: d
@@ -16,6 +20,8 @@
   fixedDestinationCSV: e
   zonesCSV: h
   personCSV: a
+  sharingProviderName: name
+  vehicleCountColumn: column
   householdCSV: b
   bikeSharingStationsCSV: g
   attractivitiesCSV: f
@@ -27,3 +33,5 @@
   householdCSV: x3
   attractivitiesCSV: x4
   bikeSharingStationsCSV: x5
+  sharingProviderName: name
+  vehicleCountColumn: column
