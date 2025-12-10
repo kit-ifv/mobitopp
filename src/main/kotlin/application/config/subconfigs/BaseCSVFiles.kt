@@ -3,16 +3,6 @@ package application.config.subconfigs
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-const val DATA_REPO_PARAM = "dataRepo"
-const val ZONE_REPO_PARAM = "zoneRepo"
-const val PERSON_PARAM = "personCSV"
-const val HOUSEHOLD_PARAM = "householdCSV"
-const val ACTIVITY_PARAM = "activityCSV"
-const val CAR_PARAM = "privateCarsCSV"
-const val DESTINATION_PARAM = "fixedDestinationCSV"
-const val ATTRACTIVITY_PARAM = "attractivitiesCSV"
-const val ZONES_PARAM = "zonesCSV"
-
 val defaultPersonCSV: Path = Path("person.csv")
 val defaultHouseholdCSV: Path = Path("household.csv")
 val defaultActivityCSV: Path = Path("activity.csv")

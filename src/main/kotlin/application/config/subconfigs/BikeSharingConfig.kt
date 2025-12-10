@@ -88,7 +88,7 @@ data class BikeSharingConfig(
 
     /**
      * Checks whether all paths exist and returns the ones not existing.
-     * @return list containing any of the paths this class manages, if they don't exist.
+     * @return list containing any of the paths this class manages, if they do not exist.
      */
     @JsonIgnore
     override fun getNonexistentPaths(): List<Path> {
@@ -168,12 +168,12 @@ data class BikeSharingConfig(
 
         /**
          * Constructs a config out of the given params.
-         * @throws error If the given params don't contain either 'dataRepo' and 'zoneRepo' or all other fields since
+         * @throws error If the given params do not contain either 'dataRepo' and 'zoneRepo' or all other fields since
          * no sensible config can be constructed then.
          */
         override fun init(givenParams: Map<String, String>): BikeSharingConfig {
             val bikeSharingStationsCSV: Path? = givenParams.retrieveAsPath(SHARING_PARAM)
-            val zoneRepo: Path? = givenParams.retrieveAsPath(ZONE_REPO_PARAM)
+            val zoneRepo: Path? = givenParams.retrieveAsPath(CoreCSVConfig.ZONE_REPO_PARAM)
             val core = CoreCSVConfig.init(givenParams)
 
             if (zoneRepo != null) {

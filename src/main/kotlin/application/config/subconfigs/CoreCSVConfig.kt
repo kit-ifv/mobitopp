@@ -129,6 +129,16 @@ data class CoreCSVConfig(
     }
 
     companion object : JSONInitializer<CoreCSVConfig> {
+        const val DATA_REPO_PARAM = "dataRepo"
+        const val ZONE_REPO_PARAM = "zoneRepo"
+        const val PERSON_PARAM = "personCSV"
+        const val HOUSEHOLD_PARAM = "householdCSV"
+        const val ACTIVITY_PARAM = "activityCSV"
+        const val CAR_PARAM = "privateCarsCSV"
+        const val DESTINATION_PARAM = "fixedDestinationCSV"
+        const val ATTRACTIVITY_PARAM = "attractivitiesCSV"
+        const val ZONES_PARAM = "zonesCSV"
+
         /**
          * @return all the constructor parameter names, including dataRepo and zoneRepo.
          */
