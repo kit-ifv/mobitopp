@@ -7,10 +7,15 @@ import utils.units.logTime
  * Users can define a mobitopp object and model steps.
  * When executed, all specified [ModelStep]s are validated first.
  *
- * @param C the generic mobitopp type
+ * @param C the generic mobitopp type. A type that is a `Context` and a `Cloneable<C>`.
  * @property contextFactory a factory to create new mobitopp objects
  */
-class Simulation<C>(private val contextFactory: () -> C) where C : Context {
+class Simulation<C>(contextFactory: () -> C) where C : Context, C : Cloneable<C> {
+
+    /**
+     * A context factory that guarantees shallow independent instances of `C` as long as `clone` works correctly.
+     */
+    private var contextFactory: () -> C = { contextFactory().clone() }
 
     /**
      * Steps scope defines execution (order) of model steps.
