@@ -1,11 +1,14 @@
 package application.config
 
+import application.config.subconfigs.BikeSharingConfig
+import application.config.subconfigs.CoreCSVConfig
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import domain.jackson.BikeSharingConfigModule
 import domain.jackson.CSVConfigModule
 import domain.jackson.CoreCodePlanModule
 import domain.jackson.CoreZoneMatrixCreationModule
@@ -84,6 +87,7 @@ class YamlTest {
             .registerModule(DestinationChoiceModule)
             .registerModule(ModeChoiceModule)
             .registerModule(CSVConfigModule)
+            .registerModule(BikeSharingConfigModule)
             .registerModule(MatrixConfigModule)
             .registerModule(durationModule)
             .registerModule(pathModule)
@@ -99,9 +103,9 @@ class YamlTest {
         Yaml.mapper
             .registerModule(choiceModelModesTestModule)
 
-        val configObj = Yaml.readYaml<ShortTermConfig>(input)
+        val configObj = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(input)
         Yaml.writeYaml(output, configObj)
-        val writtenConfig = Yaml.readYaml<ShortTermConfig>(output)
+        val writtenConfig = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(output)
         assertEquals(configObj, writtenConfig)
         Path(output).deleteIfExists()
     }

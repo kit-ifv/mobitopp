@@ -8,13 +8,16 @@
   privateCarsCSV: d
   fixedDestinationCSV: e
   attractivitiesCSV: f
+  bikeSharingStations: g
   zonesCSV: h
+
 
 - # mixed order
   fixedDestinationCSV: e
   zonesCSV: h
   personCSV: a
   householdCSV: b
+  bikeSharingStations: g
   attractivitiesCSV: f
   activityCSV: c
   privateCarsCSV: d

@@ -226,4 +226,15 @@ open class CoreCSVConfig(
             }
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is CoreCSVConfig) return false
+        return  other.householdCSV == householdCSV &&
+                other.zonesCSV == zonesCSV &&
+                other.activityCSV == activityCSV &&
+                other.privateCarsCSV == privateCarsCSV &&
+                other.fixedDestinationCSV == fixedDestinationCSV &&
+                other.attractivitiesCSV == attractivitiesCSV &&
+                other.personCSV == personCSV
+    }
 }
