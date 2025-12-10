@@ -11,15 +11,15 @@ import kotlin.io.path.exists
  * default structure and possible creation methods.
  */
 @Suppress("LongParameterList")
-open class CoreCSVConfig(
-    open val personCSV: Path,
-    open val householdCSV: Path,
-    open val activityCSV: Path,
-    open val privateCarsCSV: Path,
-    open val fixedDestinationCSV: Path,
-    open val attractivitiesCSV: Path,
-    open val zonesCSV: Path,
-) {
+data class CoreCSVConfig(
+    override val personCSV: Path,
+    override val householdCSV: Path,
+    override val activityCSV: Path,
+    override val privateCarsCSV: Path,
+    override val fixedDestinationCSV: Path,
+    override val attractivitiesCSV: Path,
+    override val zonesCSV: Path,
+): BaseCSVFiles {
 
     /**
      * Creation method based on two directories. All files are expected to reside in either the dataFolder or the
@@ -58,7 +58,7 @@ open class CoreCSVConfig(
      * @return list containing any of the paths this class manages, if they don't exist.
      */
     @JsonIgnore
-    open fun getNonexistentPaths(): List<Path> {
+    override fun getNonexistentPaths(): List<Path> {
         val paths = listOf(
             personCSV,
             householdCSV,
@@ -109,7 +109,7 @@ open class CoreCSVConfig(
      * @return A new CSVConfig person, household, activity, cars and fixed_destinations based on the given dataRepo.
      */
     @Suppress("LongParameterList")
-    open fun overwriteDataRepo(
+    fun overwriteDataRepo(
         dataRepo: Path,
         personCSV: Path = defaultPersonCSV,
         householdCSV: Path = defaultHouseholdCSV,
@@ -129,24 +129,6 @@ open class CoreCSVConfig(
     }
 
     companion object : JSONInitializer<CoreCSVConfig> {
-        const val DATA_REPO_PARAM = "dataRepo"
-        const val ZONE_REPO_PARAM = "zoneRepo"
-        const val PERSON_PARAM = "personCSV"
-        const val HOUSEHOLD_PARAM = "householdCSV"
-        const val ACTIVITY_PARAM = "activityCSV"
-        const val CAR_PARAM = "privateCarsCSV"
-        const val DESTINATION_PARAM = "fixedDestinationCSV"
-        const val ATTRACTIVITY_PARAM = "attractivitiesCSV"
-        const val ZONES_PARAM = "zonesCSV"
-
-        val defaultPersonCSV: Path = Path("person.csv")
-        val defaultHouseholdCSV: Path = Path("household.csv")
-        val defaultActivityCSV: Path = Path("activity.csv")
-        val defaultPrivateCarsCSV: Path = Path("car.csv")
-        val defaultFixedDestinationCSV: Path = Path("fixedDestination.csv")
-        val defaultAttractivitiesCSV: Path = Path("attractivities.csv")
-        val defaultZonesCSV: Path = Path("zones.csv")
-
         /**
          * @return all the constructor parameter names, including dataRepo and zoneRepo.
          */
@@ -167,6 +149,7 @@ open class CoreCSVConfig(
         fun Map<String, String>.retrieveAsPath(name: String,): Path? {
             return if (containsKey(name)) { Path(get(name)!!) } else null
         }
+
 
         fun allNotNull(vararg paths: Path?): Boolean {
             return paths.all { it != null }
@@ -225,16 +208,5 @@ open class CoreCSVConfig(
                 }
             }
         }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if(other !is CoreCSVConfig) return false
-        return  other.householdCSV == householdCSV &&
-                other.zonesCSV == zonesCSV &&
-                other.activityCSV == activityCSV &&
-                other.privateCarsCSV == privateCarsCSV &&
-                other.fixedDestinationCSV == fixedDestinationCSV &&
-                other.attractivitiesCSV == attractivitiesCSV &&
-                other.personCSV == personCSV
     }
 }

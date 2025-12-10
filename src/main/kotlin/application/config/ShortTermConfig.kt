@@ -1,6 +1,6 @@
 package application.config
 
-import application.config.subconfigs.CoreCSVConfig
+import application.config.subconfigs.BaseCSVFiles
 import application.config.subconfigs.MatrixConfig
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
@@ -16,7 +16,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
-data class ShortTermConfig<CSVConfig : CoreCSVConfig>(
+data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     /* impedance*/
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
@@ -31,7 +31,7 @@ data class ShortTermConfig<CSVConfig : CoreCSVConfig>(
     val resultPath: Path = Path("results"),
 
     /*  paths to individual csv files   */
-    val sourceFiles: CSVConfig,
+    val sourceFiles: CSVFiles,
 
     /* ChoiceParameters */
     val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
@@ -40,7 +40,7 @@ data class ShortTermConfig<CSVConfig : CoreCSVConfig>(
     /* vehicle sharing */
     val sharingProviderName: String,
 
-) {
+    ) {
     lateinit var matrixConfig: MatrixConfig
     lateinit var resultName: String
     lateinit var choiceModelModes: ChoiceModelModes

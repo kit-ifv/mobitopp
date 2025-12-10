@@ -1,5 +1,6 @@
 package application.config.subconfigs
 
+import application.config.subconfigs.CoreCSVConfig.Companion.retrieveAsPath
 import com.fasterxml.jackson.annotation.JsonIgnore
 import domain.jackson.JSONInitializer
 import java.nio.file.Path
@@ -8,25 +9,12 @@ import kotlin.io.path.exists
 
 /**
  * CSVConfig with bikesharing.
+ * On default the bikesharing_stations.csv is expected to be a child of the zoneRepo.
  */
 data class BikeSharingConfig(
-    override val personCSV: Path,
-    override val householdCSV: Path,
-    override val activityCSV: Path,
-    override val privateCarsCSV: Path,
-    override val fixedDestinationCSV: Path,
-    override val attractivitiesCSV: Path,
-    override val zonesCSV: Path,
-    val bikeSharingStationsCSV: Path
-) : CoreCSVConfig(
-    personCSV,
-    householdCSV,
-    activityCSV,
-    privateCarsCSV,
-    fixedDestinationCSV,
-    attractivitiesCSV,
-    zonesCSV
-) {
+    val bikeSharingStationsCSV: Path,
+    val coreCSVConfig: CoreCSVConfig
+) : BaseCSVFiles by coreCSVConfig {
 
     /**
      * Creation method based on two directories. All files are expected to reside in either the dataFolder or the
@@ -49,16 +37,28 @@ data class BikeSharingConfig(
         attractivitiesCSV: Path? = null,
         bikeSharingStationsCSV: Path? = null,
         zonesCSV: Path? = null,
-    ) :
-        this(
-            personCSV = dataRepo.resolve(personCSV ?: defaultPersonCSV),
-            householdCSV = dataRepo.resolve(householdCSV ?: defaultHouseholdCSV),
-            activityCSV = dataRepo.resolve(activityCSV ?: defaultActivityCSV),
-            privateCarsCSV = dataRepo.resolve(privateCarsCSV ?: defaultPrivateCarsCSV),
-            fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV ?: defaultFixedDestinationCSV),
-            attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV ?: defaultAttractivitiesCSV),
+    ) : this(
             bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
-            zonesCSV = zoneRepo.resolve(zonesCSV ?: defaultZonesCSV),
+            coreCSVConfig = CoreCSVConfig(
+                dataRepo,
+                zoneRepo,
+                personCSV,
+                householdCSV,
+                activityCSV,
+                privateCarsCSV,
+                fixedDestinationCSV,
+                attractivitiesCSV,
+                zonesCSV,
+            )
+        )
+
+    constructor(
+        zoneRepo: Path,
+        bikeSharingStationsCSV: Path? = defaultBikeSharingStationsCSV,
+        coreCSVConfig: CoreCSVConfig,
+    ) : this(
+            bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
+            coreCSVConfig
         )
 
     /**
@@ -68,9 +68,9 @@ data class BikeSharingConfig(
     @JsonIgnore
     override fun getNonexistentPaths(): List<Path> {
         if (bikeSharingStationsCSV.exists()) {
-            return super.getNonexistentPaths()
+            return coreCSVConfig.getNonexistentPaths()
         }
-        return super.getNonexistentPaths().plusElement(bikeSharingStationsCSV)
+        return coreCSVConfig.getNonexistentPaths().plusElement(bikeSharingStationsCSV)
     }
 
     /**
@@ -89,14 +89,8 @@ data class BikeSharingConfig(
         zonesCSV: Path = defaultZonesCSV
     ): BikeSharingConfig {
         return BikeSharingConfig(
-            personCSV = personCSV,
-            householdCSV = householdCSV,
-            activityCSV = activityCSV,
-            privateCarsCSV = privateCarsCSV,
-            fixedDestinationCSV = fixedDestinationCSV,
-            attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV),
             bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV),
-            zonesCSV = zoneRepo.resolve(zonesCSV)
+            coreCSVConfig = coreCSVConfig.overwriteZoneRepo(zoneRepo, attractivitiesCSV, zonesCSV),
         )
     }
 
@@ -115,7 +109,7 @@ data class BikeSharingConfig(
      * @return A new CSVConfig person, household, activity, cars and fixed_destinations based on the given dataRepo.
      */
     @Suppress("LongParameterList")
-    override fun overwriteDataRepo(
+    fun overwriteDataRepo(
         dataRepo: Path,
         personCSV: Path,
         householdCSV: Path,
@@ -124,14 +118,15 @@ data class BikeSharingConfig(
         fixedDestinationCSV: Path,
     ): BikeSharingConfig {
         return BikeSharingConfig(
-            personCSV = dataRepo.resolve(personCSV),
-            householdCSV = dataRepo.resolve(householdCSV),
-            activityCSV = dataRepo.resolve(activityCSV),
-            privateCarsCSV = dataRepo.resolve(privateCarsCSV),
-            fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV),
-            attractivitiesCSV = attractivitiesCSV,
             bikeSharingStationsCSV = bikeSharingStationsCSV,
-            zonesCSV = zonesCSV
+            coreCSVConfig = coreCSVConfig.overwriteDataRepo(
+                dataRepo,
+                personCSV,
+                householdCSV,
+                activityCSV,
+                privateCarsCSV,
+                fixedDestinationCSV,
+            )
         )
     }
 
@@ -152,55 +147,25 @@ data class BikeSharingConfig(
          * no sensible config can be constructed then.
          */
         override fun init(givenParams: Map<String, String>): BikeSharingConfig {
-            val dataRepo: Path? = givenParams.retrieveAsPath(DATA_REPO_PARAM)
-            val zoneRepo: Path? = givenParams.retrieveAsPath(ZONE_REPO_PARAM)
-            val personCSV: Path? = givenParams.retrieveAsPath(PERSON_PARAM)
-            val householdCSV: Path? = givenParams.retrieveAsPath(HOUSEHOLD_PARAM)
-            val activityCSV: Path? = givenParams.retrieveAsPath(ACTIVITY_PARAM)
-            val privateCarsCSV: Path? = givenParams.retrieveAsPath(CAR_PARAM)
-            val fixedDestinationCSV: Path? = givenParams.retrieveAsPath(DESTINATION_PARAM)
-            val attractivitiesCSV: Path? = givenParams.retrieveAsPath(ATTRACTIVITY_PARAM)
             val bikeSharingStationsCSV: Path? = givenParams.retrieveAsPath(SHARING_PARAM)
-            val zonesCSV: Path? = givenParams.retrieveAsPath(ZONES_PARAM)
+            val zoneRepo: Path? = givenParams.retrieveAsPath(ZONE_REPO_PARAM)
+            val core = CoreCSVConfig.init(givenParams)
 
-            if (dataRepo != null && zoneRepo != null) {
+            if(zoneRepo != null) {
                 return BikeSharingConfig(
-                    dataRepo = dataRepo,
-                    zoneRepo = zoneRepo,
-                    personCSV = personCSV,
-                    householdCSV = householdCSV,
-                    activityCSV = activityCSV,
-                    privateCarsCSV = privateCarsCSV,
-                    fixedDestinationCSV = fixedDestinationCSV,
-                    attractivitiesCSV = attractivitiesCSV,
-                    bikeSharingStationsCSV = bikeSharingStationsCSV,
-                    zonesCSV = zonesCSV
+                    zoneRepo,
+                    bikeSharingStationsCSV,
+                    core,
+                )
+            } else if (bikeSharingStationsCSV != null && bikeSharingStationsCSV.exists()) {
+                return BikeSharingConfig(
+                    bikeSharingStationsCSV,
+                    core,
                 )
             } else {
-                if (allNotNull(
-                        personCSV,
-                        householdCSV,
-                        activityCSV,
-                        privateCarsCSV,
-                        fixedDestinationCSV,
-                        attractivitiesCSV,
-                        bikeSharingStationsCSV,
-                        zonesCSV
-                    )
-                ) {
-                    return BikeSharingConfig(
-                        personCSV = personCSV!!,
-                        householdCSV = householdCSV!!,
-                        activityCSV = activityCSV!!,
-                        privateCarsCSV = privateCarsCSV!!,
-                        fixedDestinationCSV = fixedDestinationCSV!!,
-                        attractivitiesCSV = attractivitiesCSV!!,
-                        bikeSharingStationsCSV = bikeSharingStationsCSV!!,
-                        zonesCSV = zonesCSV!!
-                    )
-                } else {
-                    error("Missing mandatory fields. Either set 'dataRepo' and 'zoneRepo' or all other fields.")
-                }
+                error("A BikeSharingConfig was being initialized without enough information. At least a zoneRepo " +
+                        "or a valid path to a bikeSharingStationsCSV must be specified in the yaml. " +
+                        "Neither is given rn. \nzoneRepo=$zoneRepo, bikeSharingStationsCSV=$bikeSharingStationsCSV")
             }
         }
     }

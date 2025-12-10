@@ -2,6 +2,7 @@
 
 import application.config.ExampleProjectContext
 import application.config.ShortTermConfig
+import application.config.subconfigs.BikeSharingConfig
 import application.config.subconfigs.CoreCSVConfig
 import application.config.subconfigs.MatrixConfig
 import application.steps.model.AssignCarUserStep
