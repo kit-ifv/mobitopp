@@ -40,7 +40,7 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     /* vehicle sharing */
     val sharingProviderName: String,
 
-    ) {
+) {
     lateinit var matrixConfig: MatrixConfig
     lateinit var resultName: String
     lateinit var choiceModelModes: ChoiceModelModes

@@ -38,28 +38,28 @@ data class BikeSharingConfig(
         bikeSharingStationsCSV: Path? = null,
         zonesCSV: Path? = null,
     ) : this(
-            bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
-            coreCSVConfig = CoreCSVConfig(
-                dataRepo,
-                zoneRepo,
-                personCSV,
-                householdCSV,
-                activityCSV,
-                privateCarsCSV,
-                fixedDestinationCSV,
-                attractivitiesCSV,
-                zonesCSV,
-            )
+        bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
+        coreCSVConfig = CoreCSVConfig(
+            dataRepo,
+            zoneRepo,
+            personCSV,
+            householdCSV,
+            activityCSV,
+            privateCarsCSV,
+            fixedDestinationCSV,
+            attractivitiesCSV,
+            zonesCSV,
         )
+    )
 
     constructor(
         zoneRepo: Path,
         bikeSharingStationsCSV: Path? = defaultBikeSharingStationsCSV,
         coreCSVConfig: CoreCSVConfig,
     ) : this(
-            bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
-            coreCSVConfig
-        )
+        bikeSharingStationsCSV = zoneRepo.resolve(bikeSharingStationsCSV ?: defaultBikeSharingStationsCSV),
+        coreCSVConfig
+    )
 
     /**
      * Checks whether all paths exist and returns the ones not existing.
@@ -151,7 +151,7 @@ data class BikeSharingConfig(
             val zoneRepo: Path? = givenParams.retrieveAsPath(ZONE_REPO_PARAM)
             val core = CoreCSVConfig.init(givenParams)
 
-            if(zoneRepo != null) {
+            if (zoneRepo != null) {
                 return BikeSharingConfig(
                     zoneRepo,
                     bikeSharingStationsCSV,
@@ -163,9 +163,11 @@ data class BikeSharingConfig(
                     core,
                 )
             } else {
-                error("A BikeSharingConfig was being initialized without enough information. At least a zoneRepo " +
+                error(
+                    "A BikeSharingConfig was being initialized without enough information. At least a zoneRepo " +
                         "or a valid path to a bikeSharingStationsCSV must be specified in the yaml. " +
-                        "Neither is given rn. \nzoneRepo=$zoneRepo, bikeSharingStationsCSV=$bikeSharingStationsCSV")
+                        "Neither is given rn. \nzoneRepo=$zoneRepo, bikeSharingStationsCSV=$bikeSharingStationsCSV"
+                )
             }
         }
     }
