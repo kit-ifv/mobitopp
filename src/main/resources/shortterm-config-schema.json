@@ -64,7 +64,6 @@
           "pattern": ".+.csv"
         }
       },
-      "additionalProperties": false,
       "anyOf": [
         {
           "required": ["zoneRepo", "dataRepo"]
