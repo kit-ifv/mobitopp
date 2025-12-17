@@ -2,9 +2,6 @@ package domain.shared.config
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
@@ -20,9 +17,8 @@ import domain.jackson.CoreZoneMatrixCreationModule
 import domain.jackson.DestinationChoiceModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
+import domain.jackson.durationModule
 import java.nio.file.Path
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.parseIsoString
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
@@ -73,34 +69,6 @@ object Yaml {
     inline fun <reified T> writeYaml(string: String, obj: T) = writeYaml(Path.of(string), obj)
 }
 
-/**
- * Handles the serialization of kotlin durations.
- */
-val durationModule: SimpleModule = SimpleModule("Duration")
-    .addDeserializer(Duration::class.java, DurationDeserializer())
-    .addSerializer(Duration::class.java, DurationSerializer())
-private class DurationDeserializer : JsonDeserializer<Duration>() {
-    override fun deserialize(
-        p: JsonParser?,
-        ctxt: DeserializationContext?
-    ): Duration? {
-        if (p != null) {
-            return parseIsoString(p.valueAsString)
-        }
-        return null
-    }
-}
-private class DurationSerializer : JsonSerializer<Duration>() {
-    override fun serialize(
-        value: Duration?,
-        gen: JsonGenerator?,
-        serializers: SerializerProvider?
-    ) {
-        if (gen != null && value != null) {
-            gen.writeString(value.toIsoString())
-        }
-    }
-}
 
 /**
  * Handles the serialization of paths.
