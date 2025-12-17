@@ -1,8 +1,3 @@
-zoneRepo: data/zone-repository
-matrixRepo: data/matrix
-costMatrixConfig: cost-matrix-configuration_transmove_turbo.yaml
-durationMatrixConfig: time-matrix-configuration_transmove_turbo.yaml
-distanceMatrix: DIS_Car.mtx.bz2
 zoneMatrixCreationMethod: keyBased
 resultPath: results
 resultName: demandsimulation.csv
@@ -14,10 +9,17 @@ simulationContext:
   dataFolder: "data"
   modes: "coreModes"
 
-personCSV: data/test/person.csv
+choiceModelModes: legacyChoiceModelModes
+destinationChoiceModel: legacyDestinationChoiceModel
+modeChoiceModel: legacyModeChoiceModel
 
-sharingProviderName: "testProvider"
-vehicleCountColumn: "something"
-destinationChoiceParameterSet: default
-modeChoiceParameterSet: default
-choiceModelModes: default
+matrixConfig:
+  matrixRepo: "data/matrix"
+
+sourceFiles:
+  zoneRepo: "zone-test"
+  dataRepo: "data"
+  sharingProviderName: "testSharingProvider"
+  vehicleCountColumn: ""
+
+

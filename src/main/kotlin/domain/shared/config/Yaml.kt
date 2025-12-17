@@ -12,9 +12,14 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import domain.jackson.BikeSharingConfigModule
+import domain.jackson.CSVConfigModule
+import domain.jackson.CoreChoiceModelModes
 import domain.jackson.CoreCodePlanModule
-import domain.jackson.CoreDestinationChoiceParameterModule
 import domain.jackson.CoreZoneMatrixCreationModule
+import domain.jackson.DestinationChoiceModule
+import domain.jackson.MatrixConfigModule
+import domain.jackson.ModeChoiceModule
 import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.parseIsoString
@@ -45,7 +50,12 @@ object Yaml {
         .registerKotlinModule()
         .registerModule(CoreCodePlanModule())
         .registerModule(CoreZoneMatrixCreationModule)
-        .registerModule(CoreDestinationChoiceParameterModule)
+        .registerModule(CoreChoiceModelModes)
+        .registerModule(DestinationChoiceModule)
+        .registerModule(ModeChoiceModule)
+        .registerModule(CSVConfigModule)
+        .registerModule(BikeSharingConfigModule)
+        .registerModule(MatrixConfigModule)
         .registerModule(durationModule)
         .registerModule(pathModule)
         .findAndRegisterModules()
@@ -66,7 +76,7 @@ object Yaml {
 /**
  * Handles the serialization of kotlin durations.
  */
-val durationModule = SimpleModule("Duration")
+val durationModule: SimpleModule = SimpleModule("Duration")
     .addDeserializer(Duration::class.java, DurationDeserializer())
     .addSerializer(Duration::class.java, DurationSerializer())
 private class DurationDeserializer : JsonDeserializer<Duration>() {
@@ -95,7 +105,7 @@ private class DurationSerializer : JsonSerializer<Duration>() {
 /**
  * Handles the serialization of paths.
  */
-val pathModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
+val pathModule: SimpleModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
 private class PathSerializer : JsonSerializer<Path>() {
 
     override fun serialize(
