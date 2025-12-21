@@ -1,5 +1,8 @@
 package domain.jackson.durationParsing
 
+import utils.units.min
+import java.util.LinkedList
+import java.util.Queue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -99,40 +102,32 @@ class ParameterizedTimeParseStrategy(
      * Expects input to be stripped of space and '-' characters and generally a valid duration string.
      */
     private fun parsePositive(input: String): Duration {
-        var result = Duration.ZERO
+        val delimiters = listOf(days, hours, minutes, seconds)
+        val regexQueue = LinkedList(delimiters)
+        val parsers = listOf<(Int) -> Duration>(
+            {x -> x.days},
+            {x -> x.hours},
+            {x -> x.minutes},
+            {x -> x.seconds}
+        )
+        val parseQueue = LinkedList(parsers)
+        return parseRest(
+            input,
+            parseQueue,
+            regexQueue)
+    }
 
-        var rest = input
-        var split = rest.split(days)
+
+    private fun parseRest(rest: String, durationLambdaQueue: Queue<(Int) -> Duration>, durationDelimiterQueue: Queue<Regex>): Duration {
+        if (rest.isEmpty() || durationDelimiterQueue.isEmpty() || durationLambdaQueue.isEmpty()) return Duration.ZERO
+        val delimiter = durationDelimiterQueue.poll()
+        val lambda = durationLambdaQueue.poll()
+        val split = rest.split(delimiter)
         if (split.size == 2) {
-            result += split[0].toInt().days
-            rest = split[1]
+            return lambda(split[0].toInt()) + parseRest(split[1], durationLambdaQueue, durationDelimiterQueue)
         } else if (split.size > 2) {
             error(unexpectedCall)
         }
-
-        split = rest.split(hours)
-        if (split.size == 2) {
-            result += split[0].toInt().hours
-            rest = split[1]
-        } else if (split.size > 2) {
-            error(unexpectedCall)
-        }
-
-        split = rest.split(minutes)
-        if (split.size == 2) {
-            result += split[0].toInt().minutes
-            rest = split[1]
-        } else if (split.size > 2) {
-            error(unexpectedCall)
-        }
-
-        split = rest.split(seconds)
-        if (split.size == 2) {
-            result += split[0].toInt().seconds
-        } else if (split.size > 2) {
-            error(unexpectedCall)
-        }
-
-        return result
+        return parseRest(rest, durationLambdaQueue, durationDelimiterQueue)
     }
 }
