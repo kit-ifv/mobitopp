@@ -1,0 +1,126 @@
+package domain.jackson.durationParsing
+
+import domain.jackson.DurationParseStrategy
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+
+
+/**
+ * Parser for the format of
+ * `X`Days`X`Hours`X`Minutes`X`Seconds
+ * (or any subset of that, so `X`Hours`X`Seconds would also be valid).
+ *
+ * Accepts strings like
+ * ```
+ * "-1Days4Hours"
+ * "30Seconds"
+ * "80Days 20Hours 3Minutes"
+ * ```
+ * Parsed durations are added together, so `1Days24Hours` will be the same as `2Days`.
+ */
+val SimpleTimeStrategy get() = ParameterizedTimeParseStrategy(
+    "Days".toRegex(),
+    "Hours".toRegex(),
+    "Minutes".toRegex(),
+    "Seconds".toRegex()
+)
+
+/**
+ * Parser for the format of `X`d`X`h`X`m`X`s
+ * (or any subset of that, so `X`d`X`h would also be valid).
+ *
+ * Accepts strings like
+ * ```
+ * "3d4h"
+ * "-30s"
+ * "80d 20h 300m"
+ * ```
+ * Parsed durations are added together, so `1d24h` will be the same as `2d`.
+ */
+val ShortTimeStrategy get() = ParameterizedTimeParseStrategy(
+    "d".toRegex(),
+    "h".toRegex(),
+    "m".toRegex(),
+    "s".toRegex()
+)
+
+/**
+ * Parser for the format
+ * 1`days`1`hours`1`minutes`1`seconds`
+ * (or any subset of that, so 4`minutes`5`seconds` would also be valid).
+ * Also accepts a minus at the start for negative durations and spaces anywhere.
+ * @param days The pattern for days. Should only match what comes after the number of days.
+ * @param hours The pattern for hours. Should only match what comes after the number of hours.
+ * @param minutes The pattern for minutes. Should only match what comes after the number of minutes.
+ * @param seconds The pattern for seconds. Should only match what comes after the number of seconds.
+ */
+class ParameterizedTimeParseStrategy(
+    val days: Regex,
+    val hours: Regex,
+    val minutes: Regex,
+    val seconds: Regex
+) : DurationParseStrategy {
+    override val formatRegex: Regex = "^-?(\\d+$days)?(\\d+$hours)?(\\d+$minutes)?(\\d+$seconds)?".toRegex()
+    private val ensureNotEmpty: Regex = "(\\d+$days)|(\\d+$hours)|(\\d+$minutes)|(\\d+$seconds)".toRegex()
+    private val negativeDuration: Regex = "^-".toRegex()
+
+    override fun toString(): String {
+        return "`X`$days`X`$hours`X`$minutes`X`$seconds"
+    }
+
+    override fun supportsFormat(input: String): Boolean {
+        val stripped = input.replace(" ", "")
+        return stripped.matches(formatRegex) && stripped.contains(ensureNotEmpty)
+    }
+    override fun parseDuration(input: String): Duration {
+        val stripped = input.replace(" ", "")
+        if (stripped.contains(negativeDuration)) {
+            return -parsePositive(stripped.replace(negativeDuration, ""))
+        }
+        return parsePositive(stripped)
+    }
+
+    /**
+     * Expects input to be stripped of space and '-' characters and generally a valid duration string.
+     */
+    private fun parsePositive(input: String): Duration {
+        var result = Duration.ZERO
+
+        var rest = input
+        var split = rest.split(days)
+        if (split.size == 2) {
+            result += split[0].toInt().days
+            rest = split[1]
+        } else if (split.size > 2) {
+            error("This should not have happened. supportsFormat() should not have accepted this format")
+        }
+
+        split = rest.split(hours)
+        if (split.size == 2) {
+            result += split[0].toInt().hours
+            rest = split[1]
+        } else if (split.size > 2) {
+            error("This should not have happened. supportsFormat() should not have accepted this format")
+        }
+
+        split = rest.split(minutes)
+        if (split.size == 2) {
+            result += split[0].toInt().minutes
+            rest = split[1]
+        } else if (split.size > 2) {
+            error("This should not have happened. supportsFormat() should not have accepted this format")
+        }
+
+        split = rest.split(seconds)
+        if (split.size == 2) {
+            result += split[0].toInt().seconds
+        } else if (split.size > 2) {
+            error("This should not have happened. supportsFormat() should not have accepted this format")
+        }
+
+        return result
+    }
+}
