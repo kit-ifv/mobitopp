@@ -69,7 +69,6 @@ object Yaml {
     inline fun <reified T> writeYaml(string: String, obj: T) = writeYaml(Path.of(string), obj)
 }
 
-
 /**
  * Handles the serialization of paths.
  */

@@ -30,7 +30,7 @@ class ShortTimeStrategyTest {
         "1d2s" to 1.days + 2.seconds,
         "1h2s" to 1.hours + 2.seconds,
         "99 d 3h 10 m 2 s" to 99.days + 3.hours + 10.minutes + 2.seconds,
-        " 1 h    3   m   200 s  " to 1.hours + 3.minutes +  200.seconds, // parsing is done without spaces
+        " 1 h    3   m   200 s  " to 1.hours + 3.minutes + 200.seconds, // parsing is done without spaces
     )
 
     val antiExamples = listOf(
@@ -57,12 +57,12 @@ class ShortTimeStrategyTest {
         "99 d  -3h 10 m 2 s", // - only at the start allowed
         "99 d 3h 10 m 2 s #", // no other characters allowed
     )
-    
+
     @Test
     fun shouldNotMatch() {
         val strategy = ShortTimeStrategy
 
-        for(example in antiExamples) {
+        for (example in antiExamples) {
             assert(!strategy.supportsFormat(example))
         }
     }
@@ -71,9 +71,8 @@ class ShortTimeStrategyTest {
     fun shouldParse() {
         val strategy = ShortTimeStrategy
 
-        for(example in examples) {
-            assert(strategy.supportsFormat(example.key))
-            {"Following string was not accepted ${example.key}"}
+        for (example in examples) {
+            assert(strategy.supportsFormat(example.key)) { "Following string was not accepted ${example.key}" }
             assertEquals(example.value, strategy.parseDuration(example.key))
         }
     }
@@ -82,9 +81,8 @@ class ShortTimeStrategyTest {
     fun negativeValues() {
         val strategy = ShortTimeStrategy
 
-        for(example in examples) {
-            assert(strategy.supportsFormat(example.key))
-            {"Following string was not accepted ${example.key}"}
+        for (example in examples) {
+            assert(strategy.supportsFormat(example.key)) { "Following string was not accepted ${example.key}" }
             assertEquals(-example.value, strategy.parseDuration(" - " + example.key))
         }
     }

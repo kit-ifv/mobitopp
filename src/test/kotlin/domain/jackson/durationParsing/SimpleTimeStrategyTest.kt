@@ -54,12 +54,11 @@ class SimpleTimeStrategyTest {
         "99 Days 3Hours 10 Minutes 2 Seconds #", // no other characters allowed
     )
 
-
     @Test
     fun shouldNotMatch() {
         val strategy = SimpleTimeStrategy
 
-        for(example in antiExamples) {
+        for (example in antiExamples) {
             assert(!strategy.supportsFormat(example))
         }
     }
@@ -68,9 +67,8 @@ class SimpleTimeStrategyTest {
     fun shouldParse() {
         val strategy = SimpleTimeStrategy
 
-        for(example in examples) {
-            assert(strategy.supportsFormat(example.key))
-            {"Following string was not accepted ${example.key}"}
+        for (example in examples) {
+            assert(strategy.supportsFormat(example.key)) { "Following string was not accepted ${example.key}" }
             assertEquals(example.value, strategy.parseDuration(example.key))
         }
     }
@@ -79,9 +77,8 @@ class SimpleTimeStrategyTest {
     fun negativeValues() {
         val strategy = SimpleTimeStrategy
 
-        for(example in examples) {
-            assert(strategy.supportsFormat(example.key))
-            {"Following string was not accepted ${example.key}"}
+        for (example in examples) {
+            assert(strategy.supportsFormat(example.key)) { "Following string was not accepted ${example.key}" }
             assertEquals(-example.value, strategy.parseDuration(" - " + example.key))
         }
     }
