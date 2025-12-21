@@ -1,12 +1,10 @@
 package domain.jackson.durationParsing
 
-import domain.jackson.DurationParseStrategy
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-
 
 /**
  * Parser for the format of
@@ -28,6 +26,13 @@ val SimpleTimeStrategy get() = ParameterizedTimeParseStrategy(
     "Seconds".toRegex()
 )
 
+val LowerCaseTimeStrategy get() = ParameterizedTimeParseStrategy(
+    "days".toRegex(),
+    "hours".toRegex(),
+    "minutes".toRegex(),
+    "seconds".toRegex()
+)
+
 /**
  * Parser for the format of `X`d`X`h`X`m`X`s
  * (or any subset of that, so `X`d`X`h would also be valid).
@@ -45,6 +50,13 @@ val ShortTimeStrategy get() = ParameterizedTimeParseStrategy(
     "h".toRegex(),
     "m".toRegex(),
     "s".toRegex()
+)
+
+val ShortUpperTimeStrategy get() = ParameterizedTimeParseStrategy(
+    "D".toRegex(),
+    "H".toRegex(),
+    "M".toRegex(),
+    "S".toRegex()
 )
 
 /**
@@ -66,9 +78,9 @@ class ParameterizedTimeParseStrategy(
     override val formatRegex: Regex = "^-?(\\d+$days)?(\\d+$hours)?(\\d+$minutes)?(\\d+$seconds)?".toRegex()
     private val ensureNotEmpty: Regex = "(\\d+$days)|(\\d+$hours)|(\\d+$minutes)|(\\d+$seconds)".toRegex()
     private val negativeDuration: Regex = "^-".toRegex()
-
+    private val unexpectedCall = "This should not have happened. supportsFormat() should not have accepted this format"
     override fun toString(): String {
-        return "`X`$days`X`$hours`X`$minutes`X`$seconds"
+        return "1$days 2$hours 3$minutes 4$seconds"
     }
 
     override fun supportsFormat(input: String): Boolean {
@@ -95,7 +107,7 @@ class ParameterizedTimeParseStrategy(
             result += split[0].toInt().days
             rest = split[1]
         } else if (split.size > 2) {
-            error("This should not have happened. supportsFormat() should not have accepted this format")
+            error(unexpectedCall)
         }
 
         split = rest.split(hours)
@@ -103,7 +115,7 @@ class ParameterizedTimeParseStrategy(
             result += split[0].toInt().hours
             rest = split[1]
         } else if (split.size > 2) {
-            error("This should not have happened. supportsFormat() should not have accepted this format")
+            error(unexpectedCall)
         }
 
         split = rest.split(minutes)
@@ -111,14 +123,14 @@ class ParameterizedTimeParseStrategy(
             result += split[0].toInt().minutes
             rest = split[1]
         } else if (split.size > 2) {
-            error("This should not have happened. supportsFormat() should not have accepted this format")
+            error(unexpectedCall)
         }
 
         split = rest.split(seconds)
         if (split.size == 2) {
             result += split[0].toInt().seconds
         } else if (split.size > 2) {
-            error("This should not have happened. supportsFormat() should not have accepted this format")
+            error(unexpectedCall)
         }
 
         return result
