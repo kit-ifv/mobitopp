@@ -19,14 +19,14 @@ import kotlin.time.Duration.Companion.seconds
  * ```
  * Parsed durations are added together, so `1Days24Hours` will be the same as `2Days`.
  */
-val SimpleTimeStrategy get() = ParameterizedTimeParseStrategy(
+val SimpleTimeStrategy get() = ParameterizedDurationParseStrategy(
     "Days".toRegex(),
     "Hours".toRegex(),
     "Minutes".toRegex(),
     "Seconds".toRegex()
 )
 
-val LowerCaseTimeStrategy get() = ParameterizedTimeParseStrategy(
+val LowerCaseTimeStrategy get() = ParameterizedDurationParseStrategy(
     "days".toRegex(),
     "hours".toRegex(),
     "minutes".toRegex(),
@@ -45,14 +45,14 @@ val LowerCaseTimeStrategy get() = ParameterizedTimeParseStrategy(
  * ```
  * Parsed durations are added together, so `1d24h` will be the same as `2d`.
  */
-val ShortTimeStrategy get() = ParameterizedTimeParseStrategy(
+val ShortTimeStrategy get() = ParameterizedDurationParseStrategy(
     "d".toRegex(),
     "h".toRegex(),
     "m".toRegex(),
     "s".toRegex()
 )
 
-val ShortUpperTimeStrategy get() = ParameterizedTimeParseStrategy(
+val ShortUpperTimeStrategy get() = ParameterizedDurationParseStrategy(
     "D".toRegex(),
     "H".toRegex(),
     "M".toRegex(),
@@ -69,7 +69,7 @@ val ShortUpperTimeStrategy get() = ParameterizedTimeParseStrategy(
  * @param minutes The pattern for minutes. Should only match what comes after the number of minutes.
  * @param seconds The pattern for seconds. Should only match what comes after the number of seconds.
  */
-class ParameterizedTimeParseStrategy(
+class ParameterizedDurationParseStrategy(
     val days: Regex,
     val hours: Regex,
     val minutes: Regex,
