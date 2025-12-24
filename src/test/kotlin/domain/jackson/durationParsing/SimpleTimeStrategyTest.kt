@@ -40,6 +40,11 @@ class SimpleTimeStrategyTest {
         "Seconds",
         "Days",
         " ",
+        "(1Days2Seconds)",
+        "()",
+        "-()",
+        "-(1)",
+        "-(1Seconds",
         "2Days4Days", // days twice
         "3Hours4Days", // wrong order
         "20Minutes4Days", // wrong order
@@ -79,7 +84,7 @@ class SimpleTimeStrategyTest {
 
         for (example in examples) {
             assert(strategy.supportsFormat(example.key)) { "Following string was not accepted ${example.key}" }
-            assertEquals(-example.value, strategy.parseDuration(" - " + example.key))
+            assertEquals(-example.value, strategy.parseDuration(" - (" + example.key + " ) "))
         }
     }
 }

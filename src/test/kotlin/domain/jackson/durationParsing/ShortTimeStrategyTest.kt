@@ -22,6 +22,7 @@ class ShortTimeStrategyTest {
         "60m" to 1.hours,
         "10s" to 10.seconds,
         "0s" to 0.seconds,
+        "0d0h0m0s" to 0.seconds,
         "60s" to 60.seconds,
         "60s" to 1.minutes,
         "10000d" to 10000.days,
@@ -54,7 +55,16 @@ class ShortTimeStrategyTest {
         "-m",
         "-s",
         "-d",
-        "99 d  -3h 10 m 2 s", // - only at the start allowed
+        "()",
+        "-(x)",
+        "-(1Days)",
+        "-(10s4d3h10m)", // wrong order
+        "- 1d10m2s", // only with surrounding parentheses allowed
+        "-(h)",
+        "-(m)",
+        "-(s)",
+        "-(d)",
+        "99 d  - (3h 10 m 2 s)", // - only at the start allowed
         "99 d 3h 10 m 2 s #", // no other characters allowed
     )
 
@@ -83,7 +93,7 @@ class ShortTimeStrategyTest {
 
         for (example in examples) {
             assert(strategy.supportsFormat(example.key)) { "Following string was not accepted ${example.key}" }
-            assertEquals(-example.value, strategy.parseDuration(" - " + example.key))
+            assertEquals(-example.value, strategy.parseDuration(" -( " + example.key + ")"))
         }
     }
 }

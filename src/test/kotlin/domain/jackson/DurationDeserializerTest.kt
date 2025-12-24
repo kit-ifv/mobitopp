@@ -25,13 +25,14 @@ class DurationDeserializerTest {
         "5m" to 5.minutes,
         "40M 50S" to 40.minutes + 50.seconds,
         "120days 30hours" to 120.days + 30.hours,
-        "-24 hours 5 minutes" to -(24.hours + 5.minutes),
+        "-(24 hours 5 minutes)" to -(24.hours + 5.minutes),
         "2Days3Minutes" to 2.days + 3.minutes,
         "2d 4h 30s" to 2.days + 4.hours + 30.seconds,
         "40days 60seconds" to 40.days + 60.seconds,
-        "- 50M 40S" to -(50.minutes + 40.seconds),
-        "-40seconds" to (-40).seconds,
-        "-70Days80Minutes1Seconds" to -(70.days + 80.minutes + 1.seconds),
+        "- (50M 40S)" to -(50.minutes + 40.seconds),
+        "-(40seconds)" to (-40).seconds,
+        "-(70Days80Minutes1Seconds)" to -(70.days + 80.minutes + 1.seconds),
+        "-( 9999h 5m)" to -(9999.hours + 5.minutes),
     )
 
     @Test

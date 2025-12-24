@@ -75,9 +75,11 @@ class ParameterizedTimeParseStrategy(
     val minutes: Regex,
     val seconds: Regex
 ) : DurationParseStrategy {
-    override val formatRegex: Regex = "^-?(\\d+$days)?(\\d+$hours)?(\\d+$minutes)?(\\d+$seconds)?".toRegex()
+    override val formatRegex: Regex = "^(\\d+$days)?(\\d+$hours)?(\\d+$minutes)?(\\d+$seconds)?".toRegex()
+    private val negativeRegex: Regex = "^-\\((\\d+$days)?(\\d+$hours)?(\\d+$minutes)?(\\d+$seconds)?\\)".toRegex()
     private val ensureNotEmpty: Regex = "(\\d+$days)|(\\d+$hours)|(\\d+$minutes)|(\\d+$seconds)".toRegex()
-    private val negativeDuration: Regex = "^-".toRegex()
+    private val negativeDuration: Regex = "^-\\(.+\\)".toRegex()
+    private val removeNegative: Regex = "^(-\\()|\\)".toRegex()
     private val unexpectedCall = "This should not have happened. supportsFormat() should not have accepted this format"
     override fun toString(): String {
         return "1$days 2$hours 3$minutes 4$seconds"
@@ -85,12 +87,13 @@ class ParameterizedTimeParseStrategy(
 
     override fun supportsFormat(input: String): Boolean {
         val stripped = input.replace(" ", "")
-        return stripped.matches(formatRegex) && stripped.contains(ensureNotEmpty)
+        return (stripped.matches(formatRegex) || stripped.matches(negativeRegex)) && stripped.contains(ensureNotEmpty)
     }
+
     override fun parseDuration(input: String): Duration {
         val stripped = input.replace(" ", "")
-        if (stripped.contains(negativeDuration)) {
-            return -parsePositive(stripped.replace(negativeDuration, ""))
+        if (stripped.matches(negativeDuration)) {
+            return -parsePositive(stripped.replace(removeNegative, ""))
         }
         return parsePositive(stripped)
     }
