@@ -17,7 +17,7 @@ import domain.jackson.CoreZoneMatrixCreationModule
 import domain.jackson.DestinationChoiceModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
-import domain.jackson.durationModule
+import domain.jackson.DurationModule
 import java.nio.file.Path
 
 /**
@@ -52,8 +52,8 @@ object Yaml {
         .registerModule(CSVConfigModule)
         .registerModule(BikeSharingConfigModule)
         .registerModule(MatrixConfigModule)
-        .registerModule(durationModule)
-        .registerModule(pathModule)
+        .registerModule(DurationModule)
+        .registerModule(PathModule)
         .findAndRegisterModules()
 
     inline fun <reified T> readYaml(path: Path): T {
@@ -72,7 +72,7 @@ object Yaml {
 /**
  * Handles the serialization of paths.
  */
-val pathModule: SimpleModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
+val PathModule: SimpleModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
 private class PathSerializer : JsonSerializer<Path>() {
 
     override fun serialize(

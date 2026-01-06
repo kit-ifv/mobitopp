@@ -14,7 +14,7 @@ import kotlin.time.Duration
 /**
  * Handles the serialization of kotlin durations and AbsoluteTime.
  */
-val durationModule: SimpleModule get() = SimpleModule("Duration")
+val DurationModule: SimpleModule get() = SimpleModule("Duration")
     .addDeserializer(Duration::class.java, DurationDeserializer())
     .addSerializer(Duration::class.java, DurationSerializer())
     .addDeserializer(AbsoluteTime::class.java, AbsoluteTimeDeserializer())

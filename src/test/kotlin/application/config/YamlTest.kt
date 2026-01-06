@@ -16,11 +16,11 @@ import domain.jackson.DestinationChoiceModule
 import domain.jackson.GenericKeyValueBuilder
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
-import domain.jackson.durationModule
+import domain.jackson.DurationModule
 import domain.jackson.isSameOrSubtypeOf
 import domain.jackson.javaType
 import domain.shared.config.Yaml
-import domain.shared.config.pathModule
+import domain.shared.config.PathModule
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import kotlin.io.path.Path
@@ -62,8 +62,8 @@ class YamlTest {
             .registerModule(CSVConfigModule)
             .registerModule(BikeSharingConfigModule)
             .registerModule(MatrixConfigModule)
-            .registerModule(durationModule)
-            .registerModule(pathModule)
+            .registerModule(DurationModule)
+            .registerModule(PathModule)
             .findAndRegisterModules()
     }
 
