@@ -63,7 +63,8 @@ val ShortTimeStrategy get() = ParameterizedDurationParseStrategy(
  * Parser for the format
  * 1`days`1`hours`1`minutes`1`seconds`
  * (or any subset of that, so 4`minutes`5`seconds` would also be valid).
- * Also accepts a minus at the start for negative durations and spaces anywhere.
+ * Also accepts a minus at the start (with braces around the duration) for negative durations and spaces anywhere.
+ * So `-(1days1hours)` for negative durations.
  * @param days The pattern for days. Should only match what comes after the number of days.
  * @param hours The pattern for hours. Should only match what comes after the number of hours.
  * @param minutes The pattern for minutes. Should only match what comes after the number of minutes.
