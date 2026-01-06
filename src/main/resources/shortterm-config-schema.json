@@ -211,6 +211,21 @@
           "type": "string",
           "enum": ["SECONDS", "MINUTES", "HOURS", "DAYS"],
           "$comment": "Theoretically the DurationUnit enum contains Nanoseconds and such, but they are pretty much nonsensical in the context of a simulation."
+        },
+        "simulationStart": {
+          "description": "The start of the simulation. Usually 0Seconds. Supported time format is days, hours, minutes and seconds. Anything like Days, days, D, d is allowed for the number of days. Example '2Days20Minutes' or '-(5D 20H 2M)...",
+          "type": "string",
+          "default": "0Seconds"
+        },
+        "simulationEnd": {
+          "description": "The end of the simulation. Usually 7Days. Supported time format is days, hours, minutes and seconds. Anything like Days, days, D, d is allowed for the number of days. Example '2Days20Minutes' or '-(5D 20H 2M)...",
+          "type": "string",
+          "default": "7Days"
+        },
+        "timeStep": {
+          "description": "The duration between simulation. Usually 1m. Supported time format is days, hours, minutes and seconds. Anything like Days, days, D, d is allowed for the number of days. Example '2Days20Minutes' or '-(5D 20H 2S)...",
+          "type": "string",
+          "default": "1Minutes"
         }
       },
       "default": {
