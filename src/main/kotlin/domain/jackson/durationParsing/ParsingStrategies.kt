@@ -45,14 +45,14 @@ val LowerCaseTimeStrategy get() = ParameterizedDurationParseStrategy(
  * ```
  * Parsed durations are added together, so `1d24h` will be the same as `2d`.
  */
-val ShortTimeStrategy get() = ParameterizedDurationParseStrategy(
+val LowerCaseShortTimeStrategy get() = ParameterizedDurationParseStrategy(
     "d".toRegex(),
     "h".toRegex(),
     "m".toRegex(),
     "s".toRegex()
 )
 
-val ShortUpperTimeStrategy get() = ParameterizedDurationParseStrategy(
+val ShortTimeStrategy get() = ParameterizedDurationParseStrategy(
     "D".toRegex(),
     "H".toRegex(),
     "M".toRegex(),

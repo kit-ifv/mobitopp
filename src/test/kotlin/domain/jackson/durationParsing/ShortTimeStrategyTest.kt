@@ -70,7 +70,7 @@ class ShortTimeStrategyTest {
 
     @Test
     fun shouldNotMatch() {
-        val strategy = ShortTimeStrategy
+        val strategy = LowerCaseShortTimeStrategy
 
         for (example in antiExamples) {
             assert(!strategy.supportsFormat(example))
@@ -79,7 +79,7 @@ class ShortTimeStrategyTest {
 
     @Test
     fun shouldParse() {
-        val strategy = ShortTimeStrategy
+        val strategy = LowerCaseShortTimeStrategy
 
         for (example in examples) {
             assert(strategy.supportsFormat(example.key)) { "Following string was not accepted ${example.key}" }
@@ -89,7 +89,7 @@ class ShortTimeStrategyTest {
 
     @Test
     fun negativeValues() {
-        val strategy = ShortTimeStrategy
+        val strategy = LowerCaseShortTimeStrategy
 
         for (example in examples) {
             assert(strategy.supportsFormat(example.key)) { "Following string was not accepted ${example.key}" }

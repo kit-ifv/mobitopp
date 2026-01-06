@@ -18,9 +18,9 @@ import kotlin.time.Duration
 class DurationParser(
     val strategies: List<DurationParseStrategy> = listOf(
         SimpleTimeStrategy,
-        ShortTimeStrategy,
+        LowerCaseShortTimeStrategy,
         LowerCaseTimeStrategy,
-        ShortUpperTimeStrategy
+        ShortTimeStrategy
     )
 ) {
 
