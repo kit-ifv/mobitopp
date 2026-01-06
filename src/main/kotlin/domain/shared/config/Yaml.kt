@@ -15,9 +15,9 @@ import domain.jackson.CoreChoiceModelModes
 import domain.jackson.CoreCodePlanModule
 import domain.jackson.CoreZoneMatrixCreationModule
 import domain.jackson.DestinationChoiceModule
+import domain.jackson.DurationModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
-import domain.jackson.DurationModule
 import java.nio.file.Path
 
 /**
