@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Kübler"
+  given-names: "Jelle"
+  orcid: "https://orcid.org/0000-0001-8095-1815"
+- family-names: "Andre"
+  given-names: "Robin"
+  orcid: "https://orcid.org/0009-0003-8717-6411"
+- family-names: "Ellmers"
+  given-names: "Jan"
+  orcid: "https://orcid.org/0009-0007-7402-715X"
+title: "mobitopp"
+version: 0.10
+doi: 10.5281/zenodo.1234
+date-released: 2026-01-20
+url: "https://github.com/kit-ifv/mobitopp"
