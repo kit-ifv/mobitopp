@@ -34,11 +34,6 @@ repositories {
     mavenCentral()
     maven { url = uri("https://repo.osgeo.org/repository/release") }
     maven { url = uri("https://repo.matsim.org/repository/matsim") }
-
-    //
-    //
-    //
-
 //    mavenLocal()
 
 }
