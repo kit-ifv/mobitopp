@@ -1,0 +1,50 @@
+E_SCOOTER:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $Cost_ES.mtx.bz2
+BIKESHARING:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $Cost_BS.mtx.bz2
+CAR:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $Cost_Car.mtx.bz2
+PASSENGER:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "0.0"
+BIKE:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "0.0"
+PEDESTRIAN:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "0.0"
+PUBLICTRANSPORT:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $Cost_PUT.mtx.bz2
+RIDE_POOLING:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $Cost_MOIA.mtx.bz2
+TAXI:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $Cost_Taxi_Offpeak.mtx.bz2
+    weekday:
+      7:00 to 10:00:
+        visum_matrix: $Cost_Taxi.mtx.bz2
+      16:00 to 19:00:
+        visum_matrix: $Cost_Taxi.mtx.bz2

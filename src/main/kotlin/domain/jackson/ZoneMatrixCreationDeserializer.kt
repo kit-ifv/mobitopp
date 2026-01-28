@@ -8,7 +8,7 @@ import domain.shared.datastructure.matrix.ZoneMatrixCreation
  * Module for deserialization of ZoneMatrixCreation methods.
  */
 val CoreZoneMatrixCreationModule = GenericKeyValueBuilder(
-    ZoneMatrixCreation::class.java,
+    javaType(ZoneMatrixCreation::class.java),
     /* Register mappings here, to make them available in yaml configs.*/
     mapOf(
         "visum" to VisumMatrixCreator,
