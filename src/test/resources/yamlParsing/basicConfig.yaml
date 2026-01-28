@@ -8,7 +8,9 @@ simulationContext:
   simulationSeed: 42
   dataFolder: "data"
   modes: "coreModes"
-
+  simulationStart: 0Days
+  simulationEnd: 500Days 20Hours 2Seconds
+  timeStep: 0d 8h 30m
 choiceModelModes: legacyChoiceModelModes
 destinationChoiceModel: legacyDestinationChoiceModel
 modeChoiceModel: legacyModeChoiceModel
