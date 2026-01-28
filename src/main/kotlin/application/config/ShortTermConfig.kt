@@ -1,21 +1,26 @@
 package application.config
 
+import application.config.subconfigs.BaseCSVFiles
+import application.config.subconfigs.MatrixConfig
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
+import domain.shared.enums.Mode
+import domain.shared.location.Location
+import domain.simulation.behavior.DestinationChoiceCharacteristics
+import domain.simulation.behavior.ModeChoiceCharacteristics
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
-data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
+data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     /* impedance*/
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
 
-    val costMatrixConfig: Path,
-    val durationMatrixConfig: Path,
-    val distanceMatrix: Path,
     // Robin: Caching is optional, if the end user doesn't want caches then they shouldn't be forced to specify this
     val cachePath: Path? = null,
     val zoneMatrixCreationMethod: ZoneMatrixCreation = KeyBasedMatrixCreation,
@@ -26,56 +31,27 @@ data class ShortTermConfig<MODECHOICEPARAMETERS, DESTINATIONCHOICEPARAMETERS>(
     val resultPath: Path = Path("results"),
 
     /*  paths to individual csv files   */
-    val personCSV: Path? = null,
-    val householdCSV: Path? = null,
-    val activityCSV: Path? = null,
-    val privateCarsCSV: Path? = null,
-    val fixedDestinationCSV: Path? = null,
-    val attractivitiesCSV: Path? = null,
-    val bikeSharingStationsCSV: Path? = null,
-    val zonesCSV: Path? = null,
-
-    /* repos*/
+    val sourceFiles: CSVFiles,
 
     /* ChoiceParameters */
-    val destinationChoiceParameterSet: DESTINATIONCHOICEPARAMETERS,
-    val modeChoiceParameterSet: MODECHOICEPARAMETERS,
-
-    /* vehicle sharing */
-    val sharingProviderName: String,
+    val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
 
 ) {
-
-    lateinit var matrixRepo: Path
+    lateinit var matrixConfig: MatrixConfig
     lateinit var resultName: String
-    lateinit var zoneRepo: Path
     lateinit var choiceModelModes: ChoiceModelModes
-    lateinit var vehicleCountColumn: String
 
     fun validate() {
         val paths = mutableListOf(
-            matrixRepo,
             simulationContext.dataFolder,
-            cachePath,
-            zoneRepo
+            cachePath
         )
-        if (costMatrixConfig.isAbsolute) {
-            paths.add(costMatrixConfig)
-        } else {
-            paths.add(matrixRepo.resolve(costMatrixConfig))
-        }
-        if (durationMatrixConfig.isAbsolute) {
-            paths.add(durationMatrixConfig)
-        } else {
-            paths.add(matrixRepo.resolve(durationMatrixConfig))
-        }
-        if (distanceMatrix.isAbsolute) {
-            paths.add(distanceMatrix)
-        } else {
-            paths.add(matrixRepo.resolve(distanceMatrix))
-        }
 
-        val nonExistantPaths = paths.filter { !(it?.exists() ?: true) }
-        require(nonExistantPaths.isEmpty()) { "The following paths are not existing: $nonExistantPaths" }
+        val nonExistentPaths =
+            paths.filter { !(it?.exists() ?: true) } +
+                matrixConfig.getNonexistentPaths() +
+                sourceFiles.getNonexistentPaths()
+        require(nonExistentPaths.isEmpty()) { "The following paths are not existing: $nonExistentPaths" }
     }
 }

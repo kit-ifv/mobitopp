@@ -1,0 +1,417 @@
+BIKE:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $traveltime/TT_Bike.bz2
+BIKESHARING:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $traveltime/TT_Bike.bz2
+PASSENGER:
+  all weeks:
+    weekday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23.TTC.bz2
+    saturday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01_SA.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03_SA.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05_SA.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07_SA.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09_SA.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11_SA.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13_SA.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15_SA.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17_SA.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19_SA.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21_SA.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23_SA.TTC.bz2
+    sunday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01_SU.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03_SU.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05_SU.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07_SU.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09_SU.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11_SU.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13_SU.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15_SU.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17_SU.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19_SU.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21_SU.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23_SU.TTC.bz2
+CAR:
+  all weeks:
+    weekday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23.TTC.bz2
+    saturday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01_SA.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03_SA.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05_SA.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07_SA.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09_SA.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11_SA.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13_SA.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15_SA.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17_SA.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19_SA.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21_SA.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23_SA.TTC.bz2
+    sunday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01_SU.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03_SU.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05_SU.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07_SU.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09_SU.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11_SU.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13_SU.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15_SU.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17_SU.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19_SU.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21_SU.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23_SU.TTC.bz2
+E_SCOOTER:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $traveltime/TT_Bike.bz2
+PEDESTRIAN:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $traveltime/TT_Ped.bz2
+PUBLICTRANSPORT:
+  all weeks:
+    weekday:
+      0:00 to 1:00:
+        visum_matrix: $traveltime/TT_PT_WD_0-0.RIT.bz2
+      1:00 to 2:00:
+        visum_matrix: $traveltime/TT_PT_WD_1-1.RIT.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/TT_PT_WD_2-3.RIT.bz2
+      4:00 to 5:00:
+        visum_matrix: $traveltime/TT_PT_WD_4-4.RIT.bz2
+      5:00 to 6:00:
+        visum_matrix: $traveltime/TT_PT_WD_5-5.RIT.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/TT_PT_WD_6-7.RIT.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/TT_PT_WD_8-9.RIT.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/TT_PT_WD_10-11.RIT.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/TT_PT_WD_12-13.RIT.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/TT_PT_WD_14-15.RIT.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/TT_PT_WD_16-17.RIT.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/TT_PT_WD_18-19.RIT.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/TT_PT_WD_20-21.RIT.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/TT_PT_WD_22-23.RIT.bz2
+    saturday:
+      0:00 to 1:00:
+        visum_matrix: $traveltime/TT_PT_SA_0-0.RIT.bz2
+      1:00 to 2:00:
+        visum_matrix: $traveltime/TT_PT_SA_1-1.RIT.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/TT_PT_SA_2-3.RIT.bz2
+      4:00 to 5:00:
+        visum_matrix: $traveltime/TT_PT_SA_4-4.RIT.bz2
+      5:00 to 6:00:
+        visum_matrix: $traveltime/TT_PT_SA_5-5.RIT.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/TT_PT_SA_6-7.RIT.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/TT_PT_SA_8-9.RIT.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/TT_PT_SA_10-11.RIT.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/TT_PT_SA_12-13.RIT.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/TT_PT_SA_14-15.RIT.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/TT_PT_SA_16-17.RIT.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/TT_PT_SA_18-19.RIT.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/TT_PT_SA_20-21.RIT.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/TT_PT_SA_22-23.RIT.bz2
+    sunday:
+      0:00 to 1:00:
+        visum_matrix: $traveltime/TT_PT_SO_0-0.RIT.bz2
+      1:00 to 2:00:
+        visum_matrix: $traveltime/TT_PT_SO_1-1.RIT.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/TT_PT_SO_2-3.RIT.bz2
+      4:00 to 5:00:
+        visum_matrix: $traveltime/TT_PT_SO_4-4.RIT.bz2
+      5:00 to 6:00:
+        visum_matrix: $traveltime/TT_PT_SO_5-5.RIT.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/TT_PT_SO_6-7.RIT.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/TT_PT_SO_8-9.RIT.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/TT_PT_SO_10-11.RIT.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/TT_PT_SO_12-13.RIT.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/TT_PT_SO_14-15.RIT.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/TT_PT_SO_16-17.RIT.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/TT_PT_SO_18-19.RIT.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/TT_PT_SO_20-21.RIT.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/TT_PT_SO_22-23.RIT.bz2
+RIDE_POOLING:
+  all weeks:
+    weekday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23.TTC.bz2
+    saturday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01_SA.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03_SA.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05_SA.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07_SA.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09_SA.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11_SA.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13_SA.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15_SA.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17_SA.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19_SA.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21_SA.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23_SA.TTC.bz2
+    sunday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01_SU.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03_SU.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05_SU.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07_SU.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09_SU.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11_SU.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13_SU.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15_SU.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17_SU.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19_SU.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21_SU.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23_SU.TTC.bz2
+TAXI:
+  all weeks:
+    weekday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23.TTC.bz2
+    saturday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01_SA.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03_SA.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05_SA.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07_SA.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09_SA.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11_SA.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13_SA.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15_SA.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17_SA.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19_SA.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21_SA.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23_SA.TTC.bz2
+    sunday:
+      0:00 to 2:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_00_01_SU.TTC.bz2
+      2:00 to 4:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_02_03_SU.TTC.bz2
+      4:00 to 6:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_04_05_SU.TTC.bz2
+      6:00 to 8:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_06_07_SU.TTC.bz2
+      8:00 to 10:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_08_09_SU.TTC.bz2
+      10:00 to 12:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_10_11_SU.TTC.bz2
+      12:00 to 14:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_12_13_SU.TTC.bz2
+      14:00 to 16:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_14_15_SU.TTC.bz2
+      16:00 to 18:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_16_17_SU.TTC.bz2
+      18:00 to 20:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_18_19_SU.TTC.bz2
+      20:00 to 22:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_20_21_SU.TTC.bz2
+      22:00 to 24:00:
+        visum_matrix: $traveltime/tt_transmove_net/tt_pkw_22_23_SU.TTC.bz2
