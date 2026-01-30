@@ -45,6 +45,7 @@ build-job:
   script:
     - ./gradlew compileJava
   artifacts:
+    expire_in: 1 week
     when: always
     paths:
       - build/
@@ -79,7 +80,7 @@ deploy-job:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-  needs: [ unit-test-job, version-number ]
+  needs: [ unit-test-job, version-number, build-job ]
   image: amazoncorretto:21
   resource_group: production #only one deploy job at a time
   script:
