@@ -2,7 +2,6 @@ package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.Signature
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.MinimalistHousehold
 import kotlin.math.abs
 import kotlin.math.min
 

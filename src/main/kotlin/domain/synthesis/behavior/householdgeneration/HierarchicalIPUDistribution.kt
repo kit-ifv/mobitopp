@@ -1,10 +1,9 @@
 package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.Signature
-import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.RawSurveyInfo
 
-class HierarchicalIPUDistribution<AREA, H >(
+class HierarchicalIPUDistribution<AREA, H>(
     override val ruleProvider: HierarchicalRuleProvider<AREA, H>,
     val config: NewAlgorithmConfig,
     val seedHouseholds: Collection<H>,
