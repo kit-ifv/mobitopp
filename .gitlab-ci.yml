@@ -106,7 +106,7 @@ git-version-tag:
     - git status
     - git tag "v$RELEASE_VERSION"
     - git push origin "v$RELEASE_VERSION"
-  
+
 
 # Keep for first public release of reengineered mobitopp
 #minor-release-job:
