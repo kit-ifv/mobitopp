@@ -118,7 +118,7 @@ fun <T> List<Rule<ISurveyHousehold<out T>>>.toSignature(household: ISurveyHouseh
     }.filter { it.second != 0 }.toMap()
 }
 
-fun <T, H : MinimalistHousehold<out T>> List<NamedCountRule<H>>.toSignatureNamed(household: H): Signature {
+fun <H> List<NamedCountRule<H>>.toSignatureNamed(household: H): Signature {
     return withIndex().map { (index, rule) ->
         index to rule.matches(household)
     }.filter { it.second != 0 }.toMap()

@@ -2,7 +2,7 @@ package domain.synthesis.behavior.householdgeneration
 
 import domain.synthesis.behavior.MinimalistHousehold
 
-class NewDistributor<RULES, AREA, H : MinimalistHousehold<out RULES>>(
+class NewDistributor<RULES, AREA, H>(
     val initialDistribution: InitialSignatureDistributor = GreedyAmountDistro(),
     val ruleProvider: HierarchicalRuleProvider<AREA, H>,
     val config: NewAlgorithmConfig,
