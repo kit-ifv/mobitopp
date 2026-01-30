@@ -3,7 +3,7 @@
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-  needs: [ build-job ]
+  needs: [ ]
 
 test-restatt:
   extends: .subproject-test-template
@@ -75,7 +75,9 @@ update-next-release-version:
       optional: true
     - job: version-number
     - job: deploy-job
-  image: bash:5.3.9
+  image:
+    name: registry.gitlab.com/gitlab-ci-utils/curl-jq:4.0.1
+    entrypoint: [ "" ]
   script:
     - echo "Updating version number for next release"
     - |
