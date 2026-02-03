@@ -172,9 +172,9 @@ interface Activity : StationaryAction {
             location: Location,
             startTime: AbsoluteTime,
             duration: Duration,
-            earliestStartTime: AbsoluteTime,
-            latestEndTime: AbsoluteTime,
-            activityType: ActivityType = ActivityType.UNKNOWN,
+            earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
+            latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
+            type: ActivityType = ActivityType.UNKNOWN,
         ): Activity {
             return RawActivity(
                 location = location,
@@ -182,17 +182,8 @@ interface Activity : StationaryAction {
                 endTime = startTime + duration,
                 earliestStartTime = earliestStartTime,
                 latestEndTime = latestEndTime,
-                type = activityType
+                type = type
             )
-        }
-
-        fun fromDuration(
-            location: Location,
-            startTime: AbsoluteTime,
-            duration: Duration,
-            type: ActivityType = ActivityType.UNKNOWN,
-        ): Activity {
-            return fromDuration(location, startTime, duration, AbsoluteTime.MINUS_INFINITY, AbsoluteTime.INFINITY, type)
         }
     }
 }

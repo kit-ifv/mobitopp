@@ -116,7 +116,6 @@ fun interface Metric {
                     abs(exp - act) / abs(exp)
                 }
             }
-
             sum
 
         }

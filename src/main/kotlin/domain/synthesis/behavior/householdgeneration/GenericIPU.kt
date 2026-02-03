@@ -129,6 +129,22 @@ fun interface GenericIPU {
 
         }
 
+        val functionalTabooList = GenericIPU { vectors, observers ->
+
+            var counter = 0
+            while(counter < 1000) {
+                val observerCopy = observers.toMutableList()
+                while(observerCopy.isNotEmpty() && counter < 1000) {
+                    val best = observerCopy.maxBy { it.absoluteDifference }
+                    best.optimize()
+                    observerCopy.remove(best)
+                    counter++
+                }
+
+
+            }
+        }
+
         val aggressiveStomping = GenericIPU { vectors, observers ->
 
             var counter = 0

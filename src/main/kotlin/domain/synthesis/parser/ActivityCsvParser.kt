@@ -36,6 +36,7 @@ fun SynthesisContext.activityCsvParser(
         startTime = AbsoluteTime.Companion.START + row.int(columns.startColumn).toDuration(durationUnit) + shift
         duration = row.int(columns.durationColumn).toDuration(durationUnit)
         activityType = row.decode(columns.activityTypeColumn, activityTypes)
+
     }
 }
 

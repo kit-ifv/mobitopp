@@ -170,7 +170,7 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
 
     fun truncateMinutes() = AbsoluteTime(minutesSinceStart.minutes)
     fun truncateHours() = AbsoluteTime(hoursSinceStart.hours)
-
+    fun truncateDays() = AbsoluteTime(daysSinceStart.days)
     fun roundToMultipleOf(duration: Duration) =
         AbsoluteTime(
             duration * (secondsSinceStart.div(duration.inWholeSeconds)).toInt()
