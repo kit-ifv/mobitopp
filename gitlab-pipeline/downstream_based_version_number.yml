@@ -1,0 +1,113 @@
+.subproject-test-template:
+  stage: test
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  needs: [ ]
+
+test-restatt:
+  extends: .subproject-test-template
+  trigger:
+    project: kit/ifv/intern/mobitopp/mobitopp-restatt
+    branch: main
+    strategy: depend
+
+test-hamburg:
+  extends: .subproject-test-template
+  trigger:
+    project: kit/ifv/projekte/ALIKE
+    branch: implement-moia
+    strategy: depend
+
+test-kira:
+  extends: .subproject-test-template
+  trigger:
+    project: kit/ifv/projekte/KIRA
+    branch: main
+    strategy: depend
+
+include:
+  - component: $CI_SERVER_FQDN/zq6966/gitlabpipelinerepo/trigger-job-status@v1.0.8
+    inputs:
+      stage: deploy
+      job_name: collect_states
+      access_token: "$API_TOKEN"
+      trigger_job_names: [ test-restatt, test-hamburg, test-kira ]
+      target_variables: [ RESTATT_STATUS, HAMBURG_STATUS, KIRA_STATUS]
+    rules:
+      - if: $CI_COMMIT_BRANCH == "main"
+
+version-number:
+  stage: deploy
+  image: bash:5.3.9
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  needs:
+    - job: collect_states
+      optional: true
+  variables:
+    RELEASE_VERSION: "$MAJOR.$MINOR.$BUILD_NUMBER"
+    IS_MINOR_RELEASE: "false"
+  script:
+    - echo "Deducing version number from subproject success states."
+    - |
+      if [[ ("$HAMBURG_STATUS" != "success" && "$PREVIOUS_HAMBURG_STATUS" = "success") ||
+           ("$RESTATT_STATUS" != "success" && "$PREVIOUS_RESTATT_STATUS" = "success" ) ||
+           ("$KIRA_STATUS" != "success" && "$PREVIOUS_KIRA_STATUS" = "success") ]]; then
+        echo "Some project that previously worked is now broken. Creating minor release."
+        export RELEASE_VERSION="$MAJOR.$((MINOR + 1)).0"
+        export IS_MINOR_RELEASE="true"
+      fi
+    - echo "Version for this release is $RELEASE_VERSION"
+    - echo "RELEASE_VERSION=$RELEASE_VERSION" >> build.env
+    - echo "Is a Minor release - [$IS_MINOR_RELEASE]"
+    - echo "IS_MINOR_RELEASE=$IS_MINOR_RELEASE" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+update-next-release-version:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  needs:
+    - job: collect_states
+      optional: true
+    - job: version-number
+    - job: deploy-job
+  image:
+    name: registry.gitlab.com/gitlab-ci-utils/curl-jq:4.0.1
+    entrypoint: [ "" ]
+  script:
+    - echo "Updating version number for next release"
+    - |
+      if [[ "$IS_MINOR_RELEASE" = "true" ]]; then
+        export NEW_MINOR_NUMBER=$((MINOR + 1))
+        echo "Setting MINOR to $NEW_MINOR_NUMBER for next release."
+        curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=$NEW_MINOR_NUMBER" "$GITLAB_API_URL/MINOR"
+        echo "Setting BUILD_NUMBER to 1 for next release."
+        curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=1" "$GITLAB_API_URL/BUILD_NUMBER"
+      else 
+        export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
+        echo "Setting BUILD_NUMBER to $NEW_BUILD_NUMBER for next release"
+        curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
+      fi
+    - echo "Deploy was successful, updating the variables that store the state of the previous run of the subprojects."
+    - |
+      if [ "$RESTATT_STATUS" = "success" ]; then
+       curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=success" "$GITLAB_API_URL/PREVIOUS_RESTATT_STATUS"
+      else
+          curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=failure" "$GITLAB_API_URL/PREVIOUS_RESTATT_STATUS"
+      fi
+    - |
+      if [ "$KIRA_STATUS" = "success" ]; then
+       curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=success" "$GITLAB_API_URL/PREVIOUS_KIRA_STATUS"
+      else
+          curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=failure" "$GITLAB_API_URL/PREVIOUS_KIRA_STATUS"
+      fi
+    - |
+      if [ "$HAMBURG_STATUS" = "success" ]; then
+       curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=success" "$GITLAB_API_URL/PREVIOUS_HAMBURG_STATUS"
+      else
+          curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=failure" "$GITLAB_API_URL/PREVIOUS_HAMBURG_STATUS"
+      fi

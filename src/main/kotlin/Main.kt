@@ -2,37 +2,37 @@
 
 import application.config.ExampleProjectContext
 import application.config.ShortTermConfig
+import application.config.subconfigs.CoreCSVConfig
+import application.config.subconfigs.MatrixConfig
+import application.steps.model.AssignCarUserStep
+import application.steps.model.HomeLocationStep
 import application.steps.model.addDrtMemberships
-import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
 import application.steps.model.dummyDrtAlgorithm
 import application.steps.model.everyoneIsMember
-import application.steps.model.householdHomeLocation
+import application.steps.model.finishDrtProviders
 import application.steps.model.loadBehaviorModels
 import application.steps.model.newDrtProvider
 import application.steps.model.scaleFilter
 import application.steps.model.simulate
+import application.steps.parser.csv.activities
+import application.steps.parser.csv.activitiesCsvConfig
 import application.steps.parser.csv.assignFixedDestinations
-import application.steps.parser.csv.finishActivities
-import application.steps.parser.csv.finishHouseholds
-import application.steps.parser.csv.finishPersons
-import application.steps.parser.csv.finishPrivateCars
+import application.steps.parser.csv.finishZones
+import application.steps.parser.csv.households
+import application.steps.parser.csv.householdsFromCsvStep
 import application.steps.parser.csv.loadAttractivities
-import application.steps.parser.csv.loadZones
-import application.steps.parser.csv.prepareActivities
-import application.steps.parser.csv.prepareHouseholds
-import application.steps.parser.csv.preparePersons
-import application.steps.parser.csv.preparePrivateCars
+import application.steps.parser.csv.persons
+import application.steps.parser.csv.personsFromCsvStep
+import application.steps.parser.csv.prepareZones
+import application.steps.parser.csv.privateCars
+import application.steps.parser.csv.privateCarsFromCsvStep
 import application.steps.parser.loadImpedance
 import application.steps.parser.loadVisumNetwork
-import application.steps.results.addPlot
 import core.modelsteps.Simulation
-import core.results.plots.asLinePlot
-import core.results.plots.data.Ordering
-import core.results.plots.forData
-import core.results.plots.modeStringColor
 import domain.shared.config.Yaml
 import domain.shared.datastructure.matrix.VisumMatrixCreator
+import domain.shared.datastructure.matrix.optionalCachedMatrixCreator
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.MainModes
@@ -46,7 +46,6 @@ import domain.simulation.behavior.legacyDestinationChoiceBuilder
 import domain.simulation.behavior.legacyModeChoiceBuilder
 import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
-import domain.simulation.results.personLegs
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.parser.NoActivityStartShifter
 import edu.kit.ifv.units.meters
@@ -54,22 +53,18 @@ import edu.kit.ifv.units.share
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
-import kotlin.time.Duration.Companion.minutes
 
-val visum_network = Path("src/test/resources/rastatt.net")
+val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
+val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 val standardConfig = ShortTermConfig(
     visumNetwork = visum_network,
-    fractionOfPopulation = 1.0,
+    fractionOfPopulation = 0.2,
 
-    costMatrixConfig = Path("cost-matrix-configuration_transmove_turbo.yaml"),
-    durationMatrixConfig = Path("time-matrix-configuration_transmove_turbo.yaml"),
-    distanceMatrix = Path("DIS_Car.mtx.bz2"),
-    cachePath = Path("data/data-cache"),
     zoneMatrixCreationMethod = VisumMatrixCreator,
     simulationContext = ExampleProjectContext(
         scenarioName = "MobitoppReengineeringMain",
-        dataFolder = Path("src/test/resources/testDemand/demand-data/"),
+        dataFolder = dataFolder,
         modes = MainModes,
         simulationSeed = 42,
         regionTypeCodes = RegioStaR17
@@ -77,103 +72,103 @@ val standardConfig = ShortTermConfig(
     errorHandling = ErrorHandling.WARNING,
     resultPath = Path("results"),
 
-    destinationChoiceParameterSet = DestinationChoiceParameters(),
-    modeChoiceParameterSet = ModeChoiceParameters(),
+    destinationChoiceModel = legacyDestinationChoiceBuilder.build(DestinationChoiceParameters()),
+    modeChoiceModel = legacyModeChoiceBuilder.build(ModeChoiceParameters()),
 
-    sharingProviderName = "",
-
-    attractivitiesCSV = attractivities,
+    sourceFiles = CoreCSVConfig(
+        dataRepo = dataFolder,
+        zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
+        attractivitiesCSV = attractivities,
+    ),
 ).apply {
-    matrixRepo = Path(ROOT_MTX)
+    matrixConfig = MatrixConfig(matrixRepo = Path("src/test/resources/test_matrix"))
     resultName = "mobitopp-main.csv"
-    zoneRepo = Path("src/test/resources/testDemand/zone-repository/")
-    vehicleCountColumn = ""
     choiceModelModes = legacyChoiceModelModes
 }
 
 @Suppress("LongMethod")
 fun main(args: Array<String>) {
-    val shortTermConfig: ShortTermConfig<ModeChoiceParameters, DestinationChoiceParameters> =
+    val shortTermConfig: ShortTermConfig<CoreCSVConfig> =
         args.firstOrNull()?.let { Yaml.readYaml(it) } ?: standardConfig
 
     shortTermConfig.validate()
     Simulation {
         shortTermConfig.simulationContext
     }.steps {
-        loadZones()
-        loadVisumNetwork(shortTermConfig.visumNetwork ?: visum_network)
+        loadVisumNetwork(
+            shortTermConfig.visumNetwork ?: visum_network
+        ) {
+            connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
+        }
 
         val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
 
-        prepareHouseholds(
-            path = shortTermConfig.householdCSV ?: defaultHouseholdPath,
-            filter = { filter(it) }
-        )
-
-        householdHomeLocation(
-            AssignAroundZoneCentroid(50.meters)
-        )
-
-//        scalePopulation(0.1.share())
+        prepareZones(shortTermConfig.sourceFiles.zonesCSV, errorHandling = shortTermConfig.errorHandling)
+        finishZones()
+        households {
+            source = householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
+            ) {
+                errorHandling = shortTermConfig.errorHandling
+                this.filter = { filter(it) }
+            }.optionalCache(shortTermConfig.cachePath)
+            +HomeLocationStep(
+                this@steps,
+                AssignAroundZoneCentroid(50.meters)
+            )
+        }
 
         newDrtProvider {
             name = "DummyDrt"
             mode = LegacyMode.RIDE_POOLING
         }
-
-        finishHouseholds()
-
-        preparePersons(
-            path = shortTermConfig.personCSV ?: defaultPersonPath,
-        )
         addDrtMemberships(everyoneIsMember)
+        finishDrtProviders()
 
-        preparePrivateCars(
-            path = shortTermConfig.privateCarsCSV ?: defaultCarPath,
-        )
+        persons {
+            source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV) {
+                errorHandling = shortTermConfig.errorHandling
+            }.optionalCache(shortTermConfig.cachePath)
+        }
 
-        assignCarUsers()
-        finishPrivateCars()
+        privateCars {
+            source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV) {
+                errorHandling = shortTermConfig.errorHandling
+            }.optionalCache(shortTermConfig.cachePath)
+            AssignCarUserStep(this@steps)
+        }
 
-        prepareActivities(
-            path = shortTermConfig.activityCSV ?: defaultActivityPath,
-            errorHandling = ErrorHandling.WARNING,
-            shiftActivityStart = NoActivityStartShifter
-        )
-
-        finishActivities()
-        finishPersons()
+        activities {
+            source = activitiesCsvConfig(path = shortTermConfig.sourceFiles.activityCSV) {
+                errorHandling = shortTermConfig.errorHandling
+                shiftActivityStart = NoActivityStartShifter
+            }.optionalCache(shortTermConfig.cachePath)
+        }
 
         loadAttractivities(
-            path = shortTermConfig.attractivitiesCSV ?: attractivities,
+            path = shortTermConfig.sourceFiles.attractivitiesCSV,
             purposes = legacyChoiceModelPurposes,
         )
 
         loadImpedance(
-            costMatrixConfig = if (shortTermConfig.costMatrixConfig.isAbsolute) {
-                shortTermConfig.costMatrixConfig
-            } else {
-                shortTermConfig.matrixRepo.resolve(shortTermConfig.costMatrixConfig)
-            },
-            durationMatrixConfig = if (shortTermConfig.durationMatrixConfig.isAbsolute) {
-                shortTermConfig.durationMatrixConfig
-            } else {
-                shortTermConfig.matrixRepo.resolve(shortTermConfig.durationMatrixConfig)
-            },
-            distanceMatrix = if (shortTermConfig.distanceMatrix.isAbsolute) {
-                shortTermConfig.distanceMatrix
-            } else {
-                shortTermConfig.matrixRepo.resolve(shortTermConfig.distanceMatrix)
-            },
+            costMatrixConfig = shortTermConfig.matrixConfig.costMatrixConfig,
+            durationMatrixConfig = shortTermConfig.matrixConfig.durationMatrixConfig,
+            distanceMatrix = shortTermConfig.matrixConfig.distanceMatrix,
+            matrixCreator = optionalCachedMatrixCreator(
+                shortTermConfig.cachePath,
+                shortTermConfig.zoneMatrixCreationMethod
+            )
         )
 
         loadBehaviorModels(
-            legacyDestinationChoiceBuilder.build(shortTermConfig.destinationChoiceParameterSet),
-            legacyModeChoiceBuilder.build(shortTermConfig.modeChoiceParameterSet),
+            shortTermConfig.destinationChoiceModel,
+            shortTermConfig.modeChoiceModel,
             shortTermConfig.choiceModelModes
         )
 
-        assignFixedDestinations(homeActivity = LegacyActivityType.HOME)
+        assignFixedDestinations(
+            path = shortTermConfig.sourceFiles.fixedDestinationCSV,
+            homeActivity = LegacyActivityType.HOME
+        )
 
         buildAgents(
             personStateMachine,
@@ -185,22 +180,5 @@ fun main(args: Array<String>) {
         )
 
         simulate()
-
-        addPlot {
-            forData {
-                personLegs
-            }.groupBy {
-                it.leg.transportType
-            }.count {
-                it.leg.startTime.roundToMultipleOf(5.minutes)
-            }.sortX {
-                Ordering.Ascending()
-            }.asLinePlot {
-                name = "timeline by mode"
-                xAxisLabel = "time"
-                yAxisLabel = "trip count"
-                coloring = { modeStringColor(it.description) }
-            }
-        }
     }
 }

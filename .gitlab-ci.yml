@@ -22,15 +22,22 @@
 # PUBLIC_REPO_URL: repository url for hosting public artifacts: major-release-job, minor-release-job
 # PUBLIC_REPO_USERNAME: username for publishing to public artifact repository: major-release-job, minor-release-job
 # PUBLIC_REPO_PASSWORD: password for publishing to public artifact repository: major-release-job, minor-release-job
+#
+# PREVIOUS_HAMBURG_STATUS status of ALIKE-DEV build with the last release of reengineering
+# PREVIOUS_RESTATT_STATUS status of mobitopp-REstatt build with the last release of reengineering
+# PREVIOUS_KIRA_STATUS status of KIRA build with the last release of reengineering
 
 variables:
-  BUILD_VERSION: "$MAJOR.$MINOR.$BUILD_NUMBER"
+  MOBITOPP_COMMIT_HASH: $CI_COMMIT_SHA
 
 stages: # List of stages for jobs, and their order of execution
   - build
   - test
   - deploy
 
+include:
+  # trigger downstream projects and create version number
+  - local: gitlab-pipeline/downstream_based_version_number.yml
 
 build-job:
   stage: build
@@ -38,6 +45,7 @@ build-job:
   script:
     - ./gradlew compileJava
   artifacts:
+    expire_in: 1 week
     when: always
     paths:
       - build/
@@ -45,7 +53,7 @@ build-job:
 unit-test-job:
   stage: test
   image: amazoncorretto:21
-  needs: ["build-job"]
+  needs: [ build-job ]
   script:
     - ./gradlew test koverXmlReport koverLog
   artifacts:
@@ -60,20 +68,9 @@ unit-test-job:
       - build/reports/kover/*
   coverage: "/application line coverage: ([0-9]+\\.?[0-9]*)%/"
 
-regression-test-job:
-  stage: test
-  needs: [ "unit-test-job" ]
-  only:
-    - main
-    # - dev # disable while gitlab runner has not enough ram for regression tests
-  trigger:
-    project: kit/ifv/intern/mobitopp/mobitopp-restatt
-    branch: main
-    strategy: depend
-
 code-style:
   stage: test
-  needs: ["build-job"]
+  needs: [ build-job ]
   image: amazoncorretto:21
   script:
     - ./gradlew detektGenerateConfig
@@ -81,30 +78,41 @@ code-style:
 
 deploy-job:
   stage: deploy
-  only:
-    - main
-  needs: [ "unit-test-job" ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  needs: [ unit-test-job, version-number, build-job ]
   image: amazoncorretto:21
   resource_group: production #only one deploy job at a time
   script:
-    - echo "Publish local release $BUILD_VERSION"
+    - echo "Publish local release $RELEASE_VERSION"
     - |
-      ./gradlew publish -PbuildVersion=$BUILD_VERSION \
+      ./gradlew publish -PbuildVersion=$RELEASE_VERSION \
       -PdoPublish=true \
       -PisRelease=false \
       -PlocalUrl=$LOCAL_REPO_URL \
       -PlocalRepoUser=$LOCAL_REPO_USERNAME \
       -PlocalRepoPassword=$LOCAL_REPO_PASSWORD
-    - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
-    - echo "Update BUILD_NUMBER to $NEW_BUILD_NUMBER"
-    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
+
+git-version-tag:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  stage: deploy
+  needs: [ deploy-job, version-number ]
+  image:
+    name: alpine/git:v2.49.1 #need git
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - echo "Setting tag v$RELEASE_VERSION on gitlab."
+    - git status
+    - git tag "v$RELEASE_VERSION"
+    - git push origin "v$RELEASE_VERSION"
 
 
 # Keep for first public release of reengineered mobitopp
 #minor-release-job:
 #  stage: deploy
-#  only:
-#    - main
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == "main"
 #  when: manual
 #  image: amazoncorretto:21
 #  resource_group: production #only one deploy job at a time
@@ -125,8 +133,8 @@ deploy-job:
 #
 #major-release-job:
 #  stage: deploy
-#  only:
-#    - main
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == "main"
 #  when: manual
 #  image: amazoncorretto:21
 #  resource_group: production #only one deploy job at a time

@@ -33,6 +33,7 @@ fun interface GenerateModeCharacteristics<out T> {
         origin: Location,
         destination: Location,
         currentChoices: Collection<Mode>,
+        custom: Any?
     ): T
 }
 
@@ -50,7 +51,7 @@ val StandardDestinationImplementation =
 
 val StandardModeImplementation =
     GenerateModeCharacteristics<ModeChoiceCharacteristics> {
-            person, time, behavior, origin, destination, currentChoices ->
+            person, time, behavior, origin, destination, currentChoices, custom ->
         ModeChoiceCharacteristics(
             person,
             time,
@@ -58,6 +59,7 @@ val StandardModeImplementation =
             destination,
             behavior.impedance,
             currentChoices,
+            custom
         )
     }
 

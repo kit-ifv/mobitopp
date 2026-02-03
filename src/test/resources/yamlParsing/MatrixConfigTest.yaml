@@ -1,0 +1,7 @@
+- matrixRepo: a
+- matrixRepo: b
+- matrixRepo: c
+  durationMatrixConfig: b
+- costMatrixConfig: e
+  durationMatrixConfig: f
+  distanceMatrix: g

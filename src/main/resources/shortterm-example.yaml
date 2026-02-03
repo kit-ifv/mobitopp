@@ -1,10 +1,26 @@
+visumNetwork: src/test/resources/synthesis/leopoldshafen.net
+fractionOfPopulation: 0.2
+zoneMatrixCreationMethod: visum
+simulationContext:
+  scenarioName: "MobitoppReengineeringMainYaml"
+  simulationSeed: 42
+  dataFolder: src/test/resources/testDemand/demand-data/
+  modes: mainModes
+  regionTypeCodes: coreRegionType
 
-scenarioName: "exampleSTM"
-seed: 42
-dataFolder: "//ifv-fs/Forschung/Projekte_intern/mobitopp/Output/logiktram_rastatt_long-term-module/rastatt"
-fractionOfPopulation: 1.0
-visumNetwork: "src/test/resources/rastatt.net"
-attractivitiesFile: "data/attractivities.csv"
-costMatrixConfigPath: "C:/Users/fi7528/Desktop/HamburgMatrices/cost-matrix-configuration_transmove_turbo.yaml"
-durationMatrixConfigPath: "C:/Users/fi7528/Desktop/HamburgMatrices/time-matrix-configuration_transmove_turbo.yaml"
-distanceMatrixPath: "C:/Users/fi7528/Desktop/HamburgMatrices/DIS_Car.mtx.bz2"
+matrixConfig:
+  matrixRepo: src/test/resources/test_matrix/
+
+sourceFiles:
+  zoneRepo: src/test/resources/testDemand/zone-repository/
+  dataRepo: src/test/resources/testDemand/demand-data/
+  attractivitiesCSV: data/attractivities.csv
+
+resultPath: results
+resultName: mobitopp-main.csv
+errorHandling: WARNING
+
+
+destinationChoiceModel: legacyDestinationChoiceModel
+modeChoiceModel: legacyModeChoiceModel
+choiceModelModes: legacyChoiceModelModes

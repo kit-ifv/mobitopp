@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
+import domain.shared.enums.MainModes
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
@@ -137,6 +138,7 @@ class CoreCodePlans : CodePlanSurrogateProvider {
 
     init {
         registry["coreModes"] = CoreModeSurrogate::class.java
+        registry["mainModes"] = MainModeSurrogate::class.java
         registry["coreRegionType"] = CoreRegionTypeSurrogate::class.java
         registry["coreSexCodes"] = CoreSexSurrogate::class.java
         registry["coreGraduationCodes"] = CoreGraduationSurrogate::class.java
@@ -169,6 +171,12 @@ class CoreRegionTypeSurrogate : RegionTypeSurrogate() {
 class CoreModeSurrogate : ModeSurrogate() {
     override fun resolve(): CodePlan<Mode> {
         return LegacyMode.Companion
+    }
+}
+
+class MainModeSurrogate : ModeSurrogate() {
+    override fun resolve(): CodePlan<Mode> {
+        return MainModes
     }
 }
 
