@@ -89,6 +89,7 @@ class ActiToppNGGenerator(
         return when (this) {
             Sex.MALE -> Gender.MALE
             Sex.FEMALE -> Gender.FEMALE
+            Sex.UNKNOWN -> Gender.FEMALE // TODO cros check so that this case can be handled
         }
     }
 

@@ -4,12 +4,12 @@ import kotlin.time.measureTime
 
 class FMRun(
     val amountOfPasses: Int = 100,
-    val amountStrategy: (Moved) -> Int,
+    val amountStrategy: (Move) -> Int,
 ) : Refinement {
 
     fun refreshRound(
         partitions: List<TempPartition>,
-        buckets: BucketList<Moved>,
+        buckets: BucketList<Move>,
         bestTargetTracker: BestTargetTracker
     ) {
         buckets.clear()
@@ -26,7 +26,7 @@ class FMRun(
 
     @Suppress("LoopWithTooManyJumpStatements")
     fun runIteration(
-        buckets: BucketList<Moved>,
+        buckets: BucketList<Move>,
         recalculator: MoveRecalculator,
         bestTargetTracker: BestTargetTracker
     ) {
@@ -57,14 +57,14 @@ class FMRun(
     }
 
     override fun refine(partitions: List<Partition>) {
-        val maxGain = partitions.first().signatures.largestDifference
-        require(partitions.all { it.signatures === partitions.first().signatures }) {
+        val maxGain = partitions.first().signatureTracker.largestDifference
+        require(partitions.all { it.signatureTracker === partitions.first().signatureTracker }) {
             "How did we get here, they should all have the same signature tracker"
         }
-        val buckets = BucketList<Moved>(maxGain)
+        val buckets = BucketList<Move>(maxGain)
 
-        val updater = prepSignatures(
-            partitions.first().signatures,
+        val updater = AttributeUpdater.fromSignatureTracker(
+            partitions.first().signatureTracker,
             partitions.first().attributeSize
         )
 
@@ -79,7 +79,7 @@ class FMRun(
         val bestTargetTracker =
             BestTargetTracker(otherPartitions)
 
-        val recalculator = MoveRecalculator(otherPartitions, maxGain, bestTargetTracker)
+        val recalculator = MoveRecalculator(bestTargetTracker)
         otherPartitions.forEach {
             it.initialize(bestTargetTracker)
         }

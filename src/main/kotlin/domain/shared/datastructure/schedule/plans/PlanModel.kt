@@ -7,6 +7,7 @@ import domain.shared.datastructure.schedule.Leg
 import domain.shared.datastructure.schedule.LinkedAction
 import domain.shared.datastructure.schedule.LinkedActivity
 import domain.shared.datastructure.schedule.LinkedLeg
+import domain.shared.datastructure.schedule.isConsistent
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
 
@@ -50,7 +51,7 @@ interface PlanModel : LegTracker, ActivityTracker {
 
     fun dropUntil(activity: Activity)
 }
-
+fun PlanModel.isConsistent() = actions().isConsistent()
 interface SeparablePlanModel : PlanModel {
 
     fun activities(): Collection<LinkedActivity>
@@ -62,15 +63,18 @@ interface SeparablePlanModel : PlanModel {
 
     fun nextBlock(): ActionBlock<*>?
 }
-
+fun Collection<Action>.requiredOffsets(startTime: AbsoluteTime): List<Duration> {
+    var totalShift = startTime
+    val requiredShifts = map {
+        val elementOffset = totalShift - it.startTime
+        totalShift += it.duration
+        elementOffset
+    }
+    return requiredShifts
+}
 fun PlanModel.squeeze(from: AbsoluteTime, to: AbsoluteTime, force: Boolean = false) {
     val afterAction = actions().dropWhile { it.endTime <= from }
-    var counter = to
-    val requiredShift = afterAction.map {
-        val offset = counter - it.startTime
-        counter += it.duration
-        offset
-    }
+    val requiredShift = afterAction.requiredOffsets(to)
     val targets = afterAction.zip(requiredShift).filter { it.second > Duration.ZERO }
     val valid = targets.all { (action, shift) ->
         (action.latestEndTime) >= action.endTime + shift &&

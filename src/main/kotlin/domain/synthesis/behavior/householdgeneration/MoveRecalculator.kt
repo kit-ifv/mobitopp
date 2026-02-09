@@ -1,12 +1,13 @@
 package domain.synthesis.behavior.householdgeneration
 
 class MoveRecalculator(
-    val partitions: List<TempPartition>,
-    val maxGain: Int,
     val bestTargetTracker: BestTargetTracker
 ) {
-
-    fun recalculate(buckets: BucketList<Moved>, dirtyMoves: Collection<Moved>) {
+    /**
+     * Updates dirty moves by removing them from the bucketlist and readding them based on the gain. Checks in the
+     * best target tracker what the best target partition is.
+     */
+    fun recalculate(buckets: BucketList<Move>, dirtyMoves: Collection<Move>) {
         if (dirtyMoves.isEmpty()) return
 
         dirtyMoves.forEach {

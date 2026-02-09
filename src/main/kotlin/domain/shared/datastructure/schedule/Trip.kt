@@ -1,6 +1,7 @@
 package domain.shared.datastructure.schedule
 
 import domain.shared.datastructure.schedule.plans.IDispatcher
+import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
@@ -24,13 +25,13 @@ interface Trip {
     val origin get() = previousAction?.location ?: legs.firstOrNull()?.startLocation ?: LOCATIONUNKNOWN
     val destination get() = nextAction?.location ?: legs.lastOrNull()?.endLocation ?: LOCATIONUNKNOWN
 
-    fun alternate(lambda: TripBuilder.() -> Unit)
+    fun alternate(replanner: ReplanningStrategy = ReplanningStrategy.SHIFT, lambda: TripBuilder.() -> Unit)
 
     fun isConsistent() = (listOf(previousAction) + legs + nextAction).filterNotNull().isConsistent()
 }
 
-fun Trip.alternateByImpedance(impedance: Metrics, lambda: ImpedanceBuilder.() -> Unit) {
-    alternate {
+fun Trip.alternateByImpedance(impedance: Metrics, replanner: ReplanningStrategy, lambda: ImpedanceBuilder.() -> Unit) {
+    alternate(replanner) {
         byImpedance(impedance, lambda)
     }
 }
@@ -44,8 +45,8 @@ class RawTrip(
     override val nextAction: Activity?
 ) : Trip {
 
-    override fun alternate(lambda: TripBuilder.() -> Unit) {
-        val builder = TripBuilder(this)
+    override fun alternate(replanner: ReplanningStrategy, lambda: TripBuilder.() -> Unit) {
+        val builder = TripBuilder(this, replanner)
         builder.lambda()
         val target = builder.output()
         legs.clear()
@@ -75,10 +76,15 @@ class TripBuilder(
     val previousAction: StationaryAction?,
     val nextAction: StationaryAction?,
     val originals: List<MovingAction>,
-
+    val delayReplanningStrategy: ReplanningStrategy
 ) {
 
-    constructor(trip: Trip) : this(trip.previousAction, trip.nextAction, trip.legs)
+    constructor(trip: Trip, delayReplanningStrategy: ReplanningStrategy) : this(
+        trip.previousAction,
+        trip.nextAction,
+        trip.legs,
+        delayReplanningStrategy
+    )
 
     // The previous action could be null, however the assumption that a previous location exists still holds, so I can
     // request the promise that this value will be set eventually.
@@ -139,10 +145,10 @@ class TripBuilder(
  * link trip object is held someplace else, the changes only propagate into the models if the trip is actually a part
  * of the models.
  */
-class LinkTrip(
+class LinkTrip constructor(
     private val legBlock: LinkedTrip,
     private var dispatcher: IDispatcher?,
-    schedule: Schedule? = null,
+    private val schedule: Schedule? = null,
 ) : Trip, Comparable<LinkTrip>, Representative<LinkedLeg> {
     override val previousAction: StationaryAction? =
         schedule?.pastActivities()?.last() ?: legBlock.previous.lastElementOrNull()
@@ -166,15 +172,18 @@ class LinkTrip(
     val nextTrip: List<Leg>?
         get() = legBlock.next.next?.item?.toList()
     private val _nextAction get() = legBlock.next.firstElementOrNull()
-    override fun alternate(lambda: TripBuilder.() -> Unit) {
-        val builder = TripBuilder(previousAction, nextAction, legs)
+    override fun alternate(replanner: ReplanningStrategy, lambda: TripBuilder.() -> Unit) {
+        val builder = TripBuilder(previousAction, nextAction, legs, replanner)
         builder.lambda()
         val newLegs = builder.output()
         // TODO Robin: There should be a better way to force a trip into a block. Also Test this behaviour
         newLegs.lastOrNull()?.let { leg ->
-            _nextAction?.let {
-                if (it.startTime < leg.endTime) {
-                    it.shiftStartTo(leg.endTime)
+            _nextAction?.let { nextAction ->
+                if (nextAction.startTime < leg.endTime) {
+                    replanner.replan(schedule, leg.endTime, nextAction)
+                    require(nextAction.startTime >= leg.endTime) {
+                        "The rescheduling failed"
+                    }
                 }
             }
         }

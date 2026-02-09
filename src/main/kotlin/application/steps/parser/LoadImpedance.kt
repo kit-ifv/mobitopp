@@ -20,10 +20,12 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
+import edu.kit.ifv.units.meters
 import utils.units.Time
 import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
 @Suppress("LongParameterList")
@@ -108,6 +110,49 @@ private class LoadImpedanceStep(
     override fun mockBehavior(): Warning? = validateScope("Mock impedance data") {
         context.impedance.value = dummyImpedance
     }
+}
+
+fun DemandSimContext.loadTeleportation() = runStep {
+    LoadTeleportation(this)
+}
+
+class LoadTeleportation(
+    private val context: DemandSimContext,
+) : ModelStep {
+    override val name: String = "Teleportation as Transport"
+
+    override fun execute() {
+        context.impedance.value = Teleportation()
+    }
+
+    override fun verifyInput(): Warning? {
+        return null
+    }
+
+    override fun mockBehavior(): Warning? = validateScope("Moeck impedance data") {
+        context.impedance.value = dummyImpedance
+    }
+}
+
+class Teleportation : Metrics {
+
+    private val costMetric: CostMetric = CostMetric { _, _ ->
+        0.euros
+    }
+    private val durationMetric: DurationMetric = DurationMetric { _, _ ->
+        1.seconds
+    }
+    private val distancMetric: DistanceMetric = DistanceMetric { _, _ ->
+        1.meters
+    }
+    override fun costMetric(mode: Mode, time: Time): CostMetric = costMetric
+
+    override fun distanceMetric(mode: Mode): DistanceMetric = distancMetric
+
+    override fun durationMetric(
+        mode: Mode,
+        time: Time
+    ): DurationMetric = durationMetric
 }
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"

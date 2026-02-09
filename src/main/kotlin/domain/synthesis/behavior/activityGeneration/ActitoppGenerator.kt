@@ -12,7 +12,7 @@ fun Activity.Companion.fromTimes(start: AbsoluteTime, end: AbsoluteTime, type: A
         start <= end
     ) { "Cannot create activity where start time is larger than end time: [start=$start , end=$end]" }
 
-    return fromDuration(LOCATIONUNKNOWN, start, end - start, type)
+    return fromDuration(LOCATIONUNKNOWN, start, end - start, type = type)
 }
 
 fun Activity.Companion.fromTimes(start: Duration, end: Duration, type: ActivityType): Activity {

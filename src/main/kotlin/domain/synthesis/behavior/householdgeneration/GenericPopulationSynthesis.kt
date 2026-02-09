@@ -251,7 +251,7 @@ interface HierarchicalRuleProvider<AREA, H> : RuleProvider<AREA, H> {
     fun evaluate(output: Map<AREA, Collection<H>>): List<AreaIPUOutput<AREA>> {
         val ruleMapping = getAllRules()
         val ruleResults = ruleMapping.flatMap { (area, rules) ->
-            val subareas = listOf(area) + getAllDescendants(area)
+            val subareas = listOf(area) + (runCatching { getAllDescendants(area) }.getOrNull() ?: emptyList())
             if (subareas.any { it in output }) {
                 val currentHHs = subareas.flatMap {
                     output[it] ?: emptyList()

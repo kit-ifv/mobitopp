@@ -8,6 +8,7 @@ import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import kotlinx.serialization.Serializable
+import utils.Decodable
 import utils.Encodable
 import utils.EnumDecodable
 import utils.Identifiable
@@ -125,5 +126,19 @@ enum class HouseholdType(override val code: Int) : Encodable {
 
     override val description: String = name
 
-    companion object : EnumDecodable<HouseholdType>(HouseholdType::class)
+    companion object : Decodable<HouseholdType> {
+        private val mapping = HouseholdType.entries.associateBy(HouseholdType::code).toMutableMap()
+
+        private val toSet = HouseholdType.entries.toSet()
+        override fun values(): Set<HouseholdType> {
+            return toSet
+        }
+
+        override fun decode(i: Int): HouseholdType {
+            return mapping[i] ?: UNDEFINED.also {
+                println("Code $i is an undefined Household Type.")
+                mapping[i] = it // So that later occurences do not get printed
+            }
+        }
+    }
 }
