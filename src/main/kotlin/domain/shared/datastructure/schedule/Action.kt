@@ -1,6 +1,5 @@
 package domain.shared.datastructure.schedule
 
-import Mutable
 import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
