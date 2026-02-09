@@ -1,13 +1,12 @@
 package domain.synthesis.behavior.householdgeneration
 
-// : MinimalistHousehold<out RULES>
 class NewDistributor<RULES, AREA, H>(
-
+    val initialDistribution: InitialSignatureDistributor = GreedyAmountDistro(),
     val ruleProvider: HierarchicalRuleProvider<AREA, H>,
     val config: NewAlgorithmConfig,
 
 ) {
-    val initialDistribution: InitialSignatureDistributor = config.signatureDistributor
+
     fun distribute(
         parentRuleset: List<Rule<H>>,
         targetAmounts: Collection<SignatureAmount>,
