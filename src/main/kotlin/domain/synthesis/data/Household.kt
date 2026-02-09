@@ -13,7 +13,6 @@ import utils.Encodable
 import utils.EnumDecodable
 import utils.Identifiable
 import utils.random.StochasticActor
-import utils.units.HOURS_PER_DAY
 import java.io.DataOutputStream
 import kotlin.random.Random
 
@@ -130,9 +129,8 @@ enum class HouseholdType(override val code: Int) : Encodable {
     companion object : Decodable<HouseholdType> {
         private val mapping = HouseholdType.entries.associateBy(HouseholdType::code).toMutableMap()
 
-        private val  toSet = HouseholdType.entries.toSet()
+        private val toSet = HouseholdType.entries.toSet()
         override fun values(): Set<HouseholdType> {
-
             return toSet
         }
 
@@ -141,9 +139,6 @@ enum class HouseholdType(override val code: Int) : Encodable {
                 println("Code $i is an undefined Household Type.")
                 mapping[i] = it // So that later occurences do not get printed
             }
-
-
         }
-
     }
 }

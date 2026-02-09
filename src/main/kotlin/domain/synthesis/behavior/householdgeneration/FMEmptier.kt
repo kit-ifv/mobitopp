@@ -4,11 +4,9 @@ import utils.scaleToInts
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-
 fun <T> MutableList<T>.cyclicAccessor(): CyclicAccessor<T> {
     return CyclicAccessor(this)
 }
-
 
 class CyclicAccessor<T>(private val list: MutableList<T>) {
     private var index = 0
@@ -54,7 +52,6 @@ class FMEmptier(
         val maxGain1 = signatureAmounts.maxOf { it.signature.values.sum() }
 
         val otherPartitions = partitions.map {
-
             ReceiverPartition(
                 it,
                 updater,
@@ -64,7 +61,6 @@ class FMEmptier(
             )
         }
         senderPartition.emptyElements().forEach {
-
             senderPartition.activeSignatures[it.first.index] = false
             otherPartitions.forEach { otherPartition ->
                 otherPartition.kill(it.first)
@@ -89,15 +85,12 @@ class FMEmptier(
                 }
             }
         }
-        if(emplaceUndesireds) {
+        if (emplaceUndesireds) {
             emplaceDead(
                 senderPartition,
                 otherPartitions
             )
         }
-
-
-
     }
 
     fun emplaceDead(
@@ -121,17 +114,12 @@ class FMEmptier(
                     rec.delta(sig, amnt)
                     sender.operativeDelta(sig, -amnt)
                 }
-
         }
-
-
-
     }
 
     fun scaleDistribution(distribution: Collection<Double>, total: Int): List<Int> {
         return distribution.scaleToInts(total)
     }
-
 
     fun createFakePartition(elements: Collection<SignatureAmount>, copyPartition: Partition): Partition {
         val signatureTracker: SignatureTracker = copyPartition.signatureTracker
@@ -150,7 +138,6 @@ class FMEmptier(
         recalculator: UnidirectionalRecalculator,
         bestTargetTracker: BestTargetTracker,
     ) {
-
         val performedMoves = mutableListOf<Move>()
         while (true) {
             val (element, gain) = buckets.popBest() ?: break
@@ -196,7 +183,6 @@ class UnidirectionalRecalculator(
         dirtyMoves.filter { !it.isEmpty && !it.isLocked }.forEach {
             buckets.update(it, it.gain)
         }
-
     }
 }
 
@@ -228,7 +214,6 @@ class UnidirectionalBestTargetTracker(
         }
     }
 
-
     fun isBest(sigIdx: Int, partition: TempPartition): Boolean {
         return signatureBuckets[sigIdx].isBest(partition)
     }
@@ -247,5 +232,4 @@ class UnidirectionalBestTargetTracker(
             bucket.update(tempPartition, tempPartition.getGain(i))
         }
     }
-
 }

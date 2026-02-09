@@ -101,78 +101,72 @@ fun interface GenericIPU {
         val tabooList = GenericIPU { vectors, observers ->
 
             var counter = 0
-            while(counter < 1000) {
+            while (counter < 1000) {
                 val observerCopy = observers.toMutableList()
-                while(observerCopy.isNotEmpty() && counter < 1000) {
+                while (observerCopy.isNotEmpty() && counter < 1000) {
                     val best = observers.maxBy { it.absoluteDifference }
                     best.optimize()
                     observerCopy.remove(best)
                     counter++
                 }
-
-
             }
         }
         val limitOptimization = GenericIPU { vectors, observers ->
             val indexedObservers = observers.withIndex().toMutableList()
             val counters = indexedObservers.map { 100 }.toIntArray()
-            while(indexedObservers.size >= 2) {
+            while (indexedObservers.size >= 2) {
                 val target = indexedObservers.maxBy { (i, observer) -> observer.absoluteDifference }
                 val (idx, candidate) = target
                 candidate.optimize()
                 counters[idx]--
 
-                if(counters[idx] <= 0) {
+                if (counters[idx] <= 0) {
                     indexedObservers.remove(target)
                 }
             }
-
         }
 
         val functionalTabooList = GenericIPU { vectors, observers ->
 
             var counter = 0
-            while(counter < 1000) {
+            while (counter < 1000) {
                 val observerCopy = observers.toMutableList()
-                while(observerCopy.isNotEmpty() && counter < 1000) {
+                while (observerCopy.isNotEmpty() && counter < 1000) {
                     val best = observerCopy.maxBy { it.absoluteDifference }
                     best.optimize()
                     observerCopy.remove(best)
                     counter++
                 }
-
-
             }
         }
 
         val aggressiveStomping = GenericIPU { vectors, observers ->
 
             var counter = 0
-            while(counter < 1000 * observers.size) {
+            while (counter < 1000 * observers.size) {
 
                 val best = observers.maxBy { it.absoluteDifference }
                 best.optimize()
 
                 counter++
-
             }
         }
     }
 }
 fun GenericIPU.withLogging(path: Path) = PerformanceLoggingIPU(this, path)
-data class PerformanceLoggingIPU(val original: GenericIPU, val path: Path): GenericIPU {
+data class PerformanceLoggingIPU(val original: GenericIPU, val path: Path) : GenericIPU {
     override fun run(
         vectors: Collection<ScalableVector>,
         observers: Collection<RuleObserver>
     ) {
-
         val duration = measureTime { original.run(vectors, observers) }
         val text = "$original; ${vectors.size}; ${observers.size}; $duration\n"
-        if(path.exists()) path.appendText(text) else {
+        if (path.exists()) {
+            path.appendText(text)
+        } else {
             path.parent.createDirectories()
             path.writeText(text)
         }
-
     }
 }
 

@@ -5,6 +5,7 @@ import core.results.plots.PlotLayout
 import core.results.plots.PlotRenderer
 import core.results.plots.RGB
 import core.results.plots.data.PlotData
+import core.results.plots.render.xAsDouble
 import org.jetbrains.kotlinx.kandy.dsl.plot
 import org.jetbrains.kotlinx.kandy.ir.Plot
 import org.jetbrains.kotlinx.kandy.letsplot.feature.layout
@@ -33,17 +34,22 @@ data class LinePlotLayoutBuilder<G>(
 
 /** Renderer producing a line plot using the Lets-Plot backend. */
 class LinePlotRenderer<G, X, Y : Number>(
-    override val style: LinePlotLayout<G>,
-) : PlotRenderer<G, X, Y> {
-
-    override fun plot(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): Plot {
-        val builder = DataFrameBuilder(style.name, data, comparisonData).groupAsString {
+    style: LinePlotLayout<G>,
+) : AbstractLinePlotRenderer<G, X, Y>(style) {
+    override fun getDFBuilder(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): DataFrameBuilder<G, X, Y> {
+        return DataFrameBuilder(style.name, data, comparisonData).groupAsString {
             style.groupLabel(it)
         }.xAsString().yAsDouble()
+    }
 
+}
+abstract class AbstractLinePlotRenderer<G, X, Y>(    override val style: LinePlotLayout<G>,): PlotRenderer<G, X, Y> {
+    abstract fun getDFBuilder(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): DataFrameBuilder<G, X, Y>
+
+    override fun plot(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): Plot {
+        val builder = getDFBuilder(data, comparisonData)
         val colorMap = builder.colorByGroup(style.coloring)
         val df = builder.build()
-
         return df.plot {
             layout {
                 title = style.name
@@ -71,5 +77,17 @@ class LinePlotRenderer<G, X, Y : Number>(
                 }
             }
         }
+    }
+}
+class NumericLinePlotRenderer<G, X : Number, Y : Number>(
+   style: LinePlotLayout<G>,
+) :  AbstractLinePlotRenderer<G, X, Y>(style) {
+    override fun getDFBuilder(
+        data: PlotData<G, X, Y>,
+        comparisonData: PlotData<G, X, Y>?
+    ):  DataFrameBuilder<G, X, Y> {
+        return DataFrameBuilder(style.name, data, comparisonData).groupAsString {
+            style.groupLabel(it)
+        }.xAsDouble().yAsDouble()
     }
 }

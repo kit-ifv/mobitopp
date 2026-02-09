@@ -3,7 +3,7 @@ package domain.shared.datastructure.schedule
 import OTHER
 import START
 import THIRD
-import domain.shared.datastructure.schedule.replanning.SHIFT
+import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import utils.units.sinceStart
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -18,7 +18,7 @@ class TripTest {
 
     @Test
     fun runBuilder() {
-        val builder = TripBuilder(firstActivity, secondActivity, emptyList(), SHIFT)
+        val builder = TripBuilder(firstActivity, secondActivity, emptyList(), ReplanningStrategy.SHIFT)
         builder.apply {
             +Step(THIRD, 10.minutes)
             +Pause(10.minutes)

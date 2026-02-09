@@ -9,18 +9,17 @@ class SenderPartition(
     updater: AttributeUpdater,
     buckets: BucketList<Move>,
 ) : TempPartition(
-    partition, updater, buckets
+    partition,
+    updater,
+    buckets
 ) {
     override val myIncomingMoves: Array<MutableSet<Move>> = emptyArray()
 
     override val myOutgoingMoves: Array<MutableSet<Move>> = emptyArray()
 
     override fun initialize(bestTargetTracker: BestTargetTracker) {
-
-
         for (i in partition.signatureTracker.indices) {
             if (this.partition.amount(SignatureIndex(i)) < 1) continue
-
 
             bestTargetTracker.allPartitions.forEach {
                 val move = SymmetricalMoved(this, it, SignatureIndex(i))
@@ -34,7 +33,7 @@ class SenderPartition(
     val activeSignatures: BooleanArray = BooleanArray(partition.signatureTracker.size) {
         true
     }
-    fun emptyElements()  = pairs {
+    fun emptyElements() = pairs {
         it.value == 0
     }
 
@@ -43,13 +42,12 @@ class SenderPartition(
     }
 
     private fun pairs(predicate: (IndexedValue<Int>) -> Boolean): List<Pair<SignatureIndex, Int>> = partition.countsList
-            .withIndex()
-            .filter(predicate)
-            .map { SignatureIndex(it.index) to it.value }
+        .withIndex()
+        .filter(predicate)
+        .map { SignatureIndex(it.index) to it.value }
 
     override fun delta(signature: SignatureIndex, amount: Int): List<Move> {
         throw NotImplementedError()
-
     }
 
     fun operativeDelta(signature: SignatureIndex, amount: Int): SignatureIndex? {
@@ -61,15 +59,12 @@ class SenderPartition(
         }
 
         partition.delta(signature, amount)
-        if(amount(signature) == 0) {
+        if (amount(signature) == 0) {
             activeSignatures[signature.index] = false
             return signature
         }
         return null
     }
-
-
-
 
     override fun toString(): String {
         return "Sender Partition ${partition.id}"

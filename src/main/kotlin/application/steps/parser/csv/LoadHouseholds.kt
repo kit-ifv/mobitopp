@@ -20,6 +20,8 @@ import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
+import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.PersonId
 import domain.synthesis.parser.binary.BinaryHouseholdReader
 import domain.synthesis.parser.binary.BinaryHouseholdWriter
 import edu.kit.ifv.units.CurrencyUnit

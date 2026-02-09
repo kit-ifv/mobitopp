@@ -107,7 +107,6 @@ open class TempPartition(
 
         return dirtyIndices.flatMap {
             myOutgoingMoves[it]
-
         } + dirtyIndices.flatMap { myIncomingMoves[it] }
     }
 
@@ -145,6 +144,7 @@ open class TempPartition(
     fun updateGains(signature: SignatureIndex) {
         val sig = partition.signatureTracker[signature.index]
     }
+
     // TODO this array is never used.
     private val hasBeenMoved: BooleanArray = BooleanArray(partition.signatureTracker.size) {
         false
@@ -159,7 +159,6 @@ open class TempPartition(
             it.forEach {
                 it.isLocked = false
             }
-
         }
     }
 
@@ -194,11 +193,7 @@ open class TempPartition(
                     targetPartition.myIncomingMoves[i].add(this)
                     buckets.insert(this, gain)
                 }
-
             }
         }
     }
-
-
 }
-

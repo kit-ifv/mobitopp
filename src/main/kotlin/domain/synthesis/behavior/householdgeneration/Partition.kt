@@ -48,7 +48,7 @@ class Partition(
 
     val error: Double = Double.MAX_VALUE
     fun isEmpty() = actual.all { it == 0 }
-    fun isNotEmpty() = actual.any{it != 0}
+    fun isNotEmpty() = actual.any { it != 0 }
     fun getExpecteds(signature: Signature) = signature.keys.map { getExpected(it) }
     fun getActuals(signature: Signature) = signature.keys.map { getActual(it) }
     fun verify() {

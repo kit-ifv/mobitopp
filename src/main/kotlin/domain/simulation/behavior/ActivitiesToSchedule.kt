@@ -82,7 +82,8 @@ fun List<PlannedActivity>.toSchedule(
 
     return Schedule(targetModel)
 }
-// TODO this should be exposed in a factory so that the system can handle different start end time logics. 
+
+// TODO this should be exposed in a factory so that the system can handle different start end time logics.
 fun PlannedActivity.toActivity(): Activity {
     return Activity.fromDuration(
         location = location ?: LOCATIONUNKNOWN,

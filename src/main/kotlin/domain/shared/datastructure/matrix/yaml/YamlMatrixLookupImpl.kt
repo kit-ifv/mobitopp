@@ -61,8 +61,8 @@ class YamlMatrixLookupImpl<M : Encodable>(
         }
     }
     override operator fun get(mode: M, time: AbsoluteTime): WithExpiration<YamlInfo> {
-        val lookup = modeLookup[mode] ?:
-        throw NoSuchElementException("There is no mode $mode")
+        val lookup = modeLookup[mode]
+            ?: throw NoSuchElementException("There is no mode $mode")
         return lookup[time]
     }
 

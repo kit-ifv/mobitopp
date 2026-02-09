@@ -5,7 +5,7 @@ import utils.scaleToInts
 /**
  * Why not simply distribute based on predicted size, and then do a bit of refinement afterwards.
  */
-class FastGuessDistributor: InitialSignatureDistributor {
+class FastGuessDistributor : InitialSignatureDistributor {
     override fun distribute(
         partitions: List<Partition>,
         signatureAmounts: Collection<SignatureAmount>,
@@ -20,7 +20,5 @@ class FastGuessDistributor: InitialSignatureDistributor {
                 rec.delta(sig, amnt)
             }
         }
-
-
     }
 }

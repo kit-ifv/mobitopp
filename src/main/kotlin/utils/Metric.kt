@@ -79,33 +79,31 @@ fun interface Metric {
 
             sum / expected.size * 100.0
         }
+
         // This value is needed for avoiding log(0) calculations. At least for
         private const val LOG_LOWER_BOUND: Double = 0.5
         val meanAbsoluteLogError = Metric { expected, actual ->
 
-            require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 })  {
+            require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 }) {
                 "Log error cannot handle negative values, the cheat to avoid log(0) by adding epsilon log(0 + e) could" +
-                        "now result in a log(-e + e)"
+                    "now result in a log(-e + e)"
             }
             val sum = expected.zip(actual).sumOf { (exp, act) ->
                 abs(ln(exp.coerceAtLeast(LOG_LOWER_BOUND)) - ln(act.coerceAtLeast(LOG_LOWER_BOUND)))
-
             }
             sum / expected.size
         }
 
         val rootMeanSquareLogError = Metric { expected, actual ->
 
-            require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 })  {
+            require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 }) {
                 "Log error cannot handle negative values, the cheat to avoid log(0) by adding epsilon log(0 + e) could" +
-                        "now result in a log(-e + e)"
+                    "now result in a log(-e + e)"
             }
             val sum = expected.zip(actual).sumOf { (exp, act) ->
                 (ln(exp.coerceAtLeast(LOG_LOWER_BOUND)) - ln(act.coerceAtLeast(LOG_LOWER_BOUND))).pow(2)
-
             }
             sqrt(sum / expected.size)
-
         }
 
         val absolutePercentageError = Metric { expected, actual ->
@@ -117,22 +115,21 @@ fun interface Metric {
                 }
             }
             sum
-
         }
         val chiSquaredError = Metric { expected, actual ->
             val sum = expected.zip(actual).sumOf { (exp, act) ->
-                    (exp - act).pow(2) / exp.coerceAtLeast(1.0)
+                (exp - act).pow(2) / exp.coerceAtLeast(1.0)
             }
             sum
         }
 
         val relativeSquaredError = Metric { expected, actual ->
             val sum = expected.zip(actual).sumOf { (exp, act) ->
-                ((exp - act)/ exp.coerceAtLeast(1.0)).pow(2)
+                ((exp - act) / exp.coerceAtLeast(1.0)).pow(2)
             }
             sum
         }
-        val reducedChiSquaredError = Metric {expected, actual ->
+        val reducedChiSquaredError = Metric { expected, actual ->
             relativeSquaredError.evaluate(expected, actual) / (expected.size.toDouble() - 1).coerceAtLeast(1.0)
         }
     }

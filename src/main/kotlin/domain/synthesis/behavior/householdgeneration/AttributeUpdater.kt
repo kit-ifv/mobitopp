@@ -65,7 +65,7 @@ class AttributeUpdater(
                 val contentNums = relevantSigs.map {
                     it[attrIdx]
                         ?: throw IllegalStateException("A relevant sig must have a value greater than 0 " +
-                                "for the target attribute")
+                            "for the target attribute")
                 }
 
                 for (j in 0..maxSigContent) {

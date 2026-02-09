@@ -11,7 +11,9 @@ class ReceiverPartition(
     val activeSignatures: BooleanArray,
     val maxGain: Int
 ) : TempPartition(
-    partition, updater, buckets
+    partition,
+    updater,
+    buckets
 ) {
     private val movePotential: BucketList<Int> = BucketList(maxGain)
     init {
@@ -24,17 +26,13 @@ class ReceiverPartition(
         mutableSetOf()
     }
 
-
-
     fun best(): SignatureIndex {
         return SignatureIndex(movePotential.pollBest())
     }
 
-
-    fun kill(signature : SignatureIndex) {
+    fun kill(signature: SignatureIndex) {
         movePotential.remove(signature.index)
     }
-
 
     fun wantsElements() = movePotential.currentGain() >= 0
     override fun delta(signature: SignatureIndex, amount: Int): List<Move> {
@@ -47,7 +45,6 @@ class ReceiverPartition(
             val currentDelta = partition.getDelta(k)
             val nextDelta = currentDelta - amount * factor
             updater.performUpdate(k, currentDelta, nextDelta, expectedGains)
-
         }
         // Dont bother updating elements that you will never see
         dirtyIndices.filter { activeSignatures[it] }.forEach {

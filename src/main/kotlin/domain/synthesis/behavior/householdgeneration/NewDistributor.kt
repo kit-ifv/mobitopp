@@ -1,8 +1,6 @@
 package domain.synthesis.behavior.householdgeneration
 
-import kotlin.system.exitProcess
-
-//: MinimalistHousehold<out RULES>
+// : MinimalistHousehold<out RULES>
 class NewDistributor<RULES, AREA, H>(
 
     val ruleProvider: HierarchicalRuleProvider<AREA, H>,

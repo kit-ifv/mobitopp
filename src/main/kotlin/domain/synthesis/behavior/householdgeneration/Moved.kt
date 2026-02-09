@@ -1,6 +1,5 @@
 package domain.synthesis.behavior.householdgeneration
 
-
 interface Move {
     val from: TempPartition
     var to: TempPartition
@@ -31,7 +30,7 @@ data class Moved(
     override var to: TempPartition,
     override val signatureIndex: SignatureIndex,
 
-    ): Move {
+) : Move {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Moved) return false
@@ -44,18 +43,14 @@ data class Moved(
         return result
     }
 
-
     override var isLocked = false
-
-
-
 }
 
 data class SymmetricalMoved(
     override val from: TempPartition,
     override var to: TempPartition,
     override val signatureIndex: SignatureIndex,
-): Move{
+) : Move {
 
     override var isLocked = false
     override fun equals(other: Any?): Boolean {
@@ -69,7 +64,4 @@ data class SymmetricalMoved(
         result = 31 * result + signatureIndex.hashCode()
         return result
     }
-
-
-
 }

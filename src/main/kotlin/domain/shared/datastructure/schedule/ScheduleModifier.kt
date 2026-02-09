@@ -1,7 +1,6 @@
 package domain.shared.datastructure.schedule
 
 import domain.shared.enums.ActivityType
-import utils.collections.iterate
 import utils.units.AbsoluteTime
 import kotlin.time.Duration.Companion.minutes
 
@@ -17,7 +16,6 @@ fun Schedule.applyAt(currentTime: AbsoluteTime, functor: ScheduleModifier) {
 class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier {
 
     override fun applyTo(schedule: Schedule, currentTime: AbsoluteTime) {
-
         val nextHomeActivity =
             schedule
                 .activities()
@@ -56,7 +54,6 @@ class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier 
                 )
             )
         }
-
     }
 
     // I currently have no info on how to calculate the duration from an unknown location to the destination, also I

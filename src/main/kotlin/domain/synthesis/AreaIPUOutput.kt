@@ -6,6 +6,6 @@ data class AreaIPUOutput<AREA>(
 ) {
     fun isImperfect() = original.isImperfect()
 
-    val expected get()= original.expected
+    val expected get() = original.expected
     val actual get() = original.actual
 }

@@ -25,13 +25,13 @@ interface Trip {
     val origin get() = previousAction?.location ?: legs.firstOrNull()?.startLocation ?: LOCATIONUNKNOWN
     val destination get() = nextAction?.location ?: legs.lastOrNull()?.endLocation ?: LOCATIONUNKNOWN
 
-    fun alternate(lambda: TripBuilder.() -> Unit)
+    fun alternate(replanner: ReplanningStrategy = ReplanningStrategy.SHIFT, lambda: TripBuilder.() -> Unit)
 
     fun isConsistent() = (listOf(previousAction) + legs + nextAction).filterNotNull().isConsistent()
 }
 
-fun Trip.alternateByImpedance(impedance: Metrics, lambda: ImpedanceBuilder.() -> Unit) {
-    alternate {
+fun Trip.alternateByImpedance(impedance: Metrics, replanner: ReplanningStrategy, lambda: ImpedanceBuilder.() -> Unit) {
+    alternate(replanner) {
         byImpedance(impedance, lambda)
     }
 }
@@ -45,8 +45,8 @@ class RawTrip(
     override val nextAction: Activity?
 ) : Trip {
 
-    override fun alternate(lambda: TripBuilder.() -> Unit) {
-        val builder = TripBuilder(this, TODO())
+    override fun alternate(replanner: ReplanningStrategy, lambda: TripBuilder.() -> Unit) {
+        val builder = TripBuilder(this, replanner)
         builder.lambda()
         val target = builder.output()
         legs.clear()
@@ -79,7 +79,12 @@ class TripBuilder(
     val delayReplanningStrategy: ReplanningStrategy
 ) {
 
-    constructor(trip: Trip, delayReplanningStrategy: ReplanningStrategy) : this(trip.previousAction, trip.nextAction, trip.legs, delayReplanningStrategy)
+    constructor(trip: Trip, delayReplanningStrategy: ReplanningStrategy) : this(
+        trip.previousAction,
+        trip.nextAction,
+        trip.legs,
+        delayReplanningStrategy
+    )
 
     // The previous action could be null, however the assumption that a previous location exists still holds, so I can
     // request the promise that this value will be set eventually.
@@ -167,8 +172,8 @@ class LinkTrip constructor(
     val nextTrip: List<Leg>?
         get() = legBlock.next.next?.item?.toList()
     private val _nextAction get() = legBlock.next.firstElementOrNull()
-    override fun alternate(lambda: TripBuilder.() -> Unit) {
-        val builder = TripBuilder(previousAction, nextAction, legs, TODO())
+    override fun alternate(replanner: ReplanningStrategy, lambda: TripBuilder.() -> Unit) {
+        val builder = TripBuilder(previousAction, nextAction, legs, replanner)
         builder.lambda()
         val newLegs = builder.output()
         // TODO Robin: There should be a better way to force a trip into a block. Also Test this behaviour
@@ -176,12 +181,14 @@ class LinkTrip constructor(
             _nextAction?.let { nextAction ->
                 if (nextAction.startTime < leg.endTime) {
 
-                    val projectedEndTime = leg.endTime + nextAction.duration
-                    TODO()
+                    replanner.replan(schedule, leg.endTime, nextAction)
+                    require(nextAction.startTime >= leg.endTime) {
+                        "The rescheduling failed"
+                    }
 
-                    nextAction.shiftStartTo(leg.endTime)
+
+
                 }
-
             }
         }
         dispatcher?.replaceLegs(legs.toSortedSet(), newLegs)

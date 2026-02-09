@@ -18,7 +18,6 @@ import domain.synthesis.behavior.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
-import domain.synthesis.behavior.RawSurveyInfoImpl
 import domain.synthesis.behavior.SamplingCarGeneration
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SynthesisCar
@@ -48,7 +47,6 @@ import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
-import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import domain.synthesis.results.FixedDestinationElements
 import domain.synthesis.results.LegacyActivityOutput
@@ -112,7 +110,7 @@ fun parseSurvey(path: Path, lambda: SurveyColumns.() -> Unit): List<RawSurveyInf
 }
 
 fun readRawSurveyInfo(row: Row, surveyColumns: SurveyColumns): RawSurveyInfo {
-    return RawSurveyInfoImpl(
+    return RawSurveyInfo(
         householdId = row(surveyColumns.ID).toLong(),
         year = row(surveyColumns.year).toInt(),
         areaType = row(surveyColumns.areatype).toInt(),
@@ -124,7 +122,7 @@ fun readRawSurveyInfo(row: Row, surveyColumns: SurveyColumns): RawSurveyInfo {
         hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
         householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
         householdIncomeClass = row(surveyColumns.hhincomeClass).toInt(),
-        type = HouseholdType.decode(row(surveyColumns.type).toInt()),
+        typeCode = row(surveyColumns.type).toInt(),
         cars = row(surveyColumns.cars).toInt(),
         hasBicycle = row(surveyColumns.bicycle).toBooleanNumeric(),
         hasLicence = row(surveyColumns.licence).toBooleanNumeric(),

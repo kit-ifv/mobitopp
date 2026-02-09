@@ -23,12 +23,12 @@ val SynthesisPerson<out SurveyInfo>.householdId get() = information.householdId
 
 val SynthesisPerson<out SurveyInfo>.householdIncome get() = information.householdIncome
 val SynthesisPerson<out SurveyInfo>.hasLicence get() = information.hasLicence
-val SynthesisPerson<out HasSurveyEmployment>.employment get() = information.employment
-fun SynthesisPerson<out HasSurveyEmployment>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
-fun SynthesisPerson<out HasSurveyEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
-fun SynthesisPerson<out HasSurveyEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
+val SynthesisPerson<out SurveyEmployment>.employment get() = information.employment
+fun SynthesisPerson<out SurveyEmployment>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
+fun SynthesisPerson<out SurveyEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
+fun SynthesisPerson<out SurveyEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
 
-fun SynthesisPerson<out HasSurveyEmployment>.isWorker(): Boolean {
+fun SynthesisPerson<out SurveyEmployment>.isWorker(): Boolean {
     return employment == Employment.FULLTIME || employment == Employment.PARTTIME
 }
 

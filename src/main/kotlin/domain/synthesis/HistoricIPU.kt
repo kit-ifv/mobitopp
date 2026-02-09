@@ -35,7 +35,7 @@ class HistoricIPU<AREA, H>(
         }
     }
 
-    fun  generateMapping(rules: List<Rule<H>>, parentdropsize: Int):  Pair<Map<ScalableVector, List<H>>, List<TargetNumberObserver>> {
+    fun generateMapping(rules: List<Rule<H>>, parentdropsize: Int): Pair<Map<ScalableVector, List<H>>, List<TargetNumberObserver>> {
         val vectors = seedHouseholds.associateWith { rules.toScalableVector(it) }
         val ruleObservers = rules.withIndex().drop(parentdropsize).map {
             RuleObserver.Companion.fromRule(it.value, it.index, vectors.values)
@@ -49,7 +49,7 @@ class HistoricIPU<AREA, H>(
         return mapping to ruleObservers
     }
 
-    fun generateStrongerMapping(rules: List<Rule<H>>, parentdropsize: Int):  Pair<Map<ScalableVector, List<H>>, List<TargetNumberObserver>> {
+    fun generateStrongerMapping(rules: List<Rule<H>>, parentdropsize: Int): Pair<Map<ScalableVector, List<H>>, List<TargetNumberObserver>> {
         val vectors = seedHouseholds.associateWith { rules.toScalableVector(it) }
         val inverseMap = vectors.invertMap()
         val uniqueVectors = inverseMap.keys
@@ -68,9 +68,16 @@ class HistoricIPU<AREA, H>(
             val childRules = ruleProvider.getRules(it)
             val rules = parentRuleset + childRules
 
-            val b = if(this.collapseEquivalents) generateStrongerMapping(rules, parentRuleset.size) else generateMapping(rules, parentRuleset.size)
+            val b = if (this.collapseEquivalents) {
+                generateStrongerMapping(
+                    rules,
+                    parentRuleset.size
+                )
+            } else {
+                generateMapping(rules, parentRuleset.size)
+            }
             b
-        //            val vectors = seedHouseholds.associateWith { rules.toScalableVector(it) }
+            //            val vectors = seedHouseholds.associateWith { rules.toScalableVector(it) }
 //            val inverseMap = vectors.invertMap()
 //            val uniqueVectors = inverseMap.keys
 //            val ruleObservers = rules.withIndex().drop(parentRuleset.size).map {
