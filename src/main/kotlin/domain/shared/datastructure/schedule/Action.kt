@@ -205,7 +205,6 @@ interface Activity : StationaryAction {
  * @property endTime The end time of the activity.
  */
 
-@Mutable
 data class RawActivity(
     override var location: Location,
     override var startTime: AbsoluteTime,
