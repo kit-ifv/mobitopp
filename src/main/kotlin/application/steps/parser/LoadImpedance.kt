@@ -118,7 +118,7 @@ fun DemandSimContext.loadTeleportation() = runStep {
 
 class LoadTeleportation(
     private val context: DemandSimContext,
-): ModelStep {
+) : ModelStep {
     override val name: String = "Teleportation as Transport"
 
     override fun execute() {
@@ -129,20 +129,20 @@ class LoadTeleportation(
         return null
     }
 
-    override fun mockBehavior(): Warning?  = validateScope("Mock impedance data") {
+    override fun mockBehavior(): Warning? = validateScope("Moeck impedance data") {
         context.impedance.value = dummyImpedance
     }
 }
 
-class Teleportation: Metrics {
+class Teleportation : Metrics {
 
-    private val costMetric: CostMetric = CostMetric{ _, _ ->
+    private val costMetric: CostMetric = CostMetric { _, _ ->
         0.euros
     }
-    private val durationMetric: DurationMetric = DurationMetric {_,_ ->
+    private val durationMetric: DurationMetric = DurationMetric { _, _ ->
         1.seconds
     }
-    private val distancMetric: DistanceMetric = DistanceMetric  {_,_ ->
+    private val distancMetric: DistanceMetric = DistanceMetric { _, _ ->
         1.meters
     }
     override fun costMetric(mode: Mode, time: Time): CostMetric = costMetric
@@ -153,9 +153,7 @@ class Teleportation: Metrics {
         mode: Mode,
         time: Time
     ): DurationMetric = durationMetric
-
 }
-
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
 val dummyImpedance = object : Metrics {

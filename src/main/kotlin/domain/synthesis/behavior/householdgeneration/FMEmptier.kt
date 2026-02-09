@@ -34,6 +34,7 @@ class FMEmptier(
     val emplaceUndesireds: Boolean = true,
     val amountStrategy: (Move) -> Int = { 1 },
 ) : InitialSignatureDistributor {
+    @Suppress("NestedBlockDepth")
     override fun distribute(
         partitions: List<Partition>,
         signatureAmounts: Collection<SignatureAmount>,
@@ -133,6 +134,8 @@ class FMEmptier(
     }
 
     var i = 0
+
+    @Suppress("LoopWithTooManyJumpStatements")
     fun runIteration(
         buckets: BucketList<Move>,
         recalculator: UnidirectionalRecalculator,

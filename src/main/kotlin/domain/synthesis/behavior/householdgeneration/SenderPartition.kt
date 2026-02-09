@@ -46,8 +46,9 @@ class SenderPartition(
         .filter(predicate)
         .map { SignatureIndex(it.index) to it.value }
 
+    @Suppress("NotImplementedDeclaration")
     override fun delta(signature: SignatureIndex, amount: Int): List<Move> {
-        throw NotImplementedError()
+        TODO()
     }
 
     fun operativeDelta(signature: SignatureIndex, amount: Int): SignatureIndex? {

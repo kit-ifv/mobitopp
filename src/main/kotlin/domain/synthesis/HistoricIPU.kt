@@ -35,7 +35,10 @@ class HistoricIPU<AREA, H>(
         }
     }
 
-    fun generateMapping(rules: List<Rule<H>>, parentdropsize: Int): Pair<Map<ScalableVector, List<H>>, List<TargetNumberObserver>> {
+    fun generateMapping(
+        rules: List<Rule<H>>,
+        parentdropsize: Int
+    ): Pair<Map<ScalableVector, List<H>>, List<TargetNumberObserver>> {
         val vectors = seedHouseholds.associateWith { rules.toScalableVector(it) }
         val ruleObservers = rules.withIndex().drop(parentdropsize).map {
             RuleObserver.Companion.fromRule(it.value, it.index, vectors.values)
@@ -49,7 +52,10 @@ class HistoricIPU<AREA, H>(
         return mapping to ruleObservers
     }
 
-    fun generateStrongerMapping(rules: List<Rule<H>>, parentdropsize: Int): Pair<Map<ScalableVector, List<H>>, List<TargetNumberObserver>> {
+    fun generateStrongerMapping(
+        rules: List<Rule<H>>,
+        parentdropsize: Int
+    ): Pair<Map<ScalableVector, List<H>>, List<TargetNumberObserver>> {
         val vectors = seedHouseholds.associateWith { rules.toScalableVector(it) }
         val inverseMap = vectors.invertMap()
         val uniqueVectors = inverseMap.keys

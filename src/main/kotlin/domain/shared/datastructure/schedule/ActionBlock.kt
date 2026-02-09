@@ -70,7 +70,6 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
         val firstFits = previous?.lastElementOrNull()?.let { it <= sortedSet.first() } != false
         val lastFits = next?.firstElementOrNull()?.let { it >= sortedSet.last() } != false
         return firstFits && lastFits
-
     }
 
     /**

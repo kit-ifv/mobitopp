@@ -5,19 +5,19 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
 
 class ScheduleBuilderForTests(val duration: Number = 8) {
-    private val HOMELOC = ActuallyUseableLocation(1)
-    private val LOC2 = ActuallyUseableLocation(2)
-    private val LOC3 = ActuallyUseableLocation(3)
+    private val homeLoc = ActuallyUseableLocation(1)
+    private val loc2 = ActuallyUseableLocation(2)
+    private val loc3 = ActuallyUseableLocation(3)
 
     private val activities: MutableList<Activity> = mutableListOf()
     private val schedule = Schedule(BlockModel()).apply {
         add {
-            location = HOMELOC
+            location = homeLoc
             startTime = 0
             duration = this@ScheduleBuilderForTests.duration
         }.also { activities.add(it) }
     }
-    private var lastLocation: Location = HOMELOC
+    private var lastLocation: Location = homeLoc
     fun Schedule.add(lambda: ActConfig.() -> Unit): Activity {
         val activity = ActConfig()
         activity.lambda()
@@ -27,9 +27,9 @@ class ScheduleBuilderForTests(val duration: Number = 8) {
     }
     private fun Location.alternate(): Location {
         return when (this) {
-            HOMELOC -> LOC2
-            LOC2 -> LOC3
-            LOC3 -> LOC2
+            homeLoc -> loc2
+            loc2 -> loc3
+            loc3 -> loc2
             else -> throw IllegalArgumentException("Location $this is not a valid location")
         }
     }
@@ -47,7 +47,7 @@ class ScheduleBuilderForTests(val duration: Number = 8) {
 
     fun home(lambda: ActConfig.() -> Unit): Activity {
         return activity {
-            location = HOMELOC
+            location = homeLoc
             activityType = LegacyActivityType.HOME
             lambda()
         }

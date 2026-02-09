@@ -85,8 +85,7 @@ fun interface Metric {
         val meanAbsoluteLogError = Metric { expected, actual ->
 
             require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 }) {
-                "Log error cannot handle negative values, the cheat to avoid log(0) by adding epsilon log(0 + e) could" +
-                    "now result in a log(-e + e)"
+                warningLogError
             }
             val sum = expected.zip(actual).sumOf { (exp, act) ->
                 abs(ln(exp.coerceAtLeast(LOG_LOWER_BOUND)) - ln(act.coerceAtLeast(LOG_LOWER_BOUND)))
@@ -94,11 +93,13 @@ fun interface Metric {
             sum / expected.size
         }
 
+        const val warningLogError =
+            "Log error cannot handle negative values, the cheat to avoid log(0) by adding epsilon log(0 + e) could" +
+                "now result in a log(-e + e)"
         val rootMeanSquareLogError = Metric { expected, actual ->
 
             require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 }) {
-                "Log error cannot handle negative values, the cheat to avoid log(0) by adding epsilon log(0 + e) could" +
-                    "now result in a log(-e + e)"
+                warningLogError
             }
             val sum = expected.zip(actual).sumOf { (exp, act) ->
                 (ln(exp.coerceAtLeast(LOG_LOWER_BOUND)) - ln(act.coerceAtLeast(LOG_LOWER_BOUND))).pow(2)

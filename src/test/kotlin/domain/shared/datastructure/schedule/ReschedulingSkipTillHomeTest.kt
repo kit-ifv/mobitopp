@@ -1,7 +1,7 @@
 package domain.shared.datastructure.schedule
 
-import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.datastructure.schedule.replanning.HomeActivityEndTimeAnchorStrategy
+import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.legacyChoiceModelPurposes
 import org.junit.jupiter.api.Assertions.assertTrue
 import utils.units.AbsoluteTime
@@ -15,14 +15,6 @@ import kotlin.time.Duration.Companion.seconds
 class ReschedulingSkipTillHomeTest {
 
     private val replanningStrategy = HomeActivityEndTimeAnchorStrategy(legacyChoiceModelPurposes)
-
-    private val HOMELOC = ActuallyUseableLocation(1)
-    private val LOC2 = ActuallyUseableLocation(2)
-    private val LOC3 = ActuallyUseableLocation(3)
-
-    @Test
-    fun scheduleModel() {
-    }
 
     /**
      * In this test the activity can be simply shifted to fulfill the new start time.
@@ -148,8 +140,9 @@ class ReschedulingSkipTillHomeTest {
             "No consistent schedule"
         }
     }
+
     @Test
-    fun theLastHomeActivityIsConflictuary(){
+    fun theLastHomeActivityIsConflictuary() {
         val (schedule, actions) = scheduleStartingAtHome {
             activity {
                 startTime = 12
@@ -159,7 +152,6 @@ class ReschedulingSkipTillHomeTest {
                 startTime = 15
                 duration = 1
             }
-
         }
 
         replanningStrategy.replan(schedule, 16.hours.sinceStart, 1)
@@ -168,6 +160,7 @@ class ReschedulingSkipTillHomeTest {
         }
         assertEquals(actions[2].startTime, (16.hours + 15.minutes + 1.seconds).sinceStart)
     }
+
     @Test
     fun noHomeButStillaShift() {
         val (schedule, actions) = scheduleStartingAtHome {
@@ -181,7 +174,6 @@ class ReschedulingSkipTillHomeTest {
         assertEquals(actions[1].startTime, 13.hours.sinceStart)
     }
 
-
     private fun Schedule.isConsistent() = actions().isConsistent()
     private fun ReplanningStrategy.replan(schedule: Schedule, newStartTime: AbsoluteTime, activityIndex: Int) =
         replan(schedule, newStartTime, schedule.activities().drop(activityIndex).first())
@@ -194,6 +186,4 @@ class ReschedulingSkipTillHomeTest {
         lambda(builder)
         return builder.build() to builder.actions()
     }
-
-
 }

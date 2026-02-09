@@ -46,13 +46,10 @@ class HolyHomeActivityResolverTest {
                     setEnd("1d 6h 39m 44s")
                 }
             }
-
         }
         val resolver = PriorityBasedConflictResolver(legacyChoiceModelPurposes)
         val resolution = resolver.resolveConflict(conflict)
-        assertTrue(resolution.first()!= null)
-
-
+        assertTrue(resolution.first() != null)
     }
 
     @Test
@@ -71,13 +68,13 @@ class HolyHomeActivityResolverTest {
                     setEnd("53m")
                 }
             }
-
         }
         val resolver = PriorityBasedConflictResolver(legacyChoiceModelPurposes)
         val resolution = resolver.resolveConflict(conflict)
-        assertTrue(resolution.first()!= null)
+        assertTrue(resolution.first() != null)
         assertTrue(resolution[1] == null)
     }
+
     @Test
     fun aThirdSimConflict() {
         val conflict = createConflict {
@@ -89,13 +86,11 @@ class HolyHomeActivityResolverTest {
                     setEnd("54m 13s")
                 }
             }
-
         }
         val resolver = PriorityBasedConflictResolver(legacyChoiceModelPurposes)
         val resolution = resolver.resolveConflict(conflict)
         assertTrue { resolution.first() != null }
     }
-
 
     private fun createConflict(lambda: ConflictBuilder.() -> Unit): Conflict {
         val builder = ConflictBuilder()
@@ -104,29 +99,19 @@ class HolyHomeActivityResolverTest {
     }
 }
 
-
-
-private class ConflictBuilder() {
+private class ConflictBuilder {
     var startTime: AbsoluteTime = 0.hours.sinceStart
     var endTime: AbsoluteTime = 999.hours.sinceStart
-    var startLocation: Location  = ActuallyUseableLocation(1)
-    var endLocation: Location  = ActuallyUseableLocation(1)
-
+    var startLocation: Location = ActuallyUseableLocation(1)
+    var endLocation: Location = ActuallyUseableLocation(1)
 
     private val scheduleBuilder = ScheduleBuilderForTests(0.0001)
 
-
-
     fun activities(lambda: ScheduleBuilderForTests.() -> Unit) {
-
         scheduleBuilder.lambda()
-
     }
 
     fun build(): Conflict {
-
-
-
         return Conflict(
             startTime,
             endTime,

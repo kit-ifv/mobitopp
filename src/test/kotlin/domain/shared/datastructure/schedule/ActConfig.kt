@@ -22,7 +22,6 @@ class ActConfig {
         }
     lateinit var duration: Number
 
-
     fun setStart(duration: Duration) {
         startTime = duration.toDouble(DurationUnit.HOURS)
     }
@@ -45,13 +44,12 @@ class ActConfig {
             a + b
         }
         lambda(newDuration)
-
     }
 
     private fun String.toSuffixDuration(): Duration {
         val suffix = last()
         val remainder = dropLast(1).toInt()
-        return when(suffix) {
+        return when (suffix) {
             'd' -> remainder.days
             'h' -> remainder.hours
             'm' -> remainder.minutes
@@ -59,7 +57,6 @@ class ActConfig {
             else -> throw IllegalArgumentException()
         }
     }
-
 
     var activityType: ActivityType = ActivityType.Companion.UNKNOWN
     var earliestStartTime: Number = startTime.toInt() / 24

@@ -111,6 +111,8 @@ fun interface GenericIPU {
                 }
             }
         }
+
+        @Suppress("MagicNumber")
         val limitOptimization = GenericIPU { vectors, observers ->
             val indexedObservers = observers.withIndex().toMutableList()
             val counters = indexedObservers.map { 100 }.toIntArray()

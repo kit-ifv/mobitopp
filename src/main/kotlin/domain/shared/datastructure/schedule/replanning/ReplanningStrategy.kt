@@ -3,7 +3,6 @@ package domain.shared.datastructure.schedule.replanning
 import domain.shared.datastructure.schedule.LinkedActivity
 import domain.shared.datastructure.schedule.Schedule
 import utils.units.AbsoluteTime
-import kotlin.time.Duration
 
 /**
  * When the schedule is modified, and a conflict occurs, then the replanning strategy should handle how the schedule is
@@ -21,4 +20,3 @@ ReplanningStrategy {
         }
     }
 }
-

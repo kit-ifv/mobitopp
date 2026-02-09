@@ -81,7 +81,8 @@ fun Iterable<Action>.isConsistent(): Boolean {
  *
  */
 fun Iterable<Action>.isWeaklyConsistent(): Boolean {
-    return zipWithNext { first, second -> first.endLocation == second.startLocation && first.endTime <= second.startTime }.all { it }
+    return zipWithNext { first, second ->
+        first.endLocation == second.startLocation && first.endTime <= second.startTime }.all { it }
 }
 fun Iterable<Action>.hasTimeBoundViolations(): Boolean {
     return any { it.startTime < it.earliestStartTime || it.endTime > it.latestEndTime }
@@ -240,7 +241,8 @@ data class RawActivity(
         val earlyStartTime =
             if (earliestStartTime == AbsoluteTime.MINUS_INFINITY) "" else "earliestStartTime=$earliestStartTime"
         val latestEndTime = if (latestEndTime == AbsoluteTime.INFINITY) "" else "latestEndTime=$latestEndTime"
-        return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneID()} t= ${type.description.first()}" +
+        return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneID()}" +
+            " t= ${type.description.first()}" +
             "(${type.code}) e=$earlyStartTime l=$latestEndTime "
     }
 }

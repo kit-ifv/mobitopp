@@ -5,7 +5,6 @@ import core.results.plots.PlotLayout
 import core.results.plots.PlotRenderer
 import core.results.plots.RGB
 import core.results.plots.data.PlotData
-import core.results.plots.render.xAsDouble
 import org.jetbrains.kotlinx.kandy.dsl.plot
 import org.jetbrains.kotlinx.kandy.ir.Plot
 import org.jetbrains.kotlinx.kandy.letsplot.feature.layout
@@ -41,9 +40,8 @@ class LinePlotRenderer<G, X, Y : Number>(
             style.groupLabel(it)
         }.xAsString().yAsDouble()
     }
-
 }
-abstract class AbstractLinePlotRenderer<G, X, Y>(    override val style: LinePlotLayout<G>,): PlotRenderer<G, X, Y> {
+abstract class AbstractLinePlotRenderer<G, X, Y>(override val style: LinePlotLayout<G>,) : PlotRenderer<G, X, Y> {
     abstract fun getDFBuilder(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): DataFrameBuilder<G, X, Y>
 
     override fun plot(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): Plot {
@@ -80,12 +78,12 @@ abstract class AbstractLinePlotRenderer<G, X, Y>(    override val style: LinePlo
     }
 }
 class NumericLinePlotRenderer<G, X : Number, Y : Number>(
-   style: LinePlotLayout<G>,
-) :  AbstractLinePlotRenderer<G, X, Y>(style) {
+    style: LinePlotLayout<G>,
+) : AbstractLinePlotRenderer<G, X, Y>(style) {
     override fun getDFBuilder(
         data: PlotData<G, X, Y>,
         comparisonData: PlotData<G, X, Y>?
-    ):  DataFrameBuilder<G, X, Y> {
+    ): DataFrameBuilder<G, X, Y> {
         return DataFrameBuilder(style.name, data, comparisonData).groupAsString {
             style.groupLabel(it)
         }.xAsDouble().yAsDouble()

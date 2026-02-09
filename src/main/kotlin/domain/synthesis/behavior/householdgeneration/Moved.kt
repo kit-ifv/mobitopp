@@ -10,11 +10,7 @@ interface Move {
     val gain get() = from.getLoss(signatureIndex.index) + to.getGain(signatureIndex.index)
     val maxSendAmount get() = from.amount(signatureIndex)
     fun performMove(amount: Int = 1): List<Move> {
-        require(!isLocked) {
-            "This should not occur"
-        }
-        //        println("This move expects a gain from $gain [${from.getLoss(signatureIndex.index)}, ${to.getGain(signatureIndex.index)}]and goes from ${from.id} to ${to.id} amount=$amount")
-        require(from.amount(signatureIndex) >= amount) {
+        require(!isLocked && from.amount(signatureIndex) >= amount) {
             "This should not occur"
         }
         val dirtyMoves = from.delta(signatureIndex, -amount)

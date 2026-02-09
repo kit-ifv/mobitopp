@@ -16,7 +16,7 @@ import utils.units.AbsoluteTime
  * - or for testing and debugging purposes.
  *
  */
-object BananaReplanning: ReplanningStrategy {
+object BananaReplanning : ReplanningStrategy {
     override fun replan(
         schedule: Schedule,
         newStartTime: AbsoluteTime,

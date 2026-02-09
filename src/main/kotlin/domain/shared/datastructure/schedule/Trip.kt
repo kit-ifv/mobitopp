@@ -180,14 +180,10 @@ class LinkTrip constructor(
         newLegs.lastOrNull()?.let { leg ->
             _nextAction?.let { nextAction ->
                 if (nextAction.startTime < leg.endTime) {
-
                     replanner.replan(schedule, leg.endTime, nextAction)
                     require(nextAction.startTime >= leg.endTime) {
                         "The rescheduling failed"
                     }
-
-
-
                 }
             }
         }

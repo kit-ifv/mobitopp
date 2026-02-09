@@ -71,9 +71,11 @@ class HomeActivityEndTimeAnchorStrategy(choiceModelPurposes: ChoiceModelPurposes
             nextAction.shiftStartTo(newStartTime)
             return
         }
-        if (suggestedChanges.all { it == null } || suggestedChanges.first() == null || suggestedChanges.last() == null) {
+        if (suggestedChanges.all { it == null } ||
+            suggestedChanges.first() == null ||
+            suggestedChanges.last() == null) {
             // The first one should not be null because that activity MUST happen.
-            // Similar the potentialHome Activity also must happen (Theoretically only if it is the last activity of all but thats a todo)
+            // Similar the potentialHome Activity also must happen (only if it is the last act of all but thats a todo)
 
             // Since we have not managed to find a good conflict solution, remove all removeable actrivities...
             relevantActivities.drop(1).forEach {
@@ -90,7 +92,6 @@ class HomeActivityEndTimeAnchorStrategy(choiceModelPurposes: ChoiceModelPurposes
             // end of that home activity wont drift away too far.
             nextAction.shiftStartTo(newStartTime)
             return
-
         }
         // Apply the suggested changes to the activities, null represents deletion.
         suggestedChanges.zip(relevantActivities + potentialNextHomeActivity) { change, activity ->
@@ -101,6 +102,5 @@ class HomeActivityEndTimeAnchorStrategy(choiceModelPurposes: ChoiceModelPurposes
                 activity.duration = change.duration
             }
         }
-
     }
 }

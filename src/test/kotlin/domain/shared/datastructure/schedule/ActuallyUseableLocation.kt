@@ -35,6 +35,6 @@ class ActuallyUseableLocation(override val coordinate: Coordinate, val zoneId: Z
     }
 
     override fun regionType(): RegionType {
-        return TODO()
+        return error("Detekt wants error")
     }
 }

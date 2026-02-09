@@ -44,7 +44,7 @@ abstract class PersonAgent(
 }
 
 fun PersonAgent.lastTransportMode(action: Action? = null): Mode? {
-    return schedule.pastLegs().lastOrNull { action?.let { act ->  it < act}?: true }?.transportType
+    return schedule.pastLegs().lastOrNull { action?.let { act -> it < act } ?: true }?.transportType
 }
 
 fun PersonAgent.lastTransportModeDeprecated(): Mode? {

@@ -30,7 +30,7 @@ import kotlin.time.Duration.Companion.minutes
  *    The first activity is typically assigned very high priority by default and therefore tends to be
  *    removed last, but it may still be removed if necessary to obtain feasibility.
  * 4. Once a feasible subset remains, compress ("squeeze") durations down towards their per-activity
- *    minimum bounds (as defined by [minimumDuration]) and shift again to produce a non-overlapping
+ *    minimum bounds (as defined by minimumDuration) and shift again to produce a non-overlapping
  *    schedule.
  *
  * Notes:
@@ -41,8 +41,9 @@ class PriorityBasedConflictResolver(
 
     private val choiceModelPurposes: ChoiceModelPurposes,
     private val tripBufferEstimate: Duration = 15.minutes,
+    @Suppress("MagicNumber")
     private val priority: (IndexedValue<StationaryAction>) -> Int = { (index, action) ->
-        if(index == 0)  {
+        if (index == 0) {
             Int.MAX_VALUE
         } else {
             when (action.type) {
@@ -51,10 +52,9 @@ class PriorityBasedConflictResolver(
                 else -> -action.startTime.minutesSinceStart.toInt()
             }
         }
-
     },
     private val minimumDuration: (StationaryAction) -> Duration = { action ->
-        if(action.duration < 15.minutes){
+        if (action.duration < 15.minutes) {
             action.duration / 2 // It is already an asinine activity, a bound wouldnt protect it.
         } else {
             when (action.type) {
@@ -82,7 +82,7 @@ class PriorityBasedConflictResolver(
         private val changeArray: Array<Change?> = activities.map { it.toChange() }.toTypedArray()
         private val indexTracker: MutableList<Int> = changeArray.indices.toMutableList()
         val size get() = indexTracker.size
-        fun get(position: Int) : Change = changeArray[ indexTracker[position]]!!
+        fun get(position: Int): Change = changeArray[ indexTracker[position]]!!
         fun shiftStart(startTime: AbsoluteTime) {
             if (indexTracker.isEmpty()) return // There is nothing left to shift.
             get(0).startTime = startTime
@@ -142,7 +142,6 @@ class PriorityBasedConflictResolver(
                 }
                 element.duration = max(currentDuration - remainingDelta, minimumDuration[index])
                 remainingDelta -= currentDuration - element.duration
-
             }
         }
 
@@ -164,7 +163,7 @@ class PriorityBasedConflictResolver(
             return changeTracker.toActionSet()
         }
         while (!changeTracker.canHandle(availableTime) && changeTracker.isNotEmpty()) {
-            if(changeTracker.size == 0) {
+            if (changeTracker.size == 0) {
                 println("Not a good scenario")
             }
             changeTracker.removeLeastPrioritizedElement()
@@ -175,10 +174,6 @@ class PriorityBasedConflictResolver(
     }
 
     private fun Collection<Activity>.minimalDuration(): Duration = sumOfD { minimumDuration(it) }
-
-    private fun Iterable<Duration>.sum(): Duration {
-        return fold(Duration.Companion.ZERO) { acc, it -> acc + it }
-    }
 
     private fun <T> Iterable<T>.sumOfD(selector: (T) -> Duration): Duration {
         var counter = Duration.Companion.ZERO

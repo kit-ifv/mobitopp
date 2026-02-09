@@ -29,11 +29,9 @@ import core.results.plots.render.HistogramLayoutBuilder
 import core.results.plots.render.HistogramRenderer
 import core.results.plots.render.LinePlotLayoutBuilder
 import core.results.plots.render.LinePlotRenderer
-import core.results.plots.render.NumericLinePlotRenderer
 import core.results.plots.render.ScatterLayoutBuilder
 import core.results.plots.render.ScatterPlotRenderer
 import edu.kit.ifv.units.UnitIntervalValue
-
 /**
  * Entry point to build plot data from a lazy supplier of entities.
  * Write
@@ -46,6 +44,7 @@ import edu.kit.ifv.units.UnitIntervalValue
  * ```
  * to start a new plot definition.
  */
+
 fun <E> forData(entities: () -> List<E>) = PlotDataBuilderWithEntities(entities)
 
 /**
@@ -365,16 +364,3 @@ fun <G, X, Y : Number> ReadyForRender<G, X, Y>.asLinePlot(styleScope: LinePlotLa
             renderer = LinePlotRenderer(style)
         )
     }
-
-fun <G, X: Number, Y : Number> ReadyForRender<G, X, Y>.asNumericLinePlot(styleScope: LinePlotLayoutBuilder<G>.() -> Unit) =
-    asPlotterBuilder().run {
-        val style = LinePlotLayoutBuilder<G>()
-        style.styleScope()
-
-        Plotter(
-            data = data,
-            comparison = comparison,
-            renderer = NumericLinePlotRenderer(style)
-        )
-    }
-

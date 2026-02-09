@@ -50,7 +50,7 @@ class AttributeUpdater(
                 val maxSigContent = signatureTracker.highestAttributeForIndex(attrIdx)
 
                 require(maxSigContent > 0) {
-                    "No signature has a value greater than 0 for a given attribute, are you certain you want to continue?"
+                    "No signature has a value greater than 0 for a given attribute, are u certain you want to continue?"
                 }
 
                 val relevantSigIndices = signatureTracker.getSetByAttributeIndex(attrIdx)
