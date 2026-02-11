@@ -132,6 +132,9 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
     operator fun rangeTo(other: AbsoluteTime): AbsoluteTimeProgression =
         AbsoluteTimeProgression(this, other, 1.minutes)
 
+    fun rangeTo(other: AbsoluteTime, step: Duration = 1.minutes): AbsoluteTimeProgression =
+        AbsoluteTimeProgression(this, other, step)
+
     /**
      * Using + mod cheat to always get a positive number
      */
@@ -171,6 +174,7 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
     fun truncateMinutes() = AbsoluteTime(minutesSinceStart.minutes)
     fun truncateHours() = AbsoluteTime(hoursSinceStart.hours)
     fun truncateDays() = AbsoluteTime(daysSinceStart.days)
+
     fun roundToMultipleOf(duration: Duration) =
         AbsoluteTime(
             duration * (secondsSinceStart.div(duration.inWholeSeconds)).toInt()

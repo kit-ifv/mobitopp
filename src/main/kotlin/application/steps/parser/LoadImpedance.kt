@@ -90,6 +90,9 @@ private class LoadImpedanceStep(
             val costConfig = costMatrixConfig.readText()
             val durationConfig = durationMatrixConfig.readText()
 
+            checkConfigKeysAreKnownModes(costConfig, path = costMatrixConfig)
+            checkConfigKeysAreKnownModes(durationConfig, path = durationMatrixConfig)
+
             context.modes.values().forEach { mode ->
                 val modeLabel = "$mode:"
                 val errorMessage = { path: Path ->
@@ -103,6 +106,22 @@ private class LoadImpedanceStep(
                 validateCondition(errorMessage(durationMatrixConfig), true) {
                     modeLabel in durationConfig
                 }
+            }
+        }
+    }
+
+    private fun Warning.checkConfigKeysAreKnownModes(configText: String, path: Path) {
+        val unknownModeMessage = { label: String ->
+            "Matrix config ${path.fileName} contains unknown mode $label. Known modes are ${context.modes.values()}"
+        }
+        val modeKeyRegex = Regex("^[A-Za-z_]+:[ \\t]*$")
+        configText.lineSequence().filter {
+            it.matches(modeKeyRegex)
+        }.map {
+            it.trim().removeSuffix(":")
+        }.forEach {
+            validateCondition(unknownModeMessage(it), true) {
+                context.modes.decodeOrNull(it) != null
             }
         }
     }
@@ -142,12 +161,12 @@ class Teleportation : Metrics {
     private val durationMetric: DurationMetric = DurationMetric { _, _ ->
         1.seconds
     }
-    private val distancMetric: DistanceMetric = DistanceMetric { _, _ ->
+    private val distanceMetric: DistanceMetric = DistanceMetric { _, _ ->
         1.meters
     }
     override fun costMetric(mode: Mode, time: Time): CostMetric = costMetric
 
-    override fun distanceMetric(mode: Mode): DistanceMetric = distancMetric
+    override fun distanceMetric(mode: Mode): DistanceMetric = distanceMetric
 
     override fun durationMetric(
         mode: Mode,

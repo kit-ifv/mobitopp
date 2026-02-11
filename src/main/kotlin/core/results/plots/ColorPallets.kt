@@ -43,7 +43,7 @@ object RandomRGBProvider {
 
     private val random = Random(42L)
 
-    private val colors = KIT_GREEN.lighterShades(3) + KIT_RED.lighterShades(3) + KIT_BLUE.lighterShades(3) + listOf(
+    private val colors = KIT_GREEN.darkerShades(3) + KIT_RED.darkerShades(3) + KIT_BLUE.darkerShades(3) + listOf(
         KIT_BLACK, KIT_GREY, KIT_LIGHT_GREY, KIT_BROWN, KIT_GREEN, KIT_TEAL,
         KIT_MAYGREEN, KIT_YELLOW, KIT_ORANGE, KIT_RED, KIT_PURPLE, KIT_BLUE,
         KIT_STEELBLUE, KIT_CYAN

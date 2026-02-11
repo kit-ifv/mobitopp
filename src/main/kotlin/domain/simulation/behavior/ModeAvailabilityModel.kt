@@ -449,7 +449,7 @@ class AvailabilityModelWithSharing(
 
         return memberProviders.mapNotNull {
             it.requestRide(
-                DrtRequest(it,agent, time, agent.location, destination)
+                DrtRequest(it,agent, time, time, agent.location, destination)
             )
         }
 

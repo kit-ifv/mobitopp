@@ -32,6 +32,7 @@ import core.results.plots.render.LinePlotRenderer
 import core.results.plots.render.ScatterLayoutBuilder
 import core.results.plots.render.ScatterPlotRenderer
 import edu.kit.ifv.units.UnitIntervalValue
+
 /**
  * Entry point to build plot data from a lazy supplier of entities.
  * Write
@@ -44,7 +45,6 @@ import edu.kit.ifv.units.UnitIntervalValue
  * ```
  * to start a new plot definition.
  */
-
 fun <E> forData(entities: () -> List<E>) = PlotDataBuilderWithEntities(entities)
 
 /**

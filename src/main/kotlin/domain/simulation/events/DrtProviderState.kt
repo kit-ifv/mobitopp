@@ -14,7 +14,8 @@ import utils.units.AbsoluteTime
 @StateCalled("StartDrtProvider")
 class DrtProviderStartState(
     time: AbsoluteTime,
-    override val agent: DrtProviderAgent
+    override val agent: DrtProviderAgent,
+    var lastSentUpdateTime: AbsoluteTime = AbsoluteTime.START
 ) : BaseStateData(time), DrtAlgorithm by agent.algorithm {
     val self get() = agent
 }
@@ -41,16 +42,18 @@ class InteractPersonsMessage : DrtProviderMessage
 
 val drtProviderStateMachine = stateMachine<DrtProviderAgent>("DrtProviderStateMachine") {
 
-    start(StartDrtProvider, ::startDrtProvider) {
+    start(StartDrtProvider, { t, a -> startDrtProvider(t, a, AbsoluteTime.START) }) {
         // TODO logic on startup if needed
         //
     }.on(PickupDropOffPersons) { message, send ->
 
         synchronized(agent) {
-            if (time < nextActionTime()) {
-                sendNextActionUpdate(send)
-                return@on
-            }
+//            println("Update of Drt ${agent.name} at time $time (next action time: ${nextActionTime(time)})")
+
+//            if (time < nextActionTime(time)) {
+//                sendNextActionUpdate(send)
+//                return@on
+//            }
 
             for (ride in getPendingPickups(time)) {
                 send.now(pickupByDrt(ride), ride.offer.person)
@@ -87,9 +90,10 @@ val drtProviderStateMachine = stateMachine<DrtProviderAgent>("DrtProviderStateMa
 }
 
 fun DrtProviderStartState.sendNextActionUpdate(send: Send) {
-    nextActionTime().takeIf {
-        it != AbsoluteTime.INFINITY
+    nextActionTime(time).takeIf {
+        it != AbsoluteTime.INFINITY && it > lastSentUpdateTime
     }?.also { updateTime ->
+        lastSentUpdateTime = updateTime
         send(pickupDropOffPersons(), self, updateTime)
     }
 }

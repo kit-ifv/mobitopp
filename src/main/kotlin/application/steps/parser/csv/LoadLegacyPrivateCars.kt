@@ -157,8 +157,12 @@ data class PrivateCarCsvConfig(
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
     var columns: CarColumns = CarColumns(),
     var carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
-    var filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
+    var filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = defaultFilter
 )
+
+val defaultFilter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { row, context ->
+    HouseholdId(row.long(this.ownerColumn)) in context.householdRepository
+}
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadPrivateCarsContext.preparePrivateCars(
@@ -167,7 +171,7 @@ fun LoadPrivateCarsContext.preparePrivateCars(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: CarColumns = CarColumns(),
     carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
-    filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
+    filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = defaultFilter
 ) {
     val (_, step) = privateCarsFromCsvStep(path) {
         this.delimiter = delimiter

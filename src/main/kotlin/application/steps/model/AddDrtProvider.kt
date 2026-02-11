@@ -26,8 +26,14 @@ interface AddDrtProviderContext : Context {
 class DrtProviderCollector {
     private val providers: MutableList<MutableDrtProviderData> = mutableListOf()
 
-    fun newDrtProvider(id: DrtProviderId, scope: MutableDrtProviderData.() -> Unit) {
+    fun drtProvider(id: DrtProviderId, scope: MutableDrtProviderData.() -> Unit) {
         val p = MutableDrtProviderData(id)
+        p.scope()
+        providers.add(p)
+    }
+
+    fun drtProvider(scope: MutableDrtProviderData.() -> Unit) {
+        val p = MutableDrtProviderData(DrtProviderId(providerIdCounter++))
         p.scope()
         providers.add(p)
     }

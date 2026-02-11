@@ -118,7 +118,7 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
 
             transitionKey?.let {
                 getOrCreateTransitionUsage(it)
-            }?.register((timeSinceEnter ?: 0.seconds) / instanceCount)
+            }?.register(timeSinceEnter ?: 0.seconds)
         }
     }
 
@@ -215,8 +215,8 @@ class TransitionUsageRecorder(
     private var avgTime: Duration = 0.seconds
 
     fun register(timeSinceEnter: Duration) = synchronized(this) {
+        avgTime = ((avgTimeSinceEnter * occurrences) + timeSinceEnter) / (occurrences + 1)
         occurrences++
-        avgTime += timeSinceEnter
     }
 
     override fun toString() = "$key: $count | $avgTimeSinceEnter"

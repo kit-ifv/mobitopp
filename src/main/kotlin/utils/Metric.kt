@@ -5,6 +5,7 @@ import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+// TODO name very similar to Metrics interface, I suggest to rename Metrics to sth. like Impedance or TripProperties
 fun interface Metric {
     fun evaluateNumber(expected: Collection<Number>, actual: Collection<Number>) = evaluate(
         expected.map { it.toDouble() },

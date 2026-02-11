@@ -9,6 +9,7 @@ import core.results.plots.modeStringColor
 import domain.shared.datastructure.schedule.LinkedActivity
 import domain.shared.datastructure.schedule.LinkedLeg
 import domain.shared.datastructure.schedule.MovingAction
+import domain.shared.datastructure.schedule.StationaryAction
 import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
 import domain.shared.location.Metrics
@@ -17,7 +18,6 @@ import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.PersonId
 import edu.kit.ifv.units.kilometers
-import java.util.TreeMap
 import kotlin.time.Duration.Companion.minutes
 
 interface AgentResultsContext {
@@ -36,14 +36,30 @@ data class PersonLeg(val person: PersonAgent, val leg: MovingAction, val purpose
 
 val AgentResultsContext.personLegs: List<PersonLeg>
     get() = persons.flatMap { person ->
-        val purposes = person.schedule.pastActivities().associate {
-            it.startTime to it.type
+
+        val result = mutableListOf<PersonLeg>()
+        var lastPurpose: ActivityType? = null
+
+        person.schedule.past.reversed().forEach { action ->
+            when (action) {
+                is StationaryAction -> {
+                    lastPurpose = action.type
+                }
+                is MovingAction -> {
+                    result += if (lastPurpose == null) {
+                        PersonLeg(person, action, null)
+                    } else {
+                        PersonLeg(person, action, lastPurpose)
+                    }
+                }
+                else -> error(
+                    "Cannot process $action of type ${action::class.simpleName} while creating PersonLegs," +
+                        " expected MovingAction or StationaryAction"
+                )
+            }
         }
 
-        val lookup = TreeMap(purposes)
-        person.schedule.pastLegs().map { leg ->
-            PersonLeg(person, leg, lookup.ceilingEntry(leg.endTime)?.value)
-        }
+        result.reversed()
     }
 
 fun LinkedLeg.nextActivity(): LinkedActivity? = this.next?.let {

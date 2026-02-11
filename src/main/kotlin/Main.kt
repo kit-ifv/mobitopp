@@ -173,9 +173,11 @@ fun main(args: Array<String>) {
         buildAgents(
             personStateMachine,
             drtStateMachine = drtProviderStateMachine,
-            drtAlgorithm = dummyDrtAlgorithm(
-                zoneRepository.elements.filter { it.isDestination }.toList()
-            ),
+            drtAlgorithm = { _ ->
+                dummyDrtAlgorithm(
+                    zoneRepository.elements.filter { it.isDestination }.toList()
+                )
+            },
             durationRandomizer = GaussianActivityDurationRandomizer()
         )
 

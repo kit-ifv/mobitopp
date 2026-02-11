@@ -78,6 +78,20 @@ object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
         val potentialCarUsers = householdBuilder.run {
             if (numberOfDrivingLicences == 0) adults else licenceHolders
         }
+
+        if (potentialCarUsers.isEmpty() && householdBuilder.amountOfCars > 0) {
+            println(
+                "WARN: household ${householdBuilder.surveyHouseholdId} has ${householdBuilder.amountOfCars}" +
+                    " but no pot. car users:\n" +
+                    "  - numOfLicenses: ${householdBuilder.numberOfDrivingLicences}\n" +
+                    "  - adults: ${householdBuilder.adults}\n" +
+                    "  - licenseHolders: ${householdBuilder.licenceHolders}\n" +
+                    "  - all members (id, age, license): ${
+                        householdBuilder.members.joinToString { "${it.personId}, ${it.age}, ${it.hasLicence}" }
+                    }"
+            )
+        }
+
         val generationTargets = potentialCarUsers.selectExact(householdBuilder.amountOfCars)
         return generationTargets.map { person ->
 

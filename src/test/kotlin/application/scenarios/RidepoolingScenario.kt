@@ -103,7 +103,7 @@ class RidepoolingScenario {
             NoWriters.personStateMachine.withRecording(),
             syntheticBehavior,
             drtStateMachine = drtProviderStateMachine.withRecording(),
-            drtAlgorithm = algorithm,
+            drtAlgorithm = { _ -> algorithm },
         )
         val agents = builder.buildPersonAgents(households)
 
