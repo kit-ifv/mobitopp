@@ -148,7 +148,7 @@ class PerformingActivityState(
 }
 
 @StateCalled("StartingTrip", PerformingActivityState::class)
-class StartingTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
+class StartingTripState constructor(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
 
 @StateCalled(
     "PerformLeg",
@@ -180,7 +180,7 @@ data class FinishDrtEgressMessage(val ride: DrtRide) : PersonMessage
 
 // DRT states
 @StateCalled("WaitingForPickup", StartingTripState::class)
-class WaitingForPickupState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
+class WaitingForPickupState constructor(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
     state.time,
     state.agent,
     doStep = false
@@ -307,7 +307,7 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : PersonS
                     }
                 }
 
-                trip.alternateByImpedance(impedance) {
+                trip.alternateByImpedance(impedance, replanner = behavior.replanningStrategy) {
                     taking(mode to destination)
                 }
 
@@ -436,7 +436,7 @@ fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
             " - check connection model: ${bikeSharingConnections::class.simpleName}"
     }
 
-    trip.alternateByImpedance(impedance) {
+    trip.alternateByImpedance(impedance, replanner = behavior.replanningStrategy) {
         taking(modes.pedestrian to startStation.location)
         taking(modes.bikeSharing to endStation.location)
         taking(modes.pedestrian to destination)
@@ -458,7 +458,7 @@ fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
 }
 
 fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPickupState {
-    trip.alternateByImpedance(impedance) {
+    trip.alternateByImpedance(impedance, replanner = behavior.replanningStrategy) {
         taking(modes.pedestrian to drtRide.offer.pickupAt)
         taking(modes.ridePooling to drtRide.offer.dropOffAt)
         taking(modes.pedestrian to destination)
@@ -467,7 +467,7 @@ fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPicku
     return waitingForPickup(drtRide = drtRide)
 }
 
-private fun StartingTripState.modeChoiceDrtWrapper(
+internal fun StartingTripState.modeChoiceDrtWrapper(
     choices: List<Mode>,
     send: Send,
     modeChoiceScope: StartingTripState.(List<Mode>, DrtOffer?) -> Mode

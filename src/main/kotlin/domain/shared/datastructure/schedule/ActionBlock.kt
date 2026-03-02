@@ -1,6 +1,7 @@
 package domain.shared.datastructure.schedule
 
 import domain.shared.datastructure.schedule.plans.IDispatcher
+import domain.shared.location.Location
 import utils.collections.iterate
 import java.util.*
 
@@ -69,20 +70,7 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
         val firstFits = previous?.lastElementOrNull()?.let { it <= sortedSet.first() } != false
         val lastFits = next?.firstElementOrNull()?.let { it >= sortedSet.last() } != false
         return firstFits && lastFits
-//        return sortedSet.first() >= (
-//            previous?.lastElementOrNull()
-//                ?: firstElement()
-//            ) && sortedSet.last() <= (next?.firstElementOrNull() ?: item.last())
     }
-    // original implementation of bounds which does not respect gaps in the activity plan for bounding
-//    fun strictlyBounds(elements: Collection<Action>): Boolean {
-//        val sortedSet = elements.toSortedSet()
-//        if (sortedSet.isEmpty()) return false
-//        if (this.isEmpty()) {
-//            return false
-//        }
-//        return sortedSet.first() >= firstElement() && sortedSet.last() <= item.last()
-//    }
 
     /**
      * Implementations of action block are iterables (which are holding iterables). In order to differentiate between
@@ -156,7 +144,7 @@ class ActivityBlock(
     }
 
     constructor() : this(sortedSetOf())
-
+    val location get() = item.first.location
     override fun toString(): String {
         return item.joinToString { it.toString() }
     }
@@ -216,23 +204,35 @@ class ActivityBlock(
         return newLegBlock to newActivityBlock
     }
 
+    /**
+     * Unlinking an action block requires additional work to keep consistency. When an action block A is removed the
+     * original chain of A(prev) T1 -> A -> T2 (A_next) must be cleaned up: T2 serves no purpose anymore, since A is
+     * cancelled. The T1 trip must instead redirect from A(prev) to A(next). If these two activity blocks happen at
+     * the same location, then T1 is also without purpose, and should be removed.
+     */
     override fun unlink() {
-        val prevLeg = previous!!
-        val nextLeg = next!!
+        val previousTrip = previous!!
+        val nextTrip = next!!
 
-        val nextActivity = nextLeg.next
-        prevLeg.item.addAll(nextLeg.item)
+        val nextActivity = nextTrip.next
+        previousTrip.endLocation = nextActivity.location
 
-        prevLeg.next = nextActivity
-        nextActivity.previous = prevLeg
+        previousTrip.next = nextActivity
+        nextActivity.previous = previousTrip
 
         // Removing other links for GC support
 
         next = null
         previous = null
+        // Since these references cannot be null, we instead redirect them to [this] which will be removed from the
+        // list, and hopefully GC collected at some point.
+        nextTrip.previous = this
+        nextTrip.next = this
+        nextTrip.clear()
 
-        nextLeg.previous = this
-        nextLeg.next = this
+        if (previousTrip.isUseless()) {
+            previousTrip.clear()
+        }
     }
 
     fun remove(activity: Activity): Boolean {
@@ -305,6 +305,14 @@ class LinkedTrip(
             item.add(link(it))
         }
     }
+
+    val startLocation: Location get() = item.first().startLocation
+    var endLocation: Location get() = item.last().endLocation
+        set(value) {
+            item.last().endLocation = value
+        }
+
+    fun isUseless() = startLocation == endLocation
 
     constructor(previous: ActivityBlock, next: ActivityBlock) : this(emptyList(), previous, next)
 

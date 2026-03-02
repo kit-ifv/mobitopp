@@ -5,7 +5,9 @@ import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import utils.units.AbsoluteTime
+import utils.units.min
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * An Action is the central aspect of mobility behaviour in this simulation mobitopp. In its simplest form an action
@@ -66,16 +68,21 @@ sealed interface Action : Comparable<Action> {
 }
 
 /**
+ * Strong consistency occurs when the actions are weakly consistent and all actions are well structured.
+ */
+fun Iterable<Action>.isConsistent(): Boolean {
+    return isWeaklyConsistent() && all { it.startTime <= it.endTime }
+}
+
+/**
  * This method verifies the consistency of any iterable of actions by having continuous locations and no time interval
  * overlaps
  *
  */
-fun Iterable<Action>.isConsistent(): Boolean {
-    val t =
-        zipWithNext { first, second -> first.endLocation == second.startLocation && first.endTime <= second.startTime }
-    return t.all { it }
+fun Iterable<Action>.isWeaklyConsistent(): Boolean {
+    return zipWithNext { first, second ->
+        first.endLocation == second.startLocation && first.endTime <= second.startTime }.all { it }
 }
-
 fun Iterable<Action>.hasTimeBoundViolations(): Boolean {
     return any { it.startTime < it.earliestStartTime || it.endTime > it.latestEndTime }
 }
@@ -132,7 +139,7 @@ interface Activity : StationaryAction {
      * A default implementation to spawn a leg spanning from one activity to another.
      */
     fun createLegTo(other: Activity, mode: Mode): Leg {
-        val duration = other.startTime - endTime
+        val duration = min(other.startTime - endTime, 1.seconds)
         require(!duration.isNegative()) {
             "Cannot create Leg with negative duration $this -> $other"
         }
@@ -172,9 +179,9 @@ interface Activity : StationaryAction {
             location: Location,
             startTime: AbsoluteTime,
             duration: Duration,
-            earliestStartTime: AbsoluteTime,
-            latestEndTime: AbsoluteTime,
-            activityType: ActivityType = ActivityType.UNKNOWN,
+            earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
+            latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
+            type: ActivityType = ActivityType.UNKNOWN,
         ): Activity {
             return RawActivity(
                 location = location,
@@ -182,17 +189,8 @@ interface Activity : StationaryAction {
                 endTime = startTime + duration,
                 earliestStartTime = earliestStartTime,
                 latestEndTime = latestEndTime,
-                type = activityType
+                type = type
             )
-        }
-
-        fun fromDuration(
-            location: Location,
-            startTime: AbsoluteTime,
-            duration: Duration,
-            type: ActivityType = ActivityType.UNKNOWN,
-        ): Activity {
-            return fromDuration(location, startTime, duration, AbsoluteTime.MINUS_INFINITY, AbsoluteTime.INFINITY, type)
         }
     }
 }
@@ -205,6 +203,7 @@ interface Activity : StationaryAction {
  * @property startTime The start time of the activity.
  * @property endTime The end time of the activity.
  */
+
 data class RawActivity(
     override var location: Location,
     override var startTime: AbsoluteTime,
@@ -240,8 +239,9 @@ data class RawActivity(
         val earlyStartTime =
             if (earliestStartTime == AbsoluteTime.MINUS_INFINITY) "" else "earliestStartTime=$earliestStartTime"
         val latestEndTime = if (latestEndTime == AbsoluteTime.INFINITY) "" else "latestEndTime=$latestEndTime"
-        return "${type.description.first()}(${type.code}) $earlyStartTime[startTime=$startTime, endTime=$endTime]" +
-            "$latestEndTime location = ${location.zoneID()} "
+        return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneID()}" +
+            " t= ${type.description.first()}" +
+            "(${type.code}) e=$earlyStartTime l=$latestEndTime "
     }
 }
 
@@ -366,6 +366,10 @@ data class RawLeg(
         result = 31 * result + endLocation.hashCode()
         result = 31 * result + endTime.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "[$startTime, $endTime] mode=$transportType, from=$startLocation to=$endLocation"
     }
 }
 

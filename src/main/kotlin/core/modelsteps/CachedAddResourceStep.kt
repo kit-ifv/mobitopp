@@ -112,10 +112,13 @@ abstract class CachedFileInput(
     }
 
     protected fun hasValidCache(): Boolean {
+        println("Checking valid cache path $expectedCachePath")
         if (!expectedCachePath.exists()) return false
         val cachedChecksum = runCatching { calculateChecksum(expectedCachePath) }
         if (cachedChecksum.isFailure) return false
-        return cachedChecksum.getOrNull() == originalFileChecksum
+        return (cachedChecksum.getOrNull() == originalFileChecksum).also {
+            println("Cache for $expectedCachePath is $it")
+        }
     }
 
     abstract fun calculateChecksum(expectedCachePath: Path): PathChecksum

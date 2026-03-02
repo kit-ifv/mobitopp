@@ -125,7 +125,12 @@ abstract class Scenario(
 
     // When testing choice models with overridden utility calculation they still require activities for the signature.
     val fakeActivity =
-        Activity.fromDuration(zones[0].point(BIELEFELD), (-1).hours.sinceStart, (1).seconds, ActivityType.UNKNOWN)
+        Activity.fromDuration(
+            zones[0].point(BIELEFELD),
+            (-1).hours.sinceStart,
+            (1).seconds,
+            type = ActivityType.UNKNOWN
+        )
 
     val availability = AvailabilityModelWithSharing(
         legacyChoiceModelModes,

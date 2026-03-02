@@ -43,11 +43,11 @@ abstract class PersonAgent(
     var location: Location = household.location
 }
 
-fun PersonAgent.lastTransportMode(action: Action): Mode? {
-    return schedule.pastLegs().lastOrNull { it < action }?.transportType
+fun PersonAgent.lastTransportMode(action: Action? = null): Mode? {
+    return schedule.pastLegs().lastOrNull { action?.let { act -> it < act } ?: true }?.transportType
 }
 
-fun PersonAgent.lastTransportMode(): Mode? {
+fun PersonAgent.lastTransportModeDeprecated(): Mode? {
     return schedule.past.filter { it is MovingAction }.map {
         (it as MovingAction).transportType
     }.lastOrNull()

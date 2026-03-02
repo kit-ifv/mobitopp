@@ -93,7 +93,7 @@ class BandwidthLocator(
 data class BandwidthParameters(
     val poleRadius: Distance = 4.kilometers,
     val bDistance: Double = 0.5,
-    val aDistance: Double = 5.0
+    val aDistance: Double = 5.0,
 )
 
 /**

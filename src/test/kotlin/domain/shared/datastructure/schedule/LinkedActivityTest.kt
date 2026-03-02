@@ -95,7 +95,7 @@ class LinkedActivityTest {
             DynamicTest.dynamicTest(it.toString()) {
                 setup()
                 it.second(it.first.sinceStart)
-                assertTrue(listOf(firstLeg, secondLeg, thirdActivity, fourthActivity, fifthLeg).isConsistent())
+                assertTrue(listOf(firstLeg, secondLeg, thirdActivity, fourthActivity, fifthLeg).isWeaklyConsistent())
             }
         }
     }

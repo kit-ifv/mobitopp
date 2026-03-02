@@ -69,13 +69,17 @@ import kotlinx.coroutines.runBlocking
 import utils.collections.addProgressBar
 import utils.collections.standardProgressBar
 import utils.csv.DefaultCsvParser
+import utils.csv.Row
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.random.Random
+import kotlin.text.toDouble
+import kotlin.text.toInt
 
 fun String.toBooleanNumeric(): Boolean = when (this) {
     "1" -> true
     "0" -> false
+    "-1" -> false // TODO thi
     else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
 }
 
@@ -105,27 +109,31 @@ fun parseSurvey(path: Path, lambda: SurveyColumns.() -> Unit): List<RawSurveyInf
     return parseSurvey(path, surveyColumns).toList()
 }
 
+fun readRawSurveyInfo(row: Row, surveyColumns: SurveyColumns): RawSurveyInfo {
+    return RawSurveyInfo(
+        householdId = row(surveyColumns.ID).toLong(),
+        year = row(surveyColumns.year).toInt(),
+        areaType = row(surveyColumns.areatype).toInt(),
+        householdSize = row(surveyColumns.size).toInt(),
+        personNumber = row(surveyColumns.personnumber).toInt(),
+        sex = row(surveyColumns.sex) { Sex.decode(it.toInt()) },
+        birthyear = row(surveyColumns.birthyear).toInt(),
+        employment = row(surveyColumns.employmenttype) { Employment.decode(it.toInt()) },
+        hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
+        householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
+        householdIncomeClass = row(surveyColumns.hhincomeClass).toInt(),
+        typeCode = row(surveyColumns.type).toInt(),
+        cars = row(surveyColumns.cars).toInt(),
+        hasBicycle = row(surveyColumns.bicycle).toBooleanNumeric(),
+        hasLicence = row(surveyColumns.licence).toBooleanNumeric(),
+        distanceWork = row(surveyColumns.distanceWork) { it.toDouble().kilometers },
+        distanceEducation = row(surveyColumns.distanceEducation) { it.toDouble().kilometers },
+    )
+}
+
 fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Sequence<RawSurveyInfo> {
     val parser = DefaultCsvParser { row ->
-        RawSurveyInfo(
-            householdId = row(surveyColumns.ID).toLong(),
-            year = row(surveyColumns.year).toInt(),
-            areaType = row(surveyColumns.areatype).toInt(),
-            householdSize = row(surveyColumns.size).toInt(),
-            personNumber = row(surveyColumns.personnumber).toInt(),
-            sex = row(surveyColumns.sex) { Sex.decode(it.toInt()) },
-            birthyear = row(surveyColumns.birthyear).toInt(),
-            employment = row(surveyColumns.employmenttype) { Employment.decode(it.toInt()) },
-            hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
-            householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
-            householdIncomeClass = row(surveyColumns.hhincomeClass).toInt(),
-            typeCode = row(surveyColumns.type).toInt(),
-            cars = row(surveyColumns.cars).toInt(),
-            hasBicycle = row(surveyColumns.bicycle).toBooleanNumeric(),
-            hasLicence = row(surveyColumns.licence).toBooleanNumeric(),
-            distanceWork = row(surveyColumns.distanceWork) { it.toDouble().kilometers },
-            distanceEducation = row(surveyColumns.distanceEducation) { it.toDouble().kilometers },
-        )
+        readRawSurveyInfo(row, surveyColumns)
     }
 
     return parser.parse(path)
@@ -370,6 +378,7 @@ class SynthesisSteps<T : Any>(
         activities = households.map { it.members.associateWith { it.plannedActivities } }
     }
 }
+
 class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
@@ -405,6 +414,7 @@ class PopulationSynthesis<T : Any>(
             if (model.attractivenessFor(zone.id, act) > 0.0) zone.generateLocations(1) else emptyList()
         }
     }
+
     companion object {
         class SynthesisConfiguration<T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()

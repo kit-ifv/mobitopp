@@ -3,6 +3,7 @@ package domain.simulation.events
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.schedule.LinkTrip
+import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.Metrics
@@ -63,7 +64,7 @@ val StandardModeImplementation =
         )
     }
 
-data class PersonBehavior(
+data class PersonBehavior constructor(
     val destinationChoice: FixedChoiceModel<Location, DestinationChoiceCharacteristics>,
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     val modes: ChoiceModelModes,
@@ -74,6 +75,7 @@ data class PersonBehavior(
     val drtAvailabilitySelector: DrtAvailabilitySelector,
     val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
     val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
+    val replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
 ) {
     companion object {
         @Suppress("LongParameterList")
@@ -86,6 +88,7 @@ data class PersonBehavior(
             modeAvailability: ModeAvailabilityModel,
             bikeSharingConnectionSelector: BikeSharingConnectionSelector,
             drtAvailabilitySelector: DrtAvailabilitySelector,
+            replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
         ): PersonBehavior {
             return PersonBehavior(
                 destinationChoice,
@@ -98,6 +101,7 @@ data class PersonBehavior(
                 drtAvailabilitySelector,
                 StandardDestinationImplementation,
                 StandardModeImplementation,
+                replanningStrategy,
             )
         }
     }

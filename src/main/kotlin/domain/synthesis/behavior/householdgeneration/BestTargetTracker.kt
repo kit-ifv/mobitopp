@@ -5,7 +5,7 @@ import kotlin.random.Random
 /**
  * Keeps track which partition is currently the best to receive a signature based on the calculated gain.
  */
-class BestTargetTracker(allPartitions: Collection<TempPartition>, private val random: Random = Random(1)) {
+class BestTargetTracker(val allPartitions: Collection<TempPartition>, private val random: Random = Random(1)) {
 
     private val maxGain: Int = allPartitions.first().signatureTracker.largestDifference
 

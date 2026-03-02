@@ -10,6 +10,7 @@ import core.modelsteps.validateCondition
 import core.modelsteps.validateScope
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
+import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.Mode
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.location.LegacyZone
@@ -46,13 +47,15 @@ fun LoadBehaviorModelsContext.loadBehaviorModels(
     destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     modes: ChoiceModelModes,
+    replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
 ) = this.loadBehaviorModels(
     LoadBehaviorModelConfig(
         destinationChoiceModel,
         modeChoiceModel,
         modes,
         StandardDestinationImplementation,
-        StandardModeImplementation
+        StandardModeImplementation,
+        replanningStrategy,
     )
 )
 
@@ -62,6 +65,7 @@ data class LoadBehaviorModelConfig(
     val modes: ChoiceModelModes,
     val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics = StandardDestinationImplementation,
     val spawnModeChoiceCharacteristics: NewModeCharacteristics = StandardModeImplementation,
+    val replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
 )
 
 fun LoadBehaviorModelsContext.loadBehaviorModels(
@@ -80,7 +84,8 @@ fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
             modeChoiceModel,
             modes,
             spawnDestinationChoiceCharacteristics,
-            spawnModeChoiceCharacteristics
+            spawnModeChoiceCharacteristics,
+            replanningStrategy,
         )
     }
 }
@@ -103,6 +108,7 @@ open class LoadBehaviorModelsStep(
     private val modes: ChoiceModelModes,
     private val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
     private val spawnModeChoiceCharacteristics: NewModeCharacteristics,
+    private val replanningStrategy: ReplanningStrategy,
 ) : RepositoryDependentStep {
 
     override val name: String = "Load behavior models!"
@@ -156,6 +162,7 @@ open class LoadBehaviorModelsStep(
             availability,
             spawnDestinationChoiceCharacteristics,
             spawnModeChoiceCharacteristics,
+            replanningStrategy
         )
 
         context.behavior.value = behavior
@@ -184,7 +191,7 @@ open class LoadBehaviorModelsStep(
             BikeSharingConnectionSelector { p, l -> null },
             DummyDrtAvailabilitySelector,
             StandardDestinationImplementation,
-            StandardModeImplementation
+            StandardModeImplementation,
         )
     }
 

@@ -2,7 +2,7 @@ package domain.shared.behavior
 
 import domain.shared.enums.ActivityType
 
-data class ChoiceModelPurposes(
+data class ChoiceModelPurposes constructor(
     val home: ActivityType,
     val work: ActivityType,
     val business: ActivityType,

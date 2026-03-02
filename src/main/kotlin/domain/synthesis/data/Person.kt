@@ -160,7 +160,8 @@ abstract class Person(
  */
 enum class Sex(override val code: Int) : Encodable {
     MALE(1),
-    FEMALE(2);
+    FEMALE(2),
+    UNKNOWN(9);
 
     fun isFemale(): Boolean {
         return this == FEMALE
@@ -197,7 +198,11 @@ enum class Employment(override val code: Int) : Encodable {
 
     override val description: String = name
 
-    companion object : EnumDecodable<Employment>(Employment::class)
+    fun isStudent() = this.code in studentCodes
+
+    companion object : EnumDecodable<Employment>(Employment::class) {
+        private val studentCodes = setOf(4, 40, 41, 42)
+    }
 }
 
 enum class Graduation(override val code: Int) : Encodable { // TODO split into school and higher education
