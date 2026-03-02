@@ -89,7 +89,7 @@ fun Coordinate.randomCoordinate(radius: Distance, random: Random): Coordinate {
  */
 class ZoneDistributedLocations<T>(
     private val polyZones: Map<VisumZoneId, VisumPolyZone>,
-    private val distributor: LanduseDistributedCoordinates,
+    private val distributor: CoordinateGenerator,
 ) : AssignHouseholdLocations<Zone, T>, GroupAssignHouseholdLocations<Zone, T> {
 
     /**
@@ -118,7 +118,7 @@ class ZoneDistributedLocations<T>(
         return householdsToLocate.zip(generatedLocations)
     }
 
-    private fun LanduseDistributedCoordinates.generateOneCoordinate(polyZone: VisumPolyZone): GPSCoordinate {
+    private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): GPSCoordinate {
         return this.generateCoordinates(polyZone, 1).first()
     }
 

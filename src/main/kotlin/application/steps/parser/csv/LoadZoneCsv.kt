@@ -12,6 +12,8 @@ import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPosition
 import domain.simulation.config.DemandSimContext
 import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.meters
 import utils.CodePlan
 import utils.Decodable
 import utils.ErrorHandling
@@ -96,6 +98,32 @@ fun defaultCsvParser(
 
     return csvParser
 }
+
+fun cheatyDefaultCsvParser(
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    seed: Long = 1,
+): DefaultCsvParser<MutableLegacyZone> {
+    val csvParser = CsvParser(errorHandling) { row ->
+        MutableLegacyZone(
+            id = ZoneId(row.long("id")),
+            centroid = Location(BIELEFELD, null, null),
+            seed = seed
+        ) {
+            visumId = row.long("id")
+            matrixColumn = -1
+            name = row("zone_name")
+            regionType = RegioStaR17.REGIOPOLE
+            classification = ZoneClassification.STUDY_AREA
+            parkingPlaces = 0
+            isDestination = true
+            relief = 0.meters
+        }
+    }
+
+    return csvParser
+}
+
+private val BIELEFELD = GPSCoordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
 
 fun LoadZonesContext.prepareZoneFile(
     parser: CsvParser<MutableLegacyZone>,
