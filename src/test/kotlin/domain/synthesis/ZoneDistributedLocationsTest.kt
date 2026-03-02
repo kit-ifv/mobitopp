@@ -54,7 +54,7 @@ class ZoneDistributedLocationsTest {
     private val polyZones = netfileParser.readPolyZones().associateBy { it.id }
     private val distributor = UrbanAtlasGenerator(
         landUseModel = landUseModel,
-        weightFunction = weights::getValue,
+        weightFunction = { weights.getOrDefault(it, defaultValue = 0.0) },
         utmZone = netfileParser.utmZone,
         utmHemisphere = netfileParser.utmHemisphere
     )

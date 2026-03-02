@@ -123,6 +123,7 @@ fun cheatyDefaultCsvParser(
     return csvParser
 }
 
+@Suppress("MagicNumber")
 private val BIELEFELD = GPSCoordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
 
 fun LoadZonesContext.prepareZoneFile(
