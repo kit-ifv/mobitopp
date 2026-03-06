@@ -59,7 +59,7 @@ dependencies {
     api(libs.ifv.visum.netparser)
     api(libs.ifv.discrete.choice)
     api(libs.ifv.actitoppNG)
-
+    api(libs.ifv.synthesisAlgorithms)
 
 
     //testing libs
