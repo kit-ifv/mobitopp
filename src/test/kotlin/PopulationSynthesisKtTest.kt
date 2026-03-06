@@ -63,7 +63,6 @@ class PopulationSynthesisKtTest {
             zones = listOf(TEST_ZONE)
         ) {
             outputDirectory = Path("src/test/resources/tempOutput")
-            rules = emptyList()
             surveyHouseholds = surveyPopulation.toSurveyHouseholds()
             // TODO make this a code based attractiveness model instead of parsing a file.
             attractivenessModel = attractivenessFromFile {

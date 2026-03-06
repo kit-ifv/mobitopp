@@ -383,7 +383,6 @@ class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<ISurveyHousehold<T>>,
-    val rules: List<Rule<ISurveyHousehold<out Any>>>,
     val attractivenessModel: AttractivenessModel,
 ) {
 
@@ -420,7 +419,6 @@ class PopulationSynthesis<T : Any>(
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
-            lateinit var rules: List<Rule<ISurveyHousehold<out Any>>>
             lateinit var surveyHouseholds: Collection<ISurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
 
@@ -457,7 +455,6 @@ class PopulationSynthesis<T : Any>(
                 config.outputDirectory,
                 zones,
                 config.surveyHouseholds,
-                config.rules,
                 config.attractivenessModel,
             )
         }
