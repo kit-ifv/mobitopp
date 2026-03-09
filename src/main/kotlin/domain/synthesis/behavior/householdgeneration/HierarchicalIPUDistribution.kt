@@ -69,7 +69,9 @@ class HierarchicalIPUDistribution<AREA, H>(
         signatures: Map<Signature, List<H>>,
     ): List<H> {
         val targetMap = amounts.associateWith {
-            val targetHouseholds = signatures[it.signature] ?: error("No households for the signature ${it.signature}")
+            val targetHouseholds = signatures[it.signature] ?: run {
+                error("No households for the signature ${it.signature}")
+            }
             targetHouseholds
         }
         return collector.extract(targetMap).map { it }

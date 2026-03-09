@@ -318,7 +318,6 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
 
         "personNumber",
         "householdId",
-
         "employment",
         "hasAccessToCar",
         "hasPersonalCar",

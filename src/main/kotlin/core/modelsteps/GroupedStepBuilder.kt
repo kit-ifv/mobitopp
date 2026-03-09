@@ -46,10 +46,11 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
      * Otherwise, no caching is done.
      */
     fun FileBasedAddResourceStep<E, I>.optionalCache(cacheRootPath: Path?): AddResourceStep<E, I> {
-        if (cacheRootPath != null) {
+        return if (cacheRootPath != null) {
             enableCache(cacheRootPath)
+        } else {
+            disableCache()
         }
-        return disableCache()
     }
 
     // Enable the binary cache at the cacheRootPath.

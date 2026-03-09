@@ -1,10 +1,9 @@
 package domain.synthesis
 
 import CRS84
-import LandUseModel
 import LandUseParser
-import LanduseDistributedCoordinates
 import NetfileParser
+import UrbanAtlasGenerator
 import VisumLocale
 import ZoneType
 import asLocation
@@ -46,15 +45,16 @@ class ZoneDistributedLocationsTest {
             .map {
                 Pair(ZoneType(it.invoke("landUseType").toInt()), it.invoke("weight").toDouble())
             }.toMap()
-    val landUseModel: LandUseModel = LandUseParser(
+    val landUseModel = LandUseParser(
         gpsParser = CRS84(),
-        zoneTypePropertyName = "landUseType"
+        zoneTypePropertyName = "landUseType",
+        typeEncoder = ::ZoneType
     ).parse(Path("src/test/resources/synthesis/250410_landuse_rastatt.geojson"))
 
     private val polyZones = netfileParser.readPolyZones().associateBy { it.id }
-    private val distributor = LanduseDistributedCoordinates(
+    private val distributor = UrbanAtlasGenerator(
         landUseModel = landUseModel,
-        weights = weights,
+        weightFunction = { weights.getOrDefault(it, defaultValue = 0.0) },
         utmZone = netfileParser.utmZone,
         utmHemisphere = netfileParser.utmHemisphere
     )
