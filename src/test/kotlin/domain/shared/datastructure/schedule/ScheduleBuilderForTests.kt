@@ -2,7 +2,7 @@ package domain.shared.datastructure.schedule
 
 import domain.shared.datastructure.schedule.plans.BlockModel
 import domain.shared.enums.LegacyActivityType
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 
 class ScheduleBuilderForTests(val duration: Number = 8) {
     private val homeLoc = ActuallyUseableLocation(1)
@@ -17,7 +17,7 @@ class ScheduleBuilderForTests(val duration: Number = 8) {
             duration = this@ScheduleBuilderForTests.duration
         }.also { activities.add(it) }
     }
-    private var lastLocation: Location = homeLoc
+    private var lastLocation: LocationOld = homeLoc
     fun Schedule.add(lambda: ActConfig.() -> Unit): Activity {
         val activity = ActConfig()
         activity.lambda()
@@ -25,7 +25,7 @@ class ScheduleBuilderForTests(val duration: Number = 8) {
         add(activity1)
         return activity1
     }
-    private fun Location.alternate(): Location {
+    private fun LocationOld.alternate(): LocationOld {
         return when (this) {
             homeLoc -> loc2
             loc2 -> loc3

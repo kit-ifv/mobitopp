@@ -1,7 +1,7 @@
 package domain.shared.datastructure.schedule
 
 import domain.shared.datastructure.schedule.plans.IDispatcher
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import utils.collections.iterate
 import java.util.*
 
@@ -306,8 +306,8 @@ class LinkedTrip(
         }
     }
 
-    val startLocation: Location get() = item.first().startLocation
-    var endLocation: Location get() = item.last().endLocation
+    val startLocation: LocationOld get() = item.first().startLocation
+    var endLocation: LocationOld get() = item.last().endLocation
         set(value) {
             item.last().endLocation = value
         }

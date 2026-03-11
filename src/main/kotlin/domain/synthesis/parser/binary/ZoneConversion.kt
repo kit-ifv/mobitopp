@@ -3,7 +3,7 @@ package domain.synthesis.parser.binary
 import domain.jackson.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
@@ -62,7 +62,7 @@ class BinaryZoneReader(
 // TODO string really hampers the construction as the maxlength is unknown
 data class ZoneBinaryRecord(
     val id: Long,
-    val centroid: Location,
+    val centroid: LocationOld,
     val visumId: Long,
     val name: String,
     val regionTypeCode: Int,
@@ -71,7 +71,7 @@ data class ZoneBinaryRecord(
     val isDestination: Boolean,
     val relief: Double,
 
-) : BinaryWritable {
+    ) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)

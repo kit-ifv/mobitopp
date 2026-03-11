@@ -2,7 +2,7 @@ package domain.shared.datastructure.matrix.optimized
 
 import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.DurationMetric
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.ZoneId
 import kotlin.time.Duration
 
@@ -20,8 +20,8 @@ class DurationMatrix(
     }
 
     override fun evaluate(
-        origin: Location,
-        destination: Location,
+        origin: LocationOld,
+        destination: LocationOld,
     ): Duration {
         return this[origin.requireZone().id, destination.requireZone().id]
     }

@@ -8,7 +8,7 @@ import domain.shared.datastructure.schedule.Action
 import domain.shared.datastructure.schedule.MovingAction
 import domain.shared.datastructure.schedule.Schedule
 import domain.shared.enums.Mode
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.simulation.events.PersonBehavior
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.PersonId
@@ -40,7 +40,7 @@ abstract class PersonAgent(
     abstract val behavior: PersonBehavior
 
     var inTransit: Boolean = false
-    var location: Location = household.location
+    var location: LocationOld = household.location
 }
 
 fun PersonAgent.lastTransportMode(action: Action? = null): Mode? {
@@ -53,7 +53,7 @@ fun PersonAgent.lastTransportModeDeprecated(): Mode? {
     }.lastOrNull()
 }
 
-fun Schedule.location(): Location? {
+fun Schedule.location(): LocationOld? {
     return present?.startLocation ?: past.lastOrNull()?.endLocation
 }
 

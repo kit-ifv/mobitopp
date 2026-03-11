@@ -13,7 +13,7 @@ import kotlin.random.Random
 private const val IPU_GENERATION_LABEL = "IPU generation"
 
 /**
- * The default implementation of the [HouseholdSynthesis] interface, which generates a synthetic population
+ * The default implementation of the [HouseholdSynthesisDeprecated] interface, which generates a synthetic population
  * for each zone based on survey household data represented as [ScalableVector]s. The goal of the synthesis is
  * to match the conditions defined by a set of rules using the [RuleObserver] for each zone.
  *
@@ -41,7 +41,7 @@ class IPU<AREA, T>(
     val converter: GenerateHouseholdsFromVector<ISurveyHousehold<out T>> = SampleAndCollect(),
     val algorithm: GenericIPU,
 ) :
-    HouseholdSynthesis<AREA, ISurveyHousehold<out T>, SynthesisHousehold<out T>> {
+    HouseholdSynthesisDeprecated<AREA, ISurveyHousehold<out T>, SynthesisHousehold<out T>> {
 
     /**
      * Synthesizes households for each zone based on the provided survey data and the conditions (rules) defined

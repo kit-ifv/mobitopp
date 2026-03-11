@@ -4,10 +4,10 @@ import domain.synthesis.Signature
 import domain.synthesis.behavior.RawSurveyInfo
 
 class HierarchicalIPUDistribution<AREA, H>(
-    override val ruleProvider: HierarchicalRuleProvider<AREA, H>,
+    override val ruleProvider: HierarchicalRuleProviderDeprecated<AREA, H>,
     val config: NewAlgorithmConfig,
     val seedHouseholds: Collection<H>,
-) : HierarchicalPopulationSynthesis<AREA, H> {
+) : HierarchicalPopulationSynthesisDeprecated<AREA, H> {
 
     private val distributor: NewDistributor<RawSurveyInfo, AREA, H> = NewDistributor(
         ruleProvider = ruleProvider,

@@ -9,7 +9,7 @@ import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPosition
@@ -247,7 +247,7 @@ class LoadFixedDestinationsStep(
         }
     }
 
-    private fun applyActivityLocation(person: Person, activityType: ActivityType, location: Location) {
+    private fun applyActivityLocation(person: Person, activityType: ActivityType, location: LocationOld) {
         person.plannedActivities.filter {
             it.activityType == activityType
         }.forEach {

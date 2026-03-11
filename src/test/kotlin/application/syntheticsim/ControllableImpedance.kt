@@ -8,7 +8,7 @@ import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.LocationMetric
 import domain.shared.location.Metrics
 import domain.shared.location.Zone
@@ -305,7 +305,7 @@ class ControllableImpedanceTest {
 class MapMetric<R>(private val standardValue: () -> R) : LocationMetric<R> {
     private val fields: MutableMap<Pair<ZoneId, ZoneId>, R> = mutableMapOf()
 
-    override fun evaluate(origin: Location, destination: Location): R {
+    override fun evaluate(origin: LocationOld, destination: LocationOld): R {
         return fields[Pair(origin.requireZone().id, destination.requireZone().id)] ?: standardValue()
     }
 

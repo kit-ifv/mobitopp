@@ -18,6 +18,7 @@ import org.jetbrains.annotations.TestOnly
  * @property descriptiveText A human-readable name or description of the rule.
  * @param T The shared property type required by a household to be evaluated against this rule.
  */
+@Deprecated("Use definitions from synthesisalgorithms")
 interface Rule<in T> {
     val target: Int
     val description: String
@@ -105,6 +106,7 @@ fun <T> Collection<Rule<T>>.toScalableVector(element: T): ScalableVector {
  * Represents a rule that evaluates a household's contribution to a target based on counting a specific attribute.
  * Example: Counting the number of female agents in households.
  */
+@Deprecated("Use definitions from synthesisalgorithms")
 fun interface CountRule<in T> {
     /**
      * Evaluates how much the given [surveyHousehold] contributes to the target based on a specific attribute.
@@ -119,6 +121,7 @@ fun interface CountRule<in T> {
  * Represents a rule that evaluates a household's contribution to a target using a boolean condition.
  * The contribution is 1 if the condition is met, otherwise 0.
  */
+@Deprecated("Use definitions from synthesisalgorithms")
 fun interface CheckRule<in T> : CountRule<T> {
     /**
      * Checks whether the given [surveyHousehold] meets the condition defined by the rule.
@@ -132,6 +135,7 @@ fun interface CheckRule<in T> : CountRule<T> {
     }
 }
 
+@Deprecated("Use definitions from synthesisalgorithms")
 class NamedCheckRule<in T> private constructor(
     ruleDescription: String,
     override val logic: CheckRule<T>
@@ -147,6 +151,7 @@ class NamedCheckRule<in T> private constructor(
     }
 }
 
+@Deprecated("Use definitions from synthesisalgorithms")
 open class NamedCountRule<in T> protected constructor(
     val ruleDescription: String,
     open val logic: CountRule<T>
@@ -168,32 +173,45 @@ open class NamedCountRule<in T> protected constructor(
     }
 }
 
+@Deprecated("Use definitions from synthesis-domain")
 enum class RuleLevel {
     HOUSEHOLD, PERSON, UNKNOWN
 }
+
+@Deprecated("Use definitions from synthesis-domain")
 interface RuleDescription {
     val logicDescription: String
     val logicLevel: RuleLevel
 }
+
+@Deprecated("Use definitions from synthesis-domain")
 object UnknownLogic : RuleDescription {
     override val logicDescription: String
         get() = "Unknown logic descriptor."
     override val logicLevel = RuleLevel.UNKNOWN
 }
+
+@Deprecated("Use definitions from synthesis-domain")
 class AgeRuleDescription(startAge: Int, endAge: Int) : RuleDescription {
     override val logicDescription: String = "Age in ($startAge..$endAge)"
     override val logicLevel = RuleLevel.PERSON
 }
+
+@Deprecated("Use definitions from synthesis-domain")
 class AgeSexRuleDescription(startAge: Int, endAge: Int, sex: Sex) : RuleDescription {
     override val logicDescription: String = "Sex=$sex Age in ($startAge..$endAge)"
     override val logicLevel = RuleLevel.PERSON
 }
-class HouseholdTypeDescription(type: String) : RuleDescription {
+
+@Deprecated("Use definitions from synthesis-domain")
+class HouseholdTypeDescriptionDeprecated(type: String) : RuleDescription {
     constructor(type: Int) : this(type.toString())
     override val logicDescription: String = "Household type = $type"
     override val logicLevel = RuleLevel.HOUSEHOLD
 }
-class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityOp.EQUALS) : RuleDescription {
+
+@Deprecated("Use definitions from synthesis-domain")
+class HouseholdSizeDescriptionDeprecated(targetSize: Int, operator: EqualityOp = EqualityOp.EQUALS) : RuleDescription {
     override val logicDescription: String = "Household Size ${operator.symbol} $targetSize "
     enum class EqualityOp(val symbol: String) {
         EQUALS("=="),
@@ -214,6 +232,7 @@ class HouseholdSizeDescription(targetSize: Int, operator: EqualityOp = EqualityO
  * @property target The numeric target for the rule.
  * @property logic The [CountRule] implementation defining the logic for evaluating households.
  */
+@Deprecated("Use definitions from synthesisalgorithms")
 class ZoneRule<H>(
     override val description: String = logic.ruleDescription,
     override val target: Int,
@@ -247,6 +266,7 @@ class ZoneRule<H>(
  * @property target The numeric target for the rule.
  * @property logic The [CheckRule] implementation defining the logic for evaluating households.
  */
+@Deprecated("Use definitions from synthesisalgorithms")
 class ZoneCheckRule<H>(
     override val description: String = logic.ruleDescription,
     override val target: Int,

@@ -4,11 +4,11 @@ import CoordinateGenerator
 import LanduseDistributedCoordinates
 import domain.VisumPolyZone
 import domain.VisumZoneId
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Zone
-import edu.kit.ifv.units.Coordinate
+import edu.kit.ifv.units.KCoordinate
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -17,7 +17,7 @@ import kotlin.random.Random
  * Assign a Location to a household with no information other than the household and the zone
  */
 fun interface AssignHouseholdLocations<AREA, H> {
-    fun generateLocation(zone: AREA, household: H): Location
+    fun generateLocation(zone: AREA, household: H): LocationOld
 }
 
 /**
@@ -28,7 +28,7 @@ fun interface GroupAssignHouseholdLocations<AREA, H> {
     fun generateLocations(
         zone: AREA,
         householdsToLocate: List<H>
-    ): List<Pair<H, Location>>
+    ): List<Pair<H, LocationOld>>
 }
 
 class TrivialGroupStrategy<AREA, H>(
@@ -37,21 +37,27 @@ class TrivialGroupStrategy<AREA, H>(
     override fun generateLocations(
         zone: AREA,
         householdsToLocate: List<H>
-    ): List<Pair<H, Location>> {
+    ): List<Pair<H, LocationOld>> {
         return householdsToLocate.map { it to singularStrategy.generateLocation(zone, it) }
     }
 }
 
-class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<Zone, H> {
-    override fun generateLocation(zone: Zone, household: H): Location {
-        return Location(zone.centroid.coordinate.randomCoordinate(radius, zone.random), zone, null)
+class AssignAroundZoneCentroid<AREA: Zone, H>(private val radius: Distance) : AssignHouseholdLocations<AREA, H> {
+    override fun generateLocation(zone: AREA, household: H): LocationOld {
+        return LocationOld(zone.centroid.coordinate.randomCoordinate(radius, zone.random), zone, null)
     }
 }
 
+
+fun KCoordinate.randomCoordinate(radius: Distance, random: Random): KCoordinate {
+    return this // TODO we should go away from KCoordinate and fully embrace JTS : Coordinate.
+}
+
+
 @Suppress("MagicNumber") // Earth radius in meters is relatively safe to assume what it means
-fun Coordinate.randomCoordinate(radius: Distance, random: Random): Coordinate {
-    val lat1 = latitudeRadians.toDouble()
-    val lon1 = longitudeRadians.toDouble()
+fun WGS84Coordinate.randomWGSCoordinate(radius: Distance, random: Random): KCoordinate {
+    val lat1 = y.toDouble()
+    val lon1 = x.toDouble()
 
     // Random distance from the center within the radius (in meters)
     val randomDistance = random.nextDouble() * radius.inWholeMeters
@@ -76,7 +82,7 @@ fun Coordinate.randomCoordinate(radius: Distance, random: Random): Coordinate {
     val newLatitude = Math.toDegrees(newLat)
     val newLongitude = Math.toDegrees(newLon)
 
-    return GPSCoordinate.decimalDegree(newLatitude, newLongitude)
+    return WGS84Coordinate.decimalDegree(newLatitude, newLongitude)
 }
 
 /**
@@ -95,10 +101,10 @@ class ZoneDistributedLocations<T>(
     /**
      * Generates one location inside the polyzone, which matches the visumID of the given [zone].
      */
-    override fun generateLocation(zone: Zone, household: T): Location {
+    override fun generateLocation(zone: Zone, household: T): LocationOld {
         val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.visumId.toInt())]
             ?: polyzoneNotFound(zone.visumId)
-        return Location(distributor.generateOneCoordinate(polyZone), zone, null)
+        return LocationOld(distributor.generateOneCoordinate(polyZone), zone, null)
     }
 
     /**
@@ -108,17 +114,17 @@ class ZoneDistributedLocations<T>(
     override fun generateLocations(
         zone: Zone,
         householdsToLocate: List<T>
-    ): List<Pair<T, Location>> {
+    ): List<Pair<T, LocationOld>> {
         val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.visumId.toInt())]
             ?: polyzoneNotFound(zone.visumId)
         val generatedLocations =
             distributor.generateCoordinates(polyZone, householdsToLocate.size).map {
-                Location(it, zone, null)
+                LocationOld(it, zone, null)
             }
         return householdsToLocate.zip(generatedLocations)
     }
 
-    private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): GPSCoordinate {
+    private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): WGS84Coordinate {
         return this.generateCoordinates(polyZone, 1).first()
     }
 

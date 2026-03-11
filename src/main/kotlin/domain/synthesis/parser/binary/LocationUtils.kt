@@ -1,10 +1,10 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.RoadAccess
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -22,23 +22,23 @@ object LocationUtils {
      * Extension function, that reads a location from a [DataInputStream].
      */
     @Deprecated("Should be used with a bytebuffer instead.")
-    fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): Location {
+    fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): LocationOld {
         val zoneId = ZoneId(readLong()) // Reading zone ID
-        val coordinate = GPSCoordinate.decimalDegree(
+        val coordinate = WGS84Coordinate.decimalDegree(
             readDouble(),
             readDouble()
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(readLong(), readDouble().share()) // Reading roadId and position
-        return Location(coordinate, converter(zoneId), roadAccess)
+        return LocationOld(coordinate, converter(zoneId), roadAccess)
     }
-    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): Location {
+    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): LocationOld {
         val zoneId = ZoneId(long) // Reading zone ID
-        val coordinate = GPSCoordinate.decimalDegree(
+        val coordinate = WGS84Coordinate.decimalDegree(
             double,
             double
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
-        return Location(coordinate, converter(zoneId), roadAccess)
+        return LocationOld(coordinate, converter(zoneId), roadAccess)
     }
 
     /**
@@ -53,10 +53,10 @@ object LocationUtils {
      *
      * @param location The `Location` object to write to the `DataOutputStream`.
      */
-    fun DataOutputStream.encodeLocation(location: Location) {
+    fun DataOutputStream.encodeLocation(location: LocationOld) {
         writeLong(location.zone?.id?.value ?: Long.MIN_VALUE)
-        writeDouble(location.coordinate.latitudeDegrees)
-        writeDouble(location.coordinate.longitudeDegrees)
+        writeDouble(location.coordinate.y)
+        writeDouble(location.coordinate.x)
         writeLong(location.roadAccess?.roadId ?: Long.MIN_VALUE)
         writeDouble(location.roadAccess?.position?.toDouble() ?: 0.5)
     }

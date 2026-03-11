@@ -9,7 +9,7 @@ import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Metrics
 import domain.shared.location.ZoneId
 import edu.kit.ifv.units.Currency
@@ -51,7 +51,7 @@ class MatrixMetrics(
     private val distanceConverter = unitConverters.distanceConverter
 
     override fun costMetric(mode: Mode, time: Time): CostMetric {
-        return CostMetric { o: Location, d: Location ->
+        return CostMetric { o: LocationOld, d: LocationOld ->
             currencyConverter.from(travelCosts[mode, time][o, d])
         }
     }
@@ -66,7 +66,7 @@ class MatrixMetrics(
         mode: Mode,
         time: Time,
     ): DurationMetric {
-        return DurationMetric { o: Location, d: Location ->
+        return DurationMetric { o: LocationOld, d: LocationOld ->
             timeConverter.from(travelTimes[mode, time][o, d])
         }
     }

@@ -3,7 +3,7 @@ package domain.synthesis.data
 import Mutable
 import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
@@ -42,7 +42,7 @@ value class HouseholdId(val value: Long) : Comparable<HouseholdId> {
 interface IHousehold : Identifiable<HouseholdId>, StochasticActor, Simplifiable<HouseholdBinaryRecord> {
     val householdNumber: Long
     val surveyYear: Int
-    val location: Location
+    val location: LocationOld
     val domCode: Int
     val type: Int
     val incomePerMonth: Currency
@@ -76,6 +76,7 @@ abstract class Household(
     abstract override val members: Set<Person>
     abstract override val cars: Set<PrivateCar>
 }
+
 data class HouseholdBinaryRecord(
     val id: Long,
     val householdNumber: Long,
@@ -84,7 +85,7 @@ data class HouseholdBinaryRecord(
     val type: Int,
     val incomePerMonth: Double,
     val economicStatusCode: Int,
-    val location: Location,
+    val location: LocationOld,
 ) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
@@ -127,6 +128,15 @@ enum class HouseholdType(override val code: Int) : Encodable {
     override val description: String = name
 
     companion object : Decodable<HouseholdType> {
+
+        val validTypes = setOf(
+            SINGLE_HH_WITH_CHILDREN,
+            SINGLE_HH,
+            COUPLE_WITH_CHILDREN,
+            COUPLE_WITHOUT_CHILDREN,
+            OTHER_MULTI_PERSON_HH
+        )
+
         private val mapping = HouseholdType.entries.associateBy(HouseholdType::code).toMutableMap()
 
         private val toSet = HouseholdType.entries.toSet()

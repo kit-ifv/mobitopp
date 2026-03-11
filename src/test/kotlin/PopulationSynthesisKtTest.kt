@@ -1,6 +1,8 @@
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
+import domain.shared.location.Zone
+import domain.synthesis.TrivialSynthesis
 import domain.synthesis.behavior.AlwaysAssignSameStatus
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.SmallestSurveyPerson
@@ -11,7 +13,7 @@ import domain.synthesis.behavior.carownership.AlwaysAssignFixedNumber
 import domain.synthesis.behavior.fixedDestinations.AssignedLocation
 import domain.synthesis.behavior.fixedDestinations.SimpleGroupLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
-import domain.synthesis.behavior.householdgeneration.TrivialSynthesis
+import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.euros
@@ -55,12 +57,13 @@ class PopulationSynthesisKtTest {
     @Test
     @Suppress("LongMethod") // This method may be long, it is the entire execution of a population synthesis
     fun runWithDebug() {
-        val bielefeld = Location(BIELEFELD, null, null)
-        val itzehoe = Location(ITZEHOE, null, null)
-        val schweinfurt = Location(SCHWEINFURT, null, null)
+        val bielefeld = LocationOld(BIELEFELD, null, null)
+        val itzehoe = LocationOld(ITZEHOE, null, null)
+        val schweinfurt = LocationOld(SCHWEINFURT, null, null)
+        val zones = listOf(TEST_ZONE)
         val populationSynthesis = PopulationSynthesis.configure(
             surveyPopulation = TrivialTestGeneration(),
-            zones = listOf(TEST_ZONE)
+            zones = zones
         ) {
             outputDirectory = Path("src/test/resources/tempOutput")
             surveyHouseholds = surveyPopulation.toSurveyHouseholds()
@@ -71,19 +74,24 @@ class PopulationSynthesisKtTest {
             }
         }
 
-        val primarySchools: List<Location> =
-            populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
+        val primarySchools: List<LocationOld> =
+            populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY) { zone, _, _ ->
+                zone.generateLocations(amount = 1)
+            }
 
         require(primarySchools.isNotEmpty()) {
             "Somehow no primary schools are generated"
         }
 
         val work = LegacyActivityType.WORK
-        val workLocations = populationSynthesis.generateLocations(work, amount = 1)
+        val workLocations = populationSynthesis.generateLocations(work) { zone, _, _ ->
+            zone.generateLocations(amount = 1)
+        }
 
         populationSynthesis.execute {
-            synthesis(mapOf(TEST_ZONE to emptyList())) {
-                TrivialSynthesis(surveyHouseholds)
+            refactoredPopsyn({it}) {
+                TrivialSynthesis(surveyHouseholds.map
+                    { it.toSynthesisHousehold() }, zones)
             }
             val test = householdsByZone
             assertTrue(TEST_ZONE in test.keys)
@@ -187,7 +195,7 @@ class PopulationSynthesisKtTest {
                     We can code within the execution block, if we so desire.
                      */
 
-                    val locations: List<Location> = listOf(bielefeld, itzehoe, schweinfurt)
+                    val locations: List<LocationOld> = listOf(bielefeld, itzehoe, schweinfurt)
                     assignmentStrategy = SimpleGroupLocator { persons ->
 
                         persons.zip(locations) { p, l -> AssignedLocation(p, l) }
@@ -214,4 +222,8 @@ class PopulationSynthesisKtTest {
             assertEquals(hh3.cars.size, hh3.amountOfCars)
         }
     }
+}
+
+private fun Zone.generateLocations(amount: Int): List<LocationOld> {
+    return (0..<amount).map { LocationOld(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
 }

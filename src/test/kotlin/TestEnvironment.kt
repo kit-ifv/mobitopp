@@ -6,7 +6,7 @@ import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.RoadAccess
 import domain.shared.location.Zone
@@ -37,7 +37,7 @@ import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
 import domain.synthesis.data.buildEngine
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
@@ -50,15 +50,15 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-val BIELEFELD = GPSCoordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
-val ITZEHOE = GPSCoordinate.decimalDegree(53.925032, 9.515585)
-val SCHWEINFURT = GPSCoordinate.decimalDegree(50.049994, 10.233302)
+val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
+val ITZEHOE = WGS84Coordinate.decimalDegree(53.925032, 9.515585)
+val SCHWEINFURT = WGS84Coordinate.decimalDegree(50.049994, 10.233302)
 val TEST_ZONE = TestZone()
 
 @Buildable
 @Suppress("LongParameterList")
 class TestZone(
-    point: GPSCoordinate = BIELEFELD,
+    point: WGS84Coordinate = BIELEFELD,
     visumId: Long = 1L,
     matrixColumn: Int = 0,
     name: String = "TestZone",
@@ -109,27 +109,27 @@ fun Zone.generateSharingStation(
     }
 }
 
-fun generateZoneLocations(numElements: Int): List<Location> {
+fun generateZoneLocations(numElements: Int): List<LocationOld> {
     return (0..<numElements).map {
         val testZone = TestZone(BIELEFELD, id = ZoneId(it.toLong()))
-        Location(testZone.centroid.coordinate, zone = testZone, roadAccess = null)
+        LocationOld(testZone.centroid.coordinate, zone = testZone, roadAccess = null)
     }
 }
 
-fun Zone.point(gpsCoordinate: GPSCoordinate): Location {
-    return Location(gpsCoordinate, zone = this, roadAccess = null)
+fun Zone.point(WGS84Coordinate: WGS84Coordinate): LocationOld {
+    return LocationOld(WGS84Coordinate, zone = this, roadAccess = null)
 }
 
-fun GPSCoordinate.asLocation(): Location {
-    return Location(this, zone = null, roadAccess = null)
+fun WGS84Coordinate.asLocation(): LocationOld {
+    return LocationOld(this, zone = null, roadAccess = null)
 }
 
-fun Long.toRoadPosition(): Location {
-    return Location(BIELEFELD, null, RoadAccess(this, 0.5.share()))
+fun Long.toRoadPosition(): LocationOld {
+    return LocationOld(BIELEFELD, null, RoadAccess(this, 0.5.share()))
 }
 
-fun Long.toRoadPositionInZone(zone: Zone): Location {
-    return Location(BIELEFELD, zone, RoadAccess(this, 0.5.share()))
+fun Long.toRoadPositionInZone(zone: Zone): LocationOld {
+    return LocationOld(BIELEFELD, zone, RoadAccess(this, 0.5.share()))
 }
 
 val testHousehold = TEST_ZONE.generateHousehold(1) {

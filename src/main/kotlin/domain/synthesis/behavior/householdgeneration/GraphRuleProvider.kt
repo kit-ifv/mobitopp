@@ -2,12 +2,12 @@ package domain.synthesis.behavior.householdgeneration
 
 open class GraphRuleProvider<AREA, H>
 private constructor(
-    override val hierarchy: HierarchicElement<AREA>,
+    override val hierarchy: HierarchicElementDeprecated<AREA>,
     protected val rules: MutableMap<AREA, MutableList<Rule<H>>>,
 ) :
-    HierarchicalRuleProvider<AREA, H> {
+    HierarchicalRuleProviderDeprecated<AREA, H> {
 
-    constructor(hierarchy: HierarchicElement<AREA>) : this(hierarchy, mutableMapOf())
+    constructor(hierarchy: HierarchicElementDeprecated<AREA>) : this(hierarchy, mutableMapOf())
 
     override fun getAllRuleLogics(): List<NamedCountRule<H>> {
         val logicSet = mutableSetOf<NamedCountRule<H>>()
@@ -50,7 +50,7 @@ private constructor(
     }
 
     override fun partition(predicate: (AREA) -> Boolean):
-        Pair<HierarchicalRuleProvider<AREA, H>, HierarchicalRuleProvider<AREA, H>> {
+        Pair<HierarchicalRuleProviderDeprecated<AREA, H>, HierarchicalRuleProviderDeprecated<AREA, H>> {
         val (setA, setB) = hierarchy.partition(predicate)
         val orig = GraphRuleProvider(setA, rules.filterKeys { it in setA.getAllVertices() }.toMutableMap())
         val other = GraphRuleProvider(setB, rules.filterKeys { it in setB.getAllVertices() }.toMutableMap())

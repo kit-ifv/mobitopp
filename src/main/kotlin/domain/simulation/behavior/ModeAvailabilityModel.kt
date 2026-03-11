@@ -3,7 +3,7 @@ package domain.simulation.behavior
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Metrics
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtProviderAgent
@@ -24,7 +24,7 @@ import kotlin.random.Random
 interface DestinationChoiceCharacteristics {
     val person: PersonAgent
     val time: AbsoluteTime
-    val origin: Location
+    val origin: LocationOld
     val impedance: Metrics
     val attractivityModel: AttractivenessModel
     val modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>
@@ -33,7 +33,7 @@ interface DestinationChoiceCharacteristics {
         operator fun invoke(
             person: PersonAgent,
             time: AbsoluteTime,
-            origin: Location,
+            origin: LocationOld,
             impedance: Metrics,
             attractivityModel: AttractivenessModel,
             modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>,
@@ -50,13 +50,13 @@ interface DestinationChoiceCharacteristics {
     }
 }
 
-fun DestinationChoiceCharacteristics.with(choice: Location) = DestinationAlternative(this, choice)
+fun DestinationChoiceCharacteristics.with(choice: LocationOld) = DestinationAlternative(this, choice)
 
 
 data class DestinationChoiceCharacteristicsImpl(
     override val person: PersonAgent,
     override val time: AbsoluteTime,
-    override val origin: Location,
+    override val origin: LocationOld,
     override val impedance: Metrics,
     override val attractivityModel: AttractivenessModel,
     override val modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>,
@@ -69,7 +69,7 @@ data class DestinationChoiceCharacteristicsImpl(
 
 data class DestinationAlternative(
     val original: DestinationChoiceCharacteristics,
-    val choice: Location,
+    val choice: LocationOld,
 ) : DestinationChoiceCharacteristics by original
 
 /**
@@ -81,8 +81,8 @@ data class DestinationAlternative(
 interface ModeChoiceCharacteristics {
     val person: PersonAgent
     val time: AbsoluteTime
-    val origin: Location
-    val destination: Location
+    val origin: LocationOld
+    val destination: LocationOld
     val impedance: Metrics
     val currentChoices: Collection<Mode> //cache of filtered modes before mode choice
     val custom: Any?
@@ -91,8 +91,8 @@ interface ModeChoiceCharacteristics {
         operator fun invoke(
             person: PersonAgent,
             time: AbsoluteTime,
-            origin: Location,
-            destination: Location,
+            origin: LocationOld,
+            destination: LocationOld,
             impedance: Metrics,
             currentChoices: Collection<Mode>,
             custom: Any?
@@ -114,8 +114,8 @@ interface ModeChoiceCharacteristics {
 data class ModeChoiceCharacteristicsImpl(
     override val person: PersonAgent,
     override val time: AbsoluteTime,
-    override val origin: Location,
-    override val destination: Location,
+    override val origin: LocationOld,
+    override val destination: LocationOld,
     override val impedance: Metrics,
     override val currentChoices: Collection<Mode>,
     override val custom: Any? = null
@@ -134,8 +134,8 @@ data class ModeChoiceCharacteristicsImpl(
 data class ModeChoiceAlternative( //TODO check if this can be deleted?
     val person: PersonAgent,
     val time: AbsoluteTime,
-    val origin: Location,
-    val destination: Location,
+    val origin: LocationOld,
+    val destination: LocationOld,
     val choice: Mode,
     val impedance: Metrics,
 )
@@ -235,7 +235,7 @@ interface ModeAvailabilityModel {
 } // TODO implementation using composite of rules, caching of reduced choice sets in person data and choice situation
 
 fun interface BikeSharingConnectionSelector {
-    fun findConnection(person: PersonAgent, destination: Location): Pair<SharingStationAgent, SharingStationAgent>?
+    fun findConnection(person: PersonAgent, destination: LocationOld): Pair<SharingStationAgent, SharingStationAgent>?
 }
 
 interface DrtAvailabilitySelector {
@@ -390,7 +390,7 @@ class AvailabilityModelWithSharing(
     private fun isBikesharingAvailableForChoice(characteristics: ModeChoiceCharacteristics) =
         findConnection(characteristics.person, characteristics.destination) != null
 
-    override fun findConnection(person: PersonAgent, destination: Location): Pair<SharingStationAgent, SharingStationAgent>? =
+    override fun findConnection(person: PersonAgent, destination: LocationOld): Pair<SharingStationAgent, SharingStationAgent>? =
         context(person, destination) {
             findStartEndStation()
         }

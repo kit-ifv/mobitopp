@@ -3,7 +3,7 @@ package domain.synthesis.results
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Zone
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.RawSurveyInfo
@@ -26,8 +26,8 @@ import kotlin.io.path.createDirectories
  * Converts the Location to the standard representation found in legacy mobitopp input files which is the format
  * (lat, lon: roadId, accessShare)
  */
-fun Location.legacyStringRepresentation(): String =
-    "(${coordinate.latitudeDegrees}, ${coordinate.longitudeDegrees}: ${roadAccess?.roadId}, ${roadAccess?.position})"
+fun LocationOld.legacyStringRepresentation(): String =
+    "(${coordinate.y}, ${coordinate.x}: ${roadAccess?.roadId}, ${roadAccess?.position})"
 
 /**
  * Extend the AttractivenessModel returning 0.0 for the attractiveness when the zone is null
@@ -132,7 +132,7 @@ object LegacyCarOutput : CSVOutput<SynthesisCar> {
 data class FixedDestinationElements(
     val person: SynthesisPerson<*>,
     val activityType: ActivityType,
-    val location: Location,
+    val location: LocationOld,
 )
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
@@ -162,8 +162,8 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
                 activityType.description,
                 location.zone?.id?.value ?: "NULL",
                 location.legacyStringRepresentation(),
-                location.coordinate.longitudeDegrees,
-                location.coordinate.latitudeDegrees
+                location.coordinate.x,
+                location.coordinate.y
 
             )
         }
@@ -204,8 +204,8 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>>
                 location.zone?.id?.value ?: "NULL",
                 surveyHouseholdId,
                 location,
-                location.coordinate.longitudeDegrees,
-                location.coordinate.latitudeDegrees,
+                location.coordinate.x,
+                location.coordinate.y,
 //                "TODO nomberofnotsimulatdchildren",
                 amountOfCars,
 //                "TODO incomeclass",
@@ -248,8 +248,8 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
                 location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
                 location.zone?.id?.value ?: "NULL",
                 location.legacyStringRepresentation(),
-                location.coordinate.longitudeDegrees,
-                location.coordinate.latitudeDegrees,
+                location.coordinate.x,
+                location.coordinate.y,
                 -1, // ActiTopp once cared about the number of childern, but it is entirely irrelevant
                 amountOfCars,
                 5, // I would assume that this is the encoding of the income based on some classes, but used it is not.
@@ -262,7 +262,7 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
 }
 
 data class OpportunityOutput(
-    val location: Location,
+    val location: LocationOld,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
 )
@@ -279,8 +279,8 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
                 activityType,
                 location.legacyStringRepresentation(),
                 attractivenessModel.nullableAttractiveness(location.zone, activityType),
-                location.coordinate.latitudeDegrees,
-                location.coordinate.longitudeDegrees
+                location.coordinate.x,
+                location.coordinate.y
 
             )
         }

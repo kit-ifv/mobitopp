@@ -4,7 +4,7 @@ import TestZone
 import core.datastructure.kdtree.WithMetric
 import core.datastructure.kdtree.discardMetric
 import domain.shared.enums.LegacyActivityType
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.ControllableAttractiveness
@@ -31,9 +31,9 @@ class BandwidthLocatorTest : SynthesisTest() {
     private val myActivityType = LegacyActivityType.LEISURE_SIGHTSEEING
     private lateinit var attractivenessModel: ControllableAttractiveness
 
-    private fun Zone.spawnUTM(eOffset: Number, nOffset: Number): Location {
+    private fun Zone.spawnUTM(eOffset: Number, nOffset: Number): LocationOld {
         val utm = UTMPosition(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble(), 32, Hemisphere.NORTHERN)
-        return Location(utm.toWGS84(), this, null)
+        return LocationOld(utm.toWGS84(), this, null)
     }
 
     @BeforeTest

@@ -45,7 +45,7 @@ abstract class RuleObserver(
 
     /**
      * Multiplies the scalar value of all vectors by the given [factor]. Convenience function for the example algorithms
-     * of [HouseholdSynthesis]
+     * of [HouseholdSynthesisDeprecated]
      *
      * @param factor The number by which the scalar value of each vector is multiplied.
      */

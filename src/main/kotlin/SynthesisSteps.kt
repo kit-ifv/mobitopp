@@ -1,7 +1,6 @@
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.location.Zone
-import domain.shared.location.ZoneId
 import domain.synthesis.AreaIPUCSVOutput
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
@@ -13,12 +12,11 @@ import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySch
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.fixedDestinations.AssignFixedDestinationBuilder
-import domain.synthesis.behavior.householdgeneration.HierarchicalPopulationSynthesis
-import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
-import domain.synthesis.behavior.householdgeneration.Rule
+import domain.synthesis.behavior.householdgeneration.HierarchicalPopulationSynthesisDeprecated
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.results.FixedDestinationElements
 import domain.synthesis.results.OpportunityOutput
+import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -28,19 +26,19 @@ import utils.collections.standardProgressBar
 import java.nio.file.Path
 import kotlin.random.Random
 
-class SynthesisSteps<T : Any>(
-    val zones: List<Zone>,
+class SynthesisSteps<AREA, T : Any>(
+    val zones: List<AREA>,
     val surveyHouseholds: Collection<ISurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
     val opportunities: List<OpportunityOutput>,
 ) {
-    private val zoneMapping by lazy { zones.associateBy { it.id } }
+//    private val zoneMapping by lazy { zones.associateBy { it.id } }
+//
+//    fun getZone(zoneId: ZoneId) = zoneMapping[zoneId]
+//        ?: throw NoSuchElementException("There is no zone with id $zoneId in the mapping")
 
-    fun getZone(zoneId: ZoneId) = zoneMapping[zoneId]
-        ?: throw NoSuchElementException("There is no zone with id $zoneId in the mapping")
-
-    lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<out T>>>
+    lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<out T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     var activities: List<Map<SynthesisPerson<*>, Collection<Activity>>> =
@@ -81,19 +79,17 @@ class SynthesisSteps<T : Any>(
         }
     }
     fun synthesizePopulation() {
-
     }
 
     @Deprecated("This step must be refactored.")
-    fun <X> populationSynthesis(
+    fun populationSynthesis(
         verification: Boolean = true,
         writeResults: Boolean = false,
-        converter: (X) -> Zone,
-        supplier: () -> HierarchicalPopulationSynthesis<X, ISurveyHousehold<out T>>,
+        supplier: () -> HierarchicalPopulationSynthesisDeprecated<AREA, ISurveyHousehold<out T>>,
     ) {
         val algorithm = supplier()
         val output = algorithm.synthesizeAll()
-        householdsByZone = output.mapKeys { converter(it.key) }.mapValues { it.value.map { it.toSynthesisHousehold() } }
+        householdsByZone = output.mapValues { it.value.map { it.toSynthesisHousehold() } }
 
         if (verification) {
             println(
@@ -111,26 +107,19 @@ class SynthesisSteps<T : Any>(
             }
         }
     }
-    @Deprecated("This step must be refactored.")
-    fun populationSynthesis(
-        verification: Boolean = true,
-        writeResults: Boolean = false,
-        supplier: () -> HierarchicalPopulationSynthesis<Zone, ISurveyHousehold<out T>>,
-    ) {
-        populationSynthesis(verification, writeResults, { it }, supplier)
-    }
 
     // TODO speaking type parameter names
-    fun synthesis(
-        randsums: Map<Zone, List<Rule<ISurveyHousehold<out T>>>>,
-        lambda: () -> HouseholdSynthesis<Zone, ISurveyHousehold<out T>, SynthesisHousehold<out T>>,
-    ) {
-        val generator = lambda()
-        householdsByZone = generator.synthesize(surveyHouseholds, randsums)
-    }
+//    @Deprecated("Use synthesis library instead.")
+//    fun synthesis(
+//        randsums: Map<AREA, List<Rule<ISurveyHousehold<out T>>>>,
+//        lambda: () -> HouseholdSynthesis<Zone, ISurveyHousehold<out T>, SynthesisHousehold<out T>>,
+//    ) {
+//        val generator = lambda()
+//        householdsByZone = generator.synthesize(surveyHouseholds, randsums)
+//    }
 
     // TODO refactor, use or discard this method
-    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<Zone, SynthesisHousehold<out T>>) {
+    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in AREA, SynthesisHousehold<out T>>) {
         val strategy = lambda()
 
         householdsByZone.entries.forEach { (zone, households) ->
@@ -140,7 +129,12 @@ class SynthesisSteps<T : Any>(
         }
     }
 
-    fun assignLocations(lambda: () -> AssignHouseholdLocations<in Zone, SynthesisHousehold<out T>>) {
+    fun <STAR> refactoredPopsyn(converter: (STAR) -> AREA, lambda: () -> CompletePopulationSynthesis<STAR, SynthesisHousehold<T>>) {
+        val strategy = lambda()
+        householdsByZone = strategy.synthesizeAll().mapKeys { converter(it.key) }
+    }
+
+    fun assignLocations(lambda: () -> AssignHouseholdLocations<AREA, SynthesisHousehold<out T>>) {
         val strategy = lambda()
         householdsByZone.entries.forEach { (zone, households) ->
             households.forEach {

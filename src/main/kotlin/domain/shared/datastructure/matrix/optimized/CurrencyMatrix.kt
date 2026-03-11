@@ -2,7 +2,7 @@ package domain.shared.datastructure.matrix.optimized
 
 import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.CostMetric
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.ZoneId
 import edu.kit.ifv.units.Currency
 
@@ -19,8 +19,8 @@ class CurrencyMatrix(
     }
 
     override fun evaluate(
-        origin: Location,
-        destination: Location,
+        origin: LocationOld,
+        destination: LocationOld,
     ): Currency {
         return this[origin.requireZone().id, destination.requireZone().id]
     }

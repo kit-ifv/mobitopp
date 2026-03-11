@@ -3,6 +3,7 @@ package domain.synthesis.behavior.householdgeneration
 import domain.synthesis.AreaIPUOutput
 import domain.synthesis.IPUOutputLog
 import domain.synthesis.behavior.MinimalistHousehold
+import edu.kit.ifv.populationsynthesis.hierarchy.MutableHierarchicElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -13,21 +14,23 @@ import org.jgrapht.graph.DefaultEdge
 import utils.Metric
 import utils.collections.partitionValues
 import utils.collections.standardProgressBar
-
-fun interface GenericPopulationSynthesis<AREA, out H> {
+@Deprecated("Use library")
+fun interface GenericPopulationSynthesisDeprecated<AREA, out H> {
 
     fun synthesize(targetAreas: List<AREA>): Map<AREA, List<H>>
 }
 
-interface RuleBasedPopulationSynthesis<AREA, H> : GenericPopulationSynthesis<AREA, H> {
-    val ruleProvider: RuleProvider<AREA, H>
+@Deprecated("Use library")
+interface RuleBasedPopulationSynthesisDeprecated<AREA, H> : GenericPopulationSynthesisDeprecated<AREA, H> {
+    val ruleProvider: RuleProviderDeprecated<AREA, H>
 
     fun synthesizeAll(): Map<AREA, List<H>>
 }
 
-interface HierarchicalPopulationSynthesis<AREA, H> : RuleBasedPopulationSynthesis<AREA, H> {
+@Deprecated("Use library")
+interface HierarchicalPopulationSynthesisDeprecated<AREA, H> : RuleBasedPopulationSynthesisDeprecated<AREA, H> {
 
-    override val ruleProvider: HierarchicalRuleProvider<AREA, H>
+    override val ruleProvider: HierarchicalRuleProviderDeprecated<AREA, H>
     override fun synthesize(
         targetAreas: List<AREA>,
     ): Map<AREA, List<H>> {
@@ -109,15 +112,15 @@ interface HierarchicalPopulationSynthesis<AREA, H> : RuleBasedPopulationSynthesi
     ): Map<AREA, List<H>>
 }
 
-interface RuleProvider<AREA, H> {
+interface RuleProviderDeprecated<AREA, H> {
     fun getRules(target: AREA): Collection<Rule<H>>
     fun getAllRules(): Map<AREA, Collection<Rule<H>>>
 }
 
-class MapRuleProvider<AREA, H>(
+class MapRuleProviderDeprecated<AREA, H>(
     private val ruleMap: MutableMap<AREA, List<Rule<H>>> = mutableMapOf(),
 ) :
-    RuleProvider<AREA, H> {
+    RuleProviderDeprecated<AREA, H> {
 
     override fun getRules(target: AREA): Collection<Rule<H>> {
         return ruleMap[target] ?: emptyList()
@@ -130,22 +133,22 @@ class MapRuleProvider<AREA, H>(
     companion object {
         fun <AREA, T, H : MinimalistHousehold<out T>> fromMap(
             map: Map<AREA, List<Rule<H>>>
-        ): MapRuleProvider<AREA, H> =
-            MapRuleProvider(map.toMutableMap())
+        ): MapRuleProviderDeprecated<AREA, H> =
+            MapRuleProviderDeprecated(map.toMutableMap())
     }
 }
 
 fun interface HandleRuleConflicts<AREA> {
     fun removeConflicts(
         conflictingAreas: Collection<AREA>,
-        hierarchicElement: HierarchicElement<AREA>,
+        hierarchicElement: HierarchicElementDeprecated<AREA>,
     ): Collection<AREA>
 }
 
 class UseLowestCoveredLeaf<AREA> : HandleRuleConflicts<AREA> {
     override fun removeConflicts(
         conflictingAreas: Collection<AREA>,
-        hierarchicElement: HierarchicElement<AREA>,
+        hierarchicElement: HierarchicElementDeprecated<AREA>,
     ): Collection<AREA> {
         val leafs = conflictingAreas.filter { hierarchicElement.isLeaf(it) }
         val completelyCovered = mutableSetOf<AREA>()
@@ -169,12 +172,13 @@ class UseLowestCoveredLeaf<AREA> : HandleRuleConflicts<AREA> {
 }
 
 @Suppress("ComplexInterface", "TooManyFunctions")
-interface HierarchicalRuleProvider<AREA, H> : RuleProvider<AREA, H> {
-    val hierarchy: HierarchicElement<AREA>
+@Deprecated("Will be moved to synlib")
+interface HierarchicalRuleProviderDeprecated<AREA, H> : RuleProviderDeprecated<AREA, H> {
+    val hierarchy: HierarchicElementDeprecated<AREA>
 
     fun partition(predicate: (AREA) -> Boolean): Pair<
-        HierarchicalRuleProvider<AREA, H>,
-        HierarchicalRuleProvider<AREA, H>
+        HierarchicalRuleProviderDeprecated<AREA, H>,
+        HierarchicalRuleProviderDeprecated<AREA, H>
         >
 
     fun getAllDescendants(target: AREA) = hierarchy.getAllDescendants(target)
@@ -282,14 +286,14 @@ fun <H> Collection<Rule<H>>.fuse(descriptor: String): ZoneRule<H> {
 }
 
 @Suppress("TooManyFunctions")
-interface HierarchicElement<T> {
+interface HierarchicElementDeprecated<T> {
     fun getParent(element: T): T?
     fun getAllAncestors(element: T): Collection<T>
     fun getChildren(element: T): List<T>
     fun getAllVertices(): Collection<T>
     fun getAllLeafs(): List<T>
 
-    fun partition(predicate: (T) -> Boolean): Pair<HierarchicElement<T>, HierarchicElement<T>>
+    fun partition(predicate: (T) -> Boolean): Pair<HierarchicElementDeprecated<T>, HierarchicElementDeprecated<T>>
 
     /**
      * Return all descendant nodes, except the element node.
@@ -310,37 +314,37 @@ interface HierarchicElement<T> {
     }
 }
 
-interface MutableHierarchicElement<T> : HierarchicElement<T> {
+interface MutableHierarchicElementDeprecated<T> : HierarchicElementDeprecated<T> {
     fun addRelationship(child: T, parent: T)
     fun addVertex(target: T)
     fun removeVertex(target: T)
     fun removeVertices(targets: Collection<T>)
 }
 
-class MutableHierarchyGraph<T> private constructor(
-    override val parentGraph: DefaultDirectedGraph<T, DefaultEdge>,
-    override val childGraph: DefaultDirectedGraph<T, DefaultEdge>,
-) : HierarchyGraph<T>(parentGraph, childGraph), MutableHierarchicElement<T> {
-    constructor() : this(DefaultDirectedGraph(DefaultEdge::class.java), DefaultDirectedGraph(DefaultEdge::class.java))
-
-    override fun addRelationship(child: T, parent: T) {
-        if (parentGraph.containsVertex(child) && parentGraph.outgoingEdgesOf(child).isNotEmpty()) return
-        Graphs.addEdgeWithVertices(parentGraph, child, parent)
-        Graphs.addEdgeWithVertices(childGraph, parent, child)
-    }
-
-    override fun removeVertex(target: T) {
-        parentGraph.removeVertex(target)
-        childGraph.removeVertex(target)
-    }
-
-    override fun removeVertices(targets: Collection<T>) {
-        parentGraph.removeAllVertices(targets)
-        childGraph.removeAllVertices(targets)
-    }
-
-    override fun addVertex(target: T) {
-        parentGraph.addVertex(target)
-        childGraph.addVertex(target)
-    }
-}
+//class MutableHierarchyGraph<T> private constructor(
+//    override val parentGraph: DefaultDirectedGraph<T, DefaultEdge>,
+//    override val childGraph: DefaultDirectedGraph<T, DefaultEdge>,
+//) : HierarchyGraphDeprecated<T>(parentGraph, childGraph), MutableHierarchicElement<T> {
+//    constructor() : this(DefaultDirectedGraph(DefaultEdge::class.java), DefaultDirectedGraph(DefaultEdge::class.java))
+//
+//    override fun addRelationship(child: T, parent: T) {
+//        if (parentGraph.containsVertex(child) && parentGraph.outgoingEdgesOf(child).isNotEmpty()) return
+//        Graphs.addEdgeWithVertices(parentGraph, child, parent)
+//        Graphs.addEdgeWithVertices(childGraph, parent, child)
+//    }
+//
+//    override fun removeVertex(target: T) {
+//        parentGraph.removeVertex(target)
+//        childGraph.removeVertex(target)
+//    }
+//
+//    override fun removeVertices(targets: Collection<T>) {
+//        parentGraph.removeAllVertices(targets)
+//        childGraph.removeAllVertices(targets)
+//    }
+//
+//    override fun addVertex(target: T) {
+//        parentGraph.addVertex(target)
+//        childGraph.addVertex(target)
+//    }
+//}

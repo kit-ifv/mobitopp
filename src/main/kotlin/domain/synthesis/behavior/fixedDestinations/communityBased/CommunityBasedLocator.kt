@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.fixedDestinations.communityBased
 
 import domain.shared.location.DistanceMetric
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.fixedDestinations.AssignedLocation
@@ -19,10 +19,10 @@ import utils.collections.addProgressBar
 class CommunityBasedGroupLocator<T>(
     val demands: CommuterDemandsMatrix,
     val strategy: AssignAgentsInCommunity<T>,
-    potentialLocations: Collection<Location>,
+    potentialLocations: Collection<LocationOld>,
 ) : SimpleGroupLocator<T> {
 
-    private val filteredLocations: Collection<Location> = potentialLocations.filter { it.hasCommunityMapping() }
+    private val filteredLocations: Collection<LocationOld> = potentialLocations.filter { it.hasCommunityMapping() }
     override fun match(
         agents: Collection<SynthesisPerson<out T>>,
     ): List<AssignedLocation<T>> {
@@ -55,11 +55,11 @@ class CommunityBasedGroupLocator<T>(
         }
     }
 
-    private fun Location.toCommunity(): CommunityNumber {
+    private fun LocationOld.toCommunity(): CommunityNumber {
         return demands.convert(this)
     }
 
-    private fun Location.hasCommunityMapping(): Boolean {
+    private fun LocationOld.hasCommunityMapping(): Boolean {
         return runCatching { toCommunity() }.isSuccess
     }
 }
@@ -78,7 +78,7 @@ fun interface AssignAgentsInCommunity<T> {
     fun assign(
         agents: Collection<SynthesisPerson<out T>>,
         demand: MutableCommunityDemand,
-        potentialLocations: Collection<Location>
+        potentialLocations: Collection<LocationOld>
     ) = assign(CommunityDemandPlaner(agents, demand, potentialLocations))
 }
 
@@ -89,8 +89,8 @@ fun interface BestLocationFromDemand<T> {
     fun bestLocation(
         agent: SynthesisPerson<out T>,
         demand: CommunityDemand,
-        locations: Collection<Location>
-    ): Location
+        locations: Collection<LocationOld>
+    ): LocationOld
 }
 
 /**
@@ -99,7 +99,7 @@ fun interface BestLocationFromDemand<T> {
 data class CommunityDemandPlaner<T>(
     val agents: Collection<SynthesisPerson<out T>>,
     val demand: MutableCommunityDemand,
-    val potentialLocations: Collection<Location>
+    val potentialLocations: Collection<LocationOld>
 ) {
     /**
      * The standard function to assign a location for each agent, find the best location as defined by the strategy
@@ -144,7 +144,7 @@ class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInComm
  */
 class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMetric) : CommuterDistance<T>() {
 
-    override fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: Location): Distance {
+    override fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: LocationOld): Distance {
         return abs(
             metric.evaluate(
                 agent.homeLocation,
@@ -176,7 +176,7 @@ open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
         }
     }
 
-    open fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: Location): Distance {
+    open fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: LocationOld): Distance {
         return abs(
 
             agent.homeLocation.distance(location) -
@@ -184,5 +184,5 @@ open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
         )
     }
 
-    private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)
+    private fun LocationOld.distance(other: LocationOld) = coordinate.distance(other.coordinate)
 }

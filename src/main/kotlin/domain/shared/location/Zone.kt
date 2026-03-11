@@ -4,7 +4,7 @@ import Mutable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import kotlinx.serialization.Serializable
 import utils.Identifiable
 import utils.random.StochasticActor
@@ -55,7 +55,7 @@ value class ZoneId(val value: Long) : Comparable<ZoneId> {
 @Mutable
 abstract class Zone(
     override val id: ZoneId,
-    centroid: Location,
+    centroid: LocationOld,
     seed: Long,
 ) : StochasticActor, Identifiable<ZoneId> {
 
@@ -69,9 +69,9 @@ abstract class Zone(
     abstract val isDestination: Boolean
     abstract val relief: Distance
 
-    val centroid: Location = centroid.copy(zone = this)
+    val centroid: LocationOld = centroid.copy(zone = this)
 
-    operator fun contains(location: Location): Boolean = location.zone == this
+    operator fun contains(location: LocationOld): Boolean = location.zone == this
 
     /* This is really annoying. Legacy mobiTopp had two different IDs for zones: The VISUM ID and the internal
     enumeration so say 6113, 6114, 6116,... and 0, 1, 2,... Obviously the latter was used for determining which zone
@@ -92,11 +92,11 @@ abstract class Zone(
 @Mutable
 abstract class LegacyZone(
     id: ZoneId,
-    centroid: Location,
+    centroid: LocationOld,
     seed: Long,
 ) : Zone(id, centroid, seed) {
 
     abstract val matrixColumn: Int
 }
 
-fun Zone.point(gpsCoordinate: GPSCoordinate) = Location(gpsCoordinate, zone = this, roadAccess = null)
+fun Zone.point(WGS84Coordinate: WGS84Coordinate) = LocationOld(WGS84Coordinate, zone = this, roadAccess = null)

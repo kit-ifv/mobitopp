@@ -12,7 +12,7 @@ import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPosition
@@ -92,7 +92,7 @@ fun LoadHouseholdContext.prepareHouseholds(
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: HouseholdColumns = HouseholdColumns(),
-    roadPositionParser: (String) -> Location = String::parseRoadPosition,
+    roadPositionParser: (String) -> LocationOld = String::parseRoadPosition,
     incomeUnit: CurrencyUnit = costUnit,
     filter: HouseholdColumns.(Row) -> Boolean = { true },
 ) = prepareHouseholds(
@@ -112,7 +112,7 @@ data class HouseholdCsvConfig(
     var delimiter: String = SEMICOLON,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
     var columns: HouseholdColumns = HouseholdColumns(),
-    var roadPositionParser: (String) -> Location = String::parseRoadPosition,
+    var roadPositionParser: (String) -> LocationOld = String::parseRoadPosition,
     var incomeUnit: CurrencyUnit,
     var filter: HouseholdColumns.(Row) -> Boolean = { true },
 )

@@ -1,8 +1,8 @@
 package domain.synthesis
 
 import domain.synthesis.behavior.householdgeneration.GenericIPU
-import domain.synthesis.behavior.householdgeneration.HierarchicalPopulationSynthesis
-import domain.synthesis.behavior.householdgeneration.HierarchicalRuleProvider
+import domain.synthesis.behavior.householdgeneration.HierarchicalPopulationSynthesisDeprecated
+import domain.synthesis.behavior.householdgeneration.HierarchicalRuleProviderDeprecated
 import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.RuleObserver
 import domain.synthesis.behavior.householdgeneration.SampleAndCollect
@@ -18,11 +18,11 @@ fun <K, V> identityHashMapOf(pairs: Collection<Pair<K, V>>): MutableMap<K, V> =
     }
 
 class HistoricIPU<AREA, H>(
-    override val ruleProvider: HierarchicalRuleProvider<AREA, H>,
+    override val ruleProvider: HierarchicalRuleProviderDeprecated<AREA, H>,
     val seedHouseholds: Collection<H>,
     val ipu: GenericIPU = GenericIPU.Companion.legacy,
     val collapseEquivalents: Boolean = false,
-) : HierarchicalPopulationSynthesis<AREA, H> {
+) : HierarchicalPopulationSynthesisDeprecated<AREA, H> {
     val extractor = SampleAndCollect<H>()
     override fun synthesize(
         highestArea: AREA,

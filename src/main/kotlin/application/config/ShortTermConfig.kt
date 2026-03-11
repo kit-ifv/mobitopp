@@ -6,7 +6,7 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
@@ -34,10 +34,10 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     val sourceFiles: CSVFiles,
 
     /* ChoiceParameters */
-    val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    val destinationChoiceModel: UtilityBasedChoiceModel<LocationOld, DestinationChoiceCharacteristics>,
     val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
 
-) {
+    ) {
     lateinit var matrixConfig: MatrixConfig
     lateinit var resultName: String
     lateinit var choiceModelModes: ChoiceModelModes

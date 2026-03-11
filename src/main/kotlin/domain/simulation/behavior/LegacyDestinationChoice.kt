@@ -6,7 +6,7 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.synthesis.data.Employment
 import domain.synthesis.data.isAdult
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
@@ -178,7 +178,7 @@ val DestinationAlternative.travelCostCar: Currency get() = impedance.cost(origin
 // Next fixed destination properties
 val DestinationChoiceCharacteristics.nextFixedActivity
     get() = person.schedule.activities().find { it.location != LOCATIONUNKNOWN }
-val DestinationChoiceCharacteristics.nextFixedDestination: Location
+val DestinationChoiceCharacteristics.nextFixedDestination: LocationOld
     get() = nextFixedActivity?.location ?: person.household.location
 val DestinationChoiceCharacteristics.nextFixedActivityEnd get() = nextFixedActivity?.endTime ?: time.plus(7.hours)
 
@@ -262,7 +262,7 @@ inline operator fun Boolean.plus(number: Number) = this.D + number.toDouble()
 @Deprecated("Dont use")
 @Suppress("MagicNumber")
 val legacyDestinationChoiceBuilder =
-    RuleBasedStructure<Location, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
+    RuleBasedStructure<LocationOld, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
         ruleForAll { destination, tripchoice ->
             val it = tripchoice.with(destination)
 

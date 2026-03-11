@@ -2,7 +2,7 @@ package domain.synthesis.behavior.householdgeneration
 
 class NewDistributor<RULES, AREA, H>(
     val initialDistribution: InitialSignatureDistributor = GreedyAmountDistro(),
-    val ruleProvider: HierarchicalRuleProvider<AREA, H>,
+    val ruleProvider: HierarchicalRuleProviderDeprecated<AREA, H>,
     val config: NewAlgorithmConfig,
 
 ) {

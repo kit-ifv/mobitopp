@@ -14,7 +14,7 @@ import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.behavior.ZoneDistributedLocations
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.Hemisphere
 import edu.kit.ifv.units.meters
 import readPolyZones
@@ -46,7 +46,6 @@ class ZoneDistributedLocationsTest {
                 Pair(ZoneType(it.invoke("landUseType").toInt()), it.invoke("weight").toDouble())
             }.toMap()
     val landUseModel = LandUseParser(
-        gpsParser = CRS84(),
         zoneTypePropertyName = "landUseType",
         typeEncoder = ::ZoneType
     ).parse(Path("src/test/resources/synthesis/250410_landuse_rastatt.geojson"))
@@ -102,7 +101,7 @@ private class TestZone(
     override val relief: Distance = 0.meters,
 ) : Zone(
     id = ZoneId(visumId),
-    centroid = GPSCoordinate.decimalDegree(50.0, 9.0).asLocation(),
+    centroid = WGS84Coordinate.decimalDegree(50.0, 9.0).asLocation(),
     seed = 0L
 )
 

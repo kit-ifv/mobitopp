@@ -3,7 +3,7 @@ package domain.synthesis.behavior.fixedDestinations
 import core.datastructure.kdtree.WithMetric
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.LocationKDTree
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
@@ -18,7 +18,7 @@ import kotlin.math.pow
 import kotlin.random.Random
 
 val standardBandwidthModel = RuleBasedStructure<
-    WithMetric<Location, Distance>,
+    WithMetric<LocationOld, Distance>,
     LocationAlternative,
     BandwidthParameters
     > {
@@ -46,11 +46,11 @@ val standardBandwidthModel = RuleBasedStructure<
  * for the discrete choice model can be found in [LocationAlternative]
  */
 class BandwidthLocator(
-    private val potentialLocations: List<Location>,
+    private val potentialLocations: List<LocationOld>,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
     var parameters: BandwidthParameters = BandwidthParameters(), // TODO why variable?
-    var model: DiscreteChoiceModel<WithMetric<Location, Distance>, LocationAlternative, BandwidthParameters> =
+    var model: DiscreteChoiceModel<WithMetric<LocationOld, Distance>, LocationAlternative, BandwidthParameters> =
         standardBandwidthModel.build(parameters),
 ) : SimpleLocator<CommuteDistance> {
     private val locationTree = LocationKDTree(potentialLocations)
@@ -60,7 +60,7 @@ class BandwidthLocator(
 
     override fun locate(
         agent: SynthesisPerson<out CommuteDistance>,
-    ): Location {
+    ): LocationOld {
         var validTargets =
             validTargetsForAgent(agent)
         if (validTargets.isEmpty()) {
@@ -77,7 +77,7 @@ class BandwidthLocator(
      * Determine which locations are within the band radius of an agents home location, using the [parameters] pole
      * radius.
      */
-    fun validTargetsForAgent(agent: SynthesisPerson<out CommuteDistance>): Set<WithMetric<Location, Distance>> {
+    fun validTargetsForAgent(agent: SynthesisPerson<out CommuteDistance>): Set<WithMetric<LocationOld, Distance>> {
         val poleRadius = parameters.poleRadius
         return locationTree.sequenceFor(
             agent.homeLocation,
@@ -87,7 +87,7 @@ class BandwidthLocator(
             .toSet()
     }
 
-    private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)
+    private fun LocationOld.distance(other: LocationOld) = coordinate.distance(other.coordinate)
 }
 
 data class BandwidthParameters(
@@ -107,7 +107,7 @@ data class LocationAlternative(
     /**
      * We can extrapolate the attractiveness by simply evaluating the location.
      */
-    fun attractiveness(location: Location) = location.zone?.id?.let {
+    fun attractiveness(location: LocationOld) = location.zone?.id?.let {
         attractivenessModel.attractivenessFor(it, activityType)
     } ?: 0.00001
 }

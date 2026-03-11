@@ -1,7 +1,7 @@
 package domain.synthesis.householdgeneration
 
 import TestZone
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.behavior.ISurveyHousehold
@@ -15,9 +15,8 @@ import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
 import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Sex
-import edu.kit.ifv.units.Coordinate
+import edu.kit.ifv.units.KCoordinate
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.Radians
 import edu.kit.ifv.units.euros
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -101,7 +100,7 @@ open class SynthesisTest {
     /**
      * Spawn in a synthesis household, if you happen to have a location at hand where the household should be.
      */
-    protected fun <T> Location.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<T> {
+    protected fun <T> LocationOld.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<T> {
         val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
         val createHousehold = builder.createHousehold()
@@ -170,18 +169,18 @@ open class SynthesisTest {
 
         fun createRules(): Map<ZoneId, List<Rule<ISurveyHousehold<out T>>>> = associatedRules
     }
-    protected fun fakeLocation() = Location(FakeCoord(), null, null)
-    protected fun Zone.spawnFakeLoc(): Location {
-        return Location(FakeCoord(), this, null)
+    protected fun fakeLocation() = LocationOld(FakeCoord(), null, null)
+    protected fun Zone.spawnFakeLoc(): LocationOld {
+        return LocationOld(FakeCoord(), this, null)
     }
 
-    protected fun Zone.spawnLocation(coordinate: Coordinate): Location = Location(coordinate, this, null)
+    protected fun Zone.spawnLocation(coordinate: KCoordinate): LocationOld = LocationOld(coordinate, this, null)
 
-    protected class FakeCoord : Coordinate {
+    protected class FakeCoord : KCoordinate {
         val id = counter
-        override val latitudeRadians: Radians = Radians(0.0)
-        override val longitudeRadians: Radians = Radians(0.0)
-        override fun distance(other: Coordinate): Distance {
+        override val x = 0.0
+        override val y = 0.0
+        override fun distance(other: KCoordinate): Distance {
             error("This method should never be called for this test to work")
         }
 
@@ -209,7 +208,7 @@ open class SynthesisTest {
             }
         }
 
-        fun person(age: Int, sex: Sex, lambda: () -> T): SmallestSurveyPerson<T> {
+        fun person(age: Int = 42, sex: Sex = Sex.UNKNOWN, lambda: () -> T): SmallestSurveyPerson<T> {
             val smallestSurveyPerson =
                 SmallestSurveyPerson(personId = members.size + 1, age = age, sex = sex, information = lambda())
             members.add(smallestSurveyPerson)

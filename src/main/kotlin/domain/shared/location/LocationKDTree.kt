@@ -10,10 +10,10 @@ import edu.kit.ifv.units.toDistance
  * A KD-tree built by locations using the UTM Coordinate Representation.
  * TODO test that this datastructure works with very distant points in UTM
  */
-class LocationKDTree(locations: List<Location>) {
+class LocationKDTree(locations: List<LocationOld>) {
     private val tree = ReadOnlyKDTree(locations, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
 
-    fun sequenceFor(location: Location): Sequence<WithMetric<Location, Distance>> {
+    fun sequenceFor(location: LocationOld): Sequence<WithMetric<LocationOld, Distance>> {
         return tree.findUntil(
             location,
             { doubleArrayOf(it.coordinate.toUTM().e, it.coordinate.toUTM().n) },
@@ -21,7 +21,7 @@ class LocationKDTree(locations: List<Location>) {
         )
     }
 
-    fun nearestNeighbor(element: Location): Location {
+    fun nearestNeighbor(element: LocationOld): LocationOld {
         return tree.findUntil(element, converter = {
             doubleArrayOf(
                 it.coordinate.toUTM().e,

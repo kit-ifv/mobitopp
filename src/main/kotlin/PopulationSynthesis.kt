@@ -5,8 +5,9 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.Location
+import domain.shared.location.LocationOld
 import domain.shared.location.Zone
+import domain.synthesis.TrivialSynthesis
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
@@ -28,8 +29,6 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistan
 import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
-import domain.synthesis.behavior.householdgeneration.IPU
-import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
@@ -192,31 +191,19 @@ class PopulationSynthesis<AREA, T : Any>(
 ) {
 
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
-    fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
+    fun execute(lambda: SynthesisSteps<AREA, T>.() -> Unit) {
         SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
     }
 
     @Suppress("UnusedParameter") // TODO reenable the parameter once a fix is found to accept the more generic AREA type
     fun generateLocations(
         activityType: ActivityType,
-        amount: Int = 1,
-        generationFunction: (Zone, AttractivenessModel, ActivityType) -> List<Location> = { zone, _, _ ->
-            zone.generateLocations(amount)
-        },
-    ): List<Location> {
+        generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<LocationOld>,
+    ): List<LocationOld> {
         // TODO reenable generation and put more thought into how the locations are generated.
         val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
         opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
         return generatedLocations
-    }
-
-    /**
-     * Spawn a single location in the zone if the attractiveness is higher than 0.0
-     */
-    fun generateFilteredLocations(activityType: ActivityType): List<Location> {
-        return generateLocations(activityType, 1) { zone, model, act ->
-            if (model.attractivenessFor(zone.id, act) > 0.0) zone.generateLocations(1) else emptyList()
-        }
     }
 
     companion object {
@@ -301,28 +288,28 @@ fun examplePopulationSynthesis() {
         }
     }
 
-    val primarySchools: List<Location> =
-        populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
+    val primarySchools: List<LocationOld> =
+        populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY) { zone, _, _ ->
+            zone.generateLocations(amount = 1)
+        }
 
-    val works: List<Location> =
-        populationSynthesis.generateLocations(LegacyActivityType.WORK, amount = 1)
+    val works: List<LocationOld> =
+        populationSynthesis.generateLocations(LegacyActivityType.WORK) { zone, _, _ ->
+            zone.generateLocations(amount = 1)
+        }
     require(primarySchools.isNotEmpty()) {
         "Somehow no primary schools are generated"
     }
     populationSynthesis.execute {
-        // TODO make this a bit more beautiful
+        refactoredPopsyn({it}) {
+            val synthesisHouseholds = GenerateArtificialPopulation.fromFile(
+                "src/test/resources/synthesis/SurveyPopulation.csv"
+            ).generateArtificialPopulation().toSurveyHouseholds().map { it.toSynthesisHousehold() }
+            TrivialSynthesis(
+                synthesisHouseholds,
+                zones
 
-//        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<ISurveyHousehold<out RawSurveyInfo>>>> = emptyMap()
-
-        synthesis(rules) {
-            IPU { vectors, observers ->
-                var counter = 0
-                while (observers.maxBy { it.relativeDifference }.relativeDifference >= 0.01 && counter < 100) {
-                    observers.forEach { it.optimize() }
-                    counter++
-                }
-            }
+            )
         }
 
         assignLocations {
@@ -392,7 +379,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun SynthesisSteps<out RawSurveyInfo>.writeLegacyOutput() {
+fun SynthesisSteps<Zone, out RawSurveyInfo>.writeLegacyOutput() {
     LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
@@ -411,13 +398,13 @@ private fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,
     generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
-): List<Location> {
+): List<LocationOld> {
     return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-private fun Zone.generateLocations(amount: Int): List<Location> {
-    return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
+private fun Zone.generateLocations(amount: Int): List<LocationOld> {
+    return (0..<amount).map { LocationOld(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
 }
