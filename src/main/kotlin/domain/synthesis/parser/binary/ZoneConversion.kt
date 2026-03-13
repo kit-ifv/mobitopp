@@ -3,11 +3,12 @@ package domain.synthesis.parser.binary
 import domain.jackson.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.LocationOld
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.ZonedRoadAccessLocation
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
+import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.toDistance
@@ -43,9 +44,7 @@ class BinaryZoneReader(
     override fun ByteBuffer.decode(stringLength: Int): MutableLegacyZone {
         return MutableLegacyZone(
             ZoneId(long),
-            // Since the zone is not yet built there is no way to map it to the correct zone,
-            // that step happens in the zone constructor.
-            decodeLocation { null },
+            decodeNakedLocation() ,
             seed
         ).apply {
             visumId = long
@@ -62,7 +61,7 @@ class BinaryZoneReader(
 // TODO string really hampers the construction as the maxlength is unknown
 data class ZoneBinaryRecord(
     val id: Long,
-    val centroid: LocationOld,
+    val centroid: ZonedRoadAccessLocation,
     val visumId: Long,
     val name: String,
     val regionTypeCode: Int,

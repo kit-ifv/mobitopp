@@ -2,7 +2,7 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import domain.shared.location.DistanceMetric
-import domain.shared.location.LocationOld
+import domain.shared.location.HasZone
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.behavior.CommuteDistance
@@ -131,7 +131,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             converter = { CommunityNumber(-42) },
             communityID = CommunityNumber(-42)
         )
-        // If a person is present and no location - there should be an exception
+        // If a person is present and no location, there should be an exception
         assertThrows<IllegalArgumentException> {
             strategy.assign(listOf(person1), demand, listOf())
         }
@@ -229,7 +229,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
         )
 
         val demand = MutableCommunityDemand(
-            converter = { zoneCommunityMapping.getValue(it.requireZone()) },
+            converter = { zoneCommunityMapping.getValue(it.zone) },
             communityID = CommunityNumber(1)
         )
         demand[2] = 1.0
@@ -240,27 +240,27 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
 class SymmetricMockDistance(default: Distance = 0.kilometers) : AsymmetricMockDistance(default) {
 
-    override operator fun set(origin: LocationOld, destination: LocationOld, value: Distance) {
+    override operator fun set(origin: HasZone, destination: HasZone, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
         map.getOrPut(destination) { mutableMapOf() }[origin] = value
     }
 }
 
 open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) : DistanceMetric {
-    protected val map: MutableMap<LocationOld, MutableMap<LocationOld, Distance>> = mutableMapOf()
-    override fun evaluate(origin: LocationOld, destination: LocationOld): Distance {
+    protected val map: MutableMap<HasZone, MutableMap<HasZone, Distance>> = mutableMapOf()
+    override fun evaluate(origin: HasZone, destination: HasZone): Distance {
         return get(origin, destination)
     }
 
-    open operator fun set(origin: LocationOld, destination: LocationOld, value: Distance) {
+    open operator fun set(origin: HasZone, destination: HasZone, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
     }
 
-    operator fun set(origin: LocationOld, destination: LocationOld, value: Number) {
+    operator fun set(origin: HasZone, destination: HasZone, value: Number) {
         set(origin, destination, value.toDouble().toDistance(DistanceUnit.KILOMETERS))
     }
 
-    operator fun get(origin: LocationOld, destination: LocationOld): Distance {
+    operator fun get(origin: HasZone, destination: HasZone): Distance {
         return (map[origin] ?: mutableMapOf())[destination] ?: default
     }
 }

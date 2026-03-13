@@ -1,6 +1,8 @@
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
+import domain.shared.location.Location
 import domain.shared.location.Zone
+import domain.shared.location.ZonedRoadAccessLocation
 import domain.synthesis.AreaIPUCSVOutput
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus

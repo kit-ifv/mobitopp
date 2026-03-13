@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.domain
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.LocationOld
+import domain.shared.location.StandardLocation
 import domain.synthesis.behavior.GLOBAL_PERSON_ID_GENERATOR
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.activityGeneration.PreliminaryActivitySchedule
@@ -29,7 +29,7 @@ class SynthesisPerson<T>(
     val homeLocation get() = household.location
     var hasTransitPass = false
     var plannedActivities: PreliminaryActivitySchedule = PreliminaryActivitySchedule.Companion.STAY_AT_HOME
-    val fixedDestinations: MutableMap<ActivityType, LocationOld> = mutableMapOf()
+    val fixedDestinations: MutableMap<ActivityType, StandardLocation> = mutableMapOf()
 
     private val sharingMemberships: MutableMap<String, Boolean> = mutableMapOf()
 

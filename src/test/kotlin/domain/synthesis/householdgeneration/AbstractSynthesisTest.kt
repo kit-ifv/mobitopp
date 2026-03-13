@@ -1,9 +1,12 @@
 package domain.synthesis.householdgeneration
 
 import TestZone
-import domain.shared.location.LocationOld
+import domain.shared.location.HasZone
+import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.toPoint
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
@@ -15,15 +18,18 @@ import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
 import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Sex
-import edu.kit.ifv.units.KCoordinate
-import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Point
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+
 class ToolTest : SynthesisTest() {
     val zone1 = TestZone(id = ZoneId(1))
     private val zones = listOf(zone1)
@@ -100,7 +106,7 @@ open class SynthesisTest {
     /**
      * Spawn in a synthesis household, if you happen to have a location at hand where the household should be.
      */
-    protected fun <T> LocationOld.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<T> {
+    protected fun <T> StandardLocation.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<T> {
         val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
         val createHousehold = builder.createHousehold()
@@ -169,24 +175,28 @@ open class SynthesisTest {
 
         fun createRules(): Map<ZoneId, List<Rule<ISurveyHousehold<out T>>>> = associatedRules
     }
-    protected fun fakeLocation() = LocationOld(FakeCoord(), null, null)
-    protected fun Zone.spawnFakeLoc(): LocationOld {
-        return LocationOld(FakeCoord(), this, null)
+    protected fun fakeLocation() = FakeCoord()
+    protected fun Zone.spawnFakeLoc(): StandardLocation {
+        val point: Point = GeometryFactory().createPoint(Coordinate(counter, counter)).also { counter++ }
+        return StandardLocation(point, this, RoadAccess.INVALID)
     }
 
-    protected fun Zone.spawnLocation(coordinate: KCoordinate): LocationOld = LocationOld(coordinate, this, null)
+    private var counter: Double = .0
 
-    protected class FakeCoord : KCoordinate {
+    protected fun Zone.spawnLocation(coordinate: WGS84Coordinate): StandardLocation {
+        return StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
+    }
+
+    protected class FakeCoord : HasZone {
         val id = counter
-        override val x = 0.0
-        override val y = 0.0
-        override fun distance(other: KCoordinate): Distance {
-            error("This method should never be called for this test to work")
-        }
 
         override fun toString(): String {
             return "FakeLoc($id)"
         }
+
+        override val position: Point
+            get() = TODO("Not yet implemented")
+        override val zoneID: ZoneId = ZoneId(id)
 
         companion object {
             var counter: Long = 0

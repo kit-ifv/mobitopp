@@ -34,7 +34,7 @@ class ActiToppNGGenerator(
     val purposes: ChoiceModelPurposes,
     val converter: (RegionType) -> ZoneRegionType,
 
-) :
+    ) :
     GenerateHouseholdActivitySchedule<SurveyWithCommute> {
     val strategy = StandardHouseholdPlanGeneration() // TODO change to Parallel once implemented.
     override fun generate(
@@ -61,11 +61,11 @@ class ActiToppNGGenerator(
     }
 
     fun convert(household: SynthesisHousehold<out SurveyWithCommute>):
-        Pair<ACTHousehold, Map<ActitoppPerson, SynthesisPerson<out SurveyWithCommute>>> {
+            Pair<ACTHousehold, Map<ActitoppPerson, SynthesisPerson<out SurveyWithCommute>>> {
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
             numMinorsBelow18 = household.numberOfYouths,
-            areaType = converter(household.location.regionType()).toAreaType(),
+            areaType = converter(household.location.regionType).toAreaType(),
             numberOfCars = household.amountOfCars
         )
         val mapping = household.members.associateBy {

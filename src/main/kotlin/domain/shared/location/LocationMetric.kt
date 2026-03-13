@@ -11,7 +11,7 @@ import kotlin.time.Duration
  */
 fun interface LocationMetric<R> {
 
-    fun evaluate(origin: LocationOld, destination: LocationOld): R
+    fun evaluate(origin: HasZone, destination: HasZone): R
 }
 
 typealias CostMetric = LocationMetric<Currency>
@@ -22,7 +22,7 @@ typealias DurationMetric = LocationMetric<Duration>
 
 class FlightDistance : DistanceMetric {
 
-    override fun evaluate(origin: LocationOld, destination: LocationOld): Distance = TODO("swapping to coordinate makes this calculation inaccessible")
+    override fun evaluate(origin: HasZone, destination: HasZone): Distance = TODO("swapping to coordinate makes this calculation inaccessible")
 //        origin.coordinate.distance(destination.coordinate)
 }
 
@@ -30,5 +30,5 @@ class ConstantMetric<R>(
     val value: R,
 ) : LocationMetric<R> {
 
-    override fun evaluate(origin: LocationOld, destination: LocationOld): R = value
+    override fun evaluate(origin: HasZone, destination: HasZone): R = value
 }

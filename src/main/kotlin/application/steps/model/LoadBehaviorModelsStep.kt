@@ -14,11 +14,12 @@ import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.Mode
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.location.LegacyZone
-import domain.shared.location.LocationOld
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtProviderAgent
+import domain.simulation.agent.PersonAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
@@ -34,14 +35,16 @@ import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.IPerson
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
+import utils.units.AbsoluteTime
 
 fun LoadBehaviorModelsContext.loadBehaviorModels(
-    destinationChoiceModel: UtilityBasedChoiceModel<LocationOld, DestinationChoiceCharacteristics>,
+    destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     modes: ChoiceModelModes,
     replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
@@ -57,7 +60,7 @@ fun LoadBehaviorModelsContext.loadBehaviorModels(
 )
 
 data class LoadBehaviorModelConfig(
-    val destinationChoiceModel: UtilityBasedChoiceModel<LocationOld, DestinationChoiceCharacteristics>,
+    val destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     val modes: ChoiceModelModes,
     val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics = StandardDestinationImplementation,
@@ -100,7 +103,7 @@ typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharact
 
 open class LoadBehaviorModelsStep(
     private val context: LoadBehaviorModelsContext,
-    private val destinationChoiceModel: UtilityBasedChoiceModel<LocationOld, DestinationChoiceCharacteristics>,
+    private val destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     protected open val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     private val modes: ChoiceModelModes,
     private val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
@@ -198,7 +201,7 @@ object DummyAvailability : ModeAvailabilityModel {
 
     context(person: IPerson) override fun staticAvailability(mode: Mode) = true
 
-    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     override fun providerAvailability(mode: Mode) = mode.available()
 
     context(characteristics: ModeChoiceCharacteristics) override fun resourceAvailability(mode: Mode) = true
@@ -206,9 +209,9 @@ object DummyAvailability : ModeAvailabilityModel {
 
 object DummyDrtAvailabilitySelector: DrtAvailabilitySelector {
 
-    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     override fun getDrtProvidersCurrentlyOperating(): List<DrtProviderAgent> = emptyList()
 
-    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     override fun findDrtOffers(): List<DrtOffer> = emptyList()
 }

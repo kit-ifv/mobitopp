@@ -1,6 +1,7 @@
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.LocationOld
+import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.synthesis.TrivialSynthesis
 import domain.synthesis.behavior.AlwaysAssignSameStatus
@@ -13,7 +14,6 @@ import domain.synthesis.behavior.carownership.AlwaysAssignFixedNumber
 import domain.synthesis.behavior.fixedDestinations.AssignedLocation
 import domain.synthesis.behavior.fixedDestinations.SimpleGroupLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
-import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.euros
@@ -57,9 +57,9 @@ class PopulationSynthesisKtTest {
     @Test
     @Suppress("LongMethod") // This method may be long, it is the entire execution of a population synthesis
     fun runWithDebug() {
-        val bielefeld = LocationOld(BIELEFELD, null, null)
-        val itzehoe = LocationOld(ITZEHOE, null, null)
-        val schweinfurt = LocationOld(SCHWEINFURT, null, null)
+        val bielefeld = StandardLocation.fromWGS(BIELEFELD)
+        val itzehoe =  StandardLocation.fromWGS(ITZEHOE)
+        val schweinfurt =  StandardLocation.fromWGS(SCHWEINFURT)
         val zones = listOf(TEST_ZONE)
         val populationSynthesis = PopulationSynthesis.configure(
             surveyPopulation = TrivialTestGeneration(),
@@ -74,7 +74,7 @@ class PopulationSynthesisKtTest {
             }
         }
 
-        val primarySchools: List<LocationOld> =
+        val primarySchools: List<StandardLocation> =
             populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY) { zone, _, _ ->
                 zone.generateLocations(amount = 1)
             }
@@ -122,9 +122,9 @@ class PopulationSynthesisKtTest {
             assignLocations {
                 AssignAroundZoneCentroid(100.meters)
             }
-            assertEquals(hh1.location.requireZone(), TEST_ZONE)
-            assertEquals(hh2.location.requireZone(), TEST_ZONE)
-            assertEquals(hh3.location.requireZone(), TEST_ZONE)
+            assertEquals(hh1.location.zone, TEST_ZONE)
+            assertEquals(hh2.location.zone, TEST_ZONE)
+            assertEquals(hh3.location.zone, TEST_ZONE)
 
             assertFalse(hh1.economicStatusIsAssigned())
             assertFalse(hh2.economicStatusIsAssigned())
@@ -195,7 +195,7 @@ class PopulationSynthesisKtTest {
                     We can code within the execution block, if we so desire.
                      */
 
-                    val locations: List<LocationOld> = listOf(bielefeld, itzehoe, schweinfurt)
+                    val locations: List<StandardLocation> = listOf(bielefeld, itzehoe, schweinfurt)
                     assignmentStrategy = SimpleGroupLocator { persons ->
 
                         persons.zip(locations) { p, l -> AssignedLocation(p, l) }
@@ -224,6 +224,11 @@ class PopulationSynthesisKtTest {
     }
 }
 
-private fun Zone.generateLocations(amount: Int): List<LocationOld> {
-    return (0..<amount).map { LocationOld(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
+private fun Zone.generateLocations(amount: Int): List<StandardLocation> {
+
+    return (0 until amount).map {
+        StandardLocation(centroid.position, this, RoadAccess.INVALID)
+    }
+
+
 }

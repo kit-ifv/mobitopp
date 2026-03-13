@@ -3,6 +3,7 @@ package domain.shared.datastructure.schedule
 import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
+import domain.shared.location.StandardLocation
 import domain.shared.location.LocationOld
 import utils.units.AbsoluteTime
 import utils.units.min
@@ -30,8 +31,8 @@ sealed interface Action : Comparable<Action> {
     val duration: Duration get() = endTime - startTime
     val endTime: AbsoluteTime
 
-    val startLocation: LocationOld
-    val endLocation: LocationOld
+    val startLocation: StandardLocation
+    val endLocation: StandardLocation
 
     val earliestStartTime: AbsoluteTime
     val latestEndTime: AbsoluteTime
@@ -97,13 +98,13 @@ operator fun Iterable<Action>.contains(action: Action): Boolean {
  * of the properties. You should use this interface when you want to disallow modifications.
  */
 sealed interface StationaryAction : Action {
-    val location: LocationOld
+    val location: StandardLocation
     val type: ActivityType
     override val actionType: ActionType
         get() = ActionType.ACTIVITY
-    override val startLocation: LocationOld
+    override val startLocation: StandardLocation
         get() = location
-    override val endLocation: LocationOld
+    override val endLocation: StandardLocation
         get() = location
 }
 
@@ -116,8 +117,8 @@ sealed interface StationaryAction : Action {
 sealed interface MovingAction : Action {
     override val startTime: AbsoluteTime
     override val endTime: AbsoluteTime
-    override val startLocation: LocationOld
-    override val endLocation: LocationOld
+    override val startLocation: StandardLocation
+    override val endLocation: StandardLocation
     override val actionType: ActionType
         get() = ActionType.LEG
 
@@ -128,7 +129,7 @@ sealed interface MovingAction : Action {
  * An [Activity] is a [StationaryAction]. The  properties are modifiable at this level. This is the primary
  */
 interface Activity : StationaryAction {
-    override var location: LocationOld
+    override var location: StandardLocation
     override var startTime: AbsoluteTime
     override var endTime: AbsoluteTime
     override var earliestStartTime: AbsoluteTime
@@ -176,7 +177,7 @@ interface Activity : StationaryAction {
          */
         @Suppress("LongParameterList") // Maybe in the future split into time info and location/type info?
         fun fromDuration(
-            location: LocationOld,
+            location: StandardLocation,
             startTime: AbsoluteTime,
             duration: Duration,
             earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
@@ -205,7 +206,7 @@ interface Activity : StationaryAction {
  */
 
 data class RawActivity(
-    override var location: LocationOld,
+    override var location: StandardLocation,
     override var startTime: AbsoluteTime,
     override var endTime: AbsoluteTime,
     override var earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
@@ -239,7 +240,7 @@ data class RawActivity(
         val earlyStartTime =
             if (earliestStartTime == AbsoluteTime.MINUS_INFINITY) "" else "earliestStartTime=$earliestStartTime"
         val latestEndTime = if (latestEndTime == AbsoluteTime.INFINITY) "" else "latestEndTime=$latestEndTime"
-        return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneID()}" +
+        return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneID}" +
             " t= ${type.description.first()}" +
             "(${type.code}) e=$earlyStartTime l=$latestEndTime "
     }
@@ -252,8 +253,8 @@ data class RawActivity(
 interface Leg : MovingAction {
     override var startTime: AbsoluteTime
     override var endTime: AbsoluteTime
-    override var startLocation: LocationOld
-    override var endLocation: LocationOld
+    override var startLocation: StandardLocation
+    override var endLocation: StandardLocation
 
     override var earliestStartTime: AbsoluteTime
     override var latestEndTime: AbsoluteTime
@@ -290,8 +291,8 @@ interface Leg : MovingAction {
         fun fromDuration(
             startTime: AbsoluteTime,
             duration: Duration,
-            startLocation: LocationOld,
-            endLocation: LocationOld,
+            startLocation: StandardLocation,
+            endLocation: StandardLocation,
             mode: Mode = MODEUNKOWN,
         ): Leg {
             return RawLeg(
@@ -317,8 +318,8 @@ interface Leg : MovingAction {
         fun fromEndTime(
             startTime: AbsoluteTime,
             endTime: AbsoluteTime,
-            startLocation: LocationOld,
-            endLocation: LocationOld,
+            startLocation: StandardLocation,
+            endLocation: StandardLocation,
             mode: Mode = MODEUNKOWN,
         ): Leg {
             return RawLeg(
@@ -343,8 +344,8 @@ interface Leg : MovingAction {
  */
 data class RawLeg(
     override var startTime: AbsoluteTime,
-    override var startLocation: LocationOld,
-    override var endLocation: LocationOld,
+    override var startLocation: StandardLocation,
+    override var endLocation: StandardLocation,
     override var endTime: AbsoluteTime,
     override var earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
     override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,

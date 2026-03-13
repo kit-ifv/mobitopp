@@ -4,6 +4,7 @@ import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
+import domain.shared.location.StandardLocation
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.LocationOld
 import domain.shared.location.Metrics
@@ -55,7 +56,7 @@ class RawTrip(
 }
 
 class ImpedanceBuilder(val impedance: Metrics, private val tripBuilder: TripBuilder) {
-    fun taking(modeLocation: Pair<Mode, LocationOld>) {
+    fun taking(modeLocation: Pair<Mode, StandardLocation>) {
         tripBuilder.taking(
             modeLocation,
             impedance.duration(
@@ -88,7 +89,7 @@ class TripBuilder(
 
     // The previous action could be null, however the assumption that a previous location exists still holds, so I can
     // request the promise that this value will be set eventually.
-    lateinit var currentLocation: LocationOld
+    lateinit var currentLocation: StandardLocation
         private set
 
     var currentTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY
@@ -126,7 +127,7 @@ class TripBuilder(
         ImpedanceBuilder(impedance, this).apply(lambda)
     }
 
-    fun taking(modeLocation: Pair<Mode, LocationOld>, duration: Duration) {
+    fun taking(modeLocation: Pair<Mode, StandardLocation>, duration: Duration) {
         +Step(modeLocation.second, duration, modeLocation.first)
     }
 
@@ -135,7 +136,7 @@ class TripBuilder(
     }
 
     fun output(): SortedSet<Leg> = legs
-    inner class Step(val location: LocationOld, val duration: Duration, val mode: Mode = MODEUNKOWN)
+    inner class Step(val location: StandardLocation, val duration: Duration, val mode: Mode = MODEUNKOWN)
     inner class Pause(val idleTime: Duration)
 }
 

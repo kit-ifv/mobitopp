@@ -1,6 +1,6 @@
 package application.syntheticsim
 
-import domain.shared.location.LocationOld
+import domain.shared.location.StandardLocation
 import domain.simulation.behavior.DestinationAlternative
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
@@ -9,41 +9,42 @@ import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
 
 
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
+import kotlin.random.Random
 
 /**
  * Wraps around a [ChoiceModel] [original] for [DestinationAlternative]. The [overrideDestination] parameter will replace the selection
  * of the original model, if not null. This allows controlling the choice function output.
  */
 class OverridableDestinationChoiceModel(
-    val original: UtilityBasedChoiceModel<LocationOld, DestinationChoiceCharacteristics>,
-) : UtilityBasedChoiceModel<LocationOld, DestinationChoiceCharacteristics>{
-    var overrideDestination: LocationOld? = null
+    val original: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
+) : UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>{
+    var overrideDestination: StandardLocation? = null
     override val name: String = original.name
 
 
     context(characteristics: DestinationChoiceCharacteristics, random: Random)
-    override fun select(choices: Set<LocationOld>): LocationOld {
+    override fun select(choices: Set<StandardLocation>): StandardLocation {
         return overrideDestination ?: original.select(choices)
     }
 
     context(_: DestinationChoiceCharacteristics)
-    override fun utility(alternative: LocationOld): Double {
+    override fun utility(alternative: StandardLocation): Double {
         TODO("Not yet implemented")
     }
 
-    override fun probabilities(utilities: Map<LocationOld, Double>): Map<LocationOld, Double> {
+    override fun probabilities(utilities: Map<StandardLocation, Double>): Map<StandardLocation, Double> {
         TODO("Not yet implemented")
     }
 
-    override fun addFilter(filter: ChoiceFilter<LocationOld, DestinationChoiceCharacteristics>): FilteredChoiceModel<LocationOld, DestinationChoiceCharacteristics> {
+    override fun addFilter(filter: ChoiceFilter<StandardLocation, DestinationChoiceCharacteristics>): FilteredChoiceModel<StandardLocation, DestinationChoiceCharacteristics> {
         return original.addFilter(filter)
     }
 
     context(_: DestinationChoiceCharacteristics, random: Random)
     override fun selectInjected(
-        choices: Set<LocationOld>,
-        injections: Map<LocationOld, (Double) -> Double>,
-    ): LocationOld {
+        choices: Set<StandardLocation>,
+        injections: Map<StandardLocation, (Double) -> Double>,
+    ): StandardLocation {
         TODO("Not yet implemented")
     }
 }

@@ -1,9 +1,13 @@
 package domain.synthesis.parser.binary
 
+import domain.shared.location.HasZone
+import domain.shared.location.Location
 import domain.shared.location.LocationOld
 import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.ZonedRoadAccessLocation
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
 import java.io.DataInputStream
@@ -31,14 +35,32 @@ object LocationUtils {
         val roadAccess = RoadAccess(readLong(), readDouble().share()) // Reading roadId and position
         return LocationOld(coordinate, converter(zoneId), roadAccess)
     }
-    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): LocationOld {
+    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): StandardLocation {
         val zoneId = ZoneId(long) // Reading zone ID
         val coordinate = WGS84Coordinate.decimalDegree(
             double,
             double
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
-        return LocationOld(coordinate, converter(zoneId), roadAccess)
+        return StandardLocation(
+            position = Location.wgs(coordinate.x, coordinate.y).position,
+            zone = converter(zoneId) ?: run {
+                throw NoSuchElementException("No Zone For thing")
+                                            } ,
+            roadAccess = roadAccess,
+        )
+    }
+
+    fun ByteBuffer.decodeNakedLocation() : ZonedRoadAccessLocation {
+
+        val zoneId = ZoneId(long) // Reading zone ID
+        val coordinate = WGS84Coordinate.decimalDegree(
+            double,
+            double
+        ) // Reading latitude and longitude
+        val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
+
+        return Location.wgs(coordinate).withRoadAccess(roadAccess).withZone(zoneId)
     }
 
     /**
@@ -53,11 +75,15 @@ object LocationUtils {
      *
      * @param location The `Location` object to write to the `DataOutputStream`.
      */
-    fun DataOutputStream.encodeLocation(location: LocationOld) {
-        writeLong(location.zone?.id?.value ?: Long.MIN_VALUE)
-        writeDouble(location.coordinate.y)
-        writeDouble(location.coordinate.x)
-        writeLong(location.roadAccess?.roadId ?: Long.MIN_VALUE)
-        writeDouble(location.roadAccess?.position?.toDouble() ?: 0.5)
+    fun DataOutputStream.encodeLocation(location: ZonedRoadAccessLocation) {
+        writeLong(location.zoneID.value)
+        writeDouble(location.position.y)
+        writeDouble(location.position.x)
+        writeLong(location.roadAccess.roadId )
+        writeDouble(location.roadAccess.position.toDouble() )
+    }
+
+    fun DataOutputStream.encodeLocation(location: HasZone) {
+        encodeLocation(location.withRoadAccess(RoadAccess.INVALID))
     }
 }

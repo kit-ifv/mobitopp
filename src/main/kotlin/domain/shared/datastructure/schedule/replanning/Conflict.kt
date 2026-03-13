@@ -1,7 +1,7 @@
 package domain.shared.datastructure.schedule.replanning
 
 import domain.shared.datastructure.schedule.StationaryAction
-import domain.shared.location.LocationOld
+import domain.shared.location.HasZone
 import utils.units.AbsoluteTime
 
 /**
@@ -11,7 +11,7 @@ import utils.units.AbsoluteTime
 data class Conflict(
     val startTime: AbsoluteTime,
     val endTime: AbsoluteTime,
-    val startLocation: LocationOld?,
-    val endLocation: LocationOld?,
+    val startLocation: HasZone?,
+    val endLocation: HasZone?,
     val actions: List<StationaryAction>
 )

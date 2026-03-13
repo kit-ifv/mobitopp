@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import domain.shared.enums.Mode
 import domain.shared.location.LocationOld
+import domain.shared.location.StandardLocation
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.DestinationChoiceParameters
 import domain.simulation.behavior.ModeChoiceCharacteristics
@@ -23,7 +24,7 @@ import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
  */
 fun getDestinationChoiceModelType(): JavaType = TypeFactory.defaultInstance().constructParametricType(
     UtilityBasedChoiceModel::class.java,
-    LocationOld::class.java,
+    StandardLocation::class.java,
     DestinationChoiceCharacteristics::class.java
 )
 

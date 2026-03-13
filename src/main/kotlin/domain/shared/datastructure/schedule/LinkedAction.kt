@@ -1,7 +1,8 @@
 package domain.shared.datastructure.schedule
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.LocationOld
+import domain.shared.location.StandardLocation
+
 import utils.units.AbsoluteTime
 import utils.units.max
 import kotlin.time.Duration
@@ -18,8 +19,8 @@ abstract class LinkedAction : Action {
     abstract var next: LinkedAction?
         internal set
 
-    abstract override var startLocation: LocationOld
-    abstract override var endLocation: LocationOld
+    abstract override var startLocation: StandardLocation
+    abstract override var endLocation: StandardLocation
     abstract override var startTime: AbsoluteTime
     abstract override var endTime: AbsoluteTime
 
@@ -73,7 +74,7 @@ class LinkedActivity(
         require(original !is LinkedActivity)
     }
 
-    override var location: LocationOld
+    override var location: StandardLocation
         get() = original.location
         set(value) {
             if (value != location) {
@@ -82,7 +83,7 @@ class LinkedActivity(
                 previous?.endLocation = value
             }
         }
-    override var startLocation: LocationOld
+    override var startLocation: StandardLocation
         get() = original.location
         set(value) {
             if (value != startLocation) {
@@ -91,7 +92,7 @@ class LinkedActivity(
                 previous?.endLocation = value
             }
         }
-    override var endLocation: LocationOld
+    override var endLocation: StandardLocation
         get() = original.location
         set(value) {
             if (value != endLocation) {
@@ -173,7 +174,7 @@ class LinkedLeg(
 
     override var next: LinkedAction? = null
 ) : LinkedAction(), Leg by original {
-    override var startLocation: LocationOld
+    override var startLocation: StandardLocation
         get() = original.startLocation
         set(value) {
             if (value != startLocation) {
@@ -181,7 +182,7 @@ class LinkedLeg(
                 previous?.endLocation = value
             }
         }
-    override var endLocation: LocationOld
+    override var endLocation: StandardLocation
         get() = original.endLocation
         set(value) {
             if (value != endLocation) {

@@ -12,7 +12,7 @@ import domain.shared.location.ZoneId
  */
 interface ZoneIdMatrix : TranslatedDoubleMatrix<ZoneId> {
     override operator fun get(row: ZoneId, column: ZoneId): Double
-
+    @Deprecated("This should not be used anymore")
     operator fun get(row: LocationOld, column: LocationOld): Double {
         return get(row.requireZone().id, column.requireZone().id)
     }

@@ -3,8 +3,8 @@ package domain.simulation.behavior
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
-import domain.shared.location.LocationOld
 import domain.shared.location.Metrics
+import domain.shared.location.StandardLocation
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.DrtRequest
@@ -24,7 +24,7 @@ import kotlin.random.Random
 interface DestinationChoiceCharacteristics {
     val person: PersonAgent
     val time: AbsoluteTime
-    val origin: LocationOld
+    val origin: StandardLocation
     val impedance: Metrics
     val attractivityModel: AttractivenessModel
     val modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>
@@ -33,7 +33,7 @@ interface DestinationChoiceCharacteristics {
         operator fun invoke(
             person: PersonAgent,
             time: AbsoluteTime,
-            origin: LocationOld,
+            origin: StandardLocation,
             impedance: Metrics,
             attractivityModel: AttractivenessModel,
             modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>,
@@ -50,13 +50,13 @@ interface DestinationChoiceCharacteristics {
     }
 }
 
-fun DestinationChoiceCharacteristics.with(choice: LocationOld) = DestinationAlternative(this, choice)
+fun DestinationChoiceCharacteristics.with(choice: StandardLocation) = DestinationAlternative(this, choice)
 
 
 data class DestinationChoiceCharacteristicsImpl(
     override val person: PersonAgent,
     override val time: AbsoluteTime,
-    override val origin: LocationOld,
+    override val origin: StandardLocation,
     override val impedance: Metrics,
     override val attractivityModel: AttractivenessModel,
     override val modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>,
@@ -69,7 +69,7 @@ data class DestinationChoiceCharacteristicsImpl(
 
 data class DestinationAlternative(
     val original: DestinationChoiceCharacteristics,
-    val choice: LocationOld,
+    val choice: StandardLocation,
 ) : DestinationChoiceCharacteristics by original
 
 /**
@@ -81,8 +81,8 @@ data class DestinationAlternative(
 interface ModeChoiceCharacteristics {
     val person: PersonAgent
     val time: AbsoluteTime
-    val origin: LocationOld
-    val destination: LocationOld
+    val origin: StandardLocation
+    val destination: StandardLocation
     val impedance: Metrics
     val currentChoices: Collection<Mode> //cache of filtered modes before mode choice
     val custom: Any?
@@ -91,8 +91,8 @@ interface ModeChoiceCharacteristics {
         operator fun invoke(
             person: PersonAgent,
             time: AbsoluteTime,
-            origin: LocationOld,
-            destination: LocationOld,
+            origin: StandardLocation,
+            destination: StandardLocation,
             impedance: Metrics,
             currentChoices: Collection<Mode>,
             custom: Any?
@@ -114,8 +114,8 @@ interface ModeChoiceCharacteristics {
 data class ModeChoiceCharacteristicsImpl(
     override val person: PersonAgent,
     override val time: AbsoluteTime,
-    override val origin: LocationOld,
-    override val destination: LocationOld,
+    override val origin: StandardLocation,
+    override val destination: StandardLocation,
     override val impedance: Metrics,
     override val currentChoices: Collection<Mode>,
     override val custom: Any? = null
@@ -134,8 +134,8 @@ data class ModeChoiceCharacteristicsImpl(
 data class ModeChoiceAlternative( //TODO check if this can be deleted?
     val person: PersonAgent,
     val time: AbsoluteTime,
-    val origin: LocationOld,
-    val destination: LocationOld,
+    val origin: StandardLocation,
+    val destination: StandardLocation,
     val choice: Mode,
     val impedance: Metrics,
 )
@@ -155,7 +155,7 @@ fun Collection<ProviderAvailability>.flatten() = mapNotNull {
     modes to resources
 }
 
-context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
 fun ModeAvailabilityModel.currentlyAffectedProviders(modes: Collection<Mode>): List<Any> =
     modes.mapNotNull { providerAvailability(it).providers }.flatten()
 
@@ -218,7 +218,7 @@ interface ModeAvailabilityModel {
      * @receiver situation = a [DestinationAlternative] characterizing the choice situation and potential destination
      * @return availability and possibly affected resource providers
      */
-    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     fun providerAvailability(mode: Mode): ProviderAvailability
 
     /**
@@ -235,14 +235,14 @@ interface ModeAvailabilityModel {
 } // TODO implementation using composite of rules, caching of reduced choice sets in person data and choice situation
 
 fun interface BikeSharingConnectionSelector {
-    fun findConnection(person: PersonAgent, destination: LocationOld): Pair<SharingStationAgent, SharingStationAgent>?
+    fun findConnection(person: PersonAgent, destination: StandardLocation): Pair<SharingStationAgent, SharingStationAgent>?
 }
 
 interface DrtAvailabilitySelector {
-    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     fun getDrtProvidersCurrentlyOperating(): List<DrtProviderAgent>
 
-    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     fun findDrtOffers(): List<DrtOffer>
 
 }
@@ -265,7 +265,7 @@ class AvailabilityModelWithSharing(
         else -> true
     }
 
-    context(person: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(person: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     override fun providerAvailability(mode: Mode): ProviderAvailability =
         takeIf {
             staticAvailability(mode) //TODO use cached static availability of agent
@@ -327,7 +327,7 @@ class AvailabilityModelWithSharing(
         } ?: modes.car.notAvailable
 
 
-    context(person: PersonAgent, destination: Location)
+    context(person: PersonAgent, destination: StandardLocation)
     private fun isBikeSharingCurrentlyAvailable(): ProviderAvailability =
         takeIf { isHome(person) || prevModeIsFlexible(person) }?.let {
             person.sharingMemberships.filter {
@@ -351,7 +351,7 @@ class AvailabilityModelWithSharing(
         } ?: modes.bikeSharing.notAvailable
 
 
-    context(person: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(person: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     private fun isPoolingCurrentlyAvailable(): ProviderAvailability =
         getDrtProvidersCurrentlyOperating().takeIf {
             it.isNotEmpty()
@@ -359,7 +359,7 @@ class AvailabilityModelWithSharing(
             modes.ridePooling.available(it)
         } ?: modes.ridePooling.notAvailable
 
-    context(person: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(person: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     override fun getDrtProvidersCurrentlyOperating(): List<DrtProviderAgent> =
         takeIf { isHome(person) || prevModeIsFlexible(person) }?.let {
             person.drtMemberships.filter {
@@ -390,12 +390,12 @@ class AvailabilityModelWithSharing(
     private fun isBikesharingAvailableForChoice(characteristics: ModeChoiceCharacteristics) =
         findConnection(characteristics.person, characteristics.destination) != null
 
-    override fun findConnection(person: PersonAgent, destination: LocationOld): Pair<SharingStationAgent, SharingStationAgent>? =
+    override fun findConnection(person: PersonAgent, destination: StandardLocation): Pair<SharingStationAgent, SharingStationAgent>? =
         context(person, destination) {
             findStartEndStation()
         }
 
-    context(person: PersonAgent, destination: Location)
+    context(person: PersonAgent, destination: StandardLocation)
     private fun findStartEndStation(): Pair<SharingStationAgent, SharingStationAgent>? {
         val origin = person.location
 
@@ -441,7 +441,7 @@ class AvailabilityModelWithSharing(
             }
         }
 
-    context(agent: PersonAgent, time: AbsoluteTime, destination: Location)
+    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     override fun findDrtOffers(): List<DrtOffer> {
         val memberProviders = agent.drtMemberships.filter {
             it.id in (drtProvidersByMode[modes.ridePooling] ?: emptySet())

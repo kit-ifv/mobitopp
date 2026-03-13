@@ -3,8 +3,10 @@ package domain.synthesis.results
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
-import domain.shared.location.LocationOld
+import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
+import domain.shared.location.ZonedRoadAccessLocation
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SurveyInfo
@@ -26,8 +28,8 @@ import kotlin.io.path.createDirectories
  * Converts the Location to the standard representation found in legacy mobitopp input files which is the format
  * (lat, lon: roadId, accessShare)
  */
-fun LocationOld.legacyStringRepresentation(): String =
-    "(${coordinate.y}, ${coordinate.x}: ${roadAccess?.roadId}, ${roadAccess?.position})"
+fun ZonedRoadAccessLocation.legacyStringRepresentation(): String =
+    "(${position.y}, ${position.x}: ${roadAccess.roadId}, ${roadAccess.position})"
 
 /**
  * Extend the AttractivenessModel returning 0.0 for the attractiveness when the zone is null
@@ -132,7 +134,7 @@ object LegacyCarOutput : CSVOutput<SynthesisCar> {
 data class FixedDestinationElements(
     val person: SynthesisPerson<*>,
     val activityType: ActivityType,
-    val location: LocationOld,
+    val location: StandardLocation,
 )
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
@@ -160,10 +162,10 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
                 1970, // Dummy value for dumb output household year taken from survey data.
                 -1, // Dummy value for dumb output: household ID from the survey data
                 activityType.description,
-                location.zone?.id?.value ?: "NULL",
+                location.zoneID,
                 location.legacyStringRepresentation(),
-                location.coordinate.x,
-                location.coordinate.y
+                location.position.x,
+                location.position.y
 
             )
         }
@@ -201,11 +203,11 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>>
         return element.run {
             toCSV(
                 id,
-                location.zone?.id?.value ?: "NULL",
+                location.zoneID,
                 surveyHouseholdId,
                 location,
-                location.coordinate.x,
-                location.coordinate.y,
+                location.position.x,
+                location.position.y,
 //                "TODO nomberofnotsimulatdchildren",
                 amountOfCars,
 //                "TODO incomeclass",
@@ -245,11 +247,11 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
                 -13379001, // Dummy value: Originally the ID in the Survey Info.
                 -1, // Ok, here I am lost, I have absolutely no idea what "domcode" is supposed to be.
                 -1, // The household type. Again taken from survey data. Again crazy that this exists as an int field.
-                location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
-                location.zone?.id?.value ?: "NULL",
+                TODO(),// location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
+                location.zoneID,
                 location.legacyStringRepresentation(),
-                location.coordinate.x,
-                location.coordinate.y,
+                location.position.x,
+                location.position.y,
                 -1, // ActiTopp once cared about the number of childern, but it is entirely irrelevant
                 amountOfCars,
                 5, // I would assume that this is the encoding of the income based on some classes, but used it is not.
@@ -262,7 +264,7 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
 }
 
 data class OpportunityOutput(
-    val location: LocationOld,
+    val location: ZonedRoadAccessLocation,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
 )
@@ -275,12 +277,12 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
     override fun convert(element: OpportunityOutput): String {
         return element.run {
             toCSV(
-                location.zone?.id?.value ?: -1,
+                location.zoneID.value,
                 activityType,
                 location.legacyStringRepresentation(),
-                attractivenessModel.nullableAttractiveness(location.zone, activityType),
-                location.coordinate.x,
-                location.coordinate.y
+                attractivenessModel.attractivenessFor(location.zoneID, activityType),
+                location.position.x,
+                location.position.y
 
             )
         }

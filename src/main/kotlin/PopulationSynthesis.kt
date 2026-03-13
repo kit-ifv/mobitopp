@@ -5,7 +5,9 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.LocationOld
+import domain.shared.location.HasZone
+import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.synthesis.TrivialSynthesis
 import domain.synthesis.behavior.AssignAroundZoneCentroid
@@ -29,7 +31,6 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistan
 import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
-import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
@@ -51,8 +52,6 @@ import utils.csv.Row
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.random.Random
-import kotlin.text.toDouble
-import kotlin.text.toInt
 
 fun String.toBooleanNumeric(): Boolean = when (this) {
     "1" -> true
@@ -183,6 +182,16 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
     }
 }
 
+fun <AREA, T: Any> PopulationSynthesis<AREA, T>.generateLocations(
+    activityType: ActivityType,
+    generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
+): List<StandardLocation> {
+    // TODO reenable generation and put more thought into how the locations are generated.
+    val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
+    opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
+    return generatedLocations
+}
+
 class PopulationSynthesis<AREA, T : Any>(
     private val outputDirectory: Path,
     val zones: List<AREA>,
@@ -194,17 +203,17 @@ class PopulationSynthesis<AREA, T : Any>(
     fun execute(lambda: SynthesisSteps<AREA, T>.() -> Unit) {
         SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
     }
-
-    @Suppress("UnusedParameter") // TODO reenable the parameter once a fix is found to accept the more generic AREA type
-    fun generateLocations(
-        activityType: ActivityType,
-        generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<LocationOld>,
-    ): List<LocationOld> {
-        // TODO reenable generation and put more thought into how the locations are generated.
-        val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
-        opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
-        return generatedLocations
-    }
+// TODO disabled for now because of location rewrite.
+//    @Suppress("UnusedParameter") // TODO reenable the parameter once a fix is found to accept the more generic AREA type
+//    fun generateLocations(
+//        activityType: ActivityType,
+//        generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<Location>,
+//    ): List<Location> {
+//        // TODO reenable generation and put more thought into how the locations are generated.
+//        val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
+//        opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
+//        return generatedLocations
+//    }
 
     companion object {
         class SynthesisConfiguration<AREA, T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
@@ -288,12 +297,12 @@ fun examplePopulationSynthesis() {
         }
     }
 
-    val primarySchools: List<LocationOld> =
+    val primarySchools: List<StandardLocation> =
         populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY) { zone, _, _ ->
             zone.generateLocations(amount = 1)
         }
 
-    val works: List<LocationOld> =
+    val works: List<StandardLocation> =
         populationSynthesis.generateLocations(LegacyActivityType.WORK) { zone, _, _ ->
             zone.generateLocations(amount = 1)
         }
@@ -398,13 +407,20 @@ private fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,
     generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
-): List<LocationOld> {
+): List<HasZone> {
     return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-private fun Zone.generateLocations(amount: Int): List<LocationOld> {
-    return (0..<amount).map { LocationOld(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
+private fun Zone.generateLocations(amount: Int): List<StandardLocation> {
+    return (0 until amount).map {
+        StandardLocation(
+            position = TODO(),
+            zone = this,
+            roadAccess = RoadAccess.INVALID
+        )
+    }
+//    return (0..<amount).map { LocationOld(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
 }

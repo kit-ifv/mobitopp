@@ -18,8 +18,8 @@ import domain.shared.datastructure.schedule.alternateByImpedance
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
-import domain.shared.location.LocationOld
 import domain.shared.location.Metrics
+import domain.shared.location.StandardLocation
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtRide
 import domain.simulation.agent.PersonAgent
@@ -65,7 +65,7 @@ abstract class PersonState(
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
         get() = behavior.modeChoice
 
-    val destinationChoice: FixedChoiceModel<LocationOld, DestinationChoiceCharacteristics>
+    val destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
         get() = behavior.destinationChoice
 
     // TODO modes only necessary here until dispatch: mode > nested state machine can be defined outside of PersonStates
@@ -105,10 +105,10 @@ abstract class TripState(val trip: LinkTrip, time: AbsoluteTime, agent: PersonAg
 ) {
     constructor(trip: LinkTrip, state: PersonState, doStep: Boolean) : this(trip, state.time, state.agent, doStep)
 
-    val origin: LocationOld
+    val origin: StandardLocation
         get() = trip.origin
 
-    val destination: LocationOld
+    val destination: StandardLocation
         get() = trip.destination
 }
 
@@ -143,7 +143,7 @@ class PerformingActivityState(
     val activity: StationaryAction,
     state: PersonState
 ) : ActivityState(agenda, activity.startTime, state.agent, doStep = true) {
-    val location: LocationOld
+    val location: StandardLocation
         get() = activity.location
 }
 

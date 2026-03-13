@@ -53,7 +53,7 @@ class HomeLocationStep(
     override val dependentRepositories: Set<Repository<*, *>> = setOf(context.zoneRepository)
 
     override fun update(element: MutableHousehold) {
-        val zone = element.location.requireZone()
+        val zone = element.location.zone
         element.location = model.generateLocation(zone, element)
     }
 
@@ -69,7 +69,7 @@ class GroupedHomeLocationsStep(
     override val dependentRepositories: Set<Repository<*, *>> = setOf(context.zoneRepository)
 
     override fun updateAll(elements: Collection<MutableHousehold>) {
-        val householdsByZone = elements.groupBy { it.location.requireZone() }
+        val householdsByZone = elements.groupBy { it.location.zone }
         householdsByZone.entries.forEach { (zone, households) ->
             model.generateLocations(zone, households).forEach { (hh, loc) ->
                 hh.location = loc

@@ -1,8 +1,7 @@
 package domain.synthesis.behavior.discreteChoice
 
-import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
-import domain.shared.enums.areatype.toSizebasedClassification
+import domain.shared.location.HasSizebasedClassification
 import domain.synthesis.behavior.SurveyWithCommute
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.data.Employment
@@ -273,8 +272,7 @@ class EngineAlternative(
     val age: Int = person.age
     val householdNumberOfCars: Int = household.amountOfCars
     val householdSize: Int = household.size
-    val regionTypeRegioStaR17: RegioStaR17 = household.location.regionType().toRegioStaR17()
-    val regionType = regionTypeRegioStaR17.toSizebasedClassification()
+    val regionType = household.location.sizebasedRegiostarClassification
 
     val isWorking = employment == Employment.FULLTIME
     val isParttime = employment == Employment.PARTTIME

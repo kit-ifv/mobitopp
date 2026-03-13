@@ -3,7 +3,8 @@ package domain.synthesis.data
 import Mutable
 import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
-import domain.shared.location.LocationOld
+import domain.shared.location.StandardLocation
+import domain.shared.location.ZonedRoadAccessLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
@@ -42,7 +43,7 @@ value class HouseholdId(val value: Long) : Comparable<HouseholdId> {
 interface IHousehold : Identifiable<HouseholdId>, StochasticActor, Simplifiable<HouseholdBinaryRecord> {
     val householdNumber: Long
     val surveyYear: Int
-    val location: LocationOld
+    val location: StandardLocation
     val domCode: Int
     val type: Int
     val incomePerMonth: Currency
@@ -85,7 +86,7 @@ data class HouseholdBinaryRecord(
     val type: Int,
     val incomePerMonth: Double,
     val economicStatusCode: Int,
-    val location: LocationOld,
+    val location: ZonedRoadAccessLocation,
 ) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {

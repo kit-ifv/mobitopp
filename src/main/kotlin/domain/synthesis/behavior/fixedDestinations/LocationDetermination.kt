@@ -1,12 +1,13 @@
 package domain.synthesis.behavior.fixedDestinations
 
-import domain.shared.location.LocationOld
+import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import domain.synthesis.behavior.domain.SynthesisPerson
 import utils.collections.addProgressBar
 
 data class AssignedLocation<T>(
     val targetPerson: SynthesisPerson<out T>,
-    val assignedLocation: LocationOld
+    val assignedLocation: StandardLocation
 )
 
 /**
@@ -15,7 +16,7 @@ data class AssignedLocation<T>(
 fun interface AdjustableGroupLocator<T> {
     fun match(
         agents: Collection<SynthesisPerson<out T>>,
-        potentialLocations: Collection<LocationOld>
+        potentialLocations: Collection<StandardLocation>
     ): List<AssignedLocation<T>>
 }
 
@@ -31,7 +32,7 @@ fun interface SimpleGroupLocator<T> : AdjustableGroupLocator<T> {
     fun match(vararg agents: SynthesisPerson<out T>) = match(agents.toList())
     override fun match(
         agents: Collection<SynthesisPerson<out T>>,
-        potentialLocations: Collection<LocationOld>
+        potentialLocations: Collection<StandardLocation>
     ): List<AssignedLocation<T>> = match(agents)
 }
 
@@ -39,11 +40,11 @@ fun interface SimpleGroupLocator<T> : AdjustableGroupLocator<T> {
  * An Adjustable Agent locator is able to adjust the valid locations for each agent individually.
  */
 fun interface AdjustableAgentLocator<T> : AdjustableGroupLocator<T> {
-    fun locate(agent: SynthesisPerson<out T>, locations: Collection<LocationOld>): LocationOld
+    fun locate(agent: SynthesisPerson<out T>, locations: Collection<StandardLocation>): StandardLocation
 
     override fun match(
         agents: Collection<SynthesisPerson<out T>>,
-        potentialLocations: Collection<LocationOld>
+        potentialLocations: Collection<StandardLocation>
     ): List<AssignedLocation<T>> {
         return agents.map { AssignedLocation(it, locate(it, potentialLocations)) }
     }
@@ -54,14 +55,14 @@ fun interface AdjustableAgentLocator<T> : AdjustableGroupLocator<T> {
  * want to microscopically manage the potential locations of each agent.
  */
 fun interface SimpleLocator<T> : AdjustableAgentLocator<T>, SimpleGroupLocator<T> {
-    fun locate(agent: SynthesisPerson<out T>): LocationOld
-    override fun locate(agent: SynthesisPerson<out T>, locations: Collection<LocationOld>) = locate(agent)
+    fun locate(agent: SynthesisPerson<out T>): StandardLocation
+    override fun locate(agent: SynthesisPerson<out T>, locations: Collection<StandardLocation>) = locate(agent)
     override fun match(agents: Collection<SynthesisPerson<out T>>): List<AssignedLocation<T>> {
         return agents.addProgressBar("Running Fixed Destination Locator").map { AssignedLocation(it, locate(it)) }
     }
     override fun match(
         agents: Collection<SynthesisPerson<out T>>,
-        potentialLocations: Collection<LocationOld>
+        potentialLocations: Collection<StandardLocation>
     ): List<AssignedLocation<T>> {
         return agents.map { AssignedLocation(it, locate(it)) }
     }

@@ -8,15 +8,15 @@ import kotlin.time.Duration
 
 interface Metrics {
 
-    fun cost(from: LocationOld, to: LocationOld, mode: Mode, time: Time): Currency {
+    fun cost(from: HasZone, to: HasZone, mode: Mode, time: Time): Currency {
         return costMetric(mode, time).evaluate(from, to)
     }
 
-    fun distance(from: LocationOld, to: LocationOld, mode: Mode): Distance {
+    fun distance(from: HasZone, to: HasZone, mode: Mode): Distance {
         return distanceMetric(mode).evaluate(from, to)
     }
 
-    fun duration(from: LocationOld, to: LocationOld, mode: Mode, time: Time): Duration {
+    fun duration(from: HasZone, to: HasZone, mode: Mode, time: Time): Duration {
         return durationMetric(mode, time).evaluate(from, to)
     }
 

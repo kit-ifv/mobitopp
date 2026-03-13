@@ -55,7 +55,7 @@ value class ZoneId(val value: Long) : Comparable<ZoneId> {
 @Mutable
 abstract class Zone(
     override val id: ZoneId,
-    centroid: LocationOld,
+    centroid: Location,
     seed: Long,
 ) : StochasticActor, Identifiable<ZoneId> {
 
@@ -69,9 +69,15 @@ abstract class Zone(
     abstract val isDestination: Boolean
     abstract val relief: Distance
 
-    val centroid: LocationOld = centroid.copy(zone = this)
+    val centroid: StandardLocation = StandardLocation(
+        position = centroid.position,
+        zone = this,
+        roadAccess = RoadAccess.INVALID
+    )
 
-    operator fun contains(location: LocationOld): Boolean = location.zone == this
+
+
+    operator fun contains(location: HasZone): Boolean = location.zoneID == this.id
 
     /* This is really annoying. Legacy mobiTopp had two different IDs for zones: The VISUM ID and the internal
     enumeration so say 6113, 6114, 6116,... and 0, 1, 2,... Obviously the latter was used for determining which zone
@@ -92,11 +98,11 @@ abstract class Zone(
 @Mutable
 abstract class LegacyZone(
     id: ZoneId,
-    centroid: LocationOld,
+    centroid: Location,
     seed: Long,
 ) : Zone(id, centroid, seed) {
 
     abstract val matrixColumn: Int
 }
 
-fun Zone.point(WGS84Coordinate: WGS84Coordinate) = LocationOld(WGS84Coordinate, zone = this, roadAccess = null)
+fun Zone.point(wgsCoord: WGS84Coordinate) = StandardLocation(wgsCoord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)

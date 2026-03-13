@@ -4,7 +4,7 @@ import Mutable
 import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
 import domain.shared.enums.ActivityType
-import domain.shared.location.LocationOld
+import domain.shared.location.StandardLocation
 import kotlinx.serialization.Serializable
 import utils.Identifiable
 import utils.random.StochasticActor
@@ -55,7 +55,7 @@ abstract class PlannedActivity(
     abstract val observedTripDuration: Duration
     abstract val startTime: AbsoluteTime
     abstract val duration: Duration
-    abstract val location: LocationOld?
+    abstract val location: StandardLocation?
 
     val endTime: AbsoluteTime
         get() = startTime + duration

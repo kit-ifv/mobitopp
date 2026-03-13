@@ -1,6 +1,7 @@
 package domain.synthesis.behavior.domain
 
-import domain.shared.location.LocationOld
+import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.data.EconomicStatus
@@ -23,7 +24,7 @@ class SynthesisHousehold<T> constructor(
 
     // Whatever the type T is of my household class, the members must be at least that type or better
     override var members: MutableList<SynthesisPerson<T>> = mutableListOf()
-    lateinit var location: LocationOld
+    lateinit var location: StandardLocation
 
     fun locationIsAssigned() = ::location.isInitialized
     lateinit var economicStatus: EconomicStatus

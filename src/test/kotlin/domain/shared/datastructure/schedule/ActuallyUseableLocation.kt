@@ -1,40 +1,29 @@
 package domain.shared.datastructure.schedule
 
-import domain.shared.enums.areatype.RegionType
-import domain.shared.location.LocationOld
-import domain.shared.location.RoadAccess
-import domain.shared.location.Zone
+import domain.shared.location.HasZone
 import domain.shared.location.ZoneId
-import edu.kit.ifv.units.KCoordinate
+import domain.shared.location.toPoint
 import edu.kit.ifv.units.WGS84Coordinate
+import org.locationtech.jts.geom.Point
 
 /**
  * I hate the definiton loop of: A Location needs a zone. A zone needs a centroid location
  * So I use another definition
  */
-class ActuallyUseableLocation(override val coordinate: KCoordinate, val zoneId: ZoneId) : LocationOld {
+class ActuallyUseableLocation(
+    override val position: Point,
+    override val zoneID: ZoneId,
 
-    constructor(zoneId: Number) : this(zoneId, zoneId, zoneId)
+    ) : HasZone {
+
+    constructor(zoneId: Number) : this(
+        WGS84Coordinate.decimalDegree(zoneId.toDouble(), zoneId.toDouble()).toPoint(),
+        ZoneId(zoneId.toLong())
+    )
 
     constructor(x: Number, y: Number, zoneid: Number) : this(
-        WGS84Coordinate.Companion.decimalDegree(x.toDouble(), y.toDouble()),
+        WGS84Coordinate.decimalDegree(x.toDouble(), y.toDouble()).toPoint(),
         ZoneId(zoneid.toLong())
     )
 
-    override val zone: Zone?
-        get() = null
-    override val roadAccess: RoadAccess?
-        get() = null
-
-    override fun zoneID(): ZoneId {
-        return zoneId
-    }
-
-    override fun inSameZone(other: LocationOld): Boolean {
-        return this.zoneID() == other.zoneID()
-    }
-
-    override fun regionType(): RegionType {
-        return error("Detekt wants error")
-    }
 }

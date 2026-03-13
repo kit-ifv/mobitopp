@@ -2,7 +2,6 @@ package domain.synthesis.behavior.carownership
 
 import AssignmentStep
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
-import domain.shared.enums.areatype.toSizebasedClassification
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.discreteChoice.carChoiceUtility
 import domain.synthesis.behavior.discreteChoice.carOwnershipCityParameters
@@ -13,6 +12,7 @@ import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.toCarOwnershipAttributes
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import kotlin.random.Random
+
 @Suppress("SpacingAroundColon") // Seems to be a detekt version thing
 fun interface CarOwnershipAssignStrategy<T> : AssignmentStep<SynthesisHousehold<out T>, Int> {
 
@@ -72,8 +72,7 @@ class AssignBySizebasedClassification<A, P>(
     }
 
     override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
-        val region = householdBuilder.location.zone?.regionType?.toRegioStaR17()?.toSizebasedClassification()
-            ?: SizebasedRegiostarClassification.CITY
+        val region = householdBuilder.location.sizebasedRegiostarClassification
         // TODO check where the randomness for this dcm should come from
         return context(converter(householdBuilder), Random(householdBuilder.id)) {
             models[region]!!.select()

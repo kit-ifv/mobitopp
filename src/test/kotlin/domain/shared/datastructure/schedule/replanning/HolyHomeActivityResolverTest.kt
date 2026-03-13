@@ -1,10 +1,9 @@
 package domain.shared.datastructure.schedule.replanning
 
-import domain.shared.datastructure.schedule.ActuallyUseableLocation
 import domain.shared.datastructure.schedule.ScheduleBuilderForTests
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.LocationOld
+import domain.shared.location.StandardLocation
 import org.junit.jupiter.api.Assertions.assertTrue
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
@@ -102,8 +101,8 @@ class HolyHomeActivityResolverTest {
 private class ConflictBuilder {
     var startTime: AbsoluteTime = 0.hours.sinceStart
     var endTime: AbsoluteTime = 999.hours.sinceStart
-    var startLocation: LocationOld = ActuallyUseableLocation(1)
-    var endLocation: LocationOld = ActuallyUseableLocation(1)
+    var startLocation: StandardLocation = StandardLocation.fromID(1)
+    var endLocation: StandardLocation = StandardLocation.fromID(1)
 
     private val scheduleBuilder = ScheduleBuilderForTests(0.0001)
 

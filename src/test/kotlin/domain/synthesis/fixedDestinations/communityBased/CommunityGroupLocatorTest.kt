@@ -55,7 +55,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
     @BeforeTest
     fun setup() {
         metric = AsymmetricMockDistance()
-        demand = CommuterDemandsMatrix(converter = { zoneCommunityMapping.getValue(it.requireZone()) })
+        demand = CommuterDemandsMatrix(converter = { zoneCommunityMapping.getValue(it.zone) })
         strategy = TrivialDemands(metric)
     }
 

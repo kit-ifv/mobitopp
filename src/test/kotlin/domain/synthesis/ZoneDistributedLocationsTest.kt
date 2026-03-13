@@ -1,26 +1,26 @@
 package domain.synthesis
 
-import CRS84
 import LandUseParser
 import NetfileParser
 import UrbanAtlasGenerator
 import VisumLocale
 import ZoneType
-import asLocation
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.Location
+import domain.shared.location.RoadAccess
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.behavior.ZoneDistributedLocations
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.Hemisphere
 import edu.kit.ifv.units.meters
 import readPolyZones
 import utils.csv.DefaultCsvReader
 import kotlin.io.path.Path
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -66,9 +66,9 @@ class ZoneDistributedLocationsTest {
             TestHouseHold("MyHousehold")
         )
 
-        assert(generated.zone?.visumId == 1L)
+        assert(generated.zone.visumId == 1L)
         assertNotNull(generated.zone)
-        assertNull(generated.roadAccess)
+        assertEquals(generated.roadAccess, RoadAccess.INVALID)
     }
 
     @Test
@@ -83,8 +83,8 @@ class ZoneDistributedLocationsTest {
         assert(generated.size == size)
         generated.forEach { pair ->
             assertNotNull(pair.second.zone)
-            assert(pair.second.zone?.visumId == 35L)
-            assertNull(pair.second.roadAccess)
+            assert(pair.second.zone.visumId == 35L)
+            assertEquals(pair.second.roadAccess, RoadAccess.INVALID)
             assert(pair.first.name == "TestHouseHold")
         }
     }
@@ -101,7 +101,7 @@ private class TestZone(
     override val relief: Distance = 0.meters,
 ) : Zone(
     id = ZoneId(visumId),
-    centroid = WGS84Coordinate.decimalDegree(50.0, 9.0).asLocation(),
+    centroid = Location.wgs(9.0, 50.0),
     seed = 0L
 )
 
