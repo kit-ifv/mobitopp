@@ -8,7 +8,6 @@ import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.HasRoadAccess
 import domain.shared.location.Location
-import domain.shared.location.LocationOld
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPositionWGS

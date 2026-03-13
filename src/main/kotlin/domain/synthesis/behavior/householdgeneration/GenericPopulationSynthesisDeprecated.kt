@@ -3,17 +3,14 @@ package domain.synthesis.behavior.householdgeneration
 import domain.synthesis.AreaIPUOutput
 import domain.synthesis.IPUOutputLog
 import domain.synthesis.behavior.MinimalistHousehold
-import edu.kit.ifv.populationsynthesis.hierarchy.MutableHierarchicElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import org.jgrapht.Graphs
-import org.jgrapht.graph.DefaultDirectedGraph
-import org.jgrapht.graph.DefaultEdge
 import utils.Metric
 import utils.collections.partitionValues
 import utils.collections.standardProgressBar
+
 @Deprecated("Use library")
 fun interface GenericPopulationSynthesisDeprecated<AREA, out H> {
 

@@ -1,6 +1,5 @@
 package domain.synthesis.behavior.domain
 
-import domain.shared.location.Location
 import domain.shared.location.StandardLocation
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SynthesisCar

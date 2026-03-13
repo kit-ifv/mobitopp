@@ -3,7 +3,6 @@ package domain.shared.datastructure.matrix.optimized
 import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.DurationMetric
 import domain.shared.location.HasZone
-import domain.shared.location.LocationOld
 import domain.shared.location.ZoneId
 import kotlin.time.Duration
 

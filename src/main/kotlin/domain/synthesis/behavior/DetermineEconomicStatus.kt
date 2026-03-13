@@ -8,7 +8,7 @@ import edu.kit.ifv.units.euros
 import processor.builder.splitOnce
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
-import java.util.*
+import java.util.TreeMap
 
 /**
  * Assign an economic status to a household

@@ -1,8 +1,6 @@
 package domain.synthesis.behavior.fixedDestinations
 
 import domain.shared.location.DistanceMetric
-import domain.shared.location.HasZone
-import domain.shared.location.Location
 import domain.shared.location.LocationKDTree
 import domain.shared.location.StandardLocation
 import domain.synthesis.behavior.domain.SynthesisPerson

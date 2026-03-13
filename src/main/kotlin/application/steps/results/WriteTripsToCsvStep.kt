@@ -14,7 +14,6 @@ import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.PersonId
 import domain.synthesis.results.toCSV
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.bufferedWriter
 
 fun WriteTripsCsvContext.writeTripsToCsv(

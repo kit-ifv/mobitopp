@@ -1,7 +1,6 @@
 package domain.synthesis.behavior.discreteChoice
 
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
-import domain.shared.location.HasSizebasedClassification
 import domain.synthesis.behavior.SurveyWithCommute
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.data.Employment

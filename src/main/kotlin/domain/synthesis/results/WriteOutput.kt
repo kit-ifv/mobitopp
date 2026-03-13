@@ -3,7 +3,6 @@ package domain.synthesis.results
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
-import domain.shared.location.Location
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZonedRoadAccessLocation

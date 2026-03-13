@@ -4,7 +4,7 @@ import domain.shared.datastructure.schedule.Activity
 import domain.shared.datastructure.schedule.Leg
 import domain.shared.datastructure.schedule.LinkedAction
 import domain.shared.datastructure.schedule.LinkedActivity
-import java.util.*
+import java.util.SortedSet
 
 /**
  * A Planview provides functions to modify all models registered at the same dispatcher.

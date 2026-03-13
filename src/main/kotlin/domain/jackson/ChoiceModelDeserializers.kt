@@ -3,7 +3,6 @@ package domain.jackson
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import domain.shared.enums.Mode
-import domain.shared.location.LocationOld
 import domain.shared.location.StandardLocation
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.DestinationChoiceParameters

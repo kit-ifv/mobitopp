@@ -29,48 +29,6 @@ data class RoadAccess(val roadId: Long, val position: UnitIntervalValue, val lat
     }
 }
 
-interface LocationOld {
-    val coordinate: KCoordinate
-    val zone: Zone?
-    val roadAccess: RoadAccess?
-    fun regionType(): RegionType = requireZone().regionType
-    fun zoneID(): ZoneId?
-    fun inSameZone(other: LocationOld) = this.zone == other.zone
-    fun withZone(zone: Zone): LocationImplOld {
-        require(this.zone == null) {
-            "Cannot add '$zone' to location '$this', as zone is already defined!"
-        }
-
-        return LocationImplOld(coordinate, zone, roadAccess)
-    }
-
-    fun requireZone(): Zone = requireNotNull(zone) {
-        "Expected Location $this to specify a zone, but found null!"
-    }
-
-    fun withRoadAccess(access: RoadAccess): LocationOld {
-        require(this.roadAccess == null) {
-            "Cannot add '$access' to location '$this', as roadAccess is already defined!"
-        }
-
-        return LocationImplOld(coordinate, zone, roadAccess = access)
-    }
-
-    fun copy(zone: Zone? = null): LocationOld {
-        return LocationImplOld(coordinate, zone ?: this.zone, roadAccess)
-    }
-
-    companion object {
-        operator fun invoke(
-            coordinate: KCoordinate,
-            zone: Zone? = null,
-            roadAccess: RoadAccess? = null,
-        ): LocationOld {
-            return LocationImplOld(coordinate, zone, roadAccess)
-        }
-    }
-}
-
 
 interface Location {
     val position: Point
@@ -339,39 +297,6 @@ fun Point.randomPoint(distance: Distance = 100.meters): Point {
 
 fun CoordinateSystem.axisUnits(): Set<String> {
     return (0 until dimension).map { this.getAxis(it).unit.name }.toSet()
-}
-
-data class LocationImplOld(
-    override val coordinate: KCoordinate,
-    override val zone: Zone?,
-    override val roadAccess: RoadAccess?,
-) : LocationOld {
-    override fun zoneID(): ZoneId? {
-        return zone?.id
-    }
-
-    override fun toString(): String {
-        return "Location(coordinate=$coordinate, zone=${zone?.id?.value}, roadAccess=$roadAccess)"
-    }
-//    fun requireZone(): Zone = requireNotNull(zone) {
-//        "Expected Location $this to specify a zone, but found null!"
-//    }
-
-//    fun withZone(zone: Zone): Location {
-//        require(this.zone == null) {
-//            "Cannot add '$zone' to location '$this', as zone is already defined!"
-//        }
-//
-//        return this.copy(zone = zone)
-//    }
-
-//    fun withRoadAccess(access: RoadAccess): Location {
-//        require(this.roadAccess == null) {
-//            "Cannot add '$access' to location '$this', as roadAccess is already defined!"
-//        }
-//
-//        return this.copy(roadAccess = access)
-//    }
 }
 
 /**

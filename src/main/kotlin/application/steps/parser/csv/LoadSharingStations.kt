@@ -9,8 +9,6 @@ import core.modelsteps.SealStep
 import core.modelsteps.ValidateCsvMetadata
 import domain.shared.enums.Mode
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
-import domain.shared.location.LocationOld
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation

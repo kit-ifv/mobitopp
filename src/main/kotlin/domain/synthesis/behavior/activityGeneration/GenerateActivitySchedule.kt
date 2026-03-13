@@ -2,7 +2,6 @@ package domain.synthesis.behavior.activityGeneration
 
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
-import domain.shared.location.Location
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import utils.Decodable

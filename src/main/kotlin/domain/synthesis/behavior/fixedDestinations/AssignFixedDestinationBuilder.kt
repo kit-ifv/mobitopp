@@ -2,8 +2,6 @@ package domain.synthesis.behavior.fixedDestinations
 
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
-import domain.shared.location.Location
-import domain.shared.location.ZonedRoadAccessLocation
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.isPrimaryStudent

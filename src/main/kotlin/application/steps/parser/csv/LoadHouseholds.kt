@@ -13,7 +13,6 @@ import core.modelsteps.Warning
 import core.modelsteps.validateScope
 import domain.shared.location.HasRoadAccess
 import domain.shared.location.LegacyZone
-import domain.shared.location.LocationOld
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId

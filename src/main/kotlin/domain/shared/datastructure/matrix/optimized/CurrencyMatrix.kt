@@ -3,7 +3,6 @@ package domain.shared.datastructure.matrix.optimized
 import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.CostMetric
 import domain.shared.location.HasZone
-import domain.shared.location.LocationOld
 import domain.shared.location.ZoneId
 import edu.kit.ifv.units.Currency
 

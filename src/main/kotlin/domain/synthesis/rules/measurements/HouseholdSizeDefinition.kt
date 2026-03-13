@@ -1,6 +1,5 @@
 package domain.synthesis.rules.measurements
 
-import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.MinimalistHousehold
 import edu.kit.ifv.populationsynthesis.rules.measurement.BooleanMeasurementDefinition
 

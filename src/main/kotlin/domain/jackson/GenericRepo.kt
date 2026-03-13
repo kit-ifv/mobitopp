@@ -17,9 +17,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.module.SimpleSerializers
 import com.fasterxml.jackson.databind.type.TypeFactory
 import java.util.ServiceLoader
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.forEach
 
 /**
  * Subprojects need to implement this interface and register it in the `META-INF` directory, if they want to add mappings

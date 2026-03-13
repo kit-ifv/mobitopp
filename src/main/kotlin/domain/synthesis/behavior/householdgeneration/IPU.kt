@@ -7,7 +7,6 @@ import domain.synthesis.behavior.pickWithReplacement
 import domain.synthesis.behavior.selectExact
 import utils.collections.addProgressBar
 import utils.collections.invertMap
-import java.lang.UnsupportedOperationException
 import kotlin.random.Random
 
 private const val IPU_GENERATION_LABEL = "IPU generation"

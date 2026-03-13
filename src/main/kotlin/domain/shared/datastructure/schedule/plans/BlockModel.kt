@@ -12,7 +12,7 @@ import domain.shared.datastructure.schedule.LinkedLeg
 import domain.shared.datastructure.schedule.LinkedTrip
 import utils.collections.addByOrder
 import utils.collections.exactlyOneOrNull
-import java.util.*
+import java.util.SortedSet
 
 class InternalIterator(activityBlock: ActivityBlock) : Iterator<ActionBlock<*>> {
     private var current: ActionBlock<*>? = null

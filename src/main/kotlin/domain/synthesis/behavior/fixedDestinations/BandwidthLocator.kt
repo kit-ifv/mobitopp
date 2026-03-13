@@ -3,9 +3,6 @@ package domain.synthesis.behavior.fixedDestinations
 import core.datastructure.kdtree.WithMetric
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
-import domain.shared.location.HasZone
-import domain.shared.location.Location
-import domain.shared.location.LocationOld
 import domain.shared.location.LocationKDTree
 import domain.shared.location.StandardLocation
 import domain.synthesis.behavior.CommuteDistance

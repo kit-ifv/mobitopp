@@ -4,7 +4,6 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.LocationOld
 import utils.units.AbsoluteTime
 import utils.units.min
 import kotlin.time.Duration
@@ -93,7 +92,7 @@ operator fun Iterable<Action>.contains(action: Action): Boolean {
 }
 
 /**
- * A [StationaryAction] is an [Action] that takes place at one and only one [LocationOld]. The [startLocation] and [endLocation]
+ * A [StationaryAction] is an [Action] that takes place at one and only one Location. The [startLocation] and [endLocation]
  * can therefore be delegated to the central [location] property. This is a read-only view and does not allow alteration
  * of the properties. You should use this interface when you want to disallow modifications.
  */

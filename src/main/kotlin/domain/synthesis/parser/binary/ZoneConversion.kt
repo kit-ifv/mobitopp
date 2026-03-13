@@ -7,7 +7,6 @@ import domain.shared.location.MutableLegacyZone
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
-import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import edu.kit.ifv.units.DistanceUnit

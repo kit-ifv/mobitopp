@@ -2,7 +2,6 @@ package domain.synthesis.parser.binary
 
 import domain.shared.location.HasZone
 import domain.shared.location.Location
-import domain.shared.location.LocationOld
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
@@ -10,7 +9,6 @@ import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
@@ -22,19 +20,6 @@ import java.nio.ByteBuffer
  */
 @Suppress("MagicNumber")
 object LocationUtils {
-    /**
-     * Extension function, that reads a location from a [DataInputStream].
-     */
-    @Deprecated("Should be used with a bytebuffer instead.")
-    fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): LocationOld {
-        val zoneId = ZoneId(readLong()) // Reading zone ID
-        val coordinate = WGS84Coordinate.decimalDegree(
-            readDouble(),
-            readDouble()
-        ) // Reading latitude and longitude
-        val roadAccess = RoadAccess(readLong(), readDouble().share()) // Reading roadId and position
-        return LocationOld(coordinate, converter(zoneId), roadAccess)
-    }
     fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): StandardLocation {
         val zoneId = ZoneId(long) // Reading zone ID
         val coordinate = WGS84Coordinate.decimalDegree(

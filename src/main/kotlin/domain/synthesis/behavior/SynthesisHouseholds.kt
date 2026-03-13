@@ -1,6 +1,5 @@
 package domain.synthesis.behavior
 
-import domain.shared.location.Location
 import domain.synthesis.behavior.discreteChoice.CarOwnershipAttributes
 import domain.synthesis.behavior.discreteChoice.CarOwnershipFactors
 import domain.synthesis.behavior.domain.SynthesisHousehold

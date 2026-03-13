@@ -1,8 +1,6 @@
 package domain.synthesis.behavior.fixedDestinations.communityBased
 
 import domain.shared.location.DistanceMetric
-import domain.shared.location.HasZone
-import domain.shared.location.LocationOld
 import domain.shared.location.StandardLocation
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
@@ -186,5 +184,4 @@ open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
         )
     }
 
-    private fun LocationOld.distance(other: LocationOld) = coordinate.distance(other.coordinate)
 }
