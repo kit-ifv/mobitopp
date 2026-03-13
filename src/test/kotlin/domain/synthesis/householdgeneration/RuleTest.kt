@@ -74,10 +74,10 @@ class RuleTest : SynthesisTest() {
     }
 
     private fun generateHouseholds(): Triple<
-        SurveyHousehold<ExampleInterface>,
-        SurveyHousehold<ExampleInstantiation>,
-        SurveyHousehold<ExampleInstantiation>
-        > {
+            SurveyHousehold<ExampleInterface>,
+            SurveyHousehold<ExampleInstantiation>,
+            SurveyHousehold<ExampleInstantiation>
+            > {
         val household1 = createHousehold {
             person(10, Sex.MALE) {
                 DifferentExampleInstantiation(
@@ -162,7 +162,7 @@ private interface ExampleInterface {
 }
 
 private class ExampleInstantiation(
-    override val employment: Employment
+    override val employment: Employment,
 ) : ExampleInterface
 
 private class DifferentExampleInstantiation(override val employment: Employment, val randomNumber: Int = 42) :
@@ -174,7 +174,7 @@ private class DefaultSurveyInfo(
     override val age: Int,
     override val householdIncome: Currency,
     override val hasLicence: Boolean,
-    override val employment: Employment
+    override val employment: Employment,
 ) : SurveyInfo {
     companion object {
         fun create(): DefaultSurveyInfo {

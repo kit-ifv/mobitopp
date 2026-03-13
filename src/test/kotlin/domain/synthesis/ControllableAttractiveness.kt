@@ -11,6 +11,7 @@ import utils.collections.cartesianProduct
 
 class ControllableAttractiveness(zones: Collection<Zone>) : AttractivenessModel {
     constructor() : this(emptyList())
+
     val attractivenessMap: MutableMap<Pair<ZoneId, ActivityType>, Double> =
         zones.map { it.id }.cartesianProduct(LegacyActivityType.entries).associateWith { 1.0 }.toMutableMap()
 

@@ -17,7 +17,7 @@ import kotlin.random.Random
  */
 class OverridableDestinationChoiceModel(
     val original: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
-) : UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>{
+) : UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics> {
     var overrideDestination: StandardLocation? = null
     override val name: String = original.name
 

@@ -58,8 +58,8 @@ class PopulationSynthesisKtTest {
     @Suppress("LongMethod") // This method may be long, it is the entire execution of a population synthesis
     fun runWithDebug() {
         val bielefeld = StandardLocation.fromWGS(BIELEFELD)
-        val itzehoe =  StandardLocation.fromWGS(ITZEHOE)
-        val schweinfurt =  StandardLocation.fromWGS(SCHWEINFURT)
+        val itzehoe = StandardLocation.fromWGS(ITZEHOE)
+        val schweinfurt = StandardLocation.fromWGS(SCHWEINFURT)
         val zones = listOf(TEST_ZONE)
         val populationSynthesis = PopulationSynthesis.configure(
             surveyPopulation = TrivialTestGeneration(),
@@ -89,9 +89,11 @@ class PopulationSynthesisKtTest {
         }
 
         populationSynthesis.execute {
-            refactoredPopsyn({it}) {
-                TrivialSynthesis(surveyHouseholds.map
-                    { it.toSynthesisHousehold() }, zones)
+            refactoredPopsyn({ it }) {
+                TrivialSynthesis(
+                    surveyHouseholds.map
+                    { it.toSynthesisHousehold() }, zones
+                )
             }
             val test = householdsByZone
             assertTrue(TEST_ZONE in test.keys)

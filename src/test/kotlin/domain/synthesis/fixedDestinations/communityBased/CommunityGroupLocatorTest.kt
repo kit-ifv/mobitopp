@@ -47,7 +47,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         testZone2 to c2,
         testZone3 to c3,
 
-    )
+        )
     private lateinit var metric: AsymmetricMockDistance
     private lateinit var demand: CommuterDemandsMatrix
     private lateinit var strategy: TrivialDemands<Any>

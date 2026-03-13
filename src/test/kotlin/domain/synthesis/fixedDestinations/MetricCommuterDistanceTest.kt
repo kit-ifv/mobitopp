@@ -171,7 +171,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             listOf(person4, person1, person2, person3),
             listOf(person3, person2, person1, person4),
 
-        )
+            )
         val locations = listOf(
             listOf(work2),
             listOf(work3),
@@ -220,13 +220,14 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
         assertEquals(strategy.differenceToCommuteDistance(household[0], work1), 1.0.kilometers)
     }
+
     private fun generateStandardDemand(): MutableCommunityDemand {
         val zoneCommunityMapping: Map<Zone, CommunityNumber> = mapOf(
             testZone1 to CommunityNumber(1),
             testZone2 to CommunityNumber(2),
             testZone3 to CommunityNumber(2),
 
-        )
+            )
 
         val demand = MutableCommunityDemand(
             converter = { zoneCommunityMapping.getValue(it.zone) },

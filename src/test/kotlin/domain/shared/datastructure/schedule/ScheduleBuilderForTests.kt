@@ -2,7 +2,6 @@ package domain.shared.datastructure.schedule
 
 import domain.shared.datastructure.schedule.plans.BlockModel
 import domain.shared.enums.LegacyActivityType
-import domain.shared.location.LocationOld
 import domain.shared.location.StandardLocation
 
 class ScheduleBuilderForTests(val duration: Number = 8) {
@@ -28,6 +27,7 @@ class ScheduleBuilderForTests(val duration: Number = 8) {
         add(activity1)
         return activity1
     }
+
     private fun StandardLocation.alternate(): StandardLocation {
         return when (this) {
             homeLoc -> loc2

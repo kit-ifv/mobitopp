@@ -5,7 +5,6 @@ import core.datastructure.kdtree.WithMetric
 import core.datastructure.kdtree.discardMetric
 import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
-import domain.shared.location.LocationOld
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
@@ -20,8 +19,6 @@ import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.Hemisphere
-import edu.kit.ifv.units.UTMPosition
 import edu.kit.ifv.units.kilometers
 import org.junit.jupiter.api.Test
 import kotlin.math.E
@@ -35,8 +32,10 @@ class BandwidthLocatorTest : SynthesisTest() {
     private lateinit var attractivenessModel: ControllableAttractiveness
 
     private fun Zone.spawnUTM(eOffset: Number, nOffset: Number): StandardLocation {
-        return StandardLocation(Location.utm(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble()).position, this,
-            RoadAccess.INVALID)
+        return StandardLocation(
+            Location.utm(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble()).position, this,
+            RoadAccess.INVALID
+        )
 
     }
 

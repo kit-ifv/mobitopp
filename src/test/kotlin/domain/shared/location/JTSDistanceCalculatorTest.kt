@@ -4,14 +4,11 @@ import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toDistance
-import org.geotools.api.referencing.crs.ProjectedCRS
-import org.geotools.referencing.CRS
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel
-import transformTo
 
 class JTSDistanceCalculatorTest {
 

@@ -58,7 +58,7 @@ data class ZoneTarget(
     val ageGroup9male: Int,
     val ageGroup10male: Int,
 
-) {
+    ) {
 
     fun improvedTargets(): List<Rule<ISurveyHousehold<out Any>>> {
         return listOf(
@@ -124,7 +124,7 @@ data class ZoneTarget(
             ageGroup8male,
             ageGroup9male,
 
-        )
+            )
     }
 
     companion object {
@@ -165,7 +165,7 @@ data class ZoneTarget(
                     ageGroup9male = row.valueAt(26 + offset).toInt(),
                     ageGroup10male = row.valueAt(27 + offset).toInt(),
 
-                )
+                    )
             }
             return parser.parse(file)
         }

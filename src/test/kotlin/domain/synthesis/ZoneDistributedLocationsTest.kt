@@ -22,15 +22,16 @@ import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 class ZoneDistributedLocationsTest {
     val leopoldLocale = VisumLocale()
+
     init {
         leopoldLocale.connector {
             travelTimeCar = "T0_TSYS(BS)"
         }
     }
+
     val netfileParser = NetfileParser(
         file = Path("src/test/resources/synthesis/leopoldshafen.net"),
         locale = leopoldLocale,

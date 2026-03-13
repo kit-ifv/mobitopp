@@ -110,7 +110,7 @@ class ReschedulingSkipTillHomeTest {
 
     @Test
     fun overshotBy15Minutes() {
-        val (schedule, actions) = scheduleStartingAtHome {
+        val (schedule, _) = scheduleStartingAtHome {
             activity {
                 startTime = 12
                 duration = 2
@@ -180,7 +180,7 @@ class ReschedulingSkipTillHomeTest {
 
     private fun scheduleStartingAtHome(
         duration: Number = 8,
-        lambda: ScheduleBuilderForTests.() -> Unit
+        lambda: ScheduleBuilderForTests.() -> Unit,
     ): Pair<Schedule, List<StationaryAction>> {
         val builder = ScheduleBuilderForTests(duration)
         lambda(builder)

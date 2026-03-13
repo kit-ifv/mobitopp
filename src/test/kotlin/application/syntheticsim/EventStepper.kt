@@ -3,7 +3,8 @@ package application.syntheticsim
 import core.statemachine.Event
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import java.util.*
+import java.util.PriorityQueue
+import java.util.Queue
 import kotlin.test.assertEquals
 
 /**

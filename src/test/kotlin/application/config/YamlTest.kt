@@ -43,7 +43,7 @@ private class MyParameterClass(val name: String) {
 }
 
 private data class TestClass(
-    var t: MyParameterClass
+    var t: MyParameterClass,
 )
 
 class YamlTest {

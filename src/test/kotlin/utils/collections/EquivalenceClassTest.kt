@@ -80,8 +80,8 @@ class EquivalenceClassTest {
                 // Shoelace formula
                 return 0.5 * kotlin.math.abs(
                     x1 * (y2 - y3) +
-                        x2 * (y3 - y1) +
-                        x3 * (y1 - y2)
+                            x2 * (y3 - y1) +
+                            x3 * (y1 - y2)
                 )
             }
 

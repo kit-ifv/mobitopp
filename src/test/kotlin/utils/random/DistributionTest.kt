@@ -1,7 +1,8 @@
 package utils.random
 
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.SortedMap
+import java.util.TreeMap
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 

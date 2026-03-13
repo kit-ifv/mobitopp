@@ -126,6 +126,7 @@ class CommuterDemandsMatrixTest {
     private fun Number.toZone(): TestZone {
         return TestZone(id = ZoneId(toLong()))
     }
+
     private fun CommuterDemandsMatrix.Companion.parseRastatt(): CommuterDemandsMatrix {
         return parse(
             Path("src/test/resources/synthesis/zone-to-community.csv"),

@@ -499,7 +499,7 @@ private val transformedOddIdSquared = expectedElements.mapNotNull { transformOdd
 private fun transformOddIdSquared(element: TestEntity): TestEntity? =
     element.takeIf {
         it.id.value >= 2 &&
-            filterOddIndex(it)
+                filterOddIndex(it)
     }?.let {
         it.copy(rowIndex = it.rowIndex * it.rowIndex)
     }
@@ -516,11 +516,12 @@ private fun transformAllCumSumStringLength(elements: Collection<TestEntity>): Li
 private fun collectStringsInList(list: MutableList<String>): (ImmutableEntity) -> Unit = { element: ImmutableEntity ->
     list.add(element.string)
 }
+
 private val expectedElementStrings = expectedElements.map { it.string }
 
 private fun customValidationStep(
     repository: MutableRepository<TestEntity, TestId>,
-    name: String = "CustomValidationStep_AddDummy"
+    name: String = "CustomValidationStep_AddDummy",
 ) = object : ModelStep {
     override val name = name
 

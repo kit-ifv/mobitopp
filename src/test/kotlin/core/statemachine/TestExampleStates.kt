@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import random
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
-import java.util.*
+import java.util.PriorityQueue
 import kotlin.random.Random
 import kotlin.test.assertNull
 import kotlin.time.Duration
@@ -26,7 +26,7 @@ class TestExampleStates {
 
     fun createBussesBySchedule(
         departures: Iterable<AbsoluteTime>,
-        travelTimes: LinkedHashMap<Station, Duration>
+        travelTimes: LinkedHashMap<Station, Duration>,
     ): List<BusAgent> {
         val route = travelTimes.keys.toList()
         val start = route.first()

@@ -44,7 +44,7 @@ class RidesharingOnlyScenario {
 
         val random = Random(1)
 
-        val car = legacyChoiceModelModes.car
+        legacyChoiceModelModes.car
         val bikeSharing = legacyChoiceModelModes.bikeSharing
         val pedestrian = legacyChoiceModelModes.pedestrian
         val zones = generateZones(10)

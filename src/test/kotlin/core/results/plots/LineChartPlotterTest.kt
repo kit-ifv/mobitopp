@@ -6,7 +6,7 @@ import kotlin.math.sin
 import kotlin.test.Test
 
 class LineChartPlotterTest {
-    public data class Entity<X, Y, C>(val x: X, val y: Y, val c: C)
+    data class Entity<X, Y, C>(val x: X, val y: Y, val c: C)
 
     private val plotBuilder = getBuilder()
 

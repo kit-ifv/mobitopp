@@ -74,7 +74,7 @@ class PlanLoader(private val person: MutablePerson) {
     val plannedActivities = mutableListOf<PlannedActivity>()
 
     operator fun Triple<ActivityType, Number, Number>.unaryPlus() {
-        val p = person
+        person
         plannedActivities.add(
             MutablePlannedActivity(
                 id = ActivityId(-1L),
@@ -200,7 +200,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     val first = persons[0]
     val second = persons[1]
 
-//    controllableImpedance.apply {
+    //    controllableImpedance.apply {
 //        difficultAccess(zones[0], zones[0])
 //        easyAccess(zones[0], zones[1])
 //        difficultAccess(zones[0], zones[2])

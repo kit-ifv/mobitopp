@@ -95,6 +95,7 @@ class ToolTest : SynthesisTest() {
         assertFalse(rule.appliesTo(mismatchingHousehold))
     }
 }
+
 open class SynthesisTest {
 
     protected fun <T> createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SurveyHousehold<T> {
@@ -114,8 +115,9 @@ open class SynthesisTest {
         synthesisHousehold.location = this
         return synthesisHousehold
     }
+
     protected fun <T> Collection<Zone>.createRules(
-        lambda: ZoneBuilder<T>.() -> Unit
+        lambda: ZoneBuilder<T>.() -> Unit,
     ): Map<Zone, List<Rule<ISurveyHousehold<out T>>>> {
         val builder = ZoneBuilder<T>(this)
         builder.apply(lambda)
@@ -175,6 +177,7 @@ open class SynthesisTest {
 
         fun createRules(): Map<ZoneId, List<Rule<ISurveyHousehold<out T>>>> = associatedRules
     }
+
     protected fun fakeLocation() = FakeCoord()
     protected fun Zone.spawnFakeLoc(): StandardLocation {
         val point: Point = GeometryFactory().createPoint(Coordinate(counter, counter)).also { counter++ }
@@ -204,6 +207,7 @@ open class SynthesisTest {
                 private set
         }
     }
+
     protected class HouseholdBuilder<T> {
         var id: Long = 0
         var income = 0.euros
@@ -234,6 +238,6 @@ open class SynthesisTest {
         override val personId: Int,
         override val information: Any = Unit,
         override val age: Int,
-        override val sex: Sex
+        override val sex: Sex,
     ) : SurveyPerson<Any>
 }
