@@ -1,6 +1,7 @@
 package domain.synthesis.behavior.discreteChoice
 
-import domain.synthesis.behavior.CommuteDistance
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.data.CarSegment
@@ -15,8 +16,8 @@ import edu.kit.ifv.units.kilometers
 import kotlin.random.Random
 
 data class CarSegmentSituation(
-    val person: SynthesisPerson<out CommuteDistance>,
-    val household: SynthesisHousehold<out CommuteDistance>
+    val person: SynthesisPerson<HasCommuteDistance>,
+    val household: SynthesisHousehold<MinimumHouseholdAttributes, HasCommuteDistance>
 ) {
     // TODO delegate to household once merged with default household dataclass
     val random: Random = Random(System.currentTimeMillis())
@@ -33,8 +34,8 @@ data class CarSegmentChoice(
     val isCommuting: Boolean
 ) {
     constructor(
-        person: SynthesisPerson<out CommuteDistance>,
-        household: SynthesisHousehold<out CommuteDistance>
+        person: SynthesisPerson<HasCommuteDistance>,
+        household: SynthesisHousehold<MinimumHouseholdAttributes, HasCommuteDistance>
     ) : this(
         person.information.distanceWork,
         household.size,
@@ -46,8 +47,8 @@ data class CarSegmentChoice(
 }
 
 fun CarSegment.toAlternative(
-    person: SynthesisPerson<out CommuteDistance>,
-    household: SynthesisHousehold<out CommuteDistance>
+    person: SynthesisPerson<HasCommuteDistance>,
+    household: SynthesisHousehold<MinimumHouseholdAttributes, HasCommuteDistance>
 ): CarSegmentChoice {
     return CarSegmentChoice(
         person.information.distanceWork,

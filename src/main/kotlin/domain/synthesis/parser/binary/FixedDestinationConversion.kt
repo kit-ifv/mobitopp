@@ -6,6 +6,7 @@ import domain.shared.location.ZoneId
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.parser.ActivityLocation
+import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import utils.CodePlan
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter

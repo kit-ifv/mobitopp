@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.discreteChoice
 
-import domain.synthesis.behavior.SurveyInfo
+import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.employment
 import domain.synthesis.behavior.hasLicence
@@ -18,7 +18,7 @@ import kotlin.random.Random
  */
 @Suppress("MagicNumber") // These magic numbers are ok
 class CarOwnershipFactors(
-    val household: SynthesisHousehold<out SurveyInfo>,
+    val household: SynthesisHousehold<*, MaximumPersonAttributes>,
     employmentSorter: EmploymentSorter = DefaultEmploymentSorter,
 ) {
     val size = household.members.size

@@ -5,7 +5,7 @@ import domain.shared.location.DistanceMetric
 import domain.shared.location.HasZone
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.synthesis.behavior.CommuteDistance
+import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance
@@ -42,17 +42,17 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
     private val defaultHome = home1.createHousehold {
         person(10, Sex.MALE) {
-            object : CommuteDistance {
+            object : HasCommuteDistance {
                 override val distanceWork: Distance = 1.kilometers
             }
         }
         person(10, Sex.FEMALE) {
-            object : CommuteDistance {
+            object : HasCommuteDistance {
                 override val distanceWork: Distance = 2.kilometers
             }
         }
         person(20, Sex.FEMALE) {
-            object : CommuteDistance {
+            object : HasCommuteDistance {
                 // I mean, there is always someone who fills out the survey incorrectly
                 override val distanceWork: Distance = (-2).kilometers
             }
@@ -61,7 +61,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
     private val secondHome = home2.createHousehold {
         person(10, Sex.MALE) {
-            object : CommuteDistance {
+            object : HasCommuteDistance {
                 override val distanceWork: Distance = 1.kilometers
             }
         }
@@ -80,7 +80,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
         this[home2, work3] = 1.7
     }
 
-    private val strategy = MetricCommuterDistance<CommuteDistance>(distances)
+    private val strategy = MetricCommuterDistance<HasCommuteDistance>(distances)
 
     @Test
     fun initialSelfTest() {
@@ -94,7 +94,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
     @Test
     fun properDifferenceToCommuteDistance() {
-        val strategy = MetricCommuterDistance<CommuteDistance>(distances)
+        val strategy = MetricCommuterDistance<HasCommuteDistance>(distances)
 
         assertEquals(strategy.differenceToCommuteDistance(person1, work1), .5.kilometers)
         assertEquals(strategy.differenceToCommuteDistance(person1, work2), 0.kilometers)
@@ -207,11 +207,11 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
     @Test
     fun testLocationBased() {
-        val strategy = CommuterDistance<CommuteDistance>()
+        val strategy = CommuterDistance<HasCommuteDistance>()
         val home = testZone1.spawnLocation(WGS84Coordinate.decimalDegree(0.0, 0.0))
-        val household = home.createHousehold<CommuteDistance> {
+        val household = home.createHousehold<HasCommuteDistance> {
             person(10, Sex.MALE) {
-                object : CommuteDistance {
+                object : HasCommuteDistance {
                     override val distanceWork: Distance = 1.0.kilometers
                 }
             }

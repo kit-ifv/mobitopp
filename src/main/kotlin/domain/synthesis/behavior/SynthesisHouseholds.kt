@@ -1,17 +1,20 @@
 package domain.synthesis.behavior
 
+import domain.shared.location.StandardLocation
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.HasEmployment
+import domain.synthesis.attributes.person.HasLicence
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.discreteChoice.CarOwnershipAttributes
 import domain.synthesis.behavior.discreteChoice.CarOwnershipFactors
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
-import domain.synthesis.behavior.householdgeneration.Rule
-import domain.synthesis.behavior.householdgeneration.ScalableVector
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.HouseholdType
 import edu.kit.ifv.units.Currency
 
-fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipAttributes {
+fun SynthesisHousehold<*, MinimumPersonAttributes>.toCarOwnershipAttributes(): CarOwnershipAttributes {
     return CarOwnershipAttributes(
         CarOwnershipFactors(
             this,
@@ -19,31 +22,27 @@ fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipA
     )
 }
 
-val SynthesisPerson<out SurveyInfo>.householdId get() = information.householdId
+val MinimalistPerson<HasLicence>.hasLicence get() = information.hasLicence
+val MinimalistPerson<HasEmployment>.employment get() = information.employment
+fun MinimalistPerson<HasEmployment>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
+fun MinimalistPerson<HasEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
+fun MinimalistPerson<HasEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
 
-val SynthesisPerson<out SurveyInfo>.householdIncome get() = information.householdIncome
-val SynthesisPerson<out SurveyInfo>.hasLicence get() = information.hasLicence
-val SynthesisPerson<out SurveyEmployment>.employment get() = information.employment
-fun SynthesisPerson<out SurveyEmployment>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
-fun SynthesisPerson<out SurveyEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
-fun SynthesisPerson<out SurveyEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
-
-fun SynthesisPerson<out SurveyEmployment>.isWorker(): Boolean {
+fun MinimalistPerson<HasEmployment>.isWorker(): Boolean {
     return employment == Employment.FULLTIME || employment == Employment.PARTTIME
 }
 
-// TODO move this somewhere else
-var GLOBAL_PERSON_ID_GENERATOR = 0
-    get() = field.also { field++ }
-    private set
 
-class SurveyHousehold<T>(
+
+
+class SurveyHousehold<out HouseholdInfo: MinimumHouseholdAttributes, out PersonInfo : MinimumPersonAttributes>(
     override val surveyHouseholdId: Long,
-    override val income: Currency,
-    override val members: List<SurveyPerson<out T>>,
-    override val type: HouseholdType = HouseholdType.UNDEFINED
+
+    override val members: List<SurveyPerson<PersonInfo>>,
+
+    override val attributes: HouseholdInfo,
 ) :
-    ISurveyHousehold<T> {
+    ISurveyHousehold<HouseholdInfo, PersonInfo> {
     lateinit var economicStatus: EconomicStatus
 
     override fun toString(): String {
@@ -51,34 +50,32 @@ class SurveyHousehold<T>(
     }
 }
 
-interface MinimalistHousehold<T> {
+interface MinimalistHousehold<out S: MinimumHouseholdAttributes, out T> {
     val members: Collection<MinimalistPerson<T>>
     val size get() = members.size
-
-    fun toSynthesisHousehold(): SynthesisHousehold<T>
+    val attributes: S
+    fun toSynthesisHousehold(): SynthesisHousehold<S, T>
 }
 
-interface ISurveyHousehold<T> : MinimalistHousehold<T> {
+interface ISurveyHousehold<out S: MinimumHouseholdAttributes, out T : MinimumPersonAttributes> : MinimalistHousehold<S, T> {
     val surveyHouseholdId: Long
-    val income: Currency
-    override val members: List<SurveyPerson<out T>>
-    val type: HouseholdType
-    fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
+    val income: Currency get() = attributes.income
+    override val members: List<SurveyPerson<T>>
+    val type: HouseholdType get() = attributes.type
+    fun count(condition: (SurveyPerson<T>) -> Boolean): Int {
         return members.count(condition)
     }
 
-    fun toScalableVector(rules: List<Rule<ISurveyHousehold<T>>>): ScalableVector {
-        return ScalableVector.createFrom(this, rules)
-    }
-
-    override fun toSynthesisHousehold(): SynthesisHousehold<T> {
-        return SynthesisHousehold<T> (
+    override fun toSynthesisHousehold(): SynthesisHousehold<S, T> {
+        return SynthesisHousehold<S, T> (
             surveyHouseholdId = surveyHouseholdId,
-            income = income,
-            type = type,
-        ).apply {
-            members = this@ISurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
-                .toMutableList()
-        }
+            attributes = attributes,
+            members = this@ISurveyHousehold.members.map { SynthesisPerson(StandardLocation.LOCATIONUNKNOWN, it.age, it.sex, it.information) }
+
+        )
     }
+}
+
+interface LocatedHousehold<out S : MinimumHouseholdAttributes, out T : MinimumPersonAttributes>: ISurveyHousehold<S, T> {
+    val location: StandardLocation
 }

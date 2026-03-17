@@ -2,7 +2,7 @@ package domain.synthesis.behavior.fixedDestinations
 
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
-import domain.synthesis.behavior.SurveyInfo
+import domain.synthesis.attributes.person.HasEmployment
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.isPrimaryStudent
 import domain.synthesis.behavior.isSecondaryStudent
@@ -28,11 +28,11 @@ class AssignFixedDestinationBuilder<AREA, G>(
      */
     inner class FixedLocationAssignmentStep(
         private val activityType: ActivityType,
-        private val filter: (SynthesisPerson<out G>) -> Boolean,
+        private val filter: (SynthesisPerson<G>) -> Boolean,
         private val assignFunction: SimpleGroupLocator<in G>,
     ) {
 
-        fun generateFixedDestinations(target: Collection<SynthesisPerson<out G>>): List<FixedDestinationElements> {
+        fun generateFixedDestinations(target: Collection<SynthesisPerson<G>>): List<FixedDestinationElements> {
             // TODO test that only valid agents are assigned stuff
             val applicableAgents = target.filter(filter)
             return assignFunction.match(applicableAgents).map {
@@ -56,7 +56,7 @@ class AssignFixedDestinationBuilder<AREA, G>(
     inner class FixedLocationConfig {
         lateinit var activityType: ActivityType
         lateinit var assignmentStrategy: SimpleGroupLocator<in G>
-        lateinit var filter: (SynthesisPerson<out G>) -> Boolean
+        lateinit var filter: (SynthesisPerson<G>) -> Boolean
     }
 }
 
@@ -64,7 +64,7 @@ class AssignFixedDestinationBuilder<AREA, G>(
  * Extension functions if the person has the employment as an attribute, in which case the filter condition does not
  * need to be provided externally
  */
-fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.primarySchool(
+fun <AREA, T : HasEmployment> AssignFixedDestinationBuilder<AREA, T>.primarySchool(
     lambda: AssignFixedDestinationBuilder<AREA, T>.FixedLocationConfig.() -> Unit
 ) {
     val element = FixedLocationConfig()
@@ -78,7 +78,7 @@ fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.primarySchool(
     )
 }
 
-fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.secondarySchool(
+fun <AREA, T : HasEmployment> AssignFixedDestinationBuilder<AREA, T>.secondarySchool(
     lambda: AssignFixedDestinationBuilder<AREA, T>.FixedLocationConfig.() -> Unit
 ) {
     val element = FixedLocationConfig()
@@ -92,7 +92,7 @@ fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.secondarySchoo
     )
 }
 
-fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.tertiarySchool(
+fun <AREA, T : HasEmployment> AssignFixedDestinationBuilder<AREA, T>.tertiarySchool(
     lambda: AssignFixedDestinationBuilder<AREA, T>.FixedLocationConfig.() -> Unit
 ) {
     val element = FixedLocationConfig()
@@ -106,7 +106,7 @@ fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.tertiarySchool
     )
 }
 
-fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.work(
+fun <AREA, T : HasEmployment> AssignFixedDestinationBuilder<AREA, T>.work(
     lambda: AssignFixedDestinationBuilder<AREA, T>.FixedLocationConfig.() -> Unit
 ) {
     val element = FixedLocationConfig()

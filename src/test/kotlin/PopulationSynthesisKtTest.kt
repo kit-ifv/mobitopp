@@ -6,6 +6,9 @@ import domain.shared.location.Zone
 import domain.synthesis.TrivialSynthesis
 import domain.synthesis.behavior.AlwaysAssignSameStatus
 import domain.synthesis.behavior.AssignAroundZoneCentroid
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.TrivialCarGeneration
@@ -15,6 +18,7 @@ import domain.synthesis.behavior.fixedDestinations.AssignedLocation
 import domain.synthesis.behavior.fixedDestinations.SimpleGroupLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
 import domain.synthesis.data.EconomicStatus
+import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.meters
@@ -24,21 +28,27 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.io.path.Path
 import kotlin.test.Test
 
-private interface MinimalSurveyInformation {
-    val age: Int
-    val sex: Sex
+private interface MinimalSurveyInformation: MinimumPersonAttributes {
+    override val age: Int
+    override val sex: Sex
 }
 
 private data class MinimalSurveyInstantiation(override val age: Int, override val sex: Sex) : MinimalSurveyInformation
 
-private fun Collection<MinimalSurveyInformation>.toSurveyHouseholds(): List<SurveyHousehold<MinimalSurveyInformation>> {
+private fun Collection<MinimalSurveyInformation>.toSurveyHouseholds(): List<SurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>> {
     return map {
         SurveyHousehold(
-            -1,
-            0.euros,
+            surveyHouseholdId = -1,
+
             members = listOf(
-                SmallestSurveyPerson(personId = -1, age = 10, sex = Sex.MALE, information = it)
+                SmallestSurveyPerson(personId = -1, information = it),
+
+            ),
+            attributes = MinimumHouseholdAttributesImpl(
+                income = 1.euros,
+                type = HouseholdType.SINGLE_HH
             )
+
         )
     }
 }
@@ -48,7 +58,7 @@ class PopulationSynthesisKtTest {
     private val working = MinimalSurveyInstantiation(30, Sex.MALE)
     private val senior = MinimalSurveyInstantiation(99, Sex.FEMALE)
 
-    private inner class TrivialTestGeneration : GenerateArtificialPopulation<MinimalSurveyInformation> {
+    private inner class TrivialTestGeneration : GenerateArtificialPopulationDeprecated<MinimalSurveyInformation> {
         override fun generateArtificialPopulation(): Collection<MinimalSurveyInformation> {
             return listOf(child, working, senior)
         }

@@ -1,7 +1,8 @@
 package domain.synthesis.behavior.discreteChoice
 
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
-import domain.synthesis.behavior.SurveyWithCommute
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
@@ -254,16 +255,16 @@ data class EngineSpecificParameters(
 )
 
 data class EngineChoiceSituation(
-    val person: SurveyWithCommute,
-    val household: SynthesisHousehold<out SurveyWithCommute>
+    val person: MaximumPersonAttributes,
+    val household: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>
 ) {
     fun with(choice: EngineType) = choice.toAlternative(person, household)
 }
 
 class EngineAlternative(
-    person: SurveyWithCommute,
-    household: SynthesisHousehold<out SurveyWithCommute>
-) {
+    person: MaximumPersonAttributes,
+    household: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>
+){
     val workDistance: Distance = person.distanceWork // Distance to pole zone
     val educationDistance: Distance = person.distanceEducation
     val sex: Sex = person.sex
@@ -284,8 +285,8 @@ class EngineAlternative(
 }
 
 fun EngineType.toAlternative(
-    person: SurveyWithCommute,
-    household: SynthesisHousehold<out SurveyWithCommute>
+    person: MaximumPersonAttributes,
+    household: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>
 ): EngineAlternative {
     return EngineAlternative(person, household)
 }

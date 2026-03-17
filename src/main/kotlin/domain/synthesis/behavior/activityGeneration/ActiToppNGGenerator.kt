@@ -5,9 +5,10 @@ import domain.shared.datastructure.schedule.RawActivity
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.location.LOCATIONUNKNOWN
-import domain.synthesis.behavior.SurveyWithCommute
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.SurveyWithCommute
+import domain.synthesis.behavior.LocatedHousehold
+import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.employment
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
@@ -30,19 +31,23 @@ typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
  * Actitopp is still using the zone region type numbers :(
  * @param converter A converter to get from the region type to the zone region type used by actitopp.
  */
-class ActiToppNGGenerator(
+
+interface HHAmountOfCars {
+    val amountOfCars: Int
+}
+class ActiToppNGGenerator<S, T>(
     val purposes: ChoiceModelPurposes,
     val converter: (RegionType) -> ZoneRegionType,
 
     ) :
-    GenerateHouseholdActivitySchedule<SurveyWithCommute> {
+    GenerateHouseholdActivitySchedule<S, T> where S : MinimumHouseholdAttributes, T: SurveyWithCommute, S: HHAmountOfCars {
     val strategy = StandardHouseholdPlanGeneration() // TODO change to Parallel once implemented.
     override fun generate(
-        household: SynthesisHousehold<out SurveyWithCommute>,
-    ): Map<SynthesisPerson<out SurveyWithCommute>, PreliminaryActivitySchedule> {
+        household: LocatedHousehold<S, T>,
+    ): List<PreliminaryActivitySchedule> {
         val (actHH, mapping) = convert(household)
         val output = strategy.generateSchedules(actHH)
-        return output.entries.associate { (k, v) -> mapping[k]!! to finish(v) }
+        return output.entries.map { (k, v) -> /*mapping[k]!! to*/  finish(v) }
     }
 
     fun finish(mobilityPlan: MobilityPlan): PreliminaryActivitySchedule {
@@ -60,13 +65,14 @@ class ActiToppNGGenerator(
         )
     }
 
-    fun convert(household: SynthesisHousehold<out SurveyWithCommute>):
-            Pair<ACTHousehold, Map<ActitoppPerson, SynthesisPerson<out SurveyWithCommute>>> {
+
+    fun convert(household: LocatedHousehold<S, SurveyWithCommute>):
+            Pair<ACTHousehold, Map<ActitoppPerson, SurveyPerson<SurveyWithCommute>>> {
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
             numMinorsBelow18 = household.numberOfYouths,
             areaType = converter(household.location.regionType).toAreaType(),
-            numberOfCars = household.amountOfCars
+            numberOfCars = household.attributes.amountOfCars
         )
         val mapping = household.members.associateBy {
             ActitoppPerson(actHousehold, it.actitoppAttributes())
@@ -74,7 +80,7 @@ class ActiToppNGGenerator(
         return actHousehold to mapping
     }
 
-    fun SynthesisPerson<out SurveyWithCommute>.actitoppAttributes(maxCommute: Double = 150.0): PersonAttributes {
+    fun SurveyPerson<SurveyWithCommute>.actitoppAttributes(maxCommute: Double = 150.0): PersonAttributes {
         return PersonAttributes(
             gender = sex.toGender(),
             employment = employment.toActitoppEmployment(),

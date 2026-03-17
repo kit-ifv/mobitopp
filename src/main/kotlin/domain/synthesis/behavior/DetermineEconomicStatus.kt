@@ -1,5 +1,8 @@
 package domain.synthesis.behavior
 
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.HasAge
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.data.EconomicStatus
 import edu.kit.ifv.units.ClosedCurrencyRange
@@ -14,11 +17,11 @@ import java.util.TreeMap
  * Assign an economic status to a household
  */
 fun interface DetermineEconomicStatus<T> {
-    fun determineStatus(surveyHousehold: SynthesisHousehold<out T>): EconomicStatus
+    fun determineStatus(surveyHousehold: SynthesisHousehold<MinimumHouseholdAttributes,  T>): EconomicStatus
 }
 
 class AlwaysAssignSameStatus(val economicStatus: EconomicStatus) : DetermineEconomicStatus<Any> {
-    override fun determineStatus(surveyHousehold: SynthesisHousehold<out Any>): EconomicStatus {
+    override fun determineStatus(surveyHousehold: SynthesisHousehold<MinimumHouseholdAttributes, Any>): EconomicStatus {
         return economicStatus
     }
 }
@@ -28,9 +31,9 @@ class AlwaysAssignSameStatus(val economicStatus: EconomicStatus) : DetermineEcon
  * people, based on the number of children and adults and then returns the economic status based on size and
  * income.
  */
-class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
+class OECDAssigner<T : MinimumPersonAttributes>(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
     DetermineEconomicStatus<T> {
-    override fun determineStatus(surveyHousehold: SynthesisHousehold<out T>): EconomicStatus {
+    override fun determineStatus(surveyHousehold: SynthesisHousehold<MinimumHouseholdAttributes, T>): EconomicStatus {
         val oecdNumber = calculateOECDAmount(surveyHousehold)
         val economicStatus = oecdTranslation(oecdNumber, surveyHousehold.income)
         return economicStatus
@@ -39,14 +42,14 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
     @Suppress(
         "MagicNumber"
     ) // In this case I understand the complaint of detekt, these numbers, 1.0, 0.5 and 0.3 are magic
-    private fun calculateOECDAmount(surveyHousehold: SynthesisHousehold<out T>): Double {
+    private fun calculateOECDAmount(surveyHousehold: SynthesisHousehold<MinimumHouseholdAttributes, T>): Double {
         val adults = surveyHousehold.numberOfAdults
         val additionalAdults = (adults - 1).coerceAtLeast(0)
         return 1.0 + 0.5 * additionalAdults + 0.3 * surveyHousehold.numberOfMinors
     }
 
     companion object {
-        fun <T : SurveyInfo> fromPath(
+        fun <T : MinimumPersonAttributes> fromPath(
             path: Path = Path.of("src/main/resources/economical-status-oecd2017.csv")
         ): OECDAssigner<T> {
             val parser = DefaultCsvParser { row ->
@@ -84,10 +87,10 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-val SynthesisHousehold<out SurveyAge>.numberOfAdults get() = members.count { it.age >= 18 }
+val SynthesisHousehold<*, HasAge>.numberOfAdults get() = members.count { it.age >= 18 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-val SynthesisHousehold<out SurveyAge>.numberOfMinors get() = members.count { it.age < 18 }
+val SynthesisHousehold<*, HasAge>.numberOfMinors get() = members.count { it.age < 18 }
 
 private class FileEntry(
     val amount: Double,

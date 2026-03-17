@@ -10,7 +10,7 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.ControllableAttractiveness
-import domain.synthesis.behavior.CommuteDistance
+import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.BandwidthParameters
 import domain.synthesis.behavior.fixedDestinations.LocationAlternative
@@ -55,15 +55,15 @@ class BandwidthLocatorTest : SynthesisTest() {
         val loc5 = testZone.spawnUTM(0, 5000)
         val loc6 = testZone.spawnUTM(0, 6000)
         val loc7 = testZone.spawnUTM(0, 7000)
-        val hh = home.createHousehold<CommuteDistance> {
+        val hh = home.createHousehold<HasCommuteDistance> {
             person(10, Sex.MALE) {
-                object : CommuteDistance {
+                object : HasCommuteDistance {
                     override val distanceWork: Distance = 3.kilometers
                 }
             }
 
             person(10, Sex.MALE) {
-                object : CommuteDistance {
+                object : HasCommuteDistance {
                     override val distanceWork: Distance = 42.kilometers
                 }
             }

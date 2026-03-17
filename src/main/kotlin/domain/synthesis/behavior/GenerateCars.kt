@@ -1,5 +1,9 @@
 package domain.synthesis.behavior
 
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.HasLicence
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.discreteChoice.CarSegmentChoice
 import domain.synthesis.behavior.discreteChoice.CarSegmentParameters
 import domain.synthesis.behavior.discreteChoice.EngineAlternative
@@ -21,7 +25,7 @@ import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.random.Random
 
 fun interface GenerateCars<T> {
-    fun generate(householdBuilder: SynthesisHousehold<out T>): List<SynthesisCar>
+    fun generate(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, T>): List<SynthesisCar>
 }
 
 class SynthesisCar(
@@ -44,12 +48,12 @@ class SynthesisCar(
 }
 
 object TrivialCarGeneration : GenerateCars<Any> {
-    override fun generate(householdBuilder: SynthesisHousehold<out Any>): List<SynthesisCar> {
+    override fun generate(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes,Any>): List<SynthesisCar> {
         return buildCars(householdBuilder)
     }
 
     @Suppress("MagicNumber") // 4 seats is not magic, but default
-    private fun buildCars(householdBuilder: SynthesisHousehold<out Any>) =
+    private fun buildCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes,  Any>) =
         (0..<householdBuilder.amountOfCars).map {
             SynthesisCar(
                 CarSegment.SMALL,
@@ -58,7 +62,7 @@ object TrivialCarGeneration : GenerateCars<Any> {
             )
         }
 
-    fun <T : SurveyInfo> generateCars(householdBuilder: SynthesisHousehold<out T>): List<SynthesisCar> {
+    fun <T : MinimumPersonAttributes> generateCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, T>): List<SynthesisCar> {
         return buildCars(householdBuilder)
     }
 }
@@ -67,13 +71,13 @@ object TrivialCarGeneration : GenerateCars<Any> {
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
 
-object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
+object SamplingCarGeneration : GenerateCars<MaximumPersonAttributes> {
     private val segmentModel = carSegmentChoiceModel.build(CarSegmentParameters())
 
     // TODO make parameters customizable!
     private val engineModel = carEngineChoiceModel.build(EngineParameters())
 
-    override fun generate(householdBuilder: SynthesisHousehold<out SurveyWithCommute>): List<SynthesisCar> {
+    override fun generate(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>): List<SynthesisCar> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
         val potentialCarUsers = householdBuilder.run {
             if (numberOfDrivingLicences == 0) adults else licenceHolders
@@ -104,18 +108,18 @@ object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
     }
 }
 
-val <T : SurveyInfo> SynthesisHousehold<T>.licenceHolders
-    get(): List<SynthesisPerson<out T>> {
+val  <T: HasLicence> SynthesisHousehold<*, T>.licenceHolders
+    get(): List<SynthesisPerson<T>> {
         return members.filter { it.hasLicence }
     }
 
 @Suppress("MagicNumber")
-val <T : SurveyInfo> SynthesisHousehold<T>.adults
-    get(): List<SynthesisPerson<out T>> {
+val <T > SynthesisHousehold<*,T>.adults
+    get(): List<SynthesisPerson<T>> {
         return members.filter { it.age >= 18 }
     }
 
-val <T : SurveyInfo> SynthesisHousehold<T>.numberOfDrivingLicences
+val <T: HasLicence> SynthesisHousehold<*,T>.numberOfDrivingLicences
     get(): Int {
         return members.count { it.hasLicence }
     }

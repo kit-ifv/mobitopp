@@ -2,7 +2,7 @@ package domain.synthesis.behavior.fixedDestinations.communityBased
 
 import domain.shared.location.DistanceMetric
 import domain.shared.location.StandardLocation
-import domain.synthesis.behavior.CommuteDistance
+import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.fixedDestinations.AssignedLocation
 import domain.synthesis.behavior.fixedDestinations.SimpleGroupLocator
@@ -142,7 +142,7 @@ class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInComm
 /**
  * If a metric is present, the commuter distance can also be extracted using said metric.
  */
-class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMetric) : CommuterDistance<T>() {
+class MetricCommuterDistance<T : HasCommuteDistance>(private val metric: DistanceMetric) : CommuterDistance<T>() {
 
     override fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: StandardLocation): Distance {
         return abs(
@@ -159,7 +159,7 @@ class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMe
  * to find the location which most closely matches the specified commute distance, while still having unsaturated demand.
  * If all demands are saturated, the best location without regard to saturation is used as a fallback.
  */
-open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
+open class CommuterDistance<T : HasCommuteDistance> : AssignAgentsInCommunity<T> {
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
     ): List<AssignedLocation<T>> {

@@ -2,6 +2,8 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.location.Zone
 import domain.synthesis.AreaIPUCSVOutput
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
 import domain.synthesis.behavior.GenerateCars
@@ -26,9 +28,9 @@ import utils.collections.standardProgressBar
 import java.nio.file.Path
 import kotlin.random.Random
 
-class SynthesisSteps<AREA, T : Any>(
+class SynthesisSteps<AREA, S: MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
     val zones: List<AREA>,
-    val surveyHouseholds: Collection<ISurveyHousehold<T>>,
+    val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
     val opportunities: List<OpportunityOutput>,
@@ -38,7 +40,7 @@ class SynthesisSteps<AREA, T : Any>(
 //    fun getZone(zoneId: ZoneId) = zoneMapping[zoneId]
 //        ?: throw NoSuchElementException("There is no zone with id $zoneId in the mapping")
 
-    lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<out T>>>
+    lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<S, T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     var activities: List<Map<SynthesisPerson<*>, Collection<Activity>>> =
@@ -78,6 +80,7 @@ class SynthesisSteps<AREA, T : Any>(
             }
         }
     }
+
     fun synthesizePopulation() {
     }
 
@@ -85,7 +88,7 @@ class SynthesisSteps<AREA, T : Any>(
     fun populationSynthesis(
         verification: Boolean = true,
         writeResults: Boolean = false,
-        supplier: () -> HierarchicalPopulationSynthesisDeprecated<AREA, ISurveyHousehold<out T>>,
+        supplier: () -> HierarchicalPopulationSynthesisDeprecated<AREA, ISurveyHousehold<S, T>>,
     ) {
         val algorithm = supplier()
         val output = algorithm.synthesizeAll()
@@ -119,7 +122,7 @@ class SynthesisSteps<AREA, T : Any>(
 //    }
 
     // TODO refactor, use or discard this method
-    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in AREA, SynthesisHousehold<out T>>) {
+    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in AREA, SynthesisHousehold<S, T>>) {
         val strategy = lambda()
 
         householdsByZone.entries.forEach { (zone, households) ->
@@ -129,12 +132,15 @@ class SynthesisSteps<AREA, T : Any>(
         }
     }
 
-    fun <STAR> refactoredPopsyn(converter: (STAR) -> AREA, lambda: () -> CompletePopulationSynthesis<STAR, SynthesisHousehold<T>>) {
+    fun <STAR> refactoredPopsyn(
+        converter: (STAR) -> AREA,
+        lambda: () -> CompletePopulationSynthesis<STAR, SynthesisHousehold<S, T>>,
+    ) {
         val strategy = lambda()
         householdsByZone = strategy.synthesizeAll().mapKeys { converter(it.key) }
     }
 
-    fun assignLocations(lambda: () -> AssignHouseholdLocations<AREA, SynthesisHousehold<out T>>) {
+    fun assignLocations(lambda: () -> AssignHouseholdLocations<AREA, SynthesisHousehold<S, T>>) {
         val strategy = lambda()
         householdsByZone.entries.forEach { (zone, households) ->
             households.forEach {
@@ -148,7 +154,7 @@ class SynthesisSteps<AREA, T : Any>(
         households.forEach { it.economicStatus = strategy.determineStatus(it) }
     }
 
-    fun assignAmountOfCars(lambda: () -> AssignmentStep<SynthesisHousehold<out T>, Int>) {
+    fun assignAmountOfCars(lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>) {
         val strategy = lambda()
         households.addProgressBar(
             "Assign car amount"
@@ -159,9 +165,18 @@ class SynthesisSteps<AREA, T : Any>(
         }
     }
 
-    fun assignTransitCardOwnership(lambda: () -> AssignmentStep<SynthesisPerson<out T>, Boolean>) {
+    fun assignTransitCardOwnership(lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, List<Boolean>>) {
         val strategy = lambda()
         households.addProgressBar("assign Transit Car").forEach { hh ->
+
+            val transitPasses = context( Random(hh.id)){
+                strategy.assign(hh)
+            }
+
+            hh.zip(transitPasses).forEach { (person, decision) ->
+                person.hasTransitPass = decision
+
+            }
             hh.members.forEach {
                 context(Random(it.personId)) {
                     it.hasTransitPass = strategy.assign(it)
@@ -175,15 +190,15 @@ class SynthesisSteps<AREA, T : Any>(
         cars = households.flatMap { it.cars }
     }
 
-    fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<in T>) {
+    fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<S, in T>) {
         val strategy = lambda()
         val progressBar = standardProgressBar("Generate Activities", households.size)
         runBlocking {
             households.map { household ->
                 launch(Dispatchers.Default) {
-                    val output = strategy.generate(household)
-                    output.entries.forEach { (k, v) ->
-                        k.plannedActivities = v
+                    val plans = strategy.generate(household)
+                    household.members.zip(plans).forEach { (person, activities) ->
+                        person.plannedActivities = activities
                     }
                     progressBar.step()
                 }

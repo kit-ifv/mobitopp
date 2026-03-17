@@ -10,18 +10,21 @@ import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.synthesis.TrivialSynthesis
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SamplingCarGeneration
-import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
 import domain.synthesis.behavior.carownership.standardAssignmentByRegionSize
 import domain.synthesis.behavior.discreteChoice.TicketCharacteristics
 import domain.synthesis.behavior.discreteChoice.TransitPassParameters
 import domain.synthesis.behavior.discreteChoice.YesTransitPass
 import domain.synthesis.behavior.discreteChoice.transitPassChoiceModel
+import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
@@ -31,7 +34,6 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistan
 import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
-import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import domain.synthesis.results.LegacyActivityOutput
@@ -122,6 +124,19 @@ fun interface AssignmentStep<in I, out O> {
     fun assign(input: I): O
 }
 
+fun interface HouseholdAssignmentStep<S, T, out O> :
+    AssignmentStep<SynthesisHousehold<S, T>, List<O>> where S : MinimumHouseholdAttributes {
+    context(household: SynthesisHousehold<S, T>)
+    fun assignForPerson(person: SynthesisPerson<T>): O
+
+    context(random: Random)
+    override fun assign(input: SynthesisHousehold<S, T>): List<O> {
+        return context(input) {
+            input.map { member -> assignForPerson(member) }
+        }
+    }
+}
+
 @Suppress("SpacingAroundColon") // Seems to be a detekt version thing
 class AssignmentStrategy<I, C, O>(
     val model: FixedChoiceModel<O, C>,
@@ -149,19 +164,13 @@ class AssignmentStrategy<I, C, O>(
     }
 }
 
-@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
-fun interface AssignTransitCardOwnership<T> : AssignmentStep<SynthesisPerson<out T>, Boolean> {
-    fun assignFor(person: SynthesisPerson<out T>): Boolean
 
-    context(random: Random)
-    override fun assign(input: SynthesisPerson<out T>): Boolean =
-        assignFor(input)
-}
+fun interface AssignTransitCardOwnership<S : MinimumHouseholdAttributes, T> : HouseholdAssignmentStep<S, T, Boolean>
 
 class AssignByDiscreteChoice(
     val model: FixedChoiceModel<Boolean, TicketCharacteristics> =
         transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false)),
-) : AssignTransitCardOwnership<SurveyInfo> {
+) : AssignTransitCardOwnership<MinimumHouseholdAttributes, MaximumPersonAttributes> {
 
     constructor(
         parameters: TransitPassParameters,
@@ -169,20 +178,22 @@ class AssignByDiscreteChoice(
             transitPassChoiceModel,
     ) : this(model.build(parameters))
 
-    override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
-        return context(TicketCharacteristics(person.household, person), Random(person.personId)) {
+    context(household: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>)
+    override fun assignForPerson(person: SynthesisPerson<MaximumPersonAttributes>): Boolean {
+        return context(TicketCharacteristics(household, person), Random(person.personId)) {
             model.select()
         }
     }
 }
 
-object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
-    override fun assignFor(person: SynthesisPerson<out Any>): Boolean {
+object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttributes, Any> {
+    context(household: SynthesisHousehold<MinimumHouseholdAttributes, Any>)
+    override fun assignForPerson(person: SynthesisPerson<Any>): Boolean {
         return true
     }
 }
 
-fun <AREA, T: Any> PopulationSynthesis<AREA, T>.generateLocations(
+fun <AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> PopulationSynthesis<AREA, S, T>.generateLocations(
     activityType: ActivityType,
     generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
 ): List<StandardLocation> {
@@ -192,15 +203,15 @@ fun <AREA, T: Any> PopulationSynthesis<AREA, T>.generateLocations(
     return generatedLocations
 }
 
-class PopulationSynthesis<AREA, T : Any>(
+class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
     private val outputDirectory: Path,
     val zones: List<AREA>,
-    val surveyHouseholds: Collection<ISurveyHousehold<T>>,
+    val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
     val attractivenessModel: AttractivenessModel,
 ) {
 
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
-    fun execute(lambda: SynthesisSteps<AREA, T>.() -> Unit) {
+    fun execute(lambda: SynthesisSteps<AREA, S, T>.() -> Unit) {
         SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
     }
 // TODO disabled for now because of location rewrite.
@@ -216,11 +227,13 @@ class PopulationSynthesis<AREA, T : Any>(
 //    }
 
     companion object {
-        class SynthesisConfiguration<AREA, T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
-            val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
+        class SynthesisConfiguration<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
+            surveyPopulationGenerator: GenerateHouseholds<S, T>,
+        ) {
+            val surveyPopulation = surveyPopulationGenerator.generateSurveyHouseholds()
             lateinit var outputDirectory: Path
             lateinit var zones: List<AREA>
-            lateinit var surveyHouseholds: Collection<ISurveyHousehold<T>>
+            lateinit var surveyHouseholds: Collection<ISurveyHousehold<S, T>>
             lateinit var attractivenessModel: AttractivenessModel
 
             inner class AttractivenessModelParser {
@@ -245,12 +258,12 @@ class PopulationSynthesis<AREA, T : Any>(
             }
         }
 
-        fun <AREA, T : Any> configure(
-            surveyPopulation: GenerateArtificialPopulation<T>,
+        fun <AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> configure(
+            surveyPopulation: GenerateHouseholds<S, T>,
             zones: List<AREA>,
-            lambda: SynthesisConfiguration<AREA, T>.() -> Unit,
-        ): PopulationSynthesis<AREA, T> {
-            val config = SynthesisConfiguration<AREA, T>(surveyPopulation).apply(lambda)
+            lambda: SynthesisConfiguration<AREA, S, T>.() -> Unit,
+        ): PopulationSynthesis<AREA, S, T> {
+            val config = SynthesisConfiguration<AREA, S, T>(surveyPopulation).apply(lambda)
 
             return PopulationSynthesis(
                 config.outputDirectory,
@@ -262,14 +275,26 @@ class PopulationSynthesis<AREA, T : Any>(
     }
 }
 
-fun interface GenerateArtificialPopulation<T> {
+@Deprecated("This interface does not fill a purpose")
+fun interface GenerateArtificialPopulationDeprecated<T> {
     fun generateArtificialPopulation(): Collection<T>
 
     companion object {
         fun fromFile(fileString: String) = fromFile(Path(fileString))
-        fun fromFile(file: Path) = GenerateArtificialPopulation {
+        fun fromFile(file: Path) = GenerateArtificialPopulationDeprecated {
             parseSurvey(file).toList()
         }
+    }
+}
+
+
+fun interface GenerateHouseholds<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
+    fun generateSurveyHouseholds(): Collection<ISurveyHousehold<S, T>>
+
+
+    companion object {
+
+
     }
 }
 
@@ -281,7 +306,7 @@ private val attractivenessModelPath = Path("src/test/resources/synthesis/attract
 ) // I agree that the method is long, but right now I don't know how to simplify without breaking the read flow
 fun examplePopulationSynthesis() {
     val populationSynthesis = PopulationSynthesis.configure(
-        surveyPopulation = GenerateArtificialPopulation.fromFile("src/test/resources/synthesis/SurveyPopulation.csv"),
+        surveyPopulation = GenerateFromFlatInput.fromPath("src/test/resources/synthesis/SurveyPopulation.csv"),
         zones = emptyList<Zone>()
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
@@ -289,7 +314,7 @@ fun examplePopulationSynthesis() {
         //        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
 //            .toList()
 //            .map { it.build() }
-        surveyHouseholds = surveyPopulation.toSurveyHouseholds()
+        surveyHouseholds = surveyPopulation
 //            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
         attractivenessModel = attractivenessFromFile {
             path = attractivenessModelPath
@@ -310,10 +335,10 @@ fun examplePopulationSynthesis() {
         "Somehow no primary schools are generated"
     }
     populationSynthesis.execute {
-        refactoredPopsyn({it}) {
-            val synthesisHouseholds = GenerateArtificialPopulation.fromFile(
+        refactoredPopsyn({ it }) {
+            val synthesisHouseholds = GenerateFromFlatInput.fromPath(
                 "src/test/resources/synthesis/SurveyPopulation.csv"
-            ).generateArtificialPopulation().toSurveyHouseholds().map { it.toSynthesisHousehold() }
+            ).generateSurveyHouseholds().map { it.toSynthesisHousehold() }
             TrivialSynthesis(
                 synthesisHouseholds,
                 zones
@@ -388,7 +413,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun SynthesisSteps<Zone, out RawSurveyInfo>.writeLegacyOutput() {
+fun SynthesisSteps<Zone, *, out RawSurveyInfo>.writeLegacyOutput() {
     LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)

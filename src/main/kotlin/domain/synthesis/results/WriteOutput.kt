@@ -6,9 +6,9 @@ import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZonedRoadAccessLocation
+import domain.synthesis.attributes.household.MaximumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.RawSurveyInfo
-import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.behavior.domain.SynthesisHousehold
@@ -171,11 +171,11 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     }
 }
 
-object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<out SurveyInfo>> {
+object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold< MaximumHouseholdAttributes, *>> {
     override val header: List<String> = listOf("nominalSize", "numberOfMinors", "income")
 
     @Suppress("MagicNumber")
-    override fun convert(element: ISurveyHousehold<out SurveyInfo>): String {
+    override fun convert(element: ISurveyHousehold<MaximumHouseholdAttributes, *>): String {
         return element.run {
             toCSV(
                 members.size,
@@ -186,7 +186,7 @@ object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<out SurveyInfo>> {
     }
 }
 
-object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
+object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttributes, *>> {
     override val header: List<String> = listOf(
         "id",
         "zoneId",
@@ -198,7 +198,7 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>>
         "economicStatusCode"
     )
 
-    override fun convert(element: SynthesisHousehold<out SurveyInfo>): String {
+    override fun convert(element: SynthesisHousehold<MaximumHouseholdAttributes, *>): String {
         return element.run {
             toCSV(
                 id,
@@ -218,7 +218,7 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>>
 
 // Sorry detekt, householdId and other strings may occur more often.
 @Suppress("StringLiteralDuplication", "MagicNumber")
-object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
+object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttributes, *>> {
 
     override val header: List<String> = listOf(
         "householdId",
@@ -238,7 +238,7 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
         "canChargePrivately"
     ) + SurveyHouseholdOutput.header
 
-    override fun convert(element: SynthesisHousehold<out SurveyInfo>): String {
+    override fun convert(element: SynthesisHousehold<MaximumHouseholdAttributes, *>): String {
         return element.run {
             toCSV(
                 id,
@@ -288,7 +288,7 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
     }
 }
 
-object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
+object SurveyPersonOutput : CSVOutput<SurveyPerson<MaximumPersonAttributes>> {
     override val header: List<String> = listOf(
         "personId",
         "age",
@@ -298,7 +298,7 @@ object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
         "hasLicence"
     )
 
-    override fun convert(element: SurveyPerson<out RawSurveyInfo>): String {
+    override fun convert(element: SurveyPerson<MaximumPersonAttributes>): String {
         return element.run {
             toCSV(
                 personId,
@@ -313,7 +313,7 @@ object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
 }
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
-object LegacyPersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
+object LegacyPersonOutput : CSVOutput<SynthesisPerson<MaximumPersonAttributes>> {
     private const val SURVEY_DUMMY = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
     override val header: List<String> = SurveyPersonOutput.header + listOf(
 
@@ -333,7 +333,7 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
     )
 
     @Suppress("MagicNumber")
-    override fun convert(element: SynthesisPerson<out RawSurveyInfo>): String {
+    override fun convert(element: SynthesisPerson<MaximumPersonAttributes>): String {
         val first = SurveyPersonOutput.convert(element)
         val second = element.run {
             toCSV(

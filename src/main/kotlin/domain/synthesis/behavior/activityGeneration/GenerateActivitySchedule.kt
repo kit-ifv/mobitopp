@@ -2,25 +2,26 @@ package domain.synthesis.behavior.activityGeneration
 
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.behavior.SurveyPerson
 import utils.Decodable
 import kotlin.time.Duration.Companion.hours
 
-fun interface GenerateActivitySchedule<T> : GenerateHouseholdActivitySchedule<T> {
-    fun generate(person: SynthesisPerson<out T>): PreliminaryActivitySchedule
-    override fun generate(
-        household: SynthesisHousehold<out T>
-    ): Map<SynthesisPerson<out T>, PreliminaryActivitySchedule> {
-        return household.members.associateWith { generate(it) }
+fun interface GenerateActivitySchedule<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> : GenerateHouseholdActivitySchedule<S, T> {
+    fun generate(person: SurveyPerson<T>): PreliminaryActivitySchedule
+    override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
+        return household.members.map { generate(it) }
     }
 }
-fun interface GenerateHouseholdActivitySchedule<T> {
-    fun generate(household: SynthesisHousehold<out T>): Map<SynthesisPerson<out T>, PreliminaryActivitySchedule>
+fun interface GenerateHouseholdActivitySchedule<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
+    fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule>
+//    fun generate(household: SynthesisHousehold<out T>): Map<SynthesisPerson<out T>, PreliminaryActivitySchedule>
 }
 class TrivialActivityGeneration(private val init: Decodable<ActivityType> = LegacyActivityType.Companion) :
-    GenerateActivitySchedule<Any> {
-    override fun generate(person: SynthesisPerson<out Any>): PreliminaryActivitySchedule {
+    GenerateActivitySchedule<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+    override fun generate(person: SurveyPerson<*>): PreliminaryActivitySchedule {
         return PreliminaryActivitySchedule(init) {
             home(0.hours, 10.hours)
             shopping(11.hours, 13.5.hours)

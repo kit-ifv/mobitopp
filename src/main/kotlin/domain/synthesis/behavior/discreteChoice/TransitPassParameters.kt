@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.discreteChoice
 
-import domain.synthesis.behavior.SurveyInfo
+import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.employment
@@ -88,8 +88,8 @@ data class TransitPassParameters(
 
 @Suppress("MagicNumber") // These magic numbers are ok
 data class TicketCharacteristics(
-    val household: SynthesisHousehold<out SurveyInfo>,
-    val person: SynthesisPerson<out SurveyInfo>
+    val household: SynthesisHousehold<*, MaximumPersonAttributes>,
+    val person: SynthesisPerson<MaximumPersonAttributes>
 ) {
     val householdSize = household.members.size
     val gender = person.sex

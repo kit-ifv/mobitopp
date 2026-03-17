@@ -5,7 +5,7 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
 import domain.shared.location.LocationKDTree
 import domain.shared.location.StandardLocation
-import domain.synthesis.behavior.CommuteDistance
+import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
@@ -52,14 +52,14 @@ class BandwidthLocator(
     var parameters: BandwidthParameters = BandwidthParameters(), // TODO why variable?
     var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> =
         standardBandwidthModel.build(parameters),
-) : SimpleLocator<CommuteDistance> {
+) : SimpleLocator<HasCommuteDistance> {
     private val locationTree = LocationKDTree(potentialLocations)
 
     @Suppress("MagicNumber")
     private val random = Random(42L) // TODO what is random source of opportunities?
 
     override fun locate(
-        agent: SynthesisPerson<out CommuteDistance>,
+        agent: SynthesisPerson<out HasCommuteDistance>,
     ): StandardLocation {
         var validTargets =
             validTargetsForAgent(agent)
@@ -77,7 +77,7 @@ class BandwidthLocator(
      * Determine which locations are within the band radius of an agents home location, using the [parameters] pole
      * radius.
      */
-    fun validTargetsForAgent(agent: SynthesisPerson<out CommuteDistance>): Set<WithMetric<StandardLocation, Distance>> {
+    fun validTargetsForAgent(agent: SynthesisPerson<out HasCommuteDistance>): Set<WithMetric<StandardLocation, Distance>> {
         val poleRadius = parameters.poleRadius
         return locationTree.sequenceFor(
             agent.homeLocation,

@@ -12,14 +12,14 @@ abstract class HouseholdTypeFactory<Input>(
     private val expectedTypes: Set<HouseholdType> = HouseholdType.Companion.validTypes,
     val targetExtractor: (Input, HouseholdType) -> Number?
 ) {
-    fun buildRuleSet(input: Input): CoverageGroup<ISurveyHousehold<*>> {
+    fun buildRuleSet(input: Input): CoverageGroup<ISurveyHousehold<*, *>> {
         val ruleset = expectedTypes.mapNotNull {
             optionalTypeRule(it, input)
         }.toRuleSet()
         return FullCoverageGroup(ruleset)
     }
 
-    private fun optionalTypeRule(type: HouseholdType, input: Input): Rule<ISurveyHousehold<*>>? {
+    private fun optionalTypeRule(type: HouseholdType, input: Input): Rule<ISurveyHousehold<*, *>>? {
         return getTypeDefinition(type).makeOptionalRule(targetExtractor(input, type))
     }
 

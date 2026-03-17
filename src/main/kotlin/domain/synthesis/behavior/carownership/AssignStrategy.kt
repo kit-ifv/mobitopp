@@ -2,7 +2,8 @@ package domain.synthesis.behavior.carownership
 
 import AssignmentStep
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
-import domain.synthesis.behavior.SurveyInfo
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.discreteChoice.carChoiceUtility
 import domain.synthesis.behavior.discreteChoice.carOwnershipCityParameters
 import domain.synthesis.behavior.discreteChoice.carOwnershipRuralArea
@@ -14,18 +15,18 @@ import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteM
 import kotlin.random.Random
 
 @Suppress("SpacingAroundColon") // Seems to be a detekt version thing
-fun interface CarOwnershipAssignStrategy<T> : AssignmentStep<SynthesisHousehold<out T>, Int> {
+fun interface CarOwnershipAssignStrategy<S : MinimumHouseholdAttributes, T> : AssignmentStep<SynthesisHousehold<S, T>, Int> {
 
-    fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out T>): Int
+    fun determineNumberOfCars(householdBuilder: SynthesisHousehold<S,  T>): Int
 
     context(random: Random)
-    override fun assign(input: SynthesisHousehold<out T>): Int {
+    override fun assign(input: SynthesisHousehold<S,  T>): Int {
         return determineNumberOfCars(input)
     }
 }
 
-class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any> {
-    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out Any>): Int {
+class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>): Int {
         return amount
     }
 }
@@ -60,18 +61,18 @@ class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any>
  */
 class AssignBySizebasedClassification<A, P>(
     val model: EnumeratedDiscreteModelBuilder<Int, A, P>,
-    val converter: (SynthesisHousehold<out SurveyInfo>) -> A,
+    val converter: (SynthesisHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>) -> A,
     private val cityParameters: P,
     private val smallTownParameters: P,
     private val urbanAreaParameters: P,
     private val ruralAreaParameters: P,
-) : CarOwnershipAssignStrategy<SurveyInfo> {
+) : CarOwnershipAssignStrategy<MinimumHouseholdAttributes, MinimumPersonAttributes> {
 
     private val models = SizebasedRegiostarClassification.entries.associateWith {
         model.build(it.toParameters())
     }
 
-    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
+    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>): Int {
         val region = householdBuilder.location.sizebasedRegiostarClassification
         // TODO check where the randomness for this dcm should come from
         return context(converter(householdBuilder), Random(householdBuilder.id)) {
@@ -101,7 +102,7 @@ class AssignBySizebasedClassification<A, P>(
             val model: EnumeratedDiscreteModelBuilder<Int, A, P>
         ) {
 
-            lateinit var converter: (SynthesisHousehold<out SurveyInfo>) -> A
+            lateinit var converter: (SynthesisHousehold<MinimumHouseholdAttributes,  MinimumPersonAttributes>) -> A
             lateinit var cityParameters: P
             lateinit var smallTownParameters: P
             lateinit var urbanAreaParameters: P

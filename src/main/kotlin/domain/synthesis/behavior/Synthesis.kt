@@ -1,5 +1,6 @@
 package domain.synthesis.behavior
 
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.data.Employment
 import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
@@ -38,153 +39,79 @@ fun <T> Collection<T>.repeatExact(amount: Int): List<T> {
 }
 
 /**
- * This is the class that holds the data extract from the survey population csv. The file merges household and
- * person information.
- */
-interface SurveyInfo : SurveyEmployment, SurveyAge {
-    val householdId: Long
-    val sex: Sex
-    override val age: Int
-    val householdIncome: Currency
-    val hasLicence: Boolean
-    override val employment: Employment
-}
-
-/**
- * This interface annotates the information about a survey person, so that the information of the distance to
- * the work location is known in the survey.
- */
-interface CommuteDistance {
-    val distanceWork: Distance
-}
-
-interface EducationDistance {
-    val distanceEducation: Distance
-}
-interface SurveyWithCommute : SurveyInfo, CommuteDistance, EducationDistance
-
-/**
- * If the survey data has information about the employment status of the survey person, this interface should be added
- * to the class holding the information block
- */
-
-interface SurveyEmployment {
-    val employment: Employment
-}
-
-/**
- * If the survey data or the person has age as an attribute
- */
-interface SurveyAge {
-    val age: Int
-}
-interface SurveyType {
-    val type: HouseholdType
-}
-
-/**
  * All the information from the survey file, including all irrelevant information
  */
 data class RawSurveyInfo(
-    override val householdId: Long,
+    val householdId: Long,
     val year: Int,
     val areaType: Int, // TODO what is this?
     val householdSize: Int, // TODO remove?. If I determine household size over the household object, this is useless
     val personNumber: Int,
-    override val sex: Sex,
+    val sex: Sex,
     val birthyear: Int,
-    override val employment: Employment,
+     val employment: Employment,
     val hasCommuterTicket: Boolean,
-    override val householdIncome: Currency,
+    val householdIncome: Currency,
     val householdIncomeClass: Int, // TODO what is this? it is in a range between 0-8 ???
     val typeCode: Int,
     val cars: Int,
     val hasBicycle: Boolean,
-    override val hasLicence: Boolean,
-    override val distanceWork: Distance,
-    override val distanceEducation: Distance
-) : SurveyWithCommute, SurveyType {
-    override val age = year - birthyear
+    val hasLicence: Boolean,
+    val distanceWork: Distance,
+    val distanceEducation: Distance
+)  {
+    val age = year - birthyear
 
-    override val type: HouseholdType = HouseholdType.decodeOrNull(typeCode) ?: HouseholdType.UNDEFINED
+    val type: HouseholdType = HouseholdType.decodeOrNull(typeCode) ?: HouseholdType.UNDEFINED
 }
 
 /**
  * @param converter provide a converter to determine the household income, as the reported incomes can be inaccurate.
  */
-fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(
-    converter: (List<Currency>) -> Currency = {
-        it.first()
-    }
-): List<SurveyHousehold<T>> {
-    return groupBy { it.householdId }
-        .map { line ->
-            val income = converter(line.value.map { it.householdIncome })
-            SurveyHousehold(
-                line.value.first().householdId,
-                income,
-                line.value.map { person ->
-                    DefaultSurveyPerson.create(
-                        person
-                    )
-                }
-            )
-        }
-}
+//fun <T> Collection<T>.toSurveyHouseholds(
+//    converter: (List<Currency>) -> Currency = {
+//        it.first()
+//    }
+//): List<SurveyHousehold<MinimumHouseholdAttributes, T>> where T : MinimumPersonAttributes, T : SurveyInfo, T : HasHouseholdType {
+//    return groupBy { it.householdId }
+//        .map { line ->
+//            val income = converter(line.value.map { it.householdIncome })
+//            SurveyHousehold(
+//                surveyHouseholdId = line.value.first().householdId,
+//                members = line.value.map { person ->
+//                    DefaultSurveyPerson.create(
+//                        person
+//                    )
+//                },
+//                attributes = MinimumHouseholdAttributesImpl(
+//                    income = income,
+//                    type = line.value.first().type,
+//                )
+//
+//            )
+//        }
+//}
+//
 
-fun Collection<RawSurveyInfo>.toTypedSurveyHouseholds(
-    converter: (List<Currency>) -> Currency = {
-        it.first()
-    }
-): List<SurveyHousehold<RawSurveyInfo>> {
-    return groupBy { it.householdId }
-        .map { line ->
-            val income = converter(line.value.map { it.householdIncome })
-            SurveyHousehold(
-                line.value.first().householdId,
-                income,
-                line.value.map { person ->
-                    DefaultSurveyPerson.create(
-                        person
-                    )
-                },
-                type = line.value.first().type
-            )
-        }
-}
+
+
+
+
 
 interface MinimalistPerson<out T> {
     val information: T
 }
 
-interface SurveyPerson<T> : MinimalistPerson<T> {
+
+interface SurveyPerson<out T> : MinimalistPerson<T> where T: MinimumPersonAttributes {
     val personId: Int
     override val information: T
-    val age: Int
-    val sex: Sex
+    val age: Int get() = information.age
+    val sex: Sex get() = information.sex
 }
 
-data class SmallestSurveyPerson<T>(
+data class SmallestSurveyPerson<T : MinimumPersonAttributes> constructor(
     override val personId: Int,
     override val information: T,
-    override val age: Int,
-    override val sex: Sex
 ) : SurveyPerson<T>
 
-data class DefaultSurveyPerson<T : SurveyInfo>(
-    override val personId: Int,
-    override val information: T
-) : SurveyInfo by information, SurveyPerson<T> {
-
-    override val sex: Sex = information.sex
-    override val age: Int = information.age
-    override val employment: Employment = information.employment
-    override val hasLicence: Boolean = information.hasLicence
-
-    companion object {
-        private var idCounter: Int = 0
-        fun <T : SurveyInfo> create(
-            information: T
-        ) = DefaultSurveyPerson(idCounter++, information)
-    }
-}
