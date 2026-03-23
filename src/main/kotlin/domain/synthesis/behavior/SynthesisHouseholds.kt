@@ -1,9 +1,12 @@
 package domain.synthesis.behavior
 
 import domain.shared.location.StandardLocation
+import domain.synthesis.attributes.household.HasEconomicStatus
+import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasEmployment
 import domain.synthesis.attributes.person.HasLicence
+import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.discreteChoice.CarOwnershipAttributes
 import domain.synthesis.behavior.discreteChoice.CarOwnershipFactors
@@ -14,7 +17,7 @@ import domain.synthesis.data.Employment
 import domain.synthesis.data.HouseholdType
 import edu.kit.ifv.units.Currency
 
-fun SynthesisHousehold<*, MinimumPersonAttributes>.toCarOwnershipAttributes(): CarOwnershipAttributes {
+fun MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>.toCarOwnershipAttributes(): CarOwnershipAttributes {
     return CarOwnershipAttributes(
         CarOwnershipFactors(
             this,
@@ -22,8 +25,8 @@ fun SynthesisHousehold<*, MinimumPersonAttributes>.toCarOwnershipAttributes(): C
     )
 }
 
-val MinimalistPerson<HasLicence>.hasLicence get() = information.hasLicence
-val MinimalistPerson<HasEmployment>.employment get() = information.employment
+val MinimalistPerson<HasLicence>.hasLicence get() = attributes.hasLicence
+val MinimalistPerson<HasEmployment>.employment get() = attributes.employment
 fun MinimalistPerson<HasEmployment>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
 fun MinimalistPerson<HasEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
 fun MinimalistPerson<HasEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
@@ -50,11 +53,10 @@ class SurveyHousehold<out HouseholdInfo: MinimumHouseholdAttributes, out PersonI
     }
 }
 
-interface MinimalistHousehold<out S: MinimumHouseholdAttributes, out T> {
+interface MinimalistHousehold<out S, out T> {
     val members: Collection<MinimalistPerson<T>>
     val size get() = members.size
     val attributes: S
-    fun toSynthesisHousehold(): SynthesisHousehold<S, T>
 }
 
 interface ISurveyHousehold<out S: MinimumHouseholdAttributes, out T : MinimumPersonAttributes> : MinimalistHousehold<S, T> {
@@ -65,17 +67,19 @@ interface ISurveyHousehold<out S: MinimumHouseholdAttributes, out T : MinimumPer
     fun count(condition: (SurveyPerson<T>) -> Boolean): Int {
         return members.count(condition)
     }
-
-    override fun toSynthesisHousehold(): SynthesisHousehold<S, T> {
-        return SynthesisHousehold<S, T> (
-            surveyHouseholdId = surveyHouseholdId,
-            attributes = attributes,
-            members = this@ISurveyHousehold.members.map { SynthesisPerson(StandardLocation.LOCATIONUNKNOWN, it.age, it.sex, it.information) }
-
-        )
-    }
 }
 
-interface LocatedHousehold<out S : MinimumHouseholdAttributes, out T : MinimumPersonAttributes>: ISurveyHousehold<S, T> {
-    val location: StandardLocation
+object HouseholdFactory  {
+
+    fun <S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> createFrom(input: ISurveyHousehold<S, T>): SynthesisHousehold<S, T> {
+
+        val household = SynthesisHousehold<S, T>(
+            surveyHouseholdId = input.surveyHouseholdId,
+            attributes = input.attributes,
+
+            )
+        household.addMembers(input.members)
+        return household
+
+    }
 }

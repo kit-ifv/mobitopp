@@ -2,31 +2,31 @@ package domain.synthesis.behavior.carownership
 
 import AssignmentStep
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
-import domain.synthesis.attributes.household.MinimumHouseholdAttributes
-import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.attributes.household.MaximumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.discreteChoice.carChoiceUtility
 import domain.synthesis.behavior.discreteChoice.carOwnershipCityParameters
 import domain.synthesis.behavior.discreteChoice.carOwnershipRuralArea
 import domain.synthesis.behavior.discreteChoice.carOwnershipSmallCity
 import domain.synthesis.behavior.discreteChoice.carOwnershipUrbanAreaParameters
-import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.toCarOwnershipAttributes
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import kotlin.random.Random
 
 @Suppress("SpacingAroundColon") // Seems to be a detekt version thing
-fun interface CarOwnershipAssignStrategy<S : MinimumHouseholdAttributes, T> : AssignmentStep<SynthesisHousehold<S, T>, Int> {
+fun interface CarOwnershipAssignStrategy<in S, in T> : AssignmentStep<MinimalistHousehold<S, T>, Int> {
 
-    fun determineNumberOfCars(householdBuilder: SynthesisHousehold<S,  T>): Int
+    fun determineNumberOfCars(householdBuilder: MinimalistHousehold<S, T>): Int
 
     context(random: Random)
-    override fun assign(input: SynthesisHousehold<S,  T>): Int {
+    override fun assign(input: MinimalistHousehold<S, T>): Int {
         return determineNumberOfCars(input)
     }
 }
 
-class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<MinimumHouseholdAttributes, MinimumPersonAttributes> {
-    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>): Int {
+class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any?, Any?> {
+    override fun determineNumberOfCars(householdBuilder: MinimalistHousehold<*, *>): Int {
         return amount
     }
 }
@@ -61,21 +61,21 @@ class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Mini
  */
 class AssignBySizebasedClassification<A, P>(
     val model: EnumeratedDiscreteModelBuilder<Int, A, P>,
-    val converter: (SynthesisHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>) -> A,
+    val converter: (MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>) -> A,
     private val cityParameters: P,
     private val smallTownParameters: P,
     private val urbanAreaParameters: P,
     private val ruralAreaParameters: P,
-) : CarOwnershipAssignStrategy<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+) : CarOwnershipAssignStrategy<MaximumHouseholdAttributes, MaximumPersonAttributes>  {
 
     private val models = SizebasedRegiostarClassification.entries.associateWith {
         model.build(it.toParameters())
     }
 
-    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>): Int {
-        val region = householdBuilder.location.sizebasedRegiostarClassification
+    override fun determineNumberOfCars(householdBuilder: MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>): Int {
+        val region = householdBuilder.attributes.location.sizebasedRegiostarClassification
         // TODO check where the randomness for this dcm should come from
-        return context(converter(householdBuilder), Random(householdBuilder.id)) {
+        return context(converter(householdBuilder), Random(householdBuilder.hashCode())) {
             models[region]!!.select()
         }
     }
@@ -102,7 +102,7 @@ class AssignBySizebasedClassification<A, P>(
             val model: EnumeratedDiscreteModelBuilder<Int, A, P>
         ) {
 
-            lateinit var converter: (SynthesisHousehold<MinimumHouseholdAttributes,  MinimumPersonAttributes>) -> A
+            lateinit var converter: (MinimalistHousehold<MaximumHouseholdAttributes,  MaximumPersonAttributes>) -> A
             lateinit var cityParameters: P
             lateinit var smallTownParameters: P
             lateinit var urbanAreaParameters: P
@@ -113,7 +113,7 @@ class AssignBySizebasedClassification<A, P>(
              *
              * @return The fully constructed `AssignBySizebasedClassification` instance.
              */
-            fun build(): AssignBySizebasedClassification<A, P> {
+            fun  build(): AssignBySizebasedClassification<A, P> {
                 return AssignBySizebasedClassification(
                     model,
                     converter,
@@ -136,7 +136,7 @@ class AssignBySizebasedClassification<A, P>(
         fun <SIT, PARAMS : Any> createUsingModel(
             model: EnumeratedDiscreteModelBuilder<Int, SIT, PARAMS>,
             lambda: AssignViaRegionTypeBuilder<SIT, PARAMS>.() -> Unit
-        ): AssignBySizebasedClassification<SIT, PARAMS> {
+        ): AssignBySizebasedClassification<SIT, PARAMS>  {
             val builder = AssignViaRegionTypeBuilder(model)
             builder.apply(lambda)
             return builder.build()

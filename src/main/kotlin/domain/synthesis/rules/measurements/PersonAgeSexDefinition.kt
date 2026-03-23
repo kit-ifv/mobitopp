@@ -1,5 +1,7 @@
 package domain.synthesis.rules.measurements
 
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.data.Sex
@@ -18,8 +20,8 @@ class PersonAgeSexDefinition(val acceptedAgeRange: IntRange, val acceptedSex: Se
     }
 }
 
-fun <T> BooleanMeasurementDefinition<SurveyPerson<out T>>.asHouseholdDefinition(): NumericMeasurementDefinition<ISurveyHousehold<out T>> {
-    return object : NumericMeasurementDefinition<ISurveyHousehold<out T>>() {
+fun <T : MinimumPersonAttributes> BooleanMeasurementDefinition<SurveyPerson<T>>.asHouseholdDefinition(): NumericMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, T>> {
+    return object : NumericMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, T>>() {
         /**
          * Important: The string returned by this method is used for equality checks for the [NamedMeasurement].
          * Please make sure that objects return the same description if and only if their evaluation behaviour is
@@ -29,7 +31,7 @@ fun <T> BooleanMeasurementDefinition<SurveyPerson<out T>>.asHouseholdDefinition(
             return "On HH[${this@asHouseholdDefinition.generateDescription()}]"
         }
 
-        override fun evaluation(element: ISurveyHousehold<out T>): Int {
+        override fun evaluation(element: ISurveyHousehold<MinimumHouseholdAttributes, T>): Int {
             return element.members.count { member ->
                 this@asHouseholdDefinition.evaluation(member)
             }

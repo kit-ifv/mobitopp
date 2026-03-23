@@ -4,7 +4,7 @@ import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Distance
 
-data class MaximumPersonAttributes(
+data class MaximumPersonAttributes constructor(
     override val age: Int,
     override val sex: Sex,
     override val distanceWork: Distance,

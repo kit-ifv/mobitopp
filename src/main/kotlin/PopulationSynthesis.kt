@@ -10,22 +10,24 @@ import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.synthesis.TrivialSynthesis
+import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.AssignAroundZoneCentroid
+import domain.synthesis.behavior.BySeniority
+import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SamplingCarGeneration
+import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
 import domain.synthesis.behavior.carownership.standardAssignmentByRegionSize
 import domain.synthesis.behavior.discreteChoice.TicketCharacteristics
 import domain.synthesis.behavior.discreteChoice.TransitPassParameters
 import domain.synthesis.behavior.discreteChoice.YesTransitPass
 import domain.synthesis.behavior.discreteChoice.transitPassChoiceModel
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
@@ -49,6 +51,7 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toCurrency
+import kotlinx.serialization.builtins.ByteArraySerializer
 import utils.csv.DefaultCsvParser
 import utils.csv.Row
 import java.nio.file.Path
@@ -124,15 +127,16 @@ fun interface AssignmentStep<in I, out O> {
     fun assign(input: I): O
 }
 
-fun interface HouseholdAssignmentStep<S, T, out O> :
-    AssignmentStep<SynthesisHousehold<S, T>, List<O>> where S : MinimumHouseholdAttributes {
-    context(household: SynthesisHousehold<S, T>)
-    fun assignForPerson(person: SynthesisPerson<T>): O
+fun interface HouseholdAssignmentStep<in S, in T : MinimumPersonAttributes, out O> :
+    AssignmentStep<ISurveyHousehold<S, T>, List<O>> where S : MinimumHouseholdAttributes {
+    context(household: ISurveyHousehold<S, T>)
+    fun assignForPerson(person: SurveyPerson<T>): O
 
     context(random: Random)
-    override fun assign(input: SynthesisHousehold<S, T>): List<O> {
+    override fun assign(input: ISurveyHousehold<S, T>): List<O> {
         return context(input) {
-            input.map { member -> assignForPerson(member) }
+
+            input.members.map { member -> assignForPerson(member) }
         }
     }
 }
@@ -165,12 +169,12 @@ class AssignmentStrategy<I, C, O>(
 }
 
 
-fun interface AssignTransitCardOwnership<S : MinimumHouseholdAttributes, T> : HouseholdAssignmentStep<S, T, Boolean>
+fun interface AssignTransitCardOwnership<in S : MinimumHouseholdAttributes, in T : MinimumPersonAttributes> : HouseholdAssignmentStep<S, T, Boolean>
 
 class AssignByDiscreteChoice(
     val model: FixedChoiceModel<Boolean, TicketCharacteristics> =
         transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false)),
-) : AssignTransitCardOwnership<MinimumHouseholdAttributes, MaximumPersonAttributes> {
+) : AssignTransitCardOwnership<MaximumHouseholdAttributes, MaximumPersonAttributes> {
 
     constructor(
         parameters: TransitPassParameters,
@@ -178,17 +182,17 @@ class AssignByDiscreteChoice(
             transitPassChoiceModel,
     ) : this(model.build(parameters))
 
-    context(household: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>)
-    override fun assignForPerson(person: SynthesisPerson<MaximumPersonAttributes>): Boolean {
+    context(household: ISurveyHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>)
+    override fun assignForPerson(person: SurveyPerson<MaximumPersonAttributes>): Boolean {
         return context(TicketCharacteristics(household, person), Random(person.personId)) {
             model.select()
         }
     }
 }
 
-object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttributes, Any> {
-    context(household: SynthesisHousehold<MinimumHouseholdAttributes, Any>)
-    override fun assignForPerson(person: SynthesisPerson<Any>): Boolean {
+object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+    context(household: ISurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>)
+    override fun assignForPerson(person: SurveyPerson<MinimumPersonAttributes>): Boolean {
         return true
     }
 }
@@ -338,7 +342,9 @@ fun examplePopulationSynthesis() {
         refactoredPopsyn({ it }) {
             val synthesisHouseholds = GenerateFromFlatInput.fromPath(
                 "src/test/resources/synthesis/SurveyPopulation.csv"
-            ).generateSurveyHouseholds().map { it.toSynthesisHousehold() }
+            ).generateSurveyHouseholds().map {
+                HouseholdFactory.createFrom(it)
+            }
             TrivialSynthesis(
                 synthesisHouseholds,
                 zones
@@ -392,28 +398,32 @@ fun examplePopulationSynthesis() {
             }
         }
 
-        generateCars(strategy = SamplingCarGeneration)
+        assignCars(
+            generationStrategy = SamplingCarGeneration(),
+            assignStrategy = BySeniority(),
+        )
         assignActivities {
             ActiToppNGGenerator(legacyChoiceModelPurposes) {
                 ZoneRegionType.DEFAULT
             }
         }
-        assignSharingMemberships {
-            provider("Stadtmobil") {
-                AssignmentStrategy.viaChoiceModel(
-                    modelStructure = TODO(),
-                    parameters = TODO()
-                ) {
-                    it.household
-                }
-            }
-        }
+        // TODO reenable sharing memberships. MAybe in restatt
+//        assignSharingMemberships {
+//            provider("Stadtmobil") {
+//                AssignmentStrategy.viaChoiceModel(
+//                    modelStructure = TODO(),
+//                    parameters = TODO()
+//                ) {
+//                    it.household
+//                }
+//            }
+//        }
         writeLegacyOutput()
         println("Finished")
     }
 }
 
-fun SynthesisSteps<Zone, *, out RawSurveyInfo>.writeLegacyOutput() {
+fun SynthesisSteps<Zone, MaximumHouseholdAttributes, MaximumPersonAttributes>.writeLegacyOutput() {
     LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)

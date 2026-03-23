@@ -9,6 +9,9 @@ import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.BySeniority
+import domain.synthesis.behavior.HouseholdFactory
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.TrivialCarGeneration
@@ -25,6 +28,7 @@ import edu.kit.ifv.units.meters
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import toSurveyHouseholds
 import kotlin.io.path.Path
 import kotlin.test.Test
 
@@ -41,7 +45,7 @@ private fun Collection<MinimalSurveyInformation>.toSurveyHouseholds(): List<Surv
             surveyHouseholdId = -1,
 
             members = listOf(
-                SmallestSurveyPerson(personId = -1, information = it),
+                SmallestSurveyPerson(personId = -1, attributes = it),
 
             ),
             attributes = MinimumHouseholdAttributesImpl(
@@ -58,9 +62,10 @@ class PopulationSynthesisKtTest {
     private val working = MinimalSurveyInstantiation(30, Sex.MALE)
     private val senior = MinimalSurveyInstantiation(99, Sex.FEMALE)
 
-    private inner class TrivialTestGeneration : GenerateArtificialPopulationDeprecated<MinimalSurveyInformation> {
-        override fun generateArtificialPopulation(): Collection<MinimalSurveyInformation> {
-            return listOf(child, working, senior)
+    private inner class TrivialTestGeneration : GenerateHouseholds<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+
+        override fun generateSurveyHouseholds(): Collection<ISurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>> {
+            return listOf(child, working, senior).toSurveyHouseholds()
         }
     }
 
@@ -76,7 +81,7 @@ class PopulationSynthesisKtTest {
             zones = zones
         ) {
             outputDirectory = Path("src/test/resources/tempOutput")
-            surveyHouseholds = surveyPopulation.toSurveyHouseholds()
+            surveyHouseholds = surveyPopulation
             // TODO make this a code based attractiveness model instead of parsing a file.
             attractivenessModel = attractivenessFromFile {
                 path = Path("src/test/resources/synthesis/attractivities.csv")
@@ -102,7 +107,7 @@ class PopulationSynthesisKtTest {
             refactoredPopsyn({ it }) {
                 TrivialSynthesis(
                     surveyHouseholds.map
-                    { it.toSynthesisHousehold() }, zones
+                    { HouseholdFactory.createFrom(it) }, zones
                 )
             }
             val test = householdsByZone
@@ -116,17 +121,17 @@ class PopulationSynthesisKtTest {
             val hh3 = hh[2]
             val p3 = hh3.members.first()
             assertEquals(
-                p1.information,
-                child
+                p1.age,
+                child.age
             )
 
             assertEquals(
-                p2.information,
-                working
+                p2.age,
+                working.age
             )
             assertEquals(
-                p3.information,
-                senior
+                p3.age,
+                senior.age
             )
             assertFalse(hh1.locationIsAssigned())
             assertFalse(hh2.locationIsAssigned())
@@ -134,9 +139,9 @@ class PopulationSynthesisKtTest {
             assignLocations {
                 AssignAroundZoneCentroid(100.meters)
             }
-            assertEquals(hh1.location.zone, TEST_ZONE)
-            assertEquals(hh2.location.zone, TEST_ZONE)
-            assertEquals(hh3.location.zone, TEST_ZONE)
+            assertEquals(hh1.attributes.location.zone, TEST_ZONE)
+            assertEquals(hh2.attributes.location.zone, TEST_ZONE)
+            assertEquals(hh3.attributes.location.zone, TEST_ZONE)
 
             assertFalse(hh1.economicStatusIsAssigned())
             assertFalse(hh2.economicStatusIsAssigned())
@@ -191,7 +196,7 @@ class PopulationSynthesisKtTest {
             assignFixedDestinations {
                 forActivity {
                     activityType = work
-                    filter = { it.plannedActivities.any { it.type == activityType } }
+                    filter = { true }
                     assignmentStrategy = UseClosestLocation(workLocations)
                 }
                 /* We can also assign a fixed location for stuff that is not even included in the activity plan, like
@@ -210,7 +215,7 @@ class PopulationSynthesisKtTest {
                     val locations: List<StandardLocation> = listOf(bielefeld, itzehoe, schweinfurt)
                     assignmentStrategy = SimpleGroupLocator { persons ->
 
-                        persons.zip(locations) { p, l -> AssignedLocation(p, l) }
+                        persons.zip(locations) { p, l ->  l}
                     }
                 }
             }
@@ -228,7 +233,7 @@ class PopulationSynthesisKtTest {
             assertTrue(hh1.cars.isEmpty())
             assertTrue(hh2.cars.isEmpty())
             assertTrue(hh3.cars.isEmpty())
-            generateCars(strategy = TrivialCarGeneration)
+            assignCars(generationStrategy = TrivialCarGeneration(), assignStrategy = BySeniority())
             assertEquals(hh1.cars.size, hh1.amountOfCars)
             assertEquals(hh2.cars.size, hh2.amountOfCars)
             assertEquals(hh3.cars.size, hh3.amountOfCars)

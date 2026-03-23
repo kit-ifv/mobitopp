@@ -6,7 +6,8 @@ import domain.shared.enums.ActivityType
 import domain.shared.location.LocationKDTree
 import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.person.HasCommuteDistance
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.SurveyPerson
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
@@ -45,21 +46,21 @@ val standardBandwidthModel = RuleBasedStructure<
  * As second step a discrete choice model is used to determine the utility of each location individually. The input
  * for the discrete choice model can be found in [LocationAlternative]
  */
-class BandwidthLocator(
+class BandwidthLocator<T>(
     private val potentialLocations: List<StandardLocation>,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
     var parameters: BandwidthParameters = BandwidthParameters(), // TODO why variable?
     var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> =
         standardBandwidthModel.build(parameters),
-) : SimpleLocator<HasCommuteDistance> {
+) : SimpleLocator<T> where T: HasCommuteDistance, T: MinimumPersonAttributes{
     private val locationTree = LocationKDTree(potentialLocations)
 
     @Suppress("MagicNumber")
     private val random = Random(42L) // TODO what is random source of opportunities?
 
     override fun locate(
-        agent: SynthesisPerson<out HasCommuteDistance>,
+        agent: SurveyPerson<T>,
     ): StandardLocation {
         var validTargets =
             validTargetsForAgent(agent)
@@ -77,13 +78,14 @@ class BandwidthLocator(
      * Determine which locations are within the band radius of an agents home location, using the [parameters] pole
      * radius.
      */
-    fun validTargetsForAgent(agent: SynthesisPerson<out HasCommuteDistance>): Set<WithMetric<StandardLocation, Distance>> {
+
+    fun validTargetsForAgent(agent: SurveyPerson<T>): Set<WithMetric<StandardLocation, Distance>> {
         val poleRadius = parameters.poleRadius
         return locationTree.sequenceFor(
             agent.homeLocation,
         )
-            .dropWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork - poleRadius }
-            .takeWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork + poleRadius }
+            .dropWhile { it.item.distance(agent.homeLocation) <= agent.attributes.distanceWork - poleRadius }
+            .takeWhile { it.item.distance(agent.homeLocation) <= agent.attributes.distanceWork + poleRadius }
             .toSet()
     }
 

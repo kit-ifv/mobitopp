@@ -1,11 +1,11 @@
 package domain.synthesis.attributes.household
 
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import domain.synthesis.data.HouseholdType
 import edu.kit.ifv.units.Currency
 
-interface MinimumHouseholdAttributes: HasIncome, HasHouseholdType, HasLocation {
+interface MinimumHouseholdAttributes: HasIncome, HasHouseholdType, HasMutableLocation {
     override val income: Currency
     override val type: HouseholdType
-    override val location: Location
+    override var location: StandardLocation
 }

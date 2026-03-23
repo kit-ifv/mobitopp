@@ -3,17 +3,17 @@ package domain.synthesis.behavior.fixedDestinations
 import domain.shared.location.DistanceMetric
 import domain.shared.location.LocationKDTree
 import domain.shared.location.StandardLocation
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.SurveyPerson
 
 /**
  * This is a preallocated locator strategy which returns the location with the smallest distance to agent, based on the
  * distance of coordinates.
  */
-class UseClosestLocation(potentialLocations: List<StandardLocation>) : SimpleLocator<Any> {
+class UseClosestLocation(potentialLocations: List<StandardLocation>) : SimpleLocator<MinimumPersonAttributes> {
     private val locationTree = LocationKDTree(potentialLocations)
-
     override fun locate(
-        agent: SynthesisPerson<out Any>,
+        agent: SurveyPerson<*>,
     ): StandardLocation {
         return locationTree.nearestNeighbor(agent.homeLocation)
     }
@@ -26,8 +26,8 @@ class UseClosestLocation(potentialLocations: List<StandardLocation>) : SimpleLoc
 class MetricBasedClosestLocation(
     private val metric: DistanceMetric,
     private val locations: Collection<StandardLocation>
-) : SimpleLocator<Any> {
-    override fun locate(agent: SynthesisPerson<out Any>): StandardLocation {
+) : SimpleLocator<MinimumPersonAttributes> {
+    override fun locate(agent: SurveyPerson<*>): StandardLocation {
         return locations.minBy { metric.evaluate(agent.homeLocation, it) }
     }
 }

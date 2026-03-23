@@ -10,7 +10,6 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.ControllableAttractiveness
-import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.BandwidthParameters
 import domain.synthesis.behavior.fixedDestinations.LocationAlternative
@@ -18,7 +17,6 @@ import domain.synthesis.behavior.fixedDestinations.standardBandwidthModel
 import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction
-import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.kilometers
 import org.junit.jupiter.api.Test
 import kotlin.math.E
@@ -55,17 +53,22 @@ class BandwidthLocatorTest : SynthesisTest() {
         val loc5 = testZone.spawnUTM(0, 5000)
         val loc6 = testZone.spawnUTM(0, 6000)
         val loc7 = testZone.spawnUTM(0, 7000)
-        val hh = home.createHousehold<HasCommuteDistance> {
-            person(10, Sex.MALE) {
-                object : HasCommuteDistance {
-                    override val distanceWork: Distance = 3.kilometers
-                }
+        val hh = home.createHousehold<Attrs> {
+            person {
+                Attrs(
+                    10,
+                    Sex.MALE,
+                    3.kilometers,
+                )
+
             }
 
-            person(10, Sex.MALE) {
-                object : HasCommuteDistance {
-                    override val distanceWork: Distance = 42.kilometers
-                }
+            person {
+                Attrs(
+                    10,
+                    Sex.MALE,
+                    42.kilometers,
+                )
             }
         }
         val person = hh[0]
@@ -80,7 +83,7 @@ class BandwidthLocatorTest : SynthesisTest() {
         val model = standardBandwidthModel.build(parameters).copy(
             selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key }
         )
-        val locator = BandwidthLocator(
+        val locator = BandwidthLocator<Attrs>(
             listOf(loc1, loc2, loc3, loc4, loc5, loc6, loc7),
             attractivenessModel,
             myActivityType,

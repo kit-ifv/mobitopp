@@ -1,8 +1,10 @@
 package domain.synthesis.behavior.discreteChoice
 
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
+import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
@@ -250,45 +252,63 @@ data class EngineSpecificParameters(
     val regionStadt: Double,
     val regionKleinstadt: Double,
     val regionStadtraum: Double,
-    val regionLandraum: Double
+    val regionLandraum: Double,
 
-)
-
-data class EngineChoiceSituation(
-    val person: MaximumPersonAttributes,
-    val household: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>
-) {
-    fun with(choice: EngineType) = choice.toAlternative(person, household)
-}
+    )
 
 class EngineAlternative(
-    person: MaximumPersonAttributes,
-    household: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>
-){
-    val workDistance: Distance = person.distanceWork // Distance to pole zone
-    val educationDistance: Distance = person.distanceEducation
-    val sex: Sex = person.sex
-    val employment: Employment = person.employment
-    val age: Int = person.age
-    val householdNumberOfCars: Int = household.amountOfCars
-    val householdSize: Int = household.size
-    val regionType = household.location.sizebasedRegiostarClassification
+    val workDistance: Distance,
+    val educationDistance: Distance,
+    val sex: Sex,
+    val employment: Employment,
+    val age: Int,
+    val householdNumberOfCars: Int,
+    val householdSize: Int,
+    val regionType: SizebasedRegiostarClassification,
+    val isWorking: Boolean,
+    val isParttime: Boolean,
+    val isHomekeeper: Boolean,
+    val isStudentTertiary: Boolean,
+    val isStudentSecondary: Boolean,
+    val isEducationEmployment: Boolean,
+    val isUnemployed: Boolean,
+    val isRetired: Boolean,
 
-    val isWorking = employment == Employment.FULLTIME
-    val isParttime = employment == Employment.PARTTIME
-    val isHomekeeper = employment == Employment.HOMEKEEPER
-    val isStudentTertiary = employment == Employment.STUDENT_TERTIARY
-    val isStudentSecondary = employment == Employment.STUDENT_SECONDARY
-    val isEducationEmployment = employment == Employment.EDUCATION
-    val isUnemployed = employment == Employment.UNEMPLOYED
-    val isRetired = employment == Employment.RETIRED
+    ) {
+
+    companion object {
+        fun <X> fromHousehold(
+            person: MaximumPersonAttributes,
+            household: MinimalistHousehold<X, MaximumPersonAttributes>,
+        ): EngineAlternative where X : MinimumHouseholdAttributes, X : HasNumberOfCars {
+            val employment: Employment = person.employment
+            return EngineAlternative(
+                workDistance = person.distanceWork,
+                educationDistance = person.distanceEducation,
+                sex = person.sex,
+                employment = employment,
+                age = person.age,
+                householdNumberOfCars = household.attributes.amountOfCars,
+                householdSize = household.size,
+                regionType = household.attributes.location.sizebasedRegiostarClassification,
+                isWorking = employment == Employment.FULLTIME,
+                isParttime = employment == Employment.PARTTIME,
+                isHomekeeper = employment == Employment.HOMEKEEPER,
+                isStudentTertiary = employment == Employment.STUDENT_TERTIARY,
+                isStudentSecondary = employment == Employment.STUDENT_SECONDARY,
+                isEducationEmployment = employment == Employment.EDUCATION,
+                isUnemployed = employment == Employment.UNEMPLOYED,
+                isRetired = employment == Employment.RETIRED,
+            )
+        }
+    }
 }
 
-fun EngineType.toAlternative(
+fun <X> EngineType.toAlternative(
     person: MaximumPersonAttributes,
-    household: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>
-): EngineAlternative {
-    return EngineAlternative(person, household)
+    household: SynthesisHousehold<X, MaximumPersonAttributes>,
+): EngineAlternative where X : MinimumHouseholdAttributes, X : HasNumberOfCars {
+    return EngineAlternative.fromHousehold(person, household)
 }
 
 val carEngineChoiceModel = DiscreteStructure<EngineType, EngineAlternative, EngineParameters> {
@@ -306,40 +326,40 @@ val carEngineChoiceModel = DiscreteStructure<EngineType, EngineAlternative, Engi
 @Suppress("MagicNumber")
 private val defaultUtilityFunction: EngineSpecificParameters.(EngineAlternative) -> Double = {
     constant +
-        it.workDistance.toDouble(DistanceUnit.KILOMETERS) * workDistance +
-        it.educationDistance.toDouble(DistanceUnit.KILOMETERS) * educationDistance +
+            it.workDistance.toDouble(DistanceUnit.KILOMETERS) * workDistance +
+            it.educationDistance.toDouble(DistanceUnit.KILOMETERS) * educationDistance +
 
-        it.sex.isMale() * isMale +
+            it.sex.isMale() * isMale +
 
-        it.isWorking * fullTime +
-        it.isParttime * partTime +
-        it.isHomekeeper * homekeeper +
-        it.isStudentTertiary * studentTertiary +
-        it.isStudentSecondary * studentSecondary +
-        it.isEducationEmployment * educationEmployment +
-        it.isUnemployed * unemployed +
-        it.isRetired * retired +
+            it.isWorking * fullTime +
+            it.isParttime * partTime +
+            it.isHomekeeper * homekeeper +
+            it.isStudentTertiary * studentTertiary +
+            it.isStudentSecondary * studentSecondary +
+            it.isEducationEmployment * educationEmployment +
+            it.isUnemployed * unemployed +
+            it.isRetired * retired +
 
-        (it.age in 18..<25) * age18to25 +
-        (it.age in 25..<35) * age25to35 +
-        (it.age in 35..<45) * age35to45 +
-        (it.age in 45..<55) * age45to55 +
-        (it.age in 55..<65) * age55to65 +
-        (it.age in 65..<75) * age65to75 +
-        (it.age in 75..<85) * age75to85 +
+            (it.age in 18..<25) * age18to25 +
+            (it.age in 25..<35) * age25to35 +
+            (it.age in 35..<45) * age35to45 +
+            (it.age in 45..<55) * age45to55 +
+            (it.age in 55..<65) * age55to65 +
+            (it.age in 65..<75) * age65to75 +
+            (it.age in 75..<85) * age75to85 +
 
-        (it.householdNumberOfCars == 1) * numPKW1 +
-        (it.householdNumberOfCars == 2) * numPKW2 +
-        (it.householdNumberOfCars == 3) * numPKW3 +
-        (it.householdNumberOfCars == 4) * numPKW4 +
+            (it.householdNumberOfCars == 1) * numPKW1 +
+            (it.householdNumberOfCars == 2) * numPKW2 +
+            (it.householdNumberOfCars == 3) * numPKW3 +
+            (it.householdNumberOfCars == 4) * numPKW4 +
 
-        (it.householdSize == 1) * householdSize1 +
-        (it.householdSize == 2) * householdSize2 +
-        (it.householdSize == 3) * householdSize3 +
-        (it.householdSize == 4) * householdSize4 +
+            (it.householdSize == 1) * householdSize1 +
+            (it.householdSize == 2) * householdSize2 +
+            (it.householdSize == 3) * householdSize3 +
+            (it.householdSize == 4) * householdSize4 +
 
-        (it.regionType == SizebasedRegiostarClassification.CITY) * regionStadt +
-        (it.regionType == SizebasedRegiostarClassification.SMALL_TOWN) * regionKleinstadt +
-        (it.regionType == SizebasedRegiostarClassification.URBAN_AREA) * regionStadtraum +
-        (it.regionType == SizebasedRegiostarClassification.RURAL_AREA) * regionLandraum
+            (it.regionType == SizebasedRegiostarClassification.CITY) * regionStadt +
+            (it.regionType == SizebasedRegiostarClassification.SMALL_TOWN) * regionKleinstadt +
+            (it.regionType == SizebasedRegiostarClassification.URBAN_AREA) * regionStadtraum +
+            (it.regionType == SizebasedRegiostarClassification.RURAL_AREA) * regionLandraum
 }

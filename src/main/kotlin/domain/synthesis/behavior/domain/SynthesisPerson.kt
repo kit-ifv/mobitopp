@@ -2,29 +2,30 @@ package domain.synthesis.behavior.domain
 
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
-import domain.synthesis.behavior.LocatedHousehold
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.activityGeneration.PreliminaryActivitySchedule
 import domain.synthesis.data.Sex
 
-// TODO I don't think that age and sex are mandatory attributes, and should be in the info block. Debate with Jelle?
-class SynthesisPerson<out T>(
-    var homeLocation: StandardLocation,
+/**
+ * The mutable object that holds the infos of the person.
+ */
+class SynthesisPerson<S: MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
+    private val household: SynthesisHousehold<S, T>,
     override val age: Int,
     override val sex: Sex,
-    override val information: T,
+    override val attributes: T,
     override val personId: Int = GLOBAL_PERSON_ID_GENERATOR,
 ) : SurveyPerson<T> {
+    override val homeLocation: StandardLocation
+        get() = household.attributes.location
 
-    constructor(household: LocatedHousehold<*, T>, age: Int, sex: Sex, info: T) : this(
-       household.location,
-        age,
-        sex,
-        info,
-        GLOBAL_PERSON_ID_GENERATOR
-    )
+    val householdID get() = household.id
 
-    constructor(household: SynthesisHousehold<*, T>, info: T) : this(household, 0, Sex.MALE, info)
+    val hasAccessToCar get() = household.amountOfCars > 0
+
+
 
 //    val homeLocation get() =
     var hasTransitPass = false
@@ -46,12 +47,3 @@ class SynthesisPerson<out T>(
     }
 }
 
-data class SynthesisPersonInfo<T>(
-    var age: Int = 0,
-    var sex: Sex = Sex.UNKNOWN,
-    var personId: Int = -1,
-    var information: T? = null
-
-) {
-    constructor(person: SynthesisPerson<T>): this(person.age, person.sex, person.personId, person.information)
-}

@@ -1,5 +1,6 @@
 package domain.synthesis.behavior
 
+import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasLicence
 import domain.synthesis.attributes.person.MaximumPersonAttributes
@@ -24,102 +25,160 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.random.Random
 
-fun interface GenerateCars<T> {
-    fun generate(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, T>): List<SynthesisCar>
+fun interface GenerateCars<in S, in T> {
+    fun generate(householdBuilder: MinimalistHousehold<S, T>): List<Car>
+}
+fun interface AssignMainUser<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
+    fun assign(household: SynthesisHousehold<S, T>, cars: List<Car>): List<SynthesisCar>
 }
 
-class SynthesisCar(
-    override val segment: CarSegment,
-    engineType: EngineType,
-    override val seats: Int,
-    val mainUser: SynthesisPerson<*>? = null
-) : Car {
+class BySeniority<S: MinimumHouseholdAttributes, T: MinimumPersonAttributes>: AssignMainUser<S, T> {
+    override fun assign(
+        household: SynthesisHousehold<S, T>,
+        cars: List<Car>,
+    ): List<SynthesisCar> {
+        val members = household.sortedByDescending { it.age }
+        val output = members.zip(cars) { member, car ->
+            SynthesisCar(car, member)
 
-    override val engine: CarEngine = CarEngineStatistics().buildEngine(segment, engineType)
-    override val id: CarId = CarId(nextId)
+        }
+        return output
+
+    }
+}
+
+data class CarImpl(
+    override val engine: CarEngine,
+    override val segment: CarSegment,
+    override val seats: Int = segment.toSeats(),
+
+): Car {
+
+    override val id: CarId = nextId
+
+
 
     companion object {
+        @Suppress("MagicNumber") // Seat size is a number
+        private fun CarSegment.toSeats(): Int {
+            return when (this) {
+                CarSegment.SMALL -> 4
+                CarSegment.MIDSIZE -> 5
+                CarSegment.LARGE -> 5
+            }
+        }
+
+        fun fromEngineType(
+            engineType: EngineType,
+            segment: CarSegment,
+            seats: Int? = null,
+        ): Car {
+            val actualSeats = seats ?: segment.toSeats()
+            return CarImpl(
+                engine = CarEngineStatistics().buildEngine(segment, engineType),
+                segment = segment,
+                seats = actualSeats,
+            )
+        }
         @OptIn(ExperimentalAtomicApi::class)
         private var idCounter: AtomicLong = AtomicLong(0L)
 
         @OptIn(ExperimentalAtomicApi::class)
-        private val nextId: Long get() = idCounter.incrementAndFetch()
+        private val nextId: CarId get() = CarId(idCounter.incrementAndFetch())
     }
 }
 
-object TrivialCarGeneration : GenerateCars<Any> {
-    override fun generate(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes,Any>): List<SynthesisCar> {
+class SynthesisCar constructor(
+    private val car: Car,
+    val mainUser: SynthesisPerson<*, *>? = null
+) : Car by car
+
+
+
+
+/**
+ * Each household gets the same amount of cars, and the cars are all the same model
+ */
+class TrivialCarGeneration(private val targetAmountOfCars : Int = 2) : GenerateCars<Any?, Any?> {
+    override fun generate(householdBuilder: MinimalistHousehold<Any?, Any?>): List<Car> {
         return buildCars(householdBuilder)
     }
 
     @Suppress("MagicNumber") // 4 seats is not magic, but default
-    private fun buildCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes,  Any>) =
-        (0..<householdBuilder.amountOfCars).map {
-            SynthesisCar(
-                CarSegment.SMALL,
-                EngineType.COMBUSTION,
-                4
+    private fun buildCars(householdBuilder: MinimalistHousehold<Any?, Any?>) =
+        (0..<targetAmountOfCars).map {
+            CarImpl.fromEngineType(
+                engineType = EngineType.COMBUSTION,
+                segment = CarSegment.SMALL,
+                seats = 4,
             )
         }
 
-    fun <T : MinimumPersonAttributes> generateCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, T>): List<SynthesisCar> {
+    fun <T : MinimumPersonAttributes> generateCars(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, T>): List<Car> {
         return buildCars(householdBuilder)
     }
 }
+
+object InfoBasedCarGeneration: GenerateCars<HasNumberOfCars, Any?> {
+    override fun generate(householdBuilder: MinimalistHousehold<HasNumberOfCars, *>): List<Car> {
+        return (0..<householdBuilder.attributes.amountOfCars).map {
+            CarImpl.fromEngineType(
+                engineType = EngineType.COMBUSTION,
+                segment = CarSegment.SMALL,
+                seats = 4
+            )
+        }
+    }
+}
+
 
 /**
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
 
-object SamplingCarGeneration : GenerateCars<MaximumPersonAttributes> {
+class SamplingCarGeneration<S> : GenerateCars<S, MaximumPersonAttributes> where S: MinimumHouseholdAttributes, S: HasNumberOfCars {
     private val segmentModel = carSegmentChoiceModel.build(CarSegmentParameters())
 
     // TODO make parameters customizable!
     private val engineModel = carEngineChoiceModel.build(EngineParameters())
 
-    override fun generate(householdBuilder: SynthesisHousehold<MinimumHouseholdAttributes, MaximumPersonAttributes>): List<SynthesisCar> {
+    override fun generate(householdBuilder: MinimalistHousehold<S, MaximumPersonAttributes>): List<Car> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
         val potentialCarUsers = householdBuilder.run {
             if (numberOfDrivingLicences == 0) adults else licenceHolders
         }
-        val generationTargets = potentialCarUsers.selectExact(householdBuilder.amountOfCars)
+        val generationTargets = potentialCarUsers.selectExact(householdBuilder.attributes.amountOfCars)
         return generationTargets.map { person ->
 
-            val random = Random(person.personId)
-            val segment = context(CarSegmentChoice(person, householdBuilder), random) {
+            val random = Random(person.attributes.personNumber)
+            val segment = context(CarSegmentChoice.create(person, householdBuilder), random) {
                 segmentModel.select()
             }
-            val engineType = context(EngineAlternative(person.information, householdBuilder), random) {
+            val engineType = context(EngineAlternative.fromHousehold(person.attributes, householdBuilder), random) {
                 engineModel.select()
             }
-
-            SynthesisCar(segment, engineType, segment.toSeats(), person)
-            // TODO there already is a model to determine main user, does selectExact match that definition?
+            CarImpl.fromEngineType(
+                engineType = engineType,
+                segment = segment,
+            )
         }
     }
 
-    @Suppress("MagicNumber") // Seat size is a number
-    private fun CarSegment.toSeats(): Int {
-        return when (this) {
-            CarSegment.SMALL -> 4
-            CarSegment.MIDSIZE -> 5
-            CarSegment.LARGE -> 5
-        }
-    }
+
 }
 
-val  <T: HasLicence> SynthesisHousehold<*, T>.licenceHolders
-    get(): List<SynthesisPerson<T>> {
+val  <T: HasLicence> MinimalistHousehold<*, T>.licenceHolders
+    get(): List<MinimalistPerson<T>> {
         return members.filter { it.hasLicence }
     }
 
 @Suppress("MagicNumber")
-val <T > SynthesisHousehold<*,T>.adults
-    get(): List<SynthesisPerson<T>> {
-        return members.filter { it.age >= 18 }
+val <T: MinimumPersonAttributes > MinimalistHousehold<*,T>.adults
+    get(): List<MinimalistPerson<T>> {
+        return members.filter { it.attributes.age >= 18 }
     }
 
-val <T: HasLicence> SynthesisHousehold<*,T>.numberOfDrivingLicences
+val <T: HasLicence> MinimalistHousehold<*,T>.numberOfDrivingLicences
     get(): Int {
         return members.count { it.hasLicence }
     }

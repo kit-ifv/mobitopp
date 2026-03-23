@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 class OECDAssignerTest {
     @Test
     fun properTableReadin() {
-        val assigner = OECDAssigner.fromPath<MinimumPersonAttributes>(
+        val assigner = OECDAssigner.fromPath(
             Path("src/main/resources/economical-status-oecd2017.csv")
         )
         val testCandidate = SynthesisHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>(
@@ -24,7 +24,6 @@ class OECDAssignerTest {
                 type = HouseholdType.UNDEFINED,
             ),
             surveyHouseholdId = -1,
-            members = emptyList(),
         )
         testCandidate.economicStatus = assigner.determineStatus(testCandidate)
         assertEquals(testCandidate.economicStatus, EconomicStatus.VERY_LOW)

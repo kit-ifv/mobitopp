@@ -1,39 +1,41 @@
 package domain.synthesis.behavior.domain
 
-import domain.shared.location.StandardLocation
+import domain.shared.location.LOCATIONUNKNOWN
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.LocatedHousehold
+import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.data.EconomicStatus
-import domain.synthesis.data.HouseholdType
-import edu.kit.ifv.units.Currency
-import edu.kit.ifv.units.euros
+import org.jetbrains.annotations.TestOnly
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * A Synthesis household consists of multiple synthesis persons. The fields are variable to be modified within the
  * usage of the household
  */
-class SynthesisHousehold<out S: MinimumHouseholdAttributes, out T> constructor(
+class SynthesisHousehold<S: MinimumHouseholdAttributes, T : MinimumPersonAttributes> constructor(
     override val surveyHouseholdId: Long = 0,
     override val attributes: S,
-    override val members: List<SynthesisPerson<T>>,
-) : LocatedHousehold<S, T>, List<SynthesisPerson<T>> by members {
+    override val members: MutableList<SynthesisPerson<S, T>> = mutableListOf(),
+) : ISurveyHousehold<S, T>, List<SynthesisPerson<S, T>> by members {
     val id = getNextId()
 
     // Whatever the type T is of my household class, the members must be at least that type or better
 
-    override lateinit var location: StandardLocation
-
-    fun locationIsAssigned() = ::location.isInitialized
     lateinit var economicStatus: EconomicStatus
     fun economicStatusIsAssigned() = ::economicStatus.isInitialized
     var amountOfCars = 0
     val cars: MutableList<SynthesisCar> = mutableListOf()
 
 //    operator fun get(index: Int): SynthesisPerson<T> = members[index]
+    @TestOnly
+    fun locationIsAssigned() = attributes.location != LOCATIONUNKNOWN
+    fun addMember(member: SurveyPerson<T>) {
+        members.add(SynthesisPerson(this, age = member.age, sex = member.sex, attributes = member.attributes))
+    }
 
+    fun addMembers(members: Collection<SurveyPerson<T>>) = members.forEach { addMember(it) }
 
     companion object {
         private val counter = AtomicInteger(0)
@@ -42,44 +44,8 @@ class SynthesisHousehold<out S: MinimumHouseholdAttributes, out T> constructor(
             return counter.getAndIncrement()
         }
     }
+
+    override val size: Int
+        get() = members.size
 }
 
-class ConstructionHH<S : MinimumHouseholdAttributes, T>() : ISurveyHousehold<S, T> {
-    override var surveyHouseholdId: Long = 0
-    override var income: Currency = 0.euros
-    override var type: HouseholdType = HouseholdType.UNDEFINED
-    override val members: MutableList<SynthesisPerson<T>> = mutableListOf()
-
-    override lateinit var attributes: S
-    var location: StandardLocation? = null
-
-    fun addPerson(start: SynthesisPerson<T>, lambda: SynthesisPersonInfo<out T>.() -> Unit = {}) {
-        val infoBlock = SynthesisPersonInfo<T>(start).apply(lambda)
-        members.add(
-            SynthesisPerson(
-                location!!,
-                infoBlock.age,
-                infoBlock.sex,
-                infoBlock.information!!,
-                infoBlock.personId
-            )
-        )
-
-    }
-
-
-    companion object {
-        fun <S : MinimumHouseholdAttributes, T> fromSynthesisHousehold(hh: SynthesisHousehold<S, T>): ConstructionHH<S, T> {
-            return ConstructionHH<S, T>().apply {
-                surveyHouseholdId = hh.surveyHouseholdId
-                income = hh.income
-                type = hh.type
-                location = hh.location
-                attributes = hh.attributes
-                hh.members.forEach { member ->
-                    addPerson(member)
-                }
-            }
-        }
-    }
-}

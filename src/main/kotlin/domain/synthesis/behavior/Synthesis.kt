@@ -1,5 +1,6 @@
 package domain.synthesis.behavior
 
+import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.data.Employment
 import domain.synthesis.data.HouseholdType
@@ -65,53 +66,29 @@ data class RawSurveyInfo(
     val type: HouseholdType = HouseholdType.decodeOrNull(typeCode) ?: HouseholdType.UNDEFINED
 }
 
-/**
- * @param converter provide a converter to determine the household income, as the reported incomes can be inaccurate.
- */
-//fun <T> Collection<T>.toSurveyHouseholds(
-//    converter: (List<Currency>) -> Currency = {
-//        it.first()
-//    }
-//): List<SurveyHousehold<MinimumHouseholdAttributes, T>> where T : MinimumPersonAttributes, T : SurveyInfo, T : HasHouseholdType {
-//    return groupBy { it.householdId }
-//        .map { line ->
-//            val income = converter(line.value.map { it.householdIncome })
-//            SurveyHousehold(
-//                surveyHouseholdId = line.value.first().householdId,
-//                members = line.value.map { person ->
-//                    DefaultSurveyPerson.create(
-//                        person
-//                    )
-//                },
-//                attributes = MinimumHouseholdAttributesImpl(
-//                    income = income,
-//                    type = line.value.first().type,
-//                )
-//
-//            )
-//        }
-//}
-//
-
-
 
 
 
 
 interface MinimalistPerson<out T> {
-    val information: T
+    val attributes: T
 }
 
 
 interface SurveyPerson<out T> : MinimalistPerson<T> where T: MinimumPersonAttributes {
     val personId: Int
-    override val information: T
-    val age: Int get() = information.age
-    val sex: Sex get() = information.sex
+    override val attributes: T
+    val age: Int get() = attributes.age
+    val sex: Sex get() = attributes.sex
+
+    val homeLocation: StandardLocation
 }
 
 data class SmallestSurveyPerson<T : MinimumPersonAttributes> constructor(
     override val personId: Int,
-    override val information: T,
-) : SurveyPerson<T>
+    override val attributes: T,
+) : SurveyPerson<T> {
+    override val homeLocation: StandardLocation
+        get() = TODO("Not yet implemented")
+}
 

@@ -2,41 +2,36 @@ package domain.synthesis.householdgeneration
 
 import TestZone
 import domain.shared.location.HasZone
+import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.toPoint
-import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.HasCommuteDistance
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.householdgeneration.CheckRule
-import domain.synthesis.behavior.householdgeneration.CountRule
-import domain.synthesis.behavior.householdgeneration.Rule
-import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
-import domain.synthesis.behavior.householdgeneration.ZoneRule
+import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.kilometers
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 import kotlin.test.Test
-import kotlin.test.assertContentEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class ToolTest : SynthesisTest() {
     val zone1 = TestZone(id = ZoneId(1))
     private val zones = listOf(zone1)
-
-    private fun <T> createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<ISurveyHousehold<out T>>>> {
-        return zones.createRules(lambda)
-    }
 
     @Test
     fun checkHouseholdCreation() {
@@ -44,10 +39,18 @@ class ToolTest : SynthesisTest() {
         val firstSex = Sex.MALE
         val secondAge = 42
         val secondSex = Sex.FEMALE
-        val household = createHousehold<Any> {
-            person(firstAge, firstSex) {
+        val household = createHousehold<MinimumPersonAttributes> {
+            person {
+                Attrs(
+                    firstAge,
+                    firstSex,
+                )
             }
-            person(secondAge, secondSex) {
+            person {
+                Attrs(
+                    secondAge,
+                    secondSex,
+                )
             }
         }
         assertEquals(household.size, 2)
@@ -60,45 +63,11 @@ class ToolTest : SynthesisTest() {
         assertEquals(secondPerson.sex, secondSex)
     }
 
-    @Test
-    fun checkCreation() {
-        val ruleDescription = "Test Description"
-        val ruleTarget = 42
-        val ruleSet = createRules<Any> {
-            zone(1) {
-                rule {
-                    description = ruleDescription
-                    desiredAmount = ruleTarget
-                    condition = CheckRule { it.size == 1 }
-                }
-            }
-        }
-        assertContentEquals(listOf(zone1), ruleSet.keys)
-        assertNotNull(ruleSet[zone1])
-        assertEquals(ruleSet[zone1]!!.size, 1)
-        val rule = ruleSet[zone1]!!.first()
-        assertEquals(rule.description, ruleDescription)
-        assertEquals(rule.target, ruleTarget)
-
-        val fittingHousehold = createHousehold<Any> {
-            person(10, Sex.MALE) {
-            }
-        }
-        val mismatchingHousehold = createHousehold<Any> {
-            person(10, Sex.MALE) {
-            }
-
-            person(10, Sex.MALE) {
-            }
-        }
-        assertTrue(rule.appliesTo(fittingHousehold))
-        assertFalse(rule.appliesTo(mismatchingHousehold))
-    }
 }
 
 open class SynthesisTest {
 
-    protected fun <T> createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SurveyHousehold<T> {
+    protected fun <T : MinimumPersonAttributes> createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SurveyHousehold<MinimumHouseholdAttributes, T> {
         val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
         return builder.createHousehold()
@@ -107,75 +76,13 @@ open class SynthesisTest {
     /**
      * Spawn in a synthesis household, if you happen to have a location at hand where the household should be.
      */
-    protected fun <T> StandardLocation.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<T> {
-        val builder = HouseholdBuilder<T>()
+    protected fun <T : MinimumPersonAttributes> StandardLocation.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<MinimumHouseholdAttributes, T> {
+        val builder = HouseholdBuilder< T>()
         builder.apply(lambda)
         val createHousehold = builder.createHousehold()
-        val synthesisHousehold = createHousehold.toSynthesisHousehold()
-        synthesisHousehold.location = this
+        val synthesisHousehold = HouseholdFactory.createFrom(createHousehold)
+        synthesisHousehold.attributes.location = this
         return synthesisHousehold
-    }
-
-    protected fun <T> Collection<Zone>.createRules(
-        lambda: ZoneBuilder<T>.() -> Unit,
-    ): Map<Zone, List<Rule<ISurveyHousehold<out T>>>> {
-        val builder = ZoneBuilder<T>(this)
-        builder.apply(lambda)
-        val idMap = builder.createRules()
-
-        return associateWith { idMap[it.id] ?: emptyList() }
-    }
-
-    protected inner class ZoneBuilder<T>(zones: Collection<Zone>) {
-
-        private val associatedRules: MutableMap<ZoneId, List<Rule<ISurveyHousehold<out T>>>> =
-            zones.associate { it.id to listOf<Rule<ISurveyHousehold<out T>>>() }.toMutableMap()
-
-        inner class RulesForZoneBuilder {
-            private val rules: MutableList<Rule<ISurveyHousehold<out T>>> = mutableListOf()
-
-            inner class ZoneRuleBuilder {
-                lateinit var description: String
-                var desiredAmount: Int = 0
-                lateinit var condition: CountRule<ISurveyHousehold<out T>>
-                fun toRule(): ZoneRule<ISurveyHousehold<out T>> {
-                    return ZoneRule(description, desiredAmount, condition)
-                }
-            }
-
-            fun numericRule(lambda: ZoneRuleBuilder.() -> Unit) {
-                val builder = ZoneRuleBuilder()
-                builder.apply(lambda)
-                rules.add(builder.toRule())
-            }
-
-            fun createRules(): List<Rule<ISurveyHousehold<out T>>> {
-                return rules
-            }
-
-            inner class ZoneCheckRuleBuilder {
-                lateinit var description: String
-                var desiredAmount: Int = 0
-                lateinit var condition: CheckRule<ISurveyHousehold<out T>>
-                fun toRule(): ZoneCheckRule<ISurveyHousehold<out T>> {
-                    return ZoneCheckRule(description, desiredAmount, condition)
-                }
-            }
-
-            fun rule(lambda: ZoneCheckRuleBuilder.() -> Unit) {
-                val builder = ZoneCheckRuleBuilder()
-                builder.apply(lambda)
-                rules.add(builder.toRule())
-            }
-        }
-
-        fun zone(id: Int, lambda: RulesForZoneBuilder.() -> Unit) {
-            val builder = RulesForZoneBuilder()
-            builder.apply(lambda)
-            associatedRules[ZoneId(id.toLong())] = builder.createRules()
-        }
-
-        fun createRules(): Map<ZoneId, List<Rule<ISurveyHousehold<out T>>>> = associatedRules
     }
 
     protected fun fakeLocation() = FakeCoord()
@@ -207,37 +114,46 @@ open class SynthesisTest {
                 private set
         }
     }
+    private data class HAttrs(
+        override val income: Currency = 1.euros,
+        override val type: HouseholdType = HouseholdType.UNDEFINED,
+        override var location: StandardLocation = LOCATIONUNKNOWN
+    ): MinimumHouseholdAttributes
 
-    protected class HouseholdBuilder<T> {
+    protected data class Attrs(
+        override val age: Int,
+        override val sex: Sex,
+        override val distanceWork: Distance = (-999).kilometers
+
+    ): MinimumPersonAttributes, HasCommuteDistance
+    protected class HouseholdBuilder<T : MinimumPersonAttributes> {
         var id: Long = 0
         var income = 0.euros
-        val members: MutableList<SurveyPerson<out T>> = mutableListOf()
+        val members: MutableList<SurveyPerson<T>> = mutableListOf()
+
+        var attributeSpawner : () -> MinimumHouseholdAttributes = {
+            HAttrs()
+        }
 
         inner class PersonBuilder {
             var sex: Sex = Sex.MALE
             var age: Int = 0
             lateinit var information: () -> T
             fun toPerson(): SurveyPerson<T> {
-                return SmallestSurveyPerson(-1, age = age, sex = sex, information = information())
+                return SmallestSurveyPerson(-1, attributes = information())
             }
         }
 
-        fun person(age: Int = 42, sex: Sex = Sex.UNKNOWN, lambda: () -> T): SmallestSurveyPerson<T> {
+        fun person(lambda: () -> T): SmallestSurveyPerson<T> {
             val smallestSurveyPerson =
-                SmallestSurveyPerson(personId = members.size + 1, age = age, sex = sex, information = lambda())
+                SmallestSurveyPerson(personId = members.size + 1, attributes = lambda())
             members.add(smallestSurveyPerson)
             return smallestSurveyPerson
         }
 
-        fun createHousehold(): SurveyHousehold<T> {
-            return SurveyHousehold(id, income, members)
+        fun createHousehold(): SurveyHousehold<MinimumHouseholdAttributes, T> {
+            return SurveyHousehold(id,  members, attributeSpawner())
         }
     }
 
-    protected class TrivialSurveyPerson(
-        override val personId: Int,
-        override val information: Any = Unit,
-        override val age: Int,
-        override val sex: Sex,
-    ) : SurveyPerson<Any>
 }

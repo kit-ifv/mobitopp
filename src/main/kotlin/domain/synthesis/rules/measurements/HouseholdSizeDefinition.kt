@@ -16,12 +16,12 @@ import edu.kit.ifv.populationsynthesis.rules.measurement.BooleanMeasurementDefin
  * debugging the output only to realize that the input definition is wrong can take hours (as proven by precedence)
  */
 class HouseholdSizeDefinition(val targetSize: Int, val equalityOp: EqualityOp) :
-    BooleanMeasurementDefinition<MinimalistHousehold<*>>() {
+    BooleanMeasurementDefinition<MinimalistHousehold<*, *>>() {
     override fun generateDescription(): String {
         return "Household $targetSize $equalityOp"
     }
 
-    override fun evaluation(element: MinimalistHousehold<*>): Boolean {
+    override fun evaluation(element: MinimalistHousehold<*, *>): Boolean {
         return equalityOp.test(element.members.size, targetSize)
     }
 

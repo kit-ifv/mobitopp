@@ -57,7 +57,7 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                         householdSize = data.householdSize,
                         year = data.year,
                         areaTypeCode = data.areaType,
-                        numCars = data.cars
+                        amountOfCars = data.cars
                     )
                 },
                 personDataExtractor = {
