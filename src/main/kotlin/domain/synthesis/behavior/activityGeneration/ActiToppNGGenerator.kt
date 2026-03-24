@@ -31,7 +31,7 @@ import java.lang.Double.min
 typealias ACTHousehold = Household
 typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
 
-class ActiToppNGGenerator<S, T>(
+class ActiToppNGGenerator<in S,in T>(
     val purposes: ChoiceModelPurposes,
     val converter: (RegionType) -> ZoneRegionType,
 
@@ -45,7 +45,7 @@ class ActiToppNGGenerator<S, T>(
               T : HasEmployment {
     val strategy = StandardHouseholdPlanGeneration() // TODO change to Parallel once implemented.
     override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
-        val (actHH, mapping) = convert(household)
+        val actHH = convert(household)
         val output = strategy.generateSchedules(actHH)
         return output.entries.map { (k, v) -> /*mapping[k]!! to*/  finish(v) }
     }
@@ -66,8 +66,7 @@ class ActiToppNGGenerator<S, T>(
     }
 
 
-    fun convert(household: ISurveyHousehold<S, T>):
-            Pair<ACTHousehold, Map<ActitoppPerson, SurveyPerson<T>>> {
+    fun convert(household: ISurveyHousehold<S, T>): ACTHousehold {
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
             numMinorsBelow18 = household.numberOfYouths,
@@ -77,7 +76,7 @@ class ActiToppNGGenerator<S, T>(
         val mapping = household.members.associateBy {
             ActitoppPerson(actHousehold, it.actitoppAttributes())
         }
-        return actHousehold to mapping
+        return actHousehold
     }
 
     fun SurveyPerson<T>.actitoppAttributes(maxCommute: Double = 150.0): PersonAttributes {

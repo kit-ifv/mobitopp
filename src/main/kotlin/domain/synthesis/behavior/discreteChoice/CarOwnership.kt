@@ -223,7 +223,7 @@ class CarOwnershipParameters(
      * set to [oneCar]. The benefit is that only the fields of [CarParameters] are visible. Meaning that the auto completion
      * only suggests valid parameters defined in the Car Parameters.
      *
-     * The object is created by translating the corresponding parameters from the main parameter object.
+     * The object is created by translating the corresponding parameters from the integration.main parameter object.
      * The lazy {...} syntax ensures that the object is only created if you use it.
      *
      */

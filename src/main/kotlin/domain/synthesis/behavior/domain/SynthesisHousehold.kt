@@ -1,5 +1,6 @@
 package domain.synthesis.behavior.domain
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
@@ -28,7 +29,6 @@ class SynthesisHousehold<S: MinimumHouseholdAttributes, T : MinimumPersonAttribu
     var amountOfCars = 0
     val cars: MutableList<SynthesisCar> = mutableListOf()
 
-//    operator fun get(index: Int): SynthesisPerson<T> = members[index]
     @TestOnly
     fun locationIsAssigned() = attributes.location != LOCATIONUNKNOWN
     fun addMember(member: SurveyPerson<T>) {

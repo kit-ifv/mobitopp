@@ -1,10 +1,8 @@
 package domain.synthesis.behavior
 
 import domain.synthesis.attributes.household.HasIncome
-import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasAge
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.data.EconomicStatus
 import edu.kit.ifv.units.ClosedCurrencyRange
 import edu.kit.ifv.units.Currency
@@ -51,7 +49,7 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
 
     companion object {
         fun fromPath(
-            path: Path = Path.of("src/main/resources/economical-status-oecd2017.csv")
+            path: Path = Path.of("src/integration.main/resources/economical-status-oecd2017.csv")
         ): OECDAssigner {
             val parser = DefaultCsvParser { row ->
                 FileEntry(

@@ -1,0 +1,50 @@
+package domain.synthesis.behavior.domain
+
+import assertNotContains
+import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.StandardLocation
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.data.EconomicStatus
+import domain.synthesis.data.HouseholdType
+import domain.synthesis.results.fastcsv.CsvIgnore
+import domain.synthesis.results.fastcsv.write
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.euros
+import org.junit.jupiter.api.Assertions.assertEquals
+import java.io.StringWriter
+import kotlin.test.Test
+import kotlin.test.assertContains
+
+class SynthesisHouseholdTest {
+
+    internal class TestAttributes(
+        override val income: Currency,
+        override val type: HouseholdType,
+        @CsvIgnore
+        override var location: StandardLocation
+    ): MinimumHouseholdAttributes {
+        val zoneID get()= location.zoneID
+    }
+    @Test
+    fun testCSVWrite() {
+        val hh = SynthesisHousehold<TestAttributes, MinimumPersonAttributes>(
+            attributes = TestAttributes(
+                income = 1.euros,
+                type = HouseholdType.UNDEFINED,
+                location = LOCATIONUNKNOWN,
+            ),
+
+            )
+        hh.economicStatus = EconomicStatus.MIDDLE
+
+        val stringWriter = StringWriter()
+        listOf(hh).write(stringWriter)
+
+        val expected: String = stringWriter.toString()
+        assertContains(expected, "id;economicStatus;amountOfCars;income;type;zoneID")
+        assertNotContains(expected, "location")
+
+    }
+}

@@ -29,7 +29,7 @@ class AssignCarUserStep(
     context: AssignCarsContext,
 ) : TransformEachStep<MutablePrivateCar, CarId>() {
 
-    override val name: String = "Assign cars to household members as main users."
+    override val name: String = "Assign cars to household members as integration.main users."
     override val repository: MutableRepository<MutablePrivateCar, CarId> = context.carRepository
     override val dependentRepositories: Set<Repository<*, *>> =
         setOf(context.personRepository, context.householdRepository)

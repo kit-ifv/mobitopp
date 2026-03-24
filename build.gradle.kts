@@ -101,7 +101,7 @@ dependencies {
     implementation(libs.exp4j) //0.4.8
 
     implementation(libs.fast.util)
-
+    implementation(libs.fast.csv)
 
 }
 

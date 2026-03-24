@@ -134,7 +134,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
 
         val mimicHousehold = home1.createHousehold {
             person {
-                Attrs(20, Sex.MALE)
+                Attrs(10, Sex.MALE)
             }
         }
         val mimicPerson = mimicHousehold[0]

@@ -170,7 +170,7 @@ private fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
                         span {
                             style = "position: absolute; top: -75px;left: -12.5px;"
                             unsafe {
-                                +Path("src/main/kotlin/utils/report/assets/Connector.svg").readText()
+                                +Path("src/integration.main/kotlin/utils/report/assets/Connector.svg").readText()
                             }
                         }
                     }
@@ -195,19 +195,19 @@ private fun statusIcon(status: CardStatus): String {
             CardStatus.SUCCESS -> {
                 style = "color: var(--success-color)"
                 unsafe {
-                    +Path("src/main/kotlin/utils/report/assets/Success_V3.svg").readText()
+                    +Path("src/integration.main/kotlin/utils/report/assets/Success_V3.svg").readText()
                 }
             }
             CardStatus.WARNING -> {
                 style = "color: var(--warning-color)"
                 unsafe {
-                    +Path("src/main/kotlin/utils/report/assets/Warning_V3.svg").readText()
+                    +Path("src/integration.main/kotlin/utils/report/assets/Warning_V3.svg").readText()
                 }
             }
             CardStatus.FAILURE -> {
                 style = "color: var(--error-color);"
                 unsafe {
-                    +Path("src/main/kotlin/utils/report/assets/Failure_V3.svg").readText()
+                    +Path("src/integration.main/kotlin/utils/report/assets/Failure_V3.svg").readText()
                 }
             }
         }

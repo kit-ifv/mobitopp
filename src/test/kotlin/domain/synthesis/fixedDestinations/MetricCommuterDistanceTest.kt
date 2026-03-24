@@ -51,7 +51,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             Attrs(
                 age = 10,
                 sex = Sex.FEMALE,
-                distanceWork = 1.kilometers
+                distanceWork = 2.kilometers
             )
         }
         person {
@@ -196,7 +196,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
                 val output = strategy.assign(agents, demand, destinations)
                 val text = captor.getText()
-                if (it.first.size > 3) {
+                if (agents.size > 3) {
                     assertContains(text, "the total demand 3.0")
                     assertFalse(text.isEmpty())
                 } else {

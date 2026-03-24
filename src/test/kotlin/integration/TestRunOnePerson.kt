@@ -1,3 +1,5 @@
+package integration
+
 import application.config.ExampleProjectContext
 import application.steps.model.simulate
 import application.steps.parser.csv.StationColumns

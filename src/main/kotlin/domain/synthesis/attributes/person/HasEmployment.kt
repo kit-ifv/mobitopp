@@ -10,3 +10,7 @@ import domain.synthesis.data.Employment
 interface HasEmployment {
     val employment: Employment
 }
+
+interface HasMutableEmployment: HasEmployment {
+    override var employment: Employment
+}

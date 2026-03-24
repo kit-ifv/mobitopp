@@ -4,7 +4,6 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZonedRoadAccessLocation
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
@@ -29,12 +28,6 @@ import kotlin.io.path.createDirectories
 fun ZonedRoadAccessLocation.legacyStringRepresentation(): String =
     "(${position.y}, ${position.x}: ${roadAccess.roadId}, ${roadAccess.position})"
 
-/**
- * Extend the AttractivenessModel returning 0.0 for the attractiveness when the zone is null
- */
-fun AttractivenessModel.nullableAttractiveness(zone: Zone?, activityType: ActivityType): Double {
-    return zone?.let { attractivenessFor(it.id, activityType) } ?: 0.0
-}
 // End extension functions
 
 interface CSVOutput<T> {
@@ -170,7 +163,7 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     }
 }
 
-object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold< MaximumHouseholdAttributes, *>> {
+object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<MaximumHouseholdAttributes, *>> {
     override val header: List<String> = listOf("nominalSize", "numberOfMinors", "income")
 
     @Suppress("MagicNumber")

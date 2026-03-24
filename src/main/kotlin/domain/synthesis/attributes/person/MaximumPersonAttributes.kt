@@ -9,10 +9,10 @@ data class MaximumPersonAttributes constructor(
     override val sex: Sex,
     override val distanceWork: Distance,
     override val distanceEducation: Distance,
-    override val employment: Employment,
+    override var employment: Employment,
     val birthYear: Int,
     val personNumber: Int,
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,
 
-    ):  HasCommuteDistance, HasEducationDistance, HasLicence, HasEmployment, MinimumPersonAttributes
+    ):  HasCommuteDistance, HasEducationDistance, HasLicence, HasMutableEmployment, MinimumPersonAttributes

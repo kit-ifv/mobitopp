@@ -178,6 +178,10 @@ data class StandardLocation(
 
         fun fromPoint(point: Point) = StandardLocation(point, invalidZone, RoadAccess.INVALID)
     }
+
+    override fun toString(): String {
+        return "${position.x},${position.y},${zone.id}"
+    }
 }
 data class ZoneIDLocation(
     override val position: Point,

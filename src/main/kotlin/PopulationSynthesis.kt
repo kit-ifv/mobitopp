@@ -215,8 +215,14 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
 ) {
 
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
-    fun execute(lambda: SynthesisSteps<AREA, S, T>.() -> Unit) {
-        SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
+    fun execute(lambda: domain.synthesis.SynthesisSteps<AREA, S, T>.() -> Unit) {
+        _root_ide_package_.domain.synthesis.SynthesisSteps(
+            zones,
+            surveyHouseholds,
+            attractivenessModel,
+            outputDirectory,
+            opportunities
+        ).apply(lambda)
     }
 // TODO disabled for now because of location rewrite.
 //    @Suppress("UnusedParameter") // TODO reenable the parameter once a fix is found to accept the more generic AREA type
@@ -358,7 +364,7 @@ fun examplePopulationSynthesis() {
 
         assignEconomicStatus {
             OECDAssigner.fromPath(
-                Path("src/main/resources/economical-status-oecd2017.csv")
+                Path("src/integration.main/resources/economical-status-oecd2017.csv")
             )
         }
 
@@ -423,7 +429,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun SynthesisSteps<Zone, MaximumHouseholdAttributes, MaximumPersonAttributes>.writeLegacyOutput() {
+fun domain.synthesis.SynthesisSteps<Zone, MaximumHouseholdAttributes, MaximumPersonAttributes>.writeLegacyOutput() {
     LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)

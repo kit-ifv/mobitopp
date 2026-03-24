@@ -82,7 +82,7 @@ val standardConfig = ShortTermConfig(
     ),
 ).apply {
     matrixConfig = MatrixConfig(matrixRepo = Path("src/test/resources/test_matrix"))
-    resultName = "mobitopp-main.csv"
+    resultName = "mobitopp-integration.main.csv"
     choiceModelModes = legacyChoiceModelModes
 }
 

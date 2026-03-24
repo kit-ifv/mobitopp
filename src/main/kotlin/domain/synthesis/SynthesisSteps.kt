@@ -1,3 +1,7 @@
+package domain.synthesis
+
+import AssignmentStep
+import HouseholdAssignmentStep
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.location.Zone
@@ -17,6 +21,10 @@ import domain.synthesis.behavior.fixedDestinations.AssignFixedDestinationBuilder
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.results.FixedDestinationElements
 import domain.synthesis.results.OpportunityOutput
+import domain.synthesis.results.fastcsv.write
+import domain.synthesis.results.fastcsv.writeOpportunities
+import domain.synthesis.results.fastcsv.writeActivities
+import domain.synthesis.results.fastcsv.writeCars
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
@@ -27,20 +35,16 @@ import utils.collections.standardProgressBar
 import java.nio.file.Path
 import kotlin.random.Random
 
-class SynthesisSteps<AREA, S: MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
+class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
     val zones: List<AREA>,
     val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
     val opportunities: List<OpportunityOutput>,
 ) {
-//    private val zoneMapping by lazy { zones.associateBy { it.id } }
-//
-//    fun getZone(zoneId: ZoneId) = zoneMapping[zoneId]
-//        ?: throw NoSuchElementException("There is no zone with id $zoneId in the mapping")
 
     lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<S, T>>>
-    val households get() = householdsByZone.flatMap { it.value }
+    val households: List<SynthesisHousehold<S, T>> get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     var activities: List<Map<SynthesisPerson<*, *>, Collection<Activity>>> =
         listOf()
@@ -49,11 +53,11 @@ class SynthesisSteps<AREA, S: MinimumHouseholdAttributes, T : MinimumPersonAttri
 
     /**
      * Within the scope of this step, the fixed destinations for the agents are generated. The structure of the assign
-     * strategy is created in the [domain.synthesis.behavior.fixedDestinations.AssignFixedDestinationBuilder] class, which provides some convenience methods for
+     * strategy is created in the [AssignFixedDestinationBuilder] class, which provides some convenience methods for
      * frequently assigned fixed destinations.
      */
-    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<Zone,S,  T>.() -> Unit) {
-        val fixedDestinationBuilder = AssignFixedDestinationBuilder<Zone,S, T>(attractivenessModel)
+    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<Zone, S, T>.() -> Unit) {
+        val fixedDestinationBuilder = AssignFixedDestinationBuilder<Zone, S, T>(attractivenessModel)
         fixedDestinationBuilder.apply(lambda)
 
 
@@ -82,18 +86,8 @@ class SynthesisSteps<AREA, S: MinimumHouseholdAttributes, T : MinimumPersonAttri
         }
     }
 
-    fun synthesizePopulation() {
-    }
 
-    // TODO speaking type parameter names
-//    @Deprecated("Use synthesis library instead.")
-//    fun synthesis(
-//        randsums: Map<AREA, List<Rule<ISurveyHousehold<out T>>>>,
-//        lambda: () -> HouseholdSynthesis<Zone, ISurveyHousehold<out T>, SynthesisHousehold<out T>>,
-//    ) {
-//        val generator = lambda()
-//        householdsByZone = generator.synthesize(surveyHouseholds, randsums)
-//    }
+
 
     // TODO refactor, use or discard this method
     fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in AREA, SynthesisHousehold<S, T>>) {
@@ -174,13 +168,20 @@ class SynthesisSteps<AREA, S: MinimumHouseholdAttributes, T : MinimumPersonAttri
                 }
             }.joinAll()
         }
-//        households.addProgressBar("Generate Activities").forEach { h ->
-//            val output = strategy.generate(h)
-//            output.entries.forEach { (k, v) ->
-//                k.plannedActivities = v
-//            }
-//        }
-
         activities = households.map { it.members.associateWith { it.plannedActivities } }
     }
+
+    fun writeStandardOutputCSV(path: Path) = writeStandardOutputCSV(OutputWriters.useDirectory(path))
+    fun writeStandardOutputCSV(targets: OutputWriters) {
+        targets.run {
+            householdWriter?.let { households.write(it) }
+            personWriter?.let { people.write(it) }
+            carWriter?.let { cars.writeCars(it) }
+            activityWriter?.let { activities.writeActivities(it) }
+            fixedDestinationWriter?.let { cars.writeCars(it) }
+            opportunitiesWriter?.let { opportunities.writeOpportunities(it) }
+        }
+
+    }
 }
+

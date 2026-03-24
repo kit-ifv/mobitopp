@@ -22,6 +22,7 @@ xz = "1.10"
 progressbar = "0.10.1"
 exp4j = "0.4.8"
 fast-utils = "8.5.16"
+fast-csv = "4.1.0"
 # ifv units
 ifv-units= "1.0.1"
 ifv-visum-netparser = "0.11.4"
@@ -85,3 +86,4 @@ xz = { module = "org.tukaani:xz", version.ref = "xz" }
 progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 exp4j = { module = "net.objecthunter:exp4j", version.ref = "exp4j" }
 fast-util = { module = "it.unimi.dsi:fastutil", version.ref = "fast-utils"}
+fast-csv = { module = "de.siegmar:fastcsv", version.ref = "fast-csv"}
