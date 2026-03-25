@@ -16,11 +16,9 @@ data class CarImpl(
     override val segment: CarSegment,
     override val seats: Int = segment.toSeats(),
 
-    ): Car {
+) : Car {
 
     override val id: CarId = nextId
-
-
 
     companion object {
         @Suppress("MagicNumber") // Seat size is a number
@@ -44,6 +42,7 @@ data class CarImpl(
                 seats = actualSeats,
             )
         }
+
         @OptIn(ExperimentalAtomicApi::class)
         private var idCounter: AtomicLong = AtomicLong(0L)
 

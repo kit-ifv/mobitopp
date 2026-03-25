@@ -120,7 +120,6 @@ fun generateZoneLocations(numElements: Int): List<StandardLocation> {
 
 fun Zone.point(wgs84coord: WGS84Coordinate): StandardLocation {
     return StandardLocation(wgs84coord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)
-
 }
 
 fun Long.toRoadPositionInZone(zone: Zone): StandardLocation {
@@ -152,7 +151,7 @@ class HouseholdSpawnLimits(
     val numPersons: IntRange = 0..5,
     val economicStatus: Collection<EconomicStatus> = EconomicStatus.entries,
 
-    )
+)
 
 @Suppress("LongParameterList")
 fun Zone.generateHouseholds(

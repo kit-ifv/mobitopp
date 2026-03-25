@@ -11,6 +11,6 @@ interface HasEmployment {
     val employment: Employment
 }
 
-interface HasMutableEmployment: HasEmployment {
+interface HasMutableEmployment : HasEmployment {
     override var employment: Employment
 }

@@ -2,7 +2,6 @@ package domain.shared.datastructure.schedule
 
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
-
 import utils.units.AbsoluteTime
 import utils.units.max
 import kotlin.time.Duration

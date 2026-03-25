@@ -23,10 +23,9 @@ val standardAssignmentByRegionSize = AssignBySizebasedClassification.createUsing
     ruralAreaParameters = carOwnershipRuralArea
 }
 
-fun MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>.toCarOwnershipAttributes(): CarOwnershipAttributes {
-    return CarOwnershipAttributes(
+fun MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>.toCarOwnershipAttributes() =
+    CarOwnershipAttributes(
         CarOwnershipFactors(
             this,
         )
     )
-}

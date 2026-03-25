@@ -64,8 +64,8 @@ open class MapRepositoryTest : RepositoryTest<TestEntity, TestId>() {
     override fun expectedBaseSource() = source
 
     override fun expectedToString() = "Repository '$name':\n" +
-            "  source:\n" +
-            "${source.enforceIndent(4)}\n" +
-            "  elements (${expectedSize()}):\n" +
-            "    ${expectedElements().joinToString(", ")}"
+        "  source:\n" +
+        "${source.enforceIndent(4)}\n" +
+        "  elements (${expectedSize()}):\n" +
+        "    ${expectedElements().joinToString(", ")}"
 }

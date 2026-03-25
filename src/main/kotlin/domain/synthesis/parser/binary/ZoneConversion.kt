@@ -43,7 +43,7 @@ class BinaryZoneReader(
     override fun ByteBuffer.decode(stringLength: Int): MutableLegacyZone {
         return MutableLegacyZone(
             ZoneId(long),
-            decodeNakedLocation() ,
+            decodeNakedLocation(),
             seed
         ).apply {
             visumId = long
@@ -69,7 +69,7 @@ data class ZoneBinaryRecord(
     val isDestination: Boolean,
     val relief: Double,
 
-    ) : BinaryWritable {
+) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)

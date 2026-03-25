@@ -3,7 +3,7 @@ package domain.synthesis.fixedDestinations
 import TestZone
 import domain.shared.location.DistanceMetric
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZone
+import domain.shared.location.attributes.HasZoneID
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance
@@ -39,7 +39,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     private val work3 = testZone3.spawnFakeLoc()
 
     private val defaultHome = home1.createHousehold {
-        person{
+        person {
             Attrs(
                 age = 10,
                 sex = Sex.MALE,
@@ -59,7 +59,6 @@ class MetricCommuterDistanceTest : SynthesisTest() {
                 sex = Sex.FEMALE,
                 distanceWork = (-2).kilometers
             )
-
         }
     }
 
@@ -173,7 +172,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             listOf(person4, person1, person2, person3),
             listOf(person3, person2, person1, person4),
 
-            )
+        )
         val locations = listOf(
             listOf(work2),
             listOf(work3),
@@ -231,7 +230,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             testZone2.id to CommunityNumber(2),
             testZone3.id to CommunityNumber(2),
 
-            )
+        )
 
         val demand = MutableCommunityDemand(
             converter = { zoneCommunityMapping.getValue(it.zoneID) },
@@ -245,27 +244,27 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
 class SymmetricMockDistance(default: Distance = 0.kilometers) : AsymmetricMockDistance(default) {
 
-    override operator fun set(origin: HasZone, destination: HasZone, value: Distance) {
+    override operator fun set(origin: HasZoneID, destination: HasZoneID, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
         map.getOrPut(destination) { mutableMapOf() }[origin] = value
     }
 }
 
 open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) : DistanceMetric {
-    protected val map: MutableMap<HasZone, MutableMap<HasZone, Distance>> = mutableMapOf()
-    override fun evaluate(origin: HasZone, destination: HasZone): Distance {
+    protected val map: MutableMap<HasZoneID, MutableMap<HasZoneID, Distance>> = mutableMapOf()
+    override fun evaluate(origin: HasZoneID, destination: HasZoneID): Distance {
         return get(origin, destination)
     }
 
-    open operator fun set(origin: HasZone, destination: HasZone, value: Distance) {
+    open operator fun set(origin: HasZoneID, destination: HasZoneID, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
     }
 
-    operator fun set(origin: HasZone, destination: HasZone, value: Number) {
+    operator fun set(origin: HasZoneID, destination: HasZoneID, value: Number) {
         set(origin, destination, value.toDouble().toDistance(DistanceUnit.KILOMETERS))
     }
 
-    operator fun get(origin: HasZone, destination: HasZone): Distance {
+    operator fun get(origin: HasZoneID, destination: HasZoneID): Distance {
         return (map[origin] ?: mutableMapOf())[destination] ?: default
     }
 }

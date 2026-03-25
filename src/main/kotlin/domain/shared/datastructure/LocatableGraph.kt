@@ -29,10 +29,9 @@ private class LocatedLinkInfo(
     u: Point,
     val edge: LinkInfo,
 
-    ) {
+) {
 
     val midUTM = v.midPoint(u)
-
 }
 
 fun Point.midPoint(other: Point): Point {
@@ -88,11 +87,8 @@ class LocatableGraph(
         val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.e, it.n) }
         return edge.edge.id?.toLong() ?: Long.MIN_VALUE
     }
-
 }
 
 private fun Graph<VisumNode, LinkInfo>.convertLink(linkInfo: LinkInfo): LocatedLinkInfo {
     return LocatedLinkInfo(getEdgeSource(linkInfo).coordinate, getEdgeTarget(linkInfo).coordinate, linkInfo)
 }
-
-

@@ -21,7 +21,7 @@ import kotlin.random.Random
 data class CarSegmentSituation<S, T>(
     val person: MinimalistPerson<T>,
     val household: MinimalistHousehold<S, T>
-) where S: HasNumberOfCars, S: HasIncome, T: HasBiologicalSex, T: HasCommuteDistance {
+) where S : HasNumberOfCars, S : HasIncome, T : HasBiologicalSex, T : HasCommuteDistance {
     // TODO delegate to household once merged with default household dataclass
     val random: Random = Random(System.currentTimeMillis())
     fun with(choice: CarSegment) = choice.toAlternative(person, household)
@@ -38,7 +38,14 @@ data class CarSegmentChoice(
 ) {
 
     companion object {
-        fun <S, T> create(person: MinimalistPerson<T>, household: MinimalistHousehold<S, T>): CarSegmentChoice where S: HasNumberOfCars, S: MinimumHouseholdAttributes, T: HasCommuteDistance, T: HasBiologicalSex {
+        fun <S, T> create(
+            person: MinimalistPerson<T>,
+            household: MinimalistHousehold<S, T>
+        ): CarSegmentChoice
+            where S : HasNumberOfCars,
+                  S : MinimumHouseholdAttributes,
+                  T : HasCommuteDistance,
+                  T : HasBiologicalSex {
             return CarSegmentChoice(
                 person.attributes.distanceWork,
                 household.size,
@@ -47,7 +54,6 @@ data class CarSegmentChoice(
                 person.attributes.sex,
                 false
             )
-
         }
     }
 }
@@ -55,7 +61,7 @@ data class CarSegmentChoice(
 fun <S, T> CarSegment.toAlternative(
     person: MinimalistPerson<T>,
     household: MinimalistHousehold<S, T>
-): CarSegmentChoice where S: HasNumberOfCars, S: HasIncome, T: HasBiologicalSex, T: HasCommuteDistance {
+): CarSegmentChoice where S : HasNumberOfCars, S : HasIncome, T : HasBiologicalSex, T : HasCommuteDistance {
     return CarSegmentChoice(
         person.attributes.distanceWork,
         household.size,

@@ -8,5 +8,3 @@ import domain.shared.location.StandardLocation
 fun interface AssignHouseholdLocations<AREA, H> {
     fun generateLocation(zone: AREA, household: H): StandardLocation
 }
-
-

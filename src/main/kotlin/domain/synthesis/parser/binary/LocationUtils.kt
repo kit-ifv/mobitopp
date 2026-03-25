@@ -1,12 +1,12 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.attributes.HasZone
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
 import java.io.DataOutputStream
@@ -31,13 +31,12 @@ object LocationUtils {
             position = Location.wgs(coordinate.x, coordinate.y).position,
             zone = converter(zoneId) ?: run {
                 throw NoSuchElementException("No Zone For thing")
-                                            } ,
+            },
             roadAccess = roadAccess,
         )
     }
 
-    fun ByteBuffer.decodeNakedLocation() : ZonedRoadAccessLocation {
-
+    fun ByteBuffer.decodeNakedLocation(): ZonedRoadAccessLocation {
         val zoneId = ZoneId(long) // Reading zone ID
         val coordinate = WGS84Coordinate.decimalDegree(
             double,
@@ -64,11 +63,11 @@ object LocationUtils {
         writeLong(location.zoneID.value)
         writeDouble(location.position.y)
         writeDouble(location.position.x)
-        writeLong(location.roadAccess.roadId )
-        writeDouble(location.roadAccess.position.toDouble() )
+        writeLong(location.roadAccess.roadId)
+        writeDouble(location.roadAccess.position.toDouble())
     }
 
-    fun DataOutputStream.encodeLocation(location: HasZone) {
+    fun DataOutputStream.encodeLocation(location: HasZoneID) {
         encodeLocation(location.withRoadAccess(RoadAccess.INVALID))
     }
 }

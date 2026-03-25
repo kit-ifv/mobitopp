@@ -499,7 +499,7 @@ private val transformedOddIdSquared = expectedElements.mapNotNull { transformOdd
 private fun transformOddIdSquared(element: TestEntity): TestEntity? =
     element.takeIf {
         it.id.value >= 2 &&
-                filterOddIndex(it)
+            filterOddIndex(it)
     }?.let {
         it.copy(rowIndex = it.rowIndex * it.rowIndex)
     }

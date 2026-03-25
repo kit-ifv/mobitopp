@@ -7,6 +7,7 @@ data class SmallestSurveyPerson<T : MinimumPersonAttributes> constructor(
     override val personId: Int,
     override val attributes: T,
 ) : SurveyPerson<T> {
-    override val homeLocation: StandardLocation
-        get() = TODO("Not yet implemented")
+    override val homeLocation: StandardLocation by lazy {
+        throw IllegalStateException("A Smallest survey person should never be used to determine location")
+    }
 }

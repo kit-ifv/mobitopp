@@ -31,6 +31,5 @@ class JTSDistanceCalculatorTest {
 
         val distance = JTSDistanceCalculator.distance(p1, p2)
         assertTrue(distance <= 1.meters)
-
     }
 }

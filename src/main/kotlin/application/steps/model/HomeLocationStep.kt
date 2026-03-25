@@ -49,8 +49,6 @@ class HomeLocationStep(
     val model: AssignHouseholdLocations<Zone, Household>,
 ) : UpdateEachStep<MutableHousehold, HouseholdId>() {
 
-
-
     override val name = "Assign Home Location to Households"
     override val repository = context.householdRepository
     override val dependentRepositories: Set<Repository<*, *>> = setOf(context.zoneRepository)

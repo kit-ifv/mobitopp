@@ -1,6 +1,6 @@
 package domain.shared.location
 
-import domain.shared.location.attributes.HasZone
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 import kotlin.time.Duration
@@ -12,7 +12,7 @@ import kotlin.time.Duration
  */
 fun interface LocationMetric<R> {
 
-    fun evaluate(origin: HasZone, destination: HasZone): R
+    fun evaluate(origin: HasZoneID, destination: HasZoneID): R
 }
 
 typealias CostMetric = LocationMetric<Currency>
@@ -21,15 +21,9 @@ typealias DistanceMetric = LocationMetric<Distance>
 
 typealias DurationMetric = LocationMetric<Duration>
 
-class FlightDistance : DistanceMetric {
-
-    override fun evaluate(origin: HasZone, destination: HasZone): Distance = TODO("swapping to coordinate makes this calculation inaccessible")
-//        origin.coordinate.distance(destination.coordinate)
-}
-
 class ConstantMetric<R>(
     val value: R,
 ) : LocationMetric<R> {
 
-    override fun evaluate(origin: HasZone, destination: HasZone): R = value
+    override fun evaluate(origin: HasZoneID, destination: HasZoneID): R = value
 }

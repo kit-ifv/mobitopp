@@ -1,7 +1,7 @@
 package domain.shared.datastructure.schedule
 
-import domain.shared.location.attributes.HasZone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasZoneID
 import domain.shared.location.toPoint
 import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Point
@@ -14,7 +14,7 @@ class ActuallyUseableLocation(
     override val position: Point,
     override val zoneID: ZoneId,
 
-    ) : HasZone {
+) : HasZoneID {
 
     constructor(zoneId: Number) : this(
         WGS84Coordinate.decimalDegree(zoneId.toDouble(), zoneId.toDouble()).toPoint(),
@@ -25,5 +25,4 @@ class ActuallyUseableLocation(
         WGS84Coordinate.decimalDegree(x.toDouble(), y.toDouble()).toPoint(),
         ZoneId(zoneid.toLong())
     )
-
 }

@@ -9,7 +9,9 @@ import domain.synthesis.behavior.SurveyPerson
 import utils.Decodable
 import kotlin.time.Duration.Companion.hours
 
-fun interface GenerateActivitySchedule<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> : GenerateHouseholdActivitySchedule<S, T> {
+fun interface GenerateActivitySchedule<
+    S : MinimumHouseholdAttributes,
+    T : MinimumPersonAttributes> : GenerateHouseholdActivitySchedule<S, T> {
     fun generate(person: SurveyPerson<T>): PreliminaryActivitySchedule
     override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
         return household.members.map { generate(it) }

@@ -11,7 +11,7 @@ import domain.synthesis.data.Sex
 /**
  * The mutable object that holds the infos of the person.
  */
-class SynthesisPerson<S: MinimumHouseholdAttributes, T : MinimumPersonAttributes> constructor(
+class SynthesisPerson<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> constructor(
     private val household: SynthesisHousehold<S, T>,
     override val age: Int,
     override val sex: Sex,
@@ -24,8 +24,6 @@ class SynthesisPerson<S: MinimumHouseholdAttributes, T : MinimumPersonAttributes
     val householdID get() = household.id
 
     val hasAccessToCar get() = household.amountOfCars > 0
-
-
 
 //    val homeLocation get() =
     var hasTransitPass = false

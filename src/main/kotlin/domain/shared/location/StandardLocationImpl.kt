@@ -18,12 +18,6 @@ data class StandardLocationImpl constructor(
     override val sizebasedRegiostarClassification: SizebasedRegiostarClassification
         get() = regionType.toRegioStaR17().toSizebasedClassification()
 
-
-    companion object {
-
-
-    }
-
     override fun toString(): String {
         return "${position.x},${position.y},${zone.id}"
     }

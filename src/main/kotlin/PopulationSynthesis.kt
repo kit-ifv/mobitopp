@@ -8,7 +8,7 @@ import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
-import domain.shared.location.attributes.HasZone
+import domain.shared.location.attributes.HasZoneID
 import domain.synthesis.SynthesisSteps
 import domain.synthesis.algorithms.TrivialSynthesis
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
@@ -127,6 +127,7 @@ fun interface AssignmentStep<in I, out O> {
     fun assign(input: I): O
 }
 
+@Suppress("SpacingAroundColon")
 fun interface HouseholdAssignmentStep<in S, in T : MinimumPersonAttributes, out O> :
     AssignmentStep<ISurveyHousehold<S, T>, List<O>> where S : MinimumHouseholdAttributes {
     context(household: ISurveyHousehold<S, T>)
@@ -135,7 +136,6 @@ fun interface HouseholdAssignmentStep<in S, in T : MinimumPersonAttributes, out 
     context(random: Random)
     override fun assign(input: ISurveyHousehold<S, T>): List<O> {
         return context(input) {
-
             input.members.map { member -> assignForPerson(member) }
         }
     }
@@ -168,9 +168,10 @@ class AssignmentStrategy<I, C, O>(
     }
 }
 
+fun interface AssignTransitCardOwnership<in S : MinimumHouseholdAttributes, in T : MinimumPersonAttributes> :
+    HouseholdAssignmentStep<S, T, Boolean>
 
-fun interface AssignTransitCardOwnership<in S : MinimumHouseholdAttributes, in T : MinimumPersonAttributes> : HouseholdAssignmentStep<S, T, Boolean>
-
+@Suppress("SpacingAroundColon")
 class AssignByDiscreteChoice(
     val model: FixedChoiceModel<Boolean, TicketCharacteristics> =
         transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false)),
@@ -190,14 +191,18 @@ class AssignByDiscreteChoice(
     }
 }
 
+@Suppress("SpacingAroundColon")
 object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+
     context(household: ISurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>)
     override fun assignForPerson(person: SurveyPerson<MinimumPersonAttributes>): Boolean {
         return true
     }
 }
 
-fun <AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> PopulationSynthesis<AREA, S, T>.generateLocations(
+fun <AREA,
+    S : MinimumHouseholdAttributes,
+    T : MinimumPersonAttributes> PopulationSynthesis<AREA, S, T>.generateLocations(
     activityType: ActivityType,
     generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
 ): List<StandardLocation> {
@@ -297,15 +302,8 @@ fun interface GenerateArtificialPopulationDeprecated<T> {
     }
 }
 
-
 fun interface GenerateHouseholds<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
     fun generateSurveyHouseholds(): Collection<ISurveyHousehold<S, T>>
-
-
-    companion object {
-
-
-    }
 }
 
 private val attractivenessModelPath = Path("src/test/resources/synthesis/attractivities.csv")
@@ -346,13 +344,8 @@ fun examplePopulationSynthesis() {
     }
     populationSynthesis.execute {
         refactoredPopsyn({ it }) {
-            val synthesisHouseholds = GenerateFromFlatInput.fromPath(
-                "src/test/resources/synthesis/SurveyPopulation.csv"
-            ).generateSurveyHouseholds().map {
-                HouseholdFactory.createFrom(it)
-            }
             TrivialSynthesis(
-                synthesisHouseholds,
+                surveyHouseholds.map { HouseholdFactory.createFrom(it) },
                 zones
 
             )
@@ -448,7 +441,7 @@ private fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,
     generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
-): List<HasZone> {
+): List<HasZoneID> {
     return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }

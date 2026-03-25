@@ -31,23 +31,23 @@ import java.lang.Double.min
 typealias ACTHousehold = Household
 typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
 
-class ActiToppNGGenerator<in S,in T>(
+class ActiToppNGGenerator<in S, in T>(
     val purposes: ChoiceModelPurposes,
     val converter: (RegionType) -> ZoneRegionType,
 
-    ) :
+) :
     GenerateHouseholdActivitySchedule<S, T>
-        where S : MinimumHouseholdAttributes,
-              S : HasNumberOfCars,
-              T : MinimumPersonAttributes,
-              T : HasCommuteDistance,
-              T : HasEducationDistance,
-              T : HasEmployment {
+    where S : MinimumHouseholdAttributes,
+          S : HasNumberOfCars,
+          T : MinimumPersonAttributes,
+          T : HasCommuteDistance,
+          T : HasEducationDistance,
+          T : HasEmployment {
     val strategy = StandardHouseholdPlanGeneration() // TODO change to Parallel once implemented.
     override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
         val actHH = convert(household)
         val output = strategy.generateSchedules(actHH)
-        return output.entries.map { (k, v) -> /*mapping[k]!! to*/  finish(v) }
+        return output.entries.map { (_, v) -> finish(v) }
     }
 
     fun finish(mobilityPlan: MobilityPlan): PreliminaryActivitySchedule {
@@ -65,7 +65,6 @@ class ActiToppNGGenerator<in S,in T>(
         )
     }
 
-
     fun convert(household: ISurveyHousehold<S, T>): ACTHousehold {
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
@@ -73,7 +72,7 @@ class ActiToppNGGenerator<in S,in T>(
             areaType = converter(household.attributes.location.regionType).toAreaType(),
             numberOfCars = household.attributes.amountOfCars
         )
-        val mapping = household.members.associateBy {
+        household.members.forEach {
             ActitoppPerson(actHousehold, it.actitoppAttributes())
         }
         return actHousehold

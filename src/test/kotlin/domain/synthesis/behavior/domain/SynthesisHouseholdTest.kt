@@ -22,11 +22,13 @@ class SynthesisHouseholdTest {
         override val type: HouseholdType,
         @CsvIgnore
         override var location: StandardLocation
-    ): MinimumHouseholdAttributes {
-        val zoneID get()= location.zoneID
+    ) : MinimumHouseholdAttributes {
+        val zoneID get() = location.zoneID
+
         @CsvIgnore
         val x get() = location.position.x
     }
+
     @Test
     fun testCSVWrite() {
         val hh = SynthesisHousehold<TestAttributes, MinimumPersonAttributes>(
@@ -36,7 +38,7 @@ class SynthesisHouseholdTest {
                 location = StandardLocation.LOCATIONUNKNOWN,
             ),
 
-            )
+        )
         hh.economicStatus = EconomicStatus.MIDDLE
 
         val stringWriter = StringWriter()
@@ -45,6 +47,5 @@ class SynthesisHouseholdTest {
         val expected: String = stringWriter.toString()
         assertContains(expected, "id;economicStatus;amountOfCars;income;type;zoneID")
         assertNotContains(expected, "location")
-
     }
 }

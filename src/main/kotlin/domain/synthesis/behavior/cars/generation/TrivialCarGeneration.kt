@@ -9,7 +9,7 @@ import domain.synthesis.data.EngineType
 /**
  * Each household gets the same amount of cars, and the cars are all the same model
  */
-class TrivialCarGeneration(private val targetAmountOfCars : Int = 2) : GenerateCars<Any?, Any?> {
+class TrivialCarGeneration(private val targetAmountOfCars: Int = 2) : GenerateCars<Any?, Any?> {
     override fun generate(householdBuilder: MinimalistHousehold<Any?, Any?>): List<Car> {
         return buildCars()
     }
@@ -23,5 +23,4 @@ class TrivialCarGeneration(private val targetAmountOfCars : Int = 2) : GenerateC
                 seats = 4,
             )
         }
-
 }

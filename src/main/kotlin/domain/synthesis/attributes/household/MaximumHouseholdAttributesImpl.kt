@@ -14,4 +14,4 @@ data class MaximumHouseholdAttributesImpl(
     override var amountOfCars: Int,
     override var location: StandardLocation = StandardLocation.Companion.LOCATIONUNKNOWN,
     override var economicStatus: EconomicStatus = EconomicStatus.MIDDLE,
-): MaximumHouseholdAttributes
+) : MaximumHouseholdAttributes

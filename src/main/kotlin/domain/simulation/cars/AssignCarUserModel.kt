@@ -55,7 +55,9 @@ class AssignCarUserModel {
     }
 
     private fun Household.getDrivers(): MutableSet<Person> {
-        require(members.isNotEmpty()) { "Cannot assign integration.main user of cars if household members have not been defined!" }
+        require(
+            members.isNotEmpty()
+        ) { "Cannot assign integration.main user of cars if household members have not been defined!" }
 
         return members.filter { it.hasLicense }.toMutableSet().ifEmpty {
             members.filter { it.isAdult }.toMutableSet()

@@ -1,15 +1,15 @@
 package domain.synthesis.behavior.householdgeneration
 //
-//import edu.kit.ifv.populationsynthesis.hierarchy.HierarchicElement
-//import org.jgrapht.Graph
-//import org.jgrapht.graph.AsSubgraph
-//import org.jgrapht.graph.DefaultEdge
-//import org.jgrapht.traverse.BreadthFirstIterator
+// import edu.kit.ifv.populationsynthesis.hierarchy.HierarchicElement
+// import org.jgrapht.Graph
+// import org.jgrapht.graph.AsSubgraph
+// import org.jgrapht.graph.DefaultEdge
+// import org.jgrapht.traverse.BreadthFirstIterator
 //
-//open class HierarchyGraphDeprecated<T>(
+// open class HierarchyGraphDeprecated<T>(
 //    protected open val parentGraph: Graph<T, DefaultEdge>,
 //    protected open val childGraph: Graph<T, DefaultEdge>,
-//) : HierarchicElement<T> {
+// ) : HierarchicElement<T> {
 //
 //    override fun getParent(element: T): T? {
 //        val outEdges = parentGraph.outgoingEdgesOf(element)
@@ -74,4 +74,4 @@ package domain.synthesis.behavior.householdgeneration
 //    private fun allParentNodes(targets: Set<T>): Set<T> {
 //        return BreadthFirstIterator(parentGraph, targets).asSequence().toSet()
 //    }
-//}
+// }

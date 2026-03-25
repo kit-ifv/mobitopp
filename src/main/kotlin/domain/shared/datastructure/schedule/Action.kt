@@ -212,7 +212,7 @@ data class RawActivity(
     override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
     override var type: ActivityType = ActivityType.UNKNOWN,
 
-    ) : Activity {
+) : Activity {
 
     init {
         require(duration > Duration.ZERO) {
@@ -350,7 +350,7 @@ data class RawLeg(
     override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
     override var transportType: Mode,
 
-    ) : Leg {
+) : Leg {
     override val duration: Duration get() = endTime - startTime
     override fun equals(other: Any?): Boolean {
         if (other !is MovingAction) return false

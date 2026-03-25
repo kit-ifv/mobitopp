@@ -11,11 +11,11 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
-import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.LegacyZone
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.EconomicStatus

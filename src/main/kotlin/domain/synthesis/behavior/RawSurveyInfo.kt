@@ -27,7 +27,7 @@ data class RawSurveyInfo(
     val hasLicence: Boolean,
     val distanceWork: Distance,
     val distanceEducation: Distance
-)  {
+) {
     val age = year - birthyear
 
     val type: HouseholdType = HouseholdType.Companion.decodeOrNull(typeCode) ?: HouseholdType.UNDEFINED

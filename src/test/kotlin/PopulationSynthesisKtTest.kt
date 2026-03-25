@@ -4,21 +4,21 @@ import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.synthesis.algorithms.TrivialSynthesis
-import domain.synthesis.behavior.economicstatus.AlwaysAssignSameStatus
-import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.cars.ownership.UnfilteredSeniority
 import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
-import domain.synthesis.behavior.cars.generation.TrivialCarGeneration
 import domain.synthesis.behavior.activityGeneration.TrivialActivityGeneration
 import domain.synthesis.behavior.cars.amount.AlwaysAssignFixedNumber
+import domain.synthesis.behavior.cars.generation.TrivialCarGeneration
+import domain.synthesis.behavior.cars.ownership.UnfilteredSeniority
+import domain.synthesis.behavior.economicstatus.AlwaysAssignSameStatus
 import domain.synthesis.behavior.fixedDestinations.SimpleGroupLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
+import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
@@ -30,14 +30,15 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.io.path.Path
 import kotlin.test.Test
 
-private interface MinimalSurveyInformation: MinimumPersonAttributes {
+private interface MinimalSurveyInformation : MinimumPersonAttributes {
     override val age: Int
     override val sex: Sex
 }
 
 private data class MinimalSurveyInstantiation(override val age: Int, override val sex: Sex) : MinimalSurveyInformation
 
-private fun Collection<MinimalSurveyInformation>.toSurveyHouseholds(): List<SurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>> {
+private fun Collection<MinimalSurveyInformation>.toSurveyHouseholds():
+    List<SurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>> {
     return map {
         SurveyHousehold(
             surveyHouseholdId = -1,
@@ -60,9 +61,11 @@ class PopulationSynthesisKtTest {
     private val working = MinimalSurveyInstantiation(30, Sex.MALE)
     private val senior = MinimalSurveyInstantiation(99, Sex.FEMALE)
 
-    private inner class TrivialTestGeneration : GenerateHouseholds<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+    private inner class TrivialTestGeneration :
+        GenerateHouseholds<MinimumHouseholdAttributes, MinimumPersonAttributes> {
 
-        override fun generateSurveyHouseholds(): Collection<ISurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>> {
+        override fun generateSurveyHouseholds():
+            Collection<ISurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>> {
             return listOf(child, working, senior).toSurveyHouseholds()
         }
     }
@@ -105,7 +108,8 @@ class PopulationSynthesisKtTest {
             refactoredPopsyn({ it }) {
                 TrivialSynthesis(
                     surveyHouseholds.map
-                    { HouseholdFactory.createFrom(it) }, zones
+                        { HouseholdFactory.createFrom(it) },
+                    zones
                 )
             }
             val test = householdsByZone
@@ -213,7 +217,7 @@ class PopulationSynthesisKtTest {
                     val locations: List<StandardLocation> = listOf(bielefeld, itzehoe, schweinfurt)
                     assignmentStrategy = SimpleGroupLocator { persons ->
 
-                        persons.zip(locations) { p, l ->  l}
+                        persons.zip(locations) { p, l -> l }
                     }
                 }
             }
@@ -240,10 +244,7 @@ class PopulationSynthesisKtTest {
 }
 
 private fun Zone.generateLocations(amount: Int): List<StandardLocation> {
-
     return (0 until amount).map {
         StandardLocation(centroid.position, this, RoadAccess.INVALID)
     }
-
-
 }

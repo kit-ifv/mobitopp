@@ -43,7 +43,7 @@ class CommunityBasedGroupLocator<T : MinimumPersonAttributes>(
         val badTargets = targets.filter { demands[it].isEmpty() }
         require(badTargets.isEmpty()) {
             "The following communities have agents in need of location assignment, but no associated " +
-                    "demand: ${badTargets.joinToString()}"
+                "demand: ${badTargets.joinToString()}"
         }
     }
 
@@ -51,7 +51,7 @@ class CommunityBasedGroupLocator<T : MinimumPersonAttributes>(
         val badTargets = targets.filter { filteredLocations.none { loc -> loc.toCommunity() in demands[it] } }
         require(badTargets.isEmpty()) {
             "The following communities have demand, but no location is found in the" +
-                    " target communities: ${badTargets.joinToString()}"
+                " target communities: ${badTargets.joinToString()}"
         }
     }
 
@@ -112,7 +112,7 @@ data class CommunityDemandPlaner<T : MinimumPersonAttributes>(
         if (size > demand.total) {
             System.err.println(
                 "\nThe amount of agents ($size) to be assigned in community ${demand.communityID} " +
-                        "exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment"
+                    "exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment"
             )
         }
         return agents.map { agent ->
@@ -160,7 +160,7 @@ class MetricCommuterDistance<T>(private val metric: DistanceMetric) :
  * to find the location which most closely matches the specified commute distance, while still having unsaturated demand.
  * If all demands are saturated, the best location without regard to saturation is used as a fallback.
  */
-open class CommuterDistance<T> : AssignAgentsInCommunity<T> where T:  HasCommuteDistance, T: MinimumPersonAttributes {
+open class CommuterDistance<T> : AssignAgentsInCommunity<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>,
     ): List<StandardLocation> {
@@ -181,8 +181,7 @@ open class CommuterDistance<T> : AssignAgentsInCommunity<T> where T:  HasCommute
         return abs(
 
             agent.homeLocation.distance(location) -
-                    agent.attributes.distanceWork
+                agent.attributes.distanceWork
         )
     }
-
 }

@@ -3,7 +3,7 @@ package domain.shared.location
 import Mutable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.attributes.HasZone
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import kotlinx.serialization.Serializable
@@ -78,9 +78,7 @@ abstract class Zone(
         )
     }
 
-
-
-    operator fun contains(location: HasZone): Boolean = location.zoneID == this.id
+    operator fun contains(location: HasZoneID): Boolean = location.zoneID == this.id
 
     /* This is really annoying. Legacy mobiTopp had two different IDs for zones: The VISUM ID and the internal
     enumeration so say 6113, 6114, 6116,... and 0, 1, 2,... Obviously the latter was used for determining which zone
@@ -108,4 +106,8 @@ abstract class LegacyZone(
     abstract val matrixColumn: Int
 }
 
-fun Zone.point(wgsCoord: WGS84Coordinate) = StandardLocation(wgsCoord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)
+fun Zone.point(wgsCoord: WGS84Coordinate) = StandardLocation(
+    wgsCoord.toPoint(),
+    zone = this,
+    roadAccess = RoadAccess.INVALID
+)

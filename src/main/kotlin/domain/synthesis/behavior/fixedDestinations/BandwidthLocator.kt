@@ -52,7 +52,7 @@ class BandwidthLocator<T>(
     var parameters: BandwidthParameters = BandwidthParameters(), // TODO why variable?
     var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> =
         standardBandwidthModel.build(parameters),
-) : SimpleLocator<T> where T: HasCommuteDistance, T: MinimumPersonAttributes{
+) : SimpleLocator<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
     private val locationTree = LocationKDTree(potentialLocations)
 
     @Suppress("MagicNumber")
@@ -87,6 +87,4 @@ class BandwidthLocator<T>(
             .takeWhile { it.item.distance(agent.homeLocation) <= agent.attributes.distanceWork + poleRadius }
             .toSet()
     }
-
 }
-

@@ -3,19 +3,19 @@ package domain.synthesis.behavior.activityGeneration
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.BetterLocation
+import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MaximumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributesImpl
 import domain.synthesis.behavior.SmallestSurveyPerson
-import domain.synthesis.SynthesisHousehold
 import domain.synthesis.data.Employment
 import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
-import org.junit.jupiter.api.Assertions.*
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ActiToppNGGeneratorTest {
 
@@ -33,10 +33,10 @@ class ActiToppNGGeneratorTest {
         attributes.location = BetterLocation.wgs(10.0, 50.0)
     }
 
-    private val generator = ActiToppNGGenerator<MaximumHouseholdAttributes, MaximumPersonAttributes>(legacyChoiceModelPurposes) {
-        ZoneRegionType.DEFAULT
-    }
-
+    private val generator =
+        ActiToppNGGenerator<MaximumHouseholdAttributes, MaximumPersonAttributes>(legacyChoiceModelPurposes) {
+            ZoneRegionType.DEFAULT
+        }
 
     @Test
     fun runWithPeople() {

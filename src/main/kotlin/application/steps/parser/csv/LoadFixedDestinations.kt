@@ -8,11 +8,11 @@ import core.modelsteps.Warning
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
-import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.LegacyZone
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId

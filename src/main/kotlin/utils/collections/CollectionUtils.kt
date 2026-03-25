@@ -37,8 +37,6 @@ fun <K, V> MutableMap<K, V>.replaceOrRemoveAll(mapping: (K, V) -> V?) {
     }
 }
 
-
-
 fun <T> Collection<T>.pickWithReplacement(
     amount: Int,
     random: Random = Random(1)
@@ -68,4 +66,3 @@ fun <T> Collection<T>.repeatExact(amount: Int): List<T> {
     val inputList = toList()
     return List(amount) { inputList[it % size] }
 }
-

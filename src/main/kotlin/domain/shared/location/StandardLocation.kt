@@ -9,9 +9,8 @@ import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
-
+@Suppress("MagicNumber")
 private val invalidPoint = object : Point(Coordinate(0.0, .0), PrecisionModel(), 4326) {
-
 }
 private class ZoneMock(
     zoneId: ZoneId,
@@ -35,14 +34,13 @@ private class ZoneMock(
     override val relief: Distance
         get() = throw NoSuchElementException("Cannot get relief on unknown Location")
 }
+
 /**
  * The bog-standard location used in mobitopp. That means we know the zone,  and a RoadAccess.
  */
 
 interface StandardLocation : ZonedRoadAccessLocation, HasRegionType, HasSizebasedClassification {
     companion object {
-
-
 
         private val invalidZone: Zone = ZoneMock(ZoneId(-1))
 
@@ -60,12 +58,9 @@ interface StandardLocation : ZonedRoadAccessLocation, HasRegionType, HasSizebase
             RoadAccess.INVALID
         )
 
-
         fun fromWGS(wgsCoord: WGS84Coordinate): StandardLocation {
             val point = wgsCoord.toPoint()
             return fromPoint(point)
-
-
         }
 
         fun fromID(zoneID: Number) = StandardLocation(invalidPoint, zoneLookup.getOrPut(ZoneId(zoneID.toLong())) {
@@ -76,8 +71,6 @@ interface StandardLocation : ZonedRoadAccessLocation, HasRegionType, HasSizebase
 
         fun fromPoint(point: Point) = StandardLocation(point, invalidZone, RoadAccess.INVALID)
 
-
         private val zoneLookup: MutableMap<ZoneId, ZoneMock> = mutableMapOf()
-
     }
 }

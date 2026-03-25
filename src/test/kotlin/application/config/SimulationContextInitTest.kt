@@ -40,7 +40,7 @@ class SimulationContextInitTest {
         }.steps {
             assert(!setDuringValidation) {
                 "If this fails, the variable was set during the " +
-                        "validation and not reset for the run. This behaviour should be prevented."
+                    "validation and not reset for the run. This behaviour should be prevented."
             }
             setDuringValidation = true
         }
@@ -54,7 +54,7 @@ class SimulationContextInitTest {
         }.steps {
             assert(!setDuringValidation) {
                 "If this fails, the variable was set during the " +
-                        "validation and not reset for the run. This behaviour should be prevented."
+                    "validation and not reset for the run. This behaviour should be prevented."
             }
             setDuringValidation = true
         }
@@ -68,7 +68,7 @@ class SimulationContextInitTest {
         ).steps {
             assert(!setDuringValidation) {
                 "If this fails, the variable was set during the " +
-                        "validation and not reset for the run. This behaviour should be prevented."
+                    "validation and not reset for the run. This behaviour should be prevented."
             }
             setDuringValidation = true
         }
@@ -86,7 +86,7 @@ class SimulationContextInitTest {
             prepareZones(Path("src/test/resources/testDemand/zone-repository/zones.csv"))
             assert(!zoneRepository.sealed) {
                 "Repository sealing should be fixed by a shallow copy. " +
-                        "Why does this fail?"
+                    "Why does this fail?"
             }
             finishZones()
         }

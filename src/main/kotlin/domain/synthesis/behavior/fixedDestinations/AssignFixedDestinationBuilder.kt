@@ -2,21 +2,21 @@ package domain.synthesis.behavior.fixedDestinations
 
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
+import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasEmployment
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.MinimalistPerson
-import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.person.isPrimaryStudent
 import domain.synthesis.attributes.person.isSecondaryStudent
 import domain.synthesis.attributes.person.isTertiaryStudent
 import domain.synthesis.attributes.person.isWorker
+import domain.synthesis.behavior.MinimalistPerson
 import domain.synthesis.results.FixedDestinationElements
 
 /**
  * This class provides the syntax to build the fixed destinations of agents.
  */
-class AssignFixedDestinationBuilder<AREA,S : MinimumHouseholdAttributes,  T : MinimumPersonAttributes>(
+class AssignFixedDestinationBuilder<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
     val attractivenessModel: AttractivenessModel,
 ) {
 
@@ -45,7 +45,7 @@ class AssignFixedDestinationBuilder<AREA,S : MinimumHouseholdAttributes,  T : Mi
     }
 
     val steps: MutableList<FixedLocationAssignmentStep> = mutableListOf()
-    fun forActivity(lambda: AssignFixedDestinationBuilder<AREA,S, T>.FixedLocationConfig.() -> Unit) {
+    fun forActivity(lambda: AssignFixedDestinationBuilder<AREA, S, T>.FixedLocationConfig.() -> Unit) {
         val element = FixedLocationConfig()
         element.apply(lambda)
         steps.add(FixedLocationAssignmentStep(element.activityType, element.filter, element.assignmentStrategy))
@@ -67,9 +67,9 @@ class AssignFixedDestinationBuilder<AREA,S : MinimumHouseholdAttributes,  T : Mi
  * Extension functions if the person has the employment as an attribute, in which case the filter condition does not
  * need to be provided externally
  */
-fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA,S, T>.primarySchool(
-    lambda: AssignFixedDestinationBuilder<AREA,S, T>.FixedLocationConfig.() -> Unit,
-) where T: HasEmployment, T: MinimumPersonAttributes {
+fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA, S, T>.primarySchool(
+    lambda: AssignFixedDestinationBuilder<AREA, S, T>.FixedLocationConfig.() -> Unit,
+) where T : HasEmployment, T : MinimumPersonAttributes {
     val element = FixedLocationConfig()
     element.lambda()
     steps.add(
@@ -81,9 +81,9 @@ fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA
     )
 }
 
-fun <AREA,S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA,S, T>.secondarySchool(
-    lambda: AssignFixedDestinationBuilder<AREA,S, T>.FixedLocationConfig.() -> Unit,
-)  where T: HasEmployment, T: MinimumPersonAttributes {
+fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA, S, T>.secondarySchool(
+    lambda: AssignFixedDestinationBuilder<AREA, S, T>.FixedLocationConfig.() -> Unit,
+) where T : HasEmployment, T : MinimumPersonAttributes {
     val element = FixedLocationConfig()
     element.lambda()
     steps.add(
@@ -95,9 +95,9 @@ fun <AREA,S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA,
     )
 }
 
-fun <AREA,S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA,S, T>.tertiarySchool(
-    lambda: AssignFixedDestinationBuilder<AREA,S, T>.FixedLocationConfig.() -> Unit,
-) where T: HasEmployment, T: MinimumPersonAttributes  {
+fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA, S, T>.tertiarySchool(
+    lambda: AssignFixedDestinationBuilder<AREA, S, T>.FixedLocationConfig.() -> Unit,
+) where T : HasEmployment, T : MinimumPersonAttributes {
     val element = FixedLocationConfig()
     element.lambda()
     steps.add(
@@ -109,9 +109,9 @@ fun <AREA,S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA,
     )
 }
 
-fun <AREA,S : MinimumHouseholdAttributes,  T> AssignFixedDestinationBuilder<AREA,S, T>.work(
-    lambda: AssignFixedDestinationBuilder<AREA,S, T>.FixedLocationConfig.() -> Unit,
-) where T: HasEmployment, T: MinimumPersonAttributes {
+fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA, S, T>.work(
+    lambda: AssignFixedDestinationBuilder<AREA, S, T>.FixedLocationConfig.() -> Unit,
+) where T : HasEmployment, T : MinimumPersonAttributes {
     val element = FixedLocationConfig()
     element.lambda()
     steps.add(

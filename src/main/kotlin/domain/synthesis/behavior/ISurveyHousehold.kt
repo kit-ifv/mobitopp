@@ -5,7 +5,10 @@ import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.data.HouseholdType
 import edu.kit.ifv.units.Currency
 
-interface ISurveyHousehold<out S: MinimumHouseholdAttributes, out T : MinimumPersonAttributes> : MinimalistHousehold<S, T> {
+interface ISurveyHousehold<
+    out S : MinimumHouseholdAttributes,
+    out T : MinimumPersonAttributes> :
+    MinimalistHousehold<S, T> {
     val surveyHouseholdId: Long
     val income: Currency get() = attributes.income
     override val members: List<SurveyPerson<T>>

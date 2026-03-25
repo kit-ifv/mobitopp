@@ -13,7 +13,6 @@ data class FastCsvConfig(
         return CsvWriter.builder().fieldSeparator(separator).build(writer)
     }
 
-
     companion object {
         val DEFAULT = FastCsvConfig()
     }

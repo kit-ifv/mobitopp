@@ -32,17 +32,18 @@ class CommunityGroupLocatorTest : SynthesisTest() {
     private val work3 = testZone3.spawnFakeLoc()
 
     private val household1 = home1.createHousehold {
-        person{
+        person {
             Attrs(
-                10, Sex.MALE
+                10,
+                Sex.MALE
             )
         }
-
     }
     private val household2 = home2.createHousehold {
-        person{
+        person {
             Attrs(
-                20, Sex.MALE
+                20,
+                Sex.MALE
             )
         }
     }
@@ -56,7 +57,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         testZone2.id to c2,
         testZone3.id to c3,
 
-        )
+    )
     private lateinit var metric: AsymmetricMockDistance
     private lateinit var demand: CommuterDemandsMatrix
     private lateinit var strategy: TrivialDemands<MinimumPersonAttributes>
@@ -114,7 +115,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         metric[home1, work2] = 0.0
         metric[home1, work3] = 0.5
 
-        val output = context(household1.attributes.location) {locator.match(person1)[0]}
+        val output = context(household1.attributes.location) { locator.match(person1)[0] }
         // The output should be location 3, as location 2 is in a community that has no saturated demand
         assertEquals(work3, output)
     }
@@ -150,7 +151,6 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         val secondOutput = output[1]
         assertEquals(work3, firstOutput)
         assertEquals(work1, secondOutput)
-
     }
 
     @Test
@@ -181,6 +181,5 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         assertEquals(work2, output[2])
         assertEquals(work1, output[3])
         assertEquals(work1, output[4])
-
     }
 }

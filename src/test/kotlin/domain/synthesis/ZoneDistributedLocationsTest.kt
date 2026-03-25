@@ -59,7 +59,8 @@ class ZoneDistributedLocationsTest {
         utmHemisphere = netfileParser.utmHemisphere
     )
     private val distributedLocations = ZoneDistributedLocations<TestHouseHold>(polyZones, distributor)
-    //TODO this test is no longer testing sensible things since the location rework
+
+    // TODO this test is no longer testing sensible things since the location rework
     @Test
     fun singleAssign() {
         val generated = distributedLocations.generateLocation(

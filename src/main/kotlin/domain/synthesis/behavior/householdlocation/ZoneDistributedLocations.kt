@@ -31,7 +31,6 @@ class ZoneDistributedLocations<T>(
         val coordinate = distributor.generateOneCoordinate(polyZone)
         return StandardLocation.Companion(coordinate.toPoint(), zone, RoadAccess.Companion.INVALID)
 //        return Location.wgs(coordinate.x, coordinate.y).withZone(zone.id).withRoadAccess(TODO())
-
     }
 
     /**
@@ -47,9 +46,10 @@ class ZoneDistributedLocations<T>(
         val generatedLocations =
             distributor.generateCoordinates(polyZone, householdsToLocate.size).map {
                 StandardLocation.Companion(
-                    it.toPoint(), zone, RoadAccess.Companion.INVALID
+                    it.toPoint(),
+                    zone,
+                    RoadAccess.Companion.INVALID
                 )
-
             }
         return householdsToLocate.zip(generatedLocations)
 

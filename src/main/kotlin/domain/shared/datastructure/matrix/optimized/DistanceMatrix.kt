@@ -2,8 +2,8 @@ package domain.shared.datastructure.matrix.optimized
 
 import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.DistanceMetric
-import domain.shared.location.attributes.HasZone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.Distance
 
 fun interface DoubleToDistance {
@@ -19,8 +19,8 @@ class DistanceMatrix(
     }
 
     override fun evaluate(
-        origin: HasZone,
-        destination: HasZone,
+        origin: HasZoneID,
+        destination: HasZoneID,
     ): Distance {
         return this[origin.zoneID, destination.zoneID]
     }

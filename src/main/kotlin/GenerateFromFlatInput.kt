@@ -34,23 +34,18 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                 },
                 attributes = householdDataExtractor(data)
             )
-
-
         }
-
     }
 
-
     companion object {
-        fun standard(input: Collection<RawSurveyInfo>):
-                GenerateFromFlatInput<
-                        RawSurveyInfo,
-                        MaximumHouseholdAttributes,
-                        MaximumPersonAttributes,
-                        > {
-
+        fun standard(input: Collection<RawSurveyInfo>): GenerateFromFlatInput<
+            RawSurveyInfo,
+            MaximumHouseholdAttributes,
+            MaximumPersonAttributes,
+            > {
             return GenerateFromFlatInput(
-                input, idExtractor = { it.householdId },
+                input,
+                idExtractor = { it.householdId },
                 householdDataExtractor = {
                     val data = it.first() // The flat format means that the data is repeated multiple times.
                     MaximumHouseholdAttributesImpl(
@@ -82,4 +77,3 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
         fun fromPath(fileString: String) = fromPath(Path.of(fileString))
     }
 }
-

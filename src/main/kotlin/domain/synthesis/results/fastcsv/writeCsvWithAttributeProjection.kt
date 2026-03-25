@@ -7,7 +7,7 @@ import kotlin.reflect.full.memberProperties
 /**
  * Be advised, fields in reflection are returned alphabetically, and not in the order in which they appear in the class
  */
-fun <S : Any, X> Collection<X>.writeCsvWithAttributeProjection(
+fun <S : Any, X> Collection<X>.writeCsvWithGenericAttributes(
     writer: Writer,
     config: FastCsvConfig = FastCsvConfig.DEFAULT,
     attributeExtractor: (X) -> S,
@@ -30,10 +30,9 @@ fun <S : Any, X> Collection<X>.writeCsvWithAttributeProjection(
             })
         }
     }
-
 }
 
- fun <X> Collection<X>.writeCsv(
+fun <X> Collection<X>.writeCsv(
     writer: Writer,
     config: FastCsvConfig = FastCsvConfig.DEFAULT,
     header: List<String>,

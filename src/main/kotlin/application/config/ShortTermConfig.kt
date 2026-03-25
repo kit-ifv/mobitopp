@@ -37,7 +37,7 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     val destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
 
-    ) {
+) {
     lateinit var matrixConfig: MatrixConfig
     lateinit var resultName: String
     lateinit var choiceModelModes: ChoiceModelModes

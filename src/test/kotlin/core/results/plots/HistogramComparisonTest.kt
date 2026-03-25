@@ -32,13 +32,13 @@ class HistogramComparisonTest {
 
 private val data =
     List(2) { "var1" } +
-            List(2) { "var2" } +
-            List(2) { "var3" }
+        List(2) { "var2" } +
+        List(2) { "var3" }
 
 private val comparisonData =
     List(1) { '1' } +
-            List(3) { '2' } +
-            List(1) { '3' }
+        List(3) { '2' } +
+        List(1) { '3' }
 
 private val xMappingFunc: (Char) -> String = { c: Char -> xMapping[c]!! }
 

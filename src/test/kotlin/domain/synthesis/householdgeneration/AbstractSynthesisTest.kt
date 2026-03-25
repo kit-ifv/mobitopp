@@ -5,8 +5,9 @@ import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZone
+import domain.shared.location.attributes.HasZoneID
 import domain.shared.location.toPoint
+import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.attributes.person.MinimumPersonAttributes
@@ -14,7 +15,6 @@ import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.SynthesisHousehold
 import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Currency
@@ -30,7 +30,6 @@ import kotlin.test.Test
 
 class ToolTest : SynthesisTest() {
     val zone1 = TestZone(id = ZoneId(1))
-    private val zones = listOf(zone1)
 
     @Test
     fun checkHouseholdCreation() {
@@ -61,12 +60,13 @@ class ToolTest : SynthesisTest() {
         assertEquals(secondPerson.age, secondAge)
         assertEquals(secondPerson.sex, secondSex)
     }
-
 }
 
 open class SynthesisTest {
 
-    protected fun <T : MinimumPersonAttributes> createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SurveyHousehold<MinimumHouseholdAttributes, T> {
+    protected fun <T : MinimumPersonAttributes> createHousehold(
+        lambda: HouseholdBuilder<T>.() -> Unit
+    ): SurveyHousehold<MinimumHouseholdAttributes, T> {
         val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
         return builder.createHousehold()
@@ -75,8 +75,10 @@ open class SynthesisTest {
     /**
      * Spawn in a synthesis household, if you happen to have a location at hand where the household should be.
      */
-    protected fun <T : MinimumPersonAttributes> StandardLocation.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<MinimumHouseholdAttributes, T> {
-        val builder = HouseholdBuilder< T>()
+    protected fun <T : MinimumPersonAttributes> StandardLocation.createHousehold(
+        lambda: HouseholdBuilder<T>.() -> Unit
+    ): SynthesisHousehold<MinimumHouseholdAttributes, T> {
+        val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
         val createHousehold = builder.createHousehold()
         val synthesisHousehold = HouseholdFactory.createFrom(createHousehold)
@@ -96,7 +98,7 @@ open class SynthesisTest {
         return StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
     }
 
-    protected class FakeCoord : HasZone {
+    protected class FakeCoord : HasZoneID {
         val id = counter
 
         override fun toString(): String {
@@ -104,7 +106,7 @@ open class SynthesisTest {
         }
 
         override val position: Point
-            get() = TODO("Not yet implemented")
+            get() = error("The Fake Coord should never have to resolve its point")
         override val zoneID: ZoneId = ZoneId(id)
 
         companion object {
@@ -117,20 +119,20 @@ open class SynthesisTest {
         override val income: Currency = 1.euros,
         override val type: HouseholdType = HouseholdType.UNDEFINED,
         override var location: StandardLocation = StandardLocation.LOCATIONUNKNOWN
-    ): MinimumHouseholdAttributes
+    ) : MinimumHouseholdAttributes
 
     protected data class Attrs(
         override val age: Int,
         override val sex: Sex,
         override val distanceWork: Distance = (-999).kilometers
 
-    ): MinimumPersonAttributes, HasCommuteDistance
+    ) : MinimumPersonAttributes, HasCommuteDistance
     protected class HouseholdBuilder<T : MinimumPersonAttributes> {
         var id: Long = 0
         var income = 0.euros
         val members: MutableList<SurveyPerson<T>> = mutableListOf()
 
-        var attributeSpawner : () -> MinimumHouseholdAttributes = {
+        var attributeSpawner: () -> MinimumHouseholdAttributes = {
             HAttrs()
         }
 
@@ -151,8 +153,7 @@ open class SynthesisTest {
         }
 
         fun createHousehold(): SurveyHousehold<MinimumHouseholdAttributes, T> {
-            return SurveyHousehold(id,  members, attributeSpawner())
+            return SurveyHousehold(id, members, attributeSpawner())
         }
     }
-
 }

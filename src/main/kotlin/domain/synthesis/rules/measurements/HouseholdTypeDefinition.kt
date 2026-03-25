@@ -5,7 +5,8 @@ import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.data.HouseholdType
 import edu.kit.ifv.populationsynthesis.rules.measurement.BooleanMeasurementDefinition
 
-class HouseholdTypeDefinition(val targetType: HouseholdType) : BooleanMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, *>>() {
+class HouseholdTypeDefinition(val targetType: HouseholdType) :
+    BooleanMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, *>>() {
     override fun generateDescription(): String {
         return "Household Type == $targetType"
     }

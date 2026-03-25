@@ -12,7 +12,7 @@ abstract class HouseholdSizeFactory<Input>(
     val greaterEqualTargetExtractor: (Input, Int) -> Number?,
 ) {
     fun buildRuleSet(lastExplicitSize: Int, input: Input): CoverageGroup<MinimalistHousehold<*, *>> {
-        val equalityRules = (1..lastExplicitSize).map {optionalEqualityRule(it, input)}
+        val equalityRules = (1..lastExplicitSize).map { optionalEqualityRule(it, input) }
         val greaterEqualsRule = optionalGreaterEqualsRule(lastExplicitSize + 1, input)
         val ruleset = (equalityRules + greaterEqualsRule).filterNotNull().toRuleSet()
         return FullCoverageGroup(ruleset)
@@ -34,4 +34,3 @@ abstract class HouseholdSizeFactory<Input>(
         return HouseholdSizeDefinition(size, HouseholdSizeDefinition.EqualityOp.GREATER_OR_EQUAL)
     }
 }
-

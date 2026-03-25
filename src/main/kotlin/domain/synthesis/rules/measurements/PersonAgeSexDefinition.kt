@@ -20,7 +20,8 @@ class PersonAgeSexDefinition(val acceptedAgeRange: IntRange, val acceptedSex: Se
     }
 }
 
-fun <T : MinimumPersonAttributes> BooleanMeasurementDefinition<SurveyPerson<T>>.asHouseholdDefinition(): NumericMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, T>> {
+fun <T : MinimumPersonAttributes> BooleanMeasurementDefinition<SurveyPerson<T>>.asHouseholdDefinition():
+    NumericMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, T>> {
     return object : NumericMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, T>>() {
         /**
          * Important: The string returned by this method is used for equality checks for the [NamedMeasurement].

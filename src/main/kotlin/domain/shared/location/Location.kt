@@ -1,7 +1,7 @@
 package domain.shared.location
 
 import domain.shared.location.attributes.HasRoadAccess
-import domain.shared.location.attributes.HasZone
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate
@@ -12,7 +12,7 @@ import org.locationtech.jts.geom.PrecisionModel
 interface Location {
     val position: Point
 
-    fun withZone(zoneId: ZoneId): HasZone {
+    fun withZone(zoneId: ZoneId): HasZoneID {
         return ZoneIDLocation(position, zoneId)
     }
 
@@ -27,6 +27,7 @@ interface Location {
             return LocationImpl(point)
         }
 
+        @Suppress("MagicNumber")
         fun utm(x: Double, y: Double): Location {
             return of(GeometryFactory(PrecisionModel(), 25832).createPoint(Coordinate(x, y)))
         }
@@ -34,7 +35,6 @@ interface Location {
         fun utm(string: String): Location {
             val (x, y) = string.split(",").take(2)
             return utm(x.toDouble(), y.toDouble())
-
         }
 
         fun wgs(coord: WGS84Coordinate) = wgs(coord.x, coord.y)

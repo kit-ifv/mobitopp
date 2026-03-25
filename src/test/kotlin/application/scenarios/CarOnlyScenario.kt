@@ -44,7 +44,7 @@ class CarOnlyScenario {
                 numCars = 2..2,
                 numPersons = 100..100,
 
-                ),
+            ),
             personLimits = spawnDrivers,
             memberships = mutableListOf(),
             personScope = { it.generateActivitySchedule(10, random) }

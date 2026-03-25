@@ -6,13 +6,11 @@ import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toDistance
 import org.geotools.referencing.GeodeticCalculator
 import org.locationtech.jts.geom.Geometry
-import org.locationtech.jts.geom.Point
 import org.locationtech.jts.operation.distance.DistanceOp
 
 object JTSDistanceCalculator {
 
     private val crsLookup: MutableMap<Int, DistanceUnit?> = mutableMapOf()
-
 
     private fun isProjectable(srid: Int): DistanceUnit? {
         val crs = JTSConverter.epsg(srid)
@@ -32,6 +30,8 @@ object JTSDistanceCalculator {
     }
 
     operator fun get(srid: Int) = crsLookup.getOrPut(srid) { isProjectable(srid) }
+
+    @Suppress("MagicNumber")
     fun distance(geom1: Geometry, geom2: Geometry): Distance {
         val distanceUnit = get(geom1.srid)
         if (geom1.srid == geom2.srid && distanceUnit != null) {
@@ -49,11 +49,4 @@ object JTSDistanceCalculator {
 
         return geodeticCalculator.orthodromicDistance.meters
     }
-
-    // Is supposed to take care of projectioin, and checking which srid is present etc.
-    fun randomPoint(input: Point, distance: Distance): Point {
-        return TODO()
-    }
-
-
 }

@@ -7,23 +7,23 @@ import domain.shared.datastructure.schedule.Activity
 import domain.shared.location.Zone
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
+import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
+import domain.synthesis.behavior.cars.SynthesisCar
+import domain.synthesis.behavior.cars.generation.GenerateCars
 import domain.synthesis.behavior.cars.ownership.AssignMainUser
 import domain.synthesis.behavior.economicstatus.DetermineEconomicStatus
-import domain.synthesis.behavior.cars.generation.GenerateCars
-import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
-import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.cars.SynthesisCar
-import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
 import domain.synthesis.behavior.fixedDestinations.AssignFixedDestinationBuilder
+import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
+import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.results.FixedDestinationElements
 import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.fastcsv.OutputWriters
 import domain.synthesis.results.fastcsv.write
-import domain.synthesis.results.fastcsv.writeOpportunities
 import domain.synthesis.results.fastcsv.writeActivities
 import domain.synthesis.results.fastcsv.writeCars
+import domain.synthesis.results.fastcsv.writeOpportunities
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
@@ -59,7 +59,6 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         val fixedDestinationBuilder = AssignFixedDestinationBuilder<Zone, S, T>(attractivenessModel)
         fixedDestinationBuilder.apply(lambda)
 
-
         val allFixedDestinations = fixedDestinationBuilder.steps.flatMap { it.generateFixedDestinations(households) }
         allFixedDestinations.addProgressBar(
             "Assign Fixed Destinations"
@@ -84,9 +83,6 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
             }
         }
     }
-
-
-
 
     // TODO refactor, use or discard this method
     fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in AREA, SynthesisHousehold<S, T>>) {
@@ -144,8 +140,6 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
     }
 
     fun assignCars(generationStrategy: GenerateCars<S, T>, assignStrategy: AssignMainUser<S, T>) {
-
-
         households.addProgressBar("Generate Cars").forEach {
             val cars = generationStrategy.generate(it)
             it.cars += assignStrategy.assign(it, cars)
@@ -180,7 +174,5 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
             fixedDestinationWriter?.let { cars.writeCars(it) }
             opportunitiesWriter?.let { opportunities.writeOpportunities(it) }
         }
-
     }
 }
-

@@ -7,15 +7,12 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.InputStream
 
-
 val module = SimpleModule().apply {
-
 }
 
 val standardMapper: ObjectMapper = CsvMapper().registerKotlinModule().registerModule(module)
 
 val standardSchema = CsvSchema.emptySchema().withHeader()
-
 
 inline fun <reified T> standardCSVParse(input: InputStream, separator: Char = ';'): List<T> {
     return standardMapper

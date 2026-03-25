@@ -1,25 +1,24 @@
 package domain.shared.location
 
 import domain.shared.location.attributes.HasRoadAccess
-import domain.shared.location.attributes.HasZone
-import edu.kit.ifv.units.Distance
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.KCoordinate
 import edu.kit.ifv.units.UTMPosition
 import edu.kit.ifv.units.WGS84Coordinate
-import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
 import org.geotools.api.referencing.cs.CoordinateSystem
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
-
-
+@Suppress("MagicNumber")
 fun WGS84Coordinate.toPoint(): Point {
     return GeometryFactory(PrecisionModel(), 4326).createPoint(Coordinate(x, y))
 }
 
+@Suppress("MagicNumber")
 object PointCreator {
+
     private val wgsFactory = GeometryFactory(PrecisionModel(), 4326)
     private val utmFactory = GeometryFactory(PrecisionModel(), 28532)
     fun createWGS(coord: KCoordinate) = createWGS(coord.x, coord.y)
@@ -43,21 +42,15 @@ object PointCreator {
     }
 }
 
-
 data class RoadAccessLocationImpl(
     override val position: Point,
     override val roadAccess: RoadAccess,
 ) : HasRoadAccess
 
-interface ZonedRoadAccessLocation : HasRoadAccess, HasZone
-
+interface ZonedRoadAccessLocation : HasRoadAccess, HasZoneID
 
 interface ZonedLocation : Location {
     val zoneId: ZoneId
-}
-
-fun Point.randomPoint(distance: Distance = 100.meters): Point {
-    return JTSDistanceCalculator.randomPoint(this, distance)
 }
 
 fun CoordinateSystem.axisUnits(): Set<String> {

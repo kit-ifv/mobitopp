@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * A Synthesis household consists of multiple synthesis persons. The fields are variable to be modified within the
  * usage of the household
  */
-class SynthesisHousehold<S: MinimumHouseholdAttributes, T : MinimumPersonAttributes> constructor(
+class SynthesisHousehold<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> constructor(
     override val surveyHouseholdId: Long = 0,
     override val attributes: S,
     override val members: MutableList<SynthesisPerson<S, T>> = mutableListOf(),

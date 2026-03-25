@@ -21,7 +21,9 @@ import java.util.TreeMap
  */
 class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
     DetermineEconomicStatus<HasIncome, MinimumPersonAttributes> {
-    override fun determineStatus(surveyHousehold: MinimalistHousehold<HasIncome, MinimumPersonAttributes>): EconomicStatus {
+    override fun determineStatus(
+        surveyHousehold: MinimalistHousehold<HasIncome, MinimumPersonAttributes>
+    ): EconomicStatus {
         val oecdNumber = calculateOECDAmount(surveyHousehold)
         val economicStatus = oecdTranslation(oecdNumber, surveyHousehold.attributes.income)
         return economicStatus

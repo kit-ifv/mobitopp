@@ -17,4 +17,3 @@ class UseClosestLocation(potentialLocations: List<StandardLocation>) : SimpleLoc
         return locationTree.nearestNeighbor(agent.homeLocation)
     }
 }
-

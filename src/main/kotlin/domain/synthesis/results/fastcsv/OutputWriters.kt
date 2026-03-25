@@ -15,7 +15,6 @@ data class OutputWriters(
 ) {
     companion object {
         fun useDirectory(path: Path): OutputWriters {
-
             path.createDirectories() // Ensure the path exists
             val outputWriters = OutputWriters()
 

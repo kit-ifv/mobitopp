@@ -92,8 +92,8 @@ abstract class PlanModelTest {
 
     private fun Triple<Collection<Action>, Collection<Action>, Collection<Action>>.decode(): String {
         return first.joinToString { it.decodeToShorthand() } + "|" +
-                second.joinToString { it.decodeToShorthand() } + "|" +
-                third.joinToString { it.decodeToShorthand() }
+            second.joinToString { it.decodeToShorthand() } + "|" +
+            third.joinToString { it.decodeToShorthand() }
     }
 
     private fun Pair<Collection<Action>, Collection<Action>>.decode(): String {
@@ -334,12 +334,12 @@ abstract class PlanModelTest {
                 assertEquals(removedElement?.next, firstElement)
                 assertEquals(removedElement, firstElement?.previous)
                 val target = (
-                        setOf(
-                            activity2,
-                            activity2b,
-                            activity3
-                        ).filter { it >= test } + legs.filter { it > test }
-                        ).toSortedSet()
+                    setOf(
+                        activity2,
+                        activity2b,
+                        activity3
+                    ).filter { it >= test } + legs.filter { it > test }
+                    ).toSortedSet()
                 assertContentEquals(model.actions(), target)
                 assertTrue(model.isConsistent())
             }

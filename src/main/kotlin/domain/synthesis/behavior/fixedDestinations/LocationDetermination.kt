@@ -1,9 +1,9 @@
 package domain.synthesis.behavior.fixedDestinations
 
 import domain.shared.location.StandardLocation
+import domain.synthesis.SynthesisPerson
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.SynthesisPerson
 import utils.collections.addProgressBar
 
 data class AssignedLocation<T : MinimumPersonAttributes>(
@@ -26,7 +26,6 @@ fun interface AdjustableGroupLocator<T : MinimumPersonAttributes> {
  * A simple group locator disregards the information of potential valid locations, maybe they are already preallocated.
  */
 fun interface SimpleGroupLocator<T : MinimumPersonAttributes> : AdjustableGroupLocator<T> {
-
 
     fun match(agents: Collection<SurveyPerson<T>>): List<StandardLocation>
 
@@ -64,7 +63,7 @@ fun interface SimpleLocator<T : MinimumPersonAttributes> : AdjustableAgentLocato
 
     override fun locate(agent: SurveyPerson<T>, locations: Collection<StandardLocation>) = locate(agent)
     override fun match(agents: Collection<SurveyPerson<T>>): List<StandardLocation> {
-        return agents.addProgressBar("Running Fixed Destination Locator").map {  locate(it) }
+        return agents.addProgressBar("Running Fixed Destination Locator").map { locate(it) }
     }
     override fun match(
         agents: Collection<SurveyPerson<T>>,
@@ -73,5 +72,3 @@ fun interface SimpleLocator<T : MinimumPersonAttributes> : AdjustableAgentLocato
         return agents.map { locate(it) }
     }
 }
-
-

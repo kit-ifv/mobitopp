@@ -9,6 +9,3 @@ import domain.synthesis.data.EconomicStatus
 fun interface DetermineEconomicStatus<in S, in T> {
     fun determineStatus(surveyHousehold: MinimalistHousehold<S, T>): EconomicStatus
 }
-
-
-

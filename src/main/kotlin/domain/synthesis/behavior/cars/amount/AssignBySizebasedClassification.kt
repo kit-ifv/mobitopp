@@ -42,13 +42,15 @@ class AssignBySizebasedClassification<A, P>(
     private val smallTownParameters: P,
     private val urbanAreaParameters: P,
     private val ruralAreaParameters: P,
-) : NumberOfCarDeterminer<MaximumHouseholdAttributes, MaximumPersonAttributes>  {
+) : NumberOfCarDeterminer<MaximumHouseholdAttributes, MaximumPersonAttributes> {
 
     private val models = SizebasedRegiostarClassification.entries.associateWith {
         model.build(it.toParameters())
     }
 
-    override fun determineNumberOfCars(householdBuilder: MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>): Int {
+    override fun determineNumberOfCars(
+        householdBuilder: MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>
+    ): Int {
         val region = householdBuilder.attributes.location.sizebasedRegiostarClassification
         // TODO check where the randomness for this dcm should come from
         return context(converter(householdBuilder), Random(householdBuilder.hashCode())) {
@@ -89,7 +91,7 @@ class AssignBySizebasedClassification<A, P>(
              *
              * @return The fully constructed `AssignBySizebasedClassification` instance.
              */
-            fun  build(): AssignBySizebasedClassification<A, P> {
+            fun build(): AssignBySizebasedClassification<A, P> {
                 return AssignBySizebasedClassification(
                     model,
                     converter,
@@ -112,7 +114,7 @@ class AssignBySizebasedClassification<A, P>(
         fun <SIT, PARAMS : Any> createUsingModel(
             model: EnumeratedDiscreteModelBuilder<Int, SIT, PARAMS>,
             lambda: AssignViaRegionTypeBuilder<SIT, PARAMS>.() -> Unit
-        ): AssignBySizebasedClassification<SIT, PARAMS>  {
+        ): AssignBySizebasedClassification<SIT, PARAMS> {
             val builder = AssignViaRegionTypeBuilder(model)
             builder.apply(lambda)
             return builder.build()

@@ -31,10 +31,10 @@ class BandwidthLocatorTest : SynthesisTest() {
 
     private fun Zone.spawnUTM(eOffset: Number, nOffset: Number): StandardLocation {
         return StandardLocation(
-            Location.utm(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble()).position, this,
+            Location.utm(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble()).position,
+            this,
             RoadAccess.INVALID
         )
-
     }
 
     @BeforeTest
@@ -60,7 +60,6 @@ class BandwidthLocatorTest : SynthesisTest() {
                     Sex.MALE,
                     3.kilometers,
                 )
-
             }
 
             person {

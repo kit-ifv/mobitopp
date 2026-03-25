@@ -191,8 +191,6 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHousehold
     )
 
     override fun convert(element: SynthesisHousehold<MaximumHouseholdAttributes, *>): String {
-
-
         return element.run {
             val location = this.attributes.location
             toCSV(
@@ -242,7 +240,7 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttr
                 -13379001, // Dummy value: Originally the ID in the Survey Info.
                 -1, // Ok, here I am lost, I have absolutely no idea what "domcode" is supposed to be.
                 -1, // The household type. Again taken from survey data. Again crazy that this exists as an int field.
-                TODO(),// location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
+                TODO(), // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
                 location.zoneID,
                 location.legacyStringRepresentation(),
                 location.position.x,
@@ -300,7 +298,7 @@ object SurveyPersonOutput : CSVOutput<SurveyPerson<MaximumPersonAttributes>> {
                 personId,
                 age,
                 sex,
-                "TODO Household Income is not part of person", //attributes.householdIncome.inEuros,
+                "TODO Household Income is not part of person", // attributes.householdIncome.inEuros,
                 attributes.hasBicycle,
                 attributes.hasLicence
             )
@@ -338,7 +336,7 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<MaximumHouseholdAttributes
 
                 employment,
                 hasAccessToCar,
-                "TODO this should be a field in the attributes", //household.amountOfCars <= household.numberOfDrivingLicences,
+                "TODO is this field sth useful?", // household.amountOfCars <= household.numberOfDrivingLicences,
                 hasTransitPass,
                 attributes.hasLicence,
                 SURVEY_DUMMY,
