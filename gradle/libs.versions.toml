@@ -25,7 +25,7 @@ fast-utils = "8.5.16"
 fast-csv = "4.1.0"
 # ifv units
 ifv-units= "1.0.2"
-ifv-visum-netparser = "0.11.4"
+ifv-visum-netparser = "0.11.5"
 ifv-actitopp-NG = "0.10.5"
 ifv-discrete-choice = "0.1.2"
 ifv-synthesis-algorithms = "0.0.13"
