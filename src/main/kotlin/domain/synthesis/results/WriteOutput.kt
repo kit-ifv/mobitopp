@@ -9,9 +9,9 @@ import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.SynthesisCar
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.behavior.cars.SynthesisCar
+import domain.synthesis.SynthesisHousehold
+import domain.synthesis.SynthesisPerson
 import domain.synthesis.behavior.employment
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter

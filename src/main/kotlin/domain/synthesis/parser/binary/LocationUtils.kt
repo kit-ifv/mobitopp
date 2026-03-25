@@ -1,6 +1,6 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.HasZone
+import domain.shared.location.attributes.HasZone
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation

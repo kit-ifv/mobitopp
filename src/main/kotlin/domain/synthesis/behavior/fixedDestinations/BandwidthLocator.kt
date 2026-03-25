@@ -13,7 +13,6 @@ import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.kilometers
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.random.Random
@@ -91,24 +90,3 @@ class BandwidthLocator<T>(
 
 }
 
-data class BandwidthParameters(
-    val poleRadius: Distance = 4.kilometers,
-    val bDistance: Double = 0.5,
-    val aDistance: Double = 5.0,
-)
-
-/**
- * Contains all relevant information for the discrete choice within the [BandwidthLocator] to select a proper target.
- */
-@Suppress("MagicNumber") // The small attractiveness as default seems to cause issues.
-data class LocationAlternative(
-    val attractivenessModel: AttractivenessModel,
-    val activityType: ActivityType
-) {
-    /**
-     * We can extrapolate the attractiveness by simply evaluating the location.
-     */
-    fun attractiveness(location: StandardLocation) = location.zoneID.let {
-        attractivenessModel.attractivenessFor(it, activityType)
-    }
-}

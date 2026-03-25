@@ -17,7 +17,6 @@ import domain.shared.datastructure.schedule.StationaryAction
 import domain.shared.datastructure.schedule.alternateByImpedance
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
-import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Metrics
 import domain.shared.location.StandardLocation
 import domain.simulation.agent.DrtOffer
@@ -266,7 +265,7 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : PersonS
                 trip.elements.last().endLocation == person.household.location
             }
 
-            if (trip.elements.last().endLocation == LOCATIONUNKNOWN) {
+            if (trip.elements.last().endLocation == StandardLocation.LOCATIONUNKNOWN) {
                 val situation = behavior.spawnDestinationCharacteristics(person, time, behavior, trip)
                 context(situation, person.random) {
                     trip.elements.last().endLocation = behavior.destinationChoice.select()

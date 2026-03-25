@@ -1,6 +1,8 @@
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
+import domain.synthesis.attributes.household.MaximumHouseholdAttributesImpl
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributesImpl
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.RawSurveyInfo
@@ -51,7 +53,7 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                 input, idExtractor = { it.householdId },
                 householdDataExtractor = {
                     val data = it.first() // The flat format means that the data is repeated multiple times.
-                    MaximumHouseholdAttributes(
+                    MaximumHouseholdAttributesImpl(
                         income = data.householdIncome,
                         type = data.type,
                         householdSize = data.householdSize,
@@ -61,7 +63,7 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                     )
                 },
                 personDataExtractor = {
-                    MaximumPersonAttributes(
+                    MaximumPersonAttributesImpl(
                         age = it.age,
                         sex = it.sex,
                         distanceWork = it.distanceWork,

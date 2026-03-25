@@ -5,8 +5,7 @@ package domain.simulation.behavior
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
-import domain.shared.location.HasZone
-import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.attributes.HasZone
 import domain.shared.location.StandardLocation
 import domain.synthesis.data.Employment
 import domain.synthesis.data.isAdult
@@ -178,7 +177,7 @@ val DestinationAlternative.travelCostCar: Currency get() = impedance.cost(origin
 
 // Next fixed destination properties
 val DestinationChoiceCharacteristics.nextFixedActivity
-    get() = person.schedule.activities().find { it.location != LOCATIONUNKNOWN }
+    get() = person.schedule.activities().find { it.location != StandardLocation.LOCATIONUNKNOWN }
 val DestinationChoiceCharacteristics.nextFixedDestination: HasZone
     get() = nextFixedActivity?.location ?: person.household.location
 val DestinationChoiceCharacteristics.nextFixedActivityEnd get() = nextFixedActivity?.endTime ?: time.plus(7.hours)

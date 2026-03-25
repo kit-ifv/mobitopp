@@ -2,7 +2,7 @@ package domain.synthesis.behavior.sharingmemberships
 
 import AssignmentStep
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.SynthesisPerson
 
 class SharingMembershipsBuilder<T : MinimumPersonAttributes> {
 

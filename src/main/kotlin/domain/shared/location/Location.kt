@@ -1,0 +1,49 @@
+package domain.shared.location
+
+import domain.shared.location.attributes.HasRoadAccess
+import domain.shared.location.attributes.HasZone
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.WGS84Coordinate
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Point
+import org.locationtech.jts.geom.PrecisionModel
+
+interface Location {
+    val position: Point
+
+    fun withZone(zoneId: ZoneId): HasZone {
+        return ZoneIDLocation(position, zoneId)
+    }
+
+    fun withRoadAccess(access: RoadAccess): HasRoadAccess {
+        return RoadAccessLocationImpl(position, access)
+    }
+
+    fun distance(other: Location): Distance = JTSDistanceCalculator.distance(position, other.position)
+
+    companion object {
+        fun of(point: Point): Location {
+            return LocationImpl(point)
+        }
+
+        fun utm(x: Double, y: Double): Location {
+            return of(GeometryFactory(PrecisionModel(), 25832).createPoint(Coordinate(x, y)))
+        }
+
+        fun utm(string: String): Location {
+            val (x, y) = string.split(",").take(2)
+            return utm(x.toDouble(), y.toDouble())
+
+        }
+
+        fun wgs(coord: WGS84Coordinate) = wgs(coord.x, coord.y)
+        fun wgs(x: Double, y: Double): Location {
+            return of(PointCreator.createWGS(x, y))
+        }
+
+        val BIELEFELD by lazy {
+            wgs(8.531007, 52.019101)
+        }
+    }
+}

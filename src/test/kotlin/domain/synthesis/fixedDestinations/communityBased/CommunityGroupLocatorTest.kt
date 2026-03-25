@@ -2,7 +2,6 @@ package domain.synthesis.fixedDestinations.communityBased
 
 import TestZone
 import assertNotContains
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
@@ -52,10 +51,10 @@ class CommunityGroupLocatorTest : SynthesisTest() {
     private val c1 = CommunityNumber(1)
     private val c2 = CommunityNumber(2)
     private val c3 = CommunityNumber(3)
-    private val zoneCommunityMapping: Map<Zone, CommunityNumber> = mapOf(
-        testZone1 to c1,
-        testZone2 to c2,
-        testZone3 to c3,
+    private val zoneCommunityMapping: Map<ZoneId, CommunityNumber> = mapOf(
+        testZone1.id to c1,
+        testZone2.id to c2,
+        testZone3.id to c3,
 
         )
     private lateinit var metric: AsymmetricMockDistance
@@ -65,7 +64,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
     @BeforeTest
     fun setup() {
         metric = AsymmetricMockDistance()
-        demand = CommuterDemandsMatrix(converter = { zoneCommunityMapping.getValue(it.zone) })
+        demand = CommuterDemandsMatrix(converter = { zoneCommunityMapping.getValue(it.zoneID) })
         strategy = TrivialDemands(metric)
     }
 

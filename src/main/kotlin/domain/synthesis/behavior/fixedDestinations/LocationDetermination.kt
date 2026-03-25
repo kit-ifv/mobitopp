@@ -1,11 +1,9 @@
 package domain.synthesis.behavior.fixedDestinations
 
 import domain.shared.location.StandardLocation
-import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.SynthesisPerson
 import utils.collections.addProgressBar
 
 data class AssignedLocation<T : MinimumPersonAttributes>(

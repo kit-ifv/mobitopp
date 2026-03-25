@@ -8,7 +8,7 @@ import domain.shared.datastructure.schedule.Action
 import domain.shared.datastructure.schedule.MovingAction
 import domain.shared.datastructure.schedule.Schedule
 import domain.shared.enums.Mode
-import domain.shared.location.HasZone
+import domain.shared.location.attributes.HasZone
 import domain.shared.location.StandardLocation
 import domain.simulation.events.PersonBehavior
 import domain.synthesis.data.IPerson

@@ -471,7 +471,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midPlotForLegs(
                 legFilter = {
                     it.leg.transportType != MODEUNKOWN &&
-                        it.person.household.location.zone?.regionType?.toRegioStaR17()?.toRegioStaR7() == regio
+                        it.person.household.location.regionType.toRegioStaR17()?.toRegioStaR7() == regio
                 },
                 rowFilter = { it.regioStaR7 == regio },
                 legGroup = { it.leg.transportType },

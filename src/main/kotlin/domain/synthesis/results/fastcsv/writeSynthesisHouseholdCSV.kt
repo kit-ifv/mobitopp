@@ -1,7 +1,7 @@
 package domain.synthesis.results.fastcsv
 
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
-import domain.synthesis.behavior.domain.SynthesisHousehold
+import domain.synthesis.SynthesisHousehold
 import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path

@@ -1,8 +1,10 @@
-package domain.synthesis.behavior
+package domain.synthesis.behavior.economicstatus
 
 import domain.synthesis.attributes.household.HasIncome
-import domain.synthesis.attributes.person.HasAge
+import domain.synthesis.attributes.household.numberOfAdults
+import domain.synthesis.attributes.household.numberOfMinors
 import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.data.EconomicStatus
 import edu.kit.ifv.units.ClosedCurrencyRange
 import edu.kit.ifv.units.Currency
@@ -11,19 +13,6 @@ import processor.builder.splitOnce
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import java.util.TreeMap
-
-/**
- * Assign an economic status to a household
- */
-fun interface DetermineEconomicStatus<in S, in T> {
-    fun determineStatus(surveyHousehold: MinimalistHousehold<S, T>): EconomicStatus
-}
-
-class AlwaysAssignSameStatus(val economicStatus: EconomicStatus) : DetermineEconomicStatus<Any?, Any?> {
-    override fun determineStatus(surveyHousehold: MinimalistHousehold<*, *>): EconomicStatus {
-        return economicStatus
-    }
-}
 
 /**
  * The default implementation to determine an Economic status for a household. Checks against a table of
@@ -48,6 +37,12 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
     }
 
     companion object {
+
+        private class FileEntry(
+            val amount: Double,
+            val intervals: List<Pair<ClosedCurrencyRange, EconomicStatus>>
+        )
+
         fun fromPath(
             path: Path = Path.of("src/integration.main/resources/economical-status-oecd2017.csv")
         ): OECDAssigner {
@@ -57,7 +52,7 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
                     amount = row("household_size") { it.replace(",", ".").toDouble() },
                     (1..<row.size).map {
                         val header = row.headerForIndex(it)
-                        headerToRange(header) to EconomicStatus.decode(row.valueAt(it).toInt())
+                        headerToRange(header) to EconomicStatus.Companion.decode(row.valueAt(it).toInt())
                     }
                 )
             }
@@ -84,14 +79,3 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
         }
     }
 }
-
-@Suppress("MagicNumber") // These magic numbers are ok
-val MinimalistHousehold<*, HasAge>.numberOfAdults get() = members.count { it.attributes.age >= 18 }
-
-@Suppress("MagicNumber") // These magic numbers are ok
-val MinimalistHousehold<*, HasAge>.numberOfMinors get() = members.count { it.attributes.age < 18 }
-
-private class FileEntry(
-    val amount: Double,
-    val intervals: List<Pair<ClosedCurrencyRange, EconomicStatus>>
-)

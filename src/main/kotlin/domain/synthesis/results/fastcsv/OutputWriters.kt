@@ -1,8 +1,9 @@
-package domain.synthesis
+package domain.synthesis.results.fastcsv
 
 import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 
 data class OutputWriters(
     var householdWriter: Writer? = null,
@@ -14,6 +15,8 @@ data class OutputWriters(
 ) {
     companion object {
         fun useDirectory(path: Path): OutputWriters {
+
+            path.createDirectories() // Ensure the path exists
             val outputWriters = OutputWriters()
 
             outputWriters.householdWriter = Files.newBufferedWriter(path.resolve("households.csv"))

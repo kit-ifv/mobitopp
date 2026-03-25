@@ -4,7 +4,7 @@ import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.datastructure.schedule.RawActivity
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.ZoneRegionType
-import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasCommuteDistance
@@ -55,7 +55,7 @@ class ActiToppNGGenerator<in S,in T>(
         return PreliminaryActivitySchedule(
             finishedActivities.map {
                 RawActivity(
-                    location = LOCATIONUNKNOWN,
+                    location = StandardLocation.LOCATIONUNKNOWN,
                     startTime = it.startTime!!.sinceStart,
                     endTime = it.endTime!!.sinceStart,
 

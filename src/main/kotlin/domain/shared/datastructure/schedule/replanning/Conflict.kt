@@ -1,7 +1,7 @@
 package domain.shared.datastructure.schedule.replanning
 
 import domain.shared.datastructure.schedule.StationaryAction
-import domain.shared.location.HasZone
+import domain.shared.location.attributes.HasZone
 import utils.units.AbsoluteTime
 
 /**

@@ -3,6 +3,7 @@ package domain.shared.location
 import Mutable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.attributes.HasZone
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import kotlinx.serialization.Serializable
@@ -69,11 +70,13 @@ abstract class Zone(
     abstract val isDestination: Boolean
     abstract val relief: Distance
 
-    val centroid: StandardLocation = StandardLocation(
-        position = centroid.position,
-        zone = this,
-        roadAccess = RoadAccess.INVALID
-    )
+    val centroid: StandardLocation by lazy {
+        StandardLocation(
+            position = centroid.position,
+            zone = this,
+            roadAccess = RoadAccess.INVALID
+        )
+    }
 
 
 

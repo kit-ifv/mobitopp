@@ -1,12 +1,12 @@
-package domain.synthesis.behavior.domain
+package domain.synthesis
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped
-import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.SynthesisCar
+import domain.synthesis.behavior.cars.SynthesisCar
+import domain.synthesis.SynthesisPerson
 import domain.synthesis.data.EconomicStatus
 import org.jetbrains.annotations.TestOnly
 import java.util.concurrent.atomic.AtomicInteger
@@ -30,7 +30,7 @@ class SynthesisHousehold<S: MinimumHouseholdAttributes, T : MinimumPersonAttribu
     val cars: MutableList<SynthesisCar> = mutableListOf()
 
     @TestOnly
-    fun locationIsAssigned() = attributes.location != LOCATIONUNKNOWN
+    fun locationIsAssigned() = attributes.location != StandardLocation.Companion.LOCATIONUNKNOWN
     fun addMember(member: SurveyPerson<T>) {
         members.add(SynthesisPerson(this, age = member.age, sex = member.sex, attributes = member.attributes))
     }
@@ -48,4 +48,3 @@ class SynthesisHousehold<S: MinimumHouseholdAttributes, T : MinimumPersonAttribu
     override val size: Int
         get() = members.size
 }
-

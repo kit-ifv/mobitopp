@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.domain
+package domain.synthesis
 
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
@@ -46,4 +46,3 @@ class SynthesisPerson<S: MinimumHouseholdAttributes, T : MinimumPersonAttributes
             private set
     }
 }
-

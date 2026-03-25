@@ -1,4 +1,4 @@
-package domain.synthesis.behavior
+package domain.simulation.cars
 
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId

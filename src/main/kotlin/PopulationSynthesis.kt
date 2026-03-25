@@ -5,29 +5,29 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.HasZone
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
-import domain.synthesis.TrivialSynthesis
+import domain.shared.location.attributes.HasZone
+import domain.synthesis.SynthesisSteps
+import domain.synthesis.algorithms.TrivialSynthesis
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.AssignAroundZoneCentroid
-import domain.synthesis.behavior.BySeniority
 import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
-import domain.synthesis.behavior.SamplingCarGeneration
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
-import domain.synthesis.behavior.carownership.standardAssignmentByRegionSize
+import domain.synthesis.behavior.cars.amount.standardAssignmentByRegionSize
+import domain.synthesis.behavior.cars.generation.SamplingCarGeneration
+import domain.synthesis.behavior.cars.ownership.UnfilteredSeniority
 import domain.synthesis.behavior.discreteChoice.TicketCharacteristics
 import domain.synthesis.behavior.discreteChoice.TransitPassParameters
 import domain.synthesis.behavior.discreteChoice.YesTransitPass
 import domain.synthesis.behavior.discreteChoice.transitPassChoiceModel
+import domain.synthesis.behavior.economicstatus.OECDAssigner
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
@@ -36,6 +36,7 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistan
 import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
+import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import domain.synthesis.results.LegacyActivityOutput
@@ -51,7 +52,6 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toCurrency
-import kotlinx.serialization.builtins.ByteArraySerializer
 import utils.csv.DefaultCsvParser
 import utils.csv.Row
 import java.nio.file.Path
@@ -215,8 +215,8 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
 ) {
 
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
-    fun execute(lambda: domain.synthesis.SynthesisSteps<AREA, S, T>.() -> Unit) {
-        _root_ide_package_.domain.synthesis.SynthesisSteps(
+    fun execute(lambda: SynthesisSteps<AREA, S, T>.() -> Unit) {
+        SynthesisSteps(
             zones,
             surveyHouseholds,
             attractivenessModel,
@@ -406,7 +406,7 @@ fun examplePopulationSynthesis() {
 
         assignCars(
             generationStrategy = SamplingCarGeneration(),
-            assignStrategy = BySeniority(),
+            assignStrategy = UnfilteredSeniority(),
         )
         assignActivities {
             ActiToppNGGenerator(legacyChoiceModelPurposes) {

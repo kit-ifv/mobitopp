@@ -3,21 +3,20 @@ import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
-import domain.synthesis.TrivialSynthesis
-import domain.synthesis.behavior.AlwaysAssignSameStatus
-import domain.synthesis.behavior.AssignAroundZoneCentroid
+import domain.synthesis.algorithms.TrivialSynthesis
+import domain.synthesis.behavior.economicstatus.AlwaysAssignSameStatus
+import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.BySeniority
+import domain.synthesis.behavior.cars.ownership.UnfilteredSeniority
 import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
-import domain.synthesis.behavior.TrivialCarGeneration
+import domain.synthesis.behavior.cars.generation.TrivialCarGeneration
 import domain.synthesis.behavior.activityGeneration.TrivialActivityGeneration
-import domain.synthesis.behavior.carownership.AlwaysAssignFixedNumber
-import domain.synthesis.behavior.fixedDestinations.AssignedLocation
+import domain.synthesis.behavior.cars.amount.AlwaysAssignFixedNumber
 import domain.synthesis.behavior.fixedDestinations.SimpleGroupLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
 import domain.synthesis.data.EconomicStatus
@@ -28,7 +27,6 @@ import edu.kit.ifv.units.meters
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import toSurveyHouseholds
 import kotlin.io.path.Path
 import kotlin.test.Test
 
@@ -139,9 +137,9 @@ class PopulationSynthesisKtTest {
             assignLocations {
                 AssignAroundZoneCentroid(100.meters)
             }
-            assertEquals(hh1.attributes.location.zone, TEST_ZONE)
-            assertEquals(hh2.attributes.location.zone, TEST_ZONE)
-            assertEquals(hh3.attributes.location.zone, TEST_ZONE)
+            assertEquals(hh1.attributes.location.zoneID, TEST_ZONE.id)
+            assertEquals(hh2.attributes.location.zoneID, TEST_ZONE.id)
+            assertEquals(hh3.attributes.location.zoneID, TEST_ZONE.id)
 
             assertFalse(hh1.economicStatusIsAssigned())
             assertFalse(hh2.economicStatusIsAssigned())
@@ -233,7 +231,7 @@ class PopulationSynthesisKtTest {
             assertTrue(hh1.cars.isEmpty())
             assertTrue(hh2.cars.isEmpty())
             assertTrue(hh3.cars.isEmpty())
-            assignCars(generationStrategy = TrivialCarGeneration(), assignStrategy = BySeniority())
+            assignCars(generationStrategy = TrivialCarGeneration(), assignStrategy = UnfilteredSeniority())
             assertEquals(hh1.cars.size, hh1.amountOfCars)
             assertEquals(hh2.cars.size, hh2.amountOfCars)
             assertEquals(hh3.cars.size, hh3.amountOfCars)

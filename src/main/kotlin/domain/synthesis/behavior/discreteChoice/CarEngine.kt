@@ -5,7 +5,7 @@ import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.domain.SynthesisHousehold
+import domain.synthesis.SynthesisHousehold
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.Sex

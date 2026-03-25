@@ -1,10 +1,9 @@
 package domain.synthesis.behavior.domain
 
 import assertNotContains
-import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.StandardLocation
+import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
-import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdType
@@ -12,7 +11,6 @@ import domain.synthesis.results.fastcsv.CsvIgnore
 import domain.synthesis.results.fastcsv.write
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.euros
-import org.junit.jupiter.api.Assertions.assertEquals
 import java.io.StringWriter
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -26,6 +24,7 @@ class SynthesisHouseholdTest {
         override var location: StandardLocation
     ): MinimumHouseholdAttributes {
         val zoneID get()= location.zoneID
+        val x get() = location.position.x
     }
     @Test
     fun testCSVWrite() {
@@ -33,7 +32,7 @@ class SynthesisHouseholdTest {
             attributes = TestAttributes(
                 income = 1.euros,
                 type = HouseholdType.UNDEFINED,
-                location = LOCATIONUNKNOWN,
+                location = StandardLocation.LOCATIONUNKNOWN,
             ),
 
             )

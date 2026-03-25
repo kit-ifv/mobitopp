@@ -4,7 +4,6 @@ import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
-import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Metrics
 import domain.shared.location.StandardLocation
 import utils.units.AbsoluteTime
@@ -22,8 +21,8 @@ interface Trip {
     val previousAction: StationaryAction?
     val nextAction: StationaryAction?
 
-    val origin get() = previousAction?.location ?: legs.firstOrNull()?.startLocation ?: LOCATIONUNKNOWN
-    val destination get() = nextAction?.location ?: legs.lastOrNull()?.endLocation ?: LOCATIONUNKNOWN
+    val origin get() = previousAction?.location ?: legs.firstOrNull()?.startLocation ?: StandardLocation.LOCATIONUNKNOWN
+    val destination get() = nextAction?.location ?: legs.lastOrNull()?.endLocation ?: StandardLocation.LOCATIONUNKNOWN
 
     fun alternate(replanner: ReplanningStrategy = ReplanningStrategy.SHIFT, lambda: TripBuilder.() -> Unit)
 

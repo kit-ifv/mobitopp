@@ -1,6 +1,6 @@
 package domain.shared.datastructure.schedule
 
-import domain.shared.location.HasZone
+import domain.shared.location.attributes.HasZone
 import domain.shared.location.ZoneId
 import domain.shared.location.toPoint
 import edu.kit.ifv.units.WGS84Coordinate

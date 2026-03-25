@@ -1,35 +1,11 @@
-package domain.synthesis.behavior.carownership
+package domain.synthesis.behavior.cars.amount
 
-import AssignmentStep
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.discreteChoice.carChoiceUtility
-import domain.synthesis.behavior.discreteChoice.carOwnershipCityParameters
-import domain.synthesis.behavior.discreteChoice.carOwnershipRuralArea
-import domain.synthesis.behavior.discreteChoice.carOwnershipSmallCity
-import domain.synthesis.behavior.discreteChoice.carOwnershipUrbanAreaParameters
-import domain.synthesis.behavior.toCarOwnershipAttributes
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import kotlin.random.Random
-
-@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
-fun interface CarOwnershipAssignStrategy<in S, in T> : AssignmentStep<MinimalistHousehold<S, T>, Int> {
-
-    fun determineNumberOfCars(householdBuilder: MinimalistHousehold<S, T>): Int
-
-    context(random: Random)
-    override fun assign(input: MinimalistHousehold<S, T>): Int {
-        return determineNumberOfCars(input)
-    }
-}
-
-class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any?, Any?> {
-    override fun determineNumberOfCars(householdBuilder: MinimalistHousehold<*, *>): Int {
-        return amount
-    }
-}
 
 /**
  * This class implements a car ownership assignment strategy based on a size-based classification of regions.
@@ -66,7 +42,7 @@ class AssignBySizebasedClassification<A, P>(
     private val smallTownParameters: P,
     private val urbanAreaParameters: P,
     private val ruralAreaParameters: P,
-) : CarOwnershipAssignStrategy<MaximumHouseholdAttributes, MaximumPersonAttributes>  {
+) : NumberOfCarDeterminer<MaximumHouseholdAttributes, MaximumPersonAttributes>  {
 
     private val models = SizebasedRegiostarClassification.entries.associateWith {
         model.build(it.toParameters())
@@ -102,7 +78,7 @@ class AssignBySizebasedClassification<A, P>(
             val model: EnumeratedDiscreteModelBuilder<Int, A, P>
         ) {
 
-            lateinit var converter: (MinimalistHousehold<MaximumHouseholdAttributes,  MaximumPersonAttributes>) -> A
+            lateinit var converter: (MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>) -> A
             lateinit var cityParameters: P
             lateinit var smallTownParameters: P
             lateinit var urbanAreaParameters: P
@@ -142,16 +118,4 @@ class AssignBySizebasedClassification<A, P>(
             return builder.build()
         }
     }
-}
-
-/**
- * A standard assignment strategy that uses predefined choice models and parameter sets for different region types.
- * This strategy leverages the `AssignBySizebasedClassification` with default parameters for various region types.
- */
-val standardAssignmentByRegionSize = AssignBySizebasedClassification.createUsingModel(carChoiceUtility) {
-    converter = { it.toCarOwnershipAttributes() }
-    cityParameters = carOwnershipCityParameters
-    smallTownParameters = carOwnershipSmallCity
-    urbanAreaParameters = carOwnershipUrbanAreaParameters
-    ruralAreaParameters = carOwnershipRuralArea
 }

@@ -1,0 +1,23 @@
+package domain.synthesis.behavior.cars.ownership
+
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.HasLicence
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.cars.SynthesisCar
+import domain.synthesis.SynthesisHousehold
+import domain.synthesis.behavior.hasLicence
+import domain.synthesis.data.Car
+
+class LicenceHoldersBySeniority<S: MinimumHouseholdAttributes,T>: AssignMainUser<S, T> where  T: MinimumPersonAttributes, T: HasLicence {
+    override fun assign(
+        household: SynthesisHousehold<S, T>,
+        cars: List<Car>,
+    ): List<SynthesisCar> {
+        val members = household.filter { it.hasLicence }.sortedByDescending { it.age }
+        val output = members.zip(cars) { member, car ->
+            SynthesisCar(car, member)
+
+        }
+        return output
+    }
+}

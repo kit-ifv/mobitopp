@@ -8,7 +8,7 @@ import core.modelsteps.Warning
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
-import domain.shared.location.HasRoadAccess
+import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.LegacyZone
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone

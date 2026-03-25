@@ -1,13 +1,13 @@
-import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.StandardLocation
 import kotlin.test.asserter
 
 /**
  * Four example locations for testing
  */
-val START = LOCATIONUNKNOWN
-val OTHER = LOCATIONUNKNOWN
-val THIRD = LOCATIONUNKNOWN
-val FOURTH = LOCATIONUNKNOWN
+val START = StandardLocation.LOCATIONUNKNOWN
+val OTHER = StandardLocation.LOCATIONUNKNOWN
+val THIRD = StandardLocation.LOCATIONUNKNOWN
+val FOURTH = StandardLocation.LOCATIONUNKNOWN
 
 internal fun messagePrefix(message: String?) = if (message == null) "" else "$message. "
 

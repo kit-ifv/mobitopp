@@ -1,12 +1,11 @@
 package domain.synthesis.householdgeneration
 
 import TestZone
-import domain.shared.location.HasZone
-import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasZone
 import domain.shared.location.toPoint
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasCommuteDistance
@@ -15,7 +14,7 @@ import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.domain.SynthesisHousehold
+import domain.synthesis.SynthesisHousehold
 import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Currency
@@ -117,7 +116,7 @@ open class SynthesisTest {
     private data class HAttrs(
         override val income: Currency = 1.euros,
         override val type: HouseholdType = HouseholdType.UNDEFINED,
-        override var location: StandardLocation = LOCATIONUNKNOWN
+        override var location: StandardLocation = StandardLocation.LOCATIONUNKNOWN
     ): MinimumHouseholdAttributes
 
     protected data class Attrs(

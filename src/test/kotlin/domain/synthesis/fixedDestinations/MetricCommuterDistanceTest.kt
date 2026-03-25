@@ -2,9 +2,8 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import domain.shared.location.DistanceMetric
-import domain.shared.location.HasZone
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasZone
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance
@@ -227,15 +226,15 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     }
 
     private fun generateStandardDemand(): MutableCommunityDemand {
-        val zoneCommunityMapping: Map<Zone, CommunityNumber> = mapOf(
-            testZone1 to CommunityNumber(1),
-            testZone2 to CommunityNumber(2),
-            testZone3 to CommunityNumber(2),
+        val zoneCommunityMapping: Map<ZoneId, CommunityNumber> = mapOf(
+            testZone1.id to CommunityNumber(1),
+            testZone2.id to CommunityNumber(2),
+            testZone3.id to CommunityNumber(2),
 
             )
 
         val demand = MutableCommunityDemand(
-            converter = { zoneCommunityMapping.getValue(it.zone) },
+            converter = { zoneCommunityMapping.getValue(it.zoneID) },
             communityID = CommunityNumber(1)
         )
         demand[2] = 1.0

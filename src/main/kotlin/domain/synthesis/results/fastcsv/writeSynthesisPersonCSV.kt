@@ -1,7 +1,7 @@
 package domain.synthesis.results.fastcsv
 
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.SynthesisPerson
 import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path

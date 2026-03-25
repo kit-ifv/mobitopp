@@ -7,7 +7,7 @@ import domain.shared.location.ConstantMetric
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
-import domain.shared.location.HasZone
+import domain.shared.location.attributes.HasZone
 import domain.shared.location.LegacyZone
 import domain.shared.location.LocationMetric
 import domain.shared.location.Metrics

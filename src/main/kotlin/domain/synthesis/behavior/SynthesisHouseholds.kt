@@ -1,7 +1,5 @@
 package domain.synthesis.behavior
 
-import domain.shared.location.StandardLocation
-import domain.synthesis.attributes.household.HasEconomicStatus
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasEmployment
@@ -10,8 +8,7 @@ import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.discreteChoice.CarOwnershipAttributes
 import domain.synthesis.behavior.discreteChoice.CarOwnershipFactors
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.SynthesisHousehold
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.HouseholdType

@@ -46,7 +46,7 @@ import domain.simulation.behavior.legacyDestinationChoiceBuilder
 import domain.simulation.behavior.legacyModeChoiceBuilder
 import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
-import domain.synthesis.behavior.AssignAroundZoneCentroid
+import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.parser.NoActivityStartShifter
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share

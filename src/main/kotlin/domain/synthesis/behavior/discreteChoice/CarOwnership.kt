@@ -3,7 +3,7 @@ package domain.synthesis.behavior.discreteChoice
 import domain.synthesis.attributes.household.HasEconomicStatus
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.domain.SynthesisHousehold
+import domain.synthesis.SynthesisHousehold
 import domain.synthesis.behavior.employment
 import domain.synthesis.behavior.hasLicence
 import domain.synthesis.data.EconomicStatus
