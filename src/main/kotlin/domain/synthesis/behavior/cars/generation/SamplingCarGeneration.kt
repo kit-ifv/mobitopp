@@ -14,8 +14,8 @@ import domain.synthesis.behavior.discreteChoice.EngineAlternative
 import domain.synthesis.behavior.discreteChoice.EngineParameters
 import domain.synthesis.behavior.discreteChoice.carEngineChoiceModel
 import domain.synthesis.behavior.discreteChoice.carSegmentChoiceModel
-import domain.synthesis.behavior.selectExact
 import domain.synthesis.data.Car
+import utils.collections.selectExact
 import kotlin.random.Random
 
 /**

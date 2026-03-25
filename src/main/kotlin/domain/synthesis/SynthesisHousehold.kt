@@ -6,7 +6,6 @@ import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.cars.SynthesisCar
-import domain.synthesis.SynthesisPerson
 import domain.synthesis.data.EconomicStatus
 import org.jetbrains.annotations.TestOnly
 import java.util.concurrent.atomic.AtomicInteger

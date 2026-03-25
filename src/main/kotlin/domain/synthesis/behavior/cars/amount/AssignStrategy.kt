@@ -1,11 +1,15 @@
 package domain.synthesis.behavior.cars.amount
 
+import domain.synthesis.attributes.household.MaximumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.behavior.MinimalistHousehold
+import domain.synthesis.behavior.discreteChoice.CarOwnershipAttributes
+import domain.synthesis.behavior.discreteChoice.CarOwnershipFactors
 import domain.synthesis.behavior.discreteChoice.carChoiceUtility
 import domain.synthesis.behavior.discreteChoice.carOwnershipCityParameters
 import domain.synthesis.behavior.discreteChoice.carOwnershipRuralArea
 import domain.synthesis.behavior.discreteChoice.carOwnershipSmallCity
 import domain.synthesis.behavior.discreteChoice.carOwnershipUrbanAreaParameters
-import domain.synthesis.behavior.toCarOwnershipAttributes
 
 /**
  * A standard assignment strategy that uses predefined choice models and parameter sets for different region types.
@@ -17,4 +21,12 @@ val standardAssignmentByRegionSize = AssignBySizebasedClassification.createUsing
     smallTownParameters = carOwnershipSmallCity
     urbanAreaParameters = carOwnershipUrbanAreaParameters
     ruralAreaParameters = carOwnershipRuralArea
+}
+
+fun MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>.toCarOwnershipAttributes(): CarOwnershipAttributes {
+    return CarOwnershipAttributes(
+        CarOwnershipFactors(
+            this,
+        )
+    )
 }

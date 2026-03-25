@@ -15,8 +15,6 @@ import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.cars.SynthesisCar
 import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
-import domain.synthesis.SynthesisHousehold
-import domain.synthesis.SynthesisPerson
 import domain.synthesis.behavior.fixedDestinations.AssignFixedDestinationBuilder
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.results.FixedDestinationElements

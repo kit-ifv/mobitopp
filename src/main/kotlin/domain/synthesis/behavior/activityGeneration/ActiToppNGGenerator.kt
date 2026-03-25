@@ -11,9 +11,9 @@ import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.attributes.person.HasEducationDistance
 import domain.synthesis.attributes.person.HasEmployment
 import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.attributes.person.employment
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.employment
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.ActiToppHousehold

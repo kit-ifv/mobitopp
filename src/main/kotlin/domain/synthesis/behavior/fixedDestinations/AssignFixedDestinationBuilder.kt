@@ -7,10 +7,10 @@ import domain.synthesis.attributes.person.HasEmployment
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.MinimalistPerson
 import domain.synthesis.SynthesisHousehold
-import domain.synthesis.behavior.isPrimaryStudent
-import domain.synthesis.behavior.isSecondaryStudent
-import domain.synthesis.behavior.isTertiaryStudent
-import domain.synthesis.behavior.isWorker
+import domain.synthesis.attributes.person.isPrimaryStudent
+import domain.synthesis.attributes.person.isSecondaryStudent
+import domain.synthesis.attributes.person.isTertiaryStudent
+import domain.synthesis.attributes.person.isWorker
 import domain.synthesis.results.FixedDestinationElements
 
 /**

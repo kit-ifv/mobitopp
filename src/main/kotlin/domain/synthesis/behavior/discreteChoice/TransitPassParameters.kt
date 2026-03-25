@@ -2,11 +2,10 @@ package domain.synthesis.behavior.discreteChoice
 
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.employment
+import domain.synthesis.attributes.person.hasLicence
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.SynthesisHousehold
-import domain.synthesis.behavior.employment
-import domain.synthesis.behavior.hasLicence
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times

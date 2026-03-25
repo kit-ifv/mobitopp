@@ -3,9 +3,9 @@ package domain.synthesis.attributes.household
 import domain.synthesis.attributes.person.HasAge
 import domain.synthesis.attributes.person.HasLicence
 import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.attributes.person.hasLicence
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.MinimalistPerson
-import domain.synthesis.behavior.hasLicence
 
 
 @Suppress("MagicNumber") // These magic numbers are ok

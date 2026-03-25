@@ -5,14 +5,14 @@ import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZonedRoadAccessLocation
+import domain.synthesis.SynthesisHousehold
+import domain.synthesis.SynthesisPerson
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.employment
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.cars.SynthesisCar
-import domain.synthesis.SynthesisHousehold
-import domain.synthesis.SynthesisPerson
-import domain.synthesis.behavior.employment
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories

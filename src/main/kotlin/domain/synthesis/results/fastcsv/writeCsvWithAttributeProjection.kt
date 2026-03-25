@@ -4,6 +4,9 @@ import java.io.Writer
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
+/**
+ * Be advised, fields in reflection are returned alphabetically, and not in the order in which they appear in the class
+ */
 fun <S : Any, X> Collection<X>.writeCsvWithAttributeProjection(
     writer: Writer,
     config: FastCsvConfig = FastCsvConfig.DEFAULT,
