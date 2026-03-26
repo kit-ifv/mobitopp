@@ -90,7 +90,6 @@ fun overlayLogoTopRight(
     alpha: Float = 1.0f,
     marginPx: Int = 8
 ) {
-
     require(scale > 0.0) { "scale must be > 0" }
     require(alpha in 0f..1f) { "alpha must be in [0, 1]" }
 

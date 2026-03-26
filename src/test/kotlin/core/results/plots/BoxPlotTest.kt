@@ -6,6 +6,7 @@ import kotlin.io.path.Path
 import kotlin.test.Test
 
 val testPlotResultDir = Path("results/test")
+
 @Tag("plot")
 class BoxPlotTest {
     //
