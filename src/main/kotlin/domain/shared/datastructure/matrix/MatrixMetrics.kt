@@ -9,9 +9,9 @@ import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
-import domain.shared.location.Location
 import domain.shared.location.Metrics
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.Distance
@@ -51,14 +51,14 @@ class MatrixMetrics(
     private val distanceConverter = unitConverters.distanceConverter
 
     override fun costMetric(mode: Mode, time: Time): CostMetric {
-        return CostMetric { o: Location, d: Location ->
-            currencyConverter.from(travelCosts[mode, time][o, d])
+        return CostMetric { o: HasZoneID, d: HasZoneID ->
+            currencyConverter.from(travelCosts[mode, time][o.zoneID, d.zoneID])
         }
     }
 
     override fun distanceMetric(mode: Mode): DistanceMetric {
         return DistanceMetric { o, d ->
-            distanceConverter.from(travelDistance[o, d])
+            distanceConverter.from(travelDistance[o.zoneID, d.zoneID])
         }
     }
 
@@ -66,8 +66,8 @@ class MatrixMetrics(
         mode: Mode,
         time: Time,
     ): DurationMetric {
-        return DurationMetric { o: Location, d: Location ->
-            timeConverter.from(travelTimes[mode, time][o, d])
+        return DurationMetric { o: HasZoneID, d: HasZoneID ->
+            timeConverter.from(travelTimes[mode, time][o.zoneID, d.zoneID])
         }
     }
 
@@ -128,7 +128,7 @@ class MatrixMetrics(
 }
 
 /**
- * Collects conversion functions for the 3 main types of matrices found in the simulation.
+ * Collects conversion functions for the 3 integration.main types of matrices found in the simulation.
  *
  * Defaults:
  * - time in minutes

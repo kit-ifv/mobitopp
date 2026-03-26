@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.fixedDestinations.communityBased
 
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
@@ -12,11 +12,11 @@ import java.nio.file.Path
  */
 class CommuterDemandsMatrix(
     private val demands: MutableMap<CommunityNumber, MutableCommunityDemand> = mutableMapOf(),
-    private val converter: (Location) -> CommunityNumber
+    private val converter: (StandardLocation) -> CommunityNumber
 ) {
 
     val total get() = demands.values.sumOf { it.total }
-    fun convert(location: Location): CommunityNumber {
+    fun convert(location: StandardLocation): CommunityNumber {
         return converter(location)
     }
 
@@ -66,10 +66,7 @@ class CommuterDemandsMatrix(
         ): CommuterDemandsMatrix {
             val match = readZoneToCommunity(mappingFile)
             return readCommuters(commuterFile) {
-                val zoneID = it.zoneID() ?: run {
-                    println("Bad Zone $it")
-                    ZoneId(-1)
-                }
+                val zoneID = it.zoneID
 
                 match[zoneID] ?: CommunityNumber.INVALID.also {
                     "Zone id $zoneID cannot be converted to a community number." +
@@ -90,7 +87,7 @@ class CommuterDemandsMatrix(
             return parser.parse(file).toMap()
         }
 
-        private fun readCommuters(file: Path, converter: (Location) -> CommunityNumber): CommuterDemandsMatrix {
+        private fun readCommuters(file: Path, converter: (StandardLocation) -> CommunityNumber): CommuterDemandsMatrix {
             val communityDemand = CommuterDemandsMatrix(converter = converter)
             val parser = DefaultCsvParser { row ->
                 CommuterInfo(
@@ -113,7 +110,7 @@ class CommuterDemandsMatrix(
  * do not alter the state of the underlying demand.
  */
 open class CommunityDemand(
-    protected val converter: (Location) -> CommunityNumber,
+    protected val converter: (StandardLocation) -> CommunityNumber,
     protected val demands: MutableMap<CommunityNumber, Double> = mutableMapOf(),
     val communityID: CommunityNumber
 ) {
@@ -140,7 +137,7 @@ open class CommunityDemand(
         return get(j) <= 0.0
     }
 
-    fun isSaturated(location: Location): Boolean = isSaturated(converter(location))
+    fun isSaturated(location: StandardLocation): Boolean = isSaturated(converter(location))
     fun isSaturated(j: Number): Boolean = isSaturated(j.toCommunity())
 
     override fun toString(): String = demands.toString()
@@ -153,7 +150,7 @@ open class CommunityDemand(
  * method to decrease the demand once an agent has been assigned.
  */
 class MutableCommunityDemand(
-    converter: (Location) -> CommunityNumber,
+    converter: (StandardLocation) -> CommunityNumber,
     demands: MutableMap<CommunityNumber, Double> = mutableMapOf(),
     communityID: CommunityNumber
 ) :
@@ -175,5 +172,5 @@ class MutableCommunityDemand(
         demands[j] = (demands[j] ?: 1.0) - 1.0
     }
 
-    fun decreaseDemandFor(location: Location) = decreaseDemandFor(converter(location))
+    fun decreaseDemandFor(location: StandardLocation) = decreaseDemandFor(converter(location))
 }

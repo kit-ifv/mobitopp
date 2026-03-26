@@ -1,7 +1,8 @@
 package core.results.plots
 
+import org.junit.jupiter.api.Tag
 import kotlin.test.Test
-
+@Tag("plot")
 class HistogramComparisonTest {
 
     private fun plotterBuilder() =
@@ -16,8 +17,7 @@ class HistogramComparisonTest {
                 comparisonData
             }.groupBy {
                 "comparison"
-            }.plot {
-                    ch ->
+            }.plot { ch ->
                 comparisonData.count { it == ch }
             }.over {
                 "comp_" + xMappingFunc(it)

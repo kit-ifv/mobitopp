@@ -108,7 +108,7 @@ class RidepoolingScenario {
         val agents = builder.buildPersonAgents(households)
 
         agents.forEach { person ->
-            val dest = zones.first { it != person.location.zone }
+            val dest = zones.first { it.id != person.location.zoneID }
             val sharedResources =
                 context(person, 5.hours.sinceStart, dest.centroid) {
                     availability.currentlyAffectedProviders(legacyChoiceModelModes.options)

@@ -9,8 +9,10 @@ import domain.shared.location.LegacyZone
 import domain.shared.location.Location
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.toPoint
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
@@ -37,7 +39,7 @@ import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
 import domain.synthesis.data.buildEngine
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
@@ -50,15 +52,15 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-val BIELEFELD = GPSCoordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
-val ITZEHOE = GPSCoordinate.decimalDegree(53.925032, 9.515585)
-val SCHWEINFURT = GPSCoordinate.decimalDegree(50.049994, 10.233302)
+val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
+val ITZEHOE = WGS84Coordinate.decimalDegree(53.925032, 9.515585)
+val SCHWEINFURT = WGS84Coordinate.decimalDegree(50.049994, 10.233302)
 val TEST_ZONE = TestZone()
 
 @Buildable
 @Suppress("LongParameterList")
 class TestZone(
-    point: GPSCoordinate = BIELEFELD,
+    wgsCoord: WGS84Coordinate = BIELEFELD,
     visumId: Long = 1L,
     matrixColumn: Int = 0,
     name: String = "TestZone",
@@ -67,10 +69,10 @@ class TestZone(
     override var parkingPlaces: Int = 1,
     isDestination: Boolean = true,
     relief: Distance = 0.meters,
-    id: ZoneId = ZoneId(1L)
+    id: ZoneId = ZoneId(1L),
 ) : MutableLegacyZone(
     id,
-    point.asLocation(),
+    Location.wgs(wgsCoord),
     42L,
     {
         this.visumId = visumId
@@ -95,7 +97,7 @@ fun generateZones(numElements: Int): List<TestZone> {
 
 fun Zone.generateSharingStation(
     sharingProvider: MutableSharingProvider,
-    vehicles: Int
+    vehicles: Int,
 ): SharingStation {
     return MutableSharingStation(
         SharingStationId(sharingProvider.numberOfVehicles.toLong()),
@@ -103,33 +105,25 @@ fun Zone.generateSharingStation(
     ) {
         this.uid = "${this.id} Station"
         this.name = "noName"
-        this.location = point(BIELEFELD)
+        this.location = StandardLocation.fromWGS(BIELEFELD)
         this.zonesByFoot.add(this@generateSharingStation)
         this.initialVehicleCount = vehicles
     }
 }
 
-fun generateZoneLocations(numElements: Int): List<Location> {
+fun generateZoneLocations(numElements: Int): List<StandardLocation> {
     return (0..<numElements).map {
         val testZone = TestZone(BIELEFELD, id = ZoneId(it.toLong()))
-        Location(testZone.centroid.coordinate, zone = testZone, roadAccess = null)
+        StandardLocation(testZone.centroid.position, zone = testZone, roadAccess = RoadAccess.INVALID)
     }
 }
 
-fun Zone.point(gpsCoordinate: GPSCoordinate): Location {
-    return Location(gpsCoordinate, zone = this, roadAccess = null)
+fun Zone.point(wgs84coord: WGS84Coordinate): StandardLocation {
+    return StandardLocation(wgs84coord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)
 }
 
-fun GPSCoordinate.asLocation(): Location {
-    return Location(this, zone = null, roadAccess = null)
-}
-
-fun Long.toRoadPosition(): Location {
-    return Location(BIELEFELD, null, RoadAccess(this, 0.5.share()))
-}
-
-fun Long.toRoadPositionInZone(zone: Zone): Location {
-    return Location(BIELEFELD, zone, RoadAccess(this, 0.5.share()))
+fun Long.toRoadPositionInZone(zone: Zone): StandardLocation {
+    return StandardLocation(BIELEFELD.toPoint(), zone, RoadAccess(this, 0.5.share()))
 }
 
 val testHousehold = TEST_ZONE.generateHousehold(1) {
@@ -155,7 +149,7 @@ val spawnDrivers = PersonSpawnLimits(
 class HouseholdSpawnLimits(
     val numCars: IntRange = 0..5,
     val numPersons: IntRange = 0..5,
-    val economicStatus: Collection<EconomicStatus> = EconomicStatus.entries
+    val economicStatus: Collection<EconomicStatus> = EconomicStatus.entries,
 
 )
 
@@ -244,7 +238,7 @@ fun MutableHousehold.generatePersons(
 
 fun MutablePerson.generateActivitySchedule(
     num: Int,
-    random: Random
+    random: Random,
 ) {
     val range = 0.days.sinceStart..1.days.sinceStart
     val targets = List(num) { range.random(random) }.sorted().distinct()
@@ -273,13 +267,13 @@ fun ClosedRange<AbsoluteTime>.random(random: Random = Random(1)): AbsoluteTime {
 class ActivitySpawnLimits(
     val startTime: IntRange = 0..20,
     val endTime: IntRange = 0..20,
-    val types: Collection<ActivityType> = LegacyActivityType.entries
+    val types: Collection<ActivityType> = LegacyActivityType.entries,
 )
 
 fun Collection<LegacyZone>.generateActivities(
     num: Int,
     random: Random = Random(1),
-    spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits()
+    spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits(),
 ): List<Activity> {
     return (0..<num).map {
         RawActivity(
@@ -339,7 +333,7 @@ fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit =
 fun MutablePerson.generatePlannedActivity(
     id: Long,
     seed: Long = 1L,
-    lambda: MutablePlannedActivity.() -> Unit
+    lambda: MutablePlannedActivity.() -> Unit,
 ): MutablePlannedActivity {
     val mutable = MutablePlannedActivity(ActivityId(id), this, seed)
     mutable.apply(lambda)
@@ -361,7 +355,7 @@ fun Zone.build(builder: () -> MutableHousehold, roadIndex: Long = -1L): MutableH
 fun Zone.generateHouseholdBuilder(
     id: Long,
     roadIndex: Long = -1L,
-    lambda: MutableHousehold.() -> Unit
+    lambda: MutableHousehold.() -> Unit,
 ): MutableHousehold {
     val builder = MutableHousehold(
         id = HouseholdId(id),
@@ -384,7 +378,7 @@ fun Zone.generateHousehold(
     id: Long,
     roadIndex: Long = -1L,
     lambda: MutableHousehold.() -> Unit = {
-    }
+    },
 ): MutableHousehold {
     return generateHouseholdBuilder(id, roadIndex, lambda)
 }

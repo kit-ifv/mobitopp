@@ -1,10 +1,11 @@
 package domain.synthesis.behavior.discreteChoice
 
-import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
-import domain.shared.enums.areatype.toSizebasedClassification
-import domain.synthesis.behavior.SurveyWithCommute
-import domain.synthesis.behavior.domain.SynthesisHousehold
+import domain.synthesis.SynthesisHousehold
+import domain.synthesis.attributes.household.HasNumberOfCars
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.Sex
@@ -251,46 +252,63 @@ data class EngineSpecificParameters(
     val regionStadt: Double,
     val regionKleinstadt: Double,
     val regionStadtraum: Double,
-    val regionLandraum: Double
+    val regionLandraum: Double,
 
 )
 
-data class EngineChoiceSituation(
-    val person: SurveyWithCommute,
-    val household: SynthesisHousehold<out SurveyWithCommute>
+data class EngineAlternative(
+    val workDistance: Distance,
+    val educationDistance: Distance,
+    val sex: Sex,
+    val employment: Employment,
+    val age: Int,
+    val householdNumberOfCars: Int,
+    val householdSize: Int,
+    val regionType: SizebasedRegiostarClassification,
+    val isWorking: Boolean,
+    val isParttime: Boolean,
+    val isHomekeeper: Boolean,
+    val isStudentTertiary: Boolean,
+    val isStudentSecondary: Boolean,
+    val isEducationEmployment: Boolean,
+    val isUnemployed: Boolean,
+    val isRetired: Boolean,
+
 ) {
-    fun with(choice: EngineType) = choice.toAlternative(person, household)
+
+    companion object {
+        fun <X> fromHousehold(
+            person: MaximumPersonAttributes,
+            household: MinimalistHousehold<X, MaximumPersonAttributes>,
+        ): EngineAlternative where X : MinimumHouseholdAttributes, X : HasNumberOfCars {
+            val employment: Employment = person.employment
+            return EngineAlternative(
+                workDistance = person.distanceWork,
+                educationDistance = person.distanceEducation,
+                sex = person.sex,
+                employment = employment,
+                age = person.age,
+                householdNumberOfCars = household.attributes.amountOfCars,
+                householdSize = household.size,
+                regionType = household.attributes.location.sizebasedRegiostarClassification,
+                isWorking = employment == Employment.FULLTIME,
+                isParttime = employment == Employment.PARTTIME,
+                isHomekeeper = employment == Employment.HOMEKEEPER,
+                isStudentTertiary = employment == Employment.STUDENT_TERTIARY,
+                isStudentSecondary = employment == Employment.STUDENT_SECONDARY,
+                isEducationEmployment = employment == Employment.EDUCATION,
+                isUnemployed = employment == Employment.UNEMPLOYED,
+                isRetired = employment == Employment.RETIRED,
+            )
+        }
+    }
 }
 
-class EngineAlternative(
-    person: SurveyWithCommute,
-    household: SynthesisHousehold<out SurveyWithCommute>
-) {
-    val workDistance: Distance = person.distanceWork // Distance to pole zone
-    val educationDistance: Distance = person.distanceEducation
-    val sex: Sex = person.sex
-    val employment: Employment = person.employment
-    val age: Int = person.age
-    val householdNumberOfCars: Int = household.amountOfCars
-    val householdSize: Int = household.size
-    val regionTypeRegioStaR17: RegioStaR17 = household.location.regionType().toRegioStaR17()
-    val regionType = regionTypeRegioStaR17.toSizebasedClassification()
-
-    val isWorking = employment == Employment.FULLTIME
-    val isParttime = employment == Employment.PARTTIME
-    val isHomekeeper = employment == Employment.HOMEKEEPER
-    val isStudentTertiary = employment == Employment.STUDENT_TERTIARY
-    val isStudentSecondary = employment == Employment.STUDENT_SECONDARY
-    val isEducationEmployment = employment == Employment.EDUCATION
-    val isUnemployed = employment == Employment.UNEMPLOYED
-    val isRetired = employment == Employment.RETIRED
-}
-
-fun EngineType.toAlternative(
-    person: SurveyWithCommute,
-    household: SynthesisHousehold<out SurveyWithCommute>
-): EngineAlternative {
-    return EngineAlternative(person, household)
+fun <X> EngineType.toAlternative(
+    person: MaximumPersonAttributes,
+    household: SynthesisHousehold<X, MaximumPersonAttributes>,
+): EngineAlternative where X : MinimumHouseholdAttributes, X : HasNumberOfCars {
+    return EngineAlternative.fromHousehold(person, household)
 }
 
 val carEngineChoiceModel = DiscreteStructure<EngineType, EngineAlternative, EngineParameters> {

@@ -20,8 +20,22 @@ if (File(actiToppPAth).exists()) {
     includeBuild(actiToppPAth)
 }
 
-val unitsPath =  "../kotlin-units"
-if (File(unitsPath).exists()) {
-    println("Include local build of kotlin-units")
-    includeBuild(unitsPath)
+//val unitsPath =  "../kotlin-units"
+//if (File(unitsPath).exists()) {
+//    println("Include local build of kotlin-units")
+//    includeBuild(unitsPath)
+//}
+
+val synLibPath = "../synthesislibrary"
+
+if (File(synLibPath).exists()) {
+    println("Include local build of synthesis-algorithms")
+    includeBuild(synLibPath)
 }
+
+//val netfilePath = "../visumNetfileParser"
+//
+//if (File(netfilePath).exists()) {
+//    println("Include local build of netfile parser")
+//    includeBuild(netfilePath)
+//}

@@ -1,6 +1,5 @@
 package domain.jackson.durationParsing
 
-import kotlin.collections.iterator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.days

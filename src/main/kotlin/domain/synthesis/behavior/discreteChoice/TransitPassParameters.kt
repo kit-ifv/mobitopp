@@ -1,10 +1,11 @@
 package domain.synthesis.behavior.discreteChoice
 
-import domain.synthesis.behavior.SurveyInfo
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
-import domain.synthesis.behavior.employment
-import domain.synthesis.behavior.hasLicence
+import domain.synthesis.attributes.household.MaximumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.employment
+import domain.synthesis.attributes.person.hasLicence
+import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
@@ -88,14 +89,14 @@ data class TransitPassParameters(
 
 @Suppress("MagicNumber") // These magic numbers are ok
 data class TicketCharacteristics(
-    val household: SynthesisHousehold<out SurveyInfo>,
-    val person: SynthesisPerson<out SurveyInfo>
+    val household: ISurveyHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>,
+    val person: SurveyPerson<MaximumPersonAttributes>
 ) {
     val householdSize = household.members.size
     val gender = person.sex
     val age = person.age
     val hasDrivingLicence = person.hasLicence
-    val householdNumCars = household.amountOfCars
+    val householdNumCars = household.attributes.amountOfCars
     val employment = person.employment
     val income = household.income
     val numChildsAgeFiveOrLess = household.members.count { it.age in 0..5 }

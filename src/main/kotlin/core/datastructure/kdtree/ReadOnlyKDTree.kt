@@ -1,6 +1,6 @@
 package core.datastructure.kdtree
 
-import java.util.*
+import java.util.PriorityQueue
 import kotlin.math.pow
 import kotlin.math.sqrt
 

@@ -60,15 +60,15 @@ class DefaultRowTest {
 
     @Test
     fun source() {
-        reader.rows().forEach {
-                row ->
+        reader.rows().forEach { row ->
             assertEquals("test_data.csv", row.source)
         }
     }
 
     @Test
     fun index() {
-        reader.rows().forEachIndexed { index, row
+        reader.rows().forEachIndexed {
+                index, row,
             ->
             assertEquals(index, row.index)
         }

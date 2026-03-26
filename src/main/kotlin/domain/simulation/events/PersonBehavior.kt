@@ -5,8 +5,8 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.schedule.LinkTrip
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.Mode
-import domain.shared.location.Location
 import domain.shared.location.Metrics
+import domain.shared.location.StandardLocation
 import domain.simulation.agent.PersonAgent
 import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
@@ -31,8 +31,8 @@ fun interface GenerateModeCharacteristics<out T> {
         person: PersonAgent,
         time: Time,
         behavior: PersonBehavior,
-        origin: Location,
-        destination: Location,
+        origin: StandardLocation,
+        destination: StandardLocation,
         currentChoices: Collection<Mode>,
         custom: Any?
     ): T
@@ -65,7 +65,7 @@ val StandardModeImplementation =
     }
 
 data class PersonBehavior constructor(
-    val destinationChoice: FixedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    val destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     val modes: ChoiceModelModes,
     val impedance: Metrics,
@@ -81,7 +81,7 @@ data class PersonBehavior constructor(
         @Suppress("LongParameterList")
         fun from(
             impedance: Metrics,
-            destinationChoice: FixedChoiceModel<Location, DestinationChoiceCharacteristics>,
+            destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
             modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
             choiceModelModes: ChoiceModelModes,
             attractivenessModel: AttractivenessModel,

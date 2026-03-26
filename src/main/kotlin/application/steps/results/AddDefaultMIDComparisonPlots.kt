@@ -194,7 +194,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             personGroup = { it.carOwnershipMID() },
             midGroup = { it.hhNumberOfCars },
         ).overHousehold(
-            { location.regionType().toRegioStaR17().toRegioStaR7().code },
+            { location.regionType.toRegioStaR17().toRegioStaR7().code },
             { regioStaR7.code }
         ).asHistogram {
             name = "number of cars by region type"
@@ -258,7 +258,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             personGroup = { it.hasCommuterTicket },
             midGroup = { it.hasCommuterTicket },
         ).overHousehold(
-            { location.regionType().toRegioStaR17().toRegioStaR7().code },
+            { location.regionType.toRegioStaR17().toRegioStaR7().code },
             { regioStaR7.code }
         ).asHistogram {
             name = "commuter ticket by region type"
@@ -322,7 +322,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             personGroup = { it.sharingMembershipIds.isNotEmpty() },
             midGroup = { it.isCarsharingMember },
         ).overHousehold(
-            { location.regionType().toRegioStaR17().toRegioStaR7().code },
+            { location.regionType.toRegioStaR17().toRegioStaR7().code },
             { regioStaR7.code }
         ).asHistogram {
             name = "carsharing member by region type"
@@ -471,7 +471,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midPlotForLegs(
                 legFilter = {
                     it.leg.transportType != MODEUNKOWN &&
-                        it.person.household.location.zone?.regionType?.toRegioStaR17()?.toRegioStaR7() == regio
+                        it.person.household.location.regionType.toRegioStaR17()?.toRegioStaR7() == regio
                 },
                 rowFilter = { it.regioStaR7 == regio },
                 legGroup = { it.leg.transportType },

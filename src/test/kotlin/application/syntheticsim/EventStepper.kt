@@ -2,8 +2,9 @@ package application.syntheticsim
 
 import core.statemachine.Event
 import domain.shared.enums.Mode
-import domain.shared.location.Location
-import java.util.*
+import domain.shared.location.StandardLocation
+import java.util.PriorityQueue
+import java.util.Queue
 import kotlin.test.assertEquals
 
 /**
@@ -45,7 +46,7 @@ class EventStepper(
      * and resets the overrides afterwards.
      */
 
-    fun nextStep(expectedQueueSize: Int, destination: Location?, mode: Mode?, lambda: (Event<*>) -> Unit = {}) {
+    fun nextStep(expectedQueueSize: Int, destination: StandardLocation?, mode: Mode?, lambda: (Event<*>) -> Unit = {}) {
         this.destination.overrideDestination = destination
         this.mode.overrideMode = mode
         nextStep(expectedQueueSize, lambda)

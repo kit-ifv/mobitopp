@@ -100,12 +100,12 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                 title(reportTitle)
                 style {
                     unsafe {
-                        +Path("src/main/kotlin/utils/report/report.css").readText()
+                        +Path("src/integration.main/kotlin/utils/report/report.css").readText()
                     }
                 }
                 script {
                     unsafe {
-                        +Path("src/main/kotlin/utils/report/report.JS").readText()
+                        +Path("src/integration.main/kotlin/utils/report/report.JS").readText()
                     }
                 }
             }
@@ -126,7 +126,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     }
 
     private fun createBody(): String {
-        return createHTML().div("main") {
+        return createHTML().div("integration.main") {
             h1("title") {
                 style = "color: var(--highlight-color)"
                 +reportTitle

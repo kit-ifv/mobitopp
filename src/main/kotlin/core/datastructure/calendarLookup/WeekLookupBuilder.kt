@@ -1,6 +1,6 @@
 package core.datastructure.calendarLookup
 
-import kotlinx.datetime.DayOfWeek
+import java.time.DayOfWeek
 
 /**
  * Builder for constructing a [WeekLookup] from daily [DayTimeLookupBuilder]s.

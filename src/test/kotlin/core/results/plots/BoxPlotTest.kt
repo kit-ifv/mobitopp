@@ -1,11 +1,13 @@
 package core.results.plots
 
 import core.results.plots.data.Summary
+import org.junit.jupiter.api.Tag
 import kotlin.io.path.Path
 import kotlin.test.Test
 
 val testPlotResultDir = Path("results/test")
 
+@Tag("plot")
 class BoxPlotTest {
     //
     private fun plotterBuilder() =

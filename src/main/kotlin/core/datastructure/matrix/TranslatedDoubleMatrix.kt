@@ -8,6 +8,6 @@ package core.datastructure.matrix
  *
  * @param I the type of row/column indices (ZoneId, LocationId, etc.).
  */
-interface TranslatedDoubleMatrix<I> {
+fun interface TranslatedDoubleMatrix<I> {
     operator fun get(row: I, column: I): Double
 }

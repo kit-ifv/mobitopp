@@ -1,36 +1,33 @@
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
-import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.Location
+import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
-import domain.shared.location.ZoneId
-import domain.synthesis.AreaIPUCSVOutput
-import domain.synthesis.behavior.AssignAroundZoneCentroid
-import domain.synthesis.behavior.AssignHouseholdLocations
-import domain.synthesis.behavior.DetermineEconomicStatus
-import domain.synthesis.behavior.GenerateCars
-import domain.synthesis.behavior.GroupAssignHouseholdLocations
+import domain.shared.location.attributes.HasZoneID
+import domain.synthesis.SynthesisSteps
+import domain.synthesis.algorithms.TrivialSynthesis
+import domain.synthesis.attributes.household.MaximumHouseholdAttributes
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.OECDAssigner
 import domain.synthesis.behavior.RawSurveyInfo
-import domain.synthesis.behavior.SamplingCarGeneration
-import domain.synthesis.behavior.SurveyInfo
-import domain.synthesis.behavior.SynthesisCar
+import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
-import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
-import domain.synthesis.behavior.carownership.standardAssignmentByRegionSize
+import domain.synthesis.behavior.cars.amount.standardAssignmentByRegionSize
+import domain.synthesis.behavior.cars.generation.SamplingCarGeneration
+import domain.synthesis.behavior.cars.ownership.UnfilteredSeniority
 import domain.synthesis.behavior.discreteChoice.TicketCharacteristics
 import domain.synthesis.behavior.discreteChoice.TransitPassParameters
 import domain.synthesis.behavior.discreteChoice.YesTransitPass
 import domain.synthesis.behavior.discreteChoice.transitPassChoiceModel
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
-import domain.synthesis.behavior.fixedDestinations.AssignFixedDestinationBuilder
+import domain.synthesis.behavior.economicstatus.OECDAssigner
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
@@ -39,16 +36,9 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistan
 import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
-import domain.synthesis.behavior.householdgeneration.HierarchicalPopulationSynthesis
-import domain.synthesis.behavior.householdgeneration.HouseholdSynthesis
-import domain.synthesis.behavior.householdgeneration.IPU
-import domain.synthesis.behavior.householdgeneration.Rule
-import domain.synthesis.behavior.randomCoordinate
-import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
-import domain.synthesis.behavior.toSurveyHouseholds
+import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
-import domain.synthesis.results.FixedDestinationElements
 import domain.synthesis.results.LegacyActivityOutput
 import domain.synthesis.results.LegacyCarOutput
 import domain.synthesis.results.LegacyFixedDestinationOutput
@@ -62,19 +52,11 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toCurrency
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import utils.collections.addProgressBar
-import utils.collections.standardProgressBar
 import utils.csv.DefaultCsvParser
 import utils.csv.Row
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.random.Random
-import kotlin.text.toDouble
-import kotlin.text.toInt
 
 fun String.toBooleanNumeric(): Boolean = when (this) {
     "1" -> true
@@ -145,6 +127,20 @@ fun interface AssignmentStep<in I, out O> {
     fun assign(input: I): O
 }
 
+@Suppress("SpacingAroundColon")
+fun interface HouseholdAssignmentStep<in S, in T : MinimumPersonAttributes, out O> :
+    AssignmentStep<ISurveyHousehold<S, T>, List<O>> where S : MinimumHouseholdAttributes {
+    context(household: ISurveyHousehold<S, T>)
+    fun assignForPerson(person: SurveyPerson<T>): O
+
+    context(random: Random)
+    override fun assign(input: ISurveyHousehold<S, T>): List<O> {
+        return context(input) {
+            input.members.map { member -> assignForPerson(member) }
+        }
+    }
+}
+
 @Suppress("SpacingAroundColon") // Seems to be a detekt version thing
 class AssignmentStrategy<I, C, O>(
     val model: FixedChoiceModel<O, C>,
@@ -172,19 +168,14 @@ class AssignmentStrategy<I, C, O>(
     }
 }
 
-@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
-fun interface AssignTransitCardOwnership<T> : AssignmentStep<SynthesisPerson<out T>, Boolean> {
-    fun assignFor(person: SynthesisPerson<out T>): Boolean
+fun interface AssignTransitCardOwnership<in S : MinimumHouseholdAttributes, in T : MinimumPersonAttributes> :
+    HouseholdAssignmentStep<S, T, Boolean>
 
-    context(random: Random)
-    override fun assign(input: SynthesisPerson<out T>): Boolean =
-        assignFor(input)
-}
-
+@Suppress("SpacingAroundColon")
 class AssignByDiscreteChoice(
     val model: FixedChoiceModel<Boolean, TicketCharacteristics> =
         transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false)),
-) : AssignTransitCardOwnership<SurveyInfo> {
+) : AssignTransitCardOwnership<MaximumHouseholdAttributes, MaximumPersonAttributes> {
 
     constructor(
         parameters: TransitPassParameters,
@@ -192,236 +183,72 @@ class AssignByDiscreteChoice(
             transitPassChoiceModel,
     ) : this(model.build(parameters))
 
-    override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
-        return context(TicketCharacteristics(person.household, person), Random(person.personId)) {
+    context(household: ISurveyHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>)
+    override fun assignForPerson(person: SurveyPerson<MaximumPersonAttributes>): Boolean {
+        return context(TicketCharacteristics(household, person), Random(person.personId)) {
             model.select()
         }
     }
 }
 
-object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
-    override fun assignFor(person: SynthesisPerson<out Any>): Boolean {
+@Suppress("SpacingAroundColon")
+object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+
+    context(household: ISurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>)
+    override fun assignForPerson(person: SurveyPerson<MinimumPersonAttributes>): Boolean {
         return true
     }
 }
 
-class SynthesisSteps<T : Any>(
-    val zones: List<Zone>,
-    val surveyHouseholds: Collection<ISurveyHousehold<T>>,
-    val attractivenessModel: AttractivenessModel,
-    val outputDirectory: Path,
-    val opportunities: List<OpportunityOutput>,
-) {
-    private val zoneMapping by lazy { zones.associateBy { it.id } }
-
-    fun getZone(zoneId: ZoneId) = zoneMapping[zoneId]
-        ?: throw NoSuchElementException("There is no zone with id $zoneId in the mapping")
-
-    lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<out T>>>
-    val households get() = householdsByZone.flatMap { it.value }
-    val people get() = households.flatMap { it.members }
-    var activities: List<Map<SynthesisPerson<*>, Collection<Activity>>> =
-        listOf()
-    var cars = listOf<SynthesisCar>()
-    var fixedDestinations: List<FixedDestinationElements> = emptyList()
-
-    /**
-     * Within the scope of this step, the fixed destinations for the agents are generated. The structure of the assign
-     * strategy is created in the [AssignFixedDestinationBuilder] class, which provides some convenience methods for
-     * frequently assigned fixed destinations.
-     */
-    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<Zone, T>.() -> Unit) {
-        val fixedDestinationBuilder = AssignFixedDestinationBuilder<Zone, T>(attractivenessModel)
-        fixedDestinationBuilder.apply(lambda)
-        val allFixedDestinations = fixedDestinationBuilder.steps.flatMap { it.generateFixedDestinations(people) }
-        allFixedDestinations.addProgressBar(
-            "Assign Fixed Destinations"
-        ).forEach { it.person.fixedDestinations[it.activityType] = it.location }
-        fixedDestinations = allFixedDestinations
-    }
-
-    fun assignSharingMemberships(lambda: SharingMembershipsBuilder<T>.() -> Unit) {
-        val builder = SharingMembershipsBuilder<T>().apply(lambda)
-        val steps = builder.build()
-        households.addProgressBar("assign sharing memberships").forEach { hh ->
-            hh.members.forEach {
-                context(Random(it.personId)) {
-                    val membership = steps.mapValues { (_, step) ->
-
-                        step.assign(it)
-                    }
-                    membership.forEach { providerName, accepted ->
-                        if (accepted) it.addMembership(providerName)
-                    }
-                }
-            }
-        }
-    }
-
-    fun <X> populationSynthesis(
-        verification: Boolean = true,
-        writeResults: Boolean = false,
-        converter: (X) -> Zone,
-        supplier: () -> HierarchicalPopulationSynthesis<X, ISurveyHousehold<out T>>,
-    ) {
-        val algorithm = supplier()
-        val output = algorithm.synthesizeAll()
-        householdsByZone = output.mapKeys { converter(it.key) }.mapValues { it.value.map { it.toSynthesisHousehold() } }
-
-        if (verification) {
-            println(
-                "Population Synthesis has error: ${
-                    algorithm.ruleProvider.verify(
-                        output
-                    )
-                }"
-            )
-            algorithm.ruleProvider.evaluate(output)
-        }
-        if (writeResults) {
-            outputDirectory.resolve("IPUResults.csv").let {
-                AreaIPUCSVOutput.writeCSVToFile(it, algorithm.ruleProvider.evaluate(output))
-            }
-        }
-    }
-
-    fun populationSynthesis(
-        verification: Boolean = true,
-        writeResults: Boolean = false,
-        supplier: () -> HierarchicalPopulationSynthesis<Zone, ISurveyHousehold<out T>>,
-    ) {
-        populationSynthesis(verification, writeResults, { it }, supplier)
-    }
-
-    // TODO speaking type parameter names
-    fun synthesis(
-        randsums: Map<Zone, List<Rule<ISurveyHousehold<out T>>>>,
-        lambda: () -> HouseholdSynthesis<Zone, ISurveyHousehold<out T>, SynthesisHousehold<out T>>,
-    ) {
-        val generator = lambda()
-        householdsByZone = generator.synthesize(surveyHouseholds, randsums)
-    }
-
-    // TODO refactor, use or discard this method
-    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<Zone, SynthesisHousehold<out T>>) {
-        val strategy = lambda()
-
-        householdsByZone.entries.forEach { (zone, households) ->
-            strategy.generateLocations(zone, households).forEach {
-                it.first.location = it.second
-            }
-        }
-    }
-
-    fun assignLocations(lambda: () -> AssignHouseholdLocations<in Zone, SynthesisHousehold<out T>>) {
-        val strategy = lambda()
-        householdsByZone.entries.forEach { (zone, households) ->
-            households.forEach {
-                it.location = strategy.generateLocation(zone, it)
-            }
-        }
-    }
-
-    fun assignEconomicStatus(lambda: () -> DetermineEconomicStatus<in T>) {
-        val strategy = lambda()
-        households.forEach { it.economicStatus = strategy.determineStatus(it) }
-    }
-
-    fun assignAmountOfCars(lambda: () -> AssignmentStep<SynthesisHousehold<out T>, Int>) {
-        val strategy = lambda()
-        households.addProgressBar(
-            "Assign car amount"
-        ).forEach { household ->
-            context(Random(household.id)) {
-                household.amountOfCars = strategy.assign(household)
-            }
-        }
-    }
-
-    fun assignTransitCardOwnership(lambda: () -> AssignmentStep<SynthesisPerson<out T>, Boolean>) {
-        val strategy = lambda()
-        households.addProgressBar("assign Transit Car").forEach { hh ->
-            hh.members.forEach {
-                context(Random(it.personId)) {
-                    it.hasTransitPass = strategy.assign(it)
-                }
-            }
-        }
-    }
-
-    fun generateCars(strategy: GenerateCars<in T>) {
-        households.addProgressBar("Generate Cars").forEach { it.cars += strategy.generate(it) }
-        cars = households.flatMap { it.cars }
-    }
-
-    fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<in T>) {
-        val strategy = lambda()
-        val progressBar = standardProgressBar("Generate Activities", households.size)
-        runBlocking {
-            households.map { household ->
-                launch(Dispatchers.Default) {
-                    val output = strategy.generate(household)
-                    output.entries.forEach { (k, v) ->
-                        k.plannedActivities = v
-                    }
-                    progressBar.step()
-                }
-            }.joinAll()
-        }
-//        households.addProgressBar("Generate Activities").forEach { h ->
-//            val output = strategy.generate(h)
-//            output.entries.forEach { (k, v) ->
-//                k.plannedActivities = v
-//            }
-//        }
-
-        activities = households.map { it.members.associateWith { it.plannedActivities } }
-    }
+fun <AREA,
+    S : MinimumHouseholdAttributes,
+    T : MinimumPersonAttributes> PopulationSynthesis<AREA, S, T>.generateLocations(
+    activityType: ActivityType,
+    generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
+): List<StandardLocation> {
+    // TODO reenable generation and put more thought into how the locations are generated.
+    val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
+    opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
+    return generatedLocations
 }
 
-class PopulationSynthesis<T : Any>(
+class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
     private val outputDirectory: Path,
-    val zones: List<Zone>,
-    val surveyHouseholds: Collection<ISurveyHousehold<T>>,
-    val rules: List<Rule<ISurveyHousehold<out Any>>>,
+    val zones: List<AREA>,
+    val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
     val attractivenessModel: AttractivenessModel,
 ) {
 
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
-    fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
-        SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
+    fun execute(lambda: SynthesisSteps<AREA, S, T>.() -> Unit) {
+        SynthesisSteps(
+            zones,
+            surveyHouseholds,
+            attractivenessModel,
+            outputDirectory,
+            opportunities
+        ).apply(lambda)
     }
-
-    @Suppress("UnusedParameter") // TODO reenable the parameter once a fix is found to accept the more generic AREA type
-    fun generateLocations(
-        activityType: ActivityType,
-        amount: Int = 1,
-        generationFunction: (Zone, AttractivenessModel, ActivityType) -> List<Location> = { zone, _, _ ->
-            zone.generateLocations(amount)
-        },
-    ): List<Location> {
-        // TODO reenable generation and put more thought into how the locations are generated.
-        val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
-        opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
-        return generatedLocations
-    }
-
-    /**
-     * Spawn a single location in the zone if the attractiveness is higher than 0.0
-     */
-    fun generateFilteredLocations(activityType: ActivityType): List<Location> {
-        return generateLocations(activityType, 1) { zone, model, act ->
-            if (model.attractivenessFor(zone.id, act) > 0.0) zone.generateLocations(1) else emptyList()
-        }
-    }
+// TODO disabled for now because of location rewrite.
+//    @Suppress("UnusedParameter") // TODO reenable the parameter once a fix is found to accept the more generic AREA type
+//    fun generateLocations(
+//        activityType: ActivityType,
+//        generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<Location>,
+//    ): List<Location> {
+//        // TODO reenable generation and put more thought into how the locations are generated.
+//        val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
+//        opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
+//        return generatedLocations
+//    }
 
     companion object {
-        class SynthesisConfiguration<T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
-            val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
+        class SynthesisConfiguration<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
+            surveyPopulationGenerator: GenerateHouseholds<S, T>,
+        ) {
+            val surveyPopulation = surveyPopulationGenerator.generateSurveyHouseholds()
             lateinit var outputDirectory: Path
-            lateinit var zones: List<Zone>
-            lateinit var rules: List<Rule<ISurveyHousehold<out Any>>>
-            lateinit var surveyHouseholds: Collection<ISurveyHousehold<T>>
+            lateinit var zones: List<AREA>
+            lateinit var surveyHouseholds: Collection<ISurveyHousehold<S, T>>
             lateinit var attractivenessModel: AttractivenessModel
 
             inner class AttractivenessModelParser {
@@ -446,33 +273,37 @@ class PopulationSynthesis<T : Any>(
             }
         }
 
-        fun <T : Any> configure(
-            surveyPopulation: GenerateArtificialPopulation<T>,
-            zones: List<Zone>,
-            lambda: SynthesisConfiguration<T>.() -> Unit,
-        ): PopulationSynthesis<T> {
-            val config = SynthesisConfiguration<T>(surveyPopulation).apply(lambda)
+        fun <AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> configure(
+            surveyPopulation: GenerateHouseholds<S, T>,
+            zones: List<AREA>,
+            lambda: SynthesisConfiguration<AREA, S, T>.() -> Unit,
+        ): PopulationSynthesis<AREA, S, T> {
+            val config = SynthesisConfiguration<AREA, S, T>(surveyPopulation).apply(lambda)
 
             return PopulationSynthesis(
                 config.outputDirectory,
                 zones,
                 config.surveyHouseholds,
-                config.rules,
                 config.attractivenessModel,
             )
         }
     }
 }
 
-fun interface GenerateArtificialPopulation<T> {
+@Deprecated("This interface does not fill a purpose")
+fun interface GenerateArtificialPopulationDeprecated<T> {
     fun generateArtificialPopulation(): Collection<T>
 
     companion object {
         fun fromFile(fileString: String) = fromFile(Path(fileString))
-        fun fromFile(file: Path) = GenerateArtificialPopulation {
+        fun fromFile(file: Path) = GenerateArtificialPopulationDeprecated {
             parseSurvey(file).toList()
         }
     }
+}
+
+fun interface GenerateHouseholds<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
+    fun generateSurveyHouseholds(): Collection<ISurveyHousehold<S, T>>
 }
 
 private val attractivenessModelPath = Path("src/test/resources/synthesis/attractivities.csv")
@@ -483,7 +314,7 @@ private val attractivenessModelPath = Path("src/test/resources/synthesis/attract
 ) // I agree that the method is long, but right now I don't know how to simplify without breaking the read flow
 fun examplePopulationSynthesis() {
     val populationSynthesis = PopulationSynthesis.configure(
-        surveyPopulation = GenerateArtificialPopulation.fromFile("src/test/resources/synthesis/SurveyPopulation.csv"),
+        surveyPopulation = GenerateFromFlatInput.fromPath("src/test/resources/synthesis/SurveyPopulation.csv"),
         zones = emptyList<Zone>()
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
@@ -491,7 +322,7 @@ fun examplePopulationSynthesis() {
         //        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
 //            .toList()
 //            .map { it.build() }
-        surveyHouseholds = surveyPopulation.toSurveyHouseholds()
+        surveyHouseholds = surveyPopulation
 //            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
         attractivenessModel = attractivenessFromFile {
             path = attractivenessModelPath
@@ -499,28 +330,25 @@ fun examplePopulationSynthesis() {
         }
     }
 
-    val primarySchools: List<Location> =
-        populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
+    val primarySchools: List<StandardLocation> =
+        populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY) { zone, _, _ ->
+            zone.generateLocations(amount = 1)
+        }
 
-    val works: List<Location> =
-        populationSynthesis.generateLocations(LegacyActivityType.WORK, amount = 1)
+    val works: List<StandardLocation> =
+        populationSynthesis.generateLocations(LegacyActivityType.WORK) { zone, _, _ ->
+            zone.generateLocations(amount = 1)
+        }
     require(primarySchools.isNotEmpty()) {
         "Somehow no primary schools are generated"
     }
     populationSynthesis.execute {
-        // TODO make this a bit more beautiful
+        refactoredPopsyn({ it }) {
+            TrivialSynthesis(
+                surveyHouseholds.map { HouseholdFactory.createFrom(it) },
+                zones
 
-//        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<ISurveyHousehold<out RawSurveyInfo>>>> = emptyMap()
-
-        synthesis(rules) {
-            IPU { vectors, observers ->
-                var counter = 0
-                while (observers.maxBy { it.relativeDifference }.relativeDifference >= 0.01 && counter < 100) {
-                    observers.forEach { it.optimize() }
-                    counter++
-                }
-            }
+            )
         }
 
         assignLocations {
@@ -529,7 +357,7 @@ fun examplePopulationSynthesis() {
 
         assignEconomicStatus {
             OECDAssigner.fromPath(
-                Path("src/main/resources/economical-status-oecd2017.csv")
+                Path("src/integration.main/resources/economical-status-oecd2017.csv")
             )
         }
 
@@ -569,28 +397,32 @@ fun examplePopulationSynthesis() {
             }
         }
 
-        generateCars(strategy = SamplingCarGeneration)
+        assignCars(
+            generationStrategy = SamplingCarGeneration(),
+            assignStrategy = UnfilteredSeniority(),
+        )
         assignActivities {
             ActiToppNGGenerator(legacyChoiceModelPurposes) {
                 ZoneRegionType.DEFAULT
             }
         }
-        assignSharingMemberships {
-            provider("Stadtmobil") {
-                AssignmentStrategy.viaChoiceModel(
-                    modelStructure = TODO(),
-                    parameters = TODO()
-                ) {
-                    it.household
-                }
-            }
-        }
+        // TODO reenable sharing memberships. MAybe in restatt
+//        assignSharingMemberships {
+//            provider("Stadtmobil") {
+//                AssignmentStrategy.viaChoiceModel(
+//                    modelStructure = TODO(),
+//                    parameters = TODO()
+//                ) {
+//                    it.household
+//                }
+//            }
+//        }
         writeLegacyOutput()
         println("Finished")
     }
 }
 
-fun SynthesisSteps<out RawSurveyInfo>.writeLegacyOutput() {
+fun domain.synthesis.SynthesisSteps<Zone, MaximumHouseholdAttributes, MaximumPersonAttributes>.writeLegacyOutput() {
     LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
@@ -609,13 +441,20 @@ private fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,
     generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
-): List<Location> {
+): List<HasZoneID> {
     return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-private fun Zone.generateLocations(amount: Int): List<Location> {
-    return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
+private fun Zone.generateLocations(amount: Int): List<StandardLocation> {
+    return (0 until amount).map {
+        StandardLocation(
+            position = TODO(),
+            zone = this,
+            roadAccess = RoadAccess.INVALID
+        )
+    }
+//    return (0..<amount).map { LocationOld(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
 }

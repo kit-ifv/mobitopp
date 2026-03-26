@@ -15,8 +15,8 @@ import kotlin.random.Random
  * model if and only if it is not null.
  */
 class OverridableModeChoiceModel(
-    val original: UtilityBasedChoiceModel< Mode, ModeChoiceCharacteristics>,
-) : UtilityBasedChoiceModel<Mode, ModeChoiceCharacteristics, >  {
+    val original: UtilityBasedChoiceModel<Mode, ModeChoiceCharacteristics>,
+) : UtilityBasedChoiceModel<Mode, ModeChoiceCharacteristics> {
     var overrideMode: Mode? = null
     override val name: String = original.name
 

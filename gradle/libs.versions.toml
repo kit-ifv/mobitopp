@@ -22,11 +22,13 @@ xz = "1.10"
 progressbar = "0.10.1"
 exp4j = "0.4.8"
 fast-utils = "8.5.16"
+fast-csv = "4.1.0"
 # ifv units
-ifv-units= "1.0.1"
-ifv-visum-netparser = "0.11.4"
+ifv-units= "1.0.2"
+ifv-visum-netparser = "0.11.6"
 ifv-actitopp-NG = "0.10.5"
 ifv-discrete-choice = "0.1.2"
+ifv-synthesis-algorithms = "0.0.13"
 
 
 [plugins]
@@ -43,6 +45,7 @@ shadowjar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowjar"}
 ifv-units = { module = "edu.kit.ifv.mobitopp:kotlin-units", version.ref = "ifv-units" }
 ifv-visum-netparser = { module = "edu.kit.ifv.mobitopp:visumnetfileparser", version.ref = "ifv-visum-netparser" }
 ifv-actitoppNG = { module = "edu.kit.ifv.mobitopp:actitoppNG", version.ref = "ifv-actitopp-NG" }
+ifv-synthesisAlgorithms = { module = "edu.kit.ifv.mobitopp:synthesisalgorithms", version.ref = "ifv-synthesis-algorithms" }
 ifv-discrete-choice = {module = "edu.kit.ifv.mobitopp:discrete-choice", version.ref = "ifv-discrete-choice"}
 
 # testing libs
@@ -83,3 +86,4 @@ xz = { module = "org.tukaani:xz", version.ref = "xz" }
 progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 exp4j = { module = "net.objecthunter:exp4j", version.ref = "exp4j" }
 fast-util = { module = "it.unimi.dsi:fastutil", version.ref = "fast-utils"}
+fast-csv = { module = "de.siegmar:fastcsv", version.ref = "fast-csv"}
