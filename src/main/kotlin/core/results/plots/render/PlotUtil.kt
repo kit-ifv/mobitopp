@@ -91,9 +91,9 @@ fun overlayLogoTopRight(
     marginPx: Int = 8
 ) {
 
-    println("base exists: ${basePng.toFile().exists()}")
-    println("base size: ${basePng.toFile().length()}")
-    println("base parent exists: ${basePng.parent?.toFile()?.exists()}")
+    System.err.println("base exists: ${basePng.toFile().exists()}")
+    System.err.println("base size: ${basePng.toFile().length()}")
+    System.err.println("base parent exists: ${basePng.parent?.toFile()?.exists()}")
 
     require(scale > 0.0) { "scale must be > 0" }
     require(alpha in 0f..1f) { "alpha must be in [0, 1]" }
