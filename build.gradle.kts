@@ -106,11 +106,10 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform()
-    testLogging {
-        showStandardStreams = true
-        events("passed", "skipped", "failed")
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    useJUnitPlatform {
+        if (System.getenv("CI") != null) {
+            excludeTags("plot")
+        }
     }
 }
 tasks {

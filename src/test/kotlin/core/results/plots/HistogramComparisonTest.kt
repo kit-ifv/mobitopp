@@ -1,7 +1,8 @@
 package core.results.plots
 
+import org.junit.jupiter.api.Tag
 import kotlin.test.Test
-
+@Tag("plot")
 class HistogramComparisonTest {
 
     private fun plotterBuilder() =

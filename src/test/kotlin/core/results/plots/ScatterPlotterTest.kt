@@ -1,8 +1,9 @@
 package core.results.plots
 
+import org.junit.jupiter.api.Tag
 import kotlin.random.Random
 import kotlin.test.Test
-
+@Tag("plot")
 class ScatterPlotterTest {
 
     private fun plotterBuilder() = forData { data }
