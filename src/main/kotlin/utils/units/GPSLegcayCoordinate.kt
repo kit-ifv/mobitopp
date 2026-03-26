@@ -1,7 +1,7 @@
 package utils.units
 
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.kilometers
 import kotlin.math.PI
 import kotlin.math.asin
@@ -47,6 +47,6 @@ class GPSLegcayCoordinate(
 }
 
 @Suppress("MagicNumber")
-fun Pair<Number, Number>.toCoordinate(): GPSCoordinate {
-    return GPSCoordinate.decimalDegree(first.toDouble(), second.toDouble())
+fun Pair<Number, Number>.toCoordinate(): WGS84Coordinate {
+    return WGS84Coordinate.decimalDegree(first.toDouble(), second.toDouble())
 }

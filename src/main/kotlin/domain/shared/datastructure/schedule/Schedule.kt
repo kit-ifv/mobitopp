@@ -5,9 +5,9 @@ import domain.shared.datastructure.schedule.plans.SeparablePlanModel
 import domain.shared.datastructure.schedule.plans.SingularDispatcher
 import domain.shared.datastructure.schedule.plans.TrackableModel
 import domain.shared.enums.MODEUNKOWN
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import utils.units.AbsoluteTime
-import java.util.*
+import java.util.SortedSet
 
 /**
  * Current Action is a wrapper class that only allows modification of [LinkedAction] attributes which are in the future:
@@ -23,7 +23,7 @@ class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAc
         set(value) {
             linkedAction.endTime = value
         }
-    override var endLocation: Location
+    override var endLocation: StandardLocation
         get() = linkedAction.endLocation
         set(value) {
             linkedAction.endLocation = value
@@ -95,7 +95,7 @@ class Schedule(
      * in a sense, it steps through the points of the schedule. Note that the time is updated based on the end time, so
      * no actions later than the step can be added to the plan.
      */
-    fun step(): Location {
+    fun step(): StandardLocation {
         return present?.let {
             currentTime = it.endTime
             alterableHistory.add(it.original)

@@ -25,7 +25,7 @@ data class MyContext(
     override val timeUnit: DurationUnit = DurationUnit.MINUTES,
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
-    var setDuringValidation: Boolean = false
+    var setDuringValidation: Boolean = false,
 ) : core.modelsteps.Context, core.modelsteps.Cloneable<MyContext> {
     override fun clone(): MyContext {
         return this.copy()
@@ -38,8 +38,10 @@ class SimulationContextInitTest {
         Simulation {
             MyContext()
         }.steps {
-            assert(!setDuringValidation) { "If this fails, the variable was set during the " +
-                "validation and not reset for the run. This behaviour should be prevented." }
+            assert(!setDuringValidation) {
+                "If this fails, the variable was set during the " +
+                    "validation and not reset for the run. This behaviour should be prevented."
+            }
             setDuringValidation = true
         }
     }
@@ -50,8 +52,10 @@ class SimulationContextInitTest {
         Simulation {
             myContext
         }.steps {
-            assert(!setDuringValidation) { "If this fails, the variable was set during the " +
-                "validation and not reset for the run. This behaviour should be prevented." }
+            assert(!setDuringValidation) {
+                "If this fails, the variable was set during the " +
+                    "validation and not reset for the run. This behaviour should be prevented."
+            }
             setDuringValidation = true
         }
     }
@@ -62,8 +66,10 @@ class SimulationContextInitTest {
         Simulation(
             myContext
         ).steps {
-            assert(!setDuringValidation) { "If this fails, the variable was set during the " +
-                "validation and not reset for the run. This behaviour should be prevented." }
+            assert(!setDuringValidation) {
+                "If this fails, the variable was set during the " +
+                    "validation and not reset for the run. This behaviour should be prevented."
+            }
             setDuringValidation = true
         }
     }
@@ -78,8 +84,10 @@ class SimulationContextInitTest {
             myContext
         }.steps {
             prepareZones(Path("src/test/resources/testDemand/zone-repository/zones.csv"))
-            assert(!zoneRepository.sealed) { "Repository sealing should be fixed by a shallow copy. " +
-                "Why does this fail?" }
+            assert(!zoneRepository.sealed) {
+                "Repository sealing should be fixed by a shallow copy. " +
+                    "Why does this fail?"
+            }
             finishZones()
         }
     }

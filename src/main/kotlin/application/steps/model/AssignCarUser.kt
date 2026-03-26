@@ -4,8 +4,8 @@ import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.TransformEachStep
 import core.modelsteps.Warning
+import domain.simulation.cars.AssignCarUserModel
 import domain.simulation.config.DemandSimContext
-import domain.synthesis.behavior.AssignCarUserModel
 import domain.synthesis.data.CarId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -29,7 +29,7 @@ class AssignCarUserStep(
     context: AssignCarsContext,
 ) : TransformEachStep<MutablePrivateCar, CarId>() {
 
-    override val name: String = "Assign cars to household members as main users."
+    override val name: String = "Assign cars to household members as integration.main users."
     override val repository: MutableRepository<MutablePrivateCar, CarId> = context.carRepository
     override val dependentRepositories: Set<Repository<*, *>> =
         setOf(context.personRepository, context.householdRepository)

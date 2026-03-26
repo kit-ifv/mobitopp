@@ -2,6 +2,7 @@ package domain.shared.enums
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+
 class LegacyPlannedActivityTypeTest {
     @Test
     fun codingActivityType() {

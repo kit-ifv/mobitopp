@@ -79,7 +79,7 @@ class BuildGenericHelloFromScopeMessage<T : Number>(
     val scope: MixedScope,
     val data: String,
     val value: T,
-    val name: String = scope::class.simpleName!!
+    val name: String = scope::class.simpleName!!,
 )
 
 class TestBuildGenericHelloFromScopeMessage {

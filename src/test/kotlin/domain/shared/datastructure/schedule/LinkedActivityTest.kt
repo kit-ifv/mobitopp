@@ -4,7 +4,7 @@ import FOURTH
 import OTHER
 import START
 import THIRD
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import utils.collections.cartesianProduct
@@ -46,7 +46,7 @@ class LinkedActivityTest {
 
     @TestFactory
     fun changingValues(): List<DynamicTest> {
-        val actions: List<(Location) -> Unit> = listOf(
+        val actions: List<(StandardLocation) -> Unit> = listOf(
             { secondLeg.endLocation = it },
 
             { thirdActivity.startLocation = it },

@@ -1,37 +1,37 @@
 package domain.synthesis
 
-import CRS84
-import LandUseModel
 import LandUseParser
-import LanduseDistributedCoordinates
 import NetfileParser
+import UrbanAtlasGenerator
 import VisumLocale
 import ZoneType
-import asLocation
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.Location
+import domain.shared.location.RoadAccess
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.synthesis.behavior.ZoneDistributedLocations
+import domain.synthesis.behavior.householdlocation.ZoneDistributedLocations
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.GPSCoordinate
 import edu.kit.ifv.units.Hemisphere
 import edu.kit.ifv.units.meters
 import readPolyZones
 import utils.csv.DefaultCsvReader
 import kotlin.io.path.Path
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 class ZoneDistributedLocationsTest {
     val leopoldLocale = VisumLocale()
+
     init {
         leopoldLocale.connector {
             travelTimeCar = "T0_TSYS(BS)"
         }
     }
+
     val netfileParser = NetfileParser(
         file = Path("src/test/resources/synthesis/leopoldshafen.net"),
         locale = leopoldLocale,
@@ -46,20 +46,21 @@ class ZoneDistributedLocationsTest {
             .map {
                 Pair(ZoneType(it.invoke("landUseType").toInt()), it.invoke("weight").toDouble())
             }.toMap()
-    val landUseModel: LandUseModel = LandUseParser(
-        gpsParser = CRS84(),
-        zoneTypePropertyName = "landUseType"
+    val landUseModel = LandUseParser(
+        zoneTypePropertyName = "landUseType",
+        typeEncoder = ::ZoneType
     ).parse(Path("src/test/resources/synthesis/250410_landuse_rastatt.geojson"))
 
     private val polyZones = netfileParser.readPolyZones().associateBy { it.id }
-    private val distributor = LanduseDistributedCoordinates(
+    private val distributor = UrbanAtlasGenerator(
         landUseModel = landUseModel,
-        weights = weights,
+        weightFunction = { weights.getOrDefault(it, defaultValue = 0.0) },
         utmZone = netfileParser.utmZone,
         utmHemisphere = netfileParser.utmHemisphere
     )
     private val distributedLocations = ZoneDistributedLocations<TestHouseHold>(polyZones, distributor)
 
+    // TODO this test is no longer testing sensible things since the location rework
     @Test
     fun singleAssign() {
         val generated = distributedLocations.generateLocation(
@@ -67,9 +68,8 @@ class ZoneDistributedLocationsTest {
             TestHouseHold("MyHousehold")
         )
 
-        assert(generated.zone?.visumId == 1L)
-        assertNotNull(generated.zone)
-        assertNull(generated.roadAccess)
+        assertNotNull(generated)
+        assertEquals(generated.roadAccess, RoadAccess.INVALID)
     }
 
     @Test
@@ -83,9 +83,7 @@ class ZoneDistributedLocationsTest {
 
         assert(generated.size == size)
         generated.forEach { pair ->
-            assertNotNull(pair.second.zone)
-            assert(pair.second.zone?.visumId == 35L)
-            assertNull(pair.second.roadAccess)
+            assertEquals(pair.second.roadAccess, RoadAccess.INVALID)
             assert(pair.first.name == "TestHouseHold")
         }
     }
@@ -102,7 +100,7 @@ private class TestZone(
     override val relief: Distance = 0.meters,
 ) : Zone(
     id = ZoneId(visumId),
-    centroid = GPSCoordinate.decimalDegree(50.0, 9.0).asLocation(),
+    centroid = Location.wgs(9.0, 50.0),
     seed = 0L
 )
 

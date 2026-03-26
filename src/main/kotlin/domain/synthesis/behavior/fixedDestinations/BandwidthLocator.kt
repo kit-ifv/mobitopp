@@ -3,22 +3,22 @@ package domain.synthesis.behavior.fixedDestinations
 import core.datastructure.kdtree.WithMetric
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
-import domain.shared.location.Location
 import domain.shared.location.LocationKDTree
-import domain.synthesis.behavior.CommuteDistance
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.shared.location.StandardLocation
+import domain.synthesis.attributes.person.HasCommuteDistance
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.behavior.SurveyPerson
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.kilometers
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.random.Random
 
 val standardBandwidthModel = RuleBasedStructure<
-    WithMetric<Location, Distance>,
+    WithMetric<StandardLocation, Distance>,
     LocationAlternative,
     BandwidthParameters
     > {
@@ -45,22 +45,22 @@ val standardBandwidthModel = RuleBasedStructure<
  * As second step a discrete choice model is used to determine the utility of each location individually. The input
  * for the discrete choice model can be found in [LocationAlternative]
  */
-class BandwidthLocator(
-    private val potentialLocations: List<Location>,
+class BandwidthLocator<T>(
+    private val potentialLocations: List<StandardLocation>,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
     var parameters: BandwidthParameters = BandwidthParameters(), // TODO why variable?
-    var model: DiscreteChoiceModel<WithMetric<Location, Distance>, LocationAlternative, BandwidthParameters> =
+    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> =
         standardBandwidthModel.build(parameters),
-) : SimpleLocator<CommuteDistance> {
+) : SimpleLocator<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
     private val locationTree = LocationKDTree(potentialLocations)
 
     @Suppress("MagicNumber")
     private val random = Random(42L) // TODO what is random source of opportunities?
 
     override fun locate(
-        agent: SynthesisPerson<out CommuteDistance>,
-    ): Location {
+        agent: SurveyPerson<T>,
+    ): StandardLocation {
         var validTargets =
             validTargetsForAgent(agent)
         if (validTargets.isEmpty()) {
@@ -77,37 +77,14 @@ class BandwidthLocator(
      * Determine which locations are within the band radius of an agents home location, using the [parameters] pole
      * radius.
      */
-    fun validTargetsForAgent(agent: SynthesisPerson<out CommuteDistance>): Set<WithMetric<Location, Distance>> {
+
+    fun validTargetsForAgent(agent: SurveyPerson<T>): Set<WithMetric<StandardLocation, Distance>> {
         val poleRadius = parameters.poleRadius
         return locationTree.sequenceFor(
             agent.homeLocation,
         )
-            .dropWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork - poleRadius }
-            .takeWhile { it.item.distance(agent.homeLocation) <= agent.information.distanceWork + poleRadius }
+            .dropWhile { it.item.distance(agent.homeLocation) <= agent.attributes.distanceWork - poleRadius }
+            .takeWhile { it.item.distance(agent.homeLocation) <= agent.attributes.distanceWork + poleRadius }
             .toSet()
     }
-
-    private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)
-}
-
-data class BandwidthParameters(
-    val poleRadius: Distance = 4.kilometers,
-    val bDistance: Double = 0.5,
-    val aDistance: Double = 5.0,
-)
-
-/**
- * Contains all relevant information for the discrete choice within the [BandwidthLocator] to select a proper target.
- */
-@Suppress("MagicNumber") // The small attractiveness as default seems to cause issues.
-data class LocationAlternative(
-    val attractivenessModel: AttractivenessModel,
-    val activityType: ActivityType
-) {
-    /**
-     * We can extrapolate the attractiveness by simply evaluating the location.
-     */
-    fun attractiveness(location: Location) = location.zone?.id?.let {
-        attractivenessModel.attractivenessFor(it, activityType)
-    } ?: 0.00001
 }

@@ -5,12 +5,12 @@ import core.datastructure.calendarLookup.CalendarWeekLookupBuilder
 import core.datastructure.calendarLookup.TimeLookupBuilder
 import core.datastructure.calendarLookup.TimeLookupOperation
 import core.datastructure.calendarLookup.WeekLookupOperation
-import kotlinx.datetime.DayOfWeek
 import org.junit.jupiter.api.assertThrows
 import utils.WithExpiration
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import utils.units.weeks
+import java.time.DayOfWeek
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.days

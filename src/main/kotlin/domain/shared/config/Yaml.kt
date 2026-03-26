@@ -22,7 +22,7 @@ import java.nio.file.Path
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
- * in src/main/resources/ of the subproject.
+ * in src/integration.main/resources/ of the subproject.
  *
  * In there add a `package.name.myInterface/Class` so the serviceloader can look for implementations of myClass or
  * myInterface in that subproject. The file should contain the package-path to the implementation of that class/

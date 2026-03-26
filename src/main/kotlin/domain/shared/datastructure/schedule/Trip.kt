@@ -4,11 +4,10 @@ import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
-import domain.shared.location.LOCATIONUNKNOWN
-import domain.shared.location.Location
 import domain.shared.location.Metrics
+import domain.shared.location.StandardLocation
 import utils.units.AbsoluteTime
-import java.util.*
+import java.util.SortedSet
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -22,8 +21,8 @@ interface Trip {
     val previousAction: StationaryAction?
     val nextAction: StationaryAction?
 
-    val origin get() = previousAction?.location ?: legs.firstOrNull()?.startLocation ?: LOCATIONUNKNOWN
-    val destination get() = nextAction?.location ?: legs.lastOrNull()?.endLocation ?: LOCATIONUNKNOWN
+    val origin get() = previousAction?.location ?: legs.firstOrNull()?.startLocation ?: StandardLocation.LOCATIONUNKNOWN
+    val destination get() = nextAction?.location ?: legs.lastOrNull()?.endLocation ?: StandardLocation.LOCATIONUNKNOWN
 
     fun alternate(replanner: ReplanningStrategy = ReplanningStrategy.SHIFT, lambda: TripBuilder.() -> Unit)
 
@@ -55,7 +54,7 @@ class RawTrip(
 }
 
 class ImpedanceBuilder(val impedance: Metrics, private val tripBuilder: TripBuilder) {
-    fun taking(modeLocation: Pair<Mode, Location>) {
+    fun taking(modeLocation: Pair<Mode, StandardLocation>) {
         tripBuilder.taking(
             modeLocation,
             impedance.duration(
@@ -88,7 +87,7 @@ class TripBuilder(
 
     // The previous action could be null, however the assumption that a previous location exists still holds, so I can
     // request the promise that this value will be set eventually.
-    lateinit var currentLocation: Location
+    lateinit var currentLocation: StandardLocation
         private set
 
     var currentTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY
@@ -126,7 +125,7 @@ class TripBuilder(
         ImpedanceBuilder(impedance, this).apply(lambda)
     }
 
-    fun taking(modeLocation: Pair<Mode, Location>, duration: Duration) {
+    fun taking(modeLocation: Pair<Mode, StandardLocation>, duration: Duration) {
         +Step(modeLocation.second, duration, modeLocation.first)
     }
 
@@ -135,7 +134,7 @@ class TripBuilder(
     }
 
     fun output(): SortedSet<Leg> = legs
-    inner class Step(val location: Location, val duration: Duration, val mode: Mode = MODEUNKOWN)
+    inner class Step(val location: StandardLocation, val duration: Duration, val mode: Mode = MODEUNKOWN)
     inner class Pause(val idleTime: Duration)
 }
 

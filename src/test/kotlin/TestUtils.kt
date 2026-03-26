@@ -1,14 +1,13 @@
-
-import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.StandardLocation
 import kotlin.test.asserter
 
 /**
  * Four example locations for testing
  */
-val START = LOCATIONUNKNOWN
-val OTHER = LOCATIONUNKNOWN
-val THIRD = LOCATIONUNKNOWN
-val FOURTH = LOCATIONUNKNOWN
+val START = StandardLocation.LOCATIONUNKNOWN
+val OTHER = StandardLocation.LOCATIONUNKNOWN
+val THIRD = StandardLocation.LOCATIONUNKNOWN
+val FOURTH = StandardLocation.LOCATIONUNKNOWN
 
 internal fun messagePrefix(message: String?) = if (message == null) "" else "$message. "
 
@@ -16,7 +15,7 @@ fun assertNotContains(
     charSequence: CharSequence,
     other: CharSequence,
     ignoreCase: Boolean = false,
-    message: String? = null
+    message: String? = null,
 ) {
     asserter.assertTrue(
         {
@@ -42,7 +41,7 @@ fun assertEmpty(charSequence: CharSequence, message: String? = null) {
 fun <T> assertNotContains(
     collection: Collection<T>,
     element: T,
-    message: String? = null
+    message: String? = null,
 ) {
     asserter.assertTrue(
         {

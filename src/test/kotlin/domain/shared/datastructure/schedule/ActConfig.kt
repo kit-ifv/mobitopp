@@ -1,9 +1,8 @@
 package domain.shared.datastructure.schedule
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import utils.units.sinceStart
-import kotlin.collections.fold
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -12,9 +11,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
 class ActConfig {
-    lateinit var location: Location
+    lateinit var location: StandardLocation
     var startTime: Number = 0
-        get
         set(value) {
             field = value
             earliestStartTime = (value.toInt() / 24).toDouble()
@@ -61,7 +59,7 @@ class ActConfig {
     var activityType: ActivityType = ActivityType.Companion.UNKNOWN
     var earliestStartTime: Number = startTime.toInt() / 24
     var latestEndTime: Number = startTime.toInt() / 24 + 24
-    lateinit var location2: Location
+    lateinit var location2: StandardLocation
 
     fun toActivity(): Activity {
         return Activity.fromDuration(

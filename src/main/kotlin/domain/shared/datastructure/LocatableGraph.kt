@@ -3,26 +3,21 @@ package domain.shared.datastructure
 import core.datastructure.kdtree.ReadOnlyKDTree
 import domain.LinkInfo
 import domain.VisumNode
-import domain.shared.location.Location
-import domain.shared.location.toUTM
-import edu.kit.ifv.units.Coordinate
+import domain.shared.location.StandardLocation
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.GPSCoordinate
 import edu.kit.ifv.units.UTMPosition
-import edu.kit.ifv.units.radians
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.toDistance
 import org.jgrapht.Graph
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.Point
 import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.pow
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 fun interface VisumLinkIdLocator {
-    // TODO change return type from Long to typed ID
-    fun linkIdFor(location: Location): Long
+    fun linkIdFor(location: StandardLocation): Long
 }
 
 /**
@@ -30,16 +25,19 @@ fun interface VisumLinkIdLocator {
  * the origin and destination of the edge.
  */
 private class LocatedLinkInfo(
-    v: Coordinate,
-    u: Coordinate,
+    v: Point,
+    u: Point,
     val edge: LinkInfo,
 
 ) {
 
-    val midUTM = calculateMidpoint(v, u).toUTM()
-    fun distanceToUTM(other: UTMPosition): Distance {
-        return midUTM.distance(other)
-    }
+    val midUTM = v.midPoint(u)
+}
+
+fun Point.midPoint(other: Point): Point {
+    val x = (x + other.x) / 2.0
+    val y = (y + other.y) / 2.0
+    return factory.createPoint(Coordinate(x, y))
 }
 
 fun UTMPosition.distance(other: UTMPosition): Distance {
@@ -51,7 +49,7 @@ fun UTMPosition.distance(other: UTMPosition): Distance {
  * can be assigned to the closest road edge.
  */
 class LocatableGraph(
-    private val graph: Graph<VisumNode, LinkInfo>
+    private val graph: Graph<VisumNode, LinkInfo>,
 ) : Graph<VisumNode, LinkInfo> by graph, VisumLinkIdLocator {
     /* Extract all edges from the road network and map them to the midpoint, for locating the closest edge.
        Since the input may be (very likely) a directed graph, an edge midpoint would be represented twice,
@@ -64,14 +62,14 @@ class LocatableGraph(
     private val edgeKdTree: ReadOnlyKDTree<LocatedLinkInfo> by lazy {
         ReadOnlyKDTree(
             edgeSet,
-            { it.midUTM.e },
-            { it.midUTM.n }
+            { it.midUTM.x },
+            { it.midUTM.y }
 
         )
     }
 
-    fun visumLinkId(location: Location): Long {
-        location.roadAccess?.let {
+    fun visumLinkId(location: StandardLocation): Long {
+        location.roadAccess.let {
             return it.roadId
         }
 
@@ -80,42 +78,17 @@ class LocatableGraph(
 
     // TODO currently the calculation returns the closest midpoint, which does not necessarily represent the closest edge
     //  but it is good enough for approximation.
-    override fun linkIdFor(location: Location): Long {
+    override fun linkIdFor(location: StandardLocation): Long {
         // Use UTM as baseline, WGS is imprecise, depending on location.
-        val utm = GPSCoordinate.decimalDegree(
-            location.coordinate.latitudeDegrees,
-            location.coordinate.longitudeDegrees
+        val utm = WGS84Coordinate.decimalDegree(
+            location.position.y,
+            location.position.x
         ).toUTM()
         val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.e, it.n) }
         return edge.edge.id?.toLong() ?: Long.MIN_VALUE
-    }
-
-    fun helpLinkId(location: Location): Long {
-        return edgeSet.minBy { it.distanceToUTM(location.coordinate.toUTM()) }.edge.id?.toLong() ?: Long.MIN_VALUE
     }
 }
 
 private fun Graph<VisumNode, LinkInfo>.convertLink(linkInfo: LinkInfo): LocatedLinkInfo {
     return LocatedLinkInfo(getEdgeSource(linkInfo).coordinate, getEdgeTarget(linkInfo).coordinate, linkInfo)
-}
-
-/**
- * Calculates the midpoint between two coordinates. Taken from https://stackoverflow.com/questions/4656802/midpoint-between-two-latitude-and-longitude
- *
- * @param coordinateFrom the starting coordinate
- * @param coordinateTo the ending coordinate
- * @return the midpoint coordinate
- */
-fun calculateMidpoint(coordinateFrom: Coordinate, coordinateTo: Coordinate): GPSCoordinate {
-    val lat1 = coordinateFrom.latitudeRadians.toDouble()
-    val lat2 = coordinateTo.latitudeRadians.toDouble()
-    val lon1 = coordinateFrom.longitudeRadians.toDouble()
-    val lon2 = coordinateTo.longitudeRadians.toDouble()
-    val dLon = lon2 - lon1
-    val bX = cos(lat2) * cos(dLon)
-    val bY = cos(lat2) * sin(dLon)
-    val lat3 = atan2(sin(lat1) + sin(lat2), sqrt((cos(lat1) + bX) * (cos(lat1) + bX) + bY * bY))
-    val lon3: Double = lon1 + atan2(bY, cos(lat1) + bX)
-
-    return GPSCoordinate(lat3.radians, lon3.radians)
 }

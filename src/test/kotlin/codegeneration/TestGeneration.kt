@@ -210,12 +210,12 @@ data class AllPrimitives(
     val doubleArray: DoubleArray,
     val floatArray: FloatArray,
     val longArray: LongArray,
-    val shortArray: ShortArray
+    val shortArray: ShortArray,
 )
 
 @Buildable
 class ValueHolder(
-    val duration: Duration
+    val duration: Duration,
 )
 
 @Buildable

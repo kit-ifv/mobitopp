@@ -9,7 +9,9 @@ import core.modelsteps.SealStep
 import core.modelsteps.ValidateCsvMetadata
 import domain.shared.enums.Mode
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
+import domain.shared.location.PointCreator
+import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.simulation.config.DemandSimContext
@@ -17,7 +19,8 @@ import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.SharingStationId
-import edu.kit.ifv.units.Coordinate
+import edu.kit.ifv.units.KCoordinate
+import org.locationtech.jts.geom.Point
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.Row
@@ -56,7 +59,7 @@ fun LoadSharingProvidersContext.prepareSharingStations(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     providerName: String,
     mode: Mode,
-    coordinateParser: (String) -> Coordinate = String::parseCoordinate,
+    coordinateParser: (String) -> Point = PointCreator::createUTM,
 ) {
     val sharingProvider: MutableSharingProvider = sharingProviderRepository.elements.find {
         it.name == providerName
@@ -82,10 +85,10 @@ fun LoadSharingProvidersContext.prepareSharingStations(
             zonesByFoot.addAll(
                 prepareZonesByFoot(row, columns.zonesByFootColumn).toMutableSet()
             )
-            location = Location(
+            location = StandardLocation(
                 zone = getZone(row.long(columns.zoneColumn)),
-                coordinate = coordinateParser(row(columns.coordinatesColumn)),
-                roadAccess = null
+                position = coordinateParser(row(columns.coordinatesColumn)),
+                roadAccess = RoadAccess.INVALID
             )
             initialVehicleCount = row.int(columns.vehicleCountColumn)
         }
@@ -138,7 +141,7 @@ fun LoadSharingProvidersContext.loadSharingStations(
     this.finishSharingStations()
 }
 
-fun String.parseCoordinate(): Coordinate =
+fun String.parseCoordinate(): KCoordinate =
     this.split(",")
         .takeIf { it.size == 2 }
         ?.let { it[0].toDouble() to it[1].toDouble() }

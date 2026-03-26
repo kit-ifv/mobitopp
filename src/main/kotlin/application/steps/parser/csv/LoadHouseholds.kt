@@ -12,10 +12,11 @@ import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.shared.location.parseRoadPosition
+import domain.shared.location.attributes.HasRoadAccess
+import domain.shared.location.parseRoadPositionWGS
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdId
@@ -92,7 +93,7 @@ fun LoadHouseholdContext.prepareHouseholds(
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: HouseholdColumns = HouseholdColumns(),
-    roadPositionParser: (String) -> Location = String::parseRoadPosition,
+    roadPositionParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
     incomeUnit: CurrencyUnit = costUnit,
     filter: HouseholdColumns.(Row) -> Boolean = { true },
 ) = prepareHouseholds(
@@ -112,7 +113,7 @@ data class HouseholdCsvConfig(
     var delimiter: String = SEMICOLON,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
     var columns: HouseholdColumns = HouseholdColumns(),
-    var roadPositionParser: (String) -> Location = String::parseRoadPosition,
+    var roadPositionParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
     var incomeUnit: CurrencyUnit,
     var filter: HouseholdColumns.(Row) -> Boolean = { true },
 )
@@ -141,8 +142,11 @@ fun LoadHouseholdContext.spawnCsvParser(
             economicStatus = row.decode(columns.economicalStatusColumn, economicalStatusCodes)
 
             // Robin: I converted this builder call to the location as found in [Household]
-            location = row(columns.locationColumn, roadPositionParser).withZone(
-                getLegacyZone(row.int(columns.zoneColumn))
+            val temp = row(columns.locationColumn, roadPositionParser)
+            location = StandardLocation(
+                position = temp.position,
+                zone = getLegacyZone(row.int(columns.zoneColumn)),
+                roadAccess = temp.roadAccess
             )
         }
     }

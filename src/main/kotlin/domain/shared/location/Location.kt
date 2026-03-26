@@ -1,115 +1,49 @@
 package domain.shared.location
 
-import domain.shared.enums.areatype.RegionType
-import edu.kit.ifv.units.Coordinate
+import domain.shared.location.attributes.HasRoadAccess
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.GPSCoordinate
-import edu.kit.ifv.units.UTMPosition
-import edu.kit.ifv.units.UnitIntervalValue
-import edu.kit.ifv.units.meters
-import edu.kit.ifv.units.share
+import edu.kit.ifv.units.WGS84Coordinate
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Point
+import org.locationtech.jts.geom.PrecisionModel
 
-data class RoadAccess(val roadId: Long, val position: UnitIntervalValue, val lateralDistance: Distance = 0.meters)
 interface Location {
-    val coordinate: Coordinate
-    val zone: Zone?
-    val roadAccess: RoadAccess?
-    fun regionType(): RegionType = requireZone().regionType
-    fun zoneID(): ZoneId?
-    fun inSameZone(other: Location) = this.zone == other.zone
-    fun withZone(zone: Zone): Location {
-        require(this.zone == null) {
-            "Cannot add '$zone' to location '$this', as zone is already defined!"
-        }
+    val position: Point
 
-        return LocationImpl(coordinate, zone, roadAccess)
+    fun withZone(zoneId: ZoneId): HasZoneID {
+        return ZoneIDLocation(position, zoneId)
     }
-    fun requireZone(): Zone = requireNotNull(zone) {
-        "Expected Location $this to specify a zone, but found null!"
-    }
-    fun withRoadAccess(access: RoadAccess): Location {
-        require(this.roadAccess == null) {
-            "Cannot add '$access' to location '$this', as roadAccess is already defined!"
-        }
 
-        return LocationImpl(coordinate, zone, roadAccess = access)
+    fun withRoadAccess(access: RoadAccess): HasRoadAccess {
+        return RoadAccessLocationImpl(position, access)
     }
-    fun copy(zone: Zone? = null): Location {
-        return LocationImpl(coordinate, zone ?: this.zone, roadAccess)
-    }
+
+    fun distance(other: Location): Distance = JTSDistanceCalculator.distance(position, other.position)
 
     companion object {
-        operator fun invoke(
-            coordinate: Coordinate,
-            zone: Zone? = null,
-            roadAccess: RoadAccess? = null
-        ): Location {
-            return LocationImpl(coordinate, zone, roadAccess)
+        fun of(point: Point): Location {
+            return LocationImpl(point)
+        }
+
+        @Suppress("MagicNumber")
+        fun utm(x: Double, y: Double): Location {
+            return of(GeometryFactory(PrecisionModel(), 25832).createPoint(Coordinate(x, y)))
+        }
+
+        fun utm(string: String): Location {
+            val (x, y) = string.split(",").take(2)
+            return utm(x.toDouble(), y.toDouble())
+        }
+
+        fun wgs(coord: WGS84Coordinate) = wgs(coord.x, coord.y)
+        fun wgs(x: Double, y: Double): Location {
+            return of(PointCreator.createWGS(x, y))
+        }
+
+        val BIELEFELD by lazy {
+            wgs(8.531007, 52.019101)
         }
     }
-}
-
-data class LocationImpl(
-    override val coordinate: Coordinate,
-    override val zone: Zone?,
-    override val roadAccess: RoadAccess?,
-) : Location {
-    override fun zoneID(): ZoneId? {
-        return zone?.id
-    }
-
-    override fun toString(): String {
-        return "Location(coordinate=$coordinate, zone=${zone?.id?.value}, roadAccess=$roadAccess)"
-    }
-//    fun requireZone(): Zone = requireNotNull(zone) {
-//        "Expected Location $this to specify a zone, but found null!"
-//    }
-
-//    fun withZone(zone: Zone): Location {
-//        require(this.zone == null) {
-//            "Cannot add '$zone' to location '$this', as zone is already defined!"
-//        }
-//
-//        return this.copy(zone = zone)
-//    }
-
-//    fun withRoadAccess(access: RoadAccess): Location {
-//        require(this.roadAccess == null) {
-//            "Cannot add '$access' to location '$this', as roadAccess is already defined!"
-//        }
-//
-//        return this.copy(roadAccess = access)
-//    }
-}
-
-/**
- * Parse the legacy mobiTopp String format of coordinate and road access:
- *
- * @return the parsed Location
- */
-@Suppress("MagicNumber")
-fun String.parseRoadPosition(): Location {
-    val res = this.removeSurrounding(prefix = "(", suffix = ")").split(":", ",").map { it.trim() }
-    require(res.size == 4) {
-        "Cannot parse '$this' as RoadPosition: expected format LONG:LAT,ROAD_ID,ROAD_POS"
-    }
-
-    return Location(
-        coordinate = GPSCoordinate.decimalDegree(res[1].toDouble(), res[0].toDouble()),
-        zone = null,
-        roadAccess = RoadAccess(
-            roadId = res[2].toLongOrNull() ?: Long.MIN_VALUE,
-            position = (res[3].toDoubleOrNull() ?: 0.5).share(),
-        )
-    )
-}
-
-val LOCATIONUNKNOWN = Location(
-    coordinate = GPSCoordinate.decimalDegree(0.0, 0.0),
-    zone = null,
-    roadAccess = null,
-)
-
-fun Coordinate.toUTM(): UTMPosition {
-    return GPSCoordinate.decimalDegree(latitudeDegrees, longitudeDegrees).toUTM()
 }

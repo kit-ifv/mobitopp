@@ -8,11 +8,11 @@ import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
 import domain.shared.location.LocationMetric
 import domain.shared.location.Metrics
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasZoneID
 import domain.shared.location.point
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
@@ -24,7 +24,8 @@ import utils.collections.cartesianProduct
 import utils.units.AbsoluteTime
 import utils.units.Time
 import utils.units.sinceStart
-import java.util.*
+import java.util.NavigableMap
+import java.util.TreeMap
 import kotlin.random.Random
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -41,7 +42,7 @@ class ControllableImpedance(
     private val startingModes: Collection<Mode> = LegacyMode.entries,
     var standardCost: Currency = 1.euros,
     var standardTime: Duration = 10.minutes,
-    var standardDistance: Distance = 1.kilometers
+    var standardDistance: Distance = 1.kilometers,
 ) : Metrics {
 
     private val currencyMap: MutableMap<Mode, RangeMap<Time, Currency>> =
@@ -167,7 +168,7 @@ class ControllableImpedance(
         travelTimes: Pair<Number, Number>,
         travelDistances: Pair<Number, Number>,
         travelCost: Pair<Number, Number>,
-        random: Random = Random(1)
+        random: Random = Random(1),
     ) {
         val rng: (Pair<Number, Number>) -> Double = {
             random.nextDouble(it.first.toDouble(), it.second.toDouble())
@@ -226,6 +227,7 @@ class RangeMap<T : Comparable<T>, V>(initialRange: OpenEndRange<T>, initialValue
         return values.floorEntry(target).value
     }
 }
+
 class ControllableImpedanceTest {
     private lateinit var impedance: ControllableImpedance
     private val zone = generateZones(2)
@@ -302,11 +304,12 @@ class ControllableImpedanceTest {
         )
     }
 }
+
 class MapMetric<R>(private val standardValue: () -> R) : LocationMetric<R> {
     private val fields: MutableMap<Pair<ZoneId, ZoneId>, R> = mutableMapOf()
 
-    override fun evaluate(origin: Location, destination: Location): R {
-        return fields[Pair(origin.requireZone().id, destination.requireZone().id)] ?: standardValue()
+    override fun evaluate(origin: HasZoneID, destination: HasZoneID): R {
+        return fields[Pair(origin.zoneID, destination.zoneID)] ?: standardValue()
     }
 
     operator fun set(origin: Zone, destination: Zone, content: R) {

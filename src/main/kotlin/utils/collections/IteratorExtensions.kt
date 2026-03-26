@@ -1,7 +1,5 @@
 package utils.collections
 
-import kotlin.collections.ArrayList
-
 /**
  * Almost identical behaviour to [takeWhile] only that the condition is inverted, and that the first element
  * that matches the predicate is returned as well.

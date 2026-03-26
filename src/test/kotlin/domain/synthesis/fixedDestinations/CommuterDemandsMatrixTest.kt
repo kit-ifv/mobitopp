@@ -2,7 +2,7 @@ package domain.synthesis.fixedDestinations
 
 import BIELEFELD
 import TestZone
-import asLocation
+import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
@@ -14,7 +14,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CommuterDemandsMatrixTest {
-    val bielefeld = BIELEFELD.asLocation()
+    val bielefeld = StandardLocation.fromWGS(BIELEFELD)
 
     @Test
     fun communityConfiguration() {
@@ -67,7 +67,7 @@ class CommuterDemandsMatrixTest {
     fun decreaseDemandForNonexistingDoesNothing() {
         val demands = CommuterDemandsMatrix(converter = { CommunityNumber(1) })
         val demandFor = demands[1]
-        demandFor.decreaseDemandFor(BIELEFELD.asLocation())
+        demandFor.decreaseDemandFor(bielefeld)
         assertEquals(demandFor[1], 0.0)
         demandFor[1] = 1.0
         assertEquals(demandFor.total, 1.0)
@@ -126,6 +126,7 @@ class CommuterDemandsMatrixTest {
     private fun Number.toZone(): TestZone {
         return TestZone(id = ZoneId(toLong()))
     }
+
     private fun CommuterDemandsMatrix.Companion.parseRastatt(): CommuterDemandsMatrix {
         return parse(
             Path("src/test/resources/synthesis/zone-to-community.csv"),
