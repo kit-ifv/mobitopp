@@ -66,6 +66,9 @@ data class Plotter<G, X, Y>(
         plot.save(filename, path = resultDir.pathString)
 
         val path = resultDir.resolve(filename)
+        println("Writing $path to ${path.toAbsolutePath()}")
+        println("exists after save: ${path.toFile().exists()}")
+        println("size after save: ${path.toFile().length()}")
         overlayLogoTopRight(
             basePng = path,
             outPng = path,
