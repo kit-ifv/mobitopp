@@ -27,7 +27,7 @@ test-kira:
     strategy: depend
 
 include:
-  - component: $CI_SERVER_FQDN/zq6966/gitlabpipelinerepo/trigger-job-status@v1.0.8
+  - component: $CI_SERVER_FQDN/kit/ifv/intern/software/gitlabpipelinerepo/trigger-job-status@v1.0.9
     inputs:
       stage: deploy
       job_name: collect_states
