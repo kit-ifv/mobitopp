@@ -1,6 +1,5 @@
 package domain.synthesis.results
 
-import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
@@ -256,9 +255,9 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttr
     }
 }
 
-data class OpportunityOutput(
+data class OpportunityOutput constructor(
     val location: ZonedRoadAccessLocation,
-    val attractivenessModel: AttractivenessModel,
+    val attractiveness: Attractiveness,
     val activityType: ActivityType,
 )
 
@@ -273,7 +272,7 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
                 location.zoneID.value,
                 activityType,
                 location.legacyStringRepresentation(),
-                attractivenessModel.attractivenessFor(location.zoneID, activityType),
+                attractiveness.value,
                 location.position.x,
                 location.position.y
 

@@ -200,15 +200,23 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttr
     }
 }
 
-fun <AREA,
-    S : MinimumHouseholdAttributes,
-    T : MinimumPersonAttributes> PopulationSynthesis<AREA, S, T>.generateLocations(
+fun <
+        AREA,
+        S : MinimumHouseholdAttributes,
+        T : MinimumPersonAttributes,
+        > PopulationSynthesis<AREA, S, T>.generateLocations(
     activityType: ActivityType,
     generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
 ): List<StandardLocation> {
     // TODO reenable generation and put more thought into how the locations are generated.
     val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
-    opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
+    opportunities.addAll(generatedLocations.map {
+        OpportunityOutput(
+            it,
+            attractivenessModel.attractivenessFor(it.zoneID, activityType),
+            activityType
+        )
+    })
     return generatedLocations
 }
 
@@ -435,7 +443,7 @@ private fun Collection<Zone>.generateLocations(
     activityType: ActivityType,
     generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
 ): List<HasZoneID> {
-    return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
+    return filter { attractivenessModel.isAttractive(it.id, activityType) }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }
 }

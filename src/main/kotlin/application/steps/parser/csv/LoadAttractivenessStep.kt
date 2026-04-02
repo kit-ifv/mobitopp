@@ -13,6 +13,7 @@ import domain.shared.behavior.capitalizeWithUnderscores
 import domain.shared.enums.ActivityType
 import domain.shared.location.ZoneId
 import domain.simulation.config.DemandSimContext
+import domain.synthesis.results.Attractiveness
 import utils.csv.CsvReader
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -66,7 +67,7 @@ class LoadAttractivenessStep(
     override fun mockBehavior(): Warning? = validateScope("Mock attractiveness data") {
         context.attractivenessModel.value = object : AttractivenessModel {
 
-            override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double = 1.0
+            override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness = Attractiveness.DEFAULT
             override val purposes: ChoiceModelPurposes = this@LoadAttractivenessStep.purposes
         }
     }
