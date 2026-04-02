@@ -8,22 +8,23 @@ import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.synthesis.results.Attractiveness
+import domain.synthesis.results.asAttractiveness
 import utils.collections.cartesianProduct
 
 class ControllableAttractiveness(zones: Collection<Zone>) : AttractivenessModel {
     constructor() : this(emptyList())
 
-    val attractivenessMap: MutableMap<Pair<ZoneId, ActivityType>, Double> =
-        zones.map { it.id }.cartesianProduct(LegacyActivityType.entries).associateWith { 1.0 }.toMutableMap()
+    val attractivenessMap: MutableMap<Pair<ZoneId, ActivityType>, Attractiveness> =
+        zones.map { it.id }.cartesianProduct(LegacyActivityType.entries).associateWith { Attractiveness.DEFAULT }.toMutableMap()
 
     override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness {
-        return attractivenessMap[Pair(zone, activityType)] ?: 0.0
+        return attractivenessMap[Pair(zone, activityType)] ?: 0.0.asAttractiveness()
     }
 
     override val purposes: ChoiceModelPurposes = legacyChoiceModelPurposes
 
     operator fun set(zone: ZoneId, activityType: ActivityType, value: Double) {
-        attractivenessMap[Pair(zone, activityType)] = value
+        attractivenessMap[Pair(zone, activityType)] = value.asAttractiveness()
     }
 
     operator fun set(zone: ZoneId, value: Double) {

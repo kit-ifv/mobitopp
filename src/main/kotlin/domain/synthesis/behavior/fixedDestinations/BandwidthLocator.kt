@@ -24,7 +24,7 @@ val standardBandwidthModel = RuleBasedStructure<
     > {
     ruleForAll { option, characteristics ->
         val (loc, distance) = option
-        ln(characteristics.attractiveness(loc)) /
+        ln(characteristics.attractiveness(loc).value) /
             (bDistance * distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
     }
 }.openMultinomialLogit("DefaultBandwidthLocationSelector")

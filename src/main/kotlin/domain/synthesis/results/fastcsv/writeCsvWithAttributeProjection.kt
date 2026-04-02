@@ -2,6 +2,7 @@ package domain.synthesis.results.fastcsv
 
 import java.io.Writer
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
 /**
@@ -23,7 +24,8 @@ fun <S : Any, X> Collection<X>.writeCsvWithGenericAttributes(
     val writer = config.build(writer)
 
     writer.use { csv ->
-        csv.writeRecord(headerPrefix + attributeMemberProperties.map { it.name })
+        csv.writeRecord(headerPrefix + attributeMemberProperties.map { it.findAnnotation<CsvRename>()?.name ?: it
+            .name })
         forEach { element ->
             csv.writeRecord(outputPrefix(element) + attributeMemberProperties.map {
                 it.get(attributeExtractor(element)).toString()
