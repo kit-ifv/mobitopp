@@ -82,7 +82,6 @@ class PopulationSynthesisKtTest {
             zones = zones
         ) {
             outputDirectory = Path("src/test/resources/tempOutput")
-            surveyHouseholds = surveyPopulation
             // TODO make this a code based attractiveness model instead of parsing a file.
             attractivenessModel = attractivenessFromFile {
                 path = Path("src/test/resources/synthesis/attractivities.csv")

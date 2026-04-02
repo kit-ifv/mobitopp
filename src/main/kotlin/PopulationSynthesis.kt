@@ -245,10 +245,9 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
         class SynthesisConfiguration<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
             surveyPopulationGenerator: GenerateHouseholds<S, T>,
         ) {
-            val surveyPopulation = surveyPopulationGenerator.generateSurveyHouseholds()
+            var surveyPopulation = surveyPopulationGenerator.generateSurveyHouseholds()
             lateinit var outputDirectory: Path
             lateinit var zones: List<AREA>
-            lateinit var surveyHouseholds: Collection<ISurveyHousehold<S, T>>
             lateinit var attractivenessModel: AttractivenessModel
 
             inner class AttractivenessModelParser {
@@ -283,7 +282,7 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
             return PopulationSynthesis(
                 config.outputDirectory,
                 zones,
-                config.surveyHouseholds,
+                config.surveyPopulation,
                 config.attractivenessModel,
             )
         }
@@ -318,12 +317,6 @@ fun examplePopulationSynthesis() {
         zones = emptyList<Zone>()
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
-
-        //        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
-//            .toList()
-//            .map { it.build() }
-        surveyHouseholds = surveyPopulation
-//            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
         attractivenessModel = attractivenessFromFile {
             path = attractivenessModelPath
             activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
@@ -422,7 +415,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun domain.synthesis.SynthesisSteps<Zone, MaximumHouseholdAttributes, MaximumPersonAttributes>.writeLegacyOutput() {
+fun SynthesisSteps<Zone, MaximumHouseholdAttributes, MaximumPersonAttributes>.writeLegacyOutput() {
     LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
