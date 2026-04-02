@@ -12,7 +12,7 @@ import domain.synthesis.data.Sex
  * The mutable object that holds the infos of the person.
  */
 class SynthesisPerson<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> constructor(
-    private val household: SynthesisHousehold<S, T>,
+    val household: SynthesisHousehold<S, T>,
     override val age: Int,
     override val sex: Sex,
     override val attributes: T,

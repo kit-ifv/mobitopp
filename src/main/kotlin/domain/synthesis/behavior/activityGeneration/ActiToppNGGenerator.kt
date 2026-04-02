@@ -2,6 +2,7 @@ package domain.synthesis.behavior.activityGeneration
 
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.datastructure.schedule.RawActivity
+import domain.shared.enums.ActivityType
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.location.StandardLocation
@@ -21,7 +22,7 @@ import edu.kit.ifv.mobitopp.actitoppNG.ActitoppPerson
 import edu.kit.ifv.mobitopp.actitoppNG.Household
 import edu.kit.ifv.mobitopp.actitoppNG.PersonAttributes
 import edu.kit.ifv.mobitopp.actitoppNG.StandardHouseholdPlanGeneration
-import edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityType
+
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.plan.MobilityPlan
@@ -30,6 +31,7 @@ import java.lang.Double.min
 
 typealias ACTHousehold = Household
 typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
+typealias ActitoppActivityType = edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityType
 
 class ActiToppNGGenerator<in S, in T>(
     val purposes: ChoiceModelPurposes,
@@ -118,14 +120,14 @@ class ActiToppNGGenerator<in S, in T>(
     }
 }
 
-fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes): domain.shared.enums.ActivityType {
+fun ActitoppActivityType.toReengineeredType(purposes: ChoiceModelPurposes): ActivityType {
     return when (this) {
-        ActivityType.WORK -> purposes.work
-        ActivityType.EDUCATION -> purposes.education
-        ActivityType.LEISURE -> purposes.leisure
-        ActivityType.SHOPPING -> purposes.shopping
-        ActivityType.TRANSPORT -> purposes.service
-        ActivityType.HOME -> purposes.home
+        ActitoppActivityType.WORK -> purposes.work
+        ActitoppActivityType.EDUCATION -> purposes.education
+        ActitoppActivityType.LEISURE -> purposes.leisure
+        ActitoppActivityType.SHOPPING -> purposes.shopping
+        ActitoppActivityType.TRANSPORT -> purposes.service
+        ActitoppActivityType.HOME -> purposes.home
     }
 }
 
