@@ -146,7 +146,7 @@ val DestinationAlternative.attractivity: Double
         attractivityModel.attractivenessFor(
             choice.zoneID,
             purpose
-        )
+        ).value
 val DestinationAlternative.distance: Distance get() = impedance.distance(origin, choice, LegacyMode.CAR)
 val DestinationAlternative.isIntrazonal: Double get() = (origin.zoneID == choice.zoneID).D
 

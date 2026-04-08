@@ -6,6 +6,7 @@ import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
+import domain.shared.behavior.Attractiveness
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
@@ -66,7 +67,8 @@ class LoadAttractivenessStep(
     override fun mockBehavior(): Warning? = validateScope("Mock attractiveness data") {
         context.attractivenessModel.value = object : AttractivenessModel {
 
-            override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double = 1.0
+            override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
+                Attractiveness.DEFAULT
             override val purposes: ChoiceModelPurposes = this@LoadAttractivenessStep.purposes
         }
     }
