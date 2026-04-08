@@ -1,6 +1,6 @@
 package domain.synthesis.results
 
-import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.Attractiveness
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
@@ -149,7 +149,7 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
             toCSV(
                 person.personId,
                 -1, // Dummy value for dummy output: This is the number in the household.
-                TODO(), // person.household.id,
+                person.householdID, // person.household.id,
                 1970, // Dummy value for dumb output household year taken from survey data.
                 -1, // Dummy value for dumb output: household ID from the survey data
                 activityType.description,
@@ -201,9 +201,9 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHousehold
                 location.position.x,
                 location.position.y,
 //                "TODO nomberofnotsimulatdchildren",
-                amountOfCars,
+                attributes.amountOfCars,
 //                "TODO incomeclass",
-                economicStatus.code,
+                attributes.economicStatus.code,
             )
         }
     }
@@ -211,7 +211,7 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHousehold
 
 // Sorry detekt, householdId and other strings may occur more often.
 @Suppress("StringLiteralDuplication", "MagicNumber")
-object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttributes, *>> {
+class LegacyHouseholdOutput<T : MaximumHouseholdAttributes> : CSVOutput<SynthesisHousehold<T, *>> {
 
     override val header: List<String> = listOf(
         "householdId",
@@ -231,24 +231,24 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttr
         "canChargePrivately"
     ) + SurveyHouseholdOutput.header
 
-    override fun convert(element: SynthesisHousehold<MaximumHouseholdAttributes, *>): String {
+    override fun convert(element: SynthesisHousehold<T, *>): String {
         return element.run {
             val location = attributes.location
             toCSV(
                 id,
                 1970, // Dummy value: Originally the year from Survey Info. Now useless.
-                -13379001, // Dummy value: Originally the ID in the Survey Info.
+                "dummyval", // Dummy value: Originally the ID in the Survey Info.
                 -1, // Ok, here I am lost, I have absolutely no idea what "domcode" is supposed to be.
-                -1, // The household type. Again taken from survey data. Again crazy that this exists as an int field.
-                TODO(), // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
+                attributes.type.code, // The household type. Again taken from survey data.
+                "uselessattribute", // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
                 location.zoneID,
                 location.legacyStringRepresentation(),
                 location.position.x,
                 location.position.y,
-                -1, // ActiTopp once cared about the number of childern, but it is entirely irrelevant
-                amountOfCars,
+                -1, // ActiTopp once cared about the number of children, but it is entirely irrelevant
+                attributes.amountOfCars,
                 5, // I would assume that this is the encoding of the income based on some classes, but used it is not.
-                economicStatus.code,
+                attributes.economicStatus.code,
                 "true", // Everyone can charge privately. Why this field was added to the general output / No one knows
 
             )
@@ -256,9 +256,9 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttr
     }
 }
 
-data class OpportunityOutput(
+data class OpportunityOutput constructor(
     val location: ZonedRoadAccessLocation,
-    val attractivenessModel: AttractivenessModel,
+    val attractiveness: Attractiveness,
     val activityType: ActivityType,
 )
 
@@ -273,7 +273,7 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
                 location.zoneID.value,
                 activityType,
                 location.legacyStringRepresentation(),
-                attractivenessModel.attractivenessFor(location.zoneID, activityType),
+                attractiveness.value,
                 location.position.x,
                 location.position.y
 
@@ -307,8 +307,9 @@ object SurveyPersonOutput : CSVOutput<SurveyPerson<MaximumPersonAttributes>> {
 }
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
-object LegacyPersonOutput : CSVOutput<SynthesisPerson<MaximumHouseholdAttributes, MaximumPersonAttributes>> {
-    private const val SURVEY_DUMMY = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
+class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttributes> :
+    CSVOutput<SynthesisPerson<C, T>> {
+    private val surveyDummy = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
     override val header: List<String> = SurveyPersonOutput.header + listOf(
 
         "personNumber",
@@ -327,7 +328,7 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<MaximumHouseholdAttributes
     )
 
     @Suppress("MagicNumber")
-    override fun convert(element: SynthesisPerson<MaximumHouseholdAttributes, MaximumPersonAttributes>): String {
+    override fun convert(element: SynthesisPerson<C, T>): String {
         val first = SurveyPersonOutput.convert(element)
         val second = element.run {
             toCSV(
@@ -335,12 +336,12 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<MaximumHouseholdAttributes
                 householdID,
 
                 employment,
-                hasAccessToCar,
+                household.hasCars(),
                 "TODO is this field sth useful?", // household.amountOfCars <= household.numberOfDrivingLicences,
                 hasTransitPass,
                 attributes.hasLicence,
-                SURVEY_DUMMY,
-                SURVEY_DUMMY,
+                surveyDummy,
+                surveyDummy,
                 0.5,
                 "NEVER",
                 this.getSharingMemberships()

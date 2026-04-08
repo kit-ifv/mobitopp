@@ -21,7 +21,8 @@ class SynthesisHouseholdTest {
         override val income: Currency,
         override val type: HouseholdType,
         @CsvIgnore
-        override var location: StandardLocation
+        override var location: StandardLocation,
+        val economicStatus: EconomicStatus = EconomicStatus.MIDDLE
     ) : MinimumHouseholdAttributes {
         val zoneID get() = location.zoneID
 
@@ -39,13 +40,12 @@ class SynthesisHouseholdTest {
             ),
 
         )
-        hh.economicStatus = EconomicStatus.MIDDLE
 
         val stringWriter = StringWriter()
         listOf(hh).write(stringWriter)
 
         val expected: String = stringWriter.toString()
-        assertContains(expected, "id;economicStatus;amountOfCars;income;type;zoneID")
+        assertContains(expected, "id;economicStatus;income;type;zoneID")
         assertNotContains(expected, "location")
     }
 }

@@ -11,6 +11,8 @@ import domain.shared.location.Zone
 import domain.shared.location.attributes.HasZoneID
 import domain.synthesis.SynthesisSteps
 import domain.synthesis.algorithms.TrivialSynthesis
+import domain.synthesis.assignAmountOfCars
+import domain.synthesis.assignEconomicStatus
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
@@ -200,15 +202,23 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttr
     }
 }
 
-fun <AREA,
+fun <
+    AREA,
     S : MinimumHouseholdAttributes,
-    T : MinimumPersonAttributes> PopulationSynthesis<AREA, S, T>.generateLocations(
+    T : MinimumPersonAttributes,
+    > PopulationSynthesis<AREA, S, T>.generateLocations(
     activityType: ActivityType,
     generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
 ): List<StandardLocation> {
     // TODO reenable generation and put more thought into how the locations are generated.
     val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
-    opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
+    opportunities.addAll(generatedLocations.map {
+        OpportunityOutput(
+            it,
+            attractivenessModel.attractivenessFor(it.zoneID, activityType),
+            activityType
+        )
+    })
     return generatedLocations
 }
 
@@ -245,10 +255,9 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
         class SynthesisConfiguration<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
             surveyPopulationGenerator: GenerateHouseholds<S, T>,
         ) {
-            val surveyPopulation = surveyPopulationGenerator.generateSurveyHouseholds()
+            var surveyPopulation = surveyPopulationGenerator.generateSurveyHouseholds()
             lateinit var outputDirectory: Path
             lateinit var zones: List<AREA>
-            lateinit var surveyHouseholds: Collection<ISurveyHousehold<S, T>>
             lateinit var attractivenessModel: AttractivenessModel
 
             inner class AttractivenessModelParser {
@@ -283,7 +292,7 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
             return PopulationSynthesis(
                 config.outputDirectory,
                 zones,
-                config.surveyHouseholds,
+                config.surveyPopulation,
                 config.attractivenessModel,
             )
         }
@@ -318,12 +327,6 @@ fun examplePopulationSynthesis() {
         zones = emptyList<Zone>()
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
-
-        //        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
-//            .toList()
-//            .map { it.build() }
-        surveyHouseholds = surveyPopulation
-//            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
         attractivenessModel = attractivenessFromFile {
             path = attractivenessModelPath
             activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
@@ -356,9 +359,7 @@ fun examplePopulationSynthesis() {
         }
 
         assignEconomicStatus {
-            OECDAssigner.fromPath(
-                Path("src/integration.main/resources/economical-status-oecd2017.csv")
-            )
+            OECDAssigner.default()
         }
 
         assignAmountOfCars {
@@ -422,9 +423,9 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun domain.synthesis.SynthesisSteps<Zone, MaximumHouseholdAttributes, MaximumPersonAttributes>.writeLegacyOutput() {
-    LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
-    LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
+fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes>SynthesisSteps<Zone, C, T>.writeLegacyOutput() {
+    LegacyHouseholdOutput<C>().writeCSVToFile(outputDirectory.resolve("household.csv"), households)
+    LegacyPersonOutput<C, T>().writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
     val flatActivities = activities.flatMap { it.entries.map { it.key to it.value } }
     LegacyActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)
@@ -442,7 +443,7 @@ private fun Collection<Zone>.generateLocations(
     activityType: ActivityType,
     generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
 ): List<HasZoneID> {
-    return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
+    return filter { attractivenessModel.isAttractive(it.id, activityType) }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }
 }

@@ -5,6 +5,8 @@ import HouseholdAssignmentStep
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.location.Zone
+import domain.synthesis.attributes.household.HasMutableEconomicStatus
+import domain.synthesis.attributes.household.HasMutableNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
@@ -112,22 +114,6 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
     }
 
-    fun assignEconomicStatus(lambda: () -> DetermineEconomicStatus<S, T>) {
-        val strategy = lambda()
-        households.forEach { it.economicStatus = strategy.determineStatus(it) }
-    }
-
-    fun assignAmountOfCars(lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>) {
-        val strategy = lambda()
-        households.addProgressBar(
-            "Assign car amount"
-        ).forEach { household ->
-            context(Random(household.id)) {
-                household.amountOfCars = strategy.assign(household)
-            }
-        }
-    }
-
     fun assignTransitCardOwnership(lambda: () -> HouseholdAssignmentStep<S, T, Boolean>) {
         val strategy = lambda()
         households.addProgressBar("assign Transit Card").forEach { hh ->
@@ -173,6 +159,27 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
             activityWriter?.let { activities.writeActivities(it) }
             fixedDestinationWriter?.let { cars.writeCars(it) }
             opportunitiesWriter?.let { opportunities.writeOpportunities(it) }
+        }
+    }
+}
+
+fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignEconomicStatus(
+    lambda: () -> DetermineEconomicStatus<S, T>
+) where S : MinimumHouseholdAttributes, S : HasMutableEconomicStatus {
+    val strategy = lambda()
+    households.forEach { it.attributes.economicStatus = strategy.determineStatus(it) }
+}
+
+fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignAmountOfCars(
+    lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>
+)
+    where
+          S : MinimumHouseholdAttributes,
+          S : HasMutableNumberOfCars {
+    val strategy = lambda()
+    households.forEach {
+        context(Random(it.id)) {
+            it.attributes.amountOfCars = strategy.assign(it)
         }
     }
 }

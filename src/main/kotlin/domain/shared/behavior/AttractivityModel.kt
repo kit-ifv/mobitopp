@@ -15,12 +15,15 @@ import kotlin.math.abs
 // TODO Debate with Jelle, There is a more generalized version of attractiveness, which takes in a location, rather than
 //  a zoneID
 interface AttractivenessModel {
-    fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double
+    fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness
+    fun isAttractive(zone: ZoneId, activityType: ActivityType): Boolean =
+        attractivenessFor(zone, activityType).value > .0
+
     val purposes: ChoiceModelPurposes
 }
 
 fun AttractivenessModel.sumAttractiveness(zone: ZoneId, vararg activityTypes: ActivityType): Double =
-    activityTypes.sumOf { attractivenessFor(zone, it) }
+    activityTypes.sumOf { attractivenessFor(zone, it).value }
 
 @Suppress("MagicNumber")
 fun AttractivenessModel.parkingPressure(target: Zone): Double {
@@ -31,6 +34,12 @@ fun AttractivenessModel.parkingPressure(target: Zone): Double {
     return attractiveness / target.parkingPlaces
 }
 
+/**
+ * TODO there is no reason that this class accesses the field purposes.typesWithAttractivity because a missing
+ *   activity type will still just result in a warning, which is sufficient behavior. Also it would be better to
+ *   switch to fastCSV or Jackson parsing.
+ */
+@Deprecated("This class needs to be reworked, drastically")
 class AttractivenessFromCsv(
     private val path: Path,
     delimiter: String = ";",
@@ -40,7 +49,7 @@ class AttractivenessFromCsv(
 
     private val activityTypes: Set<ActivityType> = purposes.typesWithAttractivity
 
-    private val attractivenessMap: Map<ZoneId, Map<ActivityType, Double>>
+    private val attractivenessMap: Map<ZoneId, Map<ActivityType, Attractiveness>>
 
     init {
 
@@ -56,8 +65,8 @@ class AttractivenessFromCsv(
 
     private val warned: MutableMap<ZoneId, MutableList<ActivityType>> = mutableMapOf()
     private val warnedSet = mutableSetOf<ActivityType>()
-    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double =
-        attractivenessMap[zone]?.let { it[activityType] } ?: 1.0.also {
+    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
+        attractivenessMap[zone]?.let { it[activityType] } ?: Attractiveness.DEFAULT.also {
             val activities = warned.getOrPut(zone) { mutableListOf() }
             if (activityType !in activities && activityType !in warnedSet) {
                 println(
@@ -72,7 +81,7 @@ class AttractivenessFromCsv(
 
 private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) =
     activityTypes.associateWith { act ->
-        row.commaDouble("Attractivity:${act.description.capitalizeWithUnderscores()}")
+        row.commaDouble("Attractivity:${act.description.capitalizeWithUnderscores()}").asAttractiveness()
     }
 
 fun String.capitalizeWithUnderscores() =
