@@ -61,6 +61,11 @@ object Yaml {
         val mergedMap = YamlParentStackLoader().load(path)
         return mapper.convertValue(mergedMap, T::class.java)
     }
+
+    inline fun <reified T> readYamlNoParent(path: Path): T {
+        val file = path.toFile()
+        return mapper.readValue(file)
+    }
     inline fun <reified T> readYaml(string: String): T = readYaml(Path.of(string))
 
     inline fun <reified T> writeYaml(path: Path, obj: T) {
