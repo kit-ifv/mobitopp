@@ -423,9 +423,9 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun SynthesisSteps<Zone, MaximumHouseholdAttributes, MaximumPersonAttributes>.writeLegacyOutput() {
-    LegacyHouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
-    LegacyPersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
+fun <C: MaximumHouseholdAttributes, T: MaximumPersonAttributes>SynthesisSteps<Zone, C,  T>.writeLegacyOutput() {
+    LegacyHouseholdOutput<C>().writeCSVToFile(outputDirectory.resolve("household.csv"), households)
+    LegacyPersonOutput<C, T>().writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
     val flatActivities = activities.flatMap { it.entries.map { it.key to it.value } }
     LegacyActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)

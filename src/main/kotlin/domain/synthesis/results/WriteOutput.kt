@@ -210,7 +210,7 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHousehold
 
 // Sorry detekt, householdId and other strings may occur more often.
 @Suppress("StringLiteralDuplication", "MagicNumber")
-object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttributes, *>> {
+class LegacyHouseholdOutput<T: MaximumHouseholdAttributes> : CSVOutput<SynthesisHousehold<T, *>> {
 
     override val header: List<String> = listOf(
         "householdId",
@@ -230,7 +230,7 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttr
         "canChargePrivately"
     ) + SurveyHouseholdOutput.header
 
-    override fun convert(element: SynthesisHousehold<MaximumHouseholdAttributes, *>): String {
+    override fun convert(element: SynthesisHousehold<T, *>): String {
         return element.run {
             val location = attributes.location
             toCSV(
@@ -306,8 +306,8 @@ object SurveyPersonOutput : CSVOutput<SurveyPerson<MaximumPersonAttributes>> {
 }
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
-object LegacyPersonOutput : CSVOutput<SynthesisPerson<MaximumHouseholdAttributes, MaximumPersonAttributes>> {
-    private const val SURVEY_DUMMY = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
+class LegacyPersonOutput<C: MaximumHouseholdAttributes, T: MaximumPersonAttributes> : CSVOutput<SynthesisPerson<C, T>> {
+    private val SURVEY_DUMMY = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
     override val header: List<String> = SurveyPersonOutput.header + listOf(
 
         "personNumber",
@@ -326,7 +326,7 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<MaximumHouseholdAttributes
     )
 
     @Suppress("MagicNumber")
-    override fun convert(element: SynthesisPerson<MaximumHouseholdAttributes, MaximumPersonAttributes>): String {
+    override fun convert(element: SynthesisPerson<C, T>): String {
         val first = SurveyPersonOutput.convert(element)
         val second = element.run {
             toCSV(

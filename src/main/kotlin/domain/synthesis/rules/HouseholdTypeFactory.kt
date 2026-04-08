@@ -9,7 +9,7 @@ import edu.kit.ifv.populationsynthesis.rules.covered.FullCoverageGroup
 import edu.kit.ifv.populationsynthesis.rules.toRuleSet
 
 abstract class HouseholdTypeFactory<Input>(
-    private val expectedTypes: Set<HouseholdType> = HouseholdType.Companion.validTypes,
+    private val expectedTypes: Set<HouseholdType> = HouseholdType.validTypes,
     val targetExtractor: (Input, HouseholdType) -> Number?
 ) {
     fun buildRuleSet(input: Input): CoverageGroup<ISurveyHousehold<*, *>> {

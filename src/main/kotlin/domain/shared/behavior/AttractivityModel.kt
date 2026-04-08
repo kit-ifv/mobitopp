@@ -36,6 +36,12 @@ fun AttractivenessModel.parkingPressure(target: Zone): Double {
     return attractiveness / target.parkingPlaces
 }
 
+/**
+ * TODO there is no reason that this class accesses the field purposes.typesWithAttractivity because a missing
+ *   activity type will still just result in a warning, which is sufficient behavior. Also it would be better to
+ *   switch to fastCSV or Jackson parsing.
+ */
+@Deprecated("This class needs to be reworked, drastically")
 class AttractivenessFromCsv(
     private val path: Path,
     delimiter: String = ";",
