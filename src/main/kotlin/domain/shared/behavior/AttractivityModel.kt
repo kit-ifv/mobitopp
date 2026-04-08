@@ -3,8 +3,6 @@ package domain.shared.behavior
 import domain.shared.enums.ActivityType
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.synthesis.results.Attractiveness
-import domain.synthesis.results.asAttractiveness
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultMapCsvParser
@@ -58,7 +56,7 @@ class AttractivenessFromCsv(
         val parser = DefaultMapCsvParser(
             CsvParser(errorHandling = ErrorHandling.THROW) { row -> // TODO error level as config param
                 ZoneId(row.long(zoneColumn)) to
-                        activityMapOf(row, activityTypes)
+                    activityMapOf(row, activityTypes)
             }
         )
 
@@ -73,7 +71,7 @@ class AttractivenessFromCsv(
             if (activityType !in activities && activityType !in warnedSet) {
                 println(
                     "Warning: could not find attractiveness for ZoneId $zone and activity $activityType in lookup " +
-                            "(Source $path)! Using 1.0 instead!"
+                        "(Source $path)! Using 1.0 instead!"
                 )
                 activities.add(activityType)
                 warnedSet.add(activityType)

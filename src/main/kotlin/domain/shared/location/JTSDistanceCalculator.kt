@@ -19,7 +19,8 @@ object JTSDistanceCalculator {
         if (axisUnits.size == 1) {
             return when (axisUnits.first()) {
                 "Metre" -> DistanceUnit.METERS
-                else -> null.also { println("Cannot decode ${axisUnits.first()}") }
+                "Degree Angle" -> null
+                else -> null.also { println("Cannot decode axis Unit [${axisUnits.first()}]") }
             }
         }
         return null

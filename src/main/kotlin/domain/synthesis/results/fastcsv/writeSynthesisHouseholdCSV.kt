@@ -11,16 +11,14 @@ fun <S : MinimumHouseholdAttributes> Collection<SynthesisHousehold<S, *>>.write(
         this.write(writer)
     }
 
-fun <S : MinimumHouseholdAttributes> Collection<SynthesisHousehold<S, *>>.write(writer: Writer) {
+fun <S> Collection<SynthesisHousehold<S, *>>.write(writer: Writer) where S : MinimumHouseholdAttributes {
     this.writeCsvWithGenericAttributes(
         writer,
         attributeExtractor = { it.attributes },
-        headerPrefix = listOf("id", "economicStatus", "amountOfCars"),
+        headerPrefix = listOf("id"),
         outputPrefix = {
             buildList {
                 add(it.id.toString())
-                add(it.economicStatus.name)
-                add(it.amountOfCars.toString())
             }
         }
     )

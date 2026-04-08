@@ -1,7 +1,6 @@
 package domain.synthesis.results.fastcsv
 
 import assertNotContains
-import org.junit.jupiter.api.Assertions.*
 import java.io.StringWriter
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -23,11 +22,10 @@ class WriteCsvWithAttributeProjectionTest {
     fun writeStandardOutputCSV() {
         val writer = StringWriter()
         listOf(Wrapper<Output>(Output())).writeCsvWithGenericAttributes(writer, attributeExtractor =
-            {it.t}, headerPrefix = emptyList(), outputPrefix = {emptyList()})
+            { it.t }, headerPrefix = emptyList(), outputPrefix = { emptyList() })
         val split = writer.toString().split("\r\n").first()
         assertContains(split, "e")
         assertContains(split, "good")
         assertNotContains(split, "ignore")
-
     }
 }

@@ -1,4 +1,4 @@
-package domain.synthesis.results
+package domain.shared.behavior
 
 @JvmInline
 value class Attractiveness(val value: Double) {

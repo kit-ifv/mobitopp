@@ -1,9 +1,11 @@
 package utils.csv
 
+import org.apache.commons.compress.utils.BitInputStream
 import utils.ErrorHandling
 import utils.collections.addProgressBar
 import utils.collections.toLazyList
 import utils.files.decompressedBufferedReader
+import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.fileSize
 import kotlin.math.floor
@@ -184,7 +186,6 @@ open class DefaultCsvReader(
 
     init {
         numberOfRows = estimateRowCount(path)
-
         val reader = path.decompressedBufferedReader()
         val header = reader.readLine()
         reader.close()

@@ -11,6 +11,8 @@ import domain.shared.location.Zone
 import domain.shared.location.attributes.HasZoneID
 import domain.synthesis.SynthesisSteps
 import domain.synthesis.algorithms.TrivialSynthesis
+import domain.synthesis.assignAmountOfCars
+import domain.synthesis.assignEconomicStatus
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
@@ -201,10 +203,10 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttr
 }
 
 fun <
-        AREA,
-        S : MinimumHouseholdAttributes,
-        T : MinimumPersonAttributes,
-        > PopulationSynthesis<AREA, S, T>.generateLocations(
+    AREA,
+    S : MinimumHouseholdAttributes,
+    T : MinimumPersonAttributes,
+    > PopulationSynthesis<AREA, S, T>.generateLocations(
     activityType: ActivityType,
     generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
 ): List<StandardLocation> {
@@ -357,9 +359,7 @@ fun examplePopulationSynthesis() {
         }
 
         assignEconomicStatus {
-            OECDAssigner.fromPath(
-                Path("src/integration.main/resources/economical-status-oecd2017.csv")
-            )
+            OECDAssigner.default()
         }
 
         assignAmountOfCars {
@@ -423,7 +423,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun <C: MaximumHouseholdAttributes, T: MaximumPersonAttributes>SynthesisSteps<Zone, C,  T>.writeLegacyOutput() {
+fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes>SynthesisSteps<Zone, C, T>.writeLegacyOutput() {
     LegacyHouseholdOutput<C>().writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput<C, T>().writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)

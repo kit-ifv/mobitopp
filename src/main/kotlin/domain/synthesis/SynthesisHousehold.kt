@@ -6,7 +6,6 @@ import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.cars.SynthesisCar
-import domain.synthesis.data.EconomicStatus
 import org.jetbrains.annotations.TestOnly
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -23,10 +22,8 @@ class SynthesisHousehold<S : MinimumHouseholdAttributes, T : MinimumPersonAttrib
 
     // Whatever the type T is of my household class, the members must be at least that type or better
 
-    lateinit var economicStatus: EconomicStatus
-    fun economicStatusIsAssigned() = ::economicStatus.isInitialized
-    var amountOfCars = 0
     val cars: MutableList<SynthesisCar> = mutableListOf()
+    fun hasCars() = cars.isNotEmpty()
 
     @TestOnly
     fun locationIsAssigned() = attributes.location != StandardLocation.Companion.LOCATIONUNKNOWN

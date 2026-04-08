@@ -5,8 +5,10 @@ import TestZone
 import core.statemachine.State
 import core.statemachine.builder.StateData
 import core.statemachine.usage.RecordingStateMachineFactory
+import domain.shared.behavior.Attractiveness
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
+import domain.shared.behavior.asAttractiveness
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
@@ -44,8 +46,6 @@ import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.Person
 import domain.synthesis.data.PlannedActivity
-import domain.synthesis.results.Attractiveness
-import domain.synthesis.results.asAttractiveness
 import generateHousehold
 import generatePersons
 import generateZones

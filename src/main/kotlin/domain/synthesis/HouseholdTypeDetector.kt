@@ -1,9 +1,8 @@
 package domain.synthesis
 
-import domain.synthesis.behavior.MinimalistHousehold
+import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.data.HouseholdType
 
-fun interface HouseholdTypeDetector<P> {
-    fun  detectHouseholdType(household: MinimalistHousehold<*, P>): HouseholdType
+interface HouseholdTypeDetector {
+    fun detectHouseholdType(household: ISurveyHousehold<*, *>): HouseholdType
 }
-

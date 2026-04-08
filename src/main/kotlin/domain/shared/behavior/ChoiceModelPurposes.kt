@@ -21,7 +21,9 @@ data class ChoiceModelPurposes constructor(
     // TODO remove this field, all it does is obscure implicitly assumed behavior: Work & Home do not need an attractiveness
     //   this has been true for all projects up to this date, but not an assumption that i would like to carry into the
     //   future at all.
-    @Deprecated("That is not up to the Choice model purposes, but the attractiveness model, and using it for verification purposes only is bad")
+    @Deprecated(
+        "That is not up to choice model purposes, but the attractiveness model, using it for verification only is bad"
+    )
     val typesWithAttractivity: Set<ActivityType>,
     val leisureTypes: Set<ActivityType>,
     val educationTypes: Set<ActivityType>,

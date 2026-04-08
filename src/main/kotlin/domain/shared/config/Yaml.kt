@@ -19,6 +19,7 @@ import domain.jackson.DurationModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
 import java.nio.file.Path
+import kotlin.io.path.inputStream
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
@@ -57,14 +58,13 @@ object Yaml {
         .findAndRegisterModules()
 
     inline fun <reified T> readYaml(path: Path): T {
-
-        val mergedMap = YamlParentStackLoader().load(path)
-        return mapper.convertValue(mergedMap, T::class.java)
-    }
-
-    inline fun <reified T> readYamlNoParent(path: Path): T {
         val file = path.toFile()
         return mapper.readValue(file)
+    }
+
+    inline fun <reified T> readYamlWithParent(path: Path): T {
+        val mergedMap = YamlParentStackLoader().load(path)
+        return mapper.convertValue(mergedMap, T::class.java)
     }
     inline fun <reified T> readYaml(string: String): T = readYaml(Path.of(string))
 
@@ -74,9 +74,6 @@ object Yaml {
     }
     inline fun <reified T> writeYaml(string: String, obj: T) = writeYaml(Path.of(string), obj)
 
-
-    fun loadMap(path: Path) = readYaml<Map<String,Any?>>(path)
-
     /**
      * A single use loader that can handle parent references in a yaml file. Indicated with a __parent__ field.
      */
@@ -85,10 +82,9 @@ object Yaml {
         private val parentKey = "__parent__"
         val stack = mutableListOf<Path>()
         fun load(path: Path): Map<String, Any?> {
-            val map = loadMap(path).toMutableMap()
+            val map = mapper.readValue<Map<String, Any?>>(path.inputStream()).toMutableMap()
 
-
-            if(parentKey !in map) { return map }
+            if (parentKey !in map) { return map }
             require(isPathNotSeenBefore(path)) {
                 "Cycle detected, cannot read configs."
             }
@@ -101,7 +97,6 @@ object Yaml {
             return parentMap + map
         }
 
-
         private fun isPathNotSeenBefore(path: Path): Boolean {
             val normalized = path.toAbsolutePath().normalize()
             return (normalized !in stack).also {
@@ -111,17 +106,14 @@ object Yaml {
 
         private fun resolveParentKey(value: Any?, currentPath: Path): Path {
             val parentPath = Path.of(value as String)
-            return if(parentPath.isAbsolute) {
+            return if (parentPath.isAbsolute) {
                 parentPath
             } else {
                 currentPath.parent.resolve(parentPath)
             }
         }
     }
-
 }
-
-
 
 /**
  * Handles the serialization of paths.
