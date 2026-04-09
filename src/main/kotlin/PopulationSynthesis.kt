@@ -203,10 +203,10 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttr
 }
 
 fun <
-    AREA,
-    S : MinimumHouseholdAttributes,
-    T : MinimumPersonAttributes,
-    > PopulationSynthesis<AREA, S, T>.generateLocations(
+        AREA,
+        S : MinimumHouseholdAttributes,
+        T : MinimumPersonAttributes,
+        > PopulationSynthesis<AREA, S, T>.generateLocations(
     activityType: ActivityType,
     generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
 ): List<StandardLocation> {
@@ -348,7 +348,13 @@ fun examplePopulationSynthesis() {
     populationSynthesis.execute {
         refactoredPopsyn({ it }) {
             TrivialSynthesis(
-                surveyHouseholds.map { HouseholdFactory.createFrom(it) },
+                surveyHouseholds.map {
+                    HouseholdFactory(
+                        MaximumHouseholdAttributes::copy,
+                        MaximumPersonAttributes::copy
+                    )
+                        .createFrom(it)
+                },
                 zones
 
             )
@@ -423,7 +429,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes>SynthesisSteps<Zone, C, T>.writeLegacyOutput() {
+fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes> SynthesisSteps<Zone, C, T>.writeLegacyOutput() {
     LegacyHouseholdOutput<C>().writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput<C, T>().writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
