@@ -38,7 +38,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     private val work2 = testZone2.spawnFakeLoc()
     private val work3 = testZone3.spawnFakeLoc()
 
-    private val defaultHome = home1.createHousehold {
+    private val defaultHome = home1.createHousehold(Attrs::copy) {
         person {
             Attrs(
                 age = 10,
@@ -62,7 +62,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
         }
     }
 
-    private val secondHome = home2.createHousehold {
+    private val secondHome = home2.createHousehold(Attrs::copy) {
         person {
             Attrs(
                 age = 10,
@@ -210,7 +210,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     fun testLocationBased() {
         val strategy = CommuterDistance<Attrs>()
         val home = testZone1.spawnLocation(WGS84Coordinate.decimalDegree(0.0, 0.0))
-        val household = home.createHousehold {
+        val household = home.createHousehold(Attrs::copy) {
             person {
                 Attrs(
                     10,

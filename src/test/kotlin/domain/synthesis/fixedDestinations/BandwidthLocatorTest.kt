@@ -53,7 +53,7 @@ class BandwidthLocatorTest : SynthesisTest() {
         val loc5 = testZone.spawnUTM(0, 5000)
         val loc6 = testZone.spawnUTM(0, 6000)
         val loc7 = testZone.spawnUTM(0, 7000)
-        val hh = home.createHousehold<Attrs> {
+        val hh = home.createHousehold(Attrs::copy) {
             person {
                 Attrs(
                     10,
