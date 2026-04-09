@@ -31,7 +31,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
     private val work2 = testZone2.spawnFakeLoc()
     private val work3 = testZone3.spawnFakeLoc()
 
-    private val household1 = home1.createHousehold {
+    private val household1 = home1.createHousehold(Attrs::copy) {
         person {
             Attrs(
                 10,
@@ -39,7 +39,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
             )
         }
     }
-    private val household2 = home2.createHousehold {
+    private val household2 = home2.createHousehold(Attrs::copy) {
         person {
             Attrs(
                 20,
@@ -132,7 +132,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         metric[home1, work2] = 0.0
         metric[home1, work3] = 0.5
 
-        val mimicHousehold = home1.createHousehold {
+        val mimicHousehold = home1.createHousehold(Attrs::copy) {
             person {
                 Attrs(10, Sex.MALE)
             }

@@ -203,10 +203,10 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttr
 }
 
 fun <
-        AREA,
-        S : MinimumHouseholdAttributes,
-        T : MinimumPersonAttributes,
-        > PopulationSynthesis<AREA, S, T>.generateLocations(
+    AREA,
+    S : MinimumHouseholdAttributes,
+    T : MinimumPersonAttributes,
+    > PopulationSynthesis<AREA, S, T>.generateLocations(
     activityType: ActivityType,
     generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
 ): List<StandardLocation> {

@@ -54,7 +54,7 @@ class ActiToppNGGeneratorTest {
                 hasLicence = true
             )
         )
-        hh.addMember(person)
+        hh.addMember(person, MaximumPersonAttributes::copy)
 
         val output = generator.generate(hh)
         assertEquals(1, output.size)

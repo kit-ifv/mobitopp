@@ -9,6 +9,7 @@ import domain.shared.location.attributes.HasZoneID
 import domain.shared.location.toPoint
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.HouseholdFactory
@@ -65,7 +66,7 @@ class ToolTest : SynthesisTest() {
 open class SynthesisTest {
 
     protected fun <T : MinimumPersonAttributes> createHousehold(
-        lambda: HouseholdBuilder<T>.() -> Unit
+        lambda: HouseholdBuilder<T>.() -> Unit,
     ): SurveyHousehold<MinimumHouseholdAttributes, T> {
         val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
@@ -76,12 +77,22 @@ open class SynthesisTest {
      * Spawn in a synthesis household, if you happen to have a location at hand where the household should be.
      */
     protected fun <T : MinimumPersonAttributes> StandardLocation.createHousehold(
-        lambda: HouseholdBuilder<T>.() -> Unit
+        copier: (T) -> T,
+        lambda: HouseholdBuilder<T>.() -> Unit,
     ): SynthesisHousehold<MinimumHouseholdAttributes, T> {
         val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
         val createHousehold = builder.createHousehold()
-        val synthesisHousehold = HouseholdFactory.createFrom(createHousehold)
+        val synthesisHousehold = HouseholdFactory({
+                a:
+                MinimumHouseholdAttributes,
+            ->
+            MinimumHouseholdAttributesImpl(
+                a.income,
+                a.type,
+                a.location
+            ) as MinimumHouseholdAttributes
+        }, copier).createFrom(createHousehold)
         synthesisHousehold.attributes.location = this
         return synthesisHousehold
     }
@@ -115,18 +126,20 @@ open class SynthesisTest {
                 private set
         }
     }
+
     private data class HAttrs(
         override val income: Currency = 1.euros,
         override val type: HouseholdType = HouseholdType.UNDEFINED,
-        override var location: StandardLocation = StandardLocation.LOCATIONUNKNOWN
+        override var location: StandardLocation = StandardLocation.LOCATIONUNKNOWN,
     ) : MinimumHouseholdAttributes
 
     protected data class Attrs(
         override val age: Int,
         override val sex: Sex,
-        override val distanceWork: Distance = (-999).kilometers
+        override val distanceWork: Distance = (-999).kilometers,
 
     ) : MinimumPersonAttributes, HasCommuteDistance
+
     protected class HouseholdBuilder<T : MinimumPersonAttributes> {
         var id: Long = 0
         var income = 0.euros
