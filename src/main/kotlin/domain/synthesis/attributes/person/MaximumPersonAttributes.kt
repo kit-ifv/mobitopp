@@ -21,4 +21,18 @@ interface MaximumPersonAttributes :
 //    val personNumber: Int
     override val hasBicycle: Boolean
     override val hasLicence: Boolean
+
+    fun copy(): MaximumPersonAttributes {
+        return MaximumPersonAttributesImpl(
+            age = this.age,
+            sex = this.sex,
+            distanceWork = this.distanceWork,
+            distanceEducation = this.distanceEducation,
+            employment = this.employment,
+            birthYear = 0,
+            personNumber = -1,
+            hasBicycle = this.hasBicycle,
+            hasLicence = this.hasLicence
+        )
+    }
 }
