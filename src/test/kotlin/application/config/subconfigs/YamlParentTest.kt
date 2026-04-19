@@ -54,6 +54,27 @@ class YamlParentTest {
         assertEquals(expected, parsed)
     }
 
+    @Test
+    fun emptyParentField() {
+        assertThrows<IllegalArgumentException> {
+            Yaml.readYamlWithParent<ParentConf>(Path(testFileRoot + "null-parent.yaml"))
+        }
+    }
+
+    @Test
+    fun nonExistentParentField() {
+        assertThrows<IllegalArgumentException> {
+            Yaml.readYamlWithParent<ParentConf>(Path(testFileRoot + "non-existent-parent.yaml"))
+        }
+    }
+
+    @Test
+    fun nonYamlFile() {
+        assertThrows<IllegalArgumentException> {
+            Yaml.readYamlWithParent<ParentConf>(Path("test.txt"))
+        }
+    }
+
     /** Config with extra field*/
     private data class ChildConf(
         val name: String,

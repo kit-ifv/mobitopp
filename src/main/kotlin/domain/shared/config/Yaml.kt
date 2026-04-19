@@ -19,6 +19,7 @@ import domain.jackson.DurationModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.io.path.inputStream
 
 /**
@@ -62,6 +63,14 @@ object Yaml {
         return mapper.readValue(file)
     }
 
+    /**
+     * Can read yaml files with a `__parent__` field. The parent field specifies another yaml file, which this yaml
+     * file is based on. All values from the parent file are included in the result. Fields specified in the child,
+     * that are also present in the parent, are overwritten by the child.
+     *
+     * - A file can at most contain one parent keyword
+     * - Cyclic dependencies will lead to IllegalArgumentExceptions
+     */
     inline fun <reified T> readYamlWithParent(path: Path): T {
         val mergedMap = YamlParentStackLoader().load(path)
         return mapper.convertValue(mergedMap, T::class.java)
@@ -75,21 +84,24 @@ object Yaml {
     inline fun <reified T> writeYaml(string: String, obj: T) = writeYaml(Path.of(string), obj)
 
     /**
-     * A single use loader that can handle parent references in a yaml file. Indicated with a __parent__ field.
+     * A single use loader that can handle parent references in a yaml file. Indicated with a `__parent__` field.
      */
     class YamlParentStackLoader {
 
         private val parentKey = "__parent__"
         val stack = mutableListOf<Path>()
         fun load(path: Path): Map<String, Any?> {
+            require(path.toString().endsWith(".yaml")) { "Trying to load non-yaml file with a yaml parser: $path" }
+            require(path.exists()) { "Yaml file $path does not exist." }
             val map = mapper.readValue<Map<String, Any?>>(path.inputStream()).toMutableMap()
 
             if (parentKey !in map) { return map }
             require(isPathNotSeenBefore(path)) {
                 "Cycle detected, cannot read configs."
             }
+            require(map[parentKey] != null) { "Parent field present, but no value specified. Occured in file: " +
+                "$path\nIf no parent is necessary, remove the __parent__ field from the file." }
             val parentPath = resolveParentKey(map[parentKey]!!, path)
-
             val parentMap = load(parentPath)
             // Remove the parentKey field from the output map.
             map.remove(parentKey)
