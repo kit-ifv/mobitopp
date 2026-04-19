@@ -67,8 +67,12 @@ class YamlParentTest {
      */
     @Test
     fun overwriteMoreThanParent() {
-        val expected = ChildConf("Overwritten by child with extra fields", 420, 6767.0,
-            extra = "My Parent does not have this field")
+        val expected = ChildConf(
+            "Overwritten by child with extra fields",
+            420,
+            6767.0,
+            extra = "My Parent does not have this field"
+        )
         val parsed = Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "over-overwrite-child.yaml"))
         assertEquals(expected, parsed)
     }
@@ -92,7 +96,7 @@ class YamlParentTest {
             420,
             6767.0,
             extra = "My Parent does not have this field",
-            extraExtraField= "Only second gen has this lit field"
+            extraExtraField = "Only second gen has this lit field"
         )
         val parsed = Yaml.readYamlWithParent<SecondChildConf>(Path(testFileRoot + "extend-child-child.yaml"))
         assertEquals(expected, parsed)
@@ -103,7 +107,7 @@ class YamlParentTest {
      */
     @Test
     fun tryRecursiveParentChild() {
-        assertThrows<IllegalArgumentException>{
+        assertThrows<IllegalArgumentException> {
             Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "dangerous-child.yaml"))
         }
     }
@@ -113,24 +117,28 @@ class YamlParentTest {
      */
     @Test
     fun testPositionOfParentKeyword() {
-        val expected = ChildConf("Overwritten by child", 500, 3.141592,
-            extra = "With extra field")
+        val expected = ChildConf(
+            "Overwritten by child",
+            500,
+            3.141592,
+            extra = "With extra field"
+        )
         val parsed = Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "position-in-file-child.yaml"))
         assertEquals(expected, parsed)
     }
 
     @Test
     fun cyclicDependency() {
-        assertThrows<IllegalArgumentException>{
+        assertThrows<IllegalArgumentException> {
             Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-1.yaml"))
         }
-        assertThrows<IllegalArgumentException>{
+        assertThrows<IllegalArgumentException> {
             Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-2.yaml"))
         }
-        assertThrows<IllegalArgumentException>{
+        assertThrows<IllegalArgumentException> {
             Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-3.yaml"))
         }
-        assertThrows<IllegalArgumentException>{
+        assertThrows<IllegalArgumentException> {
             Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-4.yaml"))
         }
     }
