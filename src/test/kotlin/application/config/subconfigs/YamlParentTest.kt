@@ -75,4 +75,16 @@ class YamlParentTest {
             Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "dangerous-child.yaml"))
         }
     }
+
+
+    /**
+     * Does the position of the keyword within the child matter? It should not probably.
+     */
+    @Test
+    fun testPositionOfParentKeyword() {
+        val expected = ChildConf("Overwritten by child with extra fields", 420, 6767.0,
+            extra = "With extra field")
+        val parsed = Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "position-in-file-child.yaml"))
+        assertEquals(expected, parsed)
+    }
 }
