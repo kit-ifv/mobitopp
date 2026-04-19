@@ -65,6 +65,31 @@ class YamlParentTest {
         assertEquals(expected, parsed)
     }
 
+    /** Config with extra-extra field*/
+    private data class SecondChildConf(
+        val name: String,
+        val numberField: Int,
+        val doubleField: Double,
+        val extra: String,
+        val extraExtraField: String,
+    )
+
+    /**
+     * Child is now child of a child of parent.
+     */
+    @Test
+    fun testSecondGenerationChild() {
+        val expected = SecondChildConf(
+            "Overwritten by child with extra fields",
+            420,
+            6767.0,
+            extra = "My Parent does not have this field",
+            extraExtraField= "Only second gen has this lit field"
+        )
+        val parsed = Yaml.readYamlWithParent<SecondChildConf>(Path(testFileRoot + "extend-child-child.yaml"))
+        assertEquals(expected, parsed)
+    }
+
     /**
      * In this test the child refers to itself as a parent, this should definitely lead to some kind of exception.
      */

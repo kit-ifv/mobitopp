@@ -1,0 +1,2 @@
+__parent__: over-overwrite-child.yaml
+extraExtraField: Only second gen has this lit field
