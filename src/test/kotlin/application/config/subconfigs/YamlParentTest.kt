@@ -85,4 +85,20 @@ class YamlParentTest {
         val parsed = Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "position-in-file-child.yaml"))
         assertEquals(expected, parsed)
     }
+
+    @Test
+    fun cyclicDependency() {
+        assertThrows<IllegalArgumentException>{
+            Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-1.yaml"))
+        }
+        assertThrows<IllegalArgumentException>{
+            Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-2.yaml"))
+        }
+        assertThrows<IllegalArgumentException>{
+            Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-3.yaml"))
+        }
+        assertThrows<IllegalArgumentException>{
+            Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-4.yaml"))
+        }
+    }
 }
