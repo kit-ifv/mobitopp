@@ -80,7 +80,7 @@ class YamlParentTest {
     @Test
     fun testSecondGenerationChild() {
         val expected = SecondChildConf(
-            "Overwritten by child with extra fields",
+            "overwritten by second gen",
             420,
             6767.0,
             extra = "My Parent does not have this field",
