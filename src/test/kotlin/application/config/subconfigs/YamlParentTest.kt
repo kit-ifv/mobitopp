@@ -25,6 +25,14 @@ class YamlParentTest {
         assertEquals(expected, parsed)
     }
 
+    /** Reading conf with the readYaml function with no parent field (the parent itself) */
+    @Test
+    fun parseNoParent() {
+        val expected = ParentConf("I am the parent", 2, 3.0)
+        val parsed = Yaml.readYamlWithParent<ParentConf>(Path(testFileRoot + "parent.yaml"))
+        assertEquals(expected, parsed)
+    }
+
     @Test
     fun simpleParseWithParent() {
         val expected = ParentConf("I am the parent", 2, 3.0)
