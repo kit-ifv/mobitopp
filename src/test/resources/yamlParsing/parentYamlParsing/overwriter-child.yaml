@@ -1,0 +1,3 @@
+__parent__: parent.yaml
+# overwriting name
+name: Overwritten by child
