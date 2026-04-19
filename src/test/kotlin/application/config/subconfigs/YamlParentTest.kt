@@ -25,7 +25,6 @@ class YamlParentTest {
         assertEquals(expected, parsed)
     }
 
-
     @Test
     fun simpleParseWithParent() {
         val expected = ParentConf("I am the parent", 2, 3.0)
@@ -56,7 +55,7 @@ class YamlParentTest {
     )
 
     /**
-     * Child now specifies more than parent. Therefore it is a different config we want to read.
+     * Child now specifies more than parent. Therefore, it is a different config we want to read.
      */
     @Test
     fun overwriteMoreThanParent() {
@@ -76,13 +75,12 @@ class YamlParentTest {
         }
     }
 
-
     /**
-     * Does the position of the keyword within the child matter? It should not probably.
+     * Does the position of the keyword within the child matter? It should probably not?
      */
     @Test
     fun testPositionOfParentKeyword() {
-        val expected = ChildConf("Overwritten by child with extra fields", 420, 6767.0,
+        val expected = ChildConf("Overwritten by child", 500, 3.141592,
             extra = "With extra field")
         val parsed = Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "position-in-file-child.yaml"))
         assertEquals(expected, parsed)
