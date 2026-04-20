@@ -32,7 +32,6 @@ variables:
 
 stages: # List of stages for jobs, and their order of execution
   - build
-  - test
   - deploy
 
 include:
@@ -43,44 +42,25 @@ build-job:
   stage: build
   image: amazoncorretto:21
   script:
-    - ./gradlew compileJava
+    - ./gradlew detektGenerateConfig compileJava detekt test koverXmlReport koverLog
   artifacts:
     expire_in: 1 week
-    when: always
-    paths:
-      - build/
-
-unit-test-job:
-  stage: test
-  image: amazoncorretto:21
-  needs: [ build-job ]
-  script:
-    - ./gradlew test koverXmlReport koverLog
-  artifacts:
     when: always
     reports:
       junit: build/test-results/test/**/TEST-*.xml
       coverage_report:
         coverage_format: cobertura
         path: build/reports/kover/report.xml
-
     paths:
       - build/reports/kover/*
+      - build/
   coverage: "/application line coverage: ([0-9]+\\.?[0-9]*)%/"
-
-code-style:
-  stage: test
-  needs: [ build-job ]
-  image: amazoncorretto:21
-  script:
-    - ./gradlew detektGenerateConfig
-    - ./gradlew detekt
 
 deploy-job:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-  needs: [ unit-test-job, version-number, build-job ]
+  needs: [ version-number, build-job ]
   image: amazoncorretto:21
   resource_group: production #only one deploy job at a time
   script:
