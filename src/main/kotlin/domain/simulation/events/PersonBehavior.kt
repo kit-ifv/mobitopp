@@ -5,7 +5,6 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.schedule.LinkTrip
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.Mode
-import domain.shared.location.Location
 import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
 import domain.simulation.agent.PersonAgent

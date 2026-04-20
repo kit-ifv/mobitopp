@@ -17,8 +17,6 @@ import domain.shared.datastructure.schedule.StationaryAction
 import domain.shared.datastructure.schedule.alternateByImpedance
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
-import domain.shared.location.LOCATIONUNKNOWN
-import domain.shared.location.Location
 import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
 import domain.simulation.agent.DrtOffer

@@ -4,8 +4,6 @@ import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
-import domain.shared.location.LOCATIONUNKNOWN
-import domain.shared.location.Location
 import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
 import utils.units.AbsoluteTime
@@ -31,7 +29,11 @@ interface Trip {
     fun isConsistent() = (listOf(previousAction) + legs + nextAction).filterNotNull().isConsistent()
 }
 
-fun Trip.alternateByImpedance(impedance: Impedance, replanner: ReplanningStrategy, lambda: ImpedanceBuilder.() -> Unit) {
+fun Trip.alternateByImpedance(
+    impedance: Impedance,
+    replanner: ReplanningStrategy,
+    lambda: ImpedanceBuilder.() -> Unit
+) {
     alternate(replanner) {
         byImpedance(impedance, lambda)
     }

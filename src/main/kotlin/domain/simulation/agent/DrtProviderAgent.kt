@@ -4,7 +4,6 @@ import core.statemachine.Message
 import core.statemachine.StateBasedAgent
 import core.statemachine.StateMachine
 import core.statemachine.StateMachineFactory
-import domain.shared.location.Location
 import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone

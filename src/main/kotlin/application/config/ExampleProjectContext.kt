@@ -31,8 +31,8 @@ import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.LegacyZone
 import domain.shared.location.Impedance
+import domain.shared.location.LegacyZone
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
 import domain.simulation.agent.DrtProviderAgent
