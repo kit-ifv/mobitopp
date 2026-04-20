@@ -85,7 +85,7 @@ dependencies {
 
     //other kotlinx libs
     implementation(libs.kotlin.reflect) // ??
-    implementation(libs.kotlin.statistics) //0.2.1
+    implementation(libs.kotlin.statistics) //0.8.3
     implementation(libs.kotlinx.coroutines) //1.10.1
     implementation(libs.kotlinx.serialization.core) //1.8.0
     implementation(libs.kotlinx.serialization.cbor) //1.8.0
@@ -114,6 +114,7 @@ tasks.test {
 }
 tasks {
     shadowJar {
+        isZip64 = true
         archiveClassifier.set("all") // produces e.g. myapp-all.jar
         mergeServiceFiles() // optional: handles META-INF/services
     }
