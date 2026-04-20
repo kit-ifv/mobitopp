@@ -44,7 +44,7 @@ class RidesharingOnlyScenario {
 
         val random = Random(1)
 
-        val car = legacyChoiceModelModes.car
+        legacyChoiceModelModes.car
         val bikeSharing = legacyChoiceModelModes.bikeSharing
         val pedestrian = legacyChoiceModelModes.pedestrian
         val zones = generateZones(10)
@@ -98,7 +98,7 @@ class RidesharingOnlyScenario {
         val agents = builder.buildPersonAgents(households)
 
         agents.forEach { person ->
-            val dest = zones.first { it != person.location.zone }
+            val dest = zones.first { it.id != person.location.zoneID }
             val sharedResources =
                 context(person, AbsoluteTime.START, dest.centroid) {
                     availability.currentlyAffectedProviders(legacyChoiceModelModes.options)

@@ -1,19 +1,18 @@
 package domain.synthesis.results
 
-import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.Attractiveness
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
-import domain.shared.location.Location
-import domain.shared.location.Zone
+import domain.shared.location.StandardLocation
+import domain.shared.location.ZonedRoadAccessLocation
+import domain.synthesis.SynthesisHousehold
+import domain.synthesis.SynthesisPerson
+import domain.synthesis.attributes.household.MaximumHouseholdAttributes
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.employment
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.RawSurveyInfo
-import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.SynthesisCar
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
-import domain.synthesis.behavior.employment
-import domain.synthesis.behavior.numberOfDrivingLicences
+import domain.synthesis.behavior.cars.SynthesisCar
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
@@ -26,15 +25,9 @@ import kotlin.io.path.createDirectories
  * Converts the Location to the standard representation found in legacy mobitopp input files which is the format
  * (lat, lon: roadId, accessShare)
  */
-fun Location.legacyStringRepresentation(): String =
-    "(${coordinate.latitudeDegrees}, ${coordinate.longitudeDegrees}: ${roadAccess?.roadId}, ${roadAccess?.position})"
+fun ZonedRoadAccessLocation.legacyStringRepresentation(): String =
+    "(${position.y}, ${position.x}: ${roadAccess.roadId}, ${roadAccess.position})"
 
-/**
- * Extend the AttractivenessModel returning 0.0 for the attractiveness when the zone is null
- */
-fun AttractivenessModel.nullableAttractiveness(zone: Zone?, activityType: ActivityType): Double {
-    return zone?.let { attractivenessFor(it.id, activityType) } ?: 0.0
-}
 // End extension functions
 
 interface CSVOutput<T> {
@@ -65,7 +58,7 @@ interface CSVOutput<T> {
 
 // TODO the synthesis activity will probably not match with the simulation activity.
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
-object LegacyActivityOutput : CSVOutput<Pair<SynthesisPerson<*>, Collection<Activity>>> {
+object LegacyActivityOutput : CSVOutput<Pair<SynthesisPerson<*, *>, Collection<Activity>>> {
     override val header: List<String> = listOf(
         "personId",
         "activityType",
@@ -77,7 +70,7 @@ object LegacyActivityOutput : CSVOutput<Pair<SynthesisPerson<*>, Collection<Acti
         "isSupertour"
     )
 
-    override fun convert(element: Pair<SynthesisPerson<*>, Collection<Activity>>): String {
+    override fun convert(element: Pair<SynthesisPerson<*, *>, Collection<Activity>>): String {
         val (person, activities) = element
         var tournr = 0
         return activities.joinToString(separator = "\n") { activity: Activity ->
@@ -111,13 +104,13 @@ object LegacyCarOutput : CSVOutput<SynthesisCar> {
     override fun convert(element: SynthesisCar): String {
         return element.run {
             toCSV(
-                mainUser?.household?.id ?: "Null",
+                mainUser?.householdID ?: "Null",
                 mainUser?.personId ?: "-1",
                 mainUser?.personId ?: "-1",
                 this.engine.type.asText,
                 id,
                 "0", // TODO verify that this is acurraty
-                mainUser?.household?.location ?: "Null",
+                mainUser?.homeLocation ?: "Null",
                 segment,
                 seats,
                 0.0, // TODO this appears to be a fixed value.
@@ -130,9 +123,9 @@ object LegacyCarOutput : CSVOutput<SynthesisCar> {
 }
 
 data class FixedDestinationElements(
-    val person: SynthesisPerson<*>,
+    val person: SynthesisPerson<*, *>,
     val activityType: ActivityType,
-    val location: Location,
+    val location: StandardLocation,
 )
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
@@ -156,25 +149,25 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
             toCSV(
                 person.personId,
                 -1, // Dummy value for dummy output: This is the number in the household.
-                person.household.id,
+                person.householdID, // person.household.id,
                 1970, // Dummy value for dumb output household year taken from survey data.
                 -1, // Dummy value for dumb output: household ID from the survey data
                 activityType.description,
-                location.zone?.id?.value ?: "NULL",
+                location.zoneID,
                 location.legacyStringRepresentation(),
-                location.coordinate.longitudeDegrees,
-                location.coordinate.latitudeDegrees
+                location.position.x,
+                location.position.y
 
             )
         }
     }
 }
 
-object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<out SurveyInfo>> {
+object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<MaximumHouseholdAttributes, *>> {
     override val header: List<String> = listOf("nominalSize", "numberOfMinors", "income")
 
     @Suppress("MagicNumber")
-    override fun convert(element: ISurveyHousehold<out SurveyInfo>): String {
+    override fun convert(element: ISurveyHousehold<MaximumHouseholdAttributes, *>): String {
         return element.run {
             toCSV(
                 members.size,
@@ -185,7 +178,7 @@ object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<out SurveyInfo>> {
     }
 }
 
-object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
+object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHouseholdAttributes, *>> {
     override val header: List<String> = listOf(
         "id",
         "zoneId",
@@ -197,19 +190,20 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>>
         "economicStatusCode"
     )
 
-    override fun convert(element: SynthesisHousehold<out SurveyInfo>): String {
+    override fun convert(element: SynthesisHousehold<MaximumHouseholdAttributes, *>): String {
         return element.run {
+            val location = this.attributes.location
             toCSV(
                 id,
-                location.zone?.id?.value ?: "NULL",
+                location.zoneID,
                 surveyHouseholdId,
                 location,
-                location.coordinate.longitudeDegrees,
-                location.coordinate.latitudeDegrees,
+                location.position.x,
+                location.position.y,
 //                "TODO nomberofnotsimulatdchildren",
-                amountOfCars,
+                attributes.amountOfCars,
 //                "TODO incomeclass",
-                economicStatus.code,
+                attributes.economicStatus.code,
             )
         }
     }
@@ -217,7 +211,7 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>>
 
 // Sorry detekt, householdId and other strings may occur more often.
 @Suppress("StringLiteralDuplication", "MagicNumber")
-object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
+class LegacyHouseholdOutput<T : MaximumHouseholdAttributes> : CSVOutput<SynthesisHousehold<T, *>> {
 
     override val header: List<String> = listOf(
         "householdId",
@@ -237,23 +231,24 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
         "canChargePrivately"
     ) + SurveyHouseholdOutput.header
 
-    override fun convert(element: SynthesisHousehold<out SurveyInfo>): String {
+    override fun convert(element: SynthesisHousehold<T, *>): String {
         return element.run {
+            val location = attributes.location
             toCSV(
                 id,
                 1970, // Dummy value: Originally the year from Survey Info. Now useless.
-                -13379001, // Dummy value: Originally the ID in the Survey Info.
+                "dummyval", // Dummy value: Originally the ID in the Survey Info.
                 -1, // Ok, here I am lost, I have absolutely no idea what "domcode" is supposed to be.
-                -1, // The household type. Again taken from survey data. Again crazy that this exists as an int field.
-                location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
-                location.zone?.id?.value ?: "NULL",
+                attributes.type.code, // The household type. Again taken from survey data.
+                "uselessattribute", // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
+                location.zoneID,
                 location.legacyStringRepresentation(),
-                location.coordinate.longitudeDegrees,
-                location.coordinate.latitudeDegrees,
-                -1, // ActiTopp once cared about the number of childern, but it is entirely irrelevant
-                amountOfCars,
+                location.position.x,
+                location.position.y,
+                -1, // ActiTopp once cared about the number of children, but it is entirely irrelevant
+                attributes.amountOfCars,
                 5, // I would assume that this is the encoding of the income based on some classes, but used it is not.
-                economicStatus.code,
+                attributes.economicStatus.code,
                 "true", // Everyone can charge privately. Why this field was added to the general output / No one knows
 
             )
@@ -261,9 +256,9 @@ object LegacyHouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
     }
 }
 
-data class OpportunityOutput(
-    val location: Location,
-    val attractivenessModel: AttractivenessModel,
+data class OpportunityOutput constructor(
+    val location: ZonedRoadAccessLocation,
+    val attractiveness: Attractiveness,
     val activityType: ActivityType,
 )
 
@@ -275,19 +270,19 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
     override fun convert(element: OpportunityOutput): String {
         return element.run {
             toCSV(
-                location.zone?.id?.value ?: -1,
+                location.zoneID.value,
                 activityType,
                 location.legacyStringRepresentation(),
-                attractivenessModel.nullableAttractiveness(location.zone, activityType),
-                location.coordinate.latitudeDegrees,
-                location.coordinate.longitudeDegrees
+                attractiveness.value,
+                location.position.x,
+                location.position.y
 
             )
         }
     }
 }
 
-object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
+object SurveyPersonOutput : CSVOutput<SurveyPerson<MaximumPersonAttributes>> {
     override val header: List<String> = listOf(
         "personId",
         "age",
@@ -297,23 +292,24 @@ object SurveyPersonOutput : CSVOutput<SurveyPerson<out RawSurveyInfo>> {
         "hasLicence"
     )
 
-    override fun convert(element: SurveyPerson<out RawSurveyInfo>): String {
+    override fun convert(element: SurveyPerson<MaximumPersonAttributes>): String {
         return element.run {
             toCSV(
                 personId,
                 age,
                 sex,
-                information.householdIncome.inEuros,
-                information.hasBicycle,
-                information.hasLicence
+                "TODO Household Income is not part of person", // attributes.householdIncome.inEuros,
+                attributes.hasBicycle,
+                attributes.hasLicence
             )
         }
     }
 }
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
-object LegacyPersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
-    private const val SURVEY_DUMMY = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
+class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttributes> :
+    CSVOutput<SynthesisPerson<C, T>> {
+    private val surveyDummy = "BIKE=0.0,CAR=0.0,PASSENGER=0.0,PEDESTRIAN=0.0,PUBLICTRANSPORT=0.0"
     override val header: List<String> = SurveyPersonOutput.header + listOf(
 
         "personNumber",
@@ -332,20 +328,20 @@ object LegacyPersonOutput : CSVOutput<SynthesisPerson<out RawSurveyInfo>> {
     )
 
     @Suppress("MagicNumber")
-    override fun convert(element: SynthesisPerson<out RawSurveyInfo>): String {
+    override fun convert(element: SynthesisPerson<C, T>): String {
         val first = SurveyPersonOutput.convert(element)
         val second = element.run {
             toCSV(
                 -1, // Dummy value. person Number is not a useful attribute
-                household.id,
+                householdID,
 
                 employment,
-                household.amountOfCars > 0,
-                household.amountOfCars <= household.numberOfDrivingLicences,
+                household.hasCars(),
+                "TODO is this field sth useful?", // household.amountOfCars <= household.numberOfDrivingLicences,
                 hasTransitPass,
-                information.hasLicence,
-                SURVEY_DUMMY,
-                SURVEY_DUMMY,
+                attributes.hasLicence,
+                surveyDummy,
+                surveyDummy,
                 0.5,
                 "NEVER",
                 this.getSharingMemberships()

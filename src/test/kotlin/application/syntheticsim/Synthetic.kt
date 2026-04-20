@@ -5,8 +5,10 @@ import TestZone
 import core.statemachine.State
 import core.statemachine.builder.StateData
 import core.statemachine.usage.RecordingStateMachineFactory
+import domain.shared.behavior.Attractiveness
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
+import domain.shared.behavior.asAttractiveness
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
@@ -74,7 +76,7 @@ class PlanLoader(private val person: MutablePerson) {
     val plannedActivities = mutableListOf<PlannedActivity>()
 
     operator fun Triple<ActivityType, Number, Number>.unaryPlus() {
-        val p = person
+        person
         plannedActivities.add(
             MutablePlannedActivity(
                 id = ActivityId(-1L),
@@ -173,13 +175,13 @@ val testAttractivenessModel = object : AttractivenessModel {
 
     override val purposes: ChoiceModelPurposes = legacyChoiceModelPurposes
 
-    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double =
+    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
         when (zone) {
             ZoneId(0L) -> 0.0 // Home zone attractiveness should be 0
             ZoneId(1L) -> 999999.9 // Zone 1 should be the most attractive zone ever
             ZoneId(2L) -> 1.0 // Zone 2 should be barely attractive at all
             else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
-        }
+        }.asAttractiveness()
 }
 
 class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
@@ -200,7 +202,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     val first = persons[0]
     val second = persons[1]
 
-//    controllableImpedance.apply {
+    //    controllableImpedance.apply {
 //        difficultAccess(zones[0], zones[0])
 //        easyAccess(zones[0], zones[1])
 //        difficultAccess(zones[0], zones[2])

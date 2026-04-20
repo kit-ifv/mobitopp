@@ -14,7 +14,8 @@ import utils.collections.orderedPermutations
 import utils.collections.permutations
 import utils.collections.subsets
 import utils.units.sinceStart
-import java.util.*
+import java.util.SortedSet
+import java.util.TreeSet
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -38,7 +39,7 @@ abstract class PlanModelTest {
     inner class Helper(
         val name: String,
         val executable: PlanModel.() -> Unit,
-        val expected: SortedSet<Action>.() -> Unit
+        val expected: SortedSet<Action>.() -> Unit,
     )
 
     private fun fromString(text: String): Helper {
@@ -190,7 +191,7 @@ abstract class PlanModelTest {
                 test.third.forEach { model.add(it) }
                 activities.forEach { model.add(it) }
                 model.replaceActivities(test.first, test.second)
-                val expected = TreeSet<Action>(activities)
+                TreeSet<Action>(activities)
 
                 assertTrue(model.isConsistent())
 //                expected.addAll(test.third)

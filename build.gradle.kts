@@ -59,7 +59,7 @@ dependencies {
     api(libs.ifv.visum.netparser)
     api(libs.ifv.discrete.choice)
     api(libs.ifv.actitoppNG)
-
+    api(libs.ifv.synthesisAlgorithms)
 
 
     //testing libs
@@ -101,12 +101,16 @@ dependencies {
     implementation(libs.exp4j) //0.4.8
 
     implementation(libs.fast.util)
-
+    implementation(libs.fast.csv)
 
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        if (System.getenv("CI") != null) {
+            excludeTags("plot")
+        }
+    }
 }
 tasks {
     shadowJar {

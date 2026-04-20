@@ -9,10 +9,11 @@ import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
 import domain.shared.location.LegacyZone
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.shared.location.parseRoadPosition
+import domain.shared.location.attributes.HasRoadAccess
+import domain.shared.location.parseRoadPositionWGS
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
@@ -139,8 +140,8 @@ fun LoadFixedDestinationsContext.csvParser(
             )
             val zone = getZone(row.long(columns.zone))
 
-            val location = row(columns.location, String::parseRoadPosition).withZone(zone)
-
+            val coordinate: HasRoadAccess = row(columns.location, String::parseRoadPositionWGS)
+            val location = StandardLocation(coordinate.position, zone, coordinate.roadAccess)
             p?.let { person ->
                 ActivityLocation(person, activityType, location)
             }
@@ -247,7 +248,7 @@ class LoadFixedDestinationsStep(
         }
     }
 
-    private fun applyActivityLocation(person: Person, activityType: ActivityType, location: Location) {
+    private fun applyActivityLocation(person: Person, activityType: ActivityType, location: StandardLocation) {
         person.plannedActivities.filter {
             it.activityType == activityType
         }.forEach {

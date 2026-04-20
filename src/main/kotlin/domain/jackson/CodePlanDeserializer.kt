@@ -24,7 +24,7 @@ import domain.synthesis.data.Sex
 import utils.CodePlan
 import utils.Encodable
 import utils.collections.invertMap
-import java.util.*
+import java.util.ServiceLoader
 
 class CoreCodePlanModule : SimpleModule("CoreCodePlanModule") {
     init {

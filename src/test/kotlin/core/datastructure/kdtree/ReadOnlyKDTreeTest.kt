@@ -11,7 +11,7 @@ class ReadOnlyKDTreeTest {
     private data class TestElement(
         val x: Int,
         val y: Int,
-        val z: Int
+        val z: Int,
     ) {
 
         fun distanceTo(point: DoubleArray): Double {

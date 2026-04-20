@@ -1,9 +1,11 @@
 package domain.shared.datastructure.schedule
 
 import domain.shared.datastructure.schedule.plans.IDispatcher
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import utils.collections.iterate
-import java.util.*
+import java.util.NavigableSet
+import java.util.SortedSet
+import java.util.TreeSet
 
 /**
  * An [ActionBlock] contains a navigable set of items of type [T]. Unlike the specific implementations the action block
@@ -306,8 +308,8 @@ class LinkedTrip(
         }
     }
 
-    val startLocation: Location get() = item.first().startLocation
-    var endLocation: Location get() = item.last().endLocation
+    val startLocation: StandardLocation get() = item.first().startLocation
+    var endLocation: StandardLocation get() = item.last().endLocation
         set(value) {
             item.last().endLocation = value
         }

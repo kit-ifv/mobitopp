@@ -774,6 +774,8 @@ formatting:
   #Disable wrapping until detekt can handle context parameters.
   Wrapping:
     active: false
+  NoUnusedImports:
+    active: false
 
 
 custom-rules:

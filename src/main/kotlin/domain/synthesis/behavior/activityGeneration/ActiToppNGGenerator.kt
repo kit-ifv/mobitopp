@@ -2,13 +2,19 @@ package domain.synthesis.behavior.activityGeneration
 
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.datastructure.schedule.RawActivity
+import domain.shared.enums.ActivityType
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.ZoneRegionType
-import domain.shared.location.LOCATIONUNKNOWN
-import domain.synthesis.behavior.SurveyWithCommute
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
-import domain.synthesis.behavior.employment
+import domain.shared.location.StandardLocation
+import domain.synthesis.attributes.household.HasNumberOfCars
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.HasCommuteDistance
+import domain.synthesis.attributes.person.HasEducationDistance
+import domain.synthesis.attributes.person.HasEmployment
+import domain.synthesis.attributes.person.MinimumPersonAttributes
+import domain.synthesis.attributes.person.employment
+import domain.synthesis.behavior.ISurveyHousehold
+import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.ActiToppHousehold
@@ -16,7 +22,6 @@ import edu.kit.ifv.mobitopp.actitoppNG.ActitoppPerson
 import edu.kit.ifv.mobitopp.actitoppNG.Household
 import edu.kit.ifv.mobitopp.actitoppNG.PersonAttributes
 import edu.kit.ifv.mobitopp.actitoppNG.StandardHouseholdPlanGeneration
-import edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.plan.MobilityPlan
@@ -25,24 +30,25 @@ import java.lang.Double.min
 
 typealias ACTHousehold = Household
 typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
+typealias ActitoppActivityType = edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityType
 
-/**
- * Actitopp is still using the zone region type numbers :(
- * @param converter A converter to get from the region type to the zone region type used by actitopp.
- */
-class ActiToppNGGenerator(
+class ActiToppNGGenerator<in S, in T>(
     val purposes: ChoiceModelPurposes,
     val converter: (RegionType) -> ZoneRegionType,
 
 ) :
-    GenerateHouseholdActivitySchedule<SurveyWithCommute> {
+    GenerateHouseholdActivitySchedule<S, T>
+    where S : MinimumHouseholdAttributes,
+          S : HasNumberOfCars,
+          T : MinimumPersonAttributes,
+          T : HasCommuteDistance,
+          T : HasEducationDistance,
+          T : HasEmployment {
     val strategy = StandardHouseholdPlanGeneration() // TODO change to Parallel once implemented.
-    override fun generate(
-        household: SynthesisHousehold<out SurveyWithCommute>,
-    ): Map<SynthesisPerson<out SurveyWithCommute>, PreliminaryActivitySchedule> {
-        val (actHH, mapping) = convert(household)
+    override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
+        val actHH = convert(household)
         val output = strategy.generateSchedules(actHH)
-        return output.entries.associate { (k, v) -> mapping[k]!! to finish(v) }
+        return output.entries.map { (_, v) -> finish(v) }
     }
 
     fun finish(mobilityPlan: MobilityPlan): PreliminaryActivitySchedule {
@@ -50,7 +56,7 @@ class ActiToppNGGenerator(
         return PreliminaryActivitySchedule(
             finishedActivities.map {
                 RawActivity(
-                    location = LOCATIONUNKNOWN,
+                    location = StandardLocation.LOCATIONUNKNOWN,
                     startTime = it.startTime!!.sinceStart,
                     endTime = it.endTime!!.sinceStart,
 
@@ -60,27 +66,26 @@ class ActiToppNGGenerator(
         )
     }
 
-    fun convert(household: SynthesisHousehold<out SurveyWithCommute>):
-        Pair<ACTHousehold, Map<ActitoppPerson, SynthesisPerson<out SurveyWithCommute>>> {
+    fun convert(household: ISurveyHousehold<S, T>): ACTHousehold {
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
             numMinorsBelow18 = household.numberOfYouths,
-            areaType = converter(household.location.regionType()).toAreaType(),
-            numberOfCars = household.amountOfCars
+            areaType = converter(household.attributes.location.regionType).toAreaType(),
+            numberOfCars = household.attributes.amountOfCars
         )
-        val mapping = household.members.associateBy {
+        household.members.forEach {
             ActitoppPerson(actHousehold, it.actitoppAttributes())
         }
-        return actHousehold to mapping
+        return actHousehold
     }
 
-    fun SynthesisPerson<out SurveyWithCommute>.actitoppAttributes(maxCommute: Double = 150.0): PersonAttributes {
+    fun SurveyPerson<T>.actitoppAttributes(maxCommute: Double = 150.0): PersonAttributes {
         return PersonAttributes(
             gender = sex.toGender(),
             employment = employment.toActitoppEmployment(),
             age = age,
-            commuteDistanceWork = min(information.distanceWork.inKilometers, maxCommute),
-            commuteDistanceEducation = min(information.distanceEducation.inKilometers, maxCommute),
+            commuteDistanceWork = min(attributes.distanceWork.inKilometers, maxCommute),
+            commuteDistanceEducation = min(attributes.distanceEducation.inKilometers, maxCommute),
             isAllowedToWork = true, // TODO cross check with modellierer
         )
     }
@@ -114,14 +119,14 @@ class ActiToppNGGenerator(
     }
 }
 
-fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes): domain.shared.enums.ActivityType {
+fun ActitoppActivityType.toReengineeredType(purposes: ChoiceModelPurposes): ActivityType {
     return when (this) {
-        ActivityType.WORK -> purposes.work
-        ActivityType.EDUCATION -> purposes.education
-        ActivityType.LEISURE -> purposes.leisure
-        ActivityType.SHOPPING -> purposes.shopping
-        ActivityType.TRANSPORT -> purposes.service
-        ActivityType.HOME -> purposes.home
+        ActitoppActivityType.WORK -> purposes.work
+        ActitoppActivityType.EDUCATION -> purposes.education
+        ActitoppActivityType.LEISURE -> purposes.leisure
+        ActitoppActivityType.SHOPPING -> purposes.shopping
+        ActitoppActivityType.TRANSPORT -> purposes.service
+        ActitoppActivityType.HOME -> purposes.home
     }
 }
 

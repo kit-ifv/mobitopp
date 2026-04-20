@@ -2,7 +2,7 @@
 
 package utils.collections
 
-import java.util.*
+import java.util.BitSet
 
 /**
  * returns the previous element or null in the list regarding a target index.

@@ -2,11 +2,13 @@ package domain.synthesis.parser.binary
 
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import edu.kit.ifv.units.GPSCoordinate
+import domain.shared.location.ZonedRoadAccessLocation
+import domain.shared.location.attributes.HasZoneID
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
-import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
@@ -18,27 +20,31 @@ import java.nio.ByteBuffer
  */
 @Suppress("MagicNumber")
 object LocationUtils {
-    /**
-     * Extension function, that reads a location from a [DataInputStream].
-     */
-    @Deprecated("Should be used with a bytebuffer instead.")
-    fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): Location {
-        val zoneId = ZoneId(readLong()) // Reading zone ID
-        val coordinate = GPSCoordinate.decimalDegree(
-            readDouble(),
-            readDouble()
-        ) // Reading latitude and longitude
-        val roadAccess = RoadAccess(readLong(), readDouble().share()) // Reading roadId and position
-        return Location(coordinate, converter(zoneId), roadAccess)
-    }
-    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): Location {
+    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): StandardLocation {
         val zoneId = ZoneId(long) // Reading zone ID
-        val coordinate = GPSCoordinate.decimalDegree(
+        val coordinate = WGS84Coordinate.decimalDegree(
             double,
             double
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
-        return Location(coordinate, converter(zoneId), roadAccess)
+        return StandardLocation(
+            position = Location.wgs(coordinate.x, coordinate.y).position,
+            zone = converter(zoneId) ?: run {
+                throw NoSuchElementException("No Zone For thing")
+            },
+            roadAccess = roadAccess,
+        )
+    }
+
+    fun ByteBuffer.decodeNakedLocation(): ZonedRoadAccessLocation {
+        val zoneId = ZoneId(long) // Reading zone ID
+        val coordinate = WGS84Coordinate.decimalDegree(
+            double,
+            double
+        ) // Reading latitude and longitude
+        val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
+
+        return Location.wgs(coordinate).withRoadAccess(roadAccess).withZone(zoneId)
     }
 
     /**
@@ -53,11 +59,15 @@ object LocationUtils {
      *
      * @param location The `Location` object to write to the `DataOutputStream`.
      */
-    fun DataOutputStream.encodeLocation(location: Location) {
-        writeLong(location.zone?.id?.value ?: Long.MIN_VALUE)
-        writeDouble(location.coordinate.latitudeDegrees)
-        writeDouble(location.coordinate.longitudeDegrees)
-        writeLong(location.roadAccess?.roadId ?: Long.MIN_VALUE)
-        writeDouble(location.roadAccess?.position?.toDouble() ?: 0.5)
+    fun DataOutputStream.encodeLocation(location: ZonedRoadAccessLocation) {
+        writeLong(location.zoneID.value)
+        writeDouble(location.position.y)
+        writeDouble(location.position.x)
+        writeLong(location.roadAccess.roadId)
+        writeDouble(location.roadAccess.position.toDouble())
+    }
+
+    fun DataOutputStream.encodeLocation(location: HasZoneID) {
+        encodeLocation(location.withRoadAccess(RoadAccess.INVALID))
     }
 }

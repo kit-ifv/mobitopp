@@ -1,8 +1,8 @@
 package core.datastructure.calendarLookup
 
-import kotlinx.datetime.DayOfWeek
 import utils.units.AbsoluteTime
 import utils.units.daysSinceStartOfWeek
+import java.time.DayOfWeek
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 

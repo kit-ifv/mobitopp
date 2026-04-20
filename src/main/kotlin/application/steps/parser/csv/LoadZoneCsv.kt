@@ -9,10 +9,11 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.location.Location
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
-import domain.shared.location.parseRoadPosition
+import domain.shared.location.attributes.HasRoadAccess
+import domain.shared.location.parseRoadPositionWGS
 import domain.simulation.config.DemandSimContext
 import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.meters
 import utils.CodePlan
 import utils.Decodable
@@ -54,7 +55,7 @@ fun LoadZonesContext.prepareZones(
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ZoneColumns = ZoneColumns(),
-    centroidParser: (String) -> Location = String::parseRoadPosition,
+    centroidParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
 ) {
     val csvParser = defaultCsvParser(
@@ -73,7 +74,7 @@ fun LoadZonesContext.prepareZones(
 fun defaultCsvParser(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ZoneColumns = ZoneColumns(),
-    centroidParser: (String) -> Location = String::parseRoadPosition,
+    centroidParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
     regionTypeCodePlan: Decodable<RegionType> = RegioStaR17,
     seed: Long = 1,
@@ -106,7 +107,7 @@ fun cheatyDefaultCsvParser(
     val csvParser = CsvParser(errorHandling) { row ->
         MutableLegacyZone(
             id = ZoneId(row.long("id")),
-            centroid = Location(BIELEFELD, null, null),
+            centroid = Location.BIELEFELD,
             seed = seed
         ) {
             visumId = row.long("id")
@@ -124,7 +125,7 @@ fun cheatyDefaultCsvParser(
 }
 
 @Suppress("MagicNumber")
-private val BIELEFELD = GPSCoordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
+private val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
 
 fun LoadZonesContext.prepareZoneFile(
     parser: CsvParser<MutableLegacyZone>,

@@ -1,9 +1,11 @@
 package domain.synthesis.behavior.discreteChoice
 
-import domain.synthesis.behavior.SurveyInfo
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.employment
-import domain.synthesis.behavior.hasLicence
+import domain.synthesis.SynthesisHousehold
+import domain.synthesis.attributes.household.HasEconomicStatus
+import domain.synthesis.attributes.person.MaximumPersonAttributes
+import domain.synthesis.attributes.person.employment
+import domain.synthesis.attributes.person.hasLicence
+import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
@@ -18,18 +20,18 @@ import kotlin.random.Random
  */
 @Suppress("MagicNumber") // These magic numbers are ok
 class CarOwnershipFactors(
-    val household: SynthesisHousehold<out SurveyInfo>,
+    val household: MinimalistHousehold<HasEconomicStatus, MaximumPersonAttributes>,
     employmentSorter: EmploymentSorter = DefaultEmploymentSorter,
 ) {
     val size = household.members.size
-    val economicStatus: EconomicStatus = household.economicStatus
+    val economicStatus: EconomicStatus = household.attributes.economicStatus
     val numDrivingLicence: Int = household.members.count { it.hasLicence }
     val numberOfWorkers = household.members.count { employmentSorter.isWorking(it.employment) }
     val isWg = household.members.all { employmentSorter.isUniversityStudent(it.employment) } && size >= 3
     val isOnlyRetired = household.members.all { employmentSorter.isRetired(it.employment) }
     val isOnlyUnemployed = household.members.all { employmentSorter.isUnemployed(it.employment) }
-    val amountOfChildren = household.members.count { it.age < 10 }
-    val amountOfYouth = household.members.count { it.age in 10..17 }
+    val amountOfChildren = household.members.count { it.attributes.age < 10 }
+    val amountOfYouth = household.members.count { it.attributes.age in 10..17 }
 
     val random: Random = Random.Default
 }
@@ -221,7 +223,7 @@ class CarOwnershipParameters(
      * set to [oneCar]. The benefit is that only the fields of [CarParameters] are visible. Meaning that the auto completion
      * only suggests valid parameters defined in the Car Parameters.
      *
-     * The object is created by translating the corresponding parameters from the main parameter object.
+     * The object is created by translating the corresponding parameters from the integration.main parameter object.
      * The lazy {...} syntax ensures that the object is only created if you use it.
      *
      */

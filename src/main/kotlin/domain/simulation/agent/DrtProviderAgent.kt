@@ -6,6 +6,7 @@ import core.statemachine.StateMachine
 import core.statemachine.StateMachineFactory
 import domain.shared.location.Location
 import domain.shared.location.Impedance
+import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.synthesis.data.DrtProvider
 import edu.kit.ifv.units.Currency
@@ -24,7 +25,7 @@ class DrtProviderAgent(
 
     override val stateMachine: StateMachine = stateMachineFactory.create(AbsoluteTime.START, this)
 
-    fun operatesAt(time: AbsoluteTime, origin: Location, destination: Location) =
+    fun operatesAt(time: AbsoluteTime, origin: StandardLocation, destination: StandardLocation) =
         algorithm.operatesAt(time, origin, destination)
 
     fun requestRide(request: DrtRequest): DrtOffer? = algorithm.requestRide(request)
@@ -32,7 +33,7 @@ class DrtProviderAgent(
 
 interface DrtAlgorithm {
 
-    fun operatesAt(time: AbsoluteTime, origin: Location, destination: Location): Boolean
+    fun operatesAt(time: AbsoluteTime, origin: StandardLocation, destination: StandardLocation): Boolean
     fun requestRide(request: DrtRequest): DrtOffer?
 
     // TODO Offers should always be cached by person in DrtAlg if it is called multiple times! (currently only once!)
@@ -50,8 +51,8 @@ data class DrtRequest(
     val person: PersonAgent,
     val requestTime: AbsoluteTime,
     val departure: AbsoluteTime,
-    val origin: Location,
-    val destination: Location,
+    val origin: StandardLocation,
+    val destination: StandardLocation,
     val id: RequestId = RequestId.next()
 )
 
@@ -67,10 +68,10 @@ value class RequestId private constructor(val value: Long) {
 data class DrtOffer(
     val person: PersonAgent,
     val providerAgent: DrtProviderAgent,
-    val origin: Location,
-    val pickupAt: Location,
-    val dropOffAt: Location,
-    val destination: Location,
+    val origin: StandardLocation,
+    val pickupAt: StandardLocation,
+    val dropOffAt: StandardLocation,
+    val destination: StandardLocation,
     val pickupTime: AbsoluteTime,
     val dropOffTime: AbsoluteTime, // TODO maybe min/max arrival time, guaranteed max time, but window for delays??
     val cost: Currency,
@@ -125,7 +126,7 @@ class SimpleMatrixDrtAlgorithm(
     private fun numDropOffs() = pendingDropOffs.values.flatten().size
     private fun hasCapacity() = numPickUps() + numDropOffs() < numVehicles
 
-    override fun operatesAt(time: AbsoluteTime, origin: Location, destination: Location) =
+    override fun operatesAt(time: AbsoluteTime, origin: StandardLocation, destination: StandardLocation) =
         serviceArea.any { origin in it } &&
             serviceArea.any { destination in it } &&
             timeInOperatingHours(time)

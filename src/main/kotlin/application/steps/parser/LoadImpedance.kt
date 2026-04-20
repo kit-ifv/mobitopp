@@ -15,6 +15,7 @@ import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Location
 import domain.shared.location.Impedance
+import domain.shared.location.attributes.HasZoneID
 import domain.simulation.config.DemandSimContext
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
@@ -176,9 +177,9 @@ class Teleportation : Impedance {
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
 val dummyImpedance = object : Impedance {
-    override fun duration(from: Location, to: Location, mode: Mode, time: Time) = 5.minutes
-    override fun cost(from: Location, to: Location, mode: Mode, time: Time) = 5.euros
-    override fun distance(from: Location, to: Location, mode: Mode) = 5.kilometers
+    override fun duration(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.minutes
+    override fun cost(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.euros
+    override fun distance(from: HasZoneID, to: HasZoneID, mode: Mode) = 5.kilometers
     override fun costMetric(mode: Mode, time: Time): CostMetric = error(SHOULD_NOT_BE_CALLED)
     override fun distanceMetric(mode: Mode): DistanceMetric = error(SHOULD_NOT_BE_CALLED)
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = error(SHOULD_NOT_BE_CALLED)

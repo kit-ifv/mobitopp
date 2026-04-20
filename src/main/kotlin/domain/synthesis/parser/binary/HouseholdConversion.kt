@@ -13,7 +13,7 @@ import utils.binary.DefaultBinaryWriter
 import java.nio.ByteBuffer
 
 /**
- * Reads a [MutableHousehold] from a binary file. Similar to other readers it firsts reads at position 0 the size,
+ * Reads a [MutableHousehold] from a binary file. Similar to other readers, it first reads at position 0 the size,
  * then the constructor arguments and third the attributes of the constructed objects.
  *
  * @property zoneConverter Required to find the proper Zone from the ZoneId in the Binary file
@@ -53,7 +53,7 @@ class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private
  */
 class BinaryHouseholdWriter : DefaultBinaryWriter<Household>() {
 //    override fun operateStream(outStream: DataOutputStream, elements: Collection<Household>) {
-//        outStream.writeInt(elements.size) // Write Size as Int in the beginning of the file
+//        outStream.writeInt(elements.size) // Write Size as Int at the beginning of the file
 //        outStream.writeInt(0) // Format requires string size to be specified.
 //
 //        elements.forEach { outStream.encodeHousehold(it) } // write all elements

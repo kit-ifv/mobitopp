@@ -1,8 +1,12 @@
 package domain.synthesis.behavior.discreteChoice
 
-import domain.synthesis.behavior.CommuteDistance
-import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.attributes.household.HasIncome
+import domain.synthesis.attributes.household.HasNumberOfCars
+import domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import domain.synthesis.attributes.person.HasBiologicalSex
+import domain.synthesis.attributes.person.HasCommuteDistance
+import domain.synthesis.behavior.MinimalistHousehold
+import domain.synthesis.behavior.MinimalistPerson
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
@@ -14,10 +18,10 @@ import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import kotlin.random.Random
 
-data class CarSegmentSituation(
-    val person: SynthesisPerson<out CommuteDistance>,
-    val household: SynthesisHousehold<out CommuteDistance>
-) {
+data class CarSegmentSituation<S, T>(
+    val person: MinimalistPerson<T>,
+    val household: MinimalistHousehold<S, T>
+) where S : HasNumberOfCars, S : HasIncome, T : HasBiologicalSex, T : HasCommuteDistance {
     // TODO delegate to household once merged with default household dataclass
     val random: Random = Random(System.currentTimeMillis())
     fun with(choice: CarSegment) = choice.toAlternative(person, household)
@@ -32,29 +36,38 @@ data class CarSegmentChoice(
     val sex: Sex,
     val isCommuting: Boolean
 ) {
-    constructor(
-        person: SynthesisPerson<out CommuteDistance>,
-        household: SynthesisHousehold<out CommuteDistance>
-    ) : this(
-        person.information.distanceWork,
-        household.size,
-        household.income,
-        household.amountOfCars,
-        person.sex,
-        false
-    )
+
+    companion object {
+        fun <S, T> create(
+            person: MinimalistPerson<T>,
+            household: MinimalistHousehold<S, T>
+        ): CarSegmentChoice
+            where S : HasNumberOfCars,
+                  S : MinimumHouseholdAttributes,
+                  T : HasCommuteDistance,
+                  T : HasBiologicalSex {
+            return CarSegmentChoice(
+                person.attributes.distanceWork,
+                household.size,
+                household.attributes.income,
+                household.attributes.amountOfCars,
+                person.attributes.sex,
+                false
+            )
+        }
+    }
 }
 
-fun CarSegment.toAlternative(
-    person: SynthesisPerson<out CommuteDistance>,
-    household: SynthesisHousehold<out CommuteDistance>
-): CarSegmentChoice {
+fun <S, T> CarSegment.toAlternative(
+    person: MinimalistPerson<T>,
+    household: MinimalistHousehold<S, T>
+): CarSegmentChoice where S : HasNumberOfCars, S : HasIncome, T : HasBiologicalSex, T : HasCommuteDistance {
     return CarSegmentChoice(
-        person.information.distanceWork,
+        person.attributes.distanceWork,
         household.size,
-        household.income,
-        household.amountOfCars,
-        person.sex,
+        household.attributes.income,
+        household.attributes.amountOfCars,
+        person.attributes.sex,
         false // TODO extract the infomration that the person is commuting
     )
 }

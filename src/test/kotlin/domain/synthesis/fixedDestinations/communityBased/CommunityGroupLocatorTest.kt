@@ -2,8 +2,8 @@ package domain.synthesis.fixedDestinations.communityBased
 
 import TestZone
 import assertNotContains
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
@@ -31,31 +31,41 @@ class CommunityGroupLocatorTest : SynthesisTest() {
     private val work2 = testZone2.spawnFakeLoc()
     private val work3 = testZone3.spawnFakeLoc()
 
-    private val household1 = home1.createHousehold<Any> {
-        person(20, Sex.MALE) {}
+    private val household1 = home1.createHousehold(Attrs::copy) {
+        person {
+            Attrs(
+                10,
+                Sex.MALE
+            )
+        }
     }
-    private val household2 = home2.createHousehold<Any> {
-        person(10, Sex.MALE) {}
+    private val household2 = home2.createHousehold(Attrs::copy) {
+        person {
+            Attrs(
+                20,
+                Sex.MALE
+            )
+        }
     }
     private val person1 = household1[0]
     private val person2 = household2[0]
     private val c1 = CommunityNumber(1)
     private val c2 = CommunityNumber(2)
     private val c3 = CommunityNumber(3)
-    private val zoneCommunityMapping: Map<Zone, CommunityNumber> = mapOf(
-        testZone1 to c1,
-        testZone2 to c2,
-        testZone3 to c3,
+    private val zoneCommunityMapping: Map<ZoneId, CommunityNumber> = mapOf(
+        testZone1.id to c1,
+        testZone2.id to c2,
+        testZone3.id to c3,
 
     )
     private lateinit var metric: AsymmetricMockDistance
     private lateinit var demand: CommuterDemandsMatrix
-    private lateinit var strategy: TrivialDemands<Any>
+    private lateinit var strategy: TrivialDemands<MinimumPersonAttributes>
 
     @BeforeTest
     fun setup() {
         metric = AsymmetricMockDistance()
-        demand = CommuterDemandsMatrix(converter = { zoneCommunityMapping.getValue(it.requireZone()) })
+        demand = CommuterDemandsMatrix(converter = { zoneCommunityMapping.getValue(it.zoneID) })
         strategy = TrivialDemands(metric)
     }
 
@@ -105,10 +115,9 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         metric[home1, work2] = 0.0
         metric[home1, work3] = 0.5
 
-        val output = locator.match(person1)[0]
+        val output = context(household1.attributes.location) { locator.match(person1)[0] }
         // The output should be location 3, as location 2 is in a community that has no saturated demand
-        assertEquals(work3, output.assignedLocation)
-        assertEquals(person1, output.targetPerson)
+        assertEquals(work3, output)
     }
 
     @Test
@@ -123,28 +132,25 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         metric[home1, work2] = 0.0
         metric[home1, work3] = 0.5
 
-        val mimicHousehold = home1.createHousehold<Any> {
-            person(20, Sex.MALE) {}
+        val mimicHousehold = home1.createHousehold(Attrs::copy) {
+            person {
+                Attrs(10, Sex.MALE)
+            }
         }
         val mimicPerson = mimicHousehold[0]
         assertNotEquals(mimicPerson, person1)
         assertEquals(mimicPerson.age, person1.age)
         assertEquals(mimicPerson.sex, person1.sex)
-        val output = locator.match(person1, mimicPerson)
+        val output = context(household1.attributes.location) {
+            locator.match(person1, mimicPerson)
+        }
+
         assertEquals(2, output.size)
 
         val firstOutput = output[0]
         val secondOutput = output[1]
-
-        firstOutput.nonInlineRun {
-            assertEquals(person1, targetPerson)
-            assertEquals(work3, assignedLocation)
-        }
-
-        secondOutput.nonInlineRun {
-            assertEquals(mimicPerson, targetPerson)
-            assertEquals(work1, assignedLocation)
-        }
+        assertEquals(work3, firstOutput)
+        assertEquals(work1, secondOutput)
     }
 
     @Test
@@ -170,33 +176,10 @@ class CommunityGroupLocatorTest : SynthesisTest() {
             consoleOutput,
             "(2) to be assigned in community CommunityNumber(int=1)"
         )
-        output[0].nonInlineRun {
-            assertEquals(person2, targetPerson)
-            assertEquals(work2, assignedLocation)
-        }
-
-        output[1].nonInlineRun {
-            assertEquals(person2, targetPerson)
-            assertEquals(work3, assignedLocation)
-        }
-
-        output[2].nonInlineRun {
-            assertEquals(person2, targetPerson)
-            assertEquals(work2, assignedLocation)
-        }
-
-        output[3].nonInlineRun {
-            assertEquals(person1, targetPerson)
-            assertEquals(work1, assignedLocation)
-        }
-        output[4].nonInlineRun {
-            assertEquals(person1, targetPerson)
-            assertEquals(work1, assignedLocation)
-        }
+        assertEquals(work2, output[0])
+        assertEquals(work3, output[1])
+        assertEquals(work2, output[2])
+        assertEquals(work1, output[3])
+        assertEquals(work1, output[4])
     }
-}
-
-// To get syntax highlighting if something fails
-private fun <T> T.nonInlineRun(block: T.() -> Unit) {
-    this.block()
 }

@@ -19,10 +19,11 @@ import domain.jackson.DurationModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
 import java.nio.file.Path
+import kotlin.io.path.inputStream
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
- * in src/main/resources/ of the subproject.
+ * in src/integration.main/resources/ of the subproject.
  *
  * In there add a `package.name.myInterface/Class` so the serviceloader can look for implementations of myClass or
  * myInterface in that subproject. The file should contain the package-path to the implementation of that class/
@@ -60,6 +61,11 @@ object Yaml {
         val file = path.toFile()
         return mapper.readValue(file)
     }
+
+    inline fun <reified T> readYamlWithParent(path: Path): T {
+        val mergedMap = YamlParentStackLoader().load(path)
+        return mapper.convertValue(mergedMap, T::class.java)
+    }
     inline fun <reified T> readYaml(string: String): T = readYaml(Path.of(string))
 
     inline fun <reified T> writeYaml(path: Path, obj: T) {
@@ -67,6 +73,46 @@ object Yaml {
         return mapper.writeValue(file, obj)
     }
     inline fun <reified T> writeYaml(string: String, obj: T) = writeYaml(Path.of(string), obj)
+
+    /**
+     * A single use loader that can handle parent references in a yaml file. Indicated with a __parent__ field.
+     */
+    class YamlParentStackLoader {
+
+        private val parentKey = "__parent__"
+        val stack = mutableListOf<Path>()
+        fun load(path: Path): Map<String, Any?> {
+            val map = mapper.readValue<Map<String, Any?>>(path.inputStream()).toMutableMap()
+
+            if (parentKey !in map) { return map }
+            require(isPathNotSeenBefore(path)) {
+                "Cycle detected, cannot read configs."
+            }
+            val parentPath = resolveParentKey(map[parentKey]!!, path)
+
+            val parentMap = load(parentPath)
+            // Remove the parentKey field from the output map.
+            map.remove(parentKey)
+            // Overwrite each and every field that is found in the parent map with entries from the childmap
+            return parentMap + map
+        }
+
+        private fun isPathNotSeenBefore(path: Path): Boolean {
+            val normalized = path.toAbsolutePath().normalize()
+            return (normalized !in stack).also {
+                stack.add(normalized)
+            }
+        }
+
+        private fun resolveParentKey(value: Any?, currentPath: Path): Path {
+            val parentPath = Path.of(value as String)
+            return if (parentPath.isAbsolute) {
+                parentPath
+            } else {
+                currentPath.parent.resolve(parentPath)
+            }
+        }
+    }
 }
 
 /**

@@ -2,10 +2,8 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import domain.shared.location.DistanceMetric
-import domain.shared.location.Location
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.synthesis.behavior.CommuteDistance
+import domain.shared.location.attributes.HasZoneID
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance
@@ -14,7 +12,7 @@ import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.GPSCoordinate
+import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.toDistance
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -40,30 +38,37 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     private val work2 = testZone2.spawnFakeLoc()
     private val work3 = testZone3.spawnFakeLoc()
 
-    private val defaultHome = home1.createHousehold {
-        person(10, Sex.MALE) {
-            object : CommuteDistance {
-                override val distanceWork: Distance = 1.kilometers
-            }
+    private val defaultHome = home1.createHousehold(Attrs::copy) {
+        person {
+            Attrs(
+                age = 10,
+                sex = Sex.MALE,
+                distanceWork = 1.kilometers
+            )
         }
-        person(10, Sex.FEMALE) {
-            object : CommuteDistance {
-                override val distanceWork: Distance = 2.kilometers
-            }
+        person {
+            Attrs(
+                age = 10,
+                sex = Sex.FEMALE,
+                distanceWork = 2.kilometers
+            )
         }
-        person(20, Sex.FEMALE) {
-            object : CommuteDistance {
-                // I mean, there is always someone who fills out the survey incorrectly
-                override val distanceWork: Distance = (-2).kilometers
-            }
+        person {
+            Attrs(
+                age = 20,
+                sex = Sex.FEMALE,
+                distanceWork = (-2).kilometers
+            )
         }
     }
 
-    private val secondHome = home2.createHousehold {
-        person(10, Sex.MALE) {
-            object : CommuteDistance {
-                override val distanceWork: Distance = 1.kilometers
-            }
+    private val secondHome = home2.createHousehold(Attrs::copy) {
+        person {
+            Attrs(
+                age = 10,
+                sex = Sex.MALE,
+                distanceWork = 1.kilometers
+            )
         }
     }
     private val person1 = defaultHome[0]
@@ -80,7 +85,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
         this[home2, work3] = 1.7
     }
 
-    private val strategy = MetricCommuterDistance<CommuteDistance>(distances)
+    private val strategy = MetricCommuterDistance<Attrs>(distances)
 
     @Test
     fun initialSelfTest() {
@@ -94,7 +99,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
     @Test
     fun properDifferenceToCommuteDistance() {
-        val strategy = MetricCommuterDistance<CommuteDistance>(distances)
+        val strategy = MetricCommuterDistance<Attrs>(distances)
 
         assertEquals(strategy.differenceToCommuteDistance(person1, work1), .5.kilometers)
         assertEquals(strategy.differenceToCommuteDistance(person1, work2), 0.kilometers)
@@ -131,7 +136,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             converter = { CommunityNumber(-42) },
             communityID = CommunityNumber(-42)
         )
-        // If a person is present and no location - there should be an exception
+        // If a person is present and no location, there should be an exception
         assertThrows<IllegalArgumentException> {
             strategy.assign(listOf(person1), demand, listOf())
         }
@@ -141,13 +146,9 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     fun respectsSaturationLevels() {
         val demand = generateStandardDemand()
         val output = strategy.assign(listOf(person1, person2, person3), demand, listOf(work1, work2, work3))
-        assertEquals(output[0].targetPerson, person1)
-        assertEquals(output[1].targetPerson, person2)
-        assertEquals(output[2].targetPerson, person3)
-
-        assertEquals(output[0].assignedLocation, work2)
-        assertEquals(output[1].assignedLocation, work1)
-        assertEquals(output[2].assignedLocation, work1)
+        assertEquals(output[0], work2)
+        assertEquals(output[1], work1)
+        assertEquals(output[2], work1)
     }
 
     @Test
@@ -193,43 +194,46 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
                 val output = strategy.assign(agents, demand, destinations)
                 val text = captor.getText()
-                if (it.first.size > 3) {
+                if (agents.size > 3) {
                     assertContains(text, "the total demand 3.0")
                     assertFalse(text.isEmpty())
                 } else {
                     assertTrue(text.isEmpty())
                 }
-                assertContentEquals(output.map { o -> o.targetPerson }, agents)
-                assertContentEquals(output.map { o -> o.assignedLocation }, it.second)
+
+                assertContentEquals(output, it.second)
             }
         }
     }
 
     @Test
     fun testLocationBased() {
-        val strategy = CommuterDistance<CommuteDistance>()
-        val home = testZone1.spawnLocation(GPSCoordinate.decimalDegree(0.0, 0.0))
-        val household = home.createHousehold<CommuteDistance> {
-            person(10, Sex.MALE) {
-                object : CommuteDistance {
-                    override val distanceWork: Distance = 1.0.kilometers
-                }
+        val strategy = CommuterDistance<Attrs>()
+        val home = testZone1.spawnLocation(WGS84Coordinate.decimalDegree(0.0, 0.0))
+        val household = home.createHousehold(Attrs::copy) {
+            person {
+                Attrs(
+                    10,
+                    Sex.MALE,
+                    1.0.kilometers
+                )
             }
         }
-        val work1 = testZone1.spawnLocation(GPSCoordinate.decimalDegree(0.0, 0.0))
+        val work1 = testZone1.spawnLocation(WGS84Coordinate.decimalDegree(0.0, 0.0))
 
         assertEquals(strategy.differenceToCommuteDistance(household[0], work1), 1.0.kilometers)
     }
+
     private fun generateStandardDemand(): MutableCommunityDemand {
-        val zoneCommunityMapping: Map<Zone, CommunityNumber> = mapOf(
-            testZone1 to CommunityNumber(1),
-            testZone2 to CommunityNumber(2),
-            testZone3 to CommunityNumber(2),
+        val zoneCommunityMapping: Map<ZoneId, CommunityNumber> = mapOf(
+            testZone1.id to CommunityNumber(1),
+            testZone2.id to CommunityNumber(2),
+            testZone3.id to CommunityNumber(2),
 
         )
 
         val demand = MutableCommunityDemand(
-            converter = { zoneCommunityMapping.getValue(it.requireZone()) },
+            converter = { zoneCommunityMapping.getValue(it.zoneID) },
             communityID = CommunityNumber(1)
         )
         demand[2] = 1.0
@@ -240,27 +244,27 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
 class SymmetricMockDistance(default: Distance = 0.kilometers) : AsymmetricMockDistance(default) {
 
-    override operator fun set(origin: Location, destination: Location, value: Distance) {
+    override operator fun set(origin: HasZoneID, destination: HasZoneID, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
         map.getOrPut(destination) { mutableMapOf() }[origin] = value
     }
 }
 
 open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) : DistanceMetric {
-    protected val map: MutableMap<Location, MutableMap<Location, Distance>> = mutableMapOf()
-    override fun evaluate(origin: Location, destination: Location): Distance {
+    protected val map: MutableMap<HasZoneID, MutableMap<HasZoneID, Distance>> = mutableMapOf()
+    override fun evaluate(origin: HasZoneID, destination: HasZoneID): Distance {
         return get(origin, destination)
     }
 
-    open operator fun set(origin: Location, destination: Location, value: Distance) {
+    open operator fun set(origin: HasZoneID, destination: HasZoneID, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
     }
 
-    operator fun set(origin: Location, destination: Location, value: Number) {
+    operator fun set(origin: HasZoneID, destination: HasZoneID, value: Number) {
         set(origin, destination, value.toDouble().toDistance(DistanceUnit.KILOMETERS))
     }
 
-    operator fun get(origin: Location, destination: Location): Distance {
+    operator fun get(origin: HasZoneID, destination: HasZoneID): Distance {
         return (map[origin] ?: mutableMapOf())[destination] ?: default
     }
 }

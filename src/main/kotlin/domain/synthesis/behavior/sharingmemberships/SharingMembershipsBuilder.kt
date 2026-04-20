@@ -1,15 +1,16 @@
 package domain.synthesis.behavior.sharingmemberships
 
 import AssignmentStep
-import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.SynthesisPerson
+import domain.synthesis.attributes.person.MinimumPersonAttributes
 
-class SharingMembershipsBuilder<T> {
+class SharingMembershipsBuilder<T : MinimumPersonAttributes> {
 
-    private val steps: MutableMap<String, AssignmentStep<SynthesisPerson<out T>, Boolean>> = mutableMapOf()
+    private val steps: MutableMap<String, AssignmentStep<SynthesisPerson<*, T>, Boolean>> = mutableMapOf()
 
-    fun provider(name: String, lambda: () -> AssignmentStep<SynthesisPerson<out T>, Boolean>) {
+    fun provider(name: String, lambda: () -> AssignmentStep<SynthesisPerson<*, T>, Boolean>) {
         steps[name] = lambda()
     }
 
-    fun build(): Map<String, AssignmentStep<SynthesisPerson<out T>, Boolean>> = steps
+    fun build(): Map<String, AssignmentStep<SynthesisPerson<*, T>, Boolean>> = steps
 }
