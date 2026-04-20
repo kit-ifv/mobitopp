@@ -43,7 +43,7 @@ build-job:
   stage: build
   image: amazoncorretto:21
   script:
-    - ./gradlew detektGenerateConfig compileJava detekt test koverXmlReport koverLog
+    - ./gradlew compileJava detekt test koverXmlReport koverLog
   artifacts:
     expire_in: 1 week
     when: always
