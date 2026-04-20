@@ -9,7 +9,7 @@ import core.modelsteps.Resource
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.asResource
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.shared.location.Zone
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.synthesis.data.DrtProviderId
@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.minutes
 interface AddDrtProviderContext : Context {
 
     val drtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId>
-    val impedance: LateInit<Metrics>
+    val impedance: LateInit<Impedance>
 }
 
 class DrtProviderCollector {

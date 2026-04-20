@@ -4,7 +4,7 @@ import core.modelsteps.Context
 import core.modelsteps.LateInit
 import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import utils.CodePlan
 
 interface SynthesisContext : Context {
@@ -12,5 +12,5 @@ interface SynthesisContext : Context {
     val activityTypes: CodePlan<ActivityType>
 
     // TODO question: Is LateInit actually the minimal mobitopp, what if I already have an impedance at initialization?
-    val impedance: LateInit<Metrics>
+    val impedance: LateInit<Impedance>
 }

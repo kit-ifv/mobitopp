@@ -10,7 +10,7 @@ import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Location
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.shared.location.ZoneId
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
@@ -29,7 +29,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 /**
- * Provides [Metrics] backed by zone-based OD matrices.
+ * Provides [Impedance] backed by zone-based OD matrices.
  *
  * - **Travel times**: mode- and time-dependent lookup.
  * - **Travel costs**: mode- and time-dependent lookup.
@@ -40,12 +40,12 @@ import kotlin.time.toDuration
  *
  * This implementation is specialized for [ZoneId] indices to avoid boxing.
  */
-class MatrixMetrics(
+class MatrixImpedance(
     private val travelTimes: ZoneMatrixLookup<Mode>,
     private val travelCosts: ZoneMatrixLookup<Mode>,
     private val travelDistance: ZoneIdMatrix,
     unitConverters: UnitConverter
-) : Metrics {
+) : Impedance {
     private val currencyConverter = unitConverters.currencyConverter
     private val timeConverter = unitConverters.timeConverter
     private val distanceConverter = unitConverters.distanceConverter
@@ -105,7 +105,7 @@ class MatrixMetrics(
             decoder: Decodable<Mode>,
             matrixFactory: ZoneMatrixCreation = VisumMatrixCreator,
             converter: UnitConverter = UnitConverter(),
-        ): MatrixMetrics {
+        ): MatrixImpedance {
             val travelTimeMultiMatrix = YamlMatrixLookup.default(
                 travelTimeYamlPath,
                 decoder,
@@ -117,7 +117,7 @@ class MatrixMetrics(
             ).cached(matrixFactory)
 
             val travelDistanceMatrix = matrixFactory.createMatrix(YamlInfo("visum_matrix", travelDistanceMatrixPath))
-            return MatrixMetrics(
+            return MatrixImpedance(
                 travelTimeMultiMatrix,
                 travelCostMultiMatrix,
                 travelDistanceMatrix,

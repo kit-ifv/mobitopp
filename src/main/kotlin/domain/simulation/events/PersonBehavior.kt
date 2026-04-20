@@ -6,7 +6,7 @@ import domain.shared.datastructure.schedule.LinkTrip
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.Mode
 import domain.shared.location.Location
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
 import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
@@ -68,7 +68,7 @@ data class PersonBehavior constructor(
     val destinationChoice: FixedChoiceModel<Location, DestinationChoiceCharacteristics>,
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     val modes: ChoiceModelModes,
-    val impedance: Metrics,
+    val impedance: Impedance,
     val attractivityModel: AttractivenessModel,
     val availabilityModel: ModeAvailabilityModel,
     val bikeSharingConnectionSelector: BikeSharingConnectionSelector,
@@ -80,7 +80,7 @@ data class PersonBehavior constructor(
     companion object {
         @Suppress("LongParameterList")
         fun from(
-            impedance: Metrics,
+            impedance: Impedance,
             destinationChoice: FixedChoiceModel<Location, DestinationChoiceCharacteristics>,
             modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
             choiceModelModes: ChoiceModelModes,

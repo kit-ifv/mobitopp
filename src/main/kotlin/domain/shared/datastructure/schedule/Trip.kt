@@ -6,7 +6,7 @@ import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import utils.units.AbsoluteTime
 import java.util.*
 import kotlin.time.Duration
@@ -30,7 +30,7 @@ interface Trip {
     fun isConsistent() = (listOf(previousAction) + legs + nextAction).filterNotNull().isConsistent()
 }
 
-fun Trip.alternateByImpedance(impedance: Metrics, replanner: ReplanningStrategy, lambda: ImpedanceBuilder.() -> Unit) {
+fun Trip.alternateByImpedance(impedance: Impedance, replanner: ReplanningStrategy, lambda: ImpedanceBuilder.() -> Unit) {
     alternate(replanner) {
         byImpedance(impedance, lambda)
     }
@@ -54,7 +54,7 @@ class RawTrip(
     }
 }
 
-class ImpedanceBuilder(val impedance: Metrics, private val tripBuilder: TripBuilder) {
+class ImpedanceBuilder(val impedance: Impedance, private val tripBuilder: TripBuilder) {
     fun taking(modeLocation: Pair<Mode, Location>) {
         tripBuilder.taking(
             modeLocation,
@@ -122,7 +122,7 @@ class TripBuilder(
         currentLocation = location
     }
 
-    fun byImpedance(impedance: Metrics, lambda: ImpedanceBuilder.() -> Unit) {
+    fun byImpedance(impedance: Impedance, lambda: ImpedanceBuilder.() -> Unit) {
         ImpedanceBuilder(impedance, this).apply(lambda)
     }
 

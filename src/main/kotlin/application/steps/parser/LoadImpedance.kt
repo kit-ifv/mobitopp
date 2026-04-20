@@ -6,7 +6,7 @@ import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
-import domain.shared.datastructure.matrix.MatrixMetrics
+import domain.shared.datastructure.matrix.MatrixImpedance
 import domain.shared.datastructure.matrix.UnitConverter
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
@@ -14,7 +14,7 @@ import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Location
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.simulation.config.DemandSimContext
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
@@ -69,7 +69,7 @@ private class LoadImpedanceStep(
             currencyUnit ?: CurrencyUnit.EUROS,
             durationUnit ?: DurationUnit.MINUTES
         )
-        val impedance = MatrixMetrics.loadFromPaths(
+        val impedance = MatrixImpedance.loadFromPaths(
             travelTimeYamlPath = durationMatrixConfig,
             travelCostsYamlPath = costMatrixConfig,
             travelDistanceMatrixPath = distanceMatrix,
@@ -153,7 +153,7 @@ class LoadTeleportation(
     }
 }
 
-class Teleportation : Metrics {
+class Teleportation : Impedance {
 
     private val costMetric: CostMetric = CostMetric { _, _ ->
         0.euros
@@ -175,7 +175,7 @@ class Teleportation : Metrics {
 }
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
-val dummyImpedance = object : Metrics {
+val dummyImpedance = object : Impedance {
     override fun duration(from: Location, to: Location, mode: Mode, time: Time) = 5.minutes
     override fun cost(from: Location, to: Location, mode: Mode, time: Time) = 5.euros
     override fun distance(from: Location, to: Location, mode: Mode) = 5.kilometers

@@ -5,7 +5,7 @@ import core.statemachine.StateBasedAgent
 import core.statemachine.StateMachine
 import core.statemachine.StateMachineFactory
 import domain.shared.location.Location
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.shared.location.Zone
 import domain.synthesis.data.DrtProvider
 import edu.kit.ifv.units.Currency
@@ -93,7 +93,7 @@ data class DrtRide(val offer: DrtOffer) // TODO maybe add car in the future here
 
 @Suppress("LongParameterList")
 class SimpleMatrixDrtAlgorithm(
-    private val impedance: Metrics,
+    private val impedance: Impedance,
     private val avgWaitTime: Duration,
     private val serviceArea: Collection<Zone>,
     private val operationHours: Pair<Int, Int>,

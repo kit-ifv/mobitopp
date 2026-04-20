@@ -19,7 +19,7 @@ import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtRide
 import domain.simulation.agent.PersonAgent
@@ -56,7 +56,7 @@ abstract class PersonState(
     val behavior: PersonBehavior
         get() = person.behavior
 
-    val impedance: Metrics
+    val impedance: Impedance
         get() = behavior.impedance
 
     val modeAvailability: ModeAvailabilityModel

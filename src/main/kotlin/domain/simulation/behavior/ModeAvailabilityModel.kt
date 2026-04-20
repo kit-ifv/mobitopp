@@ -4,7 +4,7 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
 import domain.shared.location.Location
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.DrtRequest
@@ -25,7 +25,7 @@ interface DestinationChoiceCharacteristics {
     val person: PersonAgent
     val time: AbsoluteTime
     val origin: Location
-    val impedance: Metrics
+    val impedance: Impedance
     val attractivityModel: AttractivenessModel
     val modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>
 
@@ -34,7 +34,7 @@ interface DestinationChoiceCharacteristics {
             person: PersonAgent,
             time: AbsoluteTime,
             origin: Location,
-            impedance: Metrics,
+            impedance: Impedance,
             attractivityModel: AttractivenessModel,
             modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>,
         ): DestinationChoiceCharacteristics {
@@ -57,7 +57,7 @@ data class DestinationChoiceCharacteristicsImpl(
     override val person: PersonAgent,
     override val time: AbsoluteTime,
     override val origin: Location,
-    override val impedance: Metrics,
+    override val impedance: Impedance,
     override val attractivityModel: AttractivenessModel,
     override val modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>,
 ) : DestinationChoiceCharacteristics {
@@ -83,7 +83,7 @@ interface ModeChoiceCharacteristics {
     val time: AbsoluteTime
     val origin: Location
     val destination: Location
-    val impedance: Metrics
+    val impedance: Impedance
     val currentChoices: Collection<Mode> //cache of filtered modes before mode choice
     val custom: Any?
 
@@ -93,7 +93,7 @@ interface ModeChoiceCharacteristics {
             time: AbsoluteTime,
             origin: Location,
             destination: Location,
-            impedance: Metrics,
+            impedance: Impedance,
             currentChoices: Collection<Mode>,
             custom: Any?
         ): ModeChoiceCharacteristics = ModeChoiceCharacteristicsImpl(
@@ -116,7 +116,7 @@ data class ModeChoiceCharacteristicsImpl(
     override val time: AbsoluteTime,
     override val origin: Location,
     override val destination: Location,
-    override val impedance: Metrics,
+    override val impedance: Impedance,
     override val currentChoices: Collection<Mode>,
     override val custom: Any? = null
 ) : ModeChoiceCharacteristics {
@@ -137,7 +137,7 @@ data class ModeChoiceAlternative( //TODO check if this can be deleted?
     val origin: Location,
     val destination: Location,
     val choice: Mode,
-    val impedance: Metrics,
+    val impedance: Impedance,
 )
 
 data class ProviderAvailability(val mode: Mode, val providers: Collection<Any>? = null) { //TODO nullable mode necessary? maybe just nullable list?
@@ -251,7 +251,7 @@ class AvailabilityModelWithSharing(
     val modes: ChoiceModelModes,
     private val sharingProvidersByMode: Map<Mode, Set<SharingProviderId>>,
     private val drtProvidersByMode: Map<Mode, Set<DrtProviderId>>,
-    private val metrics: Metrics,
+    private val impedance: Impedance,
 ) : ModeAvailabilityModel, BikeSharingConnectionSelector, DrtAvailabilitySelector {
 
     context(person: IPerson)
@@ -410,7 +410,7 @@ class AvailabilityModelWithSharing(
             }.filter {
                 it.hasAvailableVehicles
             }.sortedBy {
-                metrics.distance(origin, it.location, modes.pedestrian)
+                impedance.distance(origin, it.location, modes.pedestrian)
             }.firstNotNullOfOrNull { start ->
 
                 provider.stations.filter {
@@ -418,7 +418,7 @@ class AvailabilityModelWithSharing(
                 }.filter {
                     it != start
                 }.minByOrNull {
-                    metrics.distance(it.location, destination, modes.pedestrian)
+                    impedance.distance(it.location, destination, modes.pedestrian)
                 }?.let {
                     start to it
                 }
@@ -428,9 +428,9 @@ class AvailabilityModelWithSharing(
         }
 
         return connections.minByOrNull { (start, end) ->
-            metrics.distance(origin, start.location, modes.pedestrian) +
-            metrics.distance(start.location, end.location, modes.bikeSharing) +
-            metrics.distance(end.location, destination, modes.pedestrian)
+            impedance.distance(origin, start.location, modes.pedestrian) +
+            impedance.distance(start.location, end.location, modes.bikeSharing) +
+            impedance.distance(end.location, destination, modes.pedestrian)
         }
     }
 

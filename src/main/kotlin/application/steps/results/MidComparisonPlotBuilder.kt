@@ -9,7 +9,7 @@ import core.results.plots.normalizeByGroup
 import core.results.plots.normalizeByX
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.behavior.ChoiceModelPurposes
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.simulation.results.AgentResultsContext
 import domain.simulation.results.PersonLeg
 import domain.simulation.results.distance
@@ -34,7 +34,7 @@ fun <G> AgentResultsContext.midComparisonPlotForLegs(
     midCsv: Path,
     purposes: ChoiceModelPurposes,
     modes: ChoiceModelModes,
-    impedance: Metrics,
+    impedance: Impedance,
     legFilter: (PersonLeg) -> Boolean = { true },
     rowFilter: (MidLegRow) -> Boolean,
     legGroup: (PersonLeg) -> G,
@@ -136,7 +136,7 @@ class MidComparisonLegPlotBuilder<G>(
     midCsv: Path,
     purposes: ChoiceModelPurposes,
     modes: ChoiceModelModes,
-    private val impedance: Metrics,
+    private val impedance: Impedance,
     legFilter: (PersonLeg) -> Boolean = { true },
     rowFilter: (MidLegRow) -> Boolean,
     legGroup: (PersonLeg) -> G,
