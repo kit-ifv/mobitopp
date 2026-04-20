@@ -49,7 +49,7 @@ fun BuildAgentsContext.buildAgents(
     personStateMachine: StateMachineFactory<PersonAgent>,
     durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
     drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
-    drtAlgorithm: DrtAlgorithm? = null
+    drtAlgorithm: ((DrtProvider) -> DrtAlgorithm)? = null
 ) = runMultipleSteps {
     val builder = BuildAgents(
         simulationSeed,
@@ -60,7 +60,8 @@ fun BuildAgentsContext.buildAgents(
         durationRandomizer
     )
     listOf(
-        BuildProviderAgentsStep(this, builder),
+        BuildSharingProviderAgentsStep(this, builder),
+        BuildDrtProviderAgentsStep(this, builder),
         BuildPersonAgentsStep(this, builder),
         CleanUpDataStep(this, builder),
     )
@@ -93,17 +94,16 @@ class BuildPersonAgentsStep(
     override fun mockElementsForValidation(): List<PersonAgent> = emptyList()
 }
 
-class BuildProviderAgentsStep(
+class BuildSharingProviderAgentsStep(
     context: BuildAgentsContext,
     builder: BuildAgents,
 ) : AbstractAddResourceStep<SharingProviderAgent, SharingProviderId>() {
-    override val name = "build provider agents"
+    override val name = "build sharing provider agents"
 
     override val repository: MutableRepository<SharingProviderAgent, SharingProviderId> = context.sharingProviderAgents
-    override val resource: Resource<SharingProviderAgent> = LazyResource(name, "BuildProviderAgentsStep") {
-        builder.buildProviderAgents(
+    override val resource: Resource<SharingProviderAgent> = LazyResource(name, "BuildSharingProviderAgentsStep") {
+        builder.buildSharingProviderAgents(
             context.sharingProviderRepository.elements.toList(),
-            context.drtProviderRepository.elements.toList(),
         ).asSequence()
     }
 
@@ -117,6 +117,31 @@ class BuildProviderAgentsStep(
     override fun verifyInput(): Warning? = null
 
     override fun mockElementsForValidation(): List<SharingProviderAgent> = emptyList()
+}
+
+class BuildDrtProviderAgentsStep(
+    context: BuildAgentsContext,
+    builder: BuildAgents,
+) : AbstractAddResourceStep<DrtProviderAgent, DrtProviderId>() {
+    override val name = "build drt provider agents"
+
+    override val repository: MutableRepository<DrtProviderAgent, DrtProviderId> = context.drtProviderAgents
+    override val resource: Resource<DrtProviderAgent> = LazyResource(name, "BuildDrtProviderAgentsStep") {
+        builder.buildDrtProviderAgents(
+            context.drtProviderRepository.elements.toList(),
+        ).asSequence()
+    }
+
+    override val dependentRepositories: Set<Repository<*, *>> = context.let {
+        setOf(
+            it.zoneRepository,
+            it.drtProviderRepository,
+        )
+    }
+
+    override fun verifyInput(): Warning? = null
+
+    override fun mockElementsForValidation(): List<DrtProviderAgent> = emptyList()
 }
 
 class CleanUpDataStep(

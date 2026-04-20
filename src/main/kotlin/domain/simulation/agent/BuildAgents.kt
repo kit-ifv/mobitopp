@@ -18,13 +18,14 @@ import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
+import utils.collections.addProgressBar
 
 class BuildAgents(
     val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived
     val personStateMachine: StateMachineFactory<PersonAgent>,
     val personBehavior: PersonBehavior,
     val drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
-    val drtAlgorithm: DrtAlgorithm? = null,
+    val drtAlgorithm: ((DrtProvider) -> DrtAlgorithm)? = null,
     val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
 ) {
 
@@ -40,19 +41,30 @@ class BuildAgents(
     fun buildPersonAgents(
         households: List<Household>
     ): Set<PersonAgent> {
-        households.filter{it.members.isNotEmpty()}.map { it.toAgent(this) }
+        val count = households.sumOf { it.members.size }
+        households.filter{
+            it.members.isNotEmpty()
+        }.addProgressBar("create person agent", expectedCount = count).map {
+            it.toAgent(this)
+        }
 
         return personsById.values.toSet()
     }
 
-    fun buildProviderAgents(
+    fun buildSharingProviderAgents(
         sharingProviders: List<SharingProvider>,
-        drtProviders: List<DrtProvider>,
     ): Set<SharingProviderAgent> {
-        drtProviders.map { it.toAgent(this) }
         sharingProviders.map { it.toAgent(this) }
 
         return sharingProvidersById.values.toSet()
+    }
+
+    fun buildDrtProviderAgents(
+        drtProviders: List<DrtProvider>,
+    ): Set<DrtProviderAgent> {
+        drtProviders.map { it.toAgent(this) }
+
+        return drtProvidersById.values.toSet()
     }
 
     fun clear() {
@@ -217,5 +229,5 @@ fun DrtProvider.toAgent(context: BuildAgents) = context.drtProvidersById.getOrPu
         "Cannot convert DrtProviderData to Agent since drtAlgorithm is null. Specify it in BuildAgents context object."
     }
 
-    DrtProviderAgent(this, algorithm, stateMachine)
+    DrtProviderAgent(this, algorithm(this), stateMachine)
 }

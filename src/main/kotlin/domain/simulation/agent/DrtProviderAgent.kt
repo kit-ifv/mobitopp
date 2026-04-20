@@ -4,13 +4,15 @@ import core.statemachine.Message
 import core.statemachine.StateBasedAgent
 import core.statemachine.StateMachine
 import core.statemachine.StateMachineFactory
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
 import domain.synthesis.data.DrtProvider
 import edu.kit.ifv.units.Currency
 import utils.units.AbsoluteTime
+import utils.units.max
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 interface DrtProviderMessage : Message
 
@@ -37,7 +39,7 @@ interface DrtAlgorithm {
     fun bookRide(drtOffer: DrtOffer): DrtRide?
     fun revokeOffer(offer: DrtOffer)
 
-    fun nextActionTime(): AbsoluteTime
+    fun nextActionTime(currentTime: AbsoluteTime): AbsoluteTime
 
     fun getPendingPickups(time: AbsoluteTime): List<DrtRide>
     fun getPendingArrivals(time: AbsoluteTime): List<DrtRide>
@@ -46,10 +48,21 @@ interface DrtAlgorithm {
 data class DrtRequest(
     val provider: DrtProviderAgent,
     val person: PersonAgent,
+    val requestTime: AbsoluteTime,
     val departure: AbsoluteTime,
     val origin: StandardLocation,
-    val destination: StandardLocation
+    val destination: StandardLocation,
+    val id: RequestId = RequestId.next()
 )
+
+@JvmInline
+value class RequestId private constructor(val value: Long) {
+
+    companion object {
+        private var idCounter: Long = 0L
+        internal fun next() = RequestId(idCounter++)
+    }
+}
 
 data class DrtOffer(
     val person: PersonAgent,
@@ -62,17 +75,25 @@ data class DrtOffer(
     val dropOffTime: AbsoluteTime, // TODO maybe min/max arrival time, guaranteed max time, but window for delays??
     val cost: Currency,
     val timeOfOffer: AbsoluteTime,
-    val arrivalTimeAtDest: AbsoluteTime
+    val arrivalTimeAtDest: AbsoluteTime,
+    val personsInVehicle: Int,
+    val requestId: RequestId,
 ) {
 
-    val totalDuration: Duration get() = arrivalTimeAtDest - timeOfOffer
+    init {
+        if (timeOfOffer > arrivalTimeAtDest) {
+            println("Warning: arrival $arrivalTimeAtDest is before time of offer $timeOfOffer")
+        }
+    }
+
+    val totalDuration: Duration get() = max(arrivalTimeAtDest - timeOfOffer, 1.minutes)
 } // TODO derive access, wait, ride and egress time
 
 data class DrtRide(val offer: DrtOffer) // TODO maybe add car in the future here
 
 @Suppress("LongParameterList")
 class SimpleMatrixDrtAlgorithm(
-    private val impedance: Metrics,
+    private val impedance: Impedance,
     private val avgWaitTime: Duration,
     private val serviceArea: Collection<Zone>,
     private val operationHours: Pair<Int, Int>,
@@ -110,7 +131,7 @@ class SimpleMatrixDrtAlgorithm(
             timeInOperatingHours(time)
 
     private fun timeInOperatingHours(time: AbsoluteTime) =
-        operationHours.let { (start, end) -> start <= time.hour && time.hour <= end }
+        operationHours.let { (start, end) -> time.hour in start..end }
 
     override fun requestRide(request: DrtRequest): DrtOffer? = takeIf {
         hasCapacity()
@@ -120,6 +141,7 @@ class SimpleMatrixDrtAlgorithm(
             val pickupTime = departure + avgWaitTime
             val dropOffTime = pickupTime + impedance.duration(origin, destination, mode, pickupTime)
             val cost = impedance.cost(origin, destination, mode, pickupTime)
+
             DrtOffer(
                 person,
                 provider,
@@ -131,7 +153,9 @@ class SimpleMatrixDrtAlgorithm(
                 dropOffTime,
                 cost,
                 departure,
-                dropOffTime
+                dropOffTime,
+                1,
+                request.id
             )
         }
     }
@@ -148,7 +172,7 @@ class SimpleMatrixDrtAlgorithm(
         // nothing to do
     }
 
-    override fun nextActionTime(): AbsoluteTime =
+    override fun nextActionTime(currentTime: AbsoluteTime): AbsoluteTime =
         (pendingPickUps.keys + pendingDropOffs.keys).minOrNull() ?: AbsoluteTime.INFINITY
 
     override fun getPendingPickups(time: AbsoluteTime): List<DrtRide> =

@@ -6,14 +6,14 @@ import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
-import domain.shared.datastructure.matrix.MatrixMetrics
+import domain.shared.datastructure.matrix.MatrixImpedance
 import domain.shared.datastructure.matrix.UnitConverter
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.shared.location.attributes.HasZoneID
 import domain.simulation.config.DemandSimContext
 import edu.kit.ifv.units.CurrencyUnit
@@ -69,7 +69,7 @@ private class LoadImpedanceStep(
             currencyUnit ?: CurrencyUnit.EUROS,
             durationUnit ?: DurationUnit.MINUTES
         )
-        val impedance = MatrixMetrics.loadFromPaths(
+        val impedance = MatrixImpedance.loadFromPaths(
             travelTimeYamlPath = durationMatrixConfig,
             travelCostsYamlPath = costMatrixConfig,
             travelDistanceMatrixPath = distanceMatrix,
@@ -90,6 +90,9 @@ private class LoadImpedanceStep(
             val costConfig = costMatrixConfig.readText()
             val durationConfig = durationMatrixConfig.readText()
 
+            checkConfigKeysAreKnownModes(costConfig, path = costMatrixConfig)
+            checkConfigKeysAreKnownModes(durationConfig, path = durationMatrixConfig)
+
             context.modes.values().forEach { mode ->
                 val modeLabel = "$mode:"
                 val errorMessage = { path: Path ->
@@ -103,6 +106,22 @@ private class LoadImpedanceStep(
                 validateCondition(errorMessage(durationMatrixConfig), true) {
                     modeLabel in durationConfig
                 }
+            }
+        }
+    }
+
+    private fun Warning.checkConfigKeysAreKnownModes(configText: String, path: Path) {
+        val unknownModeMessage = { label: String ->
+            "Matrix config ${path.fileName} contains unknown mode $label. Known modes are ${context.modes.values()}"
+        }
+        val modeKeyRegex = Regex("^[A-Za-z_]+:[ \\t]*$")
+        configText.lineSequence().filter {
+            it.matches(modeKeyRegex)
+        }.map {
+            it.trim().removeSuffix(":")
+        }.forEach {
+            validateCondition(unknownModeMessage(it), true) {
+                context.modes.decodeOrNull(it) != null
             }
         }
     }
@@ -134,7 +153,7 @@ class LoadTeleportation(
     }
 }
 
-class Teleportation : Metrics {
+class Teleportation : Impedance {
 
     private val costMetric: CostMetric = CostMetric { _, _ ->
         0.euros
@@ -142,12 +161,12 @@ class Teleportation : Metrics {
     private val durationMetric: DurationMetric = DurationMetric { _, _ ->
         1.seconds
     }
-    private val distancMetric: DistanceMetric = DistanceMetric { _, _ ->
+    private val distanceMetric: DistanceMetric = DistanceMetric { _, _ ->
         1.meters
     }
     override fun costMetric(mode: Mode, time: Time): CostMetric = costMetric
 
-    override fun distanceMetric(mode: Mode): DistanceMetric = distancMetric
+    override fun distanceMetric(mode: Mode): DistanceMetric = distanceMetric
 
     override fun durationMetric(
         mode: Mode,
@@ -156,7 +175,7 @@ class Teleportation : Metrics {
 }
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
-val dummyImpedance = object : Metrics {
+val dummyImpedance = object : Impedance {
     override fun duration(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.minutes
     override fun cost(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.euros
     override fun distance(from: HasZoneID, to: HasZoneID, mode: Mode) = 5.kilometers

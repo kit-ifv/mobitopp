@@ -7,7 +7,7 @@ import edu.kit.ifv.units.Distance
 import utils.units.Time
 import kotlin.time.Duration
 
-interface Metrics {
+interface Impedance {
 
     fun cost(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time): Currency {
         return costMetric(mode, time).evaluate(from, to)

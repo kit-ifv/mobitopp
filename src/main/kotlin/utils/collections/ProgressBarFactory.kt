@@ -14,6 +14,19 @@ fun unmuteProgressBars() {
     MUTE_PROGRESSBAR = false
 }
 
+fun <S, T> S.addProgressbar(
+    label: String,
+    expectedCount: Long,
+    visible: Boolean = true
+): Iterator<T> where S : Sequence<T> {
+    return if (!MUTE_PROGRESSBAR and visible) {
+        val pbb = defaultProgressBarBuilder(label, expectedCount)
+        ProgressBar.wrap(this.iterator(), pbb)
+    } else {
+        this.iterator()
+    }
+}
+
 /** Add a progress bar logging the progress of the given iterator on the console.
  * @param label label of the progressbar
  * @param expectedCount expected number of elements in the iterator

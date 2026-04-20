@@ -148,7 +148,9 @@ open class LoadBehaviorModelsStep(
         val modeChoice = modeChoiceModel.addFilter(availability.asResourceAvailabilityFilter())
 
         val destinationChoice = destinationChoiceModel.fixed(
-            context.zoneRepository.elements.map { it.centroid }.toSet()
+            context.zoneRepository.elements.filter { it.isDestination }.map {
+                it.centroid
+            }.toSet()
         )
 
         val behavior = PersonBehavior(

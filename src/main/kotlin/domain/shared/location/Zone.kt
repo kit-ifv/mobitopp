@@ -92,7 +92,7 @@ abstract class Zone(
         private var counter = AtomicInt(0)
 
         @OptIn(ExperimentalAtomicApi::class)
-        private val nextId = counter.fetchAndIncrement()
+        private val nextId get() = counter.fetchAndIncrement()
     }
 }
 

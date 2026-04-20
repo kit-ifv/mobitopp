@@ -7,9 +7,9 @@ import domain.shared.location.ConstantMetric
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
+import domain.shared.location.Impedance
 import domain.shared.location.LegacyZone
 import domain.shared.location.LocationMetric
-import domain.shared.location.Metrics
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasZoneID
@@ -43,7 +43,7 @@ class ControllableImpedance(
     var standardCost: Currency = 1.euros,
     var standardTime: Duration = 10.minutes,
     var standardDistance: Distance = 1.kilometers,
-) : Metrics {
+) : Impedance {
 
     private val currencyMap: MutableMap<Mode, RangeMap<Time, Currency>> =
         mutableMapOf()

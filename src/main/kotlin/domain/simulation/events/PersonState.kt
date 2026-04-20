@@ -17,7 +17,7 @@ import domain.shared.datastructure.schedule.StationaryAction
 import domain.shared.datastructure.schedule.alternateByImpedance
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
-import domain.shared.location.Metrics
+import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtRide
@@ -55,7 +55,7 @@ abstract class PersonState(
     val behavior: PersonBehavior
         get() = person.behavior
 
-    val impedance: Metrics
+    val impedance: Impedance
         get() = behavior.impedance
 
     val modeAvailability: ModeAvailabilityModel
