@@ -163,4 +163,31 @@ class YamlParentTest {
             Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "cyclic-depend-4.yaml"))
         }
     }
+
+    private data class NestedConf(
+        val sub: SecondChildConf,
+    )
+
+    @Test
+    fun nestedParentExtension() {
+        val parentParsed = Yaml.readYamlWithParent<NestedConf>(Path(testFileRoot + "nested-parent.yaml"))
+        val parsed =  Yaml.readYaml<NestedConf>(Path(testFileRoot + "nested-parent.yaml"))
+        assertEquals(parentParsed, parsed)
+        assertEquals("Subclass", parentParsed.sub.name)
+        assertEquals(2, parentParsed.sub.numberField)
+        assertEquals(3.0, parentParsed.sub.doubleField)
+        assertEquals("Something1", parentParsed.sub.extra)
+        assertEquals("Something2", parentParsed.sub.extraExtraField)
+    }
+
+    @Test
+    fun overwriteNested() {
+        val parentParsed = Yaml.readYamlWithParent<NestedConf>(Path(testFileRoot + "nested-overwrite.yaml"))
+        assertEquals("Subclass", parentParsed.sub.name)
+        assertEquals(2, parentParsed.sub.numberField)
+        assertEquals(3.0, parentParsed.sub.doubleField)
+        assertEquals("overwritten by child", parentParsed.sub.extra)
+        assertEquals("Something2", parentParsed.sub.extraExtraField)
+
+    }
 }
