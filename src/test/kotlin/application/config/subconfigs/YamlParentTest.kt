@@ -218,7 +218,7 @@ class YamlParentTest {
     fun overwriteDoubleNested() {
         val parsed = Yaml.readYamlWithParent<MultipleNested>(Path(testFileRoot + "multi-nested-overwrite.yaml"))
         assertEquals(1, parsed.parentConfs.size)
-        assertEquals( "ListOverwrite", parsed.parentConfs.first().name)
+        assertEquals("ListOverwrite", parsed.parentConfs.first().name)
         assertEquals(5, parsed.parentConfs.first().numberField)
         assertEquals(1.0, parsed.parentConfs.first().doubleField)
         assertEquals("hi", parsed.nestedConf.sub.name)

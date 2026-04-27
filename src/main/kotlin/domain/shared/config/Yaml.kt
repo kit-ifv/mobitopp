@@ -67,8 +67,10 @@ object Yaml {
 
     /**
      * Can read yaml files with a `__parent__` field. The parent field specifies another yaml file, which this yaml
-     * file is based on. All values from the parent file are included in the result. Fields specified in the child,
+     * file is based on. All values from the parent file are included in the result. Single-Value-Fields specified in the child,
      * that are also present in the parent, are overwritten by the child.
+     * Object fields are merged.
+     * List fields are overwritten by child.
      *
      * - A file can at most contain one parent keyword
      * - Cyclic dependencies will lead to IllegalArgumentExceptions
@@ -133,18 +135,21 @@ object Yaml {
         }
 
         /**
-         * Checks if values is a scala map (map used by yaml mapper)
+         * Checks if `this::class` is a map (map used by yaml mapper)
          */
         private fun Any?.isMap(): Boolean {
             if (this == null) return false
             return this::class.jvmName.contains("Map")
         }
 
+        /**
+         * Converts `this `to a map. Expects this to be a scala map. (Mapper seems to output scala maps, in nested
+         * values)
+         */
         private fun Any?.toMap(): Map<String, Any?> {
             if (this == null) return emptyMap()
-
             if (this::class.jvmName.contains("Map")) {
-                val java = asJava(this as scala.collection.Map<String, Any>)
+                val java = asJava(this as scala.collection.Map<String, Any?>)
                 return java
             }
             return emptyMap()
