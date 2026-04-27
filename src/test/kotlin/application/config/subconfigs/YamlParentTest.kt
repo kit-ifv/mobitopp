@@ -171,7 +171,7 @@ class YamlParentTest {
     @Test
     fun nestedParentReadTest() {
         val parentParsed = Yaml.readYamlWithParent<NestedConf>(Path(testFileRoot + "nested-parent.yaml"))
-        val parsed =  Yaml.readYaml<NestedConf>(Path(testFileRoot + "nested-parent.yaml"))
+        val parsed = Yaml.readYaml<NestedConf>(Path(testFileRoot + "nested-parent.yaml"))
         assertEquals(parentParsed, parsed)
         assertEquals("Subclass", parentParsed.sub.name)
         assertEquals(2, parentParsed.sub.numberField)

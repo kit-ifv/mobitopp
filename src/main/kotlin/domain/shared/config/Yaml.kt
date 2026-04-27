@@ -18,13 +18,11 @@ import domain.jackson.DestinationChoiceModule
 import domain.jackson.DurationModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
+import scala.jdk.javaapi.CollectionConverters.asJava
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.inputStream
 import kotlin.reflect.jvm.jvmName
-import scala.collection.*
-import scala.jdk.CollectionConverters.*
-import scala.jdk.javaapi.CollectionConverters.asJava
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
@@ -122,10 +120,10 @@ object Yaml {
         private fun mergeMaps(childMap: Map<String, Any?>, parentMap: Map<String, Any?>): Map<String, Any?> {
             val keysToMerge = childMap.filter { parentMap.containsKey(it.key) }.keys
             val nonConflicting = childMap.filter { it.key !in keysToMerge } +
-                    parentMap.filter { it.key !in keysToMerge }
+                parentMap.filter { it.key !in keysToMerge }
 
             val merged = keysToMerge.map {
-                if(childMap[it].isMap() && parentMap[it].isMap()) {
+                if (childMap[it].isMap() && parentMap[it].isMap()) {
                     it to mergeMaps(childMap[it].toMap(), parentMap[it].toMap())
                 } else {
                     it to childMap[it]
