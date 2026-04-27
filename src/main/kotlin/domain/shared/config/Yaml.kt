@@ -21,6 +21,10 @@ import domain.jackson.ModeChoiceModule
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.inputStream
+import kotlin.reflect.jvm.jvmName
+import scala.collection.*
+import scala.jdk.CollectionConverters.*
+import scala.jdk.javaapi.CollectionConverters.asJava
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
@@ -106,7 +110,46 @@ object Yaml {
             // Remove the parentKey field from the output map.
             map.remove(parentKey)
             // Overwrite each and every field that is found in the parent map with entries from the childmap
-            return parentMap + map
+            return mergeMaps(childMap = map, parentMap = parentMap)
+        }
+
+        /**
+         * Recursively merges both provided maps by prioritizing the child over the parent. If the child contains a field with a
+         * single value, it will overwrite the parents value. If the child contains a field which contains an object,
+         * so a map of strings to values, it will merge those maps together, again prioritizing the child over the
+         * parent, if a field occurs in both maps.
+         */
+        private fun mergeMaps(childMap: Map<String, Any?>, parentMap: Map<String, Any?>): Map<String, Any?> {
+            val keysToMerge = childMap.filter { parentMap.containsKey(it.key) }.keys
+            val nonConflicting = childMap.filter { it.key !in keysToMerge } +
+                    parentMap.filter { it.key !in keysToMerge }
+
+            val merged = keysToMerge.map {
+                if(childMap[it].isMap() && parentMap[it].isMap()) {
+                    it to mergeMaps(childMap[it].toMap(), parentMap[it].toMap())
+                } else {
+                    it to childMap[it]
+                }
+            }
+            return nonConflicting + merged
+        }
+
+        /**
+         * Checks if values is a scala map (map used by yaml mapper)
+         */
+        fun Any?.isMap(): Boolean {
+            if (this == null) return false
+            return this::class.jvmName.contains("Map")
+        }
+
+        fun Any?.toMap(): Map<String, Any?> {
+            if (this == null) return emptyMap()
+
+            if (this::class.jvmName.contains("Map")) {
+                val java = asJava(this as scala.collection.Map<String, Any>)
+                return java
+            }
+            return emptyMap()
         }
 
         private fun isPathNotSeenBefore(path: Path): Boolean {

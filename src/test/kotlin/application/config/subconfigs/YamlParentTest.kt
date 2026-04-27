@@ -169,7 +169,7 @@ class YamlParentTest {
     )
 
     @Test
-    fun nestedParentExtension() {
+    fun nestedParentReadTest() {
         val parentParsed = Yaml.readYamlWithParent<NestedConf>(Path(testFileRoot + "nested-parent.yaml"))
         val parsed =  Yaml.readYaml<NestedConf>(Path(testFileRoot + "nested-parent.yaml"))
         assertEquals(parentParsed, parsed)
@@ -188,6 +188,24 @@ class YamlParentTest {
         assertEquals(3.0, parentParsed.sub.doubleField)
         assertEquals("overwritten by child", parentParsed.sub.extra)
         assertEquals("Something2", parentParsed.sub.extraExtraField)
+    }
 
+    @Test
+    fun incompleteNested() {
+        assertThrows<IllegalArgumentException> {
+            Yaml.readYamlWithParent<NestedConf>(Path(testFileRoot + "incommplete-nested-parent.yaml"))
+        }
+    }
+
+    @Test
+    fun completingIncompleteParent() {
+        val parsed = Yaml.readYamlWithParent<NestedConf>(
+            Path(testFileRoot + "completing-incomplete-nested-parent.yaml")
+        )
+        assertEquals("Incomplete Parent", parsed.sub.name)
+        assertEquals(1000, parsed.sub.numberField)
+        assertEquals(87654.0, parsed.sub.doubleField)
+        assertEquals("This does not exist in my incomplete parent", parsed.sub.extra)
+        assertEquals("Value", parsed.sub.extraExtraField)
     }
 }

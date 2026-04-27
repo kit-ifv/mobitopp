@@ -1,0 +1,6 @@
+__parent__: incomplete-nested-parent.yaml
+sub:
+  #adding the missing fields, should together with parent be a valid config
+  doubleField: 87654.0
+  extra: This does not exist in my incomplete parent
+  extraExtraField: Value
