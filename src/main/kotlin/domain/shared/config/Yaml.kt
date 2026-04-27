@@ -137,12 +137,12 @@ object Yaml {
         /**
          * Checks if values is a scala map (map used by yaml mapper)
          */
-        fun Any?.isMap(): Boolean {
+        private fun Any?.isMap(): Boolean {
             if (this == null) return false
             return this::class.jvmName.contains("Map")
         }
 
-        fun Any?.toMap(): Map<String, Any?> {
+        private fun Any?.toMap(): Map<String, Any?> {
             if (this == null) return emptyMap()
 
             if (this::class.jvmName.contains("Map")) {
