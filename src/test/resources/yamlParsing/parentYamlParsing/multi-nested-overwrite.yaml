@@ -1,0 +1,9 @@
+__parent__: multiple-nested-parent.yaml
+parentConfs:
+  - name: "ListOverwrite"
+    doubleField: 1.0
+    numberField: 5
+nestedConf:
+  sub:
+    extra: "overwritten by child"
+    extraExtraField: "added by child double Nest"

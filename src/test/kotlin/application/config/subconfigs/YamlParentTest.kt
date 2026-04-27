@@ -208,4 +208,23 @@ class YamlParentTest {
         assertEquals("This does not exist in my incomplete parent", parsed.sub.extra)
         assertEquals("Value", parsed.sub.extraExtraField)
     }
+
+    private data class MultipleNested(
+        val parentConfs: List<ParentConf>,
+        val nestedConf: NestedConf,
+    )
+
+    @Test
+    fun overwriteDoubleNested() {
+        val parsed = Yaml.readYamlWithParent<MultipleNested>(Path(testFileRoot + "multi-nested-overwrite.yaml"))
+        assertEquals(1, parsed.parentConfs.size)
+        assertEquals( "ListOverwrite", parsed.parentConfs.first().name)
+        assertEquals(5, parsed.parentConfs.first().numberField)
+        assertEquals(1.0, parsed.parentConfs.first().doubleField)
+        assertEquals("hi", parsed.nestedConf.sub.name)
+        assertEquals(0, parsed.nestedConf.sub.numberField)
+        assertEquals(0.5, parsed.nestedConf.sub.doubleField)
+        assertEquals("overwritten by child", parsed.nestedConf.sub.extra)
+        assertEquals("added by child double Nest", parsed.nestedConf.sub.extraExtraField)
+    }
 }
