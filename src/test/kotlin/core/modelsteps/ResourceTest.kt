@@ -1,5 +1,8 @@
 package core.modelsteps
 
+import core.modelsteps.resources.CsvResource
+import core.modelsteps.resources.Resource
+import core.modelsteps.resources.SequenceResource
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

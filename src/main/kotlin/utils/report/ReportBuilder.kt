@@ -40,11 +40,30 @@ import kotlin.io.path.writeText
  * */
 class ReportBuilder(val reportTitle: String = "Run-Report") {
 
-    private var quickOverview: OverviewCard? = null
+    private val quickOverview: OverviewCard by lazy { OverviewCard() }
     private val errors: MutableList<Error> = mutableListOf()
     private val success: MutableList<Success> = mutableListOf()
     private val warnings: MutableList<Warning> = mutableListOf()
     private val normals: MutableList<Normal> = mutableListOf()
+
+    fun <R> detectReportChanges(scope: () -> R): ReportDiff<R> {
+        val initOverviews = quickOverview.size
+        val initErrors = errors.size
+        val initSuccess = success.size
+        val initWarnings = warnings.size
+        val initNormals = normals.size
+
+        val result = scope()
+
+        return ReportDiff(
+            result,
+            newOverviews = (quickOverview.size - initOverviews) > 0,
+            newErrors = (errors.size - initErrors) > 0,
+            newSuccess = (success.size - initSuccess) > 0,
+            newWarnings = (warnings.size - initWarnings) > 0,
+            newNormals = (normals.size - initNormals) > 0,
+        )
+    }
 
     /**
      * Adds a new item to the overview list at the top.
@@ -54,10 +73,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      * giving a brief explanation for what went wrong in a step.
      */
     fun addOverviewItem(name: String, status: CardStatus, hoverInformation: String = "") {
-        if (quickOverview == null) {
-            quickOverview = OverviewCard()
-        }
-        quickOverview!!.addOverviewItem(name, status, hoverInformation)
+        quickOverview.addOverviewItem(name, status, hoverInformation)
     }
 
     /**
@@ -66,6 +82,11 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     fun addErrorLog(title: String, message: String) {
         errors.add(Error(title, message))
     }
+
+    /**
+     * Returns whether any error was logged.
+     */
+    fun hasErrors() = errors.isNotEmpty()
 
     /**
      * Adds a success card to the log section of the report.
@@ -82,10 +103,36 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     }
 
     /**
+     * Returns whether any warning was logged.
+     */
+    fun hasWarnings() = warnings.isNotEmpty()
+
+    /**
      * Adds a normal (non highlighted) card to the log section of the report.
      */
     fun addNormalLog(title: String, message: String) {
         normals.add(Normal(title, message))
+    }
+
+    fun printToConsole() {
+        println("Report: $reportTitle")
+        quickOverview.printToConsole()
+        if (errors.isNotEmpty()) {
+            println("Errors:")
+            errors.forEach { println("  ${it.name} - ${it.message}") }
+        }
+        if (warnings.isNotEmpty()) {
+            println("Warnings:")
+            warnings.forEach { println("  ${it.name} - ${it.message}") }
+        }
+        if (normals.isNotEmpty()) {
+            println("Infos:")
+            normals.forEach { println("  ${it.name} - ${it.message}") }
+        }
+        if (success.isNotEmpty()) {
+            println("Success:")
+            success.forEach { println("  ${it.name} - ${it.message}") }
+        }
     }
 
     /**
@@ -94,7 +141,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      * The created report includes all events added up to this point.
      */
     @Suppress("CognitiveComplexMethod")
-    fun printReport(outputDir: Path) {
+    fun writeHtmlReport(outputDir: Path) {
         val html = createHTML().html {
             head {
                 title(reportTitle)
@@ -166,6 +213,15 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         }
     }
 }
+
+data class ReportDiff<R>(
+    val result: R,
+    val newOverviews: Boolean,
+    val newErrors: Boolean,
+    val newSuccess: Boolean,
+    val newWarnings: Boolean,
+    val newNormals: Boolean
+)
 
 private const val BLUE = "\u001B[34m"
 private const val BOLD = "\u001B[1m"

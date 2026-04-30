@@ -1,4 +1,4 @@
-package core.modelsteps
+package core.modelsteps.resources
 
 import utils.csv.CsvParser
 import utils.csv.CsvReader

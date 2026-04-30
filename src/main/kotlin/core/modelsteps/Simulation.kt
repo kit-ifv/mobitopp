@@ -15,41 +15,53 @@ class Simulation<C>(contextFactory: () -> C) where C : Context, C : Cloneable<C>
     /**
      * A context factory that guarantees shallow independent instances of `C` as long as `clone` works correctly.
      */
-    private var contextFactory: () -> C = { contextFactory().clone() }
+    private val contextFactory: () -> C = { contextFactory().clone() }
 
     /**
      * Steps scope defines execution (order) of model steps.
-     *
-     * @param lambda a function executed on the model
-     *      execution object which defines / adds the steps to the [ModelExecution]
+     * @param lambda a function that runs model steps on the context
      */
     fun steps(lambda: C.() -> Unit) {
+
+        validate(lambda)
+
+        val simulationContext = contextFactory()
+        simulationContext.execMode.setExecute()
+
+        logTime("    Execution") {
+            println("\nExecute")
+            simulationContext.lambda()
+        }
+
+        simulationContext.report.printToConsole()
+    }
+
+    private fun validate(lambda: C.() -> Unit) = logTime("    Validation") {
         println("Validate before run!")
 
-        if (validate(lambda)) {
-            println("\nExecute")
+        val context = contextFactory()
+        context.execMode.setValidate()
+        context.lambda()
 
-            val simulationContext = contextFactory()
-            simulationContext.execMode.setExecute()
-            logTime("    Execution") {
-                simulationContext.lambda()
-            }
-        } else {
+        val report = context.report
+        if (report.hasErrors()) {
+            report.addErrorLog(
+                "validation errors",
+                "validation of ${context.scenarioName} discovered errors!"
+            )
+
+        } else if (report.hasWarnings()) {
+            report.addWarningLog(
+                "validation warnings",
+                "validation of ${context.scenarioName} warnings!"
+            )
+        }
+
+        report.printToConsole()
+
+        if (report.hasErrors()) {
             error("validation failed")
         }
     }
 
-    private fun validate(lambda: C.() -> Unit) = logTime("    Validation") {
-        val context = contextFactory()
-        context.execMode.setValidate(context.scenarioName)
-        context.lambda()
-
-        val warnings = context.execMode.warnings?.takeIf { it.subWarnings.isNotEmpty() }
-
-        warnings?.also {
-            it.printTree()
-        }
-
-        return@logTime warnings?.containsError()?.let { !it } ?: true
-    }
 }

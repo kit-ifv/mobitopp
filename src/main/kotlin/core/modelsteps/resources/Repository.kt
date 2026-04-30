@@ -1,7 +1,9 @@
 @file:JvmName("OldRepositoryKt")
 
-package core.modelsteps
+package core.modelsteps.resources
 
+import core.modelsteps.Context
+import core.modelsteps.validation.validateCondition
 import utils.Identifiable
 import utils.collections.enforceIndent
 import utils.collections.replaceOrRemoveAll
@@ -173,13 +175,11 @@ fun <R, E, I> R.asRepository() where R : Resource<E>, E : Identifiable<I> = MapR
     it.addElements(this.source, this.elements)
 }
 
-fun validateNotSealed(
+fun <C: Context> C.validateNotSealed(
     repository: MutableRepository<*, *>,
-    step: ModelStep,
-) = validateScope(
-    "Validate repository ${repository.name} is not sealed:"
+    step: String,
+) = validateCondition(
+    { "repository ${repository.name} was sealed before execution of step: ${step}\n$repository" }
 ) {
-    require(!repository.sealed) {
-        "Error: repository ${repository.name} was sealed before execution of step: ${step.name}\n$repository"
-    }
+    !repository.sealed
 }

@@ -1,4 +1,4 @@
-package core.modelsteps
+package core.modelsteps.resources
 
 import utils.binary.BinaryReader
 import java.nio.file.Path

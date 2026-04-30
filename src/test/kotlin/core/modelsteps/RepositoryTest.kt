@@ -1,5 +1,8 @@
 package core.modelsteps
 
+import core.modelsteps.resources.MapRepository
+import core.modelsteps.resources.Repository
+import core.modelsteps.resources.Resource
 import org.junit.jupiter.api.Test
 import utils.Identifiable
 import utils.collections.enforceIndent
