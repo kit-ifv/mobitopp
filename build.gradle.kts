@@ -2,10 +2,10 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
-    alias(libs.plugins.ksp) // id("com.google.devtools.ksp") version "2.0.10-1.0.24" //
-    alias(libs.plugins.kotlin.jvm) // kotlin("jvm") version "2.0.10" //
+    alias(libs.plugins.ksp) // id("com.google.devtools.ksp") version "2.2.0-2.0.2" //
+    alias(libs.plugins.kotlin.jvm) // kotlin("jvm") version "2.2.0" //
     alias(libs.plugins.kover) // id("org.jetbrains.kotlinx.kover") version "0.9.1" //
-    alias(libs.plugins.detekt) // id("io.gitlab.arturbosch.detekt") version "1.23.7" //
+    alias(libs.plugins.detekt) // id("io.gitlab.arturbosch.detekt") version "1.23.8" //
     alias(libs.plugins.kotlin.serialization) // kotlin("plugin.serialization") version "2.0.10" //
     alias(libs.plugins.shadowjar)
     application
@@ -27,6 +27,7 @@ allprojects {
     }
 
 }
+
 /**
  * This block tells gradle where to fetch dependencies from. We require
  */
@@ -44,7 +45,7 @@ repositories {
 }
 
 detekt {
-    version = libs.versions.detekt.get() // "1.23.7"
+    version = libs.versions.detekt.get() // "1.23.8"
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true

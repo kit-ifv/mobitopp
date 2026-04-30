@@ -1,6 +1,5 @@
 package domain.synthesis.parser
 
-import domain.shared.config.SynthesisContext
 import domain.synthesis.data.ChargingInfluence
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.Employment
@@ -16,7 +15,6 @@ import edu.kit.ifv.units.euros
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
-import utils.csv.DefaultCsvParser
 import utils.csv.boolean
 import utils.csv.currencyOrNull
 import utils.csv.decodeName
@@ -24,22 +22,55 @@ import utils.csv.decodeOrNull
 import utils.csv.int
 import utils.csv.long
 import utils.csv.unitShare
+import utils.csv.withFilter
+
+data class PersonColumns(
+    val idColumn: String = "personId",
+    val personIdColumn: String = "personNumber",
+    val householdColumn: String = "householdId",
+    val ageColumn: String = "age",
+    val employmentColumn: String = "employment",
+    val sexColumn: String = "gender",
+    val graduationColumn: String = "graduation",
+    val incomeColumn: String = "income",
+    val bikeColumn: String = "hasBike",
+    val commuterTicketColumn: String = "hasCommuterTicket",
+    val licenseColumn: String = "hasLicense",
+    val eMobilityAcceptanceColumn: String = "eMobilityAcceptance",
+    val chargingInfluenceColumn: String = "chargingInfluencesDestinationChoice",
+    val membershipColumn: String = "mobilityProviderCustomership",
+)
+
+data class PersonCodePlans (
+    val employmentCodes: CodePlan<Employment> = Employment,
+    val graduationCodes: CodePlan<Graduation> = Graduation,
+    val sexCodes: CodePlan<Sex> = Sex
+)
+
+data class PersonCsvConfig(
+    var columns: PersonColumns = PersonColumns(),
+    var sharingProvidersByName: () -> Map<String, SharingProvider>,
+    var drtProvidersByName: () -> Map<String, DrtProvider>,
+    var householdProvider: (HouseholdId) -> MutableHousehold,
+    var hasHousehold: (HouseholdId) -> Boolean,
+    var incomeUnit: CurrencyUnit,
+    var employmentCodes: CodePlan<Employment> = Employment,
+    var graduationCodes: CodePlan<Graduation> = Graduation,
+    var sexCodes: CodePlan<Sex> = Sex,
+    var errorHandling: ErrorHandling,
+    val seed: Long,
+)
 
 @Suppress("LongParameterList")
-fun PersonCsvContext.personCsvParser(
-    errorHandling: ErrorHandling,
-    columns: PersonColumns,
-    incomeUnit: CurrencyUnit,
-    sharingProvidersByName: () -> Map<String, SharingProvider>,
-    drtProvidersByName: () -> Map<String, DrtProvider>,
-    householdProvider: (HouseholdId) -> MutableHousehold,
-): DefaultCsvParser<MutablePerson> {
-    val csvParser = CsvParser.Companion<MutablePerson>(errorHandling) { row ->
+fun personCsvParser(
+    csvConfig: PersonCsvConfig
+): CsvParser<MutablePerson> = csvConfig.run {
+    val csvParser = CsvParser<MutablePerson>(errorHandling) { row ->
 
         MutablePerson(
             id = PersonId(row.long(columns.idColumn)),
             household = householdProvider(HouseholdId(row.long(columns.householdColumn))),
-            simulationSeed,
+            seed,
         ) {
             age = row.int(columns.ageColumn)
             employment = row.decodeName(columns.employmentColumn, employmentCodes)
@@ -66,7 +97,11 @@ fun PersonCsvContext.personCsvParser(
         }
     }
 
-    return csvParser
+    return csvParser.withFilter { row ->
+        hasHousehold(
+            HouseholdId(row.long(columns.householdColumn))
+        )
+    }
 }
 
 fun <R> String.parseMemberships(
@@ -82,25 +117,4 @@ fun <R> String.parseMemberships(
         providersByName[membership[0].lowercase()]
     }
 
-interface PersonCsvContext : SynthesisContext {
-    val employmentCodes: CodePlan<Employment>
-    val graduationCodes: CodePlan<Graduation>
-    val sexCodes: CodePlan<Sex>
-}
 
-data class PersonColumns(
-    val idColumn: String = "personId",
-    val personIdColumn: String = "personNumber",
-    val householdColumn: String = "householdId",
-    val ageColumn: String = "age",
-    val employmentColumn: String = "employment",
-    val sexColumn: String = "gender",
-    val graduationColumn: String = "graduation",
-    val incomeColumn: String = "income",
-    val bikeColumn: String = "hasBike",
-    val commuterTicketColumn: String = "hasCommuterTicket",
-    val licenseColumn: String = "hasLicense",
-    val eMobilityAcceptanceColumn: String = "eMobilityAcceptance",
-    val chargingInfluenceColumn: String = "chargingInfluencesDestinationChoice",
-    val membershipColumn: String = "mobilityProviderCustomership",
-)

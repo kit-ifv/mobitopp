@@ -1,11 +1,11 @@
 package application.steps.model
 
 import core.modelsteps.AbstractAddResourceStep
-import core.modelsteps.LazyResource
+import core.modelsteps.resources.LazyResource
 import core.modelsteps.ModelStep
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
-import core.modelsteps.Resource
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Repository
+import core.modelsteps.resources.Resource
 import core.modelsteps.Warning
 import core.statemachine.StateMachineFactory
 import domain.shared.location.Zone

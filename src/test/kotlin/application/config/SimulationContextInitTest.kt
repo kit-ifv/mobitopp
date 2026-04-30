@@ -2,6 +2,7 @@ package application.config
 
 import application.steps.parser.csv.finishZones
 import application.steps.parser.csv.prepareZones
+import core.modelsteps.ExecutionMode
 import core.modelsteps.Simulation
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
@@ -14,7 +15,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
 data class MyContext(
-    override val execMode: core.modelsteps.ExecutionMode = _root_ide_package_.core.modelsteps.ExecutionMode(),
+    override val execMode: ExecutionMode = ExecutionMode(),
     override val scenarioName: String = "",
     override val dataFolder: Path = Path(""),
     override val simulationSeed: Long = 0,

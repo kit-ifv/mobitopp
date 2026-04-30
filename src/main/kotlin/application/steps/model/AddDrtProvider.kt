@@ -3,12 +3,12 @@ package application.steps.model
 import core.modelsteps.AddResourceStep
 import core.modelsteps.Context
 import core.modelsteps.LateInit
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
-import core.modelsteps.Resource
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Repository
+import core.modelsteps.resources.Resource
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
-import core.modelsteps.asResource
+import core.modelsteps.resources.asResource
 import domain.shared.location.Impedance
 import domain.shared.location.Zone
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm

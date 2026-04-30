@@ -2,11 +2,11 @@ package application.steps.model
 
 import application.steps.parser.dummyImpedance
 import core.modelsteps.LateInit
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Repository
 import core.modelsteps.RepositoryDependentStep
 import core.modelsteps.Warning
-import core.modelsteps.validateCondition
+import core.modelsteps.validation.validateCondition
 import core.modelsteps.validateScope
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes

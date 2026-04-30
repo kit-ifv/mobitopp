@@ -3,7 +3,7 @@
 package domain.simulation.results
 
 import core.modelsteps.LateInit
-import core.modelsteps.Repository
+import core.modelsteps.resources.Repository
 import core.results.plots.RGB
 import core.results.plots.modeStringColor
 import domain.shared.datastructure.schedule.LinkedActivity

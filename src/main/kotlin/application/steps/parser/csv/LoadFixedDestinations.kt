@@ -1,11 +1,11 @@
 package application.steps.parser.csv
 
-import core.modelsteps.BinaryCachedFileInput
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
+import core.modelsteps.resources.BinaryCachedFileInput
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Repository
 import core.modelsteps.RepositoryDependentStep
 import core.modelsteps.Warning
-import core.modelsteps.validateFileReadAccess
+import core.modelsteps.validation.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
 import domain.shared.location.LegacyZone

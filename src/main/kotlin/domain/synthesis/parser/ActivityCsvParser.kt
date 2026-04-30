@@ -1,11 +1,12 @@
 package domain.synthesis.parser
 
-import domain.shared.config.SynthesisContext
+import domain.shared.enums.ActivityType
 import domain.synthesis.data.ActivityBinaryRecord
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.PersonId
+import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultCsvParser
@@ -16,19 +17,21 @@ import utils.units.AbsoluteTime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-fun SynthesisContext.activityCsvParser(
+fun activityCsvParser(
     errorHandling: ErrorHandling,
     columns: ActivitiesColumns,
     shiftActivityStart: ActivityStartShifter,
     durationUnit: DurationUnit,
     personProvider: (PersonId) -> MutablePerson,
+    seed: Long,
+    activityTypes: CodePlan<ActivityType>
 ): DefaultCsvParser<MutablePlannedActivity> = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
     val person = personProvider(PersonId(row.long(columns.personColumn)))
 
     MutablePlannedActivity(
         id = ActivityId(row.index.toLong()),
         person = person,
-        seed = simulationSeed
+        seed = seed
     ) {
         val shift = shiftActivityStart(this)
 

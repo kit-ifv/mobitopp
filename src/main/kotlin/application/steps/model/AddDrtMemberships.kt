@@ -2,8 +2,8 @@ package application.steps.model
 
 import core.modelsteps.Context
 import core.modelsteps.ForEachStep
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Repository
 import core.modelsteps.Warning
 import domain.synthesis.data.DrtProviderData
 import domain.synthesis.data.DrtProviderId

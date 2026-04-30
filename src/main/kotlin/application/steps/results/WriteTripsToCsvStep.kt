@@ -1,10 +1,10 @@
 package application.steps.results
 
 import core.modelsteps.ModelStep
-import core.modelsteps.Repository
+import core.modelsteps.resources.Repository
 import core.modelsteps.SameValidationBehavior
 import core.modelsteps.Warning
-import core.modelsteps.validateFileWriteAccess
+import core.modelsteps.validation.validateFileWriteAccess
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.datastructure.schedule.LinkedLeg
 import domain.simulation.agent.PersonAgent

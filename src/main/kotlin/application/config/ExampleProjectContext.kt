@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import core.modelsteps.Cloneable
 import core.modelsteps.ExecutionMode
 import core.modelsteps.LateInit
-import core.modelsteps.MapRepository
+import core.modelsteps.resources.MapRepository
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.LocatableGraph
 import domain.shared.enums.ActivityType

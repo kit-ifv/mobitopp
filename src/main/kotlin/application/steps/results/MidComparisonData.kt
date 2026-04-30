@@ -2,8 +2,8 @@
 
 package application.steps.results
 
-import core.modelsteps.Resource
-import core.modelsteps.asResource
+import core.modelsteps.resources.Resource
+import core.modelsteps.resources.asResource
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType

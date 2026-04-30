@@ -1,7 +1,7 @@
 package application.steps.model
 
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Repository
 import core.modelsteps.UpdateAllStep
 import core.modelsteps.UpdateEachStep
 import core.modelsteps.Warning

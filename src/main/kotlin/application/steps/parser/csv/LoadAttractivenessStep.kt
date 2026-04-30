@@ -3,8 +3,8 @@ package application.steps.parser.csv
 import core.modelsteps.LateInit
 import core.modelsteps.ModelStep
 import core.modelsteps.Warning
-import core.modelsteps.validateCondition
-import core.modelsteps.validateFileReadAccess
+import core.modelsteps.validation.validateCondition
+import core.modelsteps.validation.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.behavior.Attractiveness
 import domain.shared.behavior.AttractivenessFromCsv

@@ -4,8 +4,8 @@ import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Repository
 import core.modelsteps.SealStep
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.CarEngineStatistics

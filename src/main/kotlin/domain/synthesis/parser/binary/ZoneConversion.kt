@@ -3,7 +3,7 @@ package domain.synthesis.parser.binary
 import domain.jackson.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.MutableLegacyZone
+import domain.shared.location.MutableZone
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
@@ -25,23 +25,23 @@ import java.nio.file.Path
 class BinaryZoneReader(
     val seed: Long,
     private val regionCode: Decodable<RegionType>,
-) : BinaryReader<MutableLegacyZone> {
-    override fun fromBinary(path: Path): List<MutableLegacyZone> {
+) : BinaryReader<MutableZone> {
+    override fun fromBinary(path: Path): List<MutableZone> {
         val byteBuffer = path.readAsByteBuffer()
         byteBuffer.long // Consume hash code at start of file
         val size = byteBuffer.int
         val stringLength = byteBuffer.int
 
-        var elements = ArrayList<MutableLegacyZone>(size)
+        val elements = ArrayList<MutableZone>(size)
         repeat(size) {
             elements.add(byteBuffer.decode(stringLength))
         }
-        elements.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
+
         return elements
     }
 
-    override fun ByteBuffer.decode(stringLength: Int): MutableLegacyZone {
-        return MutableLegacyZone(
+    override fun ByteBuffer.decode(stringLength: Int): MutableZone {
+        return MutableZone(
             ZoneId(long),
             decodeNakedLocation(),
             seed

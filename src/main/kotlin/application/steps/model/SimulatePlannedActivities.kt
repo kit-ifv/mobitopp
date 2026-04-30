@@ -4,7 +4,7 @@ import core.events.ParallelSimulator
 import core.events.SequentialSimulator
 import core.events.Simulator
 import core.modelsteps.ModelStep
-import core.modelsteps.Repository
+import core.modelsteps.resources.Repository
 import core.modelsteps.Warning
 import domain.simulation.agent.PersonAgent
 import domain.simulation.config.DemandSimContext

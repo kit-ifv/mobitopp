@@ -1,10 +1,10 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AbstractAddResourceStep
-import core.modelsteps.CsvResource
-import core.modelsteps.LazyResource
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
+import core.modelsteps.resources.CsvResource
+import core.modelsteps.resources.LazyResource
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.ValidateCsvMetadata
 import domain.shared.enums.Mode

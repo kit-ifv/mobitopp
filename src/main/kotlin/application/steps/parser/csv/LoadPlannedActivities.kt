@@ -4,11 +4,11 @@ import core.modelsteps.AbstractAddResourceStep
 import core.modelsteps.FileBasedAddResourceStep
 import core.modelsteps.GroupedStepBuilder
 import core.modelsteps.LoadCsvStep
-import core.modelsteps.MutableRepository
-import core.modelsteps.Resource
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Resource
 import core.modelsteps.SealStep
-import core.modelsteps.asResource
-import core.modelsteps.reusable
+import core.modelsteps.resources.asResource
+import core.modelsteps.resources.reusable
 import domain.shared.enums.ActivityType
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId
