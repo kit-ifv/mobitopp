@@ -7,10 +7,8 @@ import domain.shared.location.MutableZone
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
-import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
 import utils.CodePlan
-import utils.Decodable
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultCsvParser
@@ -44,7 +42,7 @@ data class ZoneCsvConfig(
 )
 
 @Suppress("LongParameterList")
-fun zoneCsvParser(
+fun createZoneCsvParser(
     csvConfig: ZoneCsvConfig
 ): DefaultCsvParser<MutableZone> = csvConfig.run {
     val csvParser = CsvParser(errorHandling) { row ->

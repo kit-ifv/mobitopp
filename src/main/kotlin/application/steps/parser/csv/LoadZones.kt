@@ -12,29 +12,26 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.shared.enums.areatype.RegionType
 import domain.shared.location.MutableZone
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
 import domain.synthesis.parser.ZoneColumns
 import domain.synthesis.parser.ZoneCsvConfig
 import domain.synthesis.parser.binary.BinaryZoneReader
 import domain.synthesis.parser.binary.BinaryZoneWriter
-import domain.synthesis.parser.zoneCsvParser
-import edu.kit.ifv.units.DistanceUnit
-import utils.CodePlan
-import utils.ErrorHandling
+import domain.synthesis.parser.createZoneCsvParser
 import utils.csv.CsvParser
 import java.nio.file.Path
 
-
 context(config: CFG)
 fun <CTXT, CFG> CTXT.zones(
+    sealed: Boolean = false,
     scope: context(MutableRepository<MutableZone, ZoneId>, CFG) CTXT.() -> Unit
-) where CTXT : HasZoneRepo<Zone> = mutableRepositoryScope(
-    "zones", this::zoneRepository.setter, scope
+) where CTXT : HasZoneRepo<MutableZone, Zone> = mutableRepositoryScope<CTXT, CFG, MutableZone, ZoneId>(
+    getter = { mutableZoneRepository },
+    sealed = sealed,
+    scope = scope
 )
 
 context(repository: MutableRepository<MutableZone, ZoneId>)
@@ -54,7 +51,6 @@ fun <C: Context, CFG> C.zoneCsv(
     binaryCache: BinaryCacheConfig<MutableZone>? = binaryZoneFormat()
 ): Resource<MutableZone>
 where CFG: SourceFilesConfig, CFG: UnitConfig, CFG: RegionCodesConfig
-//TODO config as required upper bound type in context
     = CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
             csv.cachedCsv(it)
@@ -80,7 +76,7 @@ fun <C: Context, CFG> C.zoneCsvParser(
     customizeCsvConfig: ZoneCsvConfig.() -> Unit = {}
 ): CsvParser<MutableZone>
 where CFG: SourceFilesConfig, CFG: UnitConfig, CFG: RegionCodesConfig
-= zoneCsvParser(
+= createZoneCsvParser(
     ZoneCsvConfig(
         columns = ZoneColumns(),
         centroidParser = String::parseRoadPositionWGS,

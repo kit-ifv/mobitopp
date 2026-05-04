@@ -4,6 +4,7 @@ import application.config.subconfigs.BaseCSVFiles
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.ActivityType
 import domain.shared.enums.areatype.RegionType
+import domain.synthesis.data.CarSegment
 import domain.synthesis.data.EconomicStatus
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
@@ -48,6 +49,11 @@ interface RegionCodesConfig: Config {
 interface HouseholdCodesConfig: Config {
     val economicStatusCodes: CodePlan<EconomicStatus>
 }
+
+interface CarCodesConfig: Config {
+    val carSegmentCodes: CodePlan<CarSegment>
+}
+
 
 interface ActivityTypesConfig: Config {
     val activityTypes: CodePlan<ActivityType>

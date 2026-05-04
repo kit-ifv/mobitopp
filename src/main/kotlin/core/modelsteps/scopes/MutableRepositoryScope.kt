@@ -14,24 +14,21 @@ import utils.csv.CsvParser
 import kotlin.io.path.Path
 import kotlin.reflect.KMutableProperty0
 
-
-private typealias Setter<E> = (E) -> Unit
-
-
 context(_: CFG)
 fun <CTXT: Context, CFG, E: Identifiable<I>, I> CTXT.mutableRepositoryScope(
-    name: String,
-    setter: (Repository<E, I>) -> Unit,
+    getter: CTXT.() -> MutableRepository<E, I>,
+    sealed: Boolean = false,
     scope: context(MutableRepository<E, I>, CFG) CTXT.() -> Unit
 ) {
-    val mutableRepo = MapRepository<E, I>(name)
+    val mutableRepo = getter()
 
     context(mutableRepo) {
         scope()
     }
 
-    seal(mutableRepo)
-    setter(mutableRepo)
+    if (sealed) {
+        seal(mutableRepo)
+    }
 }
 
 
@@ -79,7 +76,10 @@ fun <CTXT: Context, CFG, E: Identifiable<I>, I> CTXT.setUpEntities(
     name: String,
     repository: KMutableProperty0<in Repository<E, I>>,
     scope: context(MutableRepository<E, I>, CFG) CTXT.() -> Unit
-) = mutableRepositoryScope<CTXT, CFG, E, I>(name, repository::set, scope)
+) = mutableRepositoryScope<CTXT, CFG, E, I>(
+    getter = { MapRepository("name") },
+    scope = scope
+)
 
 //fun <C: Context, E: Identifiable<I>, I> C.setUpEntities(
 //    name: String,

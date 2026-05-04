@@ -62,7 +62,7 @@ data class PersonCsvConfig(
 )
 
 @Suppress("LongParameterList")
-fun personCsvParser(
+fun createPersonCsvParser(
     csvConfig: PersonCsvConfig
 ): CsvParser<MutablePerson> = csvConfig.run {
     val csvParser = CsvParser<MutablePerson>(errorHandling) { row ->

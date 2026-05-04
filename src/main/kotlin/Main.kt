@@ -35,14 +35,15 @@ import application.steps.parser.csv.filterHouseholds
 import application.steps.parser.csv.finishZones
 import application.steps.parser.csv.householdCsv
 import application.steps.parser.csv.householdCsvParser
+import domain.synthesis.parser.createHouseholdCsvParser
 import application.steps.parser.csv.households
 import application.steps.parser.csv.householdsFromCsvStep
 import application.steps.parser.csv.loadAttractivities
 import application.steps.parser.csv.loadHouseholds
 import application.steps.parser.csv.loadPersons
-import application.steps.parser.csv.loadPersonsNested
 import application.steps.parser.csv.loadZones
-import application.steps.parser.csv.personCsvNested
+import application.steps.parser.csv.personCsv
+import application.steps.parser.csv.personCsvParser
 import application.steps.parser.csv.persons
 import application.steps.parser.csv.personsFromCsvStep
 import application.steps.parser.csv.prepareZones
@@ -58,7 +59,8 @@ import core.modelsteps.Cloneable
 import core.modelsteps.ExecutionMode
 import core.modelsteps.Simulation
 import core.modelsteps.initReport
-import core.modelsteps.resources.Repository
+import core.modelsteps.resources.MapRepository
+import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.filterIdsStep
 import domain.shared.config.Yaml
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
@@ -71,6 +73,7 @@ import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegioStaR4
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.legacyChoiceModelPurposes
+import domain.shared.location.MutableZone
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
@@ -82,19 +85,20 @@ import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutableHousehold
+import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.parser.NoActivityStartShifter
-import domain.synthesis.parser.zoneCsvParser
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
-import org.apache.commons.lang3.mutable.Mutable
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.Row
@@ -136,21 +140,21 @@ val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 //}
 
 class MyContext:
-    HasZoneRepo<Zone>,
-    HasHouseholdRepo<Household>,
-    HasPersonRepo<Person>,
-    HasSharingProviderRepo<SharingProvider>,
-    HasDrtProviderRepo<DrtProvider>,
+    HasZoneRepo<MutableZone, Zone>,
+    HasHouseholdRepo<MutableHousehold, Household>,
+    HasPersonRepo<MutablePerson, Person>,
+    HasSharingProviderRepo<MutableSharingProvider, SharingProvider>,
+    HasDrtProviderRepo<MutableDrtProviderData, DrtProvider>,
     Cloneable<MyContext>
 {
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
     override val scenarioName: String = "regression test short term scenario"
-    override lateinit var zoneRepository: Repository<Zone, ZoneId>
-    override lateinit var householdRepository: Repository<Household, HouseholdId>
-    override lateinit var personRepository: Repository<Person, PersonId>
-    override lateinit var sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
-    override lateinit var drtProviderRepository: Repository<DrtProvider, DrtProviderId>
+    override val mutableZoneRepository: MutableRepository<MutableZone, ZoneId> = MapRepository("zone")
+    override val mutablePersonRepository: MutableRepository<MutablePerson, PersonId> = MapRepository("person")
+    override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> = MapRepository("household")
+    override val mutableSharingProviderRepository: MutableRepository<MutableSharingProvider, SharingProviderId> = MapRepository("sharingProvider")
+    override val mutableDrtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId> = MapRepository("drtProvider")
     override fun clone(): MyContext = MyContext() //TODO doppelt zu context factory
 }
 
@@ -196,6 +200,7 @@ fun main(args: Array<String>) {
     }.steps {
 
         context(MyConfig()) {
+
             zones {
                 loadZones(
                     zoneCsv(
@@ -224,11 +229,14 @@ fun main(args: Array<String>) {
                 filterHouseholds(listOf(1, 2, 3, 4, 5).map { HouseholdId(it.toLong()) })
 
 
-
             }
 
             persons {
-                loadPersons(personCsv())
+                loadPersons(personCsv(
+                    personCsvParser {
+                        errorHandling = ErrorHandling.WARNING
+                    }
+                ))
             }
 
 
@@ -237,99 +245,101 @@ fun main(args: Array<String>) {
     }
 
 
-    val shortTermConfig: ShortTermConfig<CoreCSVConfig> =
-        args.firstOrNull()?.let { Yaml.readYaml(it) } ?: standardConfig
-
-    shortTermConfig.validate()
-    Simulation {
-        shortTermConfig.simulationContext
-    }.steps {
-        loadVisumNetwork(
-            shortTermConfig.visumNetwork ?: visum_network
-        ) {
-            connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
-        }
-
-        val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
-
-        prepareZones(shortTermConfig.sourceFiles.zonesCSV, errorHandling = shortTermConfig.errorHandling)
-        finishZones()
-        households {
-            source = householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
-            ) {
-                errorHandling = shortTermConfig.errorHandling
-                this.filter = { filter(it) }
-            }.optionalCache(shortTermConfig.cachePath)
-            +HomeLocationStep(
-                this@steps,
-                AssignAroundZoneCentroid(50.meters)
-            )
-        }
-
-        newDrtProvider {
-            name = "DummyDrt"
-            mode = LegacyMode.RIDE_POOLING
-        }
-        addDrtMemberships(everyoneIsMember)
-        finishDrtProviders()
-
-        persons {
-            source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV) {
-                errorHandling = shortTermConfig.errorHandling
-            }.optionalCache(shortTermConfig.cachePath)
-        }
-
-        privateCars {
-            source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV) {
-                errorHandling = shortTermConfig.errorHandling
-            }.optionalCache(shortTermConfig.cachePath)
-            AssignCarUserStep(this@steps)
-        }
-
-        activities {
-            source = activitiesCsvConfig(path = shortTermConfig.sourceFiles.activityCSV) {
-                errorHandling = shortTermConfig.errorHandling
-                shiftActivityStart = NoActivityStartShifter
-            }.optionalCache(shortTermConfig.cachePath)
-        }
-
-        loadAttractivities(
-            path = shortTermConfig.sourceFiles.attractivitiesCSV,
-            purposes = legacyChoiceModelPurposes,
-        )
-
-        loadImpedance(
-            costMatrixConfig = shortTermConfig.matrixConfig.costMatrixConfig,
-            durationMatrixConfig = shortTermConfig.matrixConfig.durationMatrixConfig,
-            distanceMatrix = shortTermConfig.matrixConfig.distanceMatrix,
-            matrixCreator = optionalCachedMatrixCreator(
-                shortTermConfig.cachePath,
-                shortTermConfig.zoneMatrixCreationMethod
-            )
-        )
-
-        loadBehaviorModels(
-            shortTermConfig.destinationChoiceModel,
-            shortTermConfig.modeChoiceModel,
-            shortTermConfig.choiceModelModes
-        )
-
-        assignFixedDestinations(
-            path = shortTermConfig.sourceFiles.fixedDestinationCSV,
-            homeActivity = LegacyActivityType.HOME
-        )
-
-        buildAgents(
-            personStateMachine,
-            drtStateMachine = drtProviderStateMachine,
-            drtAlgorithm = { _ ->
-                dummyDrtAlgorithm(
-                    zoneRepository.elements.filter { it.isDestination }.toList()
-                )
-            },
-            durationRandomizer = GaussianActivityDurationRandomizer()
-        )
-
-        simulate()
-    }
+//
+//
+//    val shortTermConfig: ShortTermConfig<CoreCSVConfig> =
+//        args.firstOrNull()?.let { Yaml.readYaml(it) } ?: standardConfig
+//
+//    shortTermConfig.validate()
+//    Simulation {
+//        shortTermConfig.simulationContext
+//    }.steps {
+//        loadVisumNetwork(
+//            shortTermConfig.visumNetwork ?: visum_network
+//        ) {
+//            connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
+//        }
+//
+//        val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
+//
+//        prepareZones(shortTermConfig.sourceFiles.zonesCSV, errorHandling = shortTermConfig.errorHandling)
+//        finishZones()
+//        households {
+//            source = householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
+//            ) {
+//                errorHandling = shortTermConfig.errorHandling
+//                this.filter = { filter(it) }
+//            }.optionalCache(shortTermConfig.cachePath)
+//            +HomeLocationStep(
+//                this@steps,
+//                AssignAroundZoneCentroid(50.meters)
+//            )
+//        }
+//
+//        newDrtProvider {
+//            name = "DummyDrt"
+//            mode = LegacyMode.RIDE_POOLING
+//        }
+//        addDrtMemberships(everyoneIsMember)
+//        finishDrtProviders()
+//
+//        persons {
+//            source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV) {
+//                errorHandling = shortTermConfig.errorHandling
+//            }.optionalCache(shortTermConfig.cachePath)
+//        }
+//
+//        privateCars {
+//            source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV) {
+//                errorHandling = shortTermConfig.errorHandling
+//            }.optionalCache(shortTermConfig.cachePath)
+//            AssignCarUserStep(this@steps)
+//        }
+//
+//        activities {
+//            source = activitiesCsvConfig(path = shortTermConfig.sourceFiles.activityCSV) {
+//                errorHandling = shortTermConfig.errorHandling
+//                shiftActivityStart = NoActivityStartShifter
+//            }.optionalCache(shortTermConfig.cachePath)
+//        }
+//
+//        loadAttractivities(
+//            path = shortTermConfig.sourceFiles.attractivitiesCSV,
+//            purposes = legacyChoiceModelPurposes,
+//        )
+//
+//        loadImpedance(
+//            costMatrixConfig = shortTermConfig.matrixConfig.costMatrixConfig,
+//            durationMatrixConfig = shortTermConfig.matrixConfig.durationMatrixConfig,
+//            distanceMatrix = shortTermConfig.matrixConfig.distanceMatrix,
+//            matrixCreator = optionalCachedMatrixCreator(
+//                shortTermConfig.cachePath,
+//                shortTermConfig.zoneMatrixCreationMethod
+//            )
+//        )
+//
+//        loadBehaviorModels(
+//            shortTermConfig.destinationChoiceModel,
+//            shortTermConfig.modeChoiceModel,
+//            shortTermConfig.choiceModelModes
+//        )
+//
+//        assignFixedDestinations(
+//            path = shortTermConfig.sourceFiles.fixedDestinationCSV,
+//            homeActivity = LegacyActivityType.HOME
+//        )
+//
+//        buildAgents(
+//            personStateMachine,
+//            drtStateMachine = drtProviderStateMachine,
+//            drtAlgorithm = { _ ->
+//                dummyDrtAlgorithm(
+//                    zoneRepository.elements.filter { it.isDestination }.toList()
+//                )
+//            },
+//            durationRandomizer = GaussianActivityDurationRandomizer()
+//        )
+//
+//        simulate()
+//    }
 }
