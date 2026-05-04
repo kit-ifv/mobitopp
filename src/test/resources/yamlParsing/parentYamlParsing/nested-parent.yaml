@@ -1,0 +1,7 @@
+sub:
+  name: Subclass
+  numberField: 2
+  doubleField: 3.0
+  extra: Something1
+  extraExtraField: Something2
+
