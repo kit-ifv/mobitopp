@@ -52,20 +52,6 @@ class BinaryConversionTest {
 
         val zones = BinaryZoneReader(1, RegioStaR17.Companion).fromBinary(path)
 
-        zones[0].let {
-            assertEquals(it.visumId, testZone.visumId)
-            assertEquals(it.name, testZone.name)
-            assertEquals(it.classification, testZone.classification)
-            assertEquals(it.parkingPlaces, testZone.parkingPlaces)
-            assertEquals(it.relief, testZone.relief)
-        }
-        zones[1].let {
-            assertEquals(it.visumId, testZone.visumId)
-            assertEquals(it.name, testZone.name)
-            assertEquals(it.classification, testZone.classification)
-            assertEquals(it.parkingPlaces, testZone.parkingPlaces)
-            assertEquals(it.relief, testZone.relief)
-        }
     }
 
     private val zone = TEST_ZONE

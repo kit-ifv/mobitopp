@@ -16,6 +16,7 @@ import domain.shared.enums.LegacyMode
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.StandardZone
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PrivateCarAgent
@@ -117,7 +118,7 @@ fun PersonAgent.hasAccessToCar(): Boolean {
 }
 
 abstract class Scenario(
-    val zones: List<TestZone>,
+    val zones: List<StandardZone>,
     val impedance: ControllableImpedance = ControllableImpedance(),
 ) {
     val currentAttractivenessModel: ControllableAttractiveness = ControllableAttractiveness(zones)
@@ -149,7 +150,7 @@ abstract class Scenario(
     )
 
     protected val behavior = PersonBehavior(
-        destinationChoice = destinationChoice.fixed(zones.map { it.centroid }.toSet()),
+        destinationChoice = destinationChoice.fixed(zones.map { it.centroidLocation }.toSet()),
         modeChoice = modeChoice.fixed(legacyModeChoice.choices),
         modes = legacyChoiceModelModes,
         impedance,

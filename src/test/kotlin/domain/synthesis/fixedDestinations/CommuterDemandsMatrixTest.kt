@@ -4,6 +4,7 @@ import BIELEFELD
 import TestZone
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneAttributes
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import org.junit.jupiter.api.Test
@@ -124,7 +125,7 @@ class CommuterDemandsMatrixTest {
     }
 
     private fun Number.toZone(): TestZone {
-        return TestZone(id = ZoneId(toLong()))
+        return TestZone(id = ZoneId(toLong()), ZoneAttributes.STANDARD)
     }
 
     private fun CommuterDemandsMatrix.Companion.parseRastatt(): CommuterDemandsMatrix {
