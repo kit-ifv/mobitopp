@@ -1,12 +1,13 @@
 package domain.synthesis.parser.binary
 
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.zone.StandardZone
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
 import java.io.DataOutputStream
@@ -20,7 +21,7 @@ import java.nio.ByteBuffer
  */
 @Suppress("MagicNumber")
 object LocationUtils {
-    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone?): StandardLocation {
+    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> StandardZone?): StandardLocation {
         val zoneId = ZoneId(long) // Reading zone ID
         val coordinate = WGS84Coordinate.decimalDegree(
             double,
@@ -60,14 +61,14 @@ object LocationUtils {
      * @param location The `Location` object to write to the `DataOutputStream`.
      */
     fun DataOutputStream.encodeLocation(location: ZonedRoadAccessLocation) {
-        writeLong(location.zoneID.value)
+        writeLong(location.zoneId.value)
         writeDouble(location.position.y)
         writeDouble(location.position.x)
         writeLong(location.roadAccess.roadId)
         writeDouble(location.roadAccess.position.toDouble())
     }
 
-    fun DataOutputStream.encodeLocation(location: HasZoneID) {
+    fun DataOutputStream.encodeLocation(location: HasZoneId) {
         encodeLocation(location.withRoadAccess(RoadAccess.INVALID))
     }
 }

@@ -1,22 +1,15 @@
 package domain.synthesis.parser.binary
 
 import domain.jackson.BinaryWritable
-import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.MutableLegacyZone
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.ZoneAttributes
 import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
-import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.toDistance
 import utils.Decodable
-import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
-import utils.binary.readAsByteBuffer
-import utils.binary.readString
-import utils.binary.writeString
+import utils.binary.*
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -25,35 +18,36 @@ import java.nio.file.Path
 class BinaryZoneReader(
     val seed: Long,
     private val regionCode: Decodable<RegionType>,
-) : BinaryReader<MutableLegacyZone> {
-    override fun fromBinary(path: Path): List<MutableLegacyZone> {
+) : BinaryReader<StandardZone> {
+    override fun fromBinary(path: Path): List<StandardZone> {
         val byteBuffer = path.readAsByteBuffer()
         byteBuffer.long // Consume hash code at start of file
         val size = byteBuffer.int
         val stringLength = byteBuffer.int
 
-        var elements = ArrayList<MutableLegacyZone>(size)
+        var elements = ArrayList<StandardZone>(size)
         repeat(size) {
             elements.add(byteBuffer.decode(stringLength))
         }
-        elements.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
+//        elements.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
         return elements
     }
 
-    override fun ByteBuffer.decode(stringLength: Int): MutableLegacyZone {
-        return MutableLegacyZone(
+    override fun ByteBuffer.decode(stringLength: Int): StandardZone {
+        val zoneId = ZoneId(long)
+        val position = decodeNakedLocation().position
+        long // advance the reader, the visumId field is no longer needed in the construction of a zone
+        readString(stringLength) // advance and drop the name field
+        val regionType = regionCode.decode(int)
+        int // drop classification
+        int // drop parking places
+        getBoolean() // drop is destination
+        double // drop relief
+        return StandardZone(
             ZoneId(long),
-            decodeNakedLocation(),
-            seed
-        ).apply {
-            visumId = long
-            name = readString(stringLength)
-            regionType = regionCode.decode(int)
-            classification = ZoneClassification.decode(int)
-            parkingPlaces = int
-            isDestination = getBoolean()
-            relief = double.toDistance(DistanceUnit.METERS)
-        }
+            decodeNakedLocation().position,
+            ZoneAttributes(regionType)
+        )
     }
 }
 
@@ -83,30 +77,33 @@ data class ZoneBinaryRecord(
     }
 }
 
-class BinaryZoneWriter : BinaryWriter<Zone> {
+class BinaryZoneWriter : BinaryWriter<StandardZone> {
 
-    override fun operateStream(outStream: DataOutputStream, elements: Collection<Zone>) {
+    override fun operateStream(outStream: DataOutputStream, elements: Collection<StandardZone>) {
         val maxStringLength = getMaxStringSize(elements)
         elements.forEach { outStream.encodeZone(it, maxStringLength) }
     }
-
-    override fun getMaxStringSize(elements: Collection<Zone>): Int {
-        return elements.maxOf { it.name.length }
+    private val fakeName = "FakeName"
+    override fun getMaxStringSize(elements: Collection<StandardZone>): Int {
+        return elements.maxOf {
+//            it.name.length
+            fakeName.length
+        }
     }
 
-    fun DataOutputStream.encodeZone(zone: Zone, maxNameLength: Int) {
+    fun DataOutputStream.encodeZone(zone: StandardZone, maxNameLength: Int) {
         zone.run {
             writeLong(id.value)
-            encodeLocation(centroid)
-            writeLong(visumId)
+            encodeLocation(centroidLocation)
+            writeLong(-1L)
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader
-            writeString(name, maxNameLength)
-            writeInt(regionType.code)
-            writeInt(classification.code)
-            writeInt(parkingPlaces)
-            writeBoolean(isDestination)
-            writeDouble(relief.toDouble(DistanceUnit.METERS))
+            writeString(fakeName, maxNameLength)
+            writeInt(attributes.regionType.code)
+            writeInt(-1) // classification
+            writeInt(-1) // parking places
+            writeBoolean(true) // isDestination
+            writeDouble(0.0) // relief
         }
     }
 }

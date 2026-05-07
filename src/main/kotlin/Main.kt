@@ -174,7 +174,8 @@ fun main(args: Array<String>) {
             personStateMachine,
             drtStateMachine = drtProviderStateMachine,
             drtAlgorithm = dummyDrtAlgorithm(
-                zoneRepository.elements.filter { it.isDestination }.toList()
+//                zoneRepository.elements.filter { it.isDestination }.toList()
+                zoneRepository.elements.toList()
             ),
             durationRandomizer = GaussianActivityDurationRandomizer()
         )

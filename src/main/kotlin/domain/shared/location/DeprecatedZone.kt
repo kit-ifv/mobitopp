@@ -3,9 +3,8 @@ package domain.shared.location
 import Mutable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.WGS84Coordinate
 import kotlinx.serialization.Serializable
 import utils.Identifiable
 import utils.random.StochasticActor
@@ -34,6 +33,8 @@ value class ZoneId(val value: Long) : Comparable<ZoneId> {
     }
 }
 
+fun Number.toZoneId()  = ZoneId(this.toLong())
+
 /**
  * Zone - a traffic assignment zone in a transport model.
  *
@@ -54,7 +55,7 @@ value class ZoneId(val value: Long) : Comparable<ZoneId> {
  * @param seed
  */
 @Mutable
-abstract class Zone(
+abstract class DeprecatedZone(
     override val id: ZoneId,
     centroid: Location,
     seed: Long,
@@ -71,14 +72,15 @@ abstract class Zone(
     abstract val relief: Distance
 
     val centroid: StandardLocation by lazy {
-        StandardLocation(
-            position = centroid.position,
-            zone = this,
-            roadAccess = RoadAccess.INVALID
-        )
+        TODO()
+//        BetterLocation(
+//            position = centroid.position,
+//            zone = this,
+//            roadAccess = RoadAccess.INVALID
+//        )
     }
 
-    operator fun contains(location: HasZoneID): Boolean = location.zoneID == this.id
+    operator fun contains(location: HasZoneId): Boolean = location.zoneId == this.id
 
     /* This is really annoying. Legacy mobiTopp had two different IDs for zones: The VISUM ID and the internal
     enumeration so say 6113, 6114, 6116,... and 0, 1, 2,... Obviously the latter was used for determining which zone
@@ -101,13 +103,7 @@ abstract class LegacyZone(
     id: ZoneId,
     centroid: Location,
     seed: Long,
-) : Zone(id, centroid, seed) {
+) : DeprecatedZone(id, centroid, seed) {
 
     abstract val matrixColumn: Int
 }
-
-fun Zone.point(wgsCoord: WGS84Coordinate) = StandardLocation(
-    wgsCoord.toPoint(),
-    zone = this,
-    roadAccess = RoadAccess.INVALID
-)

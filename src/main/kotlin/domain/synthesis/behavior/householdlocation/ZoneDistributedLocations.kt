@@ -3,11 +3,18 @@ package domain.synthesis.behavior.householdlocation
 import CoordinateGenerator
 import domain.VisumPolyZone
 import domain.VisumZoneId
+import domain.shared.location.BetterLocation
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
+import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.toPoint
+import domain.shared.location.zone.HasVisumId
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
 import edu.kit.ifv.units.WGS84Coordinate
+import org.hsqldb.map.HashIndex
+import org.locationtech.jts.geom.Point
 
 /**
  * Generates locations using the given [distributor]. Essentially uses the functionality of the [distributor] to
@@ -17,20 +24,20 @@ import edu.kit.ifv.units.WGS84Coordinate
  * @param distributor A [LanduseDistributedCoordinates]-[CoordinateGenerator] initialized with the land-use-model and
  * weights for the landuse-types that should be used to distribute the generated coordinates inside zones.
  */
-class ZoneDistributedLocations<T>(
+class ZoneDistributedLocations<Z, T>(
     private val polyZones: Map<VisumZoneId, VisumPolyZone>,
     private val distributor: CoordinateGenerator,
-) : AssignHouseholdLocations<Zone, T>, GroupAssignHouseholdLocations<Zone, T> {
+) : AssignHouseholdLocations<Zone<Z>, T>, GroupAssignHouseholdLocations<Zone<Z>, T> where Z: HasVisumId, Z: HasRegionType {
 
     /**
      * Generates one location inside the polyzone, which matches the visumID of the given [zone].
      */
-    override fun generateLocation(zone: Zone, household: T): StandardLocation {
-        val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.visumId.toInt())]
-            ?: polyzoneNotFound(zone.visumId)
+    override fun generateLocation(zone: Zone<Z>, household: T): StandardLocation {
+        val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.attributes.visumId)]
+            ?: polyzoneNotFound(zone.attributes.visumId)
         val coordinate = distributor.generateOneCoordinate(polyZone)
-        return StandardLocation.Companion(coordinate.toPoint(), zone, RoadAccess.Companion.INVALID)
-//        return Location.wgs(coordinate.x, coordinate.y).withZone(zone.id).withRoadAccess(TODO())
+        return BetterLocation(coordinate, zone, RoadAccess.Companion.INVALID)
+
     }
 
     /**
@@ -38,15 +45,15 @@ class ZoneDistributedLocations<T>(
      * [zone].
      */
     override fun generateLocations(
-        zone: Zone,
+        zone: Zone<Z>,
         householdsToLocate: List<T>,
     ): List<Pair<T, StandardLocation>> {
-        val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.visumId.toInt())]
-            ?: polyzoneNotFound(zone.visumId)
+        val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.attributes.visumId)]
+            ?: polyzoneNotFound(zone.attributes.visumId)
         val generatedLocations =
             distributor.generateCoordinates(polyZone, householdsToLocate.size).map {
-                StandardLocation.Companion(
-                    it.toPoint(),
+                StandardLocation(
+                    it,
                     zone,
                     RoadAccess.Companion.INVALID
                 )
@@ -56,11 +63,11 @@ class ZoneDistributedLocations<T>(
 //        return householdsToLocate.zip(generatedLocations)
     }
 
-    private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): WGS84Coordinate {
+    private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): Point {
         return this.generateCoordinates(polyZone, 1).first()
     }
 
-    private fun polyzoneNotFound(id: Long): Nothing {
+    private fun polyzoneNotFound(id: Number): Nothing {
         error("Polyzone with visumID $id not found")
     }
 }

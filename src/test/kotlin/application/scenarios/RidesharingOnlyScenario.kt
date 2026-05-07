@@ -73,7 +73,7 @@ class RidesharingOnlyScenario {
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { it.centroid }.toSet()
+                zones.map { it.centroidLocation }.toSet()
             ),
             modeChoice = FixedOrderChoiceModel(
                 "prefer ridesharing",
@@ -98,9 +98,9 @@ class RidesharingOnlyScenario {
         val agents = builder.buildPersonAgents(households)
 
         agents.forEach { person ->
-            val dest = zones.first { it.id != person.location.zoneID }
+            val dest = zones.first { it.id != person.location.zoneId }
             val sharedResources =
-                context(person, AbsoluteTime.START, dest.centroid) {
+                context(person, AbsoluteTime.START, dest.centroidLocation) {
                     availability.currentlyAffectedProviders(legacyChoiceModelModes.options)
                 }
             assertTrue(

@@ -2,17 +2,17 @@ import domain.shared.datastructure.schedule.Activity
 import domain.shared.datastructure.schedule.RawActivity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
-import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.LegacyZone
-import domain.shared.location.Location
-import domain.shared.location.MutableLegacyZone
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.toPoint
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneAttributes
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
@@ -38,10 +38,8 @@ import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
 import domain.synthesis.data.buildEngine
-import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
-import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
@@ -55,47 +53,22 @@ import kotlin.time.toDuration
 val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
 val ITZEHOE = WGS84Coordinate.decimalDegree(53.925032, 9.515585)
 val SCHWEINFURT = WGS84Coordinate.decimalDegree(50.049994, 10.233302)
-val TEST_ZONE = TestZone()
+val TEST_ZONE = StandardZone(zoneId = 42, BIELEFELD.toPoint(), ZoneAttributes(regionType = RegioStaR17.URBAN_AREA_METRO))
 
-@Buildable
-@Suppress("LongParameterList")
 class TestZone(
-    wgsCoord: WGS84Coordinate = BIELEFELD,
-    visumId: Long = 1L,
-    matrixColumn: Int = 0,
-    name: String = "TestZone",
-    regionType: RegionType = RegioStaR17.METROPOLE,
-    classification: ZoneClassification = ZoneClassification.STUDY_AREA,
-    override var parkingPlaces: Int = 1,
-    isDestination: Boolean = true,
-    relief: Distance = 0.meters,
-    id: ZoneId = ZoneId(1L),
-) : MutableLegacyZone(
-    id,
-    Location.wgs(wgsCoord),
-    42L,
-    {
-        this.visumId = visumId
-        this.name = name
-        this.regionType = regionType
-        this.classification = classification
-        this.parkingPlaces = parkingPlaces
-        this.isDestination = isDestination
-        this.relief = relief
-        this.matrixColumn = matrixColumn
-    }
-) {
-
-    override fun toString(): String {
-        return "TestZone$id"
-    }
+    override val id: ZoneId,
+    override val attributes: HasRegionType
+) : Zone<HasRegionType> {
+    private class AttributeImpl(override val regionType: RegionType) : HasRegionType
+    constructor(zoneId: Number, regionType: RegionType = RegioStaR17.URBAN_AREA_METRO) : this(ZoneId(zoneId.toLong()), AttributeImpl(regionType))
+}
+fun generateZones(numElements: Int): List<StandardZone> {
+    return (0..<numElements).map { StandardZone(it, BIELEFELD.toPoint(), ZoneAttributes(
+        regionType = RegioStaR17.URBAN_AREA_METRO
+    )) }
 }
 
-fun generateZones(numElements: Int): List<TestZone> {
-    return (0..<numElements).map { TestZone(BIELEFELD, id = ZoneId(it.toLong())) }
-}
-
-fun Zone.generateSharingStation(
+fun StandardZone.generateSharingStation(
     sharingProvider: MutableSharingProvider,
     vehicles: Int,
 ): SharingStation {
@@ -111,18 +84,18 @@ fun Zone.generateSharingStation(
     }
 }
 
-fun generateZoneLocations(numElements: Int): List<StandardLocation> {
-    return (0..<numElements).map {
-        val testZone = TestZone(BIELEFELD, id = ZoneId(it.toLong()))
-        StandardLocation(testZone.centroid.position, zone = testZone, roadAccess = RoadAccess.INVALID)
-    }
-}
+//fun generateZoneLocations(numElements: Int): List<StandardLocation> {
+//    return (0..<numElements).map {
+//        val testZone = TestZone(it.toLong())
+//        StandardLocation(testZone.centroid.position, zone = testZone, roadAccess = RoadAccess.INVALID)
+//    }
+//}
 
-fun Zone.point(wgs84coord: WGS84Coordinate): StandardLocation {
+fun Zone<HasRegionType>.point(wgs84coord: WGS84Coordinate): StandardLocation {
     return StandardLocation(wgs84coord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)
 }
 
-fun Long.toRoadPositionInZone(zone: Zone): StandardLocation {
+fun Long.toRoadPositionInZone(zone: Zone<HasRegionType>): StandardLocation {
     return StandardLocation(BIELEFELD.toPoint(), zone, RoadAccess(this, 0.5.share()))
 }
 
@@ -154,7 +127,7 @@ class HouseholdSpawnLimits(
 )
 
 @Suppress("LongParameterList")
-fun Zone.generateHouseholds(
+fun Zone<HasRegionType>.generateHouseholds(
     num: Int,
     random: Random = Random(1),
     spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
@@ -187,7 +160,7 @@ fun Zone.generateHouseholds(
 }
 
 @Suppress("LongParameterList")
-fun Collection<Zone>.generateHouseholds(
+fun Collection<Zone<HasRegionType>>.generateHouseholds(
     num: Int,
     random: Random = Random(1),
     spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
@@ -270,7 +243,7 @@ class ActivitySpawnLimits(
     val types: Collection<ActivityType> = LegacyActivityType.entries,
 )
 
-fun Collection<LegacyZone>.generateActivities(
+fun Collection<Zone<HasRegionType>>.generateActivities(
     num: Int,
     random: Random = Random(1),
     spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits(),
@@ -347,12 +320,12 @@ fun MutableHousehold.generateAndAddPerson(id: Long, lambda: MutablePerson.() -> 
     return person
 }
 
-fun Zone.build(builder: () -> MutableHousehold, roadIndex: Long = -1L): MutableHousehold {
+fun Zone<HasRegionType>.build(builder: () -> MutableHousehold, roadIndex: Long = -1L): MutableHousehold {
     val household = builder().apply { location = roadIndex.toRoadPositionInZone(this@build) }
     return household
 }
 
-fun Zone.generateHouseholdBuilder(
+fun Zone<HasRegionType>.generateHouseholdBuilder(
     id: Long,
     roadIndex: Long = -1L,
     lambda: MutableHousehold.() -> Unit,
@@ -374,7 +347,7 @@ fun Zone.generateHouseholdBuilder(
     return builder
 }
 
-fun Zone.generateHousehold(
+fun Zone<HasRegionType>.generateHousehold(
     id: Long,
     roadIndex: Long = -1L,
     lambda: MutableHousehold.() -> Unit = {

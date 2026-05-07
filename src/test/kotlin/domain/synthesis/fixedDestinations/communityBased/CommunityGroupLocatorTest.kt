@@ -20,9 +20,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class CommunityGroupLocatorTest : SynthesisTest() {
-    private val testZone1 = TestZone(id = ZoneId(1L))
-    private val testZone2 = TestZone(id = ZoneId(2L))
-    private val testZone3 = TestZone(id = ZoneId(3L))
+    private val testZone1 = TestZone(1)
+    private val testZone2 = TestZone(2)
+    private val testZone3 = TestZone(3)
 
     private val home1 = testZone1.spawnFakeLoc()
     private val home2 = testZone2.spawnFakeLoc()
@@ -65,7 +65,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
     @BeforeTest
     fun setup() {
         metric = AsymmetricMockDistance()
-        demand = CommuterDemandsMatrix(converter = { zoneCommunityMapping.getValue(it.zoneID) })
+        demand = CommuterDemandsMatrix(converter = { zoneCommunityMapping.getValue(it.zoneId) })
         strategy = TrivialDemands(metric)
     }
 

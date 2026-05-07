@@ -101,8 +101,8 @@ class HolyHomeActivityResolverTest {
 private class ConflictBuilder {
     var startTime: AbsoluteTime = 0.hours.sinceStart
     var endTime: AbsoluteTime = 999.hours.sinceStart
-    var startLocation: StandardLocation = StandardLocation.fromID(1)
-    var endLocation: StandardLocation = StandardLocation.fromID(1)
+    var startLocation: StandardLocation = StandardLocation.fromId(1)
+    var endLocation: StandardLocation = StandardLocation.fromId(1)
 
     private val scheduleBuilder = ScheduleBuilderForTests(0.0001)
 

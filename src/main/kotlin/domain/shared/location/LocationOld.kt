@@ -1,7 +1,7 @@
 package domain.shared.location
 
 import domain.shared.location.attributes.HasRoadAccess
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
 import edu.kit.ifv.units.KCoordinate
 import edu.kit.ifv.units.UTMPosition
 import edu.kit.ifv.units.WGS84Coordinate
@@ -47,7 +47,7 @@ data class RoadAccessLocationImpl(
     override val roadAccess: RoadAccess,
 ) : HasRoadAccess
 
-interface ZonedRoadAccessLocation : HasRoadAccess, HasZoneID
+interface ZonedRoadAccessLocation : HasRoadAccess, HasZoneId
 
 interface ZonedLocation : Location {
     val zoneId: ZoneId

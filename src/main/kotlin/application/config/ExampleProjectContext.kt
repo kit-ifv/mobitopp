@@ -35,6 +35,7 @@ import domain.shared.location.LegacyZone
 import domain.shared.location.Metrics
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.StandardZone
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
@@ -142,7 +143,7 @@ data class ExampleProjectContext(
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")
 
     @JsonIgnore
-    override val zoneRepository = MapRepository<MutableLegacyZone, ZoneId>("zones")
+    override val zoneRepository = MapRepository<StandardZone, ZoneId>("zones")
 
     @JsonIgnore
     override val householdRepository = MapRepository<MutableHousehold, HouseholdId>("households")
@@ -167,11 +168,11 @@ data class ExampleProjectContext(
     override val plannedActivityRepository =
         MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
 
-    override val zoneColumnIndex: Map<Int, LegacyZone> by lazy {
+    override val zoneColumnIndex: Map<Int, StandardZone> by lazy {
         require(zoneRepository.sealed) {
             "Expected zone repo to be sealed/finished before using the matrix column > zone mapping"
         }
-        zoneRepository.elements.associateBy { it.matrixColumn }
+        zoneRepository.elements.withIndex().associate { it.index to it.value}
     }
 
     @JsonIgnore

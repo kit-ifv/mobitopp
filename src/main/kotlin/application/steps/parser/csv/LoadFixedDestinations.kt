@@ -8,12 +8,13 @@ import core.modelsteps.Warning
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.LegacyZone
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
+import domain.shared.location.zone.StandardZone
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
@@ -37,8 +38,8 @@ import utils.csv.withFilter
 import java.nio.file.Path
 
 interface LoadFixedDestinationsContext : DemandSimContext {
-    val zoneRepository: Repository<Zone, ZoneId>
-    val zoneColumnIndex: Map<Int, LegacyZone> // TODO legacy
+    val zoneRepository: Repository<StandardZone, ZoneId>
+    val zoneColumnIndex: Map<Int, StandardZone> // TODO legacy
 
     val personRepository: MutableRepository<out Person, PersonId>
     val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
@@ -57,7 +58,7 @@ interface LoadFixedDestinationsContext : DemandSimContext {
 class FixedDestinationsBuilder(
     personConverter: (PersonId) -> Person?,
     activityTypeConverter: CodePlan<ActivityType>,
-    zoneConverter: (ZoneId) -> Zone,
+    zoneConverter: (ZoneId) -> StandardZone,
     val cacheRootPath: Path,
     val sourcePath: Path,
 ) {

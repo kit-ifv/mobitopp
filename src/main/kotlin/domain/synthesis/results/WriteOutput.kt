@@ -153,7 +153,7 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
                 1970, // Dummy value for dumb output household year taken from survey data.
                 -1, // Dummy value for dumb output: household ID from the survey data
                 activityType.description,
-                location.zoneID,
+                location.zoneId,
                 location.legacyStringRepresentation(),
                 location.position.x,
                 location.position.y
@@ -195,7 +195,7 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHousehold
             val location = this.attributes.location
             toCSV(
                 id,
-                location.zoneID,
+                location.zoneId,
                 surveyHouseholdId,
                 location,
                 location.position.x,
@@ -241,7 +241,7 @@ class LegacyHouseholdOutput<T : MaximumHouseholdAttributes> : CSVOutput<Synthesi
                 -1, // Ok, here I am lost, I have absolutely no idea what "domcode" is supposed to be.
                 attributes.type.code, // The household type. Again taken from survey data.
                 "uselessattribute", // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
-                location.zoneID,
+                location.zoneId,
                 location.legacyStringRepresentation(),
                 location.position.x,
                 location.position.y,
@@ -270,7 +270,7 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
     override fun convert(element: OpportunityOutput): String {
         return element.run {
             toCSV(
-                location.zoneID.value,
+                location.zoneId.value,
                 activityType,
                 location.legacyStringRepresentation(),
                 attractiveness.value,

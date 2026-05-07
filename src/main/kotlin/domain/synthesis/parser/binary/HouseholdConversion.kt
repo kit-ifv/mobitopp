@@ -1,7 +1,8 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.Zone
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.StandardZone
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -21,7 +22,10 @@ import java.nio.ByteBuffer
  * the binary file.
  */
 @Suppress("MagicNumber")
-class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private val contextSimulationSeed: Long) :
+class BinaryHouseholdReader(
+    private val zoneConverter: (ZoneId) -> StandardZone,
+    private val contextSimulationSeed: Long
+) :
     BinaryReader<MutableHousehold> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutableHousehold {

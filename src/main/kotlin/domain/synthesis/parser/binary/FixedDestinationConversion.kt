@@ -1,8 +1,9 @@
 package domain.synthesis.parser.binary
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.Zone
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.StandardZone
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.parser.ActivityLocation
@@ -16,7 +17,7 @@ import java.nio.ByteBuffer
 class FixedDestinationReader(
     val personConverter: (PersonId) -> Person?,
     private val activityTypeConverter: CodePlan<ActivityType>,
-    val zoneConverter: (ZoneId) -> Zone
+    val zoneConverter: (ZoneId) -> StandardZone
 ) : BinaryReader<ActivityLocation> {
 
     override fun ByteBuffer.decode(stringLength: Int): ActivityLocation? {

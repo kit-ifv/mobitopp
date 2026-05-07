@@ -3,7 +3,7 @@ package domain.synthesis.data
 import Mutable
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
+import domain.shared.location.zone.StandardZone
 import kotlinx.serialization.Serializable
 import utils.Identifiable
 
@@ -74,11 +74,11 @@ interface ISharingStation : Identifiable<SharingStationId> {
     val uid: String
     val name: String
     val location: StandardLocation
-    val zonesByFoot: Set<Zone>
+    val zonesByFoot: Set<StandardZone>
     val owner: ISharingProvider
 
     fun isReachableFrom(origin: StandardLocation) = zonesByFoot.any { origin in it }
-    fun isReachableFrom(zone: Zone) = zone in zonesByFoot
+    fun isReachableFrom(zone: StandardZone) = zone in zonesByFoot
 }
 
 @Mutable

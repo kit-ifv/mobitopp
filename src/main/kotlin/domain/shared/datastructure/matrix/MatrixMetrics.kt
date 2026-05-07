@@ -6,20 +6,8 @@ import domain.shared.datastructure.matrix.optimized.DoubleToDuration
 import domain.shared.datastructure.matrix.yaml.YamlInfo
 import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.enums.Mode
-import domain.shared.location.CostMetric
-import domain.shared.location.DistanceMetric
-import domain.shared.location.DurationMetric
-import domain.shared.location.Metrics
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZoneID
-import edu.kit.ifv.units.Currency
-import edu.kit.ifv.units.CurrencyUnit
-import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.euros
-import edu.kit.ifv.units.kilometers
-import edu.kit.ifv.units.toCurrency
-import edu.kit.ifv.units.toDistance
+import domain.shared.location.*
+import edu.kit.ifv.units.*
 import utils.Decodable
 import utils.units.Time
 import java.nio.file.Path
@@ -51,14 +39,14 @@ class MatrixMetrics(
     private val distanceConverter = unitConverters.distanceConverter
 
     override fun costMetric(mode: Mode, time: Time): CostMetric {
-        return CostMetric { o: HasZoneID, d: HasZoneID ->
-            currencyConverter.from(travelCosts[mode, time][o.zoneID, d.zoneID])
+        return CostMetric { o, d ->
+            currencyConverter.from(travelCosts[mode, time][o.id, d.id])
         }
     }
 
     override fun distanceMetric(mode: Mode): DistanceMetric {
         return DistanceMetric { o, d ->
-            distanceConverter.from(travelDistance[o.zoneID, d.zoneID])
+            distanceConverter.from(travelDistance[o.id, d.id])
         }
     }
 
@@ -66,8 +54,8 @@ class MatrixMetrics(
         mode: Mode,
         time: Time,
     ): DurationMetric {
-        return DurationMetric { o: HasZoneID, d: HasZoneID ->
-            timeConverter.from(travelTimes[mode, time][o.zoneID, d.zoneID])
+        return DurationMetric { o, d ->
+            timeConverter.from(travelTimes[mode, time][o.id, d.id])
         }
     }
 

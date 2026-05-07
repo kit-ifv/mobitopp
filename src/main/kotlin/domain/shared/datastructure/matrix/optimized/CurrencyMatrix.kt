@@ -3,8 +3,8 @@ package domain.shared.datastructure.matrix.optimized
 import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.CostMetric
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.Currency
+import utils.Identifiable
 
 fun interface DoubleToCurrency {
     fun from(x: Double): Currency
@@ -19,9 +19,9 @@ class CurrencyMatrix(
     }
 
     override fun evaluate(
-        origin: HasZoneID,
-        destination: HasZoneID,
+        origin: Identifiable<ZoneId>,
+        destination: Identifiable<ZoneId>,
     ): Currency {
-        return this[origin.zoneID, destination.zoneID]
+        return this[origin.id, destination.id]
     }
 }

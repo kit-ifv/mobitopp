@@ -62,8 +62,8 @@ object StandardCSVLegWriter: WriteLegToCSV {
             purpose,
             leg.startTime.secondsSinceStart,
             leg.endTime.secondsSinceStart,
-            leg.startLocation.zoneID.value,
-            leg.endLocation.zoneID.value,
+            leg.startLocation.zoneId.value,
+            leg.endLocation.zoneId.value,
             previousPurpose,
             dist.kilometers,
             cost.euros

@@ -6,9 +6,9 @@ import domain.shared.location.StandardLocation
 
 class ScheduleBuilderForTests(val duration: Number = 8) {
 
-    private val homeLoc = StandardLocation.fromID(1)
-    private val loc2 = StandardLocation.fromID(2)
-    private val loc3 = StandardLocation.fromID(3)
+    private val homeLoc = StandardLocation.fromId(1)
+    private val loc2 = StandardLocation.fromId(2)
+    private val loc3 = StandardLocation.fromId(3)
 
     private val activities: MutableList<Activity> = mutableListOf()
     private val schedule = Schedule(BlockModel()).apply {

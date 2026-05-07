@@ -62,7 +62,7 @@ class CarOnlyScenario {
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { it.centroid }.toSet()
+                zones.map { it.centroidLocation }.toSet()
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel(

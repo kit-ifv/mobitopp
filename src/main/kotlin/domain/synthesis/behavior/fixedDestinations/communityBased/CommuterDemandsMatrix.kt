@@ -66,7 +66,7 @@ class CommuterDemandsMatrix(
         ): CommuterDemandsMatrix {
             val match = readZoneToCommunity(mappingFile)
             return readCommuters(commuterFile) {
-                val zoneID = it.zoneID
+                val zoneID = it.zoneId
 
                 match[zoneID] ?: CommunityNumber.INVALID.also {
                     "Zone id $zoneID cannot be converted to a community number." +

@@ -9,8 +9,9 @@ import core.modelsteps.Resource
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.asResource
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.Metrics
-import domain.shared.location.Zone
+import domain.shared.location.zone.StandardZone
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
@@ -73,7 +74,7 @@ fun AddDrtProviderContext.addMultipleDrtProvider(scope: DrtProviderCollector.() 
 private val allDay = 0 to 24
 
 fun AddDrtProviderContext.dummyDrtAlgorithm(
-    serviceArea: Collection<Zone>,
+    serviceArea: Collection<StandardZone>,
     numVehicles: Int = serviceArea.size,
     avgWaitingTime: Duration = 4.minutes,
     operationHours: Pair<Int, Int> = allDay,

@@ -1,7 +1,7 @@
 package domain.shared.location
 
 import domain.shared.location.attributes.HasRoadAccess
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate
@@ -12,8 +12,8 @@ import org.locationtech.jts.geom.PrecisionModel
 interface Location {
     val position: Point
 
-    fun withZone(zoneId: ZoneId): HasZoneID {
-        return ZoneIDLocation(position, zoneId)
+    fun withZone(zoneId: ZoneId): HasZoneId {
+        return ZoneIdLocation(position, zoneId)
     }
 
     fun withRoadAccess(access: RoadAccess): HasRoadAccess {

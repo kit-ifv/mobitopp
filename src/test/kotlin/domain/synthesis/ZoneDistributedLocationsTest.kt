@@ -1,5 +1,6 @@
 package domain.synthesis
 
+import BIELEFELD
 import LandUseParser
 import NetfileParser
 import UrbanAtlasGenerator
@@ -8,10 +9,17 @@ import ZoneType
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.toPoint
+import domain.shared.location.toZoneId
+import domain.shared.location.zone.HasVisumId
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneAttributes
 import domain.synthesis.behavior.householdlocation.ZoneDistributedLocations
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.Hemisphere
@@ -58,13 +66,24 @@ class ZoneDistributedLocationsTest {
         utmZone = netfileParser.utmZone,
         utmHemisphere = netfileParser.utmHemisphere
     )
-    private val distributedLocations = ZoneDistributedLocations<TestHouseHold>(polyZones, distributor)
+    private val distributedLocations = ZoneDistributedLocations<NecessaryAttributes, TestHouseHold>(polyZones, distributor)
+    private data class NecessaryAttributes(
+        override val visumId: Int,
+        override val regionType: RegionType
+    ) : HasVisumId, HasRegionType
+    private class AdvancedZone(
+        override val id: ZoneId,
+        override val attributes: NecessaryAttributes
 
+    ) : Zone<NecessaryAttributes> {
+        constructor(id: Number, visumId: Number): this(id = id.toZoneId(), NecessaryAttributes(visumId.toInt(),
+            RegioStaR17.URBAN_AREA_METRO))
+    }
     // TODO this test is no longer testing sensible things since the location rework
     @Test
     fun singleAssign() {
         val generated = distributedLocations.generateLocation(
-            TestZone(visumId = 1L),
+            AdvancedZone(1, 1),
             TestHouseHold("MyHousehold")
         )
 
@@ -77,7 +96,7 @@ class ZoneDistributedLocationsTest {
         val size = 20
         val houseHolds = List(size) { TestHouseHold() }
         val generated = distributedLocations.generateLocations(
-            TestZone(visumId = 35L),
+            AdvancedZone(1, 35),
             houseHolds
         )
 
@@ -98,7 +117,7 @@ private class TestZone(
     override val classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override val isDestination: Boolean = true,
     override val relief: Distance = 0.meters,
-) : Zone(
+) : DeprecatedZone(
     id = ZoneId(visumId),
     centroid = Location.wgs(9.0, 50.0),
     seed = 0L

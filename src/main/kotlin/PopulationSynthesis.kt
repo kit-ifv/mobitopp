@@ -5,10 +5,11 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
+import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.zone.StandardZone
 import domain.synthesis.SynthesisSteps
 import domain.synthesis.algorithms.TrivialSynthesis
 import domain.synthesis.assignAmountOfCars
@@ -30,24 +31,14 @@ import domain.synthesis.behavior.discreteChoice.TransitPassParameters
 import domain.synthesis.behavior.discreteChoice.YesTransitPass
 import domain.synthesis.behavior.discreteChoice.transitPassChoiceModel
 import domain.synthesis.behavior.economicstatus.OECDAssigner
-import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
-import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
+import domain.synthesis.behavior.fixedDestinations.*
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
-import domain.synthesis.behavior.fixedDestinations.primarySchool
-import domain.synthesis.behavior.fixedDestinations.secondarySchool
-import domain.synthesis.behavior.fixedDestinations.work
 import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
-import domain.synthesis.results.LegacyActivityOutput
-import domain.synthesis.results.LegacyCarOutput
-import domain.synthesis.results.LegacyFixedDestinationOutput
-import domain.synthesis.results.LegacyHouseholdOutput
-import domain.synthesis.results.LegacyOpportunitiesOutput
-import domain.synthesis.results.LegacyPersonOutput
-import domain.synthesis.results.OpportunityOutput
+import domain.synthesis.results.*
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.CurrencyUnit
@@ -215,7 +206,7 @@ fun <
     opportunities.addAll(generatedLocations.map {
         OpportunityOutput(
             it,
-            attractivenessModel.attractivenessFor(it.zoneID, activityType),
+            attractivenessModel.attractivenessFor(it.zoneId, activityType),
             activityType
         )
     })
@@ -324,7 +315,7 @@ private val attractivenessModelPath = Path("src/test/resources/synthesis/attract
 fun examplePopulationSynthesis() {
     val populationSynthesis = PopulationSynthesis.configure(
         surveyPopulation = GenerateFromFlatInput.fromPath("src/test/resources/synthesis/SurveyPopulation.csv"),
-        zones = emptyList<Zone>()
+        zones = emptyList<StandardZone>()
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
         attractivenessModel = attractivenessFromFile {
@@ -429,7 +420,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes> SynthesisSteps<Zone, C, T>.writeLegacyOutput() {
+fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes> SynthesisSteps<StandardZone, C, T>.writeLegacyOutput() {
     LegacyHouseholdOutput<C>().writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput<C, T>().writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
@@ -444,21 +435,21 @@ fun main() {
 }
 
 @Suppress("MagicNumber") // 10 is the number of locations to be generated, no thought is behind that number
-private fun Collection<Zone>.generateLocations(
+private fun Collection<StandardZone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,
-    generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
-): List<HasZoneID> {
+    generationFunction: (StandardZone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
+): List<HasZoneId> {
     return filter { attractivenessModel.isAttractive(it.id, activityType) }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-private fun Zone.generateLocations(amount: Int): List<StandardLocation> {
+private fun StandardZone.generateLocations(amount: Int): List<StandardLocation> {
     return (0 until amount).map {
-        StandardLocation(
-            position = TODO(),
+        BetterLocation(
+            position = randomPoint(),
             zone = this,
             roadAccess = RoadAccess.INVALID
         )

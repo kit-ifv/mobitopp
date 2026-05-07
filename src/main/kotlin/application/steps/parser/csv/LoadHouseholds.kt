@@ -11,12 +11,12 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
-import domain.shared.location.LegacyZone
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
+import domain.shared.location.zone.StandardZone
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdId
@@ -40,8 +40,8 @@ import java.nio.file.Path
 import kotlin.math.roundToInt
 
 interface LoadHouseholdContext : DemandSimContext {
-    val zoneRepository: Repository<Zone, ZoneId>
-    val zoneColumnIndex: Map<Int, LegacyZone>
+    val zoneRepository: Repository<StandardZone, ZoneId>
+    val zoneColumnIndex: Map<Int, StandardZone>
 
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
     val economicalStatusCodes: CodePlan<EconomicStatus>
@@ -49,7 +49,7 @@ interface LoadHouseholdContext : DemandSimContext {
     val defaultHouseholdPath: Path
         get() = dataFolder.resolve("demand-data").resolve("household.csv")
 
-    fun getLegacyZone(
+    fun getZone(
         matrixColumn: Int,
     ) = requireNotNull(
         zoneColumnIndex[matrixColumn]
@@ -81,7 +81,7 @@ fun LoadHouseholdContext.households(lambda: HouseholdStepBuilder.() -> Unit) {
     finishHouseholds()
 }
 
-class HouseholdStepBuilder(val seed: Long, val converter: (ZoneId) -> Zone) :
+class HouseholdStepBuilder(val seed: Long, val converter: (ZoneId) -> StandardZone) :
     GroupedStepBuilder<MutableHousehold, HouseholdId>() {
     override val reader: BinaryReader<MutableHousehold> = BinaryHouseholdReader(converter, seed)
     override val writer: BinaryWriter<MutableHousehold> = BinaryHouseholdWriter()
@@ -145,7 +145,7 @@ fun LoadHouseholdContext.spawnCsvParser(
             val temp = row(columns.locationColumn, roadPositionParser)
             location = StandardLocation(
                 position = temp.position,
-                zone = getLegacyZone(row.int(columns.zoneColumn)),
+                zone = getZone(row.int(columns.zoneColumn)),
                 roadAccess = temp.roadAccess
             )
         }

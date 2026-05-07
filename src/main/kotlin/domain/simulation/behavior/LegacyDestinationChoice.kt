@@ -6,7 +6,7 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
 import domain.synthesis.data.Employment
 import domain.synthesis.data.isAdult
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
@@ -144,11 +144,11 @@ val DestinationChoiceCharacteristics.purpose: ActivityType
 val DestinationAlternative.attractivity: Double
     get() =
         attractivityModel.attractivenessFor(
-            choice.zoneID,
+            choice.zoneId,
             purpose
         ).value
 val DestinationAlternative.distance: Distance get() = impedance.distance(origin, choice, LegacyMode.CAR)
-val DestinationAlternative.isIntrazonal: Double get() = (origin.zoneID == choice.zoneID).D
+val DestinationAlternative.isIntrazonal: Double get() = (origin.zoneId == choice.zoneId).D
 
 val DestinationAlternative.travelTimePed: Duration
     get() = impedance.duration(
@@ -178,7 +178,7 @@ val DestinationAlternative.travelCostCar: Currency get() = impedance.cost(origin
 // Next fixed destination properties
 val DestinationChoiceCharacteristics.nextFixedActivity
     get() = person.schedule.activities().find { it.location != StandardLocation.LOCATIONUNKNOWN }
-val DestinationChoiceCharacteristics.nextFixedDestination: HasZoneID
+val DestinationChoiceCharacteristics.nextFixedDestination: HasZoneId
     get() = nextFixedActivity?.location ?: person.household.location
 val DestinationChoiceCharacteristics.nextFixedActivityEnd get() = nextFixedActivity?.endTime ?: time.plus(7.hours)
 

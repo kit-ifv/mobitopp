@@ -1,8 +1,11 @@
 package domain.shared.behavior
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.Zone
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.HasNumberParkingPlaces
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultMapCsvParser
@@ -26,12 +29,13 @@ fun AttractivenessModel.sumAttractiveness(zone: ZoneId, vararg activityTypes: Ac
     activityTypes.sumOf { attractivenessFor(zone, it).value }
 
 @Suppress("MagicNumber")
-fun AttractivenessModel.parkingPressure(target: Zone): Double {
+fun AttractivenessModel.parkingPressure(target: Zone<HasNumberParkingPlaces>): Double {
     val attractiveness = sumAttractiveness(target.id, purposes.work, purposes.privateVisit)
-    if (target.parkingPlaces == 0) {
+    val parkingPlaces = target.attributes.parkingPlaces
+    if (parkingPlaces == 0) {
         return if (abs(attractiveness) < 1e-6) 0.0 else 999.0
     }
-    return attractiveness / target.parkingPlaces
+    return attractiveness / parkingPlaces
 }
 
 /**

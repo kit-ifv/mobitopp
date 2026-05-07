@@ -8,12 +8,13 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.ValidateCsvMetadata
 import domain.shared.enums.Mode
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.LegacyZone
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.StandardZone
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
@@ -32,8 +33,8 @@ import java.nio.file.Path
 
 interface LoadSharingProvidersContext : DemandSimContext {
     val sharingProviderRepository: MutableRepository<MutableSharingProvider, SharingProviderId>
-    val zoneRepository: Repository<Zone, ZoneId>
-    val zoneColumnIndex: Map<Int, LegacyZone>
+    val zoneRepository: Repository<StandardZone, ZoneId>
+    val zoneColumnIndex: Map<Int, StandardZone>
 
     val defaultSharingStationPath: Path
         get() = zoneFolder.resolve("sharing-stations.csv")
@@ -161,7 +162,7 @@ fun String.parseCoordinate(): KCoordinate =
 //    }.toSet()
 // }
 
-fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : LoadSharingProvidersContext {
+fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<StandardZone> where C : LoadSharingProvidersContext {
     return row(column).split(",").map { id ->
 
         id.toLongOrNull()?.let {
@@ -173,7 +174,7 @@ fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : Load
     }.toSet()
 }
 
-fun <C> C.getZone(id: Long): Zone where C : LoadSharingProvidersContext = requireNotNull(
+fun <C> C.getZone(id: Long): StandardZone where C : LoadSharingProvidersContext = requireNotNull(
     this.zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
 ) {
     "Referenced ZoneId $id could not be found in zoneRepo:" +

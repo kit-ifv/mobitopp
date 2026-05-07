@@ -15,7 +15,7 @@ data class LocationAlternative(
     /**
      * We can extrapolate the attractiveness by simply evaluating the location.
      */
-    fun attractiveness(location: StandardLocation) = location.zoneID.let {
+    fun attractiveness(location: StandardLocation) = location.zoneId.let {
         attractivenessModel.attractivenessFor(it, activityType)
     }
 }

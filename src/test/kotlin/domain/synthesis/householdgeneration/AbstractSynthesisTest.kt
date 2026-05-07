@@ -3,10 +3,12 @@ package domain.synthesis.householdgeneration
 import TestZone
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.attributes.HasZoneId
 import domain.shared.location.toPoint
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
@@ -30,7 +32,7 @@ import org.locationtech.jts.geom.Point
 import kotlin.test.Test
 
 class ToolTest : SynthesisTest() {
-    val zone1 = TestZone(id = ZoneId(1))
+    val zone1 = TestZone(1)
 
     @Test
     fun checkHouseholdCreation() {
@@ -98,27 +100,27 @@ open class SynthesisTest {
     }
 
     protected fun fakeLocation() = FakeCoord()
-    protected fun Zone.spawnFakeLoc(): StandardLocation {
+    protected fun Zone<HasRegionType>.spawnFakeLoc(): StandardLocation {
         val point: Point = GeometryFactory().createPoint(Coordinate(counter, counter)).also { counter++ }
         return StandardLocation(point, this, RoadAccess.INVALID)
     }
 
     private var counter: Double = .0
 
-    protected fun Zone.spawnLocation(coordinate: WGS84Coordinate): StandardLocation {
+    protected fun Zone<HasRegionType>.spawnLocation(coordinate: WGS84Coordinate): StandardLocation {
         return StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
     }
 
-    protected class FakeCoord : HasZoneID {
-        val id = counter
+    protected class FakeCoord : HasZoneId {
+        val idx = counter
 
         override fun toString(): String {
-            return "FakeLoc($id)"
+            return "FakeLoc($idx)"
         }
 
         override val position: Point
             get() = error("The Fake Coord should never have to resolve its point")
-        override val zoneID: ZoneId = ZoneId(id)
+        override val zoneId: ZoneId = ZoneId(idx)
 
         companion object {
             var counter: Long = 0

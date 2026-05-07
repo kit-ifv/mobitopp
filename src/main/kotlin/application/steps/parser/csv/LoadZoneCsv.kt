@@ -9,8 +9,12 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.location.Location
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneAttributes
 import domain.simulation.config.DemandSimContext
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.WGS84Coordinate
@@ -30,7 +34,7 @@ import utils.csv.long
 import java.nio.file.Path
 
 interface LoadZonesContext : DemandSimContext {
-    val zoneRepository: MutableRepository<MutableLegacyZone, ZoneId>
+    val zoneRepository: MutableRepository<StandardZone, ZoneId>
     val regionTypeCodes: CodePlan<RegionType>
 
     val defaultZonePath: Path
@@ -78,8 +82,8 @@ fun defaultCsvParser(
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
     regionTypeCodePlan: Decodable<RegionType> = RegioStaR17,
     seed: Long = 1,
-): DefaultCsvParser<MutableLegacyZone> {
-    val csvParser = CsvParser(errorHandling) { row ->
+): DefaultCsvParser<StandardZone> {
+    val csvParserBad = CsvParser(errorHandling) { row ->
         MutableLegacyZone(
             id = ZoneId(row.long(columns.idColumn)),
             centroid = row(columns.centroidColumn, centroidParser),
@@ -95,6 +99,17 @@ fun defaultCsvParser(
             isDestination = row.boolean(columns.isDestinationColumn)
             relief = row.double().distance(columns.reliefColumn, reliefUnit)
         }
+    }
+
+    val csvParser = CsvParser(errorHandling) { row ->
+        StandardZone(
+            ZoneId(row.long(columns.idColumn)),
+            row(columns.centroidColumn, centroidParser).position,
+            ZoneAttributes(
+                regionType =
+                    row.decode(columns.regionTypeColumn, regionTypeCodePlan)
+            )
+        )
     }
 
     return csvParser
@@ -128,11 +143,11 @@ fun cheatyDefaultCsvParser(
 private val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
 
 fun LoadZonesContext.prepareZoneFile(
-    parser: CsvParser<MutableLegacyZone>,
+    parser: CsvParser<StandardZone>,
     path: Path = defaultZonePath,
     delimiter: String = SEMICOLON,
 ) = runStep {
-    LoadCsvStep<MutableLegacyZone, ZoneId>(
+    LoadCsvStep<StandardZone, ZoneId>(
         path = path,
         name = "Load zones from csv",
         parser = parser,
@@ -165,6 +180,6 @@ fun String.toZoneClassification() = when (this) {
     "extendedStudyArea" -> ZoneClassification.EXTENDED_STUDY_AREA
     else -> throw UnsupportedOperationException(
         "String '$this' cannot be parsed as a ZoneClassification! " +
-            "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'"
+                "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'"
     )
 }

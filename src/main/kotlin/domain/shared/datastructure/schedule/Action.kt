@@ -239,7 +239,7 @@ data class RawActivity(
         val earlyStartTime =
             if (earliestStartTime == AbsoluteTime.MINUS_INFINITY) "" else "earliestStartTime=$earliestStartTime"
         val latestEndTime = if (latestEndTime == AbsoluteTime.INFINITY) "" else "latestEndTime=$latestEndTime"
-        return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneID}" +
+        return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneId}" +
             " t= ${type.description.first()}" +
             "(${type.code}) e=$earlyStartTime l=$latestEndTime "
     }

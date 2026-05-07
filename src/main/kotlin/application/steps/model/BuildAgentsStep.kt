@@ -1,38 +1,17 @@
 package application.steps.model
 
-import core.modelsteps.AbstractAddResourceStep
-import core.modelsteps.LazyResource
-import core.modelsteps.ModelStep
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
-import core.modelsteps.Resource
-import core.modelsteps.Warning
+import core.modelsteps.*
 import core.statemachine.StateMachineFactory
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.simulation.agent.BuildAgents
-import domain.simulation.agent.DrtAlgorithm
-import domain.simulation.agent.DrtProviderAgent
-import domain.simulation.agent.PersonAgent
-import domain.simulation.agent.SharingProviderAgent
+import domain.shared.location.zone.StandardZone
+import domain.simulation.agent.*
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.config.DemandSimContext
-import domain.synthesis.data.ActivityId
-import domain.synthesis.data.CarId
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderId
-import domain.synthesis.data.Household
-import domain.synthesis.data.HouseholdId
-import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.Person
-import domain.synthesis.data.PersonId
-import domain.synthesis.data.PrivateCar
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.SharingProviderId
+import domain.synthesis.data.*
 
 interface BuildAgentsContext : DemandSimContext {
-    val zoneRepository: Repository<Zone, ZoneId>
+    val zoneRepository: Repository<StandardZone, ZoneId>
     val householdRepository: Repository<Household, HouseholdId>
     val carRepository: Repository<PrivateCar, CarId>
     val personRepository: Repository<Person, PersonId>

@@ -4,7 +4,8 @@ import AssignmentStep
 import HouseholdAssignmentStep
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
-import domain.shared.location.Zone
+import domain.shared.location.DeprecatedZone
+import domain.shared.location.zone.StandardZone
 import domain.synthesis.attributes.household.HasMutableEconomicStatus
 import domain.synthesis.attributes.household.HasMutableNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
@@ -57,8 +58,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
      * strategy is created in the [AssignFixedDestinationBuilder] class, which provides some convenience methods for
      * frequently assigned fixed destinations.
      */
-    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<Zone, S, T>.() -> Unit) {
-        val fixedDestinationBuilder = AssignFixedDestinationBuilder<Zone, S, T>(attractivenessModel)
+    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<StandardZone, S, T>.() -> Unit) {
+        val fixedDestinationBuilder = AssignFixedDestinationBuilder<StandardZone, S, T>(attractivenessModel)
         fixedDestinationBuilder.apply(lambda)
 
         val allFixedDestinations = fixedDestinationBuilder.steps.flatMap { it.generateFixedDestinations(households) }

@@ -1,8 +1,9 @@
 package domain.shared.location
 
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
+import utils.Identifiable
 import kotlin.time.Duration
 
 /**
@@ -12,7 +13,7 @@ import kotlin.time.Duration
  */
 fun interface LocationMetric<R> {
 
-    fun evaluate(origin: HasZoneID, destination: HasZoneID): R
+    fun evaluate(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): R
 }
 
 typealias CostMetric = LocationMetric<Currency>
@@ -25,5 +26,5 @@ class ConstantMetric<R>(
     val value: R,
 ) : LocationMetric<R> {
 
-    override fun evaluate(origin: HasZoneID, destination: HasZoneID): R = value
+    override fun evaluate(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): R = value
 }

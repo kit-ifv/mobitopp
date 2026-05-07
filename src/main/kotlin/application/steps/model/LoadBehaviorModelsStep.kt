@@ -15,8 +15,9 @@ import domain.shared.enums.Mode
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.location.LegacyZone
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.StandardZone
 import domain.simulation.agent.DrtOffer
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
@@ -93,8 +94,8 @@ fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
 interface LoadBehaviorModelsContext : DemandSimContext {
     val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
     val drtProviderRepository: Repository<DrtProvider, DrtProviderId>
-    val zoneRepository: Repository<Zone, ZoneId>
-    val zoneColumnIndex: Map<Int, LegacyZone>
+    val zoneRepository: Repository<StandardZone, ZoneId>
+    val zoneColumnIndex: Map<Int, StandardZone>
     val attractivenessModel: LateInit<AttractivenessModel>
 }
 
@@ -148,7 +149,7 @@ open class LoadBehaviorModelsStep(
         val modeChoice = modeChoiceModel.addFilter(availability.asResourceAvailabilityFilter())
 
         val destinationChoice = destinationChoiceModel.fixed(
-            context.zoneRepository.elements.map { it.centroid }.toSet()
+            context.zoneRepository.elements.map { it.centroidLocation }.toSet()
         )
 
         val behavior = PersonBehavior(

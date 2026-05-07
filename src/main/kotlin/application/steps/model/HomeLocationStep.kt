@@ -5,8 +5,9 @@ import core.modelsteps.Repository
 import core.modelsteps.UpdateAllStep
 import core.modelsteps.UpdateEachStep
 import core.modelsteps.Warning
-import domain.shared.location.Zone
+import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.StandardZone
 import domain.simulation.config.DemandSimContext
 import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
@@ -18,12 +19,12 @@ import domain.synthesis.data.MutableHousehold
 import edu.kit.ifv.units.meters
 
 interface HomeLocationModelContext : DemandSimContext {
-    val zoneRepository: Repository<Zone, ZoneId>
+    val zoneRepository: Repository<StandardZone, ZoneId>
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
 }
 
 fun HomeLocationModelContext.householdHomeLocation(
-    model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters),
+    model: AssignHouseholdLocations<StandardZone, Household> = AssignAroundZoneCentroid(100.meters),
 ) = runStep {
     HomeLocationStep(this, model)
 }
@@ -32,13 +33,13 @@ fun HomeLocationModelContext.householdHomeLocation(
  * Return the step, but do not execute it immediately.
  */
 fun HomeLocationModelContext.assignHouseholdLocation(
-    model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters)
+    model: AssignHouseholdLocations<StandardZone, Household> = AssignAroundZoneCentroid(100.meters)
 ): HomeLocationStep {
     return HomeLocationStep(this, model)
 }
 
 fun HomeLocationModelContext.groupedHouseholdHomeLocation(
-    model: GroupAssignHouseholdLocations<Zone, MutableHousehold> =
+    model: GroupAssignHouseholdLocations<StandardZone, MutableHousehold> =
         TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
 ) = runStep {
     GroupedHomeLocationsStep(this, model)
@@ -46,7 +47,7 @@ fun HomeLocationModelContext.groupedHouseholdHomeLocation(
 
 class HomeLocationStep(
     private val context: HomeLocationModelContext,
-    val model: AssignHouseholdLocations<Zone, Household>,
+    val model: AssignHouseholdLocations<StandardZone, Household>,
 ) : UpdateEachStep<MutableHousehold, HouseholdId>() {
 
     override val name = "Assign Home Location to Households"
@@ -54,7 +55,7 @@ class HomeLocationStep(
     override val dependentRepositories: Set<Repository<*, *>> = setOf(context.zoneRepository)
 
     override fun update(element: MutableHousehold) {
-        val zoneID = element.location.zoneID
+        val zoneID = element.location.zoneId
         val zone = context.zoneRepository.getValue(zoneID)
         element.location = model.generateLocation(zone, element)
     }
@@ -64,14 +65,14 @@ class HomeLocationStep(
 
 class GroupedHomeLocationsStep(
     private val context: HomeLocationModelContext,
-    val model: GroupAssignHouseholdLocations<Zone, MutableHousehold>,
+    val model: GroupAssignHouseholdLocations<StandardZone, MutableHousehold>,
 ) : UpdateAllStep<MutableHousehold, HouseholdId>() {
     override val name = "Assign Home Location to Households grouped by zone"
     override val repository = context.householdRepository
     override val dependentRepositories: Set<Repository<*, *>> = setOf(context.zoneRepository)
 
     override fun updateAll(elements: Collection<MutableHousehold>) {
-        val householdsByZone = elements.groupBy { it.location.zoneID }
+        val householdsByZone = elements.groupBy { it.location.zoneId }
         householdsByZone.entries.forEach { (zoneID, households) ->
             val zone = context.zoneRepository.getValue(zoneID)
 

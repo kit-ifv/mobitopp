@@ -1,9 +1,11 @@
 package domain.shared.location
 
 import domain.shared.enums.ZoneClassification
+import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.attributes.HasSizebasedClassification
+import domain.shared.location.zone.Zone
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate
@@ -16,7 +18,7 @@ private class ZoneMock(
     zoneId: ZoneId,
     location: Location = LocationImpl(invalidPoint),
     seed: Long = -1,
-) : Zone(zoneId, location, seed) {
+) : DeprecatedZone(zoneId, location, seed) {
     constructor(number: Number) : this(ZoneId(number.toLong()))
 
     override val visumId: Long
@@ -40,13 +42,19 @@ private class ZoneMock(
  */
 
 interface StandardLocation : ZonedRoadAccessLocation, HasRegionType, HasSizebasedClassification {
+
     companion object {
 
-        private val invalidZone: Zone = ZoneMock(ZoneId(-1))
+        private val invalidZone: Zone<HasRegionType> = object: Zone<HasRegionType> {
+            override val id: ZoneId = ZoneId(-1L)
+            override val attributes: HasRegionType = object : HasRegionType {
+                override val regionType: RegionType = RegioStaR17.LARGE_CITY_METRO
+            }
+        }
 
         operator fun invoke(
             position: Point,
-            zone: Zone,
+            zone: Zone<HasRegionType>,
             roadAccess: RoadAccess,
         ): StandardLocation {
             return StandardLocationImpl(position, zone, roadAccess)
@@ -63,14 +71,14 @@ interface StandardLocation : ZonedRoadAccessLocation, HasRegionType, HasSizebase
             return fromPoint(point)
         }
 
-        fun fromID(zoneID: Number) = StandardLocation(invalidPoint, zoneLookup.getOrPut(ZoneId(zoneID.toLong())) {
-            ZoneMock(zoneID)
+        fun fromId(zoneId: Number) = StandardLocation(invalidPoint, zoneLookup.getOrPut(ZoneId(zoneId.toLong())) {
+            invalidZone
         }, RoadAccess.INVALID)
 
         fun fromWGS(x: Double, y: Double) = fromWGS(WGS84Coordinate.Companion.decimalDegree(x, y))
 
         fun fromPoint(point: Point) = StandardLocation(point, invalidZone, RoadAccess.INVALID)
 
-        private val zoneLookup: MutableMap<ZoneId, ZoneMock> = mutableMapOf()
+        private val zoneLookup: MutableMap<ZoneId, Zone<HasRegionType>> = mutableMapOf()
     }
 }

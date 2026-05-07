@@ -3,18 +3,14 @@ package domain.synthesis.fixedDestinations
 import TestZone
 import domain.shared.location.DistanceMetric
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MutableCommunityDemand
 import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
-import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.WGS84Coordinate
-import edu.kit.ifv.units.kilometers
-import edu.kit.ifv.units.toDistance
+import edu.kit.ifv.units.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.DynamicTest
@@ -22,16 +18,13 @@ import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import utils.ConsoleCaptor
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertContentEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import utils.Identifiable
+import kotlin.test.*
 
 class MetricCommuterDistanceTest : SynthesisTest() {
-    private val testZone1 = TestZone(id = ZoneId(1L))
-    private val testZone2 = TestZone(id = ZoneId(2L))
-    private val testZone3 = TestZone(id = ZoneId(3L))
+    private val testZone1 = TestZone(1)
+    private val testZone2 = TestZone(2)
+    private val testZone3 = TestZone(3)
     private val home1 = testZone1.spawnFakeLoc()
     private val home2 = testZone1.spawnFakeLoc()
     private val work1 = testZone1.spawnFakeLoc()
@@ -233,7 +226,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
         )
 
         val demand = MutableCommunityDemand(
-            converter = { zoneCommunityMapping.getValue(it.zoneID) },
+            converter = { zoneCommunityMapping.getValue(it.zoneId) },
             communityID = CommunityNumber(1)
         )
         demand[2] = 1.0
@@ -244,27 +237,27 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
 class SymmetricMockDistance(default: Distance = 0.kilometers) : AsymmetricMockDistance(default) {
 
-    override operator fun set(origin: HasZoneID, destination: HasZoneID, value: Distance) {
+    override operator fun set(origin: HasZoneId, destination: HasZoneId, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
         map.getOrPut(destination) { mutableMapOf() }[origin] = value
     }
 }
 
 open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) : DistanceMetric {
-    protected val map: MutableMap<HasZoneID, MutableMap<HasZoneID, Distance>> = mutableMapOf()
-    override fun evaluate(origin: HasZoneID, destination: HasZoneID): Distance {
+    protected val map: MutableMap<HasZoneId, MutableMap<HasZoneId, Distance>> = mutableMapOf()
+    override fun evaluate(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Distance {
         return get(origin, destination)
     }
 
-    open operator fun set(origin: HasZoneID, destination: HasZoneID, value: Distance) {
+    open operator fun set(origin: HasZoneId, destination: HasZoneId, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
     }
 
-    operator fun set(origin: HasZoneID, destination: HasZoneID, value: Number) {
+    operator fun set(origin: HasZoneId, destination: HasZoneId, value: Number) {
         set(origin, destination, value.toDouble().toDistance(DistanceUnit.KILOMETERS))
     }
 
-    operator fun get(origin: HasZoneID, destination: HasZoneID): Distance {
+    operator fun get(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Distance {
         return (map[origin] ?: mutableMapOf())[destination] ?: default
     }
 }
