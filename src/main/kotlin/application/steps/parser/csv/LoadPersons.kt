@@ -1,6 +1,6 @@
 package application.steps.parser.csv
 
-import application.steps.Config
+import core.modelsteps.Config
 import application.steps.HasDrtProviderRepo
 import application.steps.HasHouseholdRepo
 import application.steps.HasPersonRepo
@@ -35,8 +35,18 @@ import java.nio.file.Path
 // functions specific to default person implementation
 // todo: make person generic in hh class, sharing class, drt class
 
+/**
+ * Provides a scope for configuring person repositories.
+ *
+ * @receiver The simulation context [CTXT].
+ * @param CTXT The context type. Must implement [HasPersonRepo] for [MutablePerson].
+ * @param CFG The configuration type. Must implement [Config].
+ * @param config The configuration. Provided via context.
+ * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
+ * @param scope The configuration scope.
+ */
 context(config: CFG)
-fun <CTXT, CFG: Config> CTXT.persons(
+fun <CTXT, CFG : Config> CTXT.persons(
     sealed: Boolean = false,
     scope: context(MutableRepository<MutablePerson, PersonId>, CFG) CTXT.() -> Unit
 ) where CTXT : HasPersonRepo<MutablePerson, Person> = mutableRepositoryScope<CTXT, CFG, MutablePerson, PersonId>(
@@ -45,18 +55,53 @@ fun <CTXT, CFG: Config> CTXT.persons(
     scope
 )
 
+/**
+ * Loads persons from a resource.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement:
+ *   - [HasPersonRepo] for [MutablePerson]
+ *   - [HasHouseholdRepo] for [MutableHousehold]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
+ * @param repository The mutable repository of persons to populate. Provided via context.
+ * @param resource The resource (e.g., CSV) to load persons from.
+ * @param dependentRepositories Repositories that this loading step depends on.
+ *                              Defaults to household, sharing provider, and DRT provider repositories.
+ */
 context(repository: MutableRepository<MutablePerson, PersonId>)
 fun <C> C.loadPersons(
     resource: Resource<MutablePerson>,
-    dependentRepositories: Set<Repository<*,*>> = setOf(householdRepository, sharingProviderRepository, drtProviderRepository)
-) where C: HasPersonRepo<MutablePerson, *>, C: HasHouseholdRepo<MutableHousehold, *>,
-        C: HasSharingProviderRepo<*, SharingProvider>, C: HasDrtProviderRepo<*, DrtProvider>
-= addResourceStep<C, MutablePerson, PersonId>(
-    name = "load persons from ${resource.name}",
-    resource = resource,
-    dependentRepositories = dependentRepositories,
-)
+    dependentRepositories: Set<Repository<*, *>> = setOf(
+        householdRepository,
+        sharingProviderRepository,
+        drtProviderRepository
+    )
+) where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
+      C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider> =
+    addResourceStep<C, MutablePerson, PersonId>(
+        name = "load persons from ${resource.name}",
+        resource = resource,
+        dependentRepositories = dependentRepositories,
+    )
 
+/**
+ * Creates a CSV resource for persons.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement:
+ *   - [HasPersonRepo] for [MutablePerson]
+ *   - [HasHouseholdRepo] for [MutableHousehold]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
+ * @param CFG The configuration type. Must implement [UnitConfig] and [SourceFilesConfig].
+ * @param config The configuration. Provided via context.
+ * @param parser The CSV parser for persons. Defaults to [personCsvParser].
+ * @param path The path to the person CSV file. Defaults to [config.sourceFiles.personCSV].
+ * @param delimiter The CSV delimiter. Defaults to [config.sourceFiles.defaultCsvDelimiter].
+ * @param binaryCache Optional configuration for binary caching. Defaults to [binaryPersonFormat].
+ * @return A [Resource] representing the person CSV.
+ */
 context(config: CFG)
 fun <C, CFG> C.personCsv(
     parser: CsvParser<MutablePerson> = personCsvParser(),
@@ -64,21 +109,33 @@ fun <C, CFG> C.personCsv(
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutablePerson>? = binaryPersonFormat()
 ): Resource<MutablePerson>
-where C: HasPersonRepo<MutablePerson, *>, C: HasHouseholdRepo<MutableHousehold, *>,
-      C: HasSharingProviderRepo<*, SharingProvider>, C: HasDrtProviderRepo<*, DrtProvider>,
-      CFG: UnitConfig, CFG: SourceFilesConfig //TODO config as required upper bound type in context
-    = CsvResource(path, parser, delimiter).let { csv ->
+    where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
+          C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
+          CFG : UnitConfig, CFG : SourceFilesConfig = // TODO config as required upper bound type in context
+    CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
             csv.cachedCsv(it)
         } ?: csv
     }
 
+/**
+ * Creates a binary cache configuration for persons.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement:
+ *   - [HasPersonRepo] for [MutablePerson]
+ *   - [HasHouseholdRepo] for [MutableHousehold]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
+ * @param CFG The configuration type. Must implement [SourceFilesConfig].
+ * @param config The configuration. Provided via context.
+ * @return A [BinaryCacheConfig] instance.
+ */
 context(config: CFG)
 fun <C, CFG> C.binaryPersonFormat(): BinaryCacheConfig<MutablePerson>
-where C: HasPersonRepo<MutablePerson, *>, C: HasHouseholdRepo<MutableHousehold, *>,
-      C: HasSharingProviderRepo<*, SharingProvider>, C: HasDrtProviderRepo<*, DrtProvider>,
-      CFG: SourceFilesConfig
-{
+    where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
+          C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
+          CFG : SourceFilesConfig {
     return BinaryCacheConfig<MutablePerson>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryPersonReader(
@@ -92,37 +149,49 @@ where C: HasPersonRepo<MutablePerson, *>, C: HasHouseholdRepo<MutableHousehold, 
     )
 }
 
-
+/**
+ * Creates a CSV parser for persons.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement:
+ *   - [HasPersonRepo] for [MutablePerson]
+ *   - [HasHouseholdRepo] for [MutableHousehold]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
+ * @param CFG The configuration type. Must implement [UnitConfig].
+ * @param config The configuration. Provided via context.
+ * @param customizeCsvConfig Lambda to customize the [PersonCsvConfig].
+ * @return A [CsvParser] for [MutablePerson].
+ */
 context(config: CFG)
 fun <C, CFG> C.personCsvParser(
     customizeCsvConfig: PersonCsvConfig.() -> Unit = {}
 ): CsvParser<MutablePerson>
-    where C: HasPersonRepo<MutablePerson, *>, C: HasHouseholdRepo<MutableHousehold, *>,
-          C: HasSharingProviderRepo<*, SharingProvider>, C: HasDrtProviderRepo<*, DrtProvider>,
-          CFG: UnitConfig
- = createPersonCsvParser(
-    PersonCsvConfig(
-        columns = PersonColumns(),
-        employmentCodes = Employment,
-        graduationCodes = Graduation,
-        sexCodes = Sex,
-        sharingProvidersByName = { sharingProviderRepository.elements.toList().associateBy { it.name } }, //TODO check if lazy still necessary
-        drtProvidersByName = { drtProviderRepository.elements.toList().associateBy { it.name } },
-        householdProvider = this::getMutableHousehold,
-        hasHousehold = householdRepository::contains,
-        incomeUnit = config.currencyUnit,
-        seed = config.seed,
-        errorHandling = config.errorHandling,
-    ).also {
-        it.customizeCsvConfig()
-    }
-)
-
+    where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
+          C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
+          CFG : UnitConfig =
+    createPersonCsvParser(
+        PersonCsvConfig(
+            columns = PersonColumns(),
+            employmentCodes = Employment,
+            graduationCodes = Graduation,
+            sexCodes = Sex,
+            sharingProvidersByName = { sharingProviderRepository.elements.toList().associateBy { it.name } }, // TODO check if lazy still necessary
+            drtProvidersByName = { drtProviderRepository.elements.toList().associateBy { it.name } },
+            householdProvider = this::getMutableHousehold,
+            hasHousehold = householdRepository::contains,
+            incomeUnit = config.currencyUnit,
+            seed = config.seed,
+            errorHandling = config.errorHandling,
+        ).also {
+            it.customizeCsvConfig()
+        }
+    )
 
 //
 //
-//@Suppress("LongParameterList", "UnusedParameter")
-//fun LoadPersonsContext.preparePersons(
+// @Suppress("LongParameterList", "UnusedParameter")
+// fun LoadPersonsContext.preparePersons(
 //    path: Path = defaultPersonPath,
 //    delimiter: String = SEMICOLON,
 //    errorHandling: ErrorHandling = ErrorHandling.WARNING,
@@ -135,18 +204,18 @@ fun <C, CFG> C.personCsvParser(
 //            this.columns = columns
 //            this.incomeUnit = incomeUnit
 //        }.step,
-//) {
+// ) {
 //    this.preparePersonsFile(addResourceStep)
-//}
+// }
 
-//data class PersonCsvConfig(
+// data class PersonCsvConfig(
 //    var path: Path,
 //    var columns: PersonColumns = PersonColumns(),
 //    var delimiter: String = SEMICOLON,
 //    var errorHandling: ErrorHandling = ErrorHandling.WARNING,
 //    var incomeUnit: CurrencyUnit,
 //
-//) {
+// ) {
 //
 //    /* Filtering should not be done on a resource step but afterward. For performance it doesnt matter because CSV
 //    parser remains slow regardless of filter. And Resource wrapping is nigh impossible because each resource step could
@@ -156,36 +225,36 @@ fun <C, CFG> C.personCsvParser(
 //
 //        HouseholdId(row.long(this.householdColumn)) in context.householdRepository
 //    }
-//}
+// }
 //
-///**
+// /**
 // * Collects the instructions for initializing the person repository. Automatically sets the reader and writer
 // * to the proper binary implementations.
 // */
-//class PersonStepBuilder(
+// class PersonStepBuilder(
 //    val seed: Long,
 //    val converter: (HouseholdId) -> MutableHousehold?,
 //    val sharingConverter: (SharingProviderId) -> SharingProvider,
 //    val drtConverter: (DrtProviderId) -> DrtProvider,
-//) :
+// ) :
 //    GroupedStepBuilder<MutablePerson, PersonId>() {
 //    override val reader = BinaryPersonReader(converter, sharingConverter, drtConverter, seed)
 //    override val writer: BinaryWriter<MutablePerson> = BinaryPersonWriter()
 //
-////    override fun fromCSV(
-////        source: Path,
-////        lambda: context(Path) () -> AbstractAddResourceStep<MutablePerson, PersonId>,
-////    ): FileBasedAddResourceStep<MutablePerson, PersonId> {
-////        return context(source) {
-////            FileBasedAddResourceStep(source, lambda(source))
-////        }
-////    }
-//}
+// //    override fun fromCSV(
+// //        source: Path,
+// //        lambda: context(Path) () -> AbstractAddResourceStep<MutablePerson, PersonId>,
+// //    ): FileBasedAddResourceStep<MutablePerson, PersonId> {
+// //        return context(source) {
+// //            FileBasedAddResourceStep(source, lambda(source))
+// //        }
+// //    }
+// }
 //
-///**
+// /**
 // * Operate on the context object. Apply the steps defined in the builder and then finalize the repository.
 // */
-//fun LoadPersonsContext.persons(lambda: PersonStepBuilder.() -> Unit) {
+// fun LoadPersonsContext.persons(lambda: PersonStepBuilder.() -> Unit) {
 //    val lpcBuilder = PersonStepBuilder(
 //        this.simulationSeed,
 //        householdRepository::get,
@@ -195,12 +264,12 @@ fun <C, CFG> C.personCsvParser(
 //    lambda(lpcBuilder)
 //    lpcBuilder.executeOn(this)
 //    finishPersons()
-//}
+// }
 //
-//fun LoadPersonsContext.personsFromCsvStep(
+// fun LoadPersonsContext.personsFromCsvStep(
 //    path: Path = defaultPersonPath,
 //    lambda: PersonCsvConfig.() -> Unit,
-//): FileBasedAddResourceStep<MutablePerson, PersonId> {
+// ): FileBasedAddResourceStep<MutablePerson, PersonId> {
 //    val config = PersonCsvConfig(path = path, incomeUnit = costUnit)
 //    config.apply(lambda)
 //    return config.run {
@@ -228,6 +297,4 @@ fun <C, CFG> C.personCsvParser(
 //        )
 //        FileBasedAddResourceStep(path, step)
 //    }
-//}
-
-
+// }

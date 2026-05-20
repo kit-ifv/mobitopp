@@ -273,7 +273,7 @@ fun <E> ErrorHandling.handleParseRow(
     row: Row,
     runnable: () -> E?,
 ): E? = this.handle(runnable) {
-    "Could not parse row ${row.index} in '${row.source}': $row"
+    "Could not parse row ${row.index} in '${row.source}': $row! Error: ${it.message}"
 }
 
 /**

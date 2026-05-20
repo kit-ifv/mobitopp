@@ -19,7 +19,7 @@ import utils.csv.double
 import utils.csv.int
 import utils.csv.long
 
-//Zone parser independent of context
+// Zone parser independent of context
 data class ZoneColumns(
     val idColumn: String = "id",
     val nameColumn: String = "name",
@@ -64,7 +64,7 @@ fun createZoneCsvParser(
     return csvParser
 }
 
-fun String.toZoneClassification() = when (this) { //TODO config option in csv config
+fun String.toZoneClassification() = when (this) { // TODO config option in csv config
     "studyArea" -> ZoneClassification.STUDY_AREA
     "outlyingArea" -> ZoneClassification.OUTLYING_AREA
     "extendedStudyArea" -> ZoneClassification.EXTENDED_STUDY_AREA

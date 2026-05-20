@@ -3,7 +3,6 @@ package domain.synthesis.parser.binary
 import domain.shared.enums.ActivityType
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.parser.ActivityLocation
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
@@ -14,18 +13,16 @@ import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
 class FixedDestinationReader(
-    val personConverter: (PersonId) -> Person?,
+//    val personConverter: (PersonId) -> Person?,
     private val activityTypeConverter: CodePlan<ActivityType>,
     val zoneConverter: (ZoneId) -> Zone
 ) : BinaryReader<ActivityLocation> {
 
     override fun ByteBuffer.decode(stringLength: Int): ActivityLocation? {
-        val person = personConverter(PersonId(long))
+        val personId = PersonId(long)
         val activityType = activityTypeConverter.decode(int)
         val location = decodeLocation(zoneConverter)
-        return person?.let {
-            ActivityLocation(it, activityType, location)
-        }
+        return ActivityLocation(personId, activityType, location)
     }
 }
 

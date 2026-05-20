@@ -1,6 +1,8 @@
 package domain.synthesis.data
 
 import Mutable
+import application.steps.parser.csv.HasMutableSchedule
+import application.steps.parser.csv.HasPlannedActivities
 import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
 import edu.kit.ifv.units.Currency
@@ -10,7 +12,6 @@ import kotlinx.serialization.Serializable
 import utils.Encodable
 import utils.EnumDecodable
 import utils.Identifiable
-import utils.collections.ClearableList
 import utils.random.StochasticActor
 import java.io.DataOutputStream
 import kotlin.random.Random
@@ -40,9 +41,16 @@ value class PersonId(val value: Long) : Comparable<PersonId> {
 
 const val ADULT_AGE_GER = 18
 
+
+interface HasHousehold<H : Identifiable<HouseholdId>> {
+    val household: H
+}
+
+interface HasMutableDrtMemberships
+
 @Suppress("ComplexInterface")
-interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<PersonBinaryRecord> {
-    val household: IHousehold
+interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<PersonBinaryRecord>, HasHousehold<IHousehold> {
+    override val household: IHousehold
     val age: Int
     val employment: Employment
     val sex: Sex
@@ -84,6 +92,8 @@ val IPerson.drtMembershipIds: Set<DrtProviderId>
 
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)
+
+
 
 data class PersonBinaryRecord(
     val id: Long,
@@ -128,7 +138,7 @@ abstract class Person(
     final override val id: PersonId,
     override val household: MutableHousehold,
     seed: Long,
-) : IPerson {
+) : IPerson, HasMutableSchedule, HasPlannedActivities<PlannedActivity> {
     // Agent<Person> TODO merge Agent and Stochastic Actor, or agent should just be wrapper in simulation
 
     final override val random: Random by lazy { Random(id.value + seed) }
@@ -136,7 +146,7 @@ abstract class Person(
     abstract override val sharingMemberships: List<SharingProvider>
     abstract override val drtMemberships: List<DrtProvider>
 
-    abstract val plannedActivities: ClearableList<PlannedActivity>
+//    abstract val plannedActivities: ClearableList<PlannedActivity>
 
 //    val plannedActivities: List<PlannedActivity> //public view of activities
 //        get() = plannedActivityList

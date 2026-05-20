@@ -1,10 +1,10 @@
 package core.modelsteps.steps
 
 import core.modelsteps.Context
+import core.modelsteps.Validation
 import core.modelsteps.resources.LazyResource
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.resources.Repository
-import core.modelsteps.Validation
 import core.modelsteps.validation.validateFileReadAccess
 import utils.Identifiable
 import utils.binary.BinaryReader
@@ -12,7 +12,21 @@ import utils.binary.BinaryWriter
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-fun <C: Context, E: Identifiable<I>, I> C.loadBinary(
+/**
+ * Adds a step to load entities from a binary file into a repository.
+ * The entities are loaded lazily when the repository is first accessed.
+ *
+ * @param C the generic type of the context
+ * @param E the generic type of entities to be loaded
+ * @param I the type of the identifier for entities
+ * @param path the path to the binary file to load from
+ * @param reader the [BinaryReader] used to deserialize entities
+ * @param repository the repository where the loaded entities will be stored
+ * @param name the name of the model step
+ * @param dependentRepositories a set of repositories that this step depends on
+ * @param validation additional validation logic for this step
+ */
+fun <C : Context, E : Identifiable<I>, I> C.loadBinary(
     path: Path,
     reader: BinaryReader<E>,
     repository: MutableRepository<E, I>,
@@ -29,7 +43,19 @@ fun <C: Context, E: Identifiable<I>, I> C.loadBinary(
     validation + { validateFileReadAccess(path, true, "binary cache file ${path.fileName}") }
 )
 
-fun <C: Context, E: Identifiable<I>, I> C.writeBinary(
+/**
+ * Adds a step to write the content of a repository to a binary file.
+ *
+ * @param C the generic type of the context
+ * @param E the generic type of entities to be written
+ * @param I the type of the identifier for entities
+ * @param path the path to the binary file to write to
+ * @param writer the [BinaryWriter] used to serialize entities
+ * @param repository the repository whose content will be written
+ * @param name the name of the model step
+ * @param validation additional validation logic for this step
+ */
+fun <C : Context, E : Identifiable<I>, I> C.writeBinary(
     path: Path,
     writer: BinaryWriter<E>,
     repository: Repository<E, I>,

@@ -1,6 +1,7 @@
 package core.modelsteps.validation
 
 import core.modelsteps.Context
+import core.modelsteps.NO_ERROR_MESSAGE
 import utils.report.ReportBuilder
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -8,49 +9,85 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 
-private fun ReportBuilder.log(title: String, message: String, isError: Boolean) {
+private fun Context.log(message: String, isError: Boolean) {
     if (isError) {
-        addErrorLog(title, message)
+        logError(message)
     } else {
-        addWarningLog(title, message)
+        logWarning(message)
     }
 }
 
 /**
  * Catch exceptions and add them as warning/error to the report.
  *
+ * @receiver The context to which caught exceptions should be reported.
+ * @param C The context type.
+ * @param message The message to log.
  * @param exceptionsAreErrors whether exceptions added as errors (if true) or warnings (if false)
  * @param scope the scope function that may throw exceptions.
- * @receiver the [ReportBuilder] to which caught exceptions should be added to
+ * @return the result of the scope function or null if an exception occurred.
  */
 @Suppress("TooGenericExceptionCaught")
-fun <C: Context, R> C.validateNoException(
-    title: C.() -> String = { "Exception" },
+fun <C : Context, R> C.validateNoException(
+    message: C.() -> String = { "Exception" },
     exceptionsAreErrors: Boolean = true,
     scope: () -> R,
 ): R? = try {
     scope()
 } catch (e: Throwable) {
-    report.log(title(), e.message ?: "", exceptionsAreErrors)
+    log(message() + ": " +  (e.message ?: NO_ERROR_MESSAGE), exceptionsAreErrors)
     null
 }
 
-fun <C: Context> C.validateCondition(message: C.() -> String, isError: Boolean = false, predicate: () -> Boolean): Boolean {
+/**
+ * Evaluates a [predicate] and logs a [message] if it fails.
+ *
+ * This is used during validation to check for specific conditions without throwing exceptions.
+ *
+ * @receiver The context to which the result is logged.
+ * @param C The context type.
+ * @param message A function providing the message to log if the predicate is false.
+ * @param isError If true, the message is logged as an error; otherwise, as a warning.
+ * @param predicate The condition to check.
+ * @return True if the predicate is satisfied, false otherwise.
+ */
+fun <C : Context> C.validateCondition(
+    message: C.() -> String, isError: Boolean = false, predicate: () -> Boolean
+): Boolean {
     if (!predicate()) {
-        report.log("validate condition", message(), isError)
+        log(message(), isError)
         return false
     }
     return true
 }
 
-fun <C: Context> C.validateFileReadWriteAccess(path: Path, isError: Boolean = true, fileDescription: String = "") {
+/**
+ * Validates both read and write access for a given [path].
+ *
+ * @receiver The context to which the result is logged.
+ * @param C The context type.
+ * @param path The file or directory path to check.
+ * @param isError If true, access failures are reported as errors.
+ * @param fileDescription A description of the file for the report (optional).
+ */
+fun <C : Context> C.validateFileReadWriteAccess(path: Path, isError: Boolean = true, fileDescription: String = "") {
     validateFileReadAccess(path, isError, fileDescription)
     validateFileWriteAccess(path, isError, fileDescription)
 }
 
-fun <C: Context> C.validateFileReadAccess(path: Path, isError: Boolean = true, fileDescription: String = ""): Boolean =
+/**
+ * Validates that a file exists and is readable at the given [path].
+ *
+ * @receiver The context to which the result is logged.
+ * @param C The context type.
+ * @param path The file path to check.
+ * @param isError If true, access failures are reported as errors.
+ * @param fileDescription A description of the file (optional).
+ * @return True if readable, false otherwise.
+ */
+fun <C : Context> C.validateFileReadAccess(path: Path, isError: Boolean = true, fileDescription: String = ""): Boolean =
     validateNoException(
-        title = { "Validate read access of: ${path.absolutePathString()}" },
+        message = { "Validate read access of: ${path.absolutePathString()}" },
         exceptionsAreErrors = isError
     ) {
         require(path.exists()) {
@@ -64,9 +101,19 @@ fun <C: Context> C.validateFileReadAccess(path: Path, isError: Boolean = true, f
         true
     } ?: false
 
-fun <C: Context> C.validateFileWriteAccess(path: Path, isError: Boolean = true, fileDescription: String = "") =
+/**
+ * Validates that the parent directory of [path] is writable, creating it if it doesn't exist.
+ *
+ * @receiver The context to which the result is logged.
+ * @param C The context type.
+ * @param path The file path to check write access for.
+ * @param isError If true, access failures are reported as errors.
+ * @param fileDescription A description of the file (optional).
+ * @return True if writable, false otherwise.
+ */
+fun <C : Context> C.validateFileWriteAccess(path: Path, isError: Boolean = true, fileDescription: String = "") =
     validateNoException(
-        title = { "Validate write access of: ${path.absolutePathString()}" },
+        message = { "Validate write access of: ${path.absolutePathString()}" },
         exceptionsAreErrors = isError
     ) {
         val parentDir = path.parent ?: Path("")
@@ -74,7 +121,7 @@ fun <C: Context> C.validateFileWriteAccess(path: Path, isError: Boolean = true, 
         if (!parentDir.exists()) {
             require(parentDir.createDirectories().exists()) {
                 "Failed to create parent directories of ${path.absolutePathString()}! " +
-                        "(may have succeeded in creating some of the other necessary parent directories)"
+                    "(may have succeeded in creating some of the other necessary parent directories)"
             }
         }
 

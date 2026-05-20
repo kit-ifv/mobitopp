@@ -24,11 +24,23 @@ import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+private val IS_ERROR = false
 
+/**
+ * Loads impedance matrices (travel time, costs, distances) from configured paths.
+ *
+ * This step reads matrix configuration files and initializes a [MatrixImpedance] model,
+ * which is then assigned to the context's [HasMutableImpedance.impedance].
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasModes] and [HasMutableImpedance].
+ * @param CFG The configuration type. Must implement [MatrixConfig] and [UnitConfig].
+ * @param config The configuration. Provided via context.
+ */
 @Suppress("LongParameterList")
 context(config: CFG)
 fun <C, CFG> C.loadImpedance()
-where C: HasModes, C: HasMutableImpedance, CFG: MatrixConfig, CFG: UnitConfig = modelStep(
+    where C : HasModes, C : HasMutableImpedance, CFG : MatrixConfig, CFG : UnitConfig = modelStep(
     "load impedance matrices",
     validation = listOf({ validateLoadImpedance(config) }),
 ) {
@@ -50,9 +62,9 @@ where C: HasModes, C: HasMutableImpedance, CFG: MatrixConfig, CFG: UnitConfig = 
 
 private fun HasModes.validateLoadImpedance(config: MatrixConfig): Boolean = config.run {
     val fileAccess: Boolean =
-        validateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:")
-            && validateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:")
-            && validateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
+        validateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:") &&
+            validateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:") &&
+            validateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
 
     if (!fileAccess) {
         return false
@@ -62,7 +74,7 @@ private fun HasModes.validateLoadImpedance(config: MatrixConfig): Boolean = conf
     val durationConfig = durationMatrixConfig.readText()
 
     var isValid = checkConfigKeysAreKnownModes(costConfig, path = costMatrixConfig)
-            && checkConfigKeysAreKnownModes(durationConfig, path = durationMatrixConfig)
+    isValid = checkConfigKeysAreKnownModes(durationConfig, path = durationMatrixConfig) && isValid
 
     modes.values().forEach { mode ->
         val modeLabel = "$mode:"
@@ -70,17 +82,19 @@ private fun HasModes.validateLoadImpedance(config: MatrixConfig): Boolean = conf
             "Matrix config ${path.fileName} does not specify mode $mode"
         }
 
-        isValid = isValid && validateCondition({ errorMessage(costMatrixConfig) }, true) {
+        isValid = validateCondition({ errorMessage(costMatrixConfig) }, IS_ERROR) {
             modeLabel in costConfig
-        } &&  validateCondition({ errorMessage(durationMatrixConfig) }, true) {
+        } && isValid
+
+        isValid = validateCondition({ errorMessage(durationMatrixConfig) }, IS_ERROR) {
             modeLabel in durationConfig
-        }
+        } && isValid
     }
 
-    isValid
+    isValid || !IS_ERROR
 }
 
-private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path): Boolean { //, modes: CodePlan<Mode>
+private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path): Boolean { // , modes: CodePlan<Mode>
     val unknownModeMessage = { label: String ->
         "Matrix config ${path.fileName} contains unknown mode $label. Known modes are ${modes.values()}"
     }
@@ -90,19 +104,25 @@ private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path
         it.matches(modeKeyRegex)
     }.map {
         it.trim().removeSuffix(":")
-    }.all {
-        validateCondition({ unknownModeMessage(it) }, true) {
+    }.map {
+        validateCondition({ unknownModeMessage(it) }, IS_ERROR) {
             modes.decodeOrNull(it) != null
         }
-    }
+    }.toList().all { it }
 }
 
+/**
+ * Creates and assigns a [Teleportation] impedance model.
+ *
+ * This model provides zero costs and minimal fixed duration/distance for all trips.
+ *
+ * @receiver The simulation context which can store an impedance model.
+ */
 fun HasMutableImpedance.loadTeleportation() = modelStep(
     "create Teleportation impedance for Transport"
 ) {
     this.impedance = Teleportation()
 }
-
 
 class Teleportation : Impedance {
 
@@ -126,6 +146,7 @@ class Teleportation : Impedance {
 }
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
+
 @Deprecated("dummy impedance should no longer be used, try using Teleportation")
 val dummyImpedance = object : Impedance {
     override fun duration(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.minutes

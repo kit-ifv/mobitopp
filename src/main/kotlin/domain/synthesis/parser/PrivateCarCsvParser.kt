@@ -18,7 +18,7 @@ import utils.csv.int
 import utils.csv.long
 import utils.csv.withFilter
 
-data class CarColumns( //TODO drop support for old format
+data class CarColumns( // TODO drop support for old format
     val ownerColumn: String = "ownerId",
     val mainUserColumn: String = "mainUserId",
     val engineTypeColumn: String = "carType",
@@ -40,7 +40,7 @@ data class PrivateCarCsvConfig(
     var carSegmentCodes: CodePlan<CarSegment>,
 //    var delimiter: String = SEMICOLON,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    var filter: PrivateCarCsvConfig.(Row) -> Boolean = ownerExistsFilter //TODO allow edit filter for other entities
+    var filter: PrivateCarCsvConfig.(Row) -> Boolean = ownerExistsFilter // TODO allow edit filter for other entities
 )
 
 val ownerExistsFilter: PrivateCarCsvConfig.(Row) -> Boolean = { row ->

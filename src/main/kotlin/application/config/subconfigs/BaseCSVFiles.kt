@@ -17,7 +17,6 @@ val defaultZonesCSV: Path = Path("zones.csv")
  */
 interface BaseCSVFiles {
     val defaultCsvDelimiter: String
-    val defaultCsvErrorHandling: ErrorHandling
 
     val personCSV: Path
     val householdCSV: Path

@@ -1,11 +1,12 @@
 package application.steps.parser.csv
 
 import application.steps.CarCodesConfig
-import application.steps.Config
 import application.steps.HasCarRepo
 import application.steps.HasHouseholdRepo
 import application.steps.HasPersonRepo
 import application.steps.SourceFilesConfig
+import application.steps.Config
+import core.modelsteps.Config as ModelConfig
 import core.modelsteps.resources.BinaryCacheConfig
 import core.modelsteps.resources.CsvResource
 import core.modelsteps.resources.MutableRepository
@@ -30,9 +31,18 @@ import utils.csv.CsvParser
 import utils.csv.long
 import java.nio.file.Path
 
-
+/**
+ * Provides a scope for configuring private car repositories.
+ *
+ * @receiver The simulation context [CTXT].
+ * @param CTXT The context type. Must implement [HasCarRepo] for [MutablePrivateCar].
+ * @param CFG The configuration type. Must implement [Config].
+ * @param config The configuration. Provided via context.
+ * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
+ * @param scope The configuration scope.
+ */
 context(config: CFG)
-fun <CTXT, CFG: Config> CTXT.cars(
+fun <CTXT, CFG : Config> CTXT.cars(
     sealed: Boolean = false,
     scope: context(MutableRepository<MutablePrivateCar, CarId>, CFG) CTXT.() -> Unit
 ) where CTXT : HasCarRepo<MutablePrivateCar, *> = mutableRepositoryScope<CTXT, CFG, MutablePrivateCar, CarId>(
@@ -41,55 +51,96 @@ fun <CTXT, CFG: Config> CTXT.cars(
     scope
 )
 
-
+/**
+ * Loads private cars from a resource.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasPersonRepo] for [MutablePerson] and [HasHouseholdRepo]
+ *          for [MutableHousehold].
+ * @param repository The mutable repository of private cars to populate. Provided via context.
+ * @param resource The resource (e.g., CSV) to load cars from.
+ */
 context(repository: MutableRepository<MutablePrivateCar, CarId>)
 fun <C> C.loadCars(
     resource: Resource<MutablePrivateCar>,
-) where C: HasPersonRepo<MutablePerson, *>, C: HasHouseholdRepo<MutableHousehold, *>
-        = addResourceStep<C, MutablePrivateCar, CarId>(
-    name = "load cars from ${resource.name}",
-    resource = resource,
-)
+) where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *> =
+    addResourceStep<C, MutablePrivateCar, CarId>(
+        name = "load cars from ${resource.name}",
+        resource = resource,
+    )
 
+/**
+ * Creates a CSV resource for private cars.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasPersonRepo] for [Person] and [HasHouseholdRepo]
+ *          for [MutableHousehold].
+ * @param CFG The configuration type. Must implement [SourceFilesConfig] and [CarCodesConfig].
+ * @param config The configuration. Provided via context.
+ * @param parser The CSV parser for private cars. Defaults to [privateCarCsvParser].
+ * @param path The path to the private cars CSV file. Defaults to [config.sourceFiles.privateCarsCSV].
+ * @param delimiter The CSV delimiter. Defaults to [config.sourceFiles.defaultCsvDelimiter].
+ * @param binaryCache Optional configuration for binary caching. Defaults to [binaryPrivateCarFormat].
+ * @return A [Resource] representing the private car CSV.
+ */
 context(config: CFG)
 fun <C, CFG> C.carCsv(
     parser: CsvParser<MutablePrivateCar> = privateCarCsvParser(),
     path: Path = config.sourceFiles.privateCarsCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutablePrivateCar>? = binaryPrivateCarFormat() //TODO move binary format to load level?
+    binaryCache: BinaryCacheConfig<MutablePrivateCar>? = binaryPrivateCarFormat() // TODO move binary format to load level?
 ): Resource<MutablePrivateCar>
-where C: HasPersonRepo<*, Person>, C: HasHouseholdRepo<MutableHousehold, *>, CFG: SourceFilesConfig, CFG: CarCodesConfig
-= CsvResource(path, parser, delimiter).let { csv ->
-    binaryCache?.let {
-        csv.cachedCsv(it)
-    } ?: csv
-}
+    where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>, CFG : SourceFilesConfig, CFG : CarCodesConfig =
+    CsvResource(path, parser, delimiter).let { csv ->
+        binaryCache?.let {
+            csv.cachedCsv(it)
+        } ?: csv
+    } // TODO add csv validation
 
+/**
+ * Creates a CSV parser for private cars.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasPersonRepo] for [Person] and [HasHouseholdRepo]
+ *          for [MutableHousehold].
+ * @param CFG The configuration type. Must implement [CarCodesConfig].
+ * @param config The configuration. Provided via context.
+ * @param customizeCsvConfig Lambda to customize the [PrivateCarCsvConfig].
+ * @return A [CsvParser] for [MutablePrivateCar].
+ */
 context(config: CFG)
 fun <C, CFG> C.privateCarCsvParser(
     customizeCsvConfig: PrivateCarCsvConfig.() -> Unit = {}
 ): CsvParser<MutablePrivateCar>
-where C: HasPersonRepo<*, Person>, C: HasHouseholdRepo<MutableHousehold, *>, CFG: CarCodesConfig
-= createPrivateCarCsvParser(
-    PrivateCarCsvConfig(
-        columns = CarColumns(),
-        householdExists = mutableHouseholdRepository::contains,
-        getOwnerHousehold = { row, col -> mutableHouseholdRepository.getValue(HouseholdId(row.long(col))) },
-        getMainUser = { row, col -> personRepository.getValue(PersonId(row.long(col))) },
-        carEngineStatistics = CarEngineStatistics(),
-        carSegmentCodes = config.carSegmentCodes,
-        errorHandling = config.errorHandling,
-    ).also {
-        it.customizeCsvConfig()
-    }
-)
+    where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>, CFG : CarCodesConfig =
+    createPrivateCarCsvParser(
+        PrivateCarCsvConfig(
+            columns = CarColumns(),
+            householdExists = mutableHouseholdRepository::contains,
+            getOwnerHousehold = { row, col -> mutableHouseholdRepository.getValue(HouseholdId(row.long(col))) },
+            getMainUser = { row, col -> personRepository.getValue(PersonId(row.long(col))) },
+            carEngineStatistics = CarEngineStatistics(),
+            carSegmentCodes = config.carSegmentCodes,
+            errorHandling = config.errorHandling,
+        ).also {
+            it.customizeCsvConfig()
+        }
+    )
 
-
+/**
+ * Creates a binary cache configuration for private cars.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasPersonRepo] for [Person] and [HasHouseholdRepo]
+ *          for [MutableHousehold].
+ * @param CFG The configuration type. Must implement [SourceFilesConfig].
+ * @param config The configuration. Provided via context.
+ * @return A [BinaryCacheConfig] instance.
+ */
 context(config: CFG)
 fun <C, CFG> C.binaryPrivateCarFormat(): BinaryCacheConfig<MutablePrivateCar>
-where C: HasPersonRepo<*, Person>, C: HasHouseholdRepo<MutableHousehold, *>,
-      CFG: SourceFilesConfig
-{
+    where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>,
+          CFG : SourceFilesConfig {
     return BinaryCacheConfig<MutablePrivateCar>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryCarReader(
@@ -102,12 +153,9 @@ where C: HasPersonRepo<*, Person>, C: HasHouseholdRepo<MutableHousehold, *>,
     )
 }
 
+private const val ERROR_OUTPUT_SIZE = 5 // TODO use in context requirements?
 
-
-
-private const val ERROR_OUTPUT_SIZE = 5 //TODO use in context requirements?
-
-//interface LoadPrivateCarsContext : DemandSimContext {
+// interface LoadPrivateCarsContext : DemandSimContext {
 //    val carRepository: MutableRepository<MutablePrivateCar, CarId>
 //    val engineCodes: CodePlan<EngineType>
 //    val carSegmentCodes: CodePlan<CarSegment>
@@ -139,40 +187,40 @@ private const val ERROR_OUTPUT_SIZE = 5 //TODO use in context requirements?
 //            " ${personRepository.elements.map { it.id }.toList()
 //                .sortedBy{abs(it.value - row(mainUserColumn).toLong())}.take(ERROR_OUTPUT_SIZE)}"
 //    }
-//}
-//fun LoadPrivateCarsContext.privateCars(lambda: PrivateCarStepBuilder.() -> Unit) {
+// }
+// fun LoadPrivateCarsContext.privateCars(lambda: PrivateCarStepBuilder.() -> Unit) {
 //    val lpcBuilder = PrivateCarStepBuilder(householdRepository::get, personRepository::get)
 //    lambda(lpcBuilder)
 //    lpcBuilder.executeOn(this)
 //    finishPrivateCars()
-//}
+// }
 
-//class PrivateCarStepBuilder(
+// class PrivateCarStepBuilder(
 //    val householdConverter: (HouseholdId) -> MutableHousehold?,
 //    val personConverter: (PersonId) -> Person?,
-//) : GroupedStepBuilder<MutablePrivateCar, CarId>() {
+// ) : GroupedStepBuilder<MutablePrivateCar, CarId>() {
 //    override val reader: BinaryReader<MutablePrivateCar> = BinaryCarReader(householdConverter, personConverter)
 //    override val writer: BinaryWriter<MutablePrivateCar> = BinaryCarWriter()
 //
-////    override fun fromCSV(
-////        source: Path,
-////        lambda: context(Path) () -> AbstractAddResourceStep<MutablePrivateCar, CarId>,
-////    ): FileBasedAddResourceStep<MutablePrivateCar, CarId> {
-////        return context(source) {
-////            FileBasedAddResourceStep(source, lambda(source))
-////        }
-////    }
-//}
+// //    override fun fromCSV(
+// //        source: Path,
+// //        lambda: context(Path) () -> AbstractAddResourceStep<MutablePrivateCar, CarId>,
+// //    ): FileBasedAddResourceStep<MutablePrivateCar, CarId> {
+// //        return context(source) {
+// //            FileBasedAddResourceStep(source, lambda(source))
+// //        }
+// //    }
+// }
 
-//fun LoadPrivateCarsContext.runStep(
+// fun LoadPrivateCarsContext.runStep(
 //    step: AbstractAddResourceStep<MutablePrivateCar, CarId>
-//) = runStep {
+// ) = runStep {
 //    step
-//}
-//fun LoadPrivateCarsContext.privateCarsFromCsvStep(
+// }
+// fun LoadPrivateCarsContext.privateCarsFromCsvStep(
 //    path: Path = defaultCarPath,
 //    lambda: PrivateCarCsvConfig.() -> Unit
-//): FileBasedAddResourceStep<MutablePrivateCar, CarId> {
+// ): FileBasedAddResourceStep<MutablePrivateCar, CarId> {
 //    val config = PrivateCarCsvConfig(path)
 //    config.apply(lambda)
 //    return config.run {
@@ -192,22 +240,22 @@ private const val ERROR_OUTPUT_SIZE = 5 //TODO use in context requirements?
 //        )
 //        FileBasedAddResourceStep(path, step)
 //    }
-//}
+// }
 //
 //
-//val defaultFilter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { row, context ->
+// val defaultFilter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { row, context ->
 //    HouseholdId(row.long(this.ownerColumn)) in context.householdRepository
-//}
+// }
 //
-//@Suppress("LongParameterList", "UnusedParameter")
-//fun LoadPrivateCarsContext.preparePrivateCars(
+// @Suppress("LongParameterList", "UnusedParameter")
+// fun LoadPrivateCarsContext.preparePrivateCars(
 //    path: Path = defaultCarPath,
 //    delimiter: String = SEMICOLON,
 //    errorHandling: ErrorHandling = ErrorHandling.WARNING,
 //    columns: CarColumns = CarColumns(),
 //    carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
 //    filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = defaultFilter
-//) {
+// ) {
 //    val (_, step) = privateCarsFromCsvStep(path) {
 //        this.delimiter = delimiter
 //        this.errorHandling = errorHandling
@@ -216,13 +264,13 @@ private const val ERROR_OUTPUT_SIZE = 5 //TODO use in context requirements?
 //        this.filter = filter
 //    }
 //    this.runStep(step)
-//}
+// }
 //
-//fun LoadPrivateCarsContext.finishPrivateCars() = runStep {
+// fun LoadPrivateCarsContext.finishPrivateCars() = runStep {
 //    SealStep(carRepository)
-//}
+// }
 //
-//fun LoadPrivateCarsContext.loadPrivateCars() {
+// fun LoadPrivateCarsContext.loadPrivateCars() {
 //    this.preparePrivateCars()
 //    this.finishPrivateCars()
-//}
+// }

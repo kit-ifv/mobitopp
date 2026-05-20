@@ -2,6 +2,7 @@ package domain.simulation.events
 
 import MessageCalled
 import StateCalled
+import application.steps.HasAvailabilityWriter
 import core.statemachine.Send
 import core.statemachine.StateMachineFactory
 import core.statemachine.builder.BaseStateData
@@ -223,14 +224,14 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // State: walking to dest
 // - send self: finish drt trip
 
-interface PersonStateContext {
-    val availabilityWriter: AvailabilityWriter
-}
-object NoWriters : PersonStateContext {
-    override val availabilityWriter: AvailabilityWriter = NoAvailabilityWriter
-}
+//interface PersonStateContext {
+//    val availabilityWriter: AvailabilityWriter
+//}
+//object NoWriters : PersonStateContext {
+//    override val availabilityWriter: AvailabilityWriter = NoAvailabilityWriter
+//}
 
-val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : PersonStateContext get() =
+val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : HasAvailabilityWriter get() =
     stateMachine<PersonAgent>("PersonsStateMachine") {
 
         start(StartPerson, ::startPerson) { send ->

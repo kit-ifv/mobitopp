@@ -15,24 +15,25 @@ import java.nio.ByteBuffer
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+// * 2) a [personConverter] to map [PersonId] -> [Person]
+
 /**
  * This reader creates a list of [MutablePlannedActivity] from a file. There are 3 arguments that need to be provided in
  * order for a functional conversion.
  * 1) A [codeActivity] CodePlan to decipher [Int] -> [ActivityType]
- * 2) a [personConverter] to map [PersonId] -> [Person]
  * 3) The [contextSimulationSeed]
  *
  */
 @Suppress("MagicNumber")
 class BinaryActivityReader(
     private val codeActivity: CodePlan<ActivityType>,
-    val personConverter: (PersonId) -> MutablePerson?,
+//    val personConverter: (PersonId) -> MutablePerson?,
     private val contextSimulationSeed: Long,
 ) : BinaryReader<MutablePlannedActivity> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutablePlannedActivity? {
         val id = ActivityId(long)
-        val person = personConverter(PersonId(long))
+        val person = PersonId(long) // personConverter(PersonId(long))
         val observedTripDuration = int.toDuration(DurationUnit.MINUTES)
         val startTime = long.toDuration(DurationUnit.MINUTES).sinceStart
         val duration = int.toDuration(DurationUnit.MINUTES)

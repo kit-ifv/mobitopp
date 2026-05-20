@@ -79,7 +79,6 @@ abstract class Zone(
     }
 
     operator fun contains(location: HasZoneID): Boolean = location.zoneID == this.id
-
 }
 
 fun Zone.point(wgsCoord: WGS84Coordinate) = StandardLocation(

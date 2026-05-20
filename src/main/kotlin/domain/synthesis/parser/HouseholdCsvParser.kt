@@ -19,10 +19,10 @@ import utils.csv.int
 import utils.csv.long
 import utils.csv.withFilter
 
-//household csv parsers
+// household csv parsers
 data class HouseholdCsvConfig(
     var columns: HouseholdColumns = HouseholdColumns(),
-    var getZone: (ZoneId) -> Zone, //TODO maybe Row.() -> Zone instead to be more flexible
+    var getZone: (ZoneId) -> Zone, // TODO maybe Row.() -> Zone instead to be more flexible
     var roadPositionParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
     var incomeUnit: CurrencyUnit,
     var economicStatusCodes: CodePlan<EconomicStatus>,
@@ -30,7 +30,6 @@ data class HouseholdCsvConfig(
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
     val seed: Long,
 )
-
 
 fun createHouseholdCsvParser(
     householdCsvConfig: HouseholdCsvConfig,

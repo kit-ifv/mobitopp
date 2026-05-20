@@ -41,7 +41,7 @@ data class PersonColumns(
     val membershipColumn: String = "mobilityProviderCustomership",
 )
 
-data class PersonCodePlans (
+data class PersonCodePlans(
     val employmentCodes: CodePlan<Employment> = Employment,
     val graduationCodes: CodePlan<Graduation> = Graduation,
     val sexCodes: CodePlan<Sex> = Sex
@@ -116,5 +116,3 @@ fun <R> String.parseMemberships(
     .mapNotNull { membership ->
         providersByName[membership[0].lowercase()]
     }
-
-

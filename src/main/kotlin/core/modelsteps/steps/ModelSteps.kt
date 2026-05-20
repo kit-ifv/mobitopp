@@ -1,6 +1,7 @@
 package core.modelsteps.steps
 
 import core.modelsteps.Context
+import core.modelsteps.NO_ERROR_MESSAGE
 import core.modelsteps.Validation
 import core.modelsteps.resources.Repository
 import core.modelsteps.validation.validateCondition
@@ -8,68 +9,86 @@ import utils.ConsoleCaptor
 import utils.report.CardStatus
 import utils.units.logTime
 
-
-fun <C: Context> C.modelStep(name: String, validation: Validation<C> = emptyList(), execution: C.() -> Unit) {
+/**
+ * Executes a single model step.
+ *
+ * Model steps are the basic building blocks of simulations and are executed sequentially.
+ * Each step has a [name] for logging purposes.
+ *
+ * In validation mode, this function runs the provided [validation] checks to detect "obvious errors"
+ * early, before any time-consuming simulation logic is executed.
+ * In execution mode, it runs the [execution] block.
+ *
+ * @receiver The context type in which the step is executed.
+ * @param C The context type in which the step is executed.
+ * @param name The descriptive name of this step, used for logging and reporting.
+ * @param validation A list of validation checks to be performed in validation mode.
+ * @param execution The actual logic to be executed in execution mode.
+ */
+fun <C : Context> C.modelStep(name: String, validation: Validation<C> = emptyList(), execution: C.() -> Unit) {
     val mode = if (execMode.isValidate) {
         "validation"
     } else {
         "execution"
     }
+    currentStep = name
+
     val action = if (execMode.isValidate) "Validate" else "Execute"
-    fun title(type: String) = "$type in $name"
-    fun message(result: String) = "$mode of model step $name $result."
+    fun message(result: String) = "$mode $result."
 
     val diff = report.detectReportChanges {
         println("\n$action $name")
-        try {
-
-            if (execMode.isValidate) {
-                val captor = ConsoleCaptor()
-                val isValid = validation.takeIf { it.isNotEmpty() }?.all { it() } ?: true
-                // No console output during validate
-                captor.getText()
-                isValid
-
-            } else {
-                logTime("    $name") {
-                    this.execution()
-                }
-                true
+        if (execMode.isValidate) {
+            val captor = ConsoleCaptor()
+            val isValid = try {
+                validation.takeIf { it.isNotEmpty() }?.all { it() } ?: true
+            } catch (e: Exception) {
+                logError("Exception: " + (e.message ?: NO_ERROR_MESSAGE))
+                false
             }
 
-
-        } catch (ex: Exception) {
-            report.addErrorLog(title("Exception"), "exception during validation of $name: \n ${ex.message}")
-            false
+            // No console output during validate
+            captor.getText()
+            isValid
+        } else {
+            logTime("    $name") {
+                this.execution()
+            }
+            true
         }
     }
 
-    val (prefix, rMessage) = if (!diff.result || diff.newErrors) {
-        title("Error") to CardStatus.FAILURE to message("failed")
+    val (rStatus, rMessage) = if (!diff.result || diff.newErrors) {
+        CardStatus.FAILURE to message("failed")
     } else if (diff.newWarnings) {
-        title("Warning") to CardStatus.WARNING to message("produced warnings")
+        CardStatus.WARNING to message("produced warnings")
     } else {
-        "$name is valid" to CardStatus.SUCCESS to message("was successful")
+        CardStatus.SUCCESS to message("was successful")
     }
 
-    val (rTitle, rStatus) = prefix
-
-    report.addOverviewItem(name, rStatus, rMessage)
+    logOverview(rStatus, rMessage)
 
     when (rStatus) {
-        CardStatus.FAILURE -> report.addErrorLog(rTitle, rMessage)
-        CardStatus.WARNING -> report.addWarningLog(rTitle, rMessage)
-        CardStatus.SUCCESS -> report.addSuccessLog(rTitle, rMessage)
+        CardStatus.FAILURE -> logError(rMessage)
+        CardStatus.WARNING -> logWarning(rMessage)
+        CardStatus.SUCCESS -> logSuccess(rMessage)
     }
 }
 
-
 /**
- * Add additional check to validation:
- * report a warning for each sealed repo in [dependentRepositories].
+ * A wrapper for [modelStep] that adds a check for [dependentRepositories].
  *
+ * This step ensures that all repositories it depends on are already sealed.
+ * If a repository is not sealed, a warning is reported during validation.
+ *
+ * @receiver The context type in which the step is executed.
+ * @param C The context type in which the step is executed.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks to be performed.
+ * @param execution The logic to be executed.
  */
-fun <C: Context> C.repositoryDependentStep(
+fun <C : Context> C.repositoryDependentStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>>,
     validation: Validation<C> = emptyList(),
@@ -80,8 +99,7 @@ fun <C: Context> C.repositoryDependentStep(
     execution
 )
 
-
-private fun <C: Context> C.checkDependentRepositories(
+private fun <C : Context> C.checkDependentRepositories(
     name: String,
     dependentRepositories: Set<Repository<*, *>>
 ): Boolean {
@@ -95,5 +113,3 @@ private fun <C: Context> C.checkDependentRepositories(
     }
     return true
 }
-
-

@@ -1,0 +1,195 @@
+BIKE:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "7.0"
+BIKESHARING:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "7.0"
+PASSENGER:
+  all weeks:
+    weekday:
+      0:00 to 7:00:
+        constant_matrix: "5.0"
+      7:00 to 10:00:
+        constant_matrix: "10.0"
+      10:00 to 16:00:
+        constant_matrix: "6.0"
+      16:00 to 18:00:
+        constant_matrix: "9.0"
+      18:00 to 24:00:
+        constant_matrix: "5.0"
+    saturday:
+      0:00 to 7:00:
+        constant_matrix: "4.0"
+      7:00 to 10:00:
+        constant_matrix: "6.0"
+      10:00 to 16:00:
+        constant_matrix: "5.0"
+      16:00 to 18:00:
+        constant_matrix: "6.0"
+      18:00 to 24:00:
+        constant_matrix: "4.0"
+    sunday:
+      0:00 to 7:00:
+        constant_matrix: "4.0"
+      7:00 to 10:00:
+        constant_matrix: "6.0"
+      10:00 to 16:00:
+        constant_matrix: "5.0"
+      16:00 to 18:00:
+        constant_matrix: "6.0"
+      18:00 to 24:00:
+        constant_matrix: "4.0"
+CAR:
+  all weeks:
+    weekday:
+      0:00 to 7:00:
+        constant_matrix: "5.0"
+      7:00 to 10:00:
+        constant_matrix: "10.0"
+      10:00 to 16:00:
+        constant_matrix: "6.0"
+      16:00 to 18:00:
+        constant_matrix: "9.0"
+      18:00 to 24:00:
+        constant_matrix: "5.0"
+    saturday:
+      0:00 to 7:00:
+        constant_matrix: "4.0"
+      7:00 to 10:00:
+        constant_matrix: "6.0"
+      10:00 to 16:00:
+        constant_matrix: "5.0"
+      16:00 to 18:00:
+        constant_matrix: "6.0"
+      18:00 to 24:00:
+        constant_matrix: "4.0"
+    sunday:
+      0:00 to 7:00:
+        constant_matrix: "4.0"
+      7:00 to 10:00:
+        constant_matrix: "6.0"
+      10:00 to 16:00:
+        constant_matrix: "5.0"
+      16:00 to 18:00:
+        constant_matrix: "6.0"
+      18:00 to 24:00:
+        constant_matrix: "4.0"
+E_SCOOTER:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "6.0"
+PEDESTRIAN:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "9.0"
+PUBLICTRANSPORT:
+  all weeks:
+    weekday:
+      0:00 to 7:00:
+        constant_matrix: "6.0"
+      7:00 to 10:00:
+        constant_matrix: "7.0"
+      10:00 to 16:00:
+        constant_matrix: "6.0"
+      16:00 to 18:00:
+        constant_matrix: "7.0"
+      18:00 to 24:00:
+        constant_matrix: "6.0"
+    saturday:
+      0:00 to 7:00:
+        constant_matrix: "6.0"
+      7:00 to 10:00:
+        constant_matrix: "7.0"
+      10:00 to 16:00:
+        constant_matrix: "6.0"
+      16:00 to 18:00:
+        constant_matrix: "7.0"
+      18:00 to 24:00:
+        constant_matrix: "6.0"
+    sunday:
+      0:00 to 7:00:
+        constant_matrix: "6.0"
+      7:00 to 10:00:
+        constant_matrix: "7.0"
+      10:00 to 16:00:
+        constant_matrix: "6.0"
+      16:00 to 18:00:
+        constant_matrix: "7.0"
+      18:00 to 24:00:
+        constant_matrix: "6.0"
+RIDE_POOLING:
+  all weeks:
+    weekday:
+      0:00 to 7:00:
+        constant_matrix: "5.0"
+      7:00 to 10:00:
+        constant_matrix: "10.0"
+      10:00 to 16:00:
+        constant_matrix: "6.0"
+      16:00 to 18:00:
+        constant_matrix: "9.0"
+      18:00 to 24:00:
+        constant_matrix: "5.0"
+    saturday:
+      0:00 to 7:00:
+        constant_matrix: "4.0"
+      7:00 to 10:00:
+        constant_matrix: "6.0"
+      10:00 to 16:00:
+        constant_matrix: "5.0"
+      16:00 to 18:00:
+        constant_matrix: "6.0"
+      18:00 to 24:00:
+        constant_matrix: "4.0"
+    sunday:
+      0:00 to 7:00:
+        constant_matrix: "4.0"
+      7:00 to 10:00:
+        constant_matrix: "6.0"
+      10:00 to 16:00:
+        constant_matrix: "5.0"
+      16:00 to 18:00:
+        constant_matrix: "6.0"
+      18:00 to 24:00:
+        constant_matrix: "4.0"
+TAXI:
+  all weeks:
+    weekday:
+      0:00 to 7:00:
+        constant_matrix: "5.0"
+      7:00 to 10:00:
+        constant_matrix: "10.0"
+      10:00 to 16:00:
+        constant_matrix: "6.0"
+      16:00 to 18:00:
+        constant_matrix: "9.0"
+      18:00 to 24:00:
+        constant_matrix: "5.0"
+    saturday:
+      0:00 to 7:00:
+        constant_matrix: "4.0"
+      7:00 to 10:00:
+        constant_matrix: "6.0"
+      10:00 to 16:00:
+        constant_matrix: "5.0"
+      16:00 to 18:00:
+        constant_matrix: "6.0"
+      18:00 to 24:00:
+        constant_matrix: "4.0"
+    sunday:
+      0:00 to 7:00:
+        constant_matrix: "4.0"
+      7:00 to 10:00:
+        constant_matrix: "6.0"
+      10:00 to 16:00:
+        constant_matrix: "5.0"
+      16:00 to 18:00:
+        constant_matrix: "6.0"
+      18:00 to 24:00:
+        constant_matrix: "4.0"

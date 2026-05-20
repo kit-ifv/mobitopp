@@ -14,12 +14,22 @@ import utils.csv.SEMICOLON
 import java.nio.file.Path
 
 /**
- * Add additional non sealed repository check as well as [dependentRepositories] checks to validation.
+ * A wrapper for [repositoryDependentStep] that represents a step intended to modify a [repository].
  *
- * @param E the generic type of entities in the repository
- * @param I the generic entity id type
+ * In addition to checks for [dependentRepositories], this step validates that the target
+ * [repository] is not already sealed.
+ *
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The mutable repository that will be modified.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param execution The logic to be executed in execution mode.
  */
-fun <C: Context, E: Identifiable<I>, I> C.mutatingStep(
+fun <C : Context, E : Identifiable<I>, I> C.mutatingStep(
     name: String,
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -33,13 +43,22 @@ fun <C: Context, E: Identifiable<I>, I> C.mutatingStep(
 )
 
 /**
- * Add a [core.modelsteps.resources.Resource] of elements to the given [MutableRepository].
- * Add additional checks of [mutatingStep] to validation.
+ * A [mutatingStep] that adds elements from a [resource] to the given [repository].
  *
- * @param E the generic type of entities to be added
- * @param I the generic entity id type
+ * During validation, it ensures the repository is not sealed and optionally checks [dependentRepositories].
+ * During execution, it adds all elements from the [resource] to the [repository].
+ *
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities to be added.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository where elements will be added.
+ * @param resource The resource providing the elements.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
  */
-fun <C: Context, E: Identifiable<I>, I> C.addResourceStep(
+fun <C : Context, E : Identifiable<I>, I> C.addResourceStep(
     name: String,
     repository: MutableRepository<E, I>,
     resource: Resource<E>,
@@ -51,17 +70,27 @@ fun <C: Context, E: Identifiable<I>, I> C.addResourceStep(
     dependentRepositories,
     validation
 ) {
-    repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements)
+    var count = 0
+    repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements.onEach { count++ })
+    report.addNormalLog(name, "added $count elements to repo ${repository.name}")
 }
 
 /**
- * Add a [core.modelsteps.resources.CsvResource] of elements to the given [MutableRepository].
- * Add additional csv metadata check as well as checks of [mutatingStep] to validation.
+ * A [mutatingStep] that adds elements from a [CsvResource] to the given [repository].
  *
- * @param E the generic type of entities to be added
- * @param I the generic entity id type
+ * This step includes CSV metadata validation during the validation phase.
+ *
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities to be added.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository where elements will be added.
+ * @param resource The CSV resource providing the elements.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
  */
-fun <C: Context, E: Identifiable<I>, I> C.addCsvResourceStep(
+fun <C : Context, E : Identifiable<I>, I> C.addCsvResourceStep(
     name: String,
     repository: MutableRepository<E, I>,
     resource: CsvResource<E>,
@@ -76,13 +105,23 @@ fun <C: Context, E: Identifiable<I>, I> C.addCsvResourceStep(
 )
 
 /**
- * Load a csv from the given [java.nio.file.Path], parse and add to the given [MutableRepository].
- * Add checks of [addCsvResourceStep] in validation mode.
+ * Loads data from a CSV file at the specified [path] into the [repository].
  *
- * @param E the generic type of entities to be added
- * @param I the generic entity id type
+ * This is a convenience wrapper around [addCsvResourceStep].
+ *
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities to be added.
+ * @param I The type of entity IDs.
+ * @param repository The repository where elements will be added.
+ * @param path The path to the CSV file.
+ * @param parser The parser to convert CSV rows to entities.
+ * @param delimiter The CSV delimiter (defaults to semicolon).
+ * @param name The descriptive name of this step (defaults to "load <filename>").
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
  */
-fun <C: Context, E: Identifiable<I>, I> C.loadCsvStep(
+fun <C : Context, E : Identifiable<I>, I> C.loadCsvStep(
     repository: MutableRepository<E, I>,
     path: Path,
     parser: CsvParser<E>,
@@ -98,17 +137,22 @@ fun <C: Context, E: Identifiable<I>, I> C.loadCsvStep(
     validation
 )
 
-
 /**
- * A FilterStep is a model step that filters the elements of a given [MutableRepository]
- * using a given predicate [check].
- * This removes elements from the repository if applying the predicates evaluates to false.
- * Adds additional checks of [mutatingStep] to validation.
+ * A [mutatingStep] that filters elements in the [repository] based on the [check] predicate.
  *
- * @param E the generic type of entities to be filtered
- * @param I the generic id type of entities
+ * Elements that do not satisfy the predicate are removed from the repository.
+ *
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository to filter.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param check The predicate to determine which elements to keep.
  */
-fun <C: Context, E: Identifiable<I>, I> C.filterStep(
+fun <C : Context, E : Identifiable<I>, I> C.filterStep(
     name: String,
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -120,19 +164,28 @@ fun <C: Context, E: Identifiable<I>, I> C.filterStep(
     dependentRepositories,
     validation
 ) {
+    val sizeBefore = repository.size
     repository.filterElements(name, check)
+    val sizeAfter = repository.size
+    logNormal("filter removed ${sizeBefore - sizeAfter} elements from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)")
 }
 
 /**
- * Filters the elements of a given [MutableRepository] by id
- * using a given predicate [check].
- * This removes elements from the repository if applying the predicates evaluates to false.
- * Adds additional checks of [mutatingStep] to validation.
+ * A [mutatingStep] that filters elements in the [repository] based on their IDs using the [check] predicate.
  *
- * @param E the generic type of entities to be filtered
- * @param I the generic id type of entities
+ * Elements whose IDs do not satisfy the predicate are removed from the repository.
+ *
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository to filter.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param check The predicate to determine which IDs to keep.
  */
-fun <C: Context, E: Identifiable<I>, I> C.filterIdsStep(
+fun <C : Context, E : Identifiable<I>, I> C.filterIdsStep(
     name: String,
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -144,25 +197,28 @@ fun <C: Context, E: Identifiable<I>, I> C.filterIdsStep(
     dependentRepositories,
     validation
 ) {
+    val sizeBefore = repository.size
     repository.filterIds(name, check)
+    val sizeAfter = repository.size
+    logNormal("filter removed ${sizeBefore - sizeAfter} elements by id from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)")
 }
 
 /**
- * Modify / update the internal state of elements in a given repository
- * by applying an action to each element in the repository.
- * This action may alter state variables of the element.
+ * A [mutatingStep] that applies an [update] function to each element in the [repository].
  *
- * Unlike [updateBulkStep] where all current elements in the repository
- * are passed as a collection to the update function,
- * [updateEachStep] applies the [update] function to each element individually.
+ * This is used for in-place modifications of entities.
  *
- * Adds additional checks of [mutatingStep] to validation.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @param repository the repository in which each element should be updated
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository where elements will be updated.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param update The function to apply to each element.
  */
-fun <C: Context, E: Identifiable<I>, I> C.updateEachStep(
+fun <C : Context, E : Identifiable<I>, I> C.updateEachStep(
     name: String,
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -178,22 +234,21 @@ fun <C: Context, E: Identifiable<I>, I> C.updateEachStep(
 }
 
 /**
- * Modify / update the internal state of all elements in a given repository
- * by applying an action to all element in bulk.
- * This action may alter state variables of the element.
- * This can be used if the state update of the elements are not isolated but interdependent.
+ * A [mutatingStep] that applies an [update] function to all elements in the [repository] as a collection.
  *
- * Unlike [updateEachStep] where the action is applied to each element individually,
- * are passed as a collection to the update function,
- * [updateBulkStep] passes all current elements in the repository as a collection to the [update] function.
+ * This is useful when updates are interdependent and require access to all elements at once.
  *
- * Adds additional checks of [mutatingStep] to validation.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @param repository the repository in which each element should be updated
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository where elements will be updated.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param update The function to apply to the collection of all elements.
  */
-fun <C: Context, E: Identifiable<I>, I> C.updateBulkStep(
+fun <C : Context, E : Identifiable<I>, I> C.updateBulkStep(
     name: String,
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -209,25 +264,22 @@ fun <C: Context, E: Identifiable<I>, I> C.updateBulkStep(
 }
 
 /**
- * Modify / update elements in a given repository
- * by applying a transformation (mapping) to each element in the repository,
- * replacing the respective previous entity/data in the repository.
- * The transformation might evaluate to null, which removes the element from the repository.
+ * A [mutatingStep] that transforms each element in the [repository] using the [transform] function.
  *
- * Unlike [updateEachStep] or [updateBulkStep] where internal state of repository entities are updated,
- * [transformEachStep] allows replacing the original entity in the repo ith an updated copy
- * (e.g. in case of immutable data objects).
+ * This allows replacing entities (e.g., for numerical data objects).
+ * If the [transform] function returns null, the element is removed from the repository.
  *
- * Unlike [transformBulkStep] where the new elements are computed from data of all current elements in the repository,
- * [transformEachStep] maps each current element to a new element or null.
- *
- * Adds additional checks of [mutatingStep] to validation.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @param repository the repository in which each element should be transformed
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository where elements will be transformed.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param transform The transformation function to apply to each element.
  */
-fun <C: Context, E: Identifiable<I>, I> C.transformEachStep(
+fun <C : Context, E : Identifiable<I>, I> C.transformEachStep(
     name: String,
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -243,24 +295,22 @@ fun <C: Context, E: Identifiable<I>, I> C.transformEachStep(
 }
 
 /**
- * Modify / update all elements in a given repository
- * by applying a transformation (mapping) to all element in bulk,
- * replacing the repository content by new/derived entities.
+ * A [mutatingStep] that transforms the [repository] elements by applying the [transform] function to each.
  *
- * Unlike [updateEachStep] or [updateBulkStep] where internal state of repository entities are updated,
- * [transformBulkStep] allows replacing the original entity in the repo ith an updated copy
- * (e.g. in case of immutable data objects).
+ * This is similar to [transformEachStep] but often used for bulk operations where the result
+ * might depend on other elements (though the current implementation here uses `transformEach`).
  *
- * Unlike [transformEachStep] where each element is mapped individually to a new element or null,
- * [transformBulkStep] computes the new elements from data of all current elements in the repository.
- *
- * Adds additional checks of [mutatingStep] to validation.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @param repository the repository in which each element should be transformed
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository where elements will be transformed.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param transform The transformation function to apply.
  */
-fun <C: Context, E: Identifiable<I>, I> C.transformBulkStep(
+fun <C : Context, E : Identifiable<I>, I> C.transformBulkStep(
     name: String,
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -276,17 +326,19 @@ fun <C: Context, E: Identifiable<I>, I> C.transformBulkStep(
 }
 
 /**
- * Applies a (non mutating) action to each element of the [repository].
+ * A [repositoryDependentStep] that performs a read-only action [process] on each element in the [repository].
  *
- * Unlike [forAllStep] where all current elements of the [repository]
- * are passed as a collection to the processAll action,
- * [forEachStep] applies the [process] action to each element individually.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @param repository the repository in which each element should be processed
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository to iterate over.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param process The action to perform on each element.
  */
-fun <C: Context, E: Identifiable<I>, I> C.forEachStep(
+fun <C : Context, E : Identifiable<I>, I> C.forEachStep(
     name: String,
     repository: Repository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -303,17 +355,19 @@ fun <C: Context, E: Identifiable<I>, I> C.forEachStep(
 }
 
 /**
- * Applies a (non mutating) action to each element of the [repository].
+ * A [repositoryDependentStep] that performs a read-only action [processAll] on all elements in the [repository] at once.
  *
- * Unlike [forEachStep] where all current elements of the [repository]
- * are passed as a collection to the process action,
- * [forEachStep] applies the [processAll] action to each element individually.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @param repository the repository in which all elements should be processed
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param name The descriptive name of this step.
+ * @param repository The repository to process.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param processAll The action to perform on the collection of all elements.
  */
-fun <C: Context, E: Identifiable<I>, I> C.forAllStep(
+fun <C : Context, E : Identifiable<I>, I> C.forAllStep(
     name: String,
     repository: Repository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -328,16 +382,20 @@ fun <C: Context, E: Identifiable<I>, I> C.forAllStep(
 }
 
 /**
- * Seals the given [repository] denying any future modification.
+ * A [mutatingStep] that seals the given [repository], preventing any further modifications.
  *
- * @param C the generic type of the context
- * @param E the generic type of entities in the repository
- * @param I the generic id type of entities
- * @param repository the repository to be sealed
- * @param name name of ths seal step for logging
- * @param validation checks to be performed during validation
+ * Once sealed, future steps that attempt to modify this repository (via [mutatingStep])
+ * will report a validation failure.
+ *
+ * @receiver The context type.
+ * @param C The context type.
+ * @param E The type of entities in the repository.
+ * @param I The type of entity IDs.
+ * @param repository The repository to seal.
+ * @param name The descriptive name of this step.
+ * @param validation Additional validation checks.
  */
-fun <C: Context, E: Identifiable<I>, I> C.seal(
+fun <C : Context, E : Identifiable<I>, I> C.seal(
     repository: MutableRepository<E, I>,
     name: String = "seal ${repository.name}",
     validation: Validation<C> = emptyList()
@@ -348,5 +406,5 @@ fun <C: Context, E: Identifiable<I>, I> C.seal(
     validation
 ) {
     repository.seal()
-    println("Sealed ${repository.name} repo: ${repository.size} elements. This repo can no longer be updated!")
+    logNormal("sealed ${repository.name} with ${repository.size} elements. This repo can no longer be updated!")
 }

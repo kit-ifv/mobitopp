@@ -11,6 +11,15 @@ import edu.kit.ifv.units.Hemisphere
 import java.nio.file.Path
 import kotlin.io.path.name
 
+/**
+ * Loads a road network from a Visum .net file.
+ *
+ * This step parses the specified Visum file and initializes the [roadNetwork] of the context.
+ *
+ * @receiver The simulation context which can store a road network.
+ * @param file The path to the Visum .net file.
+ * @param localeLambda A lambda to configure the [VisumLocale] used during parsing.
+ */
 fun HasMutableRoadNetwork.loadVisumNetwork(
     file: Path,
     localeLambda: VisumLocale.() -> Unit = {}
@@ -26,7 +35,7 @@ fun HasMutableRoadNetwork.loadVisumNetwork(
             file = file,
             locale = locale,
             utmZone = 32,
-            utmHemisphere = Hemisphere.NORTHERN //TODO why fixed?
+            utmHemisphere = Hemisphere.NORTHERN // TODO why fixed?
         ).parseNetwork {}
     )
 }

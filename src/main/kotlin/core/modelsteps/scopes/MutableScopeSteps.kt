@@ -24,10 +24,21 @@ import utils.csv.SEMICOLON
 import java.nio.file.Path
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.mutatingStep]
+ * A version of [core.modelsteps.steps.mutatingStep] that uses a [MutableRepository] from the context.
+ *
+ * This function is intended to be used within a [mutableRepositoryScope].
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param execution The logic to be executed in execution mode.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.mutatingStep(
+fun <C : Context, E : Identifiable<I>, I> C.mutatingStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
@@ -35,10 +46,19 @@ fun <C: Context, E: Identifiable<I>, I> C.mutatingStep(
 ) = mutatingStep(name, repository, dependentRepositories, validation, execution)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.addResourceStep]
+ * A version of [core.modelsteps.steps.addResourceStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param resource The resource providing the elements to add.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.addResourceStep(
+fun <C : Context, E : Identifiable<I>, I> C.addResourceStep(
     name: String,
     resource: Resource<E>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -46,10 +66,19 @@ fun <C: Context, E: Identifiable<I>, I> C.addResourceStep(
 ) = addResourceStep(name, repository, resource, dependentRepositories, validation)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.addCsvResourceStep]
+ * A version of [core.modelsteps.steps.addCsvResourceStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param resource The CSV resource providing the elements.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.addCsvResourceStep(
+fun <C : Context, E : Identifiable<I>, I> C.addCsvResourceStep(
     name: String,
     resource: CsvResource<E>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
@@ -57,10 +86,21 @@ fun <C: Context, E: Identifiable<I>, I> C.addCsvResourceStep(
 ) = addCsvResourceStep(name, repository, resource, dependentRepositories, validation)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.loadCsvStep]
+ * A version of [core.modelsteps.steps.loadCsvStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param path The path to the CSV file.
+ * @param parser The parser to convert CSV rows to entities.
+ * @param delimiter The CSV delimiter.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.loadCsvStep(
+fun <C : Context, E : Identifiable<I>, I> C.loadCsvStep(
     path: Path,
     parser: CsvParser<E>,
     delimiter: String = SEMICOLON,
@@ -70,10 +110,19 @@ fun <C: Context, E: Identifiable<I>, I> C.loadCsvStep(
 ) = loadCsvStep(repository, path, parser, delimiter, name, dependentRepositories, validation)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.filterStep]
+ * A version of [core.modelsteps.steps.filterStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param check The predicate to determine which elements to keep.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.filterStep(
+fun <C : Context, E : Identifiable<I>, I> C.filterStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
@@ -81,10 +130,19 @@ fun <C: Context, E: Identifiable<I>, I> C.filterStep(
 ) = filterStep(name, repository, dependentRepositories, validation, check)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.filterIdsStep]
+ * A version of [core.modelsteps.steps.filterIdsStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param check The predicate to determine which IDs to keep.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.filterIdsStep(
+fun <C : Context, E : Identifiable<I>, I> C.filterIdsStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
@@ -92,10 +150,19 @@ fun <C: Context, E: Identifiable<I>, I> C.filterIdsStep(
 ) = filterIdsStep(name, repository, dependentRepositories, validation, check)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.updateEachStep]
+ * A version of [core.modelsteps.steps.updateEachStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param update The function to apply to each element.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.updateEachStep(
+fun <C : Context, E : Identifiable<I>, I> C.updateEachStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
@@ -103,10 +170,19 @@ fun <C: Context, E: Identifiable<I>, I> C.updateEachStep(
 ) = updateEachStep(name, repository, dependentRepositories, validation, update)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.updateBulkStep]
+ * A version of [core.modelsteps.steps.updateBulkStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param update The function to apply to the collection of all elements.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.updateBulkStep(
+fun <C : Context, E : Identifiable<I>, I> C.updateBulkStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
@@ -114,10 +190,19 @@ fun <C: Context, E: Identifiable<I>, I> C.updateBulkStep(
 ) = updateBulkStep(name, repository, dependentRepositories, validation, update)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.transformEachStep]
+ * A version of [core.modelsteps.steps.transformEachStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param transform The transformation function to apply to each element.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.transformEachStep(
+fun <C : Context, E : Identifiable<I>, I> C.transformEachStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
@@ -125,10 +210,19 @@ fun <C: Context, E: Identifiable<I>, I> C.transformEachStep(
 ) = transformEachStep(name, repository, dependentRepositories, validation, transform)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.transformBulkStep]
+ * A version of [core.modelsteps.steps.transformBulkStep] that uses a [MutableRepository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param transform The transformation function to apply.
  */
 context(repository: MutableRepository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.transformBulkStep(
+fun <C : Context, E : Identifiable<I>, I> C.transformBulkStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
@@ -136,10 +230,19 @@ fun <C: Context, E: Identifiable<I>, I> C.transformBulkStep(
 ) = transformBulkStep(name, repository, dependentRepositories, validation, transform)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.forEachStep]
+ * A version of [core.modelsteps.steps.forEachStep] that uses a [Repository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param process The action to perform on each element.
  */
 context(repository: Repository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.forEachStep(
+fun <C : Context, E : Identifiable<I>, I> C.forEachStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
@@ -147,10 +250,19 @@ fun <C: Context, E: Identifiable<I>, I> C.forEachStep(
 ) = forEachStep(name, repository, dependentRepositories, validation, process)
 
 /**
- * [mutableRepositoryScope] version of [core.modelsteps.steps.forAllStep]
+ * A version of [core.modelsteps.steps.forAllStep] that uses a [Repository] from the context.
+ *
+ * @receiver The simulation context.
+ * @param C The context type.
+ * @param E The entity type.
+ * @param I The ID type.
+ * @param name The descriptive name of this step.
+ * @param dependentRepositories A set of repositories that this step depends on.
+ * @param validation Additional validation checks.
+ * @param processAll The action to perform on the collection of all elements.
  */
 context(repository: Repository<E, I>)
-fun <C: Context, E: Identifiable<I>, I> C.forAllStep(
+fun <C : Context, E : Identifiable<I>, I> C.forAllStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),

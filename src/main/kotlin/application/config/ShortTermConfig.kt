@@ -24,7 +24,7 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     val seed: Long = 42,
 
     // Robin: Caching is optional, if the end user doesn't want caches then they shouldn't be forced to specify this
-    val cachePath: Path? = null, //TODO instead of nullable maybe specify default path
+    val cachePath: Path? = null, // TODO instead of nullable maybe specify default path
     val zoneMatrixCreationMethod: ZoneMatrixCreation = KeyBasedMatrixCreation,
 
     /* simulation */
@@ -46,7 +46,7 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
 
     fun validate() {
         val paths = mutableListOf(
-            simulationContext.dataFolder,
+//            simulationContext.dataFolder,
             cachePath
         )
 

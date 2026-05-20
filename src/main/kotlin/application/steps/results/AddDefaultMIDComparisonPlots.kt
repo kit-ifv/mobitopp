@@ -2,6 +2,10 @@
 
 package application.steps.results
 
+import application.steps.HasHouseholdRepo
+import application.steps.HasImpedance
+import application.steps.HasPersonAgentRepo
+import application.steps.ResultsConfig
 import core.modelsteps.Context
 import core.results.plots.asHistogram
 import core.results.plots.asLinePlot
@@ -13,15 +17,17 @@ import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.areatype.RegioStaR7
-import domain.simulation.results.AgentResultsContext
+import domain.simulation.agent.PersonAgent
 import domain.simulation.results.PersonLeg
 import domain.synthesis.data.Employment
+import domain.synthesis.data.Household
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.sharingMembershipIds
 import java.nio.file.Path
 import java.time.DayOfWeek
 
 @Suppress("LongMethod", "CyclomaticComplexMethod", "CognitiveComplexMethod", "LongParameterList")
+context(config: ResultsConfig)
 fun <C> C.addDefaultMIDComparisonPlots(
     subDir: String = "mid-comparison",
     midPersonPath: Path,
@@ -29,14 +35,16 @@ fun <C> C.addDefaultMIDComparisonPlots(
     choiceModelPurposes: ChoiceModelPurposes,
     defaultPurpose: ActivityType,
     choiceModelModes: ChoiceModelModes,
-) where C : Context, C : AgentResultsContext = run {
-    fun <G> AgentResultsContext.midPlotForPerson(
+) where C : Context, C : HasImpedance, C: HasPersonAgentRepo<*, PersonAgent>, C: HasHouseholdRepo<*, Household> {
+
+    fun <G> midPlotForPerson(
         personFilter: (IPerson) -> Boolean = { true },
         rowFilter: (MidPersonRow) -> Boolean = { true },
         personGroup: (IPerson) -> G,
         midGroup: (MidPersonRow) -> G,
         normalize: Boolean = true
-    ) = this.midComparisonPlotForPerson(
+    ) = midComparisonPlotForPerson(
+        personAgentRepository,
         midPersonPath,
         personFilter,
         rowFilter,
@@ -45,15 +53,15 @@ fun <C> C.addDefaultMIDComparisonPlots(
         normalize
     )
 
-    fun <G> AgentResultsContext.midPlotForLegs(
+    fun <G> midPlotForLegs(
         legFilter: (PersonLeg) -> Boolean = { true },
         rowFilter: (MidLegRow) -> Boolean = { true },
         legGroup: (PersonLeg) -> G,
         midGroup: (MidLegRow) -> G,
         normalize: Boolean = true
-    ) = this.midComparisonPlotForLegs(
-        midLegPath, choiceModelPurposes, choiceModelModes, this.impedance.value,
-        legFilter, rowFilter, legGroup, midGroup, normalize
+    ) = midComparisonPlotForLegs(
+        personAgentRepository,midLegPath, choiceModelPurposes, choiceModelModes,
+        impedance, legFilter, rowFilter, legGroup, midGroup, normalize
     )
 
     // 1 gender age Histogram abs

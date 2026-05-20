@@ -9,6 +9,7 @@ import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
+
 @Suppress("MagicNumber")
 private val invalidPoint = object : Point(Coordinate(0.0, .0), PrecisionModel(), 4326) {
 }

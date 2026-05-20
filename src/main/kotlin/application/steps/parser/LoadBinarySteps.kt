@@ -44,104 +44,178 @@ import domain.synthesis.parser.binary.BinaryZoneReader
 import domain.synthesis.parser.binary.BinaryZoneWriter
 import java.nio.file.Path
 
+/**
+ * Loads persons from a binary file.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement:
+ *   - [HasHouseholdRepo] for [MutableHousehold]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
+ * @param repository The mutable repository of persons to populate. Provided via context.
+ * @param config The short-term configuration. Provided via context. Must implement [ShortTermConfig].
+ * @param path The path to the binary file.
+ */
 context(repository: MutableRepository<MutablePerson, PersonId>, config: ShortTermConfig<*>)
 fun <C> C.loadPersonsFromBinary(path: Path)
-where C: HasHouseholdRepo<MutableHousehold>,
-      C: HasSharingProviderRepo<SharingProvider>,
-      C: HasDrtProviderRepo<DrtProvider>
-{
+    where C : HasHouseholdRepo<MutableHousehold, *>,
+          C : HasSharingProviderRepo<*, SharingProvider>,
+          C : HasDrtProviderRepo<*, DrtProvider> {
     val converter = BinaryPersonReader(
-        householdRepository.elements.associateBy { it.id }::getValue,
-        sharingProviderRepository.elements.associateBy { it.id }::getValue,
-        drtProviderRepository.elements.associateBy { it.id }::getValue,
+        ::getMutableHousehold,
+        ::getSharingProvider,
+        ::getDrtProvider,
         config.seed
     )
 
     loadBinary(
-        path, converter, repository,
+        path,
+        converter,
+        repository,
         dependentRepositories = setOf(householdRepository)
     )
 }
 
+/**
+ * Loads households from a binary file.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasZoneRepo] for [Zone].
+ * @param repository The mutable repository of households to populate. Provided via context.
+ * @param config The short-term configuration. Provided via context. Must implement [ShortTermConfig].
+ * @param path The path to the binary file.
+ */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: ShortTermConfig<*>)
 fun <C> C.loadHouseholdFromBinary(path: Path)
-where C: HasZoneRepo<Zone>
-{
+    where C : HasZoneRepo<*, Zone> {
     val converter = BinaryHouseholdReader(
-        zoneRepository.elements.associateBy { it.id }::getValue,
+        ::getZone,
         config.seed
     )
 
     loadBinary(
-        path, converter, repository,
+        path,
+        converter,
+        repository,
         dependentRepositories = setOf(zoneRepository)
     )
 }
 
+/**
+ * Loads zones from a binary file.
+ *
+ * @receiver The simulation context [Context].
+ * @param CFG The configuration type. Must implement [RegionCodesConfig] and [SourceFilesConfig].
+ * @param repository The mutable repository of zones to populate. Provided via context.
+ * @param config The configuration. Provided via context.
+ * @param path The path to the binary file.
+ */
 context(repository: MutableRepository<MutableZone, ZoneId>, config: CFG)
 fun <CFG> Context.loadZonesFromBinary(path: Path)
-where CFG: RegionCodesConfig, CFG: SourceFilesConfig
-{
+    where CFG : RegionCodesConfig, CFG : SourceFilesConfig {
     val converter = BinaryZoneReader(config.seed, config.regionTypeCodes)
     loadBinary(
-        path, converter, repository,
+        path,
+        converter,
+        repository,
         dependentRepositories = emptySet()
     )
 }
 
+/**
+ * Loads cars from a binary file.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement:
+ *   - [HasHouseholdRepo] for [MutableHousehold]
+ *   - [HasPersonRepo] for [Person]
+ * @param repository The mutable repository of private cars to populate. Provided via context.
+ * @param path The path to the binary file.
+ */
 context(repository: MutableRepository<MutablePrivateCar, CarId>)
 fun <C> C.loadCarsFromBinary(path: Path)
-where C: HasHouseholdRepo<MutableHousehold>,
-      C: HasPersonRepo<Person>
-{
+    where C : HasHouseholdRepo<MutableHousehold, *>,
+          C : HasPersonRepo<*, Person> {
     val converter = BinaryCarReader(
-        householdRepository.elements.associateBy { it.id }::getValue,
-        personRepository.elements.associateBy { it.id }::getValue,
+        ::getMutableHousehold,
+        ::getPerson,
     )
 
-    loadBinary(path, converter, repository,
+    loadBinary(
+        path,
+        converter,
+        repository,
         dependentRepositories = emptySet()
     )
 }
 
+/**
+ * Loads activities from a binary file.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasPersonRepo] for [MutablePerson].
+ * @param CFG The configuration type. Must implement [ShortTermConfig] and [ActivityTypesConfig].
+ * @param repository The mutable repository of planned activities to populate. Provided via context.
+ * @param config The configuration. Provided via context.
+ * @param path The path to the binary file.
+ */
 context(repository: MutableRepository<MutablePlannedActivity, ActivityId>, config: CFG)
 fun <C, CFG> C.loadActivitiesFromBinary(path: Path)
-where C: HasPersonRepo<MutablePerson>, CFG: ShortTermConfig<*>, CFG: ActivityTypesConfig //TODO mutable person required
-{
+    where C : HasPersonRepo<MutablePerson, *>, CFG : ShortTermConfig<*>, CFG : ActivityTypesConfig {
     val converter = BinaryActivityReader(
         config.activityTypes,
-        ::getPerson,
         config.seed
     )
 
     loadBinary(
-        path, converter, repository,
+        path,
+        converter,
+        repository,
         dependentRepositories = setOf(personRepository)
     )
 }
 
-fun HasHouseholdRepo<Household>.writeHouseholdBinary(path: Path) = writeBinary(
+/**
+ * Writes households to a binary file.
+ *
+ * @param path The path to the output binary file.
+ */
+fun HasHouseholdRepo<*, Household>.writeHouseholdBinary(path: Path) = writeBinary(
     path = path,
     writer = BinaryHouseholdWriter(),
     repository = householdRepository
 )
 
-fun HasZoneRepo<Zone>.writeZoneBinary(path: Path) = writeBinary(
+/**
+ * Writes zones to a binary file.
+ *
+ * @param path The path to the output binary file.
+ */
+fun HasZoneRepo<*, Zone>.writeZoneBinary(path: Path) = writeBinary(
     path = path,
     writer = BinaryZoneWriter(),
     repository = zoneRepository
 )
 
-fun HasPersonRepo<Person>.writePersonBinary(path: Path) = writeBinary(
+/**
+ * Writes persons to a binary file.
+ *
+ * @param path The path to the output binary file.
+ */
+fun HasPersonRepo<*, Person>.writePersonBinary(path: Path) = writeBinary(
     path = path,
     writer = BinaryPersonWriter(),
     repository = personRepository
 )
 
+// TODO no longer use activity repository!
 
-//TODO no longer use activity repository!
-
-fun HasPersonRepo<Person>.writeActivitiesBinary(path: Path) = forAllStep(
+/**
+ * Writes activities of all persons to a binary file.
+ *
+ * @param path The path to the output binary file.
+ */
+fun HasPersonRepo<*, Person>.writeActivitiesBinary(path: Path) = forAllStep(
     "write activities of persons tto binary ${path.fileName}",
     personRepository,
     emptySet(),
@@ -150,8 +224,13 @@ fun HasPersonRepo<Person>.writeActivitiesBinary(path: Path) = forAllStep(
     BinaryActivityWriter().toBinary(path, elements.flatMap { it.plannedActivities })
 }
 
-fun HasCarRepo<PrivateCar>.writePersonBinary(path: Path) = writeBinary(
+/**
+ * Writes private cars to a binary file.
+ *
+ * @param path The path to the output binary file.
+ */
+fun HasCarRepo<*, PrivateCar>.writeCarsBinary(path: Path) = writeBinary(
     path = path,
     writer = BinaryCarWriter(),
-    repository = carRepo
+    repository = carRepository
 )

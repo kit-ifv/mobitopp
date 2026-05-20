@@ -114,24 +114,42 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         normals.add(Normal(title, message))
     }
 
+    private fun List<ReportStandardCard>.printItemsGroupedByTitle() {
+        val maxNameLength = maxOf { it.name.length }
+
+        this.groupBy { it.name }.forEach { (name, list) ->
+
+            if (list.size == 1) {
+                val padding = " ".repeat(maxNameLength - name.length)
+                println(" * $name$padding: ${list.first().message}")
+            } else {
+                println(" * $name")
+                list.forEach {
+                    println("    - ${it.message}")
+                }
+            }
+
+        }
+    }
+
     fun printToConsole() {
         println("Report: $reportTitle")
         quickOverview.printToConsole()
         if (errors.isNotEmpty()) {
             println("Errors:")
-            errors.forEach { println("  ${it.name} - ${it.message}") }
+            errors.printItemsGroupedByTitle()
         }
         if (warnings.isNotEmpty()) {
             println("Warnings:")
-            warnings.forEach { println("  ${it.name} - ${it.message}") }
+            warnings.printItemsGroupedByTitle()
         }
         if (normals.isNotEmpty()) {
             println("Infos:")
-            normals.forEach { println("  ${it.name} - ${it.message}") }
+            normals.printItemsGroupedByTitle()
         }
         if (success.isNotEmpty()) {
             println("Success:")
-            success.forEach { println("  ${it.name} - ${it.message}") }
+            success.printItemsGroupedByTitle()
         }
     }
 

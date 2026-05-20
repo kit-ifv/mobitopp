@@ -1,52 +1,42 @@
 package application.steps.model
 
-import core.modelsteps.Context
-import core.modelsteps.ForEachStep
+import core.modelsteps.Config
+import application.steps.HasDrtProviderRepo
 import core.modelsteps.resources.MutableRepository
-import core.modelsteps.resources.Repository
-import core.modelsteps.Warning
-import domain.synthesis.data.DrtProviderData
-import domain.synthesis.data.DrtProviderId
+import core.modelsteps.scopes.updateEachStep
+import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.PersonId
 
-interface AddDrtMembershipContext : Context {
-    val drtProviderRepository: Repository<DrtProviderData, DrtProviderId>
-    val personRepository: MutableRepository<MutablePerson, PersonId>
-}
+//TODO generalize MutablePerson to P: HasMutableDrtMemberships
 
-fun AddDrtMembershipContext.addDrtMemberships(
-    predicate: (IPerson, DrtProviderData) -> Boolean
-) = runStep {
-    AddDrtMembershipsStep(this, predicate)
-}
-
-val everyoneIsMember: (IPerson, DrtProviderData) -> Boolean = { p, d -> true }
-
-class AddDrtMembershipsStep(
-    private val context: AddDrtMembershipContext,
-    private val predicate: (IPerson, DrtProviderData) -> Boolean,
-) : ForEachStep<MutablePerson, PersonId>() {
-
-    override val name = "Add drt memberships to persons"
-    override val repository = context.personRepository
-
-    override fun process(element: MutablePerson) {
-        for (provider in context.drtProviderRepository.elements) {
-            if (predicate(element, provider)) {
-                element.drtMemberships.add(provider)
+/**
+ * Adds DRT memberships to persons based on a predicate.
+ *
+ * This step iterates over all persons in the [repository] and all DRT providers in the
+ * [HasDrtProviderRepo.drtProviderRepository] of the context [C]. For each pair of person and provider,
+ * it evaluates the [predicate]. If the predicate returns `true`, the provider is added to the person's
+ * DRT memberships.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasDrtProviderRepo] for [DrtProvider].
+ * @param CFG The configuration type. Must implement [Config].
+ * @param repository The mutable repository of persons to update. Provided via context.
+ * @param predicate The condition to determine if a person should be a member of a DRT provider.
+ *                  Evaluated in the context of [CFG] and [C].
+ */
+context(repository: MutableRepository<MutablePerson, PersonId>, _: CFG)
+fun <C, CFG: Config> C.addDrtMembershipsIf(
+    predicate: context(CFG) C.(IPerson, DrtProvider) -> Boolean,
+) where C: HasDrtProviderRepo<*, DrtProvider> =
+    updateEachStep(
+        name = "add drt memberships to each person",
+        dependentRepositories = setOf(drtProviderRepository)
+    ) { person ->
+        for (provider in drtProviderRepository.elements) {
+            if (predicate(person, provider)) {
+                person.drtMemberships.add(provider)
             }
         }
     }
-
-    override fun verifyInput(): Warning? = null
-
-    override fun validate(validationPrefix: Warning.() -> Unit): Warning? {
-        return super.validate(validationPrefix)
-    }
-
-    override val dependentRepositories: Set<Repository<*, *>> = setOf(
-        context.drtProviderRepository
-    )
-}
