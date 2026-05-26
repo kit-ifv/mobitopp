@@ -135,65 +135,63 @@ interface HasCarRepo<M : C, C : Identifiable<CarId>> : Context {
         }
 }
 
-interface HasPersonAgentRepo<M: P, P> : Context where P : Identifiable<PersonId>, P: Agent<PersonMessage> {
+interface HasPersonAgentRepo<M : P, P> : Context where P : Identifiable<PersonId>, P : Agent<PersonMessage> {
     val personAgentRepository: Repository<P, PersonId>
         get() = mutablePersonAgentRepository
 
     fun getPersonAgent(personId: PersonId) =
         requireNotNull(personAgentRepository[personId]) {
             "Person agent referenced by id $personId could not be found in ${personAgentRepository.name}:" +
-                    " ${personAgentRepository.elements.map { it.id }.toList()}"
-        } //TODO REPO REPORT LIMIT?
+                " ${personAgentRepository.elements.map { it.id }.toList()}"
+        } // TODO REPO REPORT LIMIT?
 
     val mutablePersonAgentRepository: MutableRepository<M, PersonId>
 
-    fun getMutablePersonAgentRepository(personId: PersonId) =
+    fun getMutablePersonAgent(personId: PersonId) =
         requireNotNull(mutablePersonAgentRepository[personId]) {
             "Mutable person agent referenced by id $personId could not be found in ${mutablePersonAgentRepository.name}:" +
-                    " ${mutablePersonAgentRepository.elements.map { it.id }.toList()}"
-        } //TODO REPO REPORT LIMIT?
+                " ${mutablePersonAgentRepository.elements.map { it.id }.toList()}"
+        } // TODO REPO REPORT LIMIT?
 }
 
-interface HasSharingProviderAgentRepo<M: S, S> : Context where S : Identifiable<SharingProviderId> { //TODO SharingProividerAgent does not implement Agent interface
+// TODO SharingProividerAgent does not implement Agent interface
+interface HasSharingProviderAgentRepo<M : S, S> : Context where S : Identifiable<SharingProviderId> {
     val sharingProviderAgentRepository: Repository<S, SharingProviderId>
         get() = mutableSharingProviderAgentRepository
-
 
     fun getSharingProviderAgent(providerId: SharingProviderId) =
         requireNotNull(sharingProviderAgentRepository[providerId]) {
             "Sharing provider agent referenced  by id $providerId could not be found in ${sharingProviderAgentRepository.name}:" +
-                    " ${sharingProviderAgentRepository.elements.map { it.id }.toList()}"
-        } //TODO REPO REPORT LIMIT?
+                " ${sharingProviderAgentRepository.elements.map { it.id }.toList()}"
+        } // TODO REPO REPORT LIMIT?
 
     val mutableSharingProviderAgentRepository: MutableRepository<M, SharingProviderId>
 
     fun getMutableSharingProviderAgent(providerId: SharingProviderId) =
         requireNotNull(sharingProviderAgentRepository[providerId]) {
             "Mutable sharing provider agent referenced  by id $providerId could not be found in ${sharingProviderAgentRepository.name}:" +
-                    " ${sharingProviderAgentRepository.elements.map { it.id }.toList()}"
-        } //TODO REPO REPORT LIMIT?
+                " ${sharingProviderAgentRepository.elements.map { it.id }.toList()}"
+        } // TODO REPO REPORT LIMIT?
 }
 
-interface HasDrtProviderAgentRepo<M: D, D> : Context where D : Identifiable<DrtProviderId>, D: Agent<DrtProviderMessage> {
+interface HasDrtProviderAgentRepo<M : D, D> : Context where D : Identifiable<DrtProviderId>, D : Agent<DrtProviderMessage> {
     val drtProviderAgentRepository: Repository<D, DrtProviderId>
         get() = mutableDrtProviderAgentRepository
-
 
     fun getDrtProviderAgent(providerId: DrtProviderId) =
         requireNotNull(drtProviderAgentRepository[providerId]) {
             "Drt provider agent referenced  by id $providerId could not be found in ${drtProviderAgentRepository.name}:" +
-                    " ${drtProviderAgentRepository.elements.map { it.id }.toList()}"
-        } //TODO REPO REPORT LIMIT?
+                " ${drtProviderAgentRepository.elements.map { it.id }.toList()}"
+        } // TODO REPO REPORT LIMIT?
 
     val mutableDrtProviderAgentRepository: MutableRepository<M, DrtProviderId>
 
     fun getMutableDrtProviderAgent(providerId: DrtProviderId) =
         requireNotNull(drtProviderAgentRepository[providerId]) {
             "Mutable drt provider agent referenced  by id $providerId could not be found in ${drtProviderAgentRepository.name}:" +
-                    " ${drtProviderAgentRepository.elements.map { it.id }.toList()}"
-        } //TODO REPO REPORT LIMIT?
+                " ${drtProviderAgentRepository.elements.map { it.id }.toList()}"
+        } // TODO REPO REPORT LIMIT?
 }
-
 
 interface HasImpedance : Context {
     val impedance: Impedance
@@ -211,11 +209,11 @@ interface HasMutableRoadNetwork : Context {
     var roadNetwork: LocatableGraph
 }
 
-interface HasAttractivenessModel: Context {
+interface HasAttractivenessModel : Context {
     val attractiveness: AttractivenessModel
 }
 
-interface HasMutableAttractivenessModel: HasAttractivenessModel {
+interface HasMutableAttractivenessModel : HasAttractivenessModel {
     override var attractiveness: AttractivenessModel
 }
 
@@ -223,7 +221,7 @@ interface HasPersonBehavior : Context {
     val personBehavior: PersonBehavior
 }
 
-interface HasMutablePersonBehavior : Context,  HasPersonBehavior {
+interface HasMutablePersonBehavior : Context, HasPersonBehavior {
     override var personBehavior: PersonBehavior
 }
 

@@ -35,7 +35,7 @@ fun <C : Context, R> C.validateNoException(
 ): R? = try {
     scope()
 } catch (e: Throwable) {
-    log(message() + ": " +  (e.message ?: NO_ERROR_MESSAGE), exceptionsAreErrors)
+    log(message() + ": " + (e.message ?: NO_ERROR_MESSAGE), exceptionsAreErrors)
     null
 }
 
@@ -52,7 +52,9 @@ fun <C : Context, R> C.validateNoException(
  * @return True if the predicate is satisfied, false otherwise.
  */
 fun <C : Context> C.validateCondition(
-    message: C.() -> String, isError: Boolean = false, predicate: () -> Boolean
+    message: C.() -> String,
+    isError: Boolean = false,
+    predicate: () -> Boolean
 ): Boolean {
     if (!predicate()) {
         log(message(), isError)
@@ -87,7 +89,7 @@ fun <C : Context> C.validateFileReadWriteAccess(path: Path, isError: Boolean = t
  */
 fun <C : Context> C.validateFileReadAccess(path: Path, isError: Boolean = true, fileDescription: String = ""): Boolean =
     validateNoException(
-        message = { "Validate read access of: ${path.absolutePathString()}" },
+        message = { "Validate read access of: ${path.absolutePathString()} ($fileDescription)" },
         exceptionsAreErrors = isError
     ) {
         require(path.exists()) {
@@ -113,7 +115,7 @@ fun <C : Context> C.validateFileReadAccess(path: Path, isError: Boolean = true, 
  */
 fun <C : Context> C.validateFileWriteAccess(path: Path, isError: Boolean = true, fileDescription: String = "") =
     validateNoException(
-        message = { "Validate write access of: ${path.absolutePathString()}" },
+        message = { "Validate write access of: ${path.absolutePathString()} ($fileDescription)" },
         exceptionsAreErrors = isError
     ) {
         val parentDir = path.parent ?: Path("")

@@ -148,7 +148,7 @@ fun <C, CFG> C.binaryPrivateCarFormat(): BinaryCacheConfig<MutablePrivateCar>
     )
 }
 
-private const val ERROR_OUTPUT_SIZE = 5 // TODO use in context requirements?
+// private const val ERROR_OUTPUT_SIZE = 5 // TODO use in context requirements?
 
 // interface LoadPrivateCarsContext : DemandSimContext {
 //    val carRepository: MutableRepository<MutablePrivateCar, CarId>

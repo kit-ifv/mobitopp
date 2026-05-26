@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package core.modelsteps.scopes
 
 import core.modelsteps.Context
@@ -100,6 +102,7 @@ fun <C : Context, E : Identifiable<I>, I> C.addCsvResourceStep(
  * @param validation Additional validation checks.
  */
 context(repository: MutableRepository<E, I>)
+@Suppress("LongParameterList")
 fun <C : Context, E : Identifiable<I>, I> C.loadCsvStep(
     path: Path,
     parser: CsvParser<E>,

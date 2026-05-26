@@ -1,11 +1,11 @@
 package application.steps.parser.csv
 
-import core.modelsteps.Config
 import application.steps.DrtModesConfig
 import application.steps.DrtSourceFilesConfig
 import application.steps.HasDrtProviderRepo
 import application.steps.HasZoneRepo
 import application.steps.SourceFilesConfig
+import core.modelsteps.Config
 import core.modelsteps.resources.BinaryCacheConfig
 import core.modelsteps.resources.CsvResource
 import core.modelsteps.resources.MutableRepository
@@ -83,7 +83,7 @@ fun <C, CFG> C.drtProviderCsv(
     path: Path,
     parser: CsvParser<MutableDrtProviderData>,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutableDrtProviderData>? = null, // TODO: binaryDrtProviderFormat()?
+    binaryCache: BinaryCacheConfig<MutableDrtProviderData>? = null, // TODO binaryDrtProviderFormat()?
 ): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
@@ -103,7 +103,7 @@ fun <C, CFG> C.drtProviderCsv(
  * @return A [CsvParser] for [MutableDrtProviderData].
  */
 context(config: CFG)
-fun <C, CFG> C.drtProvidersByServiceAreaParser(
+fun <C, CFG> C.drtProviderServiceAreaParser(
     drtMode: Mode,
     customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {}
 ): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : Config =
@@ -121,7 +121,6 @@ fun <C, CFG> C.drtProvidersByServiceAreaParser(
         }
     )
 
-
 /**
  * Convenience function to create a CSV resource for ride-pooling providers.
  *
@@ -131,7 +130,7 @@ fun <C, CFG> C.drtProvidersByServiceAreaParser(
  *            and [DrtModesConfig].
  * @param config The configuration. Provided via context.
  * @param path The path to the ride-pooling CSV file. Defaults to [config.ridePoolingServiceAreas].
- * @param parser The CSV parser. Defaults to [ridePoolingProvidersByServiceAreaParser].
+ * @param parser The CSV parser. Defaults to [poolingProviderServiceAreaParser].
  * @param delimiter The CSV delimiter. Defaults to [config.sourceFiles.defaultCsvDelimiter].
  * @param binaryCache Optional configuration for binary caching.
  * @return A [Resource] representing the ride-pooling provider CSV.
@@ -139,10 +138,10 @@ fun <C, CFG> C.drtProvidersByServiceAreaParser(
 context(config: CFG)
 fun <C, CFG> C.ridePoolingProviderCsv(
     path: Path = config.ridePoolingServiceAreas,
-    parser: CsvParser<MutableDrtProviderData> = ridePoolingProvidersByServiceAreaParser(),
+    parser: CsvParser<MutableDrtProviderData> = poolingProviderServiceAreaParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableDrtProviderData>? = null,
-): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : DrtSourceFilesConfig, CFG: SourceFilesConfig, CFG : DrtModesConfig =
+): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : DrtSourceFilesConfig, CFG : SourceFilesConfig, CFG : DrtModesConfig =
     drtProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -157,15 +156,8 @@ fun <C, CFG> C.ridePoolingProviderCsv(
  * @return A [CsvParser] for [MutableDrtProviderData].
  */
 context(config: CFG)
-fun <C, CFG> C.ridePoolingProvidersByServiceAreaParser(
+fun <C, CFG> C.poolingProviderServiceAreaParser(
     sharingMode: Mode = config.ridePoolingMode,
     customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {}
 ): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : DrtModesConfig =
-    drtProvidersByServiceAreaParser<C, CFG>(sharingMode, customizeCsvConfig)
-
-
-
-
-
-
-
+    drtProviderServiceAreaParser<C, CFG>(sharingMode, customizeCsvConfig)

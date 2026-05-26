@@ -20,7 +20,7 @@ interface AttractivenessModel {
     fun isAttractive(zone: ZoneId, activityType: ActivityType): Boolean =
         attractivenessFor(zone, activityType).value > .0
 
-    //TODO: Extract work/private visit, as they are only required to compute parkdruck/parkingpressure
+    // TODO Extract work/private visit, as they are only required to compute parkdruck/parkingpressure
     // Create new interface ParkingPressureModel and an implementation that wraps attractiveness model and knows about work/private visit
     val work: ActivityType
     val privateVisit: ActivityType
@@ -87,7 +87,7 @@ class AttractivenessFromCsv(
 
 private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) =
     activityTypes.associateWith { act ->
-        row.commaDouble("Attractivity:${act.description.capitalizeWithUnderscores()}").asAttractiveness()
+        row.commaDouble(act.columnString).asAttractiveness()
     }
 
 fun String.capitalizeWithUnderscores() =
@@ -96,5 +96,7 @@ fun String.capitalizeWithUnderscores() =
     }
 
 fun Set<ActivityType>.filterExistingColumns(row: Row) = this.filter { act ->
-    row.hasColumn("Attractivity:${act.description.capitalizeWithUnderscores()}")
+    row.hasColumn(act.columnString)
 }.toSet()
+
+private val ActivityType.columnString: String get() = "Attractivity:${description.capitalizeWithUnderscores()}"

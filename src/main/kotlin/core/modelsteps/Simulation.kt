@@ -35,7 +35,7 @@ interface Config {
  * @param config The simulation configuration.
  * @param contextFactory A factory function to create initial context instances.
  */
-class Simulation<C, CFG>(val config: CFG, contextFactory: () -> C) where C : Context, C : Cloneable<C>, CFG: Config {
+class Simulation<C, CFG>(val config: CFG, contextFactory: () -> C) where C : Context, C : Cloneable<C>, CFG : Config {
 
     /**
      * A context factory that guarantees shallow independent instances of `C` as long as `clone` works correctly.
@@ -59,6 +59,7 @@ class Simulation<C, CFG>(val config: CFG, contextFactory: () -> C) where C : Con
 
         val logTitle = "Simulation: ${simulationContext.scenarioName}"
 
+        @Suppress("TooGenericExceptionCaught")
         try {
             logTime("    Execution") {
                 println("\nExecute")
@@ -87,6 +88,7 @@ class Simulation<C, CFG>(val config: CFG, contextFactory: () -> C) where C : Con
         val report = context.report
         val logTitle = "Simulation: ${context.scenarioName}"
 
+        @Suppress("TooGenericExceptionCaught")
         try {
             context(config) {
                 context.lambda()
@@ -101,7 +103,7 @@ class Simulation<C, CFG>(val config: CFG, contextFactory: () -> C) where C : Con
         }
 
         if (report.hasErrors()) {
-            report.addErrorLog(logTitle,"Discovered errors during validation!")
+            report.addErrorLog(logTitle, "Discovered errors during validation!")
         } else if (report.hasWarnings()) {
             report.addWarningLog(logTitle, "validation produced warnings!")
         }

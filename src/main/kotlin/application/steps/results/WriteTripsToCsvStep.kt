@@ -17,12 +17,11 @@ import domain.synthesis.results.toCSV
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter
 
-
 context(config: ResultsConfig)
 fun <C> C.writeTrips(
     file: Path = config.resultDir.resolve("demandsimulation.csv"),
     legWriter: C.() -> WriteLegToCSV = { StandardCSVLegWriter(impedance) },
-) where C: HasPersonAgentRepo<*, PersonAgent>, C: HasImpedance = repositoryDependentStep(
+) where C : HasPersonAgentRepo<*, PersonAgent>, C : HasImpedance = repositoryDependentStep(
     name = "write trips to csv: $file",
     validation = listOf(createWriteValidationCheck(file)),
     dependentRepositories = setOf(personAgentRepository),
@@ -46,26 +45,26 @@ fun <C> C.writeTrips(
     logNormal("Wrote $count legs to $file")
 }
 
-fun <C: Context> C.createWriteValidationCheck(file: Path): Check<C> = {
+fun <C : Context> C.createWriteValidationCheck(file: Path): Check<C> = {
     validateFileWriteAccess(file, fileDescription = "result csv for simulated trips")
 }
 
-//todo move to domain package: like output or writers
+// todo move to domain package: like output or writers
 interface WriteLegToCSV {
     val header: String
-    fun generateCSVLine(index: Int, leg: LinkedLeg, person: PersonAgent) : String
+    fun generateCSVLine(index: Int, leg: LinkedLeg, person: PersonAgent): String
 }
 
 class StandardCSVLegWriter(
     private val impedance: Impedance
-): WriteLegToCSV {
+) : WriteLegToCSV {
     override val header: String = "legId;personId;duration_sec;mode;activityType;tripStart_sec;tripEnd_sec;ZoneStart;ZoneEnd;previousActivityType;distance_km;cost_euro"
 
     override fun generateCSVLine(
         index: Int,
         leg: LinkedLeg,
         person: PersonAgent,
-    ) : String{
+    ): String {
         val previous = leg.previous
         val next = leg.next
         val purpose = if (next is Activity) next.type.code.toString() else "-"
@@ -96,11 +95,11 @@ class StandardCSVLegWriter(
     }
 }
 
-//class WriteTripsToCsvStep(
+// class WriteTripsToCsvStep(
 //    private val path: Path,
 //    private val context: WriteTripsCsvContext,
 //    private val legWriter: WriteLegToCSV = StandardCSVLegWriter,
-//) : ModelStep, SameValidationBehavior {
+// ) : ModelStep, SameValidationBehavior {
 //
 //    override val name: String = "Write trip output to csv"
 //
@@ -122,4 +121,4 @@ class StandardCSVLegWriter(
 //
 //    override fun verifyInput(): Warning? =
 //        validateFileWriteAccess(path, fileDescription = "result csv for simulated trips")
-//}
+// }

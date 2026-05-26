@@ -49,23 +49,24 @@ import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
  *                                       Defaults to [StandardModeImplementation].
  * @param replanningStrategy The strategy to use when replanning schedules. Defaults to [ReplanningStrategy.SHIFT].
  */
+@Suppress("LongParameterList")
 fun <C> C.loadBehaviorModels(
     destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
-    modes: ChoiceModelModes, //TODO remove ChoiceModelModes and replace by Context/Config requirements
+    modes: ChoiceModelModes, // TODO remove ChoiceModelModes and replace by Context/Config requirements
     spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics = StandardDestinationImplementation,
     spawnModeChoiceCharacteristics: NewModeCharacteristics = StandardModeImplementation,
     replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
-) where C: HasMutablePersonBehavior,
-        C: HasZoneRepo<*, Zone>,
-        C: HasSharingProviderRepo<*, SharingProvider>,
-        C: HasDrtProviderRepo<*, DrtProvider>,
-        C: HasImpedance,
-        C: HasAttractivenessModel =
+) where C : HasMutablePersonBehavior,
+      C : HasZoneRepo<*, Zone>,
+      C : HasSharingProviderRepo<*, SharingProvider>,
+      C : HasDrtProviderRepo<*, DrtProvider>,
+      C : HasImpedance,
+      C : HasAttractivenessModel =
     repositoryDependentStep(
         "load behavior models",
         dependentRepositories = setOf(zoneRepository, sharingProviderRepository, drtProviderRepository)
-    ){
+    ) {
         val sharingProviders = sharingProviderRepository.elements.associateBy { it.id }
         val sharingProvidersByMode = sharingProviders.values.groupBy {
             it.mode
@@ -113,26 +114,24 @@ fun <C> C.loadBehaviorModels(
 
 typealias NewDestinationCharacteristics = GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>
 typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharacteristics>
-//TODO maybe use config object and modify scope instead of 6 function args
-//data class LoadBehaviorModelConfig(
+// TODO maybe use config object and modify scope instead of 6 function args
+// data class LoadBehaviorModelConfig(
 //    val destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
 //    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
 //    val modes: ChoiceModelModes,
 //    var spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics = StandardDestinationImplementation,
 //    var spawnModeChoiceCharacteristics: NewModeCharacteristics = StandardModeImplementation,
 //    var replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
-//)
-
-
+// )
 
 //
 //
-//fun LoadBehaviorModelsContext.loadBehaviorModels(
+// fun LoadBehaviorModelsContext.loadBehaviorModels(
 //    destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
 //    modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
 //    modes: ChoiceModelModes,
 //    replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
-//) = this.loadBehaviorModels(
+// ) = this.loadBehaviorModels(
 //    LoadBehaviorModelConfig(
 //        destinationChoiceModel,
 //        modeChoiceModel,
@@ -141,17 +140,17 @@ typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharact
 //        StandardModeImplementation,
 //        replanningStrategy,
 //    )
-//)
+// )
 //
-//fun LoadBehaviorModelsContext.loadBehaviorModels(
+// fun LoadBehaviorModelsContext.loadBehaviorModels(
 //    config: LoadBehaviorModelConfig,
-//) = runStep {
+// ) = runStep {
 //    loadBehaviorModelsStep(config)
-//}
+// }
 //
-//fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
+// fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
 //    config: LoadBehaviorModelConfig,
-//): LoadBehaviorModelsStep {
+// ): LoadBehaviorModelsStep {
 //    return config.run {
 //        LoadBehaviorModelsStep(
 //            this@loadBehaviorModelsStep,
@@ -163,18 +162,18 @@ typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharact
 //            replanningStrategy,
 //        )
 //    }
-//}
+// }
 //
-//interface LoadBehaviorModelsContext : DemandSimContext {
+// interface LoadBehaviorModelsContext : DemandSimContext {
 //    val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
 //    val drtProviderRepository: Repository<DrtProvider, DrtProviderId>
 //    val zoneRepository: Repository<Zone, ZoneId>
 //    val zoneColumnIndex: Map<Int, LegacyZone>
 //    val attractivenessModel: LateInit<AttractivenessModel>
-//}
+// }
 //
 //
-//open class LoadBehaviorModelsStep(
+// open class LoadBehaviorModelsStep(
 //    private val context: LoadBehaviorModelsContext,
 //    private val destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
 //    protected open val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
@@ -182,7 +181,7 @@ typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharact
 //    private val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
 //    private val spawnModeChoiceCharacteristics: NewModeCharacteristics,
 //    private val replanningStrategy: ReplanningStrategy,
-//) : RepositoryDependentStep {
+// ) : RepositoryDependentStep {
 //
 //    override val name: String = "Load behavior models!"
 //    override val repository: MutableRepository<*, *>? = null
@@ -270,9 +269,9 @@ typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharact
 //        )
 //    }
 //
-//}
+// }
 //
-//object DummyAvailability : ModeAvailabilityModel {
+// object DummyAvailability : ModeAvailabilityModel {
 //
 //    context(person: IPerson) override fun staticAvailability(mode: Mode) = true
 //
@@ -280,13 +279,13 @@ typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharact
 //    override fun providerAvailability(mode: Mode) = mode.available()
 //
 //    context(characteristics: ModeChoiceCharacteristics) override fun resourceAvailability(mode: Mode) = true
-//}
+// }
 //
-//object DummyDrtAvailabilitySelector: DrtAvailabilitySelector {
+// object DummyDrtAvailabilitySelector: DrtAvailabilitySelector {
 //
 //    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
 //    override fun getDrtProvidersCurrentlyOperating(): List<DrtProviderAgent> = emptyList()
 //
 //    context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
 //    override fun findDrtOffers(): List<DrtOffer> = emptyList()
-//}
+// }

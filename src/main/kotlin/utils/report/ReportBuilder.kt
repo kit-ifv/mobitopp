@@ -128,7 +128,6 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                     println("    - ${it.message}")
                 }
             }
-
         }
     }
 

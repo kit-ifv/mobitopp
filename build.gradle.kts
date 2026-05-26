@@ -46,7 +46,7 @@ repositories {
 
 detekt {
     version = libs.versions.detekt.get() // "1.23.8"
-    buildUponDefaultConfig = true
+    buildUponDefaultConfig = false
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
 }
@@ -139,17 +139,17 @@ tasks.withType<Detekt>().configureEach {
 
 tasks.withType<Detekt>().configureEach {
     jvmTarget = "1.8"
-    exclude(
-        "**/BuildAgents.kt",
-        "**/FixedModesFilter.kt",
-        "**/ModeAvailabilityFilter.kt",
-        "**/PersonEvents.kt",
-        "**/OverridableDestinationChoiceModel.kt",
-        "**/OverridableModeChoiceModel.kt",
-        "**/LoadBehaviorModelsStep.kt",
-        "**/WriteTripsToCsvStep.kt",
-        "**/ModeAvailabilityModel.kt"
-    )
+//    exclude(
+//        "**/BuildAgents.kt",
+//        "**/FixedModesFilter.kt",
+//        "**/ModeAvailabilityFilter.kt",
+//        "**/PersonEvents.kt",
+//        "**/OverridableDestinationChoiceModel.kt",
+//        "**/OverridableModeChoiceModel.kt",
+//        "**/LoadBehaviorModelsStep.kt",
+//        "**/WriteTripsToCsvStep.kt",
+//        "**/ModeAvailabilityModel.kt"
+//    )
 }
 
 tasks.withType<DetektCreateBaselineTask>().configureEach {

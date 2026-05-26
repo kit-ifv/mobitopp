@@ -134,19 +134,19 @@ fun <C, CFG> C.householdCsvParser(
 ): CsvParser<MutableHousehold>
     where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
     createHouseholdCsvParser(
-    HouseholdCsvConfig(
-        columns = HouseholdColumns(),
-        getZone = ::getZone,
-        roadPositionParser = String::parseRoadPositionWGS,
-        incomeUnit = config.currencyUnit,
-        economicStatusCodes = config.economicStatusCodes,
-        filter = { true },
-        errorHandling = config.errorHandling,
-        seed = config.seed,
-    ).also {
-        it.customizeCsvConfig()
-    }
-)
+        HouseholdCsvConfig(
+            columns = HouseholdColumns(),
+            getZone = ::getZone,
+            roadPositionParser = String::parseRoadPositionWGS,
+            incomeUnit = config.currencyUnit,
+            economicStatusCodes = config.economicStatusCodes,
+            filter = { true },
+            errorHandling = config.errorHandling,
+            seed = config.seed,
+        ).also {
+            it.customizeCsvConfig()
+        }
+    )
 
 /**
  * Filters households by a list of valid IDs.
@@ -172,6 +172,7 @@ fun <C : Context> C.filterHouseholds(valid: Collection<HouseholdId>) =
  * @param fraction The fraction of households to keep. Defaults to [config.fractionOfPopulation].
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: SimulationConfig)
+@Suppress("MagicNumber")
 fun <C : Context> C.filterFractionOfPopulation(
     fraction: UnitIntervalValue = config.fractionOfPopulation
 ) {

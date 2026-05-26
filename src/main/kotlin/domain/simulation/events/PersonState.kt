@@ -224,12 +224,12 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // State: walking to dest
 // - send self: finish drt trip
 
-//interface PersonStateContext {
+// interface PersonStateContext {
 //    val availabilityWriter: AvailabilityWriter
-//}
-//object NoWriters : PersonStateContext {
+// }
+// object NoWriters : PersonStateContext {
 //    override val availabilityWriter: AvailabilityWriter = NoAvailabilityWriter
-//}
+// }
 
 val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : HasAvailabilityWriter get() =
     stateMachine<PersonAgent>("PersonsStateMachine") {

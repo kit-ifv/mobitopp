@@ -25,5 +25,4 @@ abstract class DrtProviderData(
 ) : DrtProvider {
 
     abstract val initVehicles: Map<ZoneId, Int>
-
 }

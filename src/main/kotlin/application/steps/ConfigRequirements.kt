@@ -18,8 +18,6 @@ import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
-
-
 interface SimulationConfig : Config {
     val fractionOfPopulation: UnitIntervalValue
     val simulationStart: AbsoluteTime
@@ -36,23 +34,23 @@ interface ResultsConfig {
     val resultDir: Path
 }
 
-interface SharingSourceFilesConfig: Config {
+interface SharingSourceFilesConfig : Config {
     val bikeSharingStations: Path
     val carSharingStations: Path
     val carSharingFloatingArea: Path
 }
 
-interface SharingModesConfig: Config {
+interface SharingModesConfig : Config {
     val bikeSharingMode: Mode
     val carSharingStationMode: Mode
     val carSharingFloatingMode: Mode
 }
 
-interface DrtSourceFilesConfig: Config {
+interface DrtSourceFilesConfig : Config {
     val ridePoolingServiceAreas: Path
 }
 
-interface DrtModesConfig: Config {
+interface DrtModesConfig : Config {
     val ridePoolingMode: Mode
 }
 

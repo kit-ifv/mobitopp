@@ -26,20 +26,15 @@ import utils.units.logTime
  * @param execution The actual logic to be executed in execution mode.
  */
 fun <C : Context> C.modelStep(name: String, validation: Validation<C> = emptyList(), execution: C.() -> Unit) {
-    val mode = if (execMode.isValidate) {
-        "validation"
-    } else {
-        "execution"
-    }
     currentStep = name
 
-    val action = if (execMode.isValidate) "Validate" else "Execute"
-    fun message(result: String) = "$mode $result."
-
-    val diff = report.detectReportChanges {
+    detectReportDiffAndLogOverview {
         println("\n$action $name")
+
         if (execMode.isValidate) {
             val captor = ConsoleCaptor()
+
+            @Suppress("TooGenericExceptionCaught")
             val isValid = try {
                 validation.takeIf { it.isNotEmpty() }?.all { it() } ?: true
             } catch (e: Exception) {
@@ -56,6 +51,15 @@ fun <C : Context> C.modelStep(name: String, validation: Validation<C> = emptyLis
             }
             true
         }
+    }
+}
+
+private val Context.mode: String get() = if (execMode.isValidate) "validation" else "execution"
+private val Context.action: String get() = if (execMode.isValidate) "Validate" else "Execute"
+private fun Context.message(result: String) = "$mode $result."
+private fun Context.detectReportDiffAndLogOverview(block: () -> Boolean) {
+    val diff = report.detectReportChanges {
+        block()
     }
 
     val (rStatus, rMessage) = if (!diff.result || diff.newErrors) {

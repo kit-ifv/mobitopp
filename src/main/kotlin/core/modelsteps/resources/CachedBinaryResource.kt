@@ -76,18 +76,18 @@ class CachedBinaryResource<E>(
     /**
      * A sequence of elements, either loaded from cache or computed from the default resource.
      */
-    override val elements: Sequence<E> //TODO check for memory leak
+    override val elements: Sequence<E> // TODO check for memory leak
         get() = if (data != null) {
-                data!!.asSequence()
+            data!!.asSequence()
+        } else {
+            if (hasValidCacheEntry) {
+                data = loadFromCache().toList()
             } else {
-                if (hasValidCacheEntry) {
-                    data = loadFromCache().toList()
-                } else {
-                    data = defaultResource(path).elements.toList()
-                    onCacheMiss()
-                }
-                data!!.asSequence()
+                data = defaultResource(path).elements.toList()
+                onCacheMiss()
             }
+            data!!.asSequence()
+        }
 
     private var data: List<E>? = null
 

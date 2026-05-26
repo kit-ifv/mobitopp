@@ -19,7 +19,7 @@ import utils.csv.CsvParser
 import java.nio.file.Path
 import kotlin.reflect.KClass
 
-//object MyContext : Context, HasPersonRepo<MutablePerson, Person>, HasHouseholdRepo<MutableHousehold, Household>,
+// object MyContext : Context, HasPersonRepo<MutablePerson, Person>, HasHouseholdRepo<MutableHousehold, Household>,
 //    HasSharingProviderRepo<MutableSharingProvider, SharingProvider>,
 //    HasDrtProviderRepo<MutableDrtProviderData, DrtProvider> {
 //    override var currentStep: String = ""
@@ -33,7 +33,7 @@ import kotlin.reflect.KClass
 //        MapRepository("sharingProvider")
 //    override val mutableDrtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId> =
 //        MapRepository("drtProvider")
-//}
+// }
 
 /**
  * Provides a scope for configuring custom person repositories.
@@ -115,7 +115,7 @@ fun <M> binaryFormat(
     writer: BinaryWriter<M>,
 ) = BinaryCacheConfig<M>(reader, writer, config.cachePath)
 
-//// context requirements
-//interface HasHouseholdId : Identifiable<HouseholdId>
-//interface HasSharingProviderId : Identifiable<SharingProviderId>
-//interface HasDrtProviderId : Identifiable<DrtProviderId>
+// // context requirements
+// interface HasHouseholdId : Identifiable<HouseholdId>
+// interface HasSharingProviderId : Identifiable<SharingProviderId>
+// interface HasDrtProviderId : Identifiable<DrtProviderId>

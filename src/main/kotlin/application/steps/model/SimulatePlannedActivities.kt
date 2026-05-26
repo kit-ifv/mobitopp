@@ -22,7 +22,7 @@ import kotlin.time.Duration
  *                  Defaults to [parallel].
  */
 context(config: SimulationConfig)
-fun <C> C.simulate(simulator: (Duration) -> Simulator = parallel) where C: HasPersonAgentRepo<*, PersonAgent> =
+fun <C> C.simulate(simulator: (Duration) -> Simulator = parallel) where C : HasPersonAgentRepo<*, PersonAgent> =
     modelStep("simulate agents") {
         val sim = simulator(config.timeStep)
         sim.addAgents(personAgentRepository.elements.toList())
@@ -32,18 +32,18 @@ fun <C> C.simulate(simulator: (Duration) -> Simulator = parallel) where C: HasPe
 val sequential = { timeStep: Duration -> SequentialSimulator(timeStep = timeStep) }
 val parallel = { timeStep: Duration -> ParallelSimulator(timeStep = timeStep) }
 //
-//fun RunSimContext.simulate(simulator: (Duration) -> Simulator = parallel) = runStep {
+// fun RunSimContext.simulate(simulator: (Duration) -> Simulator = parallel) = runStep {
 //    SimulateStep(this, simulator)
-//}
+// }
 //
-//interface RunSimContext : DemandSimContext {
+// interface RunSimContext : DemandSimContext {
 //    val personAgents: Repository<PersonAgent, PersonId>
-//}
+// }
 //
-//class SimulateStep(
+// class SimulateStep(
 //    private val context: RunSimContext,
 //    private val simulator: (Duration) -> Simulator = parallel,
-//) : ModelStep {
+// ) : ModelStep {
 //    override val name: String = "Simulate agents"
 //
 //    override fun execute() {
@@ -60,4 +60,4 @@ val parallel = { timeStep: Duration -> ParallelSimulator(timeStep = timeStep) }
 //    override fun mockBehavior(): Warning? {
 //        return null
 //    }
-//}
+// }

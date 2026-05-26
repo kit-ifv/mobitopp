@@ -52,9 +52,9 @@ fun <CTXT, CFG, P, H> CTXT.fixedDestinations(
     homeActivity: ActivityType,
     resource: Resource<ActivityLocation> = fixedDestinationCsv()
 ) where CTXT : HasZoneRepo<*, Zone>, CTXT : HasPersonRepo<*, *>, // TODO unify HasPersonRepo with P
-        P : Identifiable<PersonId>, P : HasHousehold<H>,
-        H : Identifiable<HouseholdId>, H : HasStandardLocation,
-        CFG : ActivityTypesConfig, CFG : SourceFilesConfig {
+      P : Identifiable<PersonId>, P : HasHousehold<H>,
+      H : Identifiable<HouseholdId>, H : HasStandardLocation,
+      CFG : ActivityTypesConfig, CFG : SourceFilesConfig {
     val fixedLocationsById: MutableMap<PersonId, Map<ActivityType, ActivityLocation>> = mutableMapOf()
     modelStep("load fixed destination csv") {
         fixedLocationsById.putAll(

@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package core.modelsteps.steps
 
 import core.modelsteps.Context
@@ -121,6 +123,7 @@ fun <C : Context, E : Identifiable<I>, I> C.addCsvResourceStep(
  * @param dependentRepositories A set of repositories that this step depends on.
  * @param validation Additional validation checks.
  */
+@Suppress("LongParameterList")
 fun <C : Context, E : Identifiable<I>, I> C.loadCsvStep(
     repository: MutableRepository<E, I>,
     path: Path,
@@ -167,7 +170,9 @@ fun <C : Context, E : Identifiable<I>, I> C.filterStep(
     val sizeBefore = repository.size
     repository.filterElements(name, check)
     val sizeAfter = repository.size
-    logNormal("filter removed ${sizeBefore - sizeAfter} elements from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)")
+    logNormal(
+        "filter removed ${sizeBefore - sizeAfter} elements from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)"
+    )
 }
 
 /**
@@ -200,7 +205,9 @@ fun <C : Context, E : Identifiable<I>, I> C.filterIdsStep(
     val sizeBefore = repository.size
     repository.filterIds(name, check)
     val sizeAfter = repository.size
-    logNormal("filter removed ${sizeBefore - sizeAfter} elements by id from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)")
+    logNormal(
+        "filter removed ${sizeBefore - sizeAfter} elements by id from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)"
+    )
 }
 
 /**

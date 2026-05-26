@@ -27,7 +27,7 @@ import kotlin.time.Duration.Companion.minutes
  * @param scope A lambda to configure the newly created [MutableDrtProviderData].
  */
 context(repository: MutableRepository<MutableDrtProviderData, DrtProviderId>)
-fun <C: Context> C.newDrtProvider(
+fun <C : Context> C.newDrtProvider(
     idProvider: () -> DrtProviderId = GlobalDrtProviderIdCounter,
     scope: MutableDrtProviderData.() -> Unit
 ) = mutatingStep(
@@ -41,15 +41,13 @@ fun <C: Context> C.newDrtProvider(
     )
 }
 
-
-
-//interface AddDrtProviderContext : Context {
+// interface AddDrtProviderContext : Context {
 //
 //    val drtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId>
 //    val impedance: LateInit<Impedance>
-//}
+// }
 //
-//class DrtProviderCollector {
+// class DrtProviderCollector {
 //    private val providers: MutableList<MutableDrtProviderData> = mutableListOf()
 //
 //    fun drtProvider(id: DrtProviderId, scope: MutableDrtProviderData.() -> Unit) {
@@ -65,44 +63,43 @@ fun <C: Context> C.newDrtProvider(
 //    }
 //
 //    internal fun getProviders(): List<MutableDrtProviderData> = providers.toList()
-//}
+// }
 //
-//private var providerIdCounter = 0L
+// private var providerIdCounter = 0L
 //
-//fun AddDrtProviderContext.newDrtProvider(scope: MutableDrtProviderData.() -> Unit) = runStep {
+// fun AddDrtProviderContext.newDrtProvider(scope: MutableDrtProviderData.() -> Unit) = runStep {
 //    val provider = MutableDrtProviderData(DrtProviderId(providerIdCounter++))
 //    provider.scope()
 //    AddDrtProviderStep(this, listOf(provider))
-//}
+// }
 //
-//fun AddDrtProviderContext.finishDrtProviders() = runStep {
+// fun AddDrtProviderContext.finishDrtProviders() = runStep {
 //    SealStep(drtProviderRepository)
-//}
+// }
 //
-//fun AddDrtProviderContext.addDrtProvider(drtProvider: () -> MutableDrtProviderData) = runStep {
+// fun AddDrtProviderContext.addDrtProvider(drtProvider: () -> MutableDrtProviderData) = runStep {
 //    val provider = drtProvider()
 //    validateId(provider)
 //
 //    AddDrtProviderStep(this, listOf(drtProvider()))
-//}
+// }
 //
-//private fun validateId(provider: MutableDrtProviderData) {
+// private fun validateId(provider: MutableDrtProviderData) {
 //    require(provider.id.value >= providerIdCounter) {
 //        "Ids up to (no including) $providerIdCounter were already used for DrtProviders.\n" +
 //            "Cannot create new provider with id: ${provider.id.value}!"
 //    }
 //    providerIdCounter = provider.id.value + 1
-//}
+// }
 //
-//fun AddDrtProviderContext.addMultipleDrtProvider(scope: DrtProviderCollector.() -> Unit) = runStep {
+// fun AddDrtProviderContext.addMultipleDrtProvider(scope: DrtProviderCollector.() -> Unit) = runStep {
 //    val collector = DrtProviderCollector()
 //    collector.scope()
 //    val providers = collector.getProviders().sortedBy { it.id.value }.onEach { validateId(it) }
 //    AddDrtProviderStep(this, providers)
-//}
+// }
 
-
-//TODO add step for alg
+// TODO add step for alg
 
 @Suppress("MagicNumber")
 private val allDay = 0 to 24
@@ -131,10 +128,10 @@ fun simpleDrtAlgorithm(
     numVehicles
 )
 
-//class AddDrtProviderStep(
+// class AddDrtProviderStep(
 //    context: AddDrtProviderContext,
 //    providers: List<MutableDrtProviderData>
-//) : AddResourceStep<MutableDrtProviderData, DrtProviderId> {
+// ) : AddResourceStep<MutableDrtProviderData, DrtProviderId> {
 //    override val name = "Add DrtProviders"
 //
 //    override val resource: Resource<MutableDrtProviderData> = providers.asSequence().asResource(
@@ -142,7 +139,7 @@ fun simpleDrtAlgorithm(
 //        "AddDrtProviderStep"
 //    )
 //
-////    override fun mockElementsForValidation() = emptyList<MutableDrtProviderData>()
+// //    override fun mockElementsForValidation() = emptyList<MutableDrtProviderData>()
 //
 //    override val repository = context.drtProviderRepository
 //
@@ -151,4 +148,4 @@ fun simpleDrtAlgorithm(
 //    override fun verifyInput(): Warning? = null
 //
 //    override fun mockBehavior() = null
-//}
+// }

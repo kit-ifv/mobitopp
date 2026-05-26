@@ -14,8 +14,8 @@ import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import edu.kit.ifv.units.meters
 
-//TODO generalize MutableHousehold to HasMutableStandardLocation etc.
-//TODO add model step to select location in polygon
+// TODO generalize MutableHousehold to HasMutableStandardLocation etc.
+// TODO add model step to select location in polygon
 
 /**
  * Assigns home locations to each household individually.
@@ -31,7 +31,7 @@ import edu.kit.ifv.units.meters
 context(repository: MutableRepository<MutableHousehold, HouseholdId>)
 fun <C> C.assignHouseholdLocation(
     model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters),
-) where C: HasZoneRepo<*, Zone> =
+) where C : HasZoneRepo<*, Zone> =
     updateEachStep(
         name = "Assign Home Location to each Household",
         dependentRepositories = setOf(zoneRepository)
@@ -57,7 +57,7 @@ context(repository: MutableRepository<MutableHousehold, HouseholdId>)
 fun <C> C.assignHouseholdLocationsInBulk(
     model: GroupAssignHouseholdLocations<Zone, MutableHousehold> =
         TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
-) where C: HasZoneRepo<*, Zone> =
+) where C : HasZoneRepo<*, Zone> =
     updateBulkStep(
         name = "Assign Home Location to Households grouped by zone",
         dependentRepositories = setOf(zoneRepository)
@@ -72,40 +72,38 @@ fun <C> C.assignHouseholdLocationsInBulk(
         }
     }
 
-
-
 //
-//interface HomeLocationModelContext : DemandSimContext {
+// interface HomeLocationModelContext : DemandSimContext {
 //    val zoneRepository: Repository<Zone, ZoneId>
 //    val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
-//}
+// }
 //
-//fun HomeLocationModelContext.householdHomeLocation(
+// fun HomeLocationModelContext.householdHomeLocation(
 //    model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters),
-//) = runStep {
+// ) = runStep {
 //    HomeLocationStep(this, model)
-//}
+// }
 //
-///**
+// /**
 // * Return the step, but do not execute it immediately.
 // */
-//fun HomeLocationModelContext.assignHouseholdLocation(
+// fun HomeLocationModelContext.assignHouseholdLocation(
 //    model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters)
-//): HomeLocationStep {
+// ): HomeLocationStep {
 //    return HomeLocationStep(this, model)
-//}
+// }
 //
-//fun HomeLocationModelContext.groupedHouseholdHomeLocation(
+// fun HomeLocationModelContext.groupedHouseholdHomeLocation(
 //    model: GroupAssignHouseholdLocations<Zone, MutableHousehold> =
 //        TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
-//) = runStep {
+// ) = runStep {
 //    GroupedHomeLocationsStep(this, model)
-//}
+// }
 //
-//class HomeLocationStep(
+// class HomeLocationStep(
 //    private val context: HomeLocationModelContext,
 //    val model: AssignHouseholdLocations<Zone, Household>,
-//) : UpdateEachStep<MutableHousehold, HouseholdId>() {
+// ) : UpdateEachStep<MutableHousehold, HouseholdId>() {
 //
 //    override val name = "Assign Home Location to Households"
 //    override val repository = context.householdRepository
@@ -118,12 +116,12 @@ fun <C> C.assignHouseholdLocationsInBulk(
 //    }
 //
 //    override fun verifyInput(): Warning? = null // TODO
-//}
+// }
 //
-//class GroupedHomeLocationsStep(
+// class GroupedHomeLocationsStep(
 //    private val context: HomeLocationModelContext,
 //    val model: GroupAssignHouseholdLocations<Zone, MutableHousehold>,
-//) : UpdateAllStep<MutableHousehold, HouseholdId>() {
+// ) : UpdateAllStep<MutableHousehold, HouseholdId>() {
 //    override val name = "Assign Home Location to Households grouped by zone"
 //    override val repository = context.householdRepository
 //    override val dependentRepositories: Set<Repository<*, *>> = setOf(context.zoneRepository)
@@ -140,4 +138,4 @@ fun <C> C.assignHouseholdLocationsInBulk(
 //    }
 //
 //    override fun verifyInput(): Warning? = null // TODO
-//}
+// }

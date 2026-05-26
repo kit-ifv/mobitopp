@@ -42,7 +42,7 @@ fun <C, CFG> C.loadAttractivenessModelFromCsv(
     work: ActivityType = config.work,
     privateVisit: ActivityType = config.privateVisit,
     activityTypes: Set<ActivityType> = config.activityTypes.values(),
-) where C: HasMutableAttractivenessModel, CFG: ActivityTypesConfig, CFG: AttractivenessFileConfig, CFG: PurposesConfig =
+) where C : HasMutableAttractivenessModel, CFG : ActivityTypesConfig, CFG : AttractivenessFileConfig, CFG : PurposesConfig =
     modelStep(
         "Load Attractiveness Csv",
         validation = listOf(validateAttractivenessColumns(path, activityTypes, work, privateVisit)),
@@ -59,8 +59,8 @@ private fun <C> validateAttractivenessColumns(
     path: Path,
     activityTypes: Set<ActivityType>,
     work: ActivityType,
-    privateVisit : ActivityType,
-): Check<C> where C: HasMutableAttractivenessModel = {
+    privateVisit: ActivityType,
+): Check<C> where C : HasMutableAttractivenessModel = {
     validateFileReadAccess(path, fileDescription = "Csv containing attractiveness data by activity type for zones")
 
     val columns = CsvReader.of(path).columns
@@ -71,7 +71,7 @@ private fun <C> validateAttractivenessColumns(
         validateCondition(
             message = {
                 "Expected attractivities file (${path.name}) to contains column '$expectedColumn'! " +
-                        "Found columns: $columns"
+                    "Found columns: $columns"
             },
             isError = false,
         ) {
@@ -81,36 +81,36 @@ private fun <C> validateAttractivenessColumns(
 
     // Mock attractiveness model for following validation steps -> the can check attractiveness is initialized
     attractiveness = object : AttractivenessModel {
-        override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness = Attractiveness.DEFAULT
+        override fun attractivenessFor(
+            zone: ZoneId,
+            activityType: ActivityType
+        ): Attractiveness = Attractiveness.DEFAULT
         override val work: ActivityType = work
         override val privateVisit: ActivityType = privateVisit
     }
 
-
     true
 }
 
-
-
 //
 //
 //
-//fun LoadAttractivenessDataContext.loadAttractivities(
+// fun LoadAttractivenessDataContext.loadAttractivities(
 //    path: Path,
 //    purposes: ChoiceModelPurposes,
-//) = runStep {
+// ) = runStep {
 //    LoadAttractivenessStep(this, path, purposes)
-//}
+// }
 //
-//interface LoadAttractivenessDataContext : DemandSimContext {
+// interface LoadAttractivenessDataContext : DemandSimContext {
 //    val attractivenessModel: LateInit<AttractivenessModel>
-//}
+// }
 //
-//class LoadAttractivenessStep(
+// class LoadAttractivenessStep(
 //    private val context: LoadAttractivenessDataContext,
 //    private val path: Path,
 //    private val purposes: ChoiceModelPurposes,
-//) : ModelStep {
+// ) : ModelStep {
 //
 //    override val name: String = "Load Attractiveness Csv"
 //
@@ -148,4 +148,4 @@ private fun <C> validateAttractivenessColumns(
 //            override val purposes: ChoiceModelPurposes = this@LoadAttractivenessStep.purposes
 //        }
 //    }
-//}
+// }

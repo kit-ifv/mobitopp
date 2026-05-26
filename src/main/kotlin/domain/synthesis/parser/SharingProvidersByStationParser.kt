@@ -21,6 +21,7 @@ import utils.csv.int
 import utils.csv.long
 
 // operating hours
+@Suppress("MagicNumber")
 val allDay = 0..24
 
 // id providers
@@ -99,7 +100,7 @@ data class SharingProviderByStationCsvColumns(
     val zone: String = "zone",
 )
 
-fun createSharingProvidersByStationParser(
+fun createSharingProviderStationParser(
     csvConfig: SharingProviderByStationCsvConfig
 ): CsvParser<MutableSharingProvider> = csvConfig.run {
     val providers = mutableMapOf<String, MutableSharingProvider>()

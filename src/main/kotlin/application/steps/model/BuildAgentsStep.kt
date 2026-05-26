@@ -1,6 +1,5 @@
 package application.steps.model
 
-import core.modelsteps.Config
 import application.steps.HasCarRepo
 import application.steps.HasDrtProviderAgentRepo
 import application.steps.HasDrtProviderRepo
@@ -12,6 +11,7 @@ import application.steps.HasSharingProviderAgentRepo
 import application.steps.HasSharingProviderRepo
 import application.steps.HasZoneRepo
 import application.steps.SimulationConfig
+import core.modelsteps.Config
 import core.modelsteps.resources.LazyResource
 import core.modelsteps.steps.addResourceStep
 import core.modelsteps.steps.seal
@@ -31,7 +31,7 @@ import domain.synthesis.data.Person
 import domain.synthesis.data.PrivateCar
 import domain.synthesis.data.SharingProvider
 
-//TODO: remove distinction between agents and data object entities, then build agents is no longer needed
+// TODO remove distinction between agents and data object entities, then build agents is no longer needed
 
 // TODO move to other file knowing about mobitopp when restructuring packages
 
@@ -72,24 +72,22 @@ fun gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
  * @param drtAlgorithm Optional function to create [DrtAlgorithm]s for [DrtProvider]s.
  */
 context(config: Config)
-fun <C> C.buildSimulationAgents( //TODO refactor to Context requirements and onw model steps for setup
+fun <C> C.buildSimulationAgents( // TODO refactor to Context requirements and onw model steps for setup
     personStateMachine: StateMachineFactory<PersonAgent>,
     durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
     drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
     drtAlgorithm: ((DrtProvider) -> DrtAlgorithm)? = null
 )
-where C: HasPersonRepo<*, Person>,
-      C: HasZoneRepo<*, Zone>,
-      C: HasHouseholdRepo<*, Household>,
-      C: HasCarRepo<*, PrivateCar>,
-      C: HasSharingProviderRepo<*, SharingProvider>,
-      C: HasDrtProviderRepo<*, DrtProvider>,
-      C: HasPersonAgentRepo<PersonAgent, *>,
-      C: HasSharingProviderAgentRepo<SharingProviderAgent, *>,
-      C: HasDrtProviderAgentRepo<DrtProviderAgent, *>,
-      C: HasPersonBehavior
-{
-
+    where C : HasPersonRepo<*, Person>,
+          C : HasZoneRepo<*, Zone>,
+          C : HasHouseholdRepo<*, Household>,
+          C : HasCarRepo<*, PrivateCar>,
+          C : HasSharingProviderRepo<*, SharingProvider>,
+          C : HasDrtProviderRepo<*, DrtProvider>,
+          C : HasPersonAgentRepo<PersonAgent, *>,
+          C : HasSharingProviderAgentRepo<SharingProviderAgent, *>,
+          C : HasDrtProviderAgentRepo<DrtProviderAgent, *>,
+          C : HasPersonBehavior {
     val builder by lazy {
         BuildAgents(
             seed = config.seed,
@@ -101,9 +99,10 @@ where C: HasPersonRepo<*, Person>,
         )
     }
 
+    val sourceName = "buildSimulationAgents"
     addResourceStep(
         name = "build sharing provider agents",
-        resource = LazyResource("sharing provider agents by BuildAgents", "buildSimulationAgents") {
+        resource = LazyResource("sharing provider agents by BuildAgents", sourceName) {
             builder.buildSharingProviderAgents(sharingProviderRepository.elements.toList()).asSequence()
         },
         repository = mutableSharingProviderAgentRepository,
@@ -114,7 +113,7 @@ where C: HasPersonRepo<*, Person>,
 
     addResourceStep(
         name = "build drt provider agents",
-        resource = LazyResource("drt provider agents by BuildAgents", "buildSimulationAgents") {
+        resource = LazyResource("drt provider agents by BuildAgents", sourceName) {
             builder.buildDrtProviderAgents(drtProviderRepository.elements.toList()).asSequence()
         },
         repository = mutableDrtProviderAgentRepository,
@@ -125,19 +124,21 @@ where C: HasPersonRepo<*, Person>,
 
     addResourceStep(
         name = "build person agents",
-        resource = LazyResource("person agents by BuildAgents", "buildSimulationAgents") {
+        resource = LazyResource("person agents by BuildAgents", sourceName) {
             builder.buildPersonAgents(householdRepository.elements.toList()).asSequence()
         },
         repository = mutablePersonAgentRepository,
         dependentRepositories = setOf(
-            personRepository, householdRepository, carRepository, zoneRepository,
-            sharingProviderRepository, drtProviderRepository
+            personRepository,
+            householdRepository,
+            carRepository,
+            zoneRepository,
+            sharingProviderRepository,
+            drtProviderRepository
         )
     )
 
     seal(mutablePersonAgentRepository)
-
-
 }
 
 //
@@ -153,14 +154,14 @@ where C: HasPersonRepo<*, Person>,
 //    val personAgents: MutableRepository<PersonAgent, PersonId>
 //    val sharingProviderAgents: MutableRepository<SharingProviderAgent, SharingProviderId>
 //    val drtProviderAgents: MutableRepository<DrtProviderAgent, DrtProviderId>
-//}
+// }
 
-//fun BuildAgentsContext.buildAgents(
+// fun BuildAgentsContext.buildAgents(
 //    personStateMachine: StateMachineFactory<PersonAgent>,
 //    durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
 //    drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
 //    drtAlgorithm: ((DrtProvider) -> DrtAlgorithm)? = null
-//) = runMultipleSteps {
+// ) = runMultipleSteps {
 //    val builder = BuildAgents(
 //        simulationSeed,
 //        personStateMachine,
@@ -175,12 +176,12 @@ where C: HasPersonRepo<*, Person>,
 //        BuildPersonAgentsStep(this, builder),
 //        CleanUpDataStep(this, builder),
 //    )
-//}
+// }
 //
-//class BuildPersonAgentsStep(
+// class BuildPersonAgentsStep(
 //    context: BuildAgentsContext,
 //    builder: BuildAgents,
-//) : AbstractAddResourceStep<PersonAgent, PersonId>() {
+// ) : AbstractAddResourceStep<PersonAgent, PersonId>() {
 //    override val name = "build person agents"
 //
 //    override val repository: MutableRepository<PersonAgent, PersonId> = context.personAgents
@@ -202,12 +203,12 @@ where C: HasPersonRepo<*, Person>,
 //    override fun verifyInput(): Warning? = null
 //
 //    override fun mockElementsForValidation(): List<PersonAgent> = emptyList()
-//}
+// }
 //
-//class BuildSharingProviderAgentsStep(
+// class BuildSharingProviderAgentsStep(
 //    context: BuildAgentsContext,
 //    builder: BuildAgents,
-//) : AbstractAddResourceStep<SharingProviderAgent, SharingProviderId>() {
+// ) : AbstractAddResourceStep<SharingProviderAgent, SharingProviderId>() {
 //    override val name = "build sharing provider agents"
 //
 //    override val repository: MutableRepository<SharingProviderAgent, SharingProviderId> = context.sharingProviderAgents
@@ -227,12 +228,12 @@ where C: HasPersonRepo<*, Person>,
 //    override fun verifyInput(): Warning? = null
 //
 //    override fun mockElementsForValidation(): List<SharingProviderAgent> = emptyList()
-//}
+// }
 //
-//class BuildDrtProviderAgentsStep(
+// class BuildDrtProviderAgentsStep(
 //    context: BuildAgentsContext,
 //    builder: BuildAgents,
-//) : AbstractAddResourceStep<DrtProviderAgent, DrtProviderId>() {
+// ) : AbstractAddResourceStep<DrtProviderAgent, DrtProviderId>() {
 //    override val name = "build drt provider agents"
 //
 //    override val repository: MutableRepository<DrtProviderAgent, DrtProviderId> = context.drtProviderAgents
@@ -252,13 +253,13 @@ where C: HasPersonRepo<*, Person>,
 //    override fun verifyInput(): Warning? = null
 //
 //    override fun mockElementsForValidation(): List<DrtProviderAgent> = emptyList()
-//}
+// }
 //
-//class CleanUpDataStep(
+// class CleanUpDataStep(
 //    private val context: BuildAgentsContext,
 //    private val builder: BuildAgents,
 //    private val cleanAllRepos: Boolean = false,
-//) : ModelStep {
+// ) : ModelStep {
 //
 //    override val name = "clean data of builder" + if (cleanAllRepos) " and planned activity repository" else ""
 //
@@ -274,4 +275,4 @@ where C: HasPersonRepo<*, Person>,
 //    override fun verifyInput(): Warning? = null
 //
 //    override fun mockBehavior(): Warning? = null
-//}
+// }

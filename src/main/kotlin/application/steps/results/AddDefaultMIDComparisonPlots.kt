@@ -26,8 +26,8 @@ import domain.synthesis.data.sharingMembershipIds
 import java.nio.file.Path
 import java.time.DayOfWeek
 
-@Suppress("LongMethod", "CyclomaticComplexMethod", "CognitiveComplexMethod", "LongParameterList")
 context(config: ResultsConfig)
+@Suppress("LongMethod", "CyclomaticComplexMethod", "CognitiveComplexMethod", "LongParameterList")
 fun <C> C.addDefaultMIDComparisonPlots(
     subDir: String = "mid-comparison",
     midPersonPath: Path,
@@ -35,8 +35,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
     choiceModelPurposes: ChoiceModelPurposes,
     defaultPurpose: ActivityType,
     choiceModelModes: ChoiceModelModes,
-) where C : Context, C : HasImpedance, C: HasPersonAgentRepo<*, PersonAgent>, C: HasHouseholdRepo<*, Household> {
-
+) where C : Context, C : HasImpedance, C : HasPersonAgentRepo<*, PersonAgent>, C : HasHouseholdRepo<*, Household> {
     fun <G> midPlotForPerson(
         personFilter: (IPerson) -> Boolean = { true },
         rowFilter: (MidPersonRow) -> Boolean = { true },
@@ -60,7 +59,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         midGroup: (MidLegRow) -> G,
         normalize: Boolean = true
     ) = midComparisonPlotForLegs(
-        personAgentRepository,midLegPath, choiceModelPurposes, choiceModelModes,
+        personAgentRepository, midLegPath, choiceModelPurposes, choiceModelModes,
         impedance, legFilter, rowFilter, legGroup, midGroup, normalize
     )
 

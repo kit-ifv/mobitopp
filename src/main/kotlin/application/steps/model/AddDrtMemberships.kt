@@ -1,7 +1,7 @@
 package application.steps.model
 
-import core.modelsteps.Config
 import application.steps.HasDrtProviderRepo
+import core.modelsteps.Config
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.updateEachStep
 import domain.synthesis.data.DrtProvider
@@ -9,7 +9,7 @@ import domain.synthesis.data.IPerson
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.PersonId
 
-//TODO generalize MutablePerson to P: HasMutableDrtMemberships
+// TODO generalize MutablePerson to P: HasMutableDrtMemberships
 
 /**
  * Adds DRT memberships to persons based on a predicate.
@@ -27,9 +27,9 @@ import domain.synthesis.data.PersonId
  *                  Evaluated in the context of [CFG] and [C].
  */
 context(repository: MutableRepository<MutablePerson, PersonId>, _: CFG)
-fun <C, CFG: Config> C.addDrtMembershipsIf(
+fun <C, CFG : Config> C.addDrtMembershipsIf(
     predicate: context(CFG) C.(IPerson, DrtProvider) -> Boolean,
-) where C: HasDrtProviderRepo<*, DrtProvider> =
+) where C : HasDrtProviderRepo<*, DrtProvider> =
     updateEachStep(
         name = "add drt memberships to each person",
         dependentRepositories = setOf(drtProviderRepository)

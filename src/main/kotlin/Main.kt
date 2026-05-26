@@ -1,4 +1,4 @@
-@file:Suppress("UnusedPrivateProperty")
+@file:Suppress("UnusedPrivateProperty", "MagicNumber")
 
 import application.config.subconfigs.BaseCSVFiles
 import application.config.subconfigs.CoreCSVConfig
@@ -31,24 +31,16 @@ import application.steps.SharingSourceFilesConfig
 import application.steps.SimulationConfig
 import application.steps.SourceFilesConfig
 import application.steps.UnitConfig
-import application.steps.model.addDrtMembershipsIf
 import application.steps.model.assignHouseholdLocation
 import application.steps.model.assignMainCarUsers
 import application.steps.model.buildSimulationAgents
 import application.steps.model.gaussianDurationRandomizer
 import application.steps.model.loadBehaviorModels
-import application.steps.model.newDrtProvider
 import application.steps.model.simpleDrtAlgorithm
 import application.steps.model.simulate
-import application.steps.parser.csv.bikeSharingProviderCsv
 import application.steps.parser.csv.carCsv
-import application.steps.parser.csv.carSharingFloatingProviderCsv
-import application.steps.parser.csv.carSharingStationProviderCsv
-import application.steps.parser.csv.carSharingStationProvidersByStationParser
 import application.steps.parser.csv.cars
-import application.steps.parser.csv.drtProviders
 import application.steps.parser.csv.filterFractionOfPopulation
-import application.steps.parser.csv.filterHouseholds
 import application.steps.parser.csv.fixedDestinationCsv
 import application.steps.parser.csv.fixedDestinationCsvParser
 import application.steps.parser.csv.fixedDestinations
@@ -58,24 +50,16 @@ import application.steps.parser.csv.households
 import application.steps.parser.csv.loadActivities
 import application.steps.parser.csv.loadAttractivenessModelFromCsv
 import application.steps.parser.csv.loadCars
-import application.steps.parser.csv.loadDrtProviders
 import application.steps.parser.csv.loadHouseholds
 import application.steps.parser.csv.loadPersons
-import application.steps.parser.csv.loadSharingProviders
 import application.steps.parser.csv.loadZones
 import application.steps.parser.csv.personCsv
-import application.steps.parser.csv.personCsvParser
 import application.steps.parser.csv.persons
 import application.steps.parser.csv.plannedActivities
 import application.steps.parser.csv.plannedActivityCsv
-import application.steps.parser.csv.privateCarCsvParser
-import application.steps.parser.csv.ridePoolingProviderCsv
-import application.steps.parser.csv.sharingProviders
 import application.steps.parser.csv.zoneCsv
-import application.steps.parser.csv.zoneCsvParser
 import application.steps.parser.csv.zones
 import application.steps.parser.loadImpedance
-import application.steps.parser.loadZonesFromBinary
 import application.steps.results.writeTrips
 import core.modelsteps.Cloneable
 import core.modelsteps.Config
@@ -84,19 +68,14 @@ import core.modelsteps.Simulation
 import core.modelsteps.initReport
 import core.modelsteps.resources.MapRepository
 import core.modelsteps.resources.MutableRepository
-import core.modelsteps.scopes.filterIdsStep
-import core.modelsteps.scopes.updateEachStep
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
-import domain.shared.datastructure.matrix.VisumMatrixCreator
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
-import domain.shared.enums.MainModes
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
-import domain.shared.enums.areatype.RegioStaR4
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.location.Impedance
@@ -145,8 +124,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
-
-//TODO: move from main to test
+// TODO move from main to test
 val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
 val dataFolder = Path("src/test/resources/testDemand/demand-data/")
@@ -192,10 +170,9 @@ class MyContext :
     HasSharingProviderAgentRepo<SharingProviderAgent, SharingProviderAgent>,
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
-    HasModes, //TODO discuss whether modes are context or config
+    HasModes, // TODO discuss whether modes are context or config
     HasMutablePersonBehavior,
-    HasAvailabilityWriter
-{
+    HasAvailabilityWriter {
     override val scenarioName: String = "regression test short term scenario"
     override val modes: CodePlan<Mode> = LegacyMode
     override lateinit var impedance: Impedance
@@ -204,14 +181,19 @@ class MyContext :
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
     override val mutableZoneRepository: MutableRepository<MutableZone, ZoneId> = MapRepository("zone")
-    override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> = MapRepository("household")
+    override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> =
+        MapRepository("household")
     override val mutableCarRepository: MutableRepository<MutablePrivateCar, CarId> = MapRepository("car")
     override val mutablePersonRepository: MutableRepository<MutablePerson, PersonId> = MapRepository("person")
-    override val mutableSharingProviderRepository: MutableRepository<MutableSharingProvider, SharingProviderId> = MapRepository("sharingProvider")
-    override val mutableDrtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId> = MapRepository("drtProvider")
+    override val mutableSharingProviderRepository: MutableRepository<MutableSharingProvider, SharingProviderId> =
+        MapRepository("sharingProvider")
+    override val mutableDrtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId> =
+        MapRepository("drtProvider")
     override val mutablePersonAgentRepository: MutableRepository<PersonAgent, PersonId> = MapRepository("PersonAgents")
-    override val mutableSharingProviderAgentRepository: MutableRepository<SharingProviderAgent, SharingProviderId> = MapRepository("SharingProviderAgents")
-    override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> = MapRepository("DrtProviderAgents")
+    override val mutableSharingProviderAgentRepository: MutableRepository<SharingProviderAgent, SharingProviderId> =
+        MapRepository("SharingProviderAgents")
+    override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> =
+        MapRepository("DrtProviderAgents")
     override val availabilityWriter: AvailabilityWriter = NoAvailabilityWriter
 
     override fun clone(): MyContext = MyContext() // TODO doppelt zu context factory
@@ -289,15 +271,13 @@ fun main(args: Array<String>) {
     Simulation(MyConfig()) {
         MyContext()
     }.steps {
-
 //        loadVisumNetwork(
 //            shortTermConfig.visumNetwork ?: visum_network
 //        ) {
 //            connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
 //        }
 
-
-        zones(sealed=true){
+        zones(sealed = true) {
             loadZones(zoneCsv())
         }
 
@@ -363,7 +343,6 @@ fun main(args: Array<String>) {
 //                addDrtMembershipsIf { person, provider ->
 //                    person.age > 16
 //                }
-
         }
 
         cars {
@@ -378,7 +357,7 @@ fun main(args: Array<String>) {
             legacyChoiceModelModes
         )
 
-        buildSimulationAgents( //TODO maybe create individual model steps to set up the state machines
+        buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines
             personStateMachine,
             drtStateMachine = drtProviderStateMachine,
             drtAlgorithm = { _ ->
@@ -393,7 +372,5 @@ fun main(args: Array<String>) {
         simulate()
 
         writeTrips()
-
     }
-
 }

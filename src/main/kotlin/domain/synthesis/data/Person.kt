@@ -41,7 +41,6 @@ value class PersonId(val value: Long) : Comparable<PersonId> {
 
 const val ADULT_AGE_GER = 18
 
-
 interface HasHousehold<H : Identifiable<HouseholdId>> {
     val household: H
 }
@@ -92,8 +91,6 @@ val IPerson.drtMembershipIds: Set<DrtProviderId>
 
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)
-
-
 
 data class PersonBinaryRecord(
     val id: Long,

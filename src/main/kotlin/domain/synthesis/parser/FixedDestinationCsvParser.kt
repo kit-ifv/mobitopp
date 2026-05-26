@@ -34,7 +34,7 @@ fun createFixedDestinationCsvParser(
 ): CsvParser<ActivityLocation> = csvConfig.run {
     CsvParser.Companion(errorHandling) { row ->
         val personId = PersonId(row.long(columns.personOid))
-        val activityType = row.decodeName( // TODO: switch to decode by int
+        val activityType = row.decodeName( // TODO switch to decode by int
             columns.activityType,
             activityTypes
         )

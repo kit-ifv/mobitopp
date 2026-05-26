@@ -71,7 +71,6 @@ interface Context {
     fun logOverview(status: CardStatus, message: String) {
         report.addOverviewItem(currentStep, status, message)
     }
-
 }
 
 /**

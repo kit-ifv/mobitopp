@@ -26,6 +26,7 @@ import kotlin.io.path.absolutePathString
  * @param dependentRepositories a set of repositories that this step depends on
  * @param validation additional validation logic for this step
  */
+@Suppress("LongParameterList")
 fun <C : Context, E : Identifiable<I>, I> C.loadBinary(
     path: Path,
     reader: BinaryReader<E>,
@@ -40,7 +41,7 @@ fun <C : Context, E : Identifiable<I>, I> C.loadBinary(
         reader.fromBinary(path).asSequence()
     },
     dependentRepositories,
-    validation + { validateFileReadAccess(path, true, "binary cache file ${path.fileName}") }
+    validation + { validateFileReadAccess(path, true, "source binary cache file ${path.fileName}") }
 )
 
 /**
@@ -65,7 +66,7 @@ fun <C : Context, E : Identifiable<I>, I> C.writeBinary(
     name,
     repository,
     emptySet(),
-    validation + { validateFileReadAccess(path, true, "binary cache file ${path.fileName}") }
+    validation + { validateFileReadAccess(path, true, "target binary cache file ${path.fileName}") }
 ) { elements ->
     writer.toBinary(path, elements)
 }

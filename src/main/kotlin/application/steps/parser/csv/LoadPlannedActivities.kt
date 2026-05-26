@@ -1,10 +1,10 @@
 package application.steps.parser.csv
 
-import core.modelsteps.Config
 import application.steps.ActivityTypesConfig
 import application.steps.HasPersonRepo
 import application.steps.SourceFilesConfig
 import application.steps.UnitConfig
+import core.modelsteps.Config
 import core.modelsteps.Context
 import core.modelsteps.resources.BinaryCacheConfig
 import core.modelsteps.resources.CsvResource
@@ -87,33 +87,33 @@ fun <CTXT, P> CTXT.plannedActivities(
     }
 }
 
-//TODO: do not use until build agents is removed, which currently performs schedule creation
-//context(repository: MutableRepository<P, PersonId>, config: CFG)
-//fun <CTXT, CFG : Config, P> CTXT.schedule(
+// TODO do not use until build agents is removed, which currently performs schedule creation
+// context(repository: MutableRepository<P, PersonId>, config: CFG)
+// fun <CTXT, CFG : Config, P> CTXT.schedule(
 //    dispatcher: IDispatcher = SingularDispatcher(),
 //    repairStrategy: (Activity, LinkedActivity) -> Unit = oneMinuteGapFix,
 //    scope: context(MutableRepository<MutablePlannedActivity, ActivityId>, CFG) CTXT.() -> Unit
-//) where CTXT : Context, P : HasPlannedActivities<PlannedActivity>, P : HasMutableSchedule, P : Identifiable<PersonId> {
+// ) where CTXT : Context, P : HasPlannedActivities<PlannedActivity>, P : HasMutableSchedule, P : Identifiable<PersonId> {
 //    plannedActivities(scope)
 //    plannedActivitiesToSchedule(dispatcher, repairStrategy)
-//}
+// }
 
 val oneMinuteGapFix: (Activity, LinkedActivity) -> Unit = { prev, broken ->
     // TODO check and inform if triggered.
     broken.shiftStartTo(prev.endTime + 1.minutes)
 }
 
-//TODO: do not use until build agents is removed, which currently performs schedule creation
-//context(repository: MutableRepository<P, PersonId>, config: CFG)
-//fun <CTXT, CFG : Config, P> CTXT.plannedActivitiesToSchedule(
+// TODO do not use until build agents is removed, which currently performs schedule creation
+// context(repository: MutableRepository<P, PersonId>, config: CFG)
+// fun <CTXT, CFG : Config, P> CTXT.plannedActivitiesToSchedule(
 //    dispatcher: IDispatcher = SingularDispatcher(),
 //    repairStrategy: (Activity, LinkedActivity) -> Unit = oneMinuteGapFix
-//) where CTXT : Context, P : HasPlannedActivities<PlannedActivity>, P : HasMutableSchedule, P : Identifiable<PersonId> = updateEachStep(
+// ) where CTXT : Context, P : HasPlannedActivities<PlannedActivity>, P : HasMutableSchedule, P : Identifiable<PersonId> = updateEachStep(
 //    name = "convert planned activities to schedule"
-//) {
+// ) {
 //    it.schedule = it.plannedActivities.sortedBy { a -> a.startTime }.toSchedule(dispatcher, repairStrategy)
 //    it.plannedActivities.clear()
-//}
+// }
 
 // TODO scope to add directly to schedule no intermediate planned activities list?
 

@@ -35,7 +35,7 @@ import java.nio.file.Path
 fun <C> C.zones(
     sealed: Boolean = false,
     scope: context(MutableRepository<MutableZone, ZoneId>) C.() -> Unit
-) where C : HasZoneRepo<MutableZone, Zone> = mutableRepositoryScope<C,  MutableZone, ZoneId>(
+) where C : HasZoneRepo<MutableZone, Zone> = mutableRepositoryScope<C, MutableZone, ZoneId>(
     getter = { mutableZoneRepository },
     sealed = sealed,
     scope = scope

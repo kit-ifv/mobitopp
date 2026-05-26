@@ -21,11 +21,9 @@ import domain.synthesis.data.PersonId
 import edu.kit.ifv.units.kilometers
 import kotlin.time.Duration.Companion.minutes
 
-fun HasPersonAgentRepo<*, PersonAgent>.persons(): List<PersonAgent>
-    = personAgentRepository.elements.toList()
+fun HasPersonAgentRepo<*, PersonAgent>.persons(): List<PersonAgent> = personAgentRepository.elements.toList()
 
-fun HasHouseholdRepo<*, Household>.households(): List<Household>
-    = householdRepository.elements.toList()
+fun HasHouseholdRepo<*, Household>.households(): List<Household> = householdRepository.elements.toList()
 
 data class PersonLeg(val person: PersonAgent, val leg: MovingAction, val purpose: ActivityType?)
 
@@ -52,7 +50,7 @@ fun List<PersonAgent>.legs(): List<PersonLeg> = this.flatMap { person ->
 
             else -> error(
                 "Cannot process $action of type ${action::class.simpleName} while creating PersonLegs," +
-                        " expected MovingAction or StationaryAction"
+                    " expected MovingAction or StationaryAction"
             )
         }
     }

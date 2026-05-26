@@ -21,9 +21,9 @@ import domain.synthesis.data.Person
  */
 context(repository: MutableRepository<MutablePrivateCar, CarId>)
 fun <C> C.assignMainCarUsers(
-    model: AssignCarUserModel = AssignCarUserModel() //TODO create interface CarUserAssignment
-) where C: HasPersonRepo<*, Person> {
-    transformEachStep( //TODO maybe request ordering on elements for this transformation?
+    model: AssignCarUserModel = AssignCarUserModel() // TODO create interface CarUserAssignment
+) where C : HasPersonRepo<*, Person> {
+    transformEachStep( // TODO maybe request ordering on elements for this transformation?
         name = "Assign cars to household members as main users.",
         dependentRepositories = setOf(personRepository),
     ) { person ->
@@ -31,21 +31,21 @@ fun <C> C.assignMainCarUsers(
     }
 }
 
-//fun AssignCarsContext.assignCarUsers() = runStep {
+// fun AssignCarsContext.assignCarUsers() = runStep {
 //    AssignCarUserStep(this)
-//}
+// }
 //
-//fun AssignCarsContext.assignCarUsersWithoutRun() = AssignCarUserStep(this)
+// fun AssignCarsContext.assignCarUsersWithoutRun() = AssignCarUserStep(this)
 //
-//interface AssignCarsContext : DemandSimContext {
+// interface AssignCarsContext : DemandSimContext {
 //    val personRepository: Repository<Person, PersonId>
 //    val householdRepository: Repository<Household, HouseholdId>
 //    val carRepository: MutableRepository<MutablePrivateCar, CarId>
-//}
+// }
 //
-//class AssignCarUserStep(
+// class AssignCarUserStep(
 //    context: AssignCarsContext,
-//) : TransformEachStep<MutablePrivateCar, CarId>() {
+// ) : TransformEachStep<MutablePrivateCar, CarId>() {
 //
 //    override val name: String = "Assign cars to household members as integration.main users."
 //    override val repository: MutableRepository<MutablePrivateCar, CarId> = context.carRepository
@@ -59,4 +59,4 @@ fun <C> C.assignMainCarUsers(
 //    }
 //
 //    override fun verifyInput(): Warning? = null
-//}
+// }
