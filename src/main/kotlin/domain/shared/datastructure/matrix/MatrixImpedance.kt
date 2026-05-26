@@ -41,11 +41,11 @@ import kotlin.time.toDuration
  *
  * This implementation is specialized for [ZoneId] indices to avoid boxing.
  */
-class MatrixImpedance(
+data class MatrixImpedance(
     private val travelTimes: ZoneMatrixLookup<Mode>,
     private val travelCosts: ZoneMatrixLookup<Mode>,
     private val travelDistance: ZoneIdMatrix,
-    unitConverters: UnitConverter
+    private val unitConverters: UnitConverter
 ) : Impedance {
     private val currencyConverter = unitConverters.currencyConverter
     private val timeConverter = unitConverters.timeConverter
@@ -117,9 +117,10 @@ class MatrixImpedance(
                 decoder,
             ).cached(matrixFactory)
 
-            val travelDistanceMatrix = ConstantZoneIdMatrix(
-                5.0
-            ) // matrixFactory.createMatrix(YamlInfo("visum_matrix", travelDistanceMatrixPath))
+            val travelDistanceMatrix = matrixFactory.createMatrix(
+                YamlInfo("visum_matrix", travelDistanceMatrixPath)
+            )
+
             return MatrixImpedance(
                 travelTimeMultiMatrix,
                 travelCostMultiMatrix,

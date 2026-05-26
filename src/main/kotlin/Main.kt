@@ -67,9 +67,11 @@ import core.modelsteps.Simulation
 import core.modelsteps.initReport
 import core.modelsteps.resources.MapRepository
 import core.modelsteps.resources.MutableRepository
+import core.modelsteps.steps.modelStep
 import domain.shared.behavior.AttractivenessModel
-import domain.shared.behavior.ChoiceModelModes
+import domain.shared.datastructure.matrix.ConstantZoneIdMatrix
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
+import domain.shared.datastructure.matrix.MatrixImpedance
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
@@ -282,6 +284,14 @@ fun main(args: Array<String>) {
         }
 
         loadImpedance()
+
+        //hacky fix of distance matrix due to faulty input data
+        modelStep("fix distance matrix in impedance") {
+            impedance = (impedance as MatrixImpedance).copy(
+                travelDistance = ConstantZoneIdMatrix(5.0)
+            )
+        }
+
         loadAttractivenessModelFromCsv()
 
 //            sharingProviders {

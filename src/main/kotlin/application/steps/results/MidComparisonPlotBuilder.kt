@@ -12,10 +12,6 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
-import domain.simulation.results.PersonLeg
-import domain.simulation.results.distance
-import domain.simulation.results.duration
-import domain.simulation.results.legs
 import domain.synthesis.data.Employment
 import domain.synthesis.data.IHousehold
 import domain.synthesis.data.IPerson

@@ -18,7 +18,6 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.areatype.RegioStaR7
 import domain.simulation.agent.PersonAgent
-import domain.simulation.results.PersonLeg
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Household
 import domain.synthesis.data.IPerson

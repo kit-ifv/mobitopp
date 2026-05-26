@@ -1,6 +1,6 @@
 @file:Suppress("TooManyFunctions")
 
-package domain.simulation.results
+package application.steps.results
 
 import application.steps.HasHouseholdRepo
 import application.steps.HasPersonAgentRepo
