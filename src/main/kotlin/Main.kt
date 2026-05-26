@@ -7,7 +7,6 @@ import application.steps.AttractivenessFileConfig
 import application.steps.CarCodesConfig
 import application.steps.DrtModesConfig
 import application.steps.DrtSourceFilesConfig
-import application.steps.HasAvailabilityWriter
 import application.steps.HasCarRepo
 import application.steps.HasDrtProviderAgentRepo
 import application.steps.HasDrtProviderRepo
@@ -69,11 +68,13 @@ import core.modelsteps.initReport
 import core.modelsteps.resources.MapRepository
 import core.modelsteps.resources.MutableRepository
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
+import domain.shared.enums.MainModes
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
@@ -90,8 +91,6 @@ import domain.simulation.behavior.legacyModeChoice
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
-import domain.simulation.results.AvailabilityWriter
-import domain.simulation.results.NoAvailabilityWriter
 import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.DrtProvider
@@ -128,6 +127,7 @@ import kotlin.time.DurationUnit
 val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
 val dataFolder = Path("src/test/resources/testDemand/demand-data/")
+
 // val standardConfig = ShortTermConfig(
 //    visumNetwork = visum_network,
 //    fractionOfPopulation = 0.2,
@@ -157,6 +157,8 @@ val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 //    choiceModelModes = legacyChoiceModelModes
 // }
 
+val exampleChoiceModelModes = legacyChoiceModelModes.copy(options = MainModes.values())
+
 class MyContext :
     HasZoneRepo<MutableZone, Zone>,
     HasHouseholdRepo<MutableHousehold, Household>,
@@ -171,8 +173,7 @@ class MyContext :
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
     HasModes, // TODO discuss whether modes are context or config
-    HasMutablePersonBehavior,
-    HasAvailabilityWriter {
+    HasMutablePersonBehavior {
     override val scenarioName: String = "regression test short term scenario"
     override val modes: CodePlan<Mode> = LegacyMode
     override lateinit var impedance: Impedance
@@ -194,7 +195,6 @@ class MyContext :
         MapRepository("SharingProviderAgents")
     override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> =
         MapRepository("DrtProviderAgents")
-    override val availabilityWriter: AvailabilityWriter = NoAvailabilityWriter
 
     override fun clone(): MyContext = MyContext() // TODO doppelt zu context factory
 
@@ -354,7 +354,7 @@ fun main(args: Array<String>) {
         loadBehaviorModels(
             legacyDestinationChoice,
             legacyModeChoice,
-            legacyChoiceModelModes
+            exampleChoiceModelModes
         )
 
         buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines

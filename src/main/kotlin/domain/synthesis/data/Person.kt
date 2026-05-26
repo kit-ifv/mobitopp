@@ -1,8 +1,8 @@
 package domain.synthesis.data
 
 import Mutable
-import application.steps.parser.csv.HasMutableSchedule
-import application.steps.parser.csv.HasPlannedActivities
+import domain.synthesis.attributes.person.HasMutableSchedule
+import domain.synthesis.attributes.person.HasPlannedActivities
 import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
 import edu.kit.ifv.units.Currency

@@ -4,7 +4,6 @@ import application.steps.ActivityTypesConfig
 import application.steps.HasPersonRepo
 import application.steps.SourceFilesConfig
 import application.steps.UnitConfig
-import core.modelsteps.Config
 import core.modelsteps.Context
 import core.modelsteps.resources.BinaryCacheConfig
 import core.modelsteps.resources.CsvResource
@@ -17,11 +16,7 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import core.modelsteps.scopes.updateEachStep
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.datastructure.schedule.LinkedActivity
-import domain.shared.datastructure.schedule.Schedule
-import domain.shared.datastructure.schedule.plans.Dispatcher
-import domain.shared.datastructure.schedule.plans.IDispatcher
-import domain.shared.datastructure.schedule.plans.SingularDispatcher
-import domain.simulation.behavior.toSchedule
+import domain.synthesis.attributes.person.HasPlannedActivities
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.PersonId
@@ -38,14 +33,6 @@ import utils.random.StochasticActor
 import java.nio.file.Path
 import kotlin.time.Duration.Companion.minutes
 
-interface HasPlannedActivities<A : Identifiable<ActivityId>> {
-    val plannedActivities: MutableList<A>
-}
-
-interface HasMutableSchedule {
-    var schedule: Schedule
-}
-
 /**
  * Provides a scope for configuring and assigning planned activities to persons.
  *
@@ -55,7 +42,7 @@ interface HasMutableSchedule {
  *
  * @receiver The simulation context [CTXT].
  * @param CTXT The context type. Must implement [Context].
- * @param P The person type. Must implement [HasPlannedActivities] for [PlannedActivity]
+ * @param P The person type. Must implement [domain.synthesis.attributes.person.HasPlannedActivities] for [PlannedActivity]
  *          and [Identifiable] for [PersonId].
  * @param repository The mutable repository of persons to update. Provided via context.
  * @param scope The configuration scope for populating planned activities.
@@ -217,137 +204,3 @@ fun <C, CFG> C.binaryPlannedActivityFormat(): BinaryCacheConfig<MutablePlannedAc
         binaryWriter = BinaryActivityWriter()
     )
 }
-
-// private const val ERROR_OUTPUT_SIZE = 5
-//
-// @Suppress("LongParameterList")
-// fun LoadPlannedActivitiesContext.prepareActivities(
-//    path: Path = defaultActivityPath,
-//    delimiter: String = SEMICOLON,
-//    errorHandling: ErrorHandling = ErrorHandling.WARNING,
-//    columns: ActivitiesColumns = ActivitiesColumns(),
-//    durationUnit: DurationUnit = timeUnit,
-//    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
-//    shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
-// ) {
-//    val (_, step) = activitiesCsvConfig(path) {
-//        this.delimiter = delimiter
-//        this.errorHandling = errorHandling
-//        this.columns = columns
-//        this.durationUnit = durationUnit
-//        this.filter = filter
-//        this.shiftActivityStart = shiftActivityStart
-//    }
-//    this.runStep(step)
-// }
-
-// class ConvertedCsvResource<X, E>(
-//    val path: Path,
-//    val parser: CsvParser<X>,
-//    val delimiter: String = SEMICOLON,
-//    private val reusable: Boolean = false,
-//    val converter: (X) -> E
-//
-// ) : Resource<E> {
-//    override val name = path.fileName.toString()
-//    override val source: String = path.toString()
-//    override val elements: Sequence<E>
-//        get() = rowSequence.elements
-//    private val rowSequence by lazy {
-//        parser.parse(CsvReader.of(path, delimiter)).map { converter(it) }
-//            .asResource(name, source).let {
-//                if (reusable) {
-//                    it.reusable()
-//                } else {
-//                    it
-//                }
-//            }
-//    }
-// }
-//
-// fun LoadPlannedActivitiesContext.activitiesCsvConfig(
-//    path: Path = defaultActivityPath,
-//    lambda: ActivityCsvConfig.() -> Unit,
-// ): FileBasedAddResourceStep<MutablePlannedActivity, ActivityId> {
-//    val config = ActivityCsvConfig(path = path, durationUnit = this.timeUnit)
-//    config.apply(lambda)
-//    return config.run {
-//        val parser = createActivityCsvParser(errorHandling, columns, shiftActivityStart, durationUnit) {
-//            getPerson(it)
-//        }
-//        val filteredParser = parser.withFilter { columns.filter(it, this@activitiesCsvConfig) }
-//        val step = LoadCsvStep(
-//            path = path,
-//            name = "Load planned activities from csv",
-//            parser = filteredParser,
-//            delimiter = delimiter,
-//            repository = plannedActivityRepository,
-//            dependentRepositories = setOf(personRepository),
-//            validationMock = listOf() // TODO
-//        )
-//        FileBasedAddResourceStep(path, step)
-//    }
-// }
-
-// fun LoadPlannedActivitiesContext.runStep(
-//    step: AbstractAddResourceStep<MutablePlannedActivity, ActivityId>,
-//
-// ) = runStep {
-//    step
-// }
-
-// fun LoadPlannedActivitiesContext.activities(lambda: ActivityBuild.() -> Unit) {
-//    val builder = ActivityBuild(simulationSeed, personRepository::get, activityTypes)
-//    builder.apply(lambda)
-//    builder.executeOn(this)
-//    finishActivities()
-// }
-
-// class ActivityBuild(
-//    val seed: Long,
-//    val converter: (PersonId) -> MutablePerson?,
-//    activityCodes: CodePlan<ActivityType>,
-// ) : GroupedStepBuilder<MutablePlannedActivity, ActivityId>() {
-//    override val reader: BinaryReader<MutablePlannedActivity> = BinaryActivityReader(
-//        codeActivity = activityCodes,
-//        personConverter = converter,
-//        contextSimulationSeed = seed
-//    )
-//    override val writer: BinaryWriter<MutablePlannedActivity> = BinaryActivityWriter()
-//
-// //    override fun fromCSV(
-// //        source: Path,
-// //        lambda: context(Path) () -> AbstractAddResourceStep<MutablePlannedActivity, ActivityId>,
-// //    ): FileBasedAddResourceStep<MutablePlannedActivity, ActivityId> {
-// //        return context(source) {
-// //            FileBasedAddResourceStep(source, lambda())
-// //        }
-// //    }
-// }
-//
-// fun LoadPlannedActivitiesContext.finishActivities() = runStep {
-//    SealStep(plannedActivityRepository)
-// }
-//
-// fun LoadPlannedActivitiesContext.loadActivities() {
-//    this.prepareActivities(errorHandling = ErrorHandling.THROW)
-//    this.finishActivities()
-// }
-//
-// interface LoadPlannedActivitiesContext : DemandSimContext {
-//    val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
-//    val personRepository: MutableRepository<MutablePerson, PersonId>
-//
-//    val defaultActivityPath: Path
-//        get() = dataFolder.resolve("demand-data").resolve("activity.csv")
-//
-//    fun getPerson(personId: PersonId) = requireNotNull(
-//        personRepository[personId]
-//    ) {
-//        "Referenced person id $personId could not be found in personRepo:" +
-//            " ${
-//                personRepository.elements.map { it.id }.toList()
-//                    .sortedBy { abs(it.value - personId.value) }.take(ERROR_OUTPUT_SIZE)
-//            }"
-//    }
-// }

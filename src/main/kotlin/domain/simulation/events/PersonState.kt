@@ -2,7 +2,6 @@ package domain.simulation.events
 
 import MessageCalled
 import StateCalled
-import application.steps.HasAvailabilityWriter
 import core.statemachine.Send
 import core.statemachine.StateMachineFactory
 import core.statemachine.builder.BaseStateData
@@ -32,13 +31,12 @@ import domain.simulation.behavior.DrtAvailabilitySelector
 import domain.simulation.behavior.ModeAvailabilityModel
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import domain.simulation.behavior.flatten
-import domain.simulation.results.AvailabilityWriter
-import domain.simulation.results.NoAvailabilityWriter
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import utils.concurrent.synchronizeAll
 import utils.units.AbsoluteTime
 
-abstract class PersonState(
+abstract class
+PersonState(
     time: AbsoluteTime,
     override val agent: PersonAgent,
     doStep: Boolean
@@ -224,14 +222,8 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // State: walking to dest
 // - send self: finish drt trip
 
-// interface PersonStateContext {
-//    val availabilityWriter: AvailabilityWriter
-// }
-// object NoWriters : PersonStateContext {
-//    override val availabilityWriter: AvailabilityWriter = NoAvailabilityWriter
-// }
 
-val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : HasAvailabilityWriter get() =
+val personStateMachine: StateMachineFactory<PersonAgent> get() =
     stateMachine<PersonAgent>("PersonsStateMachine") {
 
         start(StartPerson, ::startPerson) { send ->
@@ -263,7 +255,7 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : HasAvai
             // TODO Robin last.endlocation is destination?
 
             if ("home" in (trip.nextAction?.type?.description?.lowercase() ?: "")) {
-                trip.elements.last().endLocation == person.household.location
+                trip.elements.last().endLocation = person.household.location
             }
 
             if (trip.elements.last().endLocation == StandardLocation.LOCATIONUNKNOWN) {
@@ -282,8 +274,6 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : HasAvai
                 modes.options.map { modeAvailability.providerAvailability(it) }
             }.flatten()
 
-            availabilityWriter.notify(time, person.id, "provider", choices)
-
             synchronizeAll(sharedResources.distinct().toSet()) {
 
                 val (mode, drtRide) = modeChoiceDrtWrapper(choices, send) { choiceSet, drtOffer ->
@@ -301,9 +291,7 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent> where C : HasAvai
                         val mcAvail = choices.filter {
                             modeAvailability.resourceAvailability(it)
                         }
-                        availabilityWriter.notify(time, person.id, "resource", mcAvail)
-
-                        modeChoice.select()
+                        modeChoice.select(mcAvail.toSet())
                     }
                 }
 

@@ -244,7 +244,7 @@ fun <C, CFG> C.carSharingProviderStationParser(
  *            and [SharingModesConfig].
  * @param config The configuration. Provided via context.
  * @param path The path to the car-sharing floating area CSV file. Defaults to [config.carSharingFloatingArea].
- * @param parser The CSV parser. Defaults to [carSharingProvidersFloatingAreaParser].
+ * @param parser The CSV parser. Defaults to [carSharingProviderFloatAreaParser].
  * @param delimiter The CSV delimiter. Defaults to [config.sourceFiles.defaultCsvDelimiter].
  * @param binaryCache Optional configuration for binary caching.
  * @return A [Resource] representing the car-sharing floating provider CSV.
@@ -270,7 +270,7 @@ fun <C, CFG> C.carSharingFloatingProviderCsv(
  * @return A [CsvParser] for [MutableSharingProvider].
  */
 context(config: CFG)
-fun <C, CFG> C.carSharingProvidersFloatingAreaParser(
+fun <C, CFG> C.carSharingProviderFloatAreaParser(
     sharingMode: Mode = config.carSharingFloatingMode,
     customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {}
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : SharingModesConfig =

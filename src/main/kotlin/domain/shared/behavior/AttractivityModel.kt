@@ -38,12 +38,7 @@ fun AttractivenessModel.parkingPressure(target: Zone): Double {
     return attractiveness / target.parkingPlaces
 }
 
-/**
- * TODO there is no reason that this class accesses the field purposes.typesWithAttractivity because a missing
- *   activity type will still just result in a warning, which is sufficient behavior. Also it would be better to
- *   switch to fastCSV or Jackson parsing.
- */
-@Deprecated("This class needs to be reworked, drastically")
+@Deprecated("This class needs to be reworked: switch to fastCSV or Jackson parsing and log warnings to report instead of console")
 class AttractivenessFromCsv(
     private val path: Path,
     delimiter: String = ";",
@@ -71,6 +66,7 @@ class AttractivenessFromCsv(
 
     private val warned: MutableMap<ZoneId, MutableList<ActivityType>> = mutableMapOf()
     private val warnedSet = mutableSetOf<ActivityType>()
+
     override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
         attractivenessMap[zone]?.let { it[activityType] } ?: Attractiveness.DEFAULT.also {
             val activities = warned.getOrPut(zone) { mutableListOf() }

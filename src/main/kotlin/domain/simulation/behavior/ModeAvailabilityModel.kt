@@ -265,7 +265,7 @@ class AvailabilityModelWithSharing(
         modes.carSharingFree -> hasCsffStatic(person)
         modes.ridePooling -> hasPoolingStatic(person)
         modes.bikeSharing -> hasBikeSharingStatic(person)
-        else -> true
+        else -> mode in modes.options
     }
 
     context(person: PersonAgent, time: AbsoluteTime, destination: StandardLocation)

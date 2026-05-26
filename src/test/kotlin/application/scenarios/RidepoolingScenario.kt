@@ -15,7 +15,6 @@ import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.currentlyAffectedProviders
-import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation

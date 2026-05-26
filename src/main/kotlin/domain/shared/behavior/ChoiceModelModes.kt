@@ -14,9 +14,9 @@ data class ChoiceModelModes(
     val carSharingStation: Mode,
     val taxi: Mode,
     val eScooter: Mode,
-) {
-    val options = setOf(
+
+    val options: Set<Mode> = setOf(
         car, passenger, bike, pedestrian, publicTransport, bikeSharing, ridePooling, carSharingStation,
         carSharingFree, taxi, eScooter
     )
-}
+)

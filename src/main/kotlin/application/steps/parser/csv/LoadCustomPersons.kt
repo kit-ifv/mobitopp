@@ -46,6 +46,7 @@ import kotlin.reflect.KClass
  * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
  * @param scope The configuration scope.
  */
+@Suppress("UnusedParameter")
 fun <C, P : Identifiable<PersonId>, M : P> C.customPersons(
     personClass: KClass<M>,
     sealed: Boolean = false,

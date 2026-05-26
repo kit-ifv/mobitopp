@@ -4,7 +4,6 @@ package domain.simulation.results
 
 import application.steps.HasHouseholdRepo
 import application.steps.HasPersonAgentRepo
-import core.modelsteps.resources.Repository
 import core.results.plots.RGB
 import core.results.plots.modeStringColor
 import domain.shared.datastructure.schedule.LinkedActivity
@@ -16,8 +15,6 @@ import domain.shared.enums.Mode
 import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
 import domain.synthesis.data.Household
-import domain.synthesis.data.HouseholdId
-import domain.synthesis.data.PersonId
 import edu.kit.ifv.units.kilometers
 import kotlin.time.Duration.Companion.minutes
 

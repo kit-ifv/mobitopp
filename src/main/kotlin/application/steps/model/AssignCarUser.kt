@@ -30,33 +30,3 @@ fun <C> C.assignMainCarUsers(
         model.assign(person)
     }
 }
-
-// fun AssignCarsContext.assignCarUsers() = runStep {
-//    AssignCarUserStep(this)
-// }
-//
-// fun AssignCarsContext.assignCarUsersWithoutRun() = AssignCarUserStep(this)
-//
-// interface AssignCarsContext : DemandSimContext {
-//    val personRepository: Repository<Person, PersonId>
-//    val householdRepository: Repository<Household, HouseholdId>
-//    val carRepository: MutableRepository<MutablePrivateCar, CarId>
-// }
-//
-// class AssignCarUserStep(
-//    context: AssignCarsContext,
-// ) : TransformEachStep<MutablePrivateCar, CarId>() {
-//
-//    override val name: String = "Assign cars to household members as integration.main users."
-//    override val repository: MutableRepository<MutablePrivateCar, CarId> = context.carRepository
-//    override val dependentRepositories: Set<Repository<*, *>> =
-//        setOf(context.personRepository, context.householdRepository)
-//
-//    private val model = AssignCarUserModel()
-//
-//    override fun transform(element: MutablePrivateCar): MutablePrivateCar {
-//        return model.assign(element)
-//    }
-//
-//    override fun verifyInput(): Warning? = null
-// }
