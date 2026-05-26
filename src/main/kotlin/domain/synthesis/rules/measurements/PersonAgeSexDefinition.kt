@@ -9,16 +9,26 @@ import edu.kit.ifv.populationsynthesis.rules.measurement.BooleanMeasurementDefin
 import edu.kit.ifv.populationsynthesis.rules.measurement.NamedMeasurement
 import edu.kit.ifv.populationsynthesis.rules.measurement.NumericMeasurementDefinition
 
-class PersonAgeSexDefinition(val acceptedAgeRange: IntRange, val acceptedSex: Sex) :
-    BooleanMeasurementDefinition<SurveyPerson<*>>() {
+open class PersonAgeSexDefinition (open val acceptedAgeRange: IntRange, val acceptedSex: Sex) :
+    NumericMeasurementDefinition<ISurveyHousehold<*, *>>() {
     override fun generateDescription(): String {
         return "Person age in $acceptedAgeRange && sex == $acceptedSex"
     }
 
-    override fun evaluation(element: SurveyPerson<*>): Boolean {
-        return element.age in acceptedAgeRange && element.sex == acceptedSex
+    override fun evaluation(element: ISurveyHousehold<*, *>): Int {
+        return element.count {it.age in acceptedAgeRange && it.sex == acceptedSex}
     }
+
+    fun toMutableDefinition()  = MutablePersonAgeSexDefinition(acceptedAgeRange,acceptedSex)
 }
+
+
+class MutablePersonAgeSexDefinition(override var acceptedAgeRange: IntRange, sex: Sex): PersonAgeSexDefinition
+    (acceptedAgeRange, sex) {
+    override fun toString(): String {
+        return "MutablePersonAgeSexDefinition(acceptedAgeRange=${acceptedAgeRange}, sex=$acceptedSex)"
+    }
+    }
 
 fun <T : MinimumPersonAttributes> BooleanMeasurementDefinition<SurveyPerson<T>>.asHouseholdDefinition():
     NumericMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, T>> {

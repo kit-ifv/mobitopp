@@ -19,11 +19,15 @@ import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.ActiToppHousehold
 import edu.kit.ifv.mobitopp.actitoppNG.ActitoppPerson
+import edu.kit.ifv.mobitopp.actitoppNG.AllChoiceModels
 import edu.kit.ifv.mobitopp.actitoppNG.Household
+import edu.kit.ifv.mobitopp.actitoppNG.HouseholdPlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.PersonAttributes
+import edu.kit.ifv.mobitopp.actitoppNG.PlanGenerationParameters
 import edu.kit.ifv.mobitopp.actitoppNG.StandardHouseholdPlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
+import edu.kit.ifv.mobitopp.actitoppNG.modernization.ReusablePlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.plan.MobilityPlan
 import utils.units.sinceStart
 import java.lang.Double.min
@@ -34,17 +38,24 @@ typealias ActitoppActivityType = edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityT
 
 class ActiToppNGGenerator<in S, in T>(
     val purposes: ChoiceModelPurposes,
+    val strategy: HouseholdPlanGeneration = StandardHouseholdPlanGeneration.fromModels(
+        models = AllChoiceModels.create(PlanGenerationParameters()),
+
+        ) {
+        ReusablePlanGeneration(it)
+    },
     val converter: (RegionType) -> ZoneRegionType,
 
-) :
+
+    ) :
     GenerateHouseholdActivitySchedule<S, T>
-    where S : MinimumHouseholdAttributes,
-          S : HasNumberOfCars,
-          T : MinimumPersonAttributes,
-          T : HasCommuteDistance,
-          T : HasEducationDistance,
-          T : HasEmployment {
-    val strategy = StandardHouseholdPlanGeneration() // TODO change to Parallel once implemented.
+        where S : MinimumHouseholdAttributes,
+              S : HasNumberOfCars,
+              T : MinimumPersonAttributes,
+              T : HasCommuteDistance,
+              T : HasEducationDistance,
+              T : HasEmployment {
+
     override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
         val actHH = convert(household)
         val output = strategy.generateSchedules(actHH)

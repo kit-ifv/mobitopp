@@ -302,10 +302,6 @@ fun interface GenerateArtificialPopulationDeprecated<T> {
     }
 }
 
-fun interface GenerateHouseholds<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
-    fun generateSurveyHouseholds(): Collection<ISurveyHousehold<S, T>>
-}
-
 private val attractivenessModelPath = Path("src/test/resources/synthesis/attractivities.csv")
 
 @Suppress(

@@ -14,7 +14,7 @@ class HouseholdFactory<S : MinimumHouseholdAttributes, T : MinimumPersonAttribut
             surveyHouseholdId = input.surveyHouseholdId,
             attributes = householdAttributeConstructor(input.attributes),
 
-        )
+            )
         household.addMembers(input.members, personAttributeConstructor)
         return household
     }

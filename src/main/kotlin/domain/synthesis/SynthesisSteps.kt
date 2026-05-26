@@ -29,6 +29,8 @@ import domain.synthesis.results.fastcsv.writeCars
 import domain.synthesis.results.fastcsv.writeOpportunities
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.async
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -133,7 +135,9 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
         cars = households.flatMap { it.cars }
     }
-
+    @Deprecated("This implementation spawns a coroutine for each household, and only one strategy, thus not " +
+            "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
+            "risk group. Use assignActivitiesPartitioned instead. ")
     fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val strategy = lambda()
         val progressBar = standardProgressBar("Generate Activities", households.size)
@@ -151,6 +155,36 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         activities = households.map { it.members.associateWith { it.plannedActivities } }
     }
 
+    /**
+     * Assigns Activities partitioned over the households.
+     */
+    fun assignActivitiesPartitioned(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
+        val workerCount = Runtime.getRuntime().availableProcessors()
+        val progressBar = standardProgressBar("Generate Activities", households.size)
+        runBlocking {
+            (0 until workerCount).map { workerId ->
+
+                async(Default) {
+                    var localIndex = workerId
+                    val threadLocalStrategy = lambda()
+                    while(localIndex < households.size) {
+                        val household = households[localIndex]
+                        val generation = threadLocalStrategy.generate(household)
+                        household.members.zip(generation).forEach { (person, activities) ->
+                            person.plannedActivities = activities
+                        }
+                        localIndex += workerCount
+                    }
+
+                    progressBar.step()
+                }
+
+            }.joinAll()
+        }
+        activities = households.map { it.members.associateWith { it.plannedActivities } }
+
+    }
+
     fun writeStandardOutputCSV(path: Path) = writeStandardOutputCSV(OutputWriters.useDirectory(path))
     fun writeStandardOutputCSV(targets: OutputWriters) {
         targets.run {
@@ -165,18 +199,18 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
 }
 
 fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignEconomicStatus(
-    lambda: () -> DetermineEconomicStatus<S, T>
+    lambda: () -> DetermineEconomicStatus<S, T>,
 ) where S : MinimumHouseholdAttributes, S : HasMutableEconomicStatus {
     val strategy = lambda()
     households.forEach { it.attributes.economicStatus = strategy.determineStatus(it) }
 }
 
 fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignAmountOfCars(
-    lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>
+    lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>,
 )
-    where
-          S : MinimumHouseholdAttributes,
-          S : HasMutableNumberOfCars {
+        where
+        S : MinimumHouseholdAttributes,
+        S : HasMutableNumberOfCars {
     val strategy = lambda()
     households.forEach {
         context(Random(it.id)) {
