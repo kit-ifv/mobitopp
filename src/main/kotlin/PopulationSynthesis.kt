@@ -311,10 +311,6 @@ fun interface GenerateArtificialPopulationDeprecated<T> {
     }
 }
 
-fun interface GenerateHouseholds<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
-    fun generateSurveyHouseholds(): Collection<ISurveyHousehold<S, T>>
-}
-
 private val attractivenessModelPath = Path("src/test/resources/synthesis/attractivities.csv")
 
 @Suppress(
@@ -348,7 +344,13 @@ fun examplePopulationSynthesis() {
     populationSynthesis.execute {
         refactoredPopsyn({ it }) {
             TrivialSynthesis(
-                surveyHouseholds.map { HouseholdFactory.createFrom(it) },
+                surveyHouseholds.map {
+                    HouseholdFactory(
+                        MaximumHouseholdAttributes::copy,
+                        MaximumPersonAttributes::copy
+                    )
+                        .createFrom(it)
+                },
                 zones
 
             )

@@ -33,3 +33,4 @@ class TrivialActivityGeneration(private val init: Decodable<ActivityType> = Lega
         }
     }
 }
+

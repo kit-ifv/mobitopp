@@ -4,6 +4,18 @@ import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Distance
 
+/**
+ * Defines the most complete set of person attributes currently required by the core framework.
+ *
+ * A person attribute class that implements this interface provides all attributes needed by the
+ * prefabricated implementations in this code base. In other words, if a project-specific person
+ * attribute type fulfills this interface, it can be used with every existing core-framework
+ * implementation that depends on person attributes.
+ *
+ * When new core-framework functionality requires additional person attributes, this interface
+ * should be updated accordingly so that it continues to represent the full attribute set expected
+ * by the framework.
+ */
 interface MaximumPersonAttributes :
     HasBicycle,
     HasCommuteDistance,
@@ -16,9 +28,6 @@ interface MaximumPersonAttributes :
     override val distanceWork: Distance
     override val distanceEducation: Distance
     override var employment: Employment
-
-//    val birthYear: Int
-//    val personNumber: Int
     override val hasBicycle: Boolean
     override val hasLicence: Boolean
 }
