@@ -34,18 +34,15 @@ import kotlin.math.roundToInt
 /**
  * Provides a scope for configuring household repositories.
  *
- * @receiver The simulation context [CTXT].
- * @param CTXT The context type. Must implement [HasHouseholdRepo].
- * @param CFG The configuration type.
- * @param config The configuration. Provided via context.
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasHouseholdRepo].
  * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
  * @param scope The configuration scope.
  */
-context(config: CFG)
-fun <CTXT, CFG> CTXT.households(
+fun <C> C.households(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableHousehold, HouseholdId>, CFG) CTXT.() -> Unit
-) where CTXT : HasHouseholdRepo<MutableHousehold, Household> = mutableRepositoryScope(
+    scope: context(MutableRepository<MutableHousehold, HouseholdId>) C.() -> Unit
+) where C : HasHouseholdRepo<MutableHousehold, Household> = mutableRepositoryScope(
     getter = { mutableHouseholdRepository },
     sealed = sealed,
     scope = scope

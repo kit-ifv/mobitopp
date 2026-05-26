@@ -36,20 +36,17 @@ import java.nio.file.Path
 /**
  * Provides a scope for configuring sharing provider repositories.
  *
- * @receiver The simulation context [CTXT].
- * @param CTXT The context type. Must implement [HasZoneRepo] for [Zone] and [HasSharingProviderRepo]
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasZoneRepo] for [Zone] and [HasSharingProviderRepo]
  *             for [MutableSharingProvider].
- * @param CFG The configuration type. Must implement [Config].
- * @param config The configuration. Provided via context.
  * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
  * @param scope The configuration scope.
  */
-context(config: CFG)
-fun <CTXT, CFG : Config> CTXT.sharingProviders(
+fun <C> C.sharingProviders(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableSharingProvider, SharingProviderId>, CFG) CTXT.() -> Unit
-) where CTXT : HasZoneRepo<*, Zone>, CTXT : HasSharingProviderRepo<MutableSharingProvider, *> =
-    mutableRepositoryScope<CTXT, CFG, MutableSharingProvider, SharingProviderId>(
+    scope: context(MutableRepository<MutableSharingProvider, SharingProviderId>) C.() -> Unit
+) where C : HasZoneRepo<*, Zone>, C : HasSharingProviderRepo<MutableSharingProvider, *> =
+    mutableRepositoryScope<C, MutableSharingProvider, SharingProviderId>(
         getter = { mutableSharingProviderRepository },
         sealed = sealed,
         scope

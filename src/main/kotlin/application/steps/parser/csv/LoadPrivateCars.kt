@@ -5,8 +5,6 @@ import application.steps.HasCarRepo
 import application.steps.HasHouseholdRepo
 import application.steps.HasPersonRepo
 import application.steps.SourceFilesConfig
-import application.steps.Config
-import core.modelsteps.Config as ModelConfig
 import core.modelsteps.resources.BinaryCacheConfig
 import core.modelsteps.resources.CsvResource
 import core.modelsteps.resources.MutableRepository
@@ -34,18 +32,15 @@ import java.nio.file.Path
 /**
  * Provides a scope for configuring private car repositories.
  *
- * @receiver The simulation context [CTXT].
- * @param CTXT The context type. Must implement [HasCarRepo] for [MutablePrivateCar].
- * @param CFG The configuration type. Must implement [Config].
- * @param config The configuration. Provided via context.
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasCarRepo] for [MutablePrivateCar].
  * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
  * @param scope The configuration scope.
  */
-context(config: CFG)
-fun <CTXT, CFG : Config> CTXT.cars(
+fun <C> C.cars(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutablePrivateCar, CarId>, CFG) CTXT.() -> Unit
-) where CTXT : HasCarRepo<MutablePrivateCar, *> = mutableRepositoryScope<CTXT, CFG, MutablePrivateCar, CarId>(
+    scope: context(MutableRepository<MutablePrivateCar, CarId>) C.() -> Unit
+) where C : HasCarRepo<MutablePrivateCar, *> = mutableRepositoryScope<C, MutablePrivateCar, CarId>(
     getter = { mutableCarRepository },
     sealed = sealed,
     scope

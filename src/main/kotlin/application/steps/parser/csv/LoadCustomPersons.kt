@@ -1,38 +1,21 @@
 package application.steps.parser.csv
 
-import application.steps.HasDrtProviderRepo
-import application.steps.HasHouseholdRepo
 import application.steps.HasPersonRepo
-import application.steps.HasSharingProviderRepo
 import application.steps.SourceFilesConfig
 import core.modelsteps.Context
-import core.modelsteps.ExecutionMode
 import core.modelsteps.resources.BinaryCacheConfig
 import core.modelsteps.resources.CsvResource
-import core.modelsteps.resources.MapRepository
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.resources.Repository
 import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderId
-import domain.synthesis.data.Household
-import domain.synthesis.data.HouseholdId
-import domain.synthesis.data.MutableDrtProviderData
-import domain.synthesis.data.MutableHousehold
-import domain.synthesis.data.MutablePerson
-import domain.synthesis.data.MutableSharingProvider
-import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.SharingProviderId
 import utils.Identifiable
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
 import utils.csv.CsvParser
-import utils.report.ReportBuilder
 import java.nio.file.Path
 import kotlin.reflect.KClass
 
@@ -55,22 +38,19 @@ import kotlin.reflect.KClass
 /**
  * Provides a scope for configuring custom person repositories.
  *
- * @receiver The simulation context [CTXT].
- * @param CTXT The context type. Must implement [HasPersonRepo] and [Context].
- * @param CFG The configuration type.
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasPersonRepo] and [Context].
  * @param P The person type.
  * @param M The mutable person type.
- * @param config The configuration. Provided via context.
  * @param personClass The class of the mutable person.
  * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
  * @param scope The configuration scope.
  */
-context(config: CFG)
-fun <CTXT, CFG, P : Identifiable<PersonId>, M : P> CTXT.customPersons(
+fun <C, P : Identifiable<PersonId>, M : P> C.customPersons(
     personClass: KClass<M>,
     sealed: Boolean = false,
-    scope: context(MutableRepository<M, PersonId>, CFG) CTXT.() -> Unit
-) where CTXT : HasPersonRepo<M, P>, CTXT : Context = mutableRepositoryScope<CTXT, CFG, M, PersonId>(
+    scope: context(MutableRepository<M, PersonId>) C.() -> Unit
+) where C : HasPersonRepo<M, P>, C : Context = mutableRepositoryScope<C, M, PersonId>(
     getter = { mutablePersonRepository },
     sealed,
     scope

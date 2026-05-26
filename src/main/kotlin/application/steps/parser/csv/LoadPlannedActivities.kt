@@ -55,20 +55,18 @@ interface HasMutableSchedule {
  *
  * @receiver The simulation context [CTXT].
  * @param CTXT The context type. Must implement [Context].
- * @param CFG The configuration type. Must implement [Config].
  * @param P The person type. Must implement [HasPlannedActivities] for [PlannedActivity]
  *          and [Identifiable] for [PersonId].
  * @param repository The mutable repository of persons to update. Provided via context.
- * @param config The configuration. Provided via context.
  * @param scope The configuration scope for populating planned activities.
  */
-context(repository: MutableRepository<P, PersonId>, config: CFG)
-fun <CTXT, CFG : Config, P> CTXT.plannedActivities(
-    scope: context(MutableRepository<MutablePlannedActivity, ActivityId>, CFG) CTXT.() -> Unit
+context(repository: MutableRepository<P, PersonId>)
+fun <CTXT, P> CTXT.plannedActivities(
+    scope: context(MutableRepository<MutablePlannedActivity, ActivityId>) CTXT.() -> Unit
 ) where CTXT : Context, P : HasPlannedActivities<PlannedActivity>, P : Identifiable<PersonId> {
     val plannedActivities = MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
 
-    mutableRepositoryScope<CTXT, CFG, MutablePlannedActivity, ActivityId>(
+    mutableRepositoryScope<CTXT, MutablePlannedActivity, ActivityId>(
         { plannedActivities },
         sealed = true
     ) {

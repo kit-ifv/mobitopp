@@ -29,20 +29,17 @@ import java.nio.file.Path
 /**
  * Provides a scope for configuring DRT provider repositories.
  *
- * @receiver The simulation context [CTXT].
- * @param CTXT The context type. Must implement [HasZoneRepo] for [Zone] and [HasDrtProviderRepo]
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasZoneRepo] for [Zone] and [HasDrtProviderRepo]
  *             for [MutableDrtProviderData].
- * @param CFG The configuration type. Must implement [Config].
- * @param config The configuration. Provided via context.
  * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
  * @param scope The configuration scope.
  */
-context(config: CFG)
-fun <CTXT, CFG : Config> CTXT.drtProviders(
+fun <C> C.drtProviders(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableDrtProviderData, DrtProviderId>, CFG) CTXT.() -> Unit
-) where CTXT : HasZoneRepo<*, Zone>, CTXT : HasDrtProviderRepo<MutableDrtProviderData, *> =
-    mutableRepositoryScope<CTXT, CFG, MutableDrtProviderData, DrtProviderId>(
+    scope: context(MutableRepository<MutableDrtProviderData, DrtProviderId>) C.() -> Unit
+) where C : HasZoneRepo<*, Zone>, C : HasDrtProviderRepo<MutableDrtProviderData, *> =
+    mutableRepositoryScope<C, MutableDrtProviderData, DrtProviderId>(
         getter = { mutableDrtProviderRepository },
         sealed = sealed,
         scope

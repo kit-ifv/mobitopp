@@ -289,7 +289,6 @@ fun main(args: Array<String>) {
     Simulation(MyConfig()) {
         MyContext()
     }.steps {
-        context(MyConfig()) {
 
 //        loadVisumNetwork(
 //            shortTermConfig.visumNetwork ?: visum_network
@@ -298,12 +297,12 @@ fun main(args: Array<String>) {
 //        }
 
 
-            zones(sealed=true){
-                loadZones(zoneCsv())
-            }
+        zones(sealed=true){
+            loadZones(zoneCsv())
+        }
 
-            loadImpedance()
-            loadAttractivenessModelFromCsv()
+        loadImpedance()
+        loadAttractivenessModelFromCsv()
 
 //            sharingProviders {
 //                loadSharingProviders(bikeSharingProviderCsv())
@@ -329,170 +328,72 @@ fun main(args: Array<String>) {
 //                    serviceArea.addAll(zoneRepository.elements.map { it.id })
 //                }
 //            }
-            val zoneByIndex: (ZoneId) -> Zone = { zoneRepository.elements.elementAt(it.value.toInt()) }
+        val zoneByIndex: (ZoneId) -> Zone = { zoneRepository.elements.elementAt(it.value.toInt()) }
 
-            households {
-                loadHouseholds(householdCsv(
-                    parser = householdCsvParser {
-                        getZone = zoneByIndex
-                    }
-                ))
+        households {
+            loadHouseholds(householdCsv(
+                parser = householdCsvParser {
+                    getZone = zoneByIndex
+                }
+            ))
 
-                filterFractionOfPopulation()
+            filterFractionOfPopulation()
 
-                assignHouseholdLocation()
-            }
+            assignHouseholdLocation()
+        }
 
 // TODO discuss: persons are added automatically as members to referenced household,
 //    this bypasses the seps mechanic which usually log all modifications made to the repository content, should we change that?
-            persons {
-                loadPersons(personCsv())
+        persons {
+            loadPersons(personCsv())
 
-                plannedActivities {
-                    loadActivities(plannedActivityCsv())
+            plannedActivities {
+                loadActivities(plannedActivityCsv())
 
-                    fixedDestinations(
-                        homeActivity = LegacyActivityType.HOME,
-                        fixedDestinationCsv(
-                            fixedDestinationCsvParser {
-                                zoneConverter = zoneByIndex
-                            }
-                        )
+                fixedDestinations(
+                    homeActivity = LegacyActivityType.HOME,
+                    fixedDestinationCsv(
+                        fixedDestinationCsvParser {
+                            zoneConverter = zoneByIndex
+                        }
                     )
-                }
+                )
+            }
 //
 //                addDrtMembershipsIf { person, provider ->
 //                    person.age > 16
 //                }
 
-            }
-
-            cars {
-                loadCars(carCsv())
-
-                assignMainCarUsers()
-            }
-
-            loadBehaviorModels(
-                legacyDestinationChoice,
-                legacyModeChoice,
-                legacyChoiceModelModes
-            )
-
-            buildSimulationAgents( //TODO maybe create individual model steps to set up the state machines
-                personStateMachine,
-                drtStateMachine = drtProviderStateMachine,
-                drtAlgorithm = { _ ->
-                    simpleDrtAlgorithm(
-                        impedance,
-                        zoneRepository.elements.filter { it.isDestination }.toList()
-                    )
-                },
-                durationRandomizer = gaussianDurationRandomizer()
-            )
-
-            simulate()
-
-            writeTrips()
-
         }
+
+        cars {
+            loadCars(carCsv())
+
+            assignMainCarUsers()
+        }
+
+        loadBehaviorModels(
+            legacyDestinationChoice,
+            legacyModeChoice,
+            legacyChoiceModelModes
+        )
+
+        buildSimulationAgents( //TODO maybe create individual model steps to set up the state machines
+            personStateMachine,
+            drtStateMachine = drtProviderStateMachine,
+            drtAlgorithm = { _ ->
+                simpleDrtAlgorithm(
+                    impedance,
+                    zoneRepository.elements.filter { it.isDestination }.toList()
+                )
+            },
+            durationRandomizer = gaussianDurationRandomizer()
+        )
+
+        simulate()
+
+        writeTrips()
+
     }
 
-//
-//
-//    val shortTermConfig: ShortTermConfig<CoreCSVConfig> =
-//        args.firstOrNull()?.let { Yaml.readYaml(it) } ?: standardConfig
-//
-//    shortTermConfig.validate()
-//    Simulation {
-//        shortTermConfig.simulationContext
-//    }.steps {
-//        loadVisumNetwork(
-//            shortTermConfig.visumNetwork ?: visum_network
-//        ) {
-//            connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
-//        }
-//
-//        val filter = scaleFilter<Row>(shortTermConfig.fractionOfPopulation.share())
-//
-//        prepareZones(shortTermConfig.sourceFiles.zonesCSV, errorHandling = shortTermConfig.errorHandling)
-//        finishZones()
-//        households {
-//            source = householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
-//            ) {
-//                errorHandling = shortTermConfig.errorHandling
-//                this.filter = { filter(it) }
-//            }.optionalCache(shortTermConfig.cachePath)
-//            +HomeLocationStep(
-//                this@steps,
-//                AssignAroundZoneCentroid(50.meters)
-//            )
-//        }
-//
-//        newDrtProvider {
-//            name = "DummyDrt"
-//            mode = LegacyMode.RIDE_POOLING
-//        }
-//        addDrtMemberships(everyoneIsMember)
-//        finishDrtProviders()
-//
-//        persons {
-//            source = personsFromCsvStep(path = shortTermConfig.sourceFiles.personCSV) {
-//                errorHandling = shortTermConfig.errorHandling
-//            }.optionalCache(shortTermConfig.cachePath)
-//        }
-//
-//        privateCars {
-//            source = privateCarsFromCsvStep(path = shortTermConfig.sourceFiles.privateCarsCSV) {
-//                errorHandling = shortTermConfig.errorHandling
-//            }.optionalCache(shortTermConfig.cachePath)
-//            AssignCarUserStep(this@steps)
-//        }
-//
-//        activities {
-//            source = activitiesCsvConfig(path = shortTermConfig.sourceFiles.activityCSV) {
-//                errorHandling = shortTermConfig.errorHandling
-//                shiftActivityStart = NoActivityStartShifter
-//            }.optionalCache(shortTermConfig.cachePath)
-//        }
-//
-//        loadAttractivities(
-//            path = shortTermConfig.sourceFiles.attractivitiesCSV,
-//            purposes = legacyChoiceModelPurposes,
-//        )
-//
-//        loadImpedance(
-//            costMatrixConfig = shortTermConfig.matrixConfig.costMatrixConfig,
-//            durationMatrixConfig = shortTermConfig.matrixConfig.durationMatrixConfig,
-//            distanceMatrix = shortTermConfig.matrixConfig.distanceMatrix,
-//            matrixCreator = optionalCachedMatrixCreator(
-//                shortTermConfig.cachePath,
-//                shortTermConfig.zoneMatrixCreationMethod
-//            )
-//        )
-//
-//        loadBehaviorModels(
-//            shortTermConfig.destinationChoiceModel,
-//            shortTermConfig.modeChoiceModel,
-//            shortTermConfig.choiceModelModes
-//        )
-//
-//        assignFixedDestinations(
-//            path = shortTermConfig.sourceFiles.fixedDestinationCSV,
-//            homeActivity = LegacyActivityType.HOME
-//        )
-//
-//        buildAgents(
-//            personStateMachine,
-//            drtStateMachine = drtProviderStateMachine,
-//            drtAlgorithm = { _ ->
-//                dummyDrtAlgorithm(
-//                    zoneRepository.elements.filter { it.isDestination }.toList()
-//                )
-//            },
-//            durationRandomizer = GaussianActivityDurationRandomizer()
-//        )
-//
-//        simulate()
-//    }
 }

@@ -27,18 +27,15 @@ import java.nio.file.Path
 /**
  * Provides a scope for configuring zone repositories.
  *
- * @receiver The simulation context [CTXT].
- * @param CTXT The context type. Must implement [HasZoneRepo] for [MutableZone].
- * @param CFG The configuration type.
- * @param config The configuration. Provided via context.
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasZoneRepo] for [MutableZone].
  * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
  * @param scope The configuration scope.
  */
-context(config: CFG)
-fun <CTXT, CFG> CTXT.zones(
+fun <C> C.zones(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableZone, ZoneId>, CFG) CTXT.() -> Unit
-) where CTXT : HasZoneRepo<MutableZone, Zone> = mutableRepositoryScope<CTXT, CFG, MutableZone, ZoneId>(
+    scope: context(MutableRepository<MutableZone, ZoneId>) C.() -> Unit
+) where C : HasZoneRepo<MutableZone, Zone> = mutableRepositoryScope<C,  MutableZone, ZoneId>(
     getter = { mutableZoneRepository },
     sealed = sealed,
     scope = scope

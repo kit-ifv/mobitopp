@@ -1,6 +1,5 @@
 package application.steps.parser.csv
 
-import core.modelsteps.Config
 import application.steps.HasDrtProviderRepo
 import application.steps.HasHouseholdRepo
 import application.steps.HasPersonRepo
@@ -38,18 +37,15 @@ import java.nio.file.Path
 /**
  * Provides a scope for configuring person repositories.
  *
- * @receiver The simulation context [CTXT].
- * @param CTXT The context type. Must implement [HasPersonRepo] for [MutablePerson].
- * @param CFG The configuration type. Must implement [Config].
- * @param config The configuration. Provided via context.
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasPersonRepo] for [MutablePerson].
  * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
  * @param scope The configuration scope.
  */
-context(config: CFG)
-fun <CTXT, CFG : Config> CTXT.persons(
+fun <C> C.persons(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutablePerson, PersonId>, CFG) CTXT.() -> Unit
-) where CTXT : HasPersonRepo<MutablePerson, Person> = mutableRepositoryScope<CTXT, CFG, MutablePerson, PersonId>(
+    scope: context(MutableRepository<MutablePerson, PersonId>) C.() -> Unit
+) where C : HasPersonRepo<MutablePerson, Person> = mutableRepositoryScope<C, MutablePerson, PersonId>(
     getter = { mutablePersonRepository },
     sealed = sealed,
     scope
