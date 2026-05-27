@@ -6,6 +6,7 @@ import core.statemachine.StateMachine
 import core.statemachine.StateMachineFactory
 import domain.shared.location.Metrics
 import domain.shared.location.StandardLocation
+import domain.shared.location.attributes.HasZoneId
 import domain.shared.location.zone.StandardZone
 import domain.synthesis.data.DrtProvider
 import edu.kit.ifv.units.Currency
@@ -105,8 +106,8 @@ class SimpleMatrixDrtAlgorithm(
     private fun hasCapacity() = numPickUps() + numDropOffs() < numVehicles
 
     override fun operatesAt(time: AbsoluteTime, origin: StandardLocation, destination: StandardLocation) =
-        serviceArea.any { origin in it } &&
-            serviceArea.any { destination in it } &&
+        serviceArea.any { (origin as HasZoneId) in it } &&
+            serviceArea.any { (destination as HasZoneId) in it } &&
             timeInOperatingHours(time)
 
     private fun timeInOperatingHours(time: AbsoluteTime) =

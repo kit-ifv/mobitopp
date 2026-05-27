@@ -13,7 +13,7 @@ data class StandardLocationImpl constructor(
     override val roadAccess: RoadAccess,
 ) : StandardLocation {
     override val zoneId: ZoneId get() = zone.id
-    override val id: ZoneId get() = zone.id
+
 
     override val regionType: RegionType
         get() = zone.attributes.regionType

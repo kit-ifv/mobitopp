@@ -80,7 +80,7 @@ abstract class DeprecatedZone(
 //        )
     }
 
-    operator fun contains(location: HasZoneId): Boolean = location.zoneId == this.id
+    operator fun contains(location: HasZoneId): Boolean = location.id == this.id
 
     /* This is really annoying. Legacy mobiTopp had two different IDs for zones: The VISUM ID and the internal
     enumeration so say 6113, 6114, 6116,... and 0, 1, 2,... Obviously the latter was used for determining which zone

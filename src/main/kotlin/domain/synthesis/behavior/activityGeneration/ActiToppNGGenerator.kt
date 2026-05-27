@@ -29,6 +29,8 @@ import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.ReusablePlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.plan.MobilityPlan
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.kilometers
 import utils.units.sinceStart
 import java.lang.Double.min
 
@@ -36,6 +38,41 @@ typealias ACTHousehold = Household
 typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
 typealias ActitoppActivityType = edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityType
 
+
+/**
+ * Generates an activity schedule for a household using the *actiTopp* engine.
+ *
+ * The generator translates a survey household into the actiTopp model, runs the
+ * chosen [HouseholdPlanGeneration] strategy and converts the resulting
+ * [MobilityPlan] back to a list of [PreliminaryActivitySchedule].
+ *
+ * **Key responsibilities**
+ * - Map household‑level attributes (cars, region, etc.) to actiTopp.
+ * - Convert each person’s attributes (gender, employment, commute distances) to
+ *   actiTopp’s [PersonAttributes].
+ * - Guard against unrealistic commute distances via the [maxCommute] limit.
+ *
+ * @param S the type that provides household‑level attributes. Must implement
+ *          both [MinimumHouseholdAttributes] and [HasNumberOfCars].
+ * @param T the type that provides person‑level attributes. Must implement
+ *          [MinimumPersonAttributes], [HasCommuteDistance],
+ *          [HasEducationDistance] and [HasEmployment].
+ * @property purposes an object that maps actiTopp activity types to the
+ *          project‑specific [ChoiceModelPurposes].
+ * @property strategy the algorithm that creates actiTopp schedules. The
+ *          default uses a standard implementation based on all choice models.
+ * @property maxCommute the upper bound for commute and education distances.
+ *          Distances larger than this are clamped to avoid breaking actiTopp
+ *          (default: 150km).
+ *
+ * @property unknownSexResolution a function to convert unknown Sex to an actiTopp
+ *          Gender.
+ * @property converter a function that translates a survey [RegionType] into a
+ *          [ZoneRegionType] required by actiTopp.
+ *
+ * @see HouseholdPlanGeneration
+ * @see ACTHousehold
+ */
 class ActiToppNGGenerator<in S, in T>(
     val purposes: ChoiceModelPurposes,
     val strategy: HouseholdPlanGeneration = StandardHouseholdPlanGeneration.fromModels(
@@ -44,6 +81,8 @@ class ActiToppNGGenerator<in S, in T>(
         ) {
         ReusablePlanGeneration(it)
     },
+    val maxCommute: Distance = 150.kilometers,
+    val unknownSexResolution: (Sex) -> Gender = { Gender.FEMALE },
     val converter: (RegionType) -> ZoneRegionType,
 
 
@@ -55,13 +94,17 @@ class ActiToppNGGenerator<in S, in T>(
               T : HasCommuteDistance,
               T : HasEducationDistance,
               T : HasEmployment {
-
+    /** Generates a schedule for *all* members of the supplied [household]. */
     override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
         val actHH = convert(household)
         val output = strategy.generateSchedules(actHH)
         return output.entries.map { (_, v) -> finish(v) }
     }
 
+    /**
+     * Completes a raw [MobilityPlan] by converting its activities to the
+     * project‑specific model.
+     */
     fun finish(mobilityPlan: MobilityPlan): PreliminaryActivitySchedule {
         val finishedActivities = mobilityPlan.finish()
         return PreliminaryActivitySchedule(
@@ -77,6 +120,12 @@ class ActiToppNGGenerator<in S, in T>(
         )
     }
 
+    /**
+     * Converts a survey household to an actiTopp [ACTHousehold] and creates
+     * a corresponding [ActitoppPerson] for each member.
+     *
+     * @return the populated actiTopp household.
+     */
     fun convert(household: ISurveyHousehold<S, T>): ACTHousehold {
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
@@ -90,25 +139,41 @@ class ActiToppNGGenerator<in S, in T>(
         return actHousehold
     }
 
-    fun SurveyPerson<T>.actitoppAttributes(maxCommute: Double = 150.0): PersonAttributes {
+    /**
+     * Builds a [PersonAttributes] instance from a [SurveyPerson].
+     *
+     * Commute distances are truncated to [maxCommute] to keep actiTopp stable.
+     */
+    fun SurveyPerson<T>.actitoppAttributes(): PersonAttributes {
         return PersonAttributes(
             gender = sex.toGender(),
             employment = employment.toActitoppEmployment(),
             age = age,
-            commuteDistanceWork = min(attributes.distanceWork.inKilometers, maxCommute),
-            commuteDistanceEducation = min(attributes.distanceEducation.inKilometers, maxCommute),
-            isAllowedToWork = true, // TODO cross check with modellierer
+            commuteDistanceWork = min(attributes.distanceWork.inKilometers, maxCommute.inKilometers),
+            commuteDistanceEducation = min(attributes.distanceEducation.inKilometers, maxCommute.inKilometers),
+            isAllowedToWork = true, // TODO cross check with modellierer where this field comes from.
         )
     }
 
+    /**
+     * Maps a survey [Sex] to actiTopp’s [Gender] enumeration.
+
+     */
     private fun Sex.toGender(): Gender {
         return when (this) {
             Sex.MALE -> Gender.MALE
             Sex.FEMALE -> Gender.FEMALE
-            Sex.UNKNOWN -> Gender.FEMALE // TODO cros check so that this case can be handled
+            else -> unknownSexResolution(this)
         }
     }
 
+    /**
+     * Translates a survey [Employment] value into the corresponding
+     * actiTopp [ActitoppEmployment] enum.
+     *
+     * Several cases are mapped to `DEFINITELY_UNKNOWN`; confirm these
+     * defaults with the modelling team and remove this comment afterwards
+     */
     @Suppress("CyclomaticComplexMethod") // I would rather have a concise mapping, instead of cutting this down
     private fun Employment.toActitoppEmployment(): ActitoppEmployment {
         return when (this) {
@@ -121,7 +186,7 @@ class ActiToppNGGenerator<in S, in T>(
             Employment.STUDENT_PRIMARY -> ActitoppEmployment.STUDENT_PRIMARY
             Employment.STUDENT_SECONDARY -> ActitoppEmployment.STUDENT_SECONDARY
             Employment.STUDENT_TERTIARY -> ActitoppEmployment.STUDENT_TERTIARY
-            Employment.EDUCATION -> ActitoppEmployment.DEFINITELY_UNKNOWN // TODO cross check with modellierer
+            Employment.EDUCATION -> ActitoppEmployment.DEFINITELY_UNKNOWN
             Employment.HOMEKEEPER -> ActitoppEmployment.HOUSEKEEPER
             Employment.RETIRED -> ActitoppEmployment.RETIRED
             Employment.INFANT -> ActitoppEmployment.DEFINITELY_UNKNOWN
@@ -130,6 +195,12 @@ class ActiToppNGGenerator<in S, in T>(
     }
 }
 
+/**
+ * Converts an actiTopp [ActitoppActivityType] back to the model’s [ActivityType]
+ * using the supplied [purposes] mapping.
+ *
+ * @return the activity type defined in the project’s choice model.
+ */
 fun ActitoppActivityType.toReengineeredType(purposes: ChoiceModelPurposes): ActivityType {
     return when (this) {
         ActitoppActivityType.WORK -> purposes.work
@@ -141,6 +212,10 @@ fun ActitoppActivityType.toReengineeredType(purposes: ChoiceModelPurposes): Acti
     }
 }
 
+/**
+ * Maps a [ZoneRegionType] (used by the re‑engineered zone model) to the
+ * corresponding actiTopp [AreaType].
+ */
 fun ZoneRegionType.toAreaType(): AreaType {
     return when (this) {
         ZoneRegionType.RURAL -> AreaType.RURAL

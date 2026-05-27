@@ -24,8 +24,10 @@ fun <S : Any, X> Collection<X>.writeCsvWithGenericAttributes(
     val writer = config.build(writer)
 
     writer.use { csv ->
-        csv.writeRecord(headerPrefix + attributeMemberProperties.map { it.findAnnotation<CsvRename>()?.name ?: it
-            .name })
+        csv.writeRecord(headerPrefix + attributeMemberProperties.map {
+            it.findAnnotation<CsvRename>()?.name ?: it
+                .name
+        })
         forEach { element ->
             csv.writeRecord(outputPrefix(element) + attributeMemberProperties.map {
                 it.get(attributeExtractor(element)).toString()
@@ -49,3 +51,55 @@ fun <X> Collection<X>.writeCsv(
         }
     }
 }
+
+fun <X, Y> Collection<X>.writeCsvMulti(
+    writer: Writer,
+    config: FastCsvConfig = FastCsvConfig.DEFAULT,
+    header: List<String>,
+    elementConverter: (X) -> Collection<Y>,
+    output: (Y) -> List<String>,
+) {
+    if (isEmpty()) return
+    val writer = config.build(writer)
+    writer.use { csv ->
+        csv.writeRecord(header)
+        forEach { element ->
+            val conversions = elementConverter(element)
+            conversions.forEach { conversion ->
+                csv.writeRecord(output(conversion))
+            }
+        }
+    }
+}
+
+
+fun <X, Y> Collection<X>.writeCsvUnrolled(
+    writer: Writer,
+    config: FastCsvConfig = FastCsvConfig.DEFAULT,
+    header: List<String>,
+    unroll: (X) -> Collection<Y>,
+    output: (X, Y) -> List<String>,
+) {
+    if (isEmpty()) return
+    val writer = config.build(writer)
+    writer.use { csv ->
+        csv.writeRecord(header)
+        forEach { x ->
+            val ys = unroll(x)
+            for (y in ys) {
+                csv.writeRecord(output(x, y))
+            }
+
+        }
+    }
+}
+
+fun <X, Y> Map<X, Collection<Y>>.writeToCsv(
+    writer: Writer,
+    config: FastCsvConfig = FastCsvConfig.DEFAULT,
+    header: List<String>,
+    output: (X, Y) -> List<String>,
+) {
+    keys.writeCsvUnrolled(writer, config, header, unroll = {get(it) ?: emptyList()}, output = output)
+}
+

@@ -19,7 +19,7 @@ allprojects {
     // ChatGPT recommends this filter condition to avoid potential future problems with projects that are not kotlin
     plugins.withType<org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper> {
         kotlin {
-            jvmToolchain(21)
+            jvmToolchain(25)
             compilerOptions {
                 freeCompilerArgs.add("-Xcontext-parameters")
             }

@@ -1,12 +1,10 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
-import domain.shared.location.attributes.HasZoneId
 import domain.shared.location.zone.StandardZone
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
@@ -67,8 +65,8 @@ object LocationUtils {
         writeLong(location.roadAccess.roadId)
         writeDouble(location.roadAccess.position.toDouble())
     }
-
-    fun DataOutputStream.encodeLocation(location: HasZoneId) {
-        encodeLocation(location.withRoadAccess(RoadAccess.INVALID))
-    }
+// TODO remove if not needed
+//    fun DataOutputStream.encodeLocation(location: HasZoneId) {
+//        encodeLocation(location.withRoadAccess(RoadAccess.INVALID))
+//    }
 }

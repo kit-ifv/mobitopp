@@ -30,6 +30,9 @@
 variables:
   MOBITOPP_COMMIT_HASH: $CI_COMMIT_SHA
 
+default:
+  image: amazoncorretto:25
+
 stages: # List of stages for jobs, and their order of execution
   - build
   - test
@@ -41,9 +44,8 @@ include:
 
 build-job:
   stage: build
-  image: amazoncorretto:21
   script:
-    - ./gradlew compileJava
+    - ./gradlew compileKotlin
   artifacts:
     expire_in: 1 week
     when: always
@@ -52,7 +54,6 @@ build-job:
 
 unit-test-job:
   stage: test
-  image: amazoncorretto:21
   needs: [ build-job ]
   script:
     - ./gradlew test koverXmlReport koverLog
@@ -71,7 +72,6 @@ unit-test-job:
 code-style:
   stage: test
   needs: [ build-job ]
-  image: amazoncorretto:21
   script:
     - ./gradlew detektGenerateConfig
     - ./gradlew detekt
@@ -81,7 +81,6 @@ deploy-job:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
   needs: [ unit-test-job, version-number, build-job ]
-  image: amazoncorretto:21
   resource_group: production #only one deploy job at a time
   script:
     - echo "Publish local release $RELEASE_VERSION"

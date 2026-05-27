@@ -98,7 +98,7 @@ class RidesharingOnlyScenario {
         val agents = builder.buildPersonAgents(households)
 
         agents.forEach { person ->
-            val dest = zones.first { it.id != person.location.zoneId }
+            val dest = zones.first { it.id != person.location.id }
             val sharedResources =
                 context(person, AbsoluteTime.START, dest.centroidLocation) {
                     availability.currentlyAffectedProviders(legacyChoiceModelModes.options)

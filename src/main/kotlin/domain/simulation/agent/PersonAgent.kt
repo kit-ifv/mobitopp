@@ -8,6 +8,7 @@ import domain.shared.datastructure.schedule.Action
 import domain.shared.datastructure.schedule.MovingAction
 import domain.shared.datastructure.schedule.Schedule
 import domain.shared.enums.Mode
+import domain.shared.location.LocationWithZoneId
 import domain.shared.location.StandardLocation
 import domain.shared.location.attributes.HasZoneId
 import domain.simulation.events.PersonBehavior
@@ -54,7 +55,7 @@ fun PersonAgent.lastTransportModeDeprecated(): Mode? {
     }.lastOrNull()
 }
 
-fun Schedule.location(): HasZoneId? {
+fun Schedule.location(): LocationWithZoneId? {
     return present?.startLocation ?: past.lastOrNull()?.endLocation
 }
 

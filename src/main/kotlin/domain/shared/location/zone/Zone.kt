@@ -25,6 +25,13 @@ interface Zone<out T>: Identifiable<ZoneId> {
     operator fun contains(location: HasZoneId): Boolean = id == location.zoneId
 }
 
+data class MinimalZone<T>(
+    override val id: ZoneId,
+override val attributes: T,
+
+): Zone<T> {
+
+}
 data class StandardZone(
     override val id: ZoneId,
     override val geometry: Geometry,
@@ -77,7 +84,7 @@ interface HasGeometricEmbedding: HasCentroid {
     }
 
     operator fun contains(location: Point): Boolean = location in geometry
-    operator fun contains(location: Location) = contains(location.position)
+    fun contains(location: Location) = contains(location.position)
 
     fun randomPoint(): Point {
         val pointBuilder = RandomPointsBuilder(geometry.factory)

@@ -30,6 +30,17 @@ class MutablePersonAgeSexDefinition(override var acceptedAgeRange: IntRange, sex
     }
     }
 
+class HouseholdPersonAgeSexDefinition(val acceptedAgeRange: IntRange, val acceptedSex: Sex) :
+    NumericMeasurementDefinition<ISurveyHousehold<*, *>>() {
+    override fun generateDescription(): String {
+        return "Person age in $acceptedAgeRange && sex == $acceptedSex"
+    }
+
+    override fun evaluation(element: ISurveyHousehold<*, *>): Int {
+        return element.count { it.age in acceptedAgeRange && it.sex == acceptedSex}
+    }
+}
+
 fun <T : MinimumPersonAttributes> BooleanMeasurementDefinition<SurveyPerson<T>>.asHouseholdDefinition():
     NumericMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, T>> {
     return object : NumericMeasurementDefinition<ISurveyHousehold<MinimumHouseholdAttributes, T>>() {

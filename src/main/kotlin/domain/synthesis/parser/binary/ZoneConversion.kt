@@ -44,8 +44,8 @@ class BinaryZoneReader(
         getBoolean() // drop is destination
         double // drop relief
         return StandardZone(
-            ZoneId(long),
-            decodeNakedLocation().position,
+            zoneId,
+            position,
             ZoneAttributes(regionType)
         )
     }

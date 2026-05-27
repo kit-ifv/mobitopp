@@ -4,7 +4,6 @@ import AssignmentStep
 import HouseholdAssignmentStep
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.zone.StandardZone
 import domain.synthesis.attributes.household.HasMutableEconomicStatus
 import domain.synthesis.attributes.household.HasMutableNumberOfCars
@@ -26,6 +25,7 @@ import domain.synthesis.results.fastcsv.OutputWriters
 import domain.synthesis.results.fastcsv.write
 import domain.synthesis.results.fastcsv.writeActivities
 import domain.synthesis.results.fastcsv.writeCars
+import domain.synthesis.results.fastcsv.writeFixedDestinations
 import domain.synthesis.results.fastcsv.writeOpportunities
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
 import kotlinx.coroutines.Dispatchers
@@ -48,10 +48,11 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
 ) {
 
     lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<S, T>>>
+    @Deprecated("Be mindfull when using this getter in a hot loop")
     val households: List<SynthesisHousehold<S, T>> get() = householdsByZone.flatMap { it.value }
+    @Deprecated("Be mindfull when using this getter in a hot loop")
     val people get() = households.flatMap { it.members }
-    var activities: List<Map<SynthesisPerson<*, *>, Collection<Activity>>> =
-        listOf()
+    val activities: MutableMap<SynthesisPerson<*, *>, Collection<Activity>> = mutableMapOf()
     var cars = listOf<SynthesisCar>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
 
@@ -140,9 +141,10 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
             "risk group. Use assignActivitiesPartitioned instead. ")
     fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val strategy = lambda()
-        val progressBar = standardProgressBar("Generate Activities", households.size)
+        val localHouseholdCopy = households
+        val progressBar = standardProgressBar("Generate Activities", localHouseholdCopy.size)
         runBlocking {
-            households.map { household ->
+            localHouseholdCopy.map { household ->
                 launch(Dispatchers.Default) {
                     val plans = strategy.generate(household)
                     household.members.zip(plans).forEach { (person, activities) ->
@@ -152,7 +154,12 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
                 }
             }.joinAll()
         }
-        activities = households.map { it.members.associateWith { it.plannedActivities } }
+        localHouseholdCopy.forEach { household ->
+            household.forEach {
+                activities[it] = it.plannedActivities
+            }
+        }
+
     }
 
     /**
@@ -160,39 +167,50 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
      */
     fun assignActivitiesPartitioned(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val workerCount = Runtime.getRuntime().availableProcessors()
-        val progressBar = standardProgressBar("Generate Activities", households.size)
+        val localHouseholdCopy = households
+        val progressBar = standardProgressBar("Generate Activities", (localHouseholdCopy.size / workerCount))
         runBlocking {
             (0 until workerCount).map { workerId ->
 
                 async(Default) {
                     var localIndex = workerId
                     val threadLocalStrategy = lambda()
-                    while(localIndex < households.size) {
-                        val household = households[localIndex]
+                    while(localIndex < localHouseholdCopy.size) {
+                        val household = localHouseholdCopy[localIndex]
                         val generation = threadLocalStrategy.generate(household)
                         household.members.zip(generation).forEach { (person, activities) ->
                             person.plannedActivities = activities
                         }
                         localIndex += workerCount
+                        if (workerId == 0) {
+                            progressBar.stepBy(1)
+
+                        }
+                        progressBar.step()
                     }
 
-                    progressBar.step()
+
                 }
 
             }.joinAll()
         }
-        activities = households.map { it.members.associateWith { it.plannedActivities } }
+        localHouseholdCopy.forEach { household ->
+            household.forEach {
+                activities[it] = it.plannedActivities
+            }
+        }
+
 
     }
 
-    fun writeStandardOutputCSV(path: Path) = writeStandardOutputCSV(OutputWriters.useDirectory(path))
+    fun writeStandardOutputCSV(path: Path) = writeStandardOutputCSV(OutputWriters.useDirectoryForCSV(path))
     fun writeStandardOutputCSV(targets: OutputWriters) {
         targets.run {
             householdWriter?.let { households.write(it) }
             personWriter?.let { people.write(it) }
-            carWriter?.let { cars.writeCars(it) }
+            carWriter?.let { households.writeCars(it) }
             activityWriter?.let { activities.writeActivities(it) }
-            fixedDestinationWriter?.let { cars.writeCars(it) }
+            fixedDestinationWriter?.let { fixedDestinations.writeFixedDestinations(it) }
             opportunitiesWriter?.let { opportunities.writeOpportunities(it) }
         }
     }

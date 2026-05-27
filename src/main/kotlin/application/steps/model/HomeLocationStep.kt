@@ -5,7 +5,6 @@ import core.modelsteps.Repository
 import core.modelsteps.UpdateAllStep
 import core.modelsteps.UpdateEachStep
 import core.modelsteps.Warning
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
 import domain.shared.location.zone.StandardZone
 import domain.simulation.config.DemandSimContext

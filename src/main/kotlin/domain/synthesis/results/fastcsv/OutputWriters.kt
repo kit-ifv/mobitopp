@@ -14,12 +14,17 @@ data class OutputWriters(
     var opportunitiesWriter: Writer? = null,
 ) {
     companion object {
-        fun useDirectory(path: Path): OutputWriters {
+        /**
+         * Produces the directory and sets the writers to
+         */
+        fun useDirectoryForCSV(path: Path): OutputWriters {
             path.createDirectories() // Ensure the path exists
             val outputWriters = OutputWriters()
 
             outputWriters.householdWriter = Files.newBufferedWriter(path.resolve("households.csv"))
             outputWriters.personWriter = Files.newBufferedWriter(path.resolve("person.csv"))
+            outputWriters.activityWriter = Files.newBufferedWriter(path.resolve("activities.csv"))
+
             return outputWriters
         }
     }

@@ -6,4 +6,6 @@ import org.locationtech.jts.geom.Point
 data class ZoneIdLocation(
     override val position: Point,
     override val zoneId: ZoneId,
-) : HasZoneId
+) : LocationWithZoneId
+
+interface LocationWithZoneId: HasZoneId, Location

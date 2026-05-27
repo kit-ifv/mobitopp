@@ -420,8 +420,7 @@ fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes> SynthesisSteps
     LegacyHouseholdOutput<C>().writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput<C, T>().writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
-    val flatActivities = activities.flatMap { it.entries.map { it.key to it.value } }
-    LegacyActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)
+    LegacyActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), activities.map { it.key to it.value })
     LegacyCarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
     LegacyOpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
 }

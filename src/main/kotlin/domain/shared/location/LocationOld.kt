@@ -47,7 +47,7 @@ data class RoadAccessLocationImpl(
     override val roadAccess: RoadAccess,
 ) : HasRoadAccess
 
-interface ZonedRoadAccessLocation : HasRoadAccess, HasZoneId
+interface ZonedRoadAccessLocation : HasRoadAccess, LocationWithZoneId
 
 interface ZonedLocation : Location {
     val zoneId: ZoneId

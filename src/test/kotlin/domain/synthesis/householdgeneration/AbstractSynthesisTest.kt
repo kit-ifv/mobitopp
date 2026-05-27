@@ -1,6 +1,7 @@
 package domain.synthesis.householdgeneration
 
 import TestZone
+import domain.shared.location.LocationWithZoneId
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
@@ -111,7 +112,7 @@ open class SynthesisTest {
         return StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
     }
 
-    protected class FakeCoord : HasZoneId {
+    protected class FakeCoord : LocationWithZoneId {
         val idx = counter
 
         override fun toString(): String {
