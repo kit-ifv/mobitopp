@@ -95,16 +95,3 @@ interface HasGeometricEmbedding: HasCentroid {
 
     }
 }
-
-fun main() {
-
-    val parser = GeoPackageAdapter(Path("\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte\\RegionStuttgart_ErhebungModellMakroMikro\\Work\\Modelle\\Bevölkerungssynthese\\zones.gpkg"))
-    val schemas = parser.tableSchemas
-
-    val zones = parser.read(0) {geometry, table ->
-        val any = table["NO"].toString()
-        NakedZone(any.toInt(), geometry, Unit)
-    }
-    val random = zones.first().randomPoint()
-    println(zones)
-}
