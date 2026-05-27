@@ -1,16 +1,17 @@
 zoneMatrixCreationMethod: keyBased
 resultPath: results
+seed: 42
 resultName: demandsimulation.csv
 errorHandling: THROW
 cachePath: data/data-cache
-simulationContext:
-  scenarioName: "New-Simulation"
-  simulationSeed: 42
-  dataFolder: "data"
-  modes: "coreModes"
-  simulationStart: 0Days
-  simulationEnd: 500Days 20Hours 2Seconds
-  timeStep: 0d 8h 30m
+#simulationContext:
+#  scenarioName: "New-Simulation"
+#  simulationSeed: 42
+#  dataFolder: "data"
+#  modes: "coreModes"
+#  simulationStart: 0Days
+#  simulationEnd: 500Days 20Hours 2Seconds
+#  timeStep: 0d 8h 30m
 choiceModelModes: legacyChoiceModelModes
 destinationChoiceModel: legacyDestinationChoiceModel
 modeChoiceModel: legacyModeChoiceModel

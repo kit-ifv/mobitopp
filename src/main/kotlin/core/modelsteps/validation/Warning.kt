@@ -58,7 +58,7 @@ fun <C : Context> C.validateCondition(
 ): Boolean {
     if (!predicate()) {
         log(message(), isError)
-        return false
+        return !isError
     }
     return true
 }

@@ -322,14 +322,14 @@ fun <C : Context, E : Identifiable<I>, I> C.transformBulkStep(
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
-    transform: (E) -> E?,
+    transform: (Collection<E>) -> Collection<E>,
 ) = mutatingStep(
     name,
     repository,
     dependentRepositories,
     validation
 ) {
-    repository.transformEach(name, transform)
+    repository.transformAll(name, transform)
 }
 
 /**
@@ -406,11 +406,9 @@ fun <C : Context, E : Identifiable<I>, I> C.seal(
     repository: MutableRepository<E, I>,
     name: String = "seal ${repository.name}",
     validation: Validation<C> = emptyList()
-) = mutatingStep(
+) = modelStep(
     name,
-    repository,
-    emptySet(),
-    validation
+    validation + listOf { repository.seal(); true } //seal repo also in validation mode, for subsequent checks
 ) {
     repository.seal()
     logNormal("sealed ${repository.name} with ${repository.size} elements. This repo can no longer be updated!")

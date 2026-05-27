@@ -129,7 +129,7 @@ class CsvHeaderChecker<E>(
         context.validateCondition({
             "Invalid column index '$columnIndex' accessed in step '$step' " +
                 "is higher than number of columns (${reader.columns.size}) in source csv file: ${reader.source}!"
-        }) {
+        }, isError = true) {
             reader.columns.size >= columnIndex
         }.also {
             valid = valid && it
@@ -139,7 +139,7 @@ class CsvHeaderChecker<E>(
         context.validateCondition({
             "Invalid column '$column' accessed in step '$step' " +
                 "does not exist in the source csv file: ${reader.source}!"
-        }) {
+        }, isError = true) {
             reader.columns.contains(column)
         }.also {
             valid = valid && it

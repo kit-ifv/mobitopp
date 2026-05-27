@@ -29,7 +29,6 @@ import domain.simulation.events.EndActivityMessage
 import domain.simulation.events.EndLegMessage
 import domain.simulation.events.FinishedPerson
 import domain.simulation.events.FirstActivityMessage
-import domain.simulation.events.NoWriters
 import domain.simulation.events.PerformLeg
 import domain.simulation.events.PerformingActivity
 import domain.simulation.events.PersonBehavior
@@ -69,7 +68,7 @@ import kotlin.time.Duration.Companion.seconds
 fun MutablePerson.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
     val plan = PlanLoader(this)
     plan.apply(lambda)
-//    plan.plannedActivities.forEach { addActivity(it) }
+    plan.plannedActivities.forEach { this.plannedActivities.add(it) }
 }
 
 class PlanLoader(private val person: MutablePerson) {
@@ -80,7 +79,7 @@ class PlanLoader(private val person: MutablePerson) {
         plannedActivities.add(
             MutablePlannedActivity(
                 id = ActivityId(-1L),
-                person = person,
+                person = person.id,
                 seed = 42L,
             ) {
                 activityType = first
@@ -99,7 +98,7 @@ class PlanLoader(private val person: MutablePerson) {
 
             MutablePlannedActivity(
                 ActivityId(-1L),
-                person = p,
+                person = p.id,
                 seed = 42L
             ) {
                 activityType = this@unaryPlus
@@ -173,7 +172,6 @@ abstract class Scenario(
 
 val testAttractivenessModel = object : AttractivenessModel {
 
-    override val purposes: ChoiceModelPurposes = legacyChoiceModelPurposes
 
     override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
         when (zone) {
@@ -182,6 +180,9 @@ val testAttractivenessModel = object : AttractivenessModel {
             ZoneId(2L) -> 1.0 // Zone 2 should be barely attractive at all
             else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
         }.asAttractiveness()
+
+    override val work: ActivityType = LegacyActivityType.WORK
+    override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT
 }
 
 class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
@@ -214,7 +215,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 //        difficultAccess(zones[2], zones[2])
 //
 //    }
-    val stateMachine = RecordingStateMachineFactory(NoWriters.personStateMachine)
+    val stateMachine = RecordingStateMachineFactory(personStateMachine)
 
     fun statesOf(agent: PersonAgent) = stateMachine.of(agent)!!.history
     fun popStatesOf(agent: PersonAgent) = stateMachine.of(agent)!!.let { sm ->

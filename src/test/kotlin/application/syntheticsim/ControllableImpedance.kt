@@ -8,9 +8,8 @@ import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Impedance
-import domain.shared.location.LegacyZone
-import domain.shared.location.LocationMetric
 import domain.shared.location.Zone
+import domain.shared.location.LocationMetric
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasZoneID
 import domain.shared.location.point
@@ -81,7 +80,7 @@ class ControllableImpedance(
     /**
      * Set the travel time for an O-D relation between [origin] and [destination] for a target [mode]
      */
-    fun setTime(mode: Mode, origin: LegacyZone, destination: LegacyZone, content: Duration) {
+    fun setTime(mode: Mode, origin: Zone, destination: Zone, content: Duration) {
         val metric =
             durationMap.getOrPut(mode) {
                 RangeMap(AbsoluteTime.MINUS_INFINITY..<AbsoluteTime.INFINITY, standardTime)
@@ -93,7 +92,7 @@ class ControllableImpedance(
      * Set the travel time for an O-D relation between [origin] and [destination] for a target [mode] and a given
      * time range
      */
-    fun setTime(mode: Mode, origin: LegacyZone, destination: LegacyZone, range: ClosedRange<Time>, content: Duration) {
+    fun setTime(mode: Mode, origin: Zone, destination: Zone, range: ClosedRange<Time>, content: Duration) {
         val metric =
             durationMap.getOrPut(mode) {
                 RangeMap(AbsoluteTime.MINUS_INFINITY..<AbsoluteTime.INFINITY, standardTime)
@@ -104,18 +103,18 @@ class ControllableImpedance(
     /**
      * Set the travel time for an O-D relation between [origin] and [destination] for all modes in [startingModes]
      */
-    fun setTime(origin: LegacyZone, destination: LegacyZone, content: Duration) {
+    fun setTime(origin: Zone, destination: Zone, content: Duration) {
         startingModes.forEach { setTime(it, origin, destination, content) }
     }
 
-    fun setTime(origin: LegacyZone, destination: LegacyZone, range: ClosedRange<Time>, content: Duration) {
+    fun setTime(origin: Zone, destination: Zone, range: ClosedRange<Time>, content: Duration) {
         startingModes.forEach { setTime(it, origin, destination, range, content) }
     }
 
     /**
      * Set the cost for an O-D relation between [origin] and [destination] for a target [mode]
      */
-    fun setCost(mode: Mode, origin: LegacyZone, destination: LegacyZone, content: Currency) {
+    fun setCost(mode: Mode, origin: Zone, destination: Zone, content: Currency) {
         val metric =
             currencyMap.getOrPut(mode) {
                 RangeMap(AbsoluteTime.MINUS_INFINITY..<AbsoluteTime.INFINITY, standardCost)
@@ -127,7 +126,7 @@ class ControllableImpedance(
     /**
      * Set the cost for an O-D relation between [origin] and [destination] for a target [mode]
      */
-    fun setCost(mode: Mode, origin: LegacyZone, destination: LegacyZone, range: ClosedRange<Time>, content: Currency) {
+    fun setCost(mode: Mode, origin: Zone, destination: Zone, range: ClosedRange<Time>, content: Currency) {
         val metric =
             currencyMap.getOrPut(mode) {
                 RangeMap(AbsoluteTime.MINUS_INFINITY..<AbsoluteTime.INFINITY, standardCost)
@@ -140,18 +139,18 @@ class ControllableImpedance(
      * Set the cost for an O-D relation between [origin] and [destination] for all modes in [startingModes]
      */
 
-    fun setCost(origin: LegacyZone, destination: LegacyZone, content: Currency) {
+    fun setCost(origin: Zone, destination: Zone, content: Currency) {
         startingModes.forEach { setCost(it, origin, destination, content) }
     }
 
-    fun setCost(origin: LegacyZone, destination: LegacyZone, range: ClosedRange<Time>, content: Currency) {
+    fun setCost(origin: Zone, destination: Zone, range: ClosedRange<Time>, content: Currency) {
         startingModes.forEach { setCost(it, origin, destination, range, content) }
     }
 
     /**
      * Set the distance for an O-D relation between [origin] and [destination] for a target [mode]
      */
-    fun setDistance(mode: Mode, origin: LegacyZone, destination: LegacyZone, content: Distance) {
+    fun setDistance(mode: Mode, origin: Zone, destination: Zone, content: Distance) {
         val metric = distanceMap.getOrPut(mode) { MapMetric { standardDistance } }
         metric[origin, destination] = content
     }
@@ -160,11 +159,11 @@ class ControllableImpedance(
      * Set the distance for an O-D relation between [origin] and [destination] for all modes in [startingModes]
      */
 
-    fun setDistance(origin: LegacyZone, destination: LegacyZone, content: Distance) {
+    fun setDistance(origin: Zone, destination: Zone, content: Distance) {
         startingModes.forEach { setDistance(it, origin, destination, content) }
     }
 
-    fun Collection<LegacyZone>.generateRandomValues(
+    fun Collection<Zone>.generateRandomValues(
         travelTimes: Pair<Number, Number>,
         travelDistances: Pair<Number, Number>,
         travelCost: Pair<Number, Number>,

@@ -343,7 +343,8 @@ fun <C : Context> C.validateNotSealed(
     repository: MutableRepository<*, *>,
     step: String,
 ) = validateCondition(
-    { "repository ${repository.name} was sealed before execution of step: ${step}\n$repository" }
+    { "repository ${repository.name} was sealed before execution of step: ${step}\n$repository" },
+    isError = true
 ) {
     !repository.sealed
 }

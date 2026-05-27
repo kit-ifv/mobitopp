@@ -229,7 +229,7 @@ fun <C : Context, E : Identifiable<I>, I> C.transformBulkStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
-    transform: (E) -> E?,
+    transform: (Collection<E>) -> Collection<E>,
 ) = transformBulkStep(name, repository, dependentRepositories, validation, transform)
 
 /**

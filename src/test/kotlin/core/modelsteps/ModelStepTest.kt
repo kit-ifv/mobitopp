@@ -8,6 +8,18 @@ import core.modelsteps.resources.Repository
 import core.modelsteps.resources.Resource
 import core.modelsteps.resources.SequenceResource
 import core.modelsteps.resources.reusable
+import core.modelsteps.steps.addCsvResourceStep
+import core.modelsteps.steps.addResourceStep
+import core.modelsteps.steps.filterIdsStep
+import core.modelsteps.steps.filterStep
+import core.modelsteps.steps.forEachStep
+import core.modelsteps.steps.loadCsvStep
+import core.modelsteps.steps.modelStep
+import core.modelsteps.steps.seal
+import core.modelsteps.steps.transformBulkStep
+import core.modelsteps.steps.transformEachStep
+import core.modelsteps.steps.updateEachStep
+import core.modelsteps.validation.validateCondition
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,6 +34,8 @@ import utils.csv.TestId
 import utils.csv.expectedElements
 import utils.csv.expectedElementsMappedStringLength
 import utils.csv.float
+import utils.report.ReportBuilder
+import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -30,31 +44,34 @@ import kotlin.test.assertTrue
 
 class ModelStepTest {
 
+    private lateinit var context: Context
+
     private lateinit var repository: MutableRepository<TestEntity, TestId>
     private lateinit var readOnlyRepository: Repository<ImmutableEntity, TestId>
     private lateinit var resource: Resource<TestEntity>
     private lateinit var csvResource: CsvResource<TestEntity>
 
-    private lateinit var addResourceStep: AbstractAddResourceStep<TestEntity, TestId>
-    private lateinit var addCsvStep: AddCsvStep<TestEntity, TestId>
-    private lateinit var loadCsvStepWrapper: LoadCsvStep<TestEntity, TestId>
+    private lateinit var addResourceStep: (Context) -> Unit
+    private lateinit var addCsvStep: (Context) -> Unit
+    private lateinit var loadCsvStepWrapper: (Context) -> Unit
 
-    private lateinit var filterStep: FilterStep<TestEntity, TestId>
-    private lateinit var filterIdsStep: FilterIdsStep<TestEntity, TestId>
+    private lateinit var filterStep: (Context) -> Unit
+    private lateinit var filterIdsStep: (Context) -> Unit
 
-    private lateinit var updateEachStep: UpdateEachStep<TestEntity, TestId>
-    private lateinit var transformEachStep: TransformEachStep<TestEntity, TestId>
-    private lateinit var transformAllStep: TransformAllStep<TestEntity, TestId>
+    private lateinit var updateEachStep: (Context) -> Unit
+    private lateinit var transformEachStep: (Context) -> Unit
+    private lateinit var transformAllStep: (Context) -> Unit
 
-    private lateinit var forEachStep: ForEachStep<ImmutableEntity, TestId>
+    private lateinit var forEachStep: (Context) -> Unit
     private lateinit var resultList: MutableList<String>
 
-    private lateinit var sealStep: SealStep<TestEntity, TestId>
+    private lateinit var sealStep: (Context) -> Unit
 
     private val csvFile = Path("src/test/resources/test_data.csv")
 
     @BeforeEach
     fun setUp() {
+        context = createContext()
         repository = MapRepository<TestEntity, TestId>("test_repo")
         readOnlyRepository = repository
 
@@ -63,13 +80,8 @@ class ModelStepTest {
 
         addResourceStep = addResourceStep("test_add", resource, repository)
         addCsvStep = addCsvStep("test_add_csv", csvResource, repository)
-        loadCsvStepWrapper = LoadCsvStep(
-            path = csvFile,
-            parser = parser,
-            repository = repository,
-            dependentRepositories = emptySet(),
-            validationMock = emptyList(),
-        )
+        loadCsvStepWrapper = loadCsvStep(csvFile, parser, repository)
+
 
         filterStep = filterStep("test_filter", ::filterOddIndex, repository)
         filterIdsStep = filterIdStep("test_filter_ids", ::filterOddId, repository)
@@ -79,76 +91,76 @@ class ModelStepTest {
 
         resultList = mutableListOf()
         forEachStep = forEachStep("test_for_each", collectStringsInList(resultList), readOnlyRepository)
-        sealStep = SealStep(repository)
+        sealStep = sealStep(repository)
     }
 
     @Test
     fun addResourcesToEmptyRepository() {
-        addResourceStep.execute()
+        addResourceStep(context)
 
         assertRepoContainsElements(expectedElements)
-        assertRepoSource(resource, "add elements:", addResourceStep)
+        assertRepoSource(resource, "add elements:", context.currentStep)
     }
 
     @Test
     fun addDuplicateIdElements() {
-        addResourceStep.execute()
+        addResourceStep(context)
         assertRepoContainsElements(expectedElements)
 
-        addResourceStep.execute()
+        addResourceStep(context)
         assertRepoContainsElements(expectedElements)
     }
 
     @Test
     fun addCsvResourceToEmptyRepository() {
-        addCsvStep.execute()
+        addCsvStep(context)
 
         assertRepoContainsElements(expectedElements)
-        assertRepoSource(csvResource, "add elements:", addResourceStep)
+        assertRepoSource(csvResource, "add elements:", context.currentStep)
     }
 
     @Test
     fun loadCsvToEmptyRepositoryWithWrapperStep() {
-        loadCsvStepWrapper.execute()
+        loadCsvStepWrapper(context)
 
         assertRepoContainsElements(expectedElements)
-        assertRepoSource(csvResource, "add elements:", loadCsvStepWrapper)
+        assertRepoSource(csvResource, "add elements:", context.currentStep)
     }
 
     @Test
     fun filterOddIndexElements() {
         initRepositoryForTest()
 
-        filterStep.execute()
+        filterStep(context)
         assertRepoContainsElements(filteredOddIndexElements)
-        assertRepoSource(resource, "filter elements:", filterStep)
+        assertRepoSource(resource, "filter elements:", context.currentStep)
     }
 
     @Test
     fun filterOddIdElements() {
         initRepositoryForTest()
 
-        filterIdsStep.execute()
+        filterIdsStep(context)
         assertRepoContainsElements(filteredOddIndexElements)
-        assertRepoSource(resource, "filter ids:", filterIdsStep)
+        assertRepoSource(resource, "filter ids:", context.currentStep)
     }
 
     @Test
     fun updateIntAttributeToStringLength() {
         initRepositoryForTest()
 
-        updateEachStep.execute()
+        updateEachStep(context)
         assertRepoContainsElements(expectedElementsMappedStringLength)
-        assertRepoSource(resource, "update each element:", updateEachStep)
+        assertRepoSource(resource, "update each element:", context.currentStep)
     }
 
     @Test
     fun transformOddIdSquared() {
         initRepositoryForTest()
 
-        transformEachStep.execute()
+        transformEachStep(context)
         assertRepoContainsElements(transformedOddIdSquared)
-        assertRepoSource(resource, "replace each element:", transformEachStep)
+        assertRepoSource(resource, "replace each element:", context.currentStep)
 
         resource.elements.forEach {
             assertNotContains(repository.elements.toList(), it)
@@ -159,9 +171,9 @@ class ModelStepTest {
     fun transformAllCumSumStringLength() {
         initRepositoryForTest()
 
-        transformAllStep.execute()
+        transformAllStep(context)
         assertRepoContainsElements(transformedCumSumStringLength)
-        assertRepoSource(resource, "replace all elements:", transformAllStep)
+        assertRepoSource(resource, "replace all elements:", context.currentStep)
 
         resource.elements.forEach {
             assertNotContains(repository.elements.toList(), it)
@@ -174,37 +186,42 @@ class ModelStepTest {
 
         val originalSource = readOnlyRepository.source
 
-        forEachStep.execute()
+        forEachStep(context)
         assertRepoContainsElements(expectedElements)
         assertEquals(readOnlyRepository.source, originalSource, "ForEachStep should not change source description!")
 
         assertEquals(expectedElementStrings, resultList)
     }
 
+    private fun reportText(): String {
+        val captor = ConsoleCaptor()
+        context.report.printToConsole()
+        return  captor.getText()
+    }
+
     @Test
     fun sealRepository() {
         initRepositoryForTest()
 
-        val captor = ConsoleCaptor()
-        sealStep.execute()
-        val consoleText = captor.getText()
+        sealStep(context)
 
+        val consoleText = reportText()
         assertRepoContainsElements(expectedElements)
         assertRepoSource(resource, "seal", null)
 
         assertTrue(repository.sealed)
-        assertContains(consoleText, "Sealed ${repository.name}")
+        assertContains(consoleText, "sealed ${repository.name}")
         assertContains(consoleText, "${repository.size} elements")
     }
 
     @Test
     fun modifySealedRepoThrowsException() {
         initRepositoryForTest()
-        sealStep.execute()
+        sealStep(context)
 
         assertTrue(repository.sealed)
         val exception = assertThrows<IllegalStateException> {
-            addCsvStep.execute()
+            addCsvStep(context)
         }
         assertTrue(repository.sealed)
         assertNotNull(exception.message)
@@ -217,45 +234,49 @@ class ModelStepTest {
 
     @Test
     fun validateAndMockCustomStep() {
+        context.execMode.setValidate()
+
         val step = customValidationStep(repository)
 
-        val captor = ConsoleCaptor()
-        val warning = step.validate {
-            println("Prefix!")
-        }
-        val consoleText = captor.getText()
 
+        val warning = step(context)
+
+        val consoleText = reportText()
         assertNotNull(warning)
-        assertContains(consoleText, "Prefix!")
-        assertContains(consoleText, "Validation of CustomValidationStep_AddDummy")
+
         assertEquals(1, repository.size)
-        assertTrue(step.isValid)
 
-        val validationText = getValidationText(warning)
+        assertFalse(context.report.hasErrors())
+        assertTrue(context.report.hasWarnings())
 
-        assertContains(validationText, "WARNING: Validate step CustomValidationStep_AddDummy produced warnings:")
-        assertContains(validationText, "WARNING: CustomValidationStep_AddDummy_Warning")
+        assertContains(consoleText, "(WARNING) CustomValidationStep_AddDummy - validation produced warnings.")
+        assertContains(consoleText, " * CustomValidationStep_AddDummy")
+        assertContains(consoleText, "    - CustomValidationStep_AddDummy_Warning")
     }
 
     @Test
     fun validateStepWithUnsealedDependentShouldProduceWarning() {
+        context.execMode.setValidate()
         val unsealedDependentRepository = MapRepository<TestEntity, TestId>("UnsealedDependency")
 
-        val step = LoadCsvStep<TestEntity, TestId>(
-            path = csvFile,
-            name = "DummyCsvStepWithUnsealedDependent",
-            parser = parser,
-            repository = repository,
-            dependentRepositories = setOf(unsealedDependentRepository),
-            validationMock = expectedElements
-        )
+        val step: (Context) -> Unit = {
+            it.loadCsvStep(
+                repository,
+                csvFile,
+                parser,
+                name = "DummyCsvStepWithUnsealedDependent",
+                dependentRepositories = setOf(unsealedDependentRepository),
+                validation = listOf { repository.addElements("add mock elements", expectedElements); true }
+            )
+        }
 
-        val warning = step.validate()
-        assertNotNull(warning)
 
-        val validationText = getValidationText(warning)
+        step(context)
+        assert(context.report.hasWarnings())
 
-        assertContains(validationText, "Step ${step.name} depends on unsealed repository:")
+        val validationText = reportText()
+
+        assertContains(validationText, "Step ${context.currentStep} depends on unsealed repository:")
         assertContains(validationText, unsealedDependentRepository.name)
 
         assertRepoContainsElements(expectedElements)
@@ -263,54 +284,46 @@ class ModelStepTest {
 
     @Test
     fun validateStepOnSealedRepositoryShouldProduceError() {
-        sealStep.validate()
-        val warning = loadCsvStepWrapper.validate()
+        context.execMode.setValidate()
+        sealStep(context)
+        loadCsvStepWrapper(context)
 
-        val validationText = getValidationText(warning)
+        val validationText = reportText()
 
         assertContains(validationText, "test_repo was sealed")
         assertContains(validationText, "load test_data.csv")
+        assertTrue(context.report.hasErrors(), reportText())
     }
 
     @Test
     fun validateInvalidCsvFilePath() {
-        val step = LoadCsvStep<TestEntity, TestId>(
-            path = Path("invalid_path.csv"),
-            parser = parser,
-            repository = repository,
-            dependentRepositories = setOf(),
-            validationMock = listOf(),
-        )
+        context.execMode.setValidate()
 
-        val warning = step.validate()
-        assertNotNull(warning)
+        val step: (Context) -> Unit = {
+            it.loadCsvStep(repository, Path("invalid_path.csv"), parser)
+        }
 
-        val captor = ConsoleCaptor()
-        warning!!.printTree()
-        val consoleText = captor.getText()
+        step(context)
+        assertTrue(context.report.hasErrors())
 
-        assertContains(consoleText, "Error while checking read access to file: 'invalid_path.csv'!")
+        val consoleText = reportText()
+        assertContains(consoleText, "(FAILURE) load invalid_path.csv - validation failed.")
         assertContains(consoleText, "File does not exist: invalid_path.csv!")
-        assertFalse(step.isValid)
+
     }
 
     @Test
     fun validateInvalidCsvColumns() {
-        val step = LoadCsvStep<TestEntity, TestId>(
-            path = csvFile,
-            parser = invalidParser,
-            repository = repository,
-            dependentRepositories = setOf(),
-            validationMock = listOf(),
-        )
+        context.execMode.setValidate()
+        val step: (Context) -> Unit = {
+            it.loadCsvStep(repository, csvFile, invalidParser)
+        }
 
-        val warning = step.validate()
+        step(context)
 
-        val captor = ConsoleCaptor()
-        warning!!.printTree()
-        val consoleText = captor.getText()
+        val consoleText = reportText()
 
-        assertNotNull(warning)
+        assertTrue(context.report.hasErrors(), reportText())
         assertContains(consoleText, "Invalid column 'INVALID_COL' accessed in step 'load test_data.csv' ")
         assertContains(consoleText, "does not exist in the source csv file: $csvFile!")
         assertContains(consoleText, "Invalid column index '42' accessed in step 'load test_data.csv'")
@@ -319,36 +332,26 @@ class ModelStepTest {
 
     @Test
     fun validateUnmockableCsvColumn() {
-        val step = LoadCsvStep<TestEntity, TestId>(
-            path = csvFile,
-            parser = unmockableParser,
-            repository = repository,
-            dependentRepositories = setOf(),
-            validationMock = listOf(),
-        )
+        context.execMode.setValidate()
 
-        val warning = step.validate()
-        assertNotNull(warning)
+        val step: (Context) -> Unit = {
+            it.loadCsvStep(repository, csvFile, unmockableParser)
+        }
 
-        val captor = ConsoleCaptor()
-        warning!!.printTree()
-        val consoleText = captor.getText()
+        step(context)
+        assertTrue(context.report.hasWarnings())
+        assertFalse(context.report.hasErrors())
+
+        val consoleText = reportText()
 
         assertContains(consoleText, "Value of column 'str' of CSV test_data.csv")
         assertContains(consoleText, "could not be mocked for parsing!")
         assertContains(consoleText, "Validation of columns in step 'load test_data.csv' may be incomplete!")
     }
 
-    private fun getValidationText(warning: Warning?): String {
-        val validationCaptor = ConsoleCaptor()
-        warning!!.printTree()
-        val validationText = validationCaptor.getText()
-        return validationText
-    }
-
     private fun initRepositoryForTest() {
-        addResourceStep.execute()
-        assertRepoSource(resource, "add elements:", addResourceStep)
+        addResourceStep(context)
+        assertRepoSource(resource, "add elements:", context.currentStep)
     }
 
     private fun assertRepoContainsElements(expected: List<TestEntity>, onlySubset: Boolean = false) {
@@ -365,108 +368,101 @@ class ModelStepTest {
         }
     }
 
-    private fun assertRepoSource(resource: Resource<TestEntity>, operation: String, step: ModelStep?) {
+    private fun assertRepoSource(resource: Resource<TestEntity>, operation: String, step: String?) {
         assertContains(repository.source, operation)
-        step?.also { assertContains(repository.source, it.name) }
+        step?.also { assertContains(repository.source, it) }
         assertContains(repository.source, "${resource.name} [${resource.source}]")
     }
+}
+
+private fun createContext() = object: Context {
+    override var currentStep: String = ""
+    override val execMode: ExecutionMode = ExecutionMode()
+    override val scenarioName: String = "ModelStepTests"
+    override val report: ReportBuilder = initReport()
+
 }
 
 private fun addResourceStep(
     name: String,
     resource: Resource<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : AbstractAddResourceStep<TestEntity, TestId>() {
-    override val name = name
-    override val resource = resource
-    override val repository = repository
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun mockElementsForValidation(): List<TestEntity> = emptyList()
-    override fun verifyInput(): Warning? = null
+) : (Context) -> Unit = {
+    it.addResourceStep(name, repository, resource)
 }
 
 private fun addCsvStep(
     name: String,
     resource: CsvResource<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : AddCsvStep<TestEntity, TestId>() {
-    override val name = name
-    override val resource = resource
-    override val repository = repository
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun mockElementsForValidation(): List<TestEntity> = emptyList()
+): (Context) -> Unit  = {
+    it.addCsvResourceStep(name, repository, resource)
+}
+
+private fun loadCsvStep(
+    path: Path,
+    parser: CsvParser<TestEntity>,
+    repository: MutableRepository<TestEntity, TestId>,
+): (Context) -> Unit  = {
+    it.loadCsvStep(repository, path, parser)
 }
 
 private fun filterStep(
     name: String,
     filter: (TestEntity) -> Boolean,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : FilterStep<TestEntity, TestId>() {
-    override val name = name
-    override val repository = repository
-    override fun check(element: TestEntity): Boolean = filter(element)
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun verifyInput(): Warning? = null
+): (Context) -> Unit = { context ->
+    context.filterStep(
+        name = name,
+        repository = repository,
+        check = filter,
+    )
 }
 
 private fun filterIdStep(
     name: String,
     filter: (TestId) -> Boolean,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : FilterIdsStep<TestEntity, TestId>() {
-    override val name = name
-    override val repository = repository
-    override fun check(id: TestId): Boolean = filter(id)
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun verifyInput(): Warning? = null
+): (Context) -> Unit  = {
+    it.filterIdsStep(name, repository, check=filter)
 }
 
 private fun updateStep(
     name: String,
     update: (TestEntity) -> Unit,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : UpdateEachStep<TestEntity, TestId>() {
-    override val name = name
-    override val repository: MutableRepository<TestEntity, TestId> = repository
-    override fun update(element: TestEntity) = update(element)
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun verifyInput(): Warning? = null
+) : (Context) -> Unit  = {
+    it.updateEachStep(name, repository, update = update)
 }
 
 private fun transformStep(
     name: String,
     transform: (TestEntity) -> TestEntity?,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : TransformEachStep<TestEntity, TestId>() {
-    override val name = name
-    override val repository: MutableRepository<TestEntity, TestId> = repository
-    override fun transform(element: TestEntity) = transform(element)
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun verifyInput(): Warning? = null
+) : (Context) -> Unit  = {
+    it.transformEachStep(name, repository, transform = transform)
 }
 
 private fun transformAllStep(
     name: String,
     transformAll: (Collection<TestEntity>) -> Collection<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : TransformAllStep<TestEntity, TestId>() {
-    override val name = name
-    override val repository = repository
-    override fun transformAll(elements: Collection<TestEntity>) = transformAll(elements)
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun verifyInput(): Warning? = null
+) : (Context) -> Unit  = {
+    it.transformBulkStep(name, repository, transform = transformAll)
 }
 
 private fun forEachStep(
     name: String,
     process: (ImmutableEntity) -> Unit,
     repository: Repository<ImmutableEntity, TestId>,
-) = object : ForEachStep<ImmutableEntity, TestId>() {
-    override val name = name
-    override val repository = repository
-    override fun process(element: ImmutableEntity) = process(element)
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun verifyInput(): Warning? = null
+) : (Context) -> Unit  = {
+    it.forEachStep(name, repository, process=process)
+}
+
+private fun sealStep(
+    repository: MutableRepository<TestEntity, TestId>,
+) : (Context) -> Unit  = {
+    it.seal(repository)
 }
 
 private val parser: CsvParser<TestEntity> = CsvParser<TestEntity> { row ->
@@ -529,10 +525,19 @@ private val expectedElementStrings = expectedElements.map { it.string }
 private fun customValidationStep(
     repository: MutableRepository<TestEntity, TestId>,
     name: String = "CustomValidationStep_AddDummy",
-) = object : ModelStep {
-    override val name = name
+): (Context) -> Unit = {
 
-    override fun execute() {
+    val check: Check<Context> = { //validation check produces warning and adds mock element to repo
+        repository.addElements(
+            "add_dummy",
+            listOf(
+                TestEntity(repository.size, string = "mock_dummy")
+            )
+        )
+        validateCondition({ "${name}_Warning" }, isError = false, predicate = { false })
+    }
+
+    it.modelStep(name, validation = listOf(check)) {
         repository.addElements(
             "add_dummy",
             listOf(
@@ -540,19 +545,5 @@ private fun customValidationStep(
             )
         )
     }
-
-    override fun verifyInput(): Warning {
-        println("Validation of ${this.name}")
-        return Warning("${this.name}_Warning", false)
-    }
-
-    override fun mockBehavior(): Warning? {
-        repository.addElements(
-            "add_dummy",
-            listOf(
-                TestEntity(repository.size, string = "mock_dummy")
-            )
-        )
-        return null
-    }
 }
+

@@ -5,9 +5,8 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.LegacyZone
 import domain.shared.location.Location
-import domain.shared.location.MutableLegacyZone
+import domain.shared.location.MutableZone
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.Zone
@@ -62,7 +61,6 @@ val TEST_ZONE = TestZone()
 class TestZone(
     wgsCoord: WGS84Coordinate = BIELEFELD,
     visumId: Long = 1L,
-    matrixColumn: Int = 0,
     name: String = "TestZone",
     regionType: RegionType = RegioStaR17.METROPOLE,
     classification: ZoneClassification = ZoneClassification.STUDY_AREA,
@@ -70,7 +68,7 @@ class TestZone(
     isDestination: Boolean = true,
     relief: Distance = 0.meters,
     id: ZoneId = ZoneId(1L),
-) : MutableLegacyZone(
+) : MutableZone(
     id,
     Location.wgs(wgsCoord),
     42L,
@@ -82,7 +80,6 @@ class TestZone(
         this.parkingPlaces = parkingPlaces
         this.isDestination = isDestination
         this.relief = relief
-        this.matrixColumn = matrixColumn
     }
 ) {
 
@@ -245,9 +242,9 @@ fun MutablePerson.generateActivitySchedule(
 
     targets.zipWithNext { a, b ->
 
-        MutablePlannedActivity(
+        val act = MutablePlannedActivity(
             id = ActivityId(-1L),
-            this,
+            this.id,
             seed = 42L
         ) {
             activityType = LegacyActivityType.entries.random(random)
@@ -255,6 +252,8 @@ fun MutablePerson.generateActivitySchedule(
             startTime = a
             duration = (b - a) / 2
         }
+
+        this.plannedActivities.add(act)
     }
 }
 
@@ -270,7 +269,7 @@ class ActivitySpawnLimits(
     val types: Collection<ActivityType> = LegacyActivityType.entries,
 )
 
-fun Collection<LegacyZone>.generateActivities(
+fun Collection<Zone>.generateActivities(
     num: Int,
     random: Random = Random(1),
     spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits(),
@@ -335,7 +334,7 @@ fun MutablePerson.generatePlannedActivity(
     seed: Long = 1L,
     lambda: MutablePlannedActivity.() -> Unit,
 ): MutablePlannedActivity {
-    val mutable = MutablePlannedActivity(ActivityId(id), this, seed)
+    val mutable = MutablePlannedActivity(ActivityId(id), this.id, seed)
     mutable.apply(lambda)
     return mutable
 }

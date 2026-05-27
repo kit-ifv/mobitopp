@@ -14,7 +14,6 @@ import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.currentlyAffectedProviders
-import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
@@ -92,7 +91,7 @@ class RidesharingOnlyScenario {
 
         val builder = BuildAgents(
             seed = 1L,
-            NoWriters.personStateMachine.withRecording(),
+            personStateMachine.withRecording(),
             syntheticBehavior
         )
         val agents = builder.buildPersonAgents(households)

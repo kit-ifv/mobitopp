@@ -9,6 +9,7 @@ import core.modelsteps.validation.validateCondition
 import core.modelsteps.validation.validateFileReadAccess
 import domain.shared.datastructure.matrix.MatrixImpedance
 import domain.shared.datastructure.matrix.UnitConverter
+import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
@@ -18,6 +19,7 @@ import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
+import utils.Decodable
 import utils.units.Time
 import java.nio.file.Path
 import kotlin.io.path.readText
@@ -39,23 +41,31 @@ private val IS_ERROR = false
  */
 @Suppress("LongParameterList")
 context(config: CFG)
-fun <C, CFG> C.loadImpedance()
+fun <C, CFG> C.loadImpedance(
+    travelTimeYaml: Path = config.durationMatrixConfig,
+    travelCostsYaml: Path = config.costMatrixConfig,
+    travelDistanceMatrix: Path = config.distanceMatrix,
+    decoder: Decodable<Mode> = modes,
+    matrixFactory: ZoneMatrixCreation = config.matrixCreation,
+    converter: UnitConverter = UnitConverter.fromUnits(
+        config.distanceUnit,
+        config.currencyUnit,
+        config.durationUnit
+    ),
+)
     where C : HasModes, C : HasMutableImpedance, CFG : MatrixConfig, CFG : UnitConfig = modelStep(
     "load impedance matrices",
     validation = listOf({ validateLoadImpedance(config) }),
 ) {
-    val impedance = config.run {
-        val converter = UnitConverter.fromUnits(distanceUnit, currencyUnit, durationUnit)
+    val impedance = MatrixImpedance.loadFromPaths(
+        travelTimeYamlPath = travelTimeYaml,
+        travelCostsYamlPath = travelCostsYaml,
+        travelDistanceMatrixPath = travelDistanceMatrix,
+        decoder = decoder,
+        matrixFactory = matrixFactory,
+        converter = converter,
+    )
 
-        MatrixImpedance.loadFromPaths(
-            travelTimeYamlPath = durationMatrixConfig,
-            travelCostsYamlPath = costMatrixConfig,
-            travelDistanceMatrixPath = distanceMatrix,
-            decoder = modes,
-            matrixFactory = matrixCreation,
-            converter = converter,
-        )
-    }
 
     this.impedance = impedance
 }
