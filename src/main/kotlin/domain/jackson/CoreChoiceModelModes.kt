@@ -6,7 +6,7 @@ import domain.shared.enums.legacyChoiceModelModes
 val CoreChoiceModelModes = GenericKeyValueBuilder(
     javaType(ChoiceModelModes::class.java),
     default = mapOf(
-        "legacyChoiceModelModes" to legacyChoiceModelModes
+        "legacyChoiceModelModes" to legacyChoiceModelModes,
     ),
     loadFromSubmodules = false, // submodules probably have other choiceModelModes
 ).getModule()

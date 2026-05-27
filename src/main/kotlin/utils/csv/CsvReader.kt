@@ -1,11 +1,9 @@
 package utils.csv
 
-import org.apache.commons.compress.utils.BitInputStream
 import utils.ErrorHandling
 import utils.collections.addProgressBar
 import utils.collections.toLazyList
 import utils.files.decompressedBufferedReader
-import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.fileSize
 import kotlin.math.floor
@@ -88,7 +86,7 @@ open class DefaultRow(
     override val source: String,
     override val index: Int,
     protected val columnIndexMap: Map<String, Int>,
-    protected val values: List<String>
+    protected val values: List<String>,
 ) : Row {
     override val size = values.size
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
@@ -100,13 +98,9 @@ open class DefaultRow(
         return converter(getIndexValue(columnIndex, column))
     }
 
-    override fun <T> valueAt(columnIndex: Int, converter: (String) -> T): T {
-        return converter(getIndexValue(columnIndex))
-    }
+    override fun <T> valueAt(columnIndex: Int, converter: (String) -> T): T = converter(getIndexValue(columnIndex))
 
-    override fun headerForIndex(i: Int): String {
-        return columnIndexMap.keys.toList()[i]
-    }
+    override fun headerForIndex(i: Int): String = columnIndexMap.keys.toList()[i]
 
     @Suppress("TooGenericExceptionCaught")
     private fun getIndexValue(columnIndex: Int, column: String? = null): String = try {
@@ -172,7 +166,7 @@ open class DefaultCsvReader(
     protected val path: Path,
     protected val separator: String = SEMICOLON,
     protected val errorHandling: ErrorHandling = ErrorHandling.ERROR,
-    protected val showProgressBar: Boolean = true
+    protected val showProgressBar: Boolean = true,
 ) : CsvReader {
 
     private val columnsIndex: Map<String, Int>
@@ -193,9 +187,9 @@ open class DefaultCsvReader(
         columnsIndex = parseHeader(header)
     }
 
-    private fun parseHeader(header: String): Map<String, Int> {
-        return lineValues(header).mapIndexed { index, s -> s to index }.toMap()
-    }
+    private fun parseHeader(header: String): Map<String, Int> = lineValues(header).mapIndexed { index, s ->
+        s to index
+    }.toMap()
 
     override fun rows(): Sequence<Row> {
         val reader = path.decompressedBufferedReader()
@@ -210,7 +204,7 @@ open class DefaultCsvReader(
         return sequence.iterator().addProgressBar(
             label = "read $name",
             expectedCount = rowCount.toLong(),
-            visible = showProgressBar
+            visible = showProgressBar,
         ).asSequence()
     }
 
@@ -220,14 +214,15 @@ open class DefaultCsvReader(
     private fun parseRow(index: Int, line: String) =
         DefaultRow(name, index, columnsIndex, lineValues(line).toLazyList(columnsIndex.size))
 
-    private fun lineValues(line: String): Sequence<String> =
-        when {
-            line.isEmpty() -> emptySequence()
-            QUOTE !in line -> line.splitToSequence(separator)
-            else -> generateSequence(nextValue(line)) {
-                it.second?.let { rest -> nextValue(rest) } ?: (null to null)
-            }.map { it.first }.takeWhile { it != null }.map { it!! }
-        }
+    private fun lineValues(line: String): Sequence<String> = when {
+        line.isEmpty() -> emptySequence()
+
+        QUOTE !in line -> line.splitToSequence(separator)
+
+        else -> generateSequence(nextValue(line)) {
+            it.second?.let { rest -> nextValue(rest) } ?: (null to null)
+        }.map { it.first }.takeWhile { it != null }.map { it!! }
+    }
 
     private fun nextValue(line: String): Pair<String?, String?> {
         val isQuoted = line.startsWith(QUOTE)
@@ -254,9 +249,9 @@ open class DefaultCsvReader(
  * @return result of the reader or null
  * @receiver ErrorHandling
  */
-fun <T> ErrorHandling.handleReadRow(line: String, reader: (String) -> T?): T? {
-    return this.handle(runnable = { reader(line) }) { "Error reading csv line $line" }
-}
+fun <T> ErrorHandling.handleReadRow(line: String, reader: (String) -> T?): T? = this.handle(runnable = {
+    reader(line)
+}) { "Error reading csv line $line" }
 
 /**
  * Handle exceptions while operating on certain [Row]: In case of parsing
@@ -269,10 +264,7 @@ fun <T> ErrorHandling.handleReadRow(line: String, reader: (String) -> T?): T? {
  * @return result of the operation
  * @receiver ErrorHandling
  */
-fun <E> ErrorHandling.handleParseRow(
-    row: Row,
-    runnable: () -> E?,
-): E? = this.handle(runnable) {
+fun <E> ErrorHandling.handleParseRow(row: Row, runnable: () -> E?): E? = this.handle(runnable) {
     "Could not parse row ${row.index} in '${row.source}': $row"
 }
 
@@ -287,17 +279,15 @@ fun <E> ErrorHandling.handleParseRow(
  * @return the (transformed) entity or null
  * @receiver ErrorHandling
  */
-fun <E> ErrorHandling.handleParseValue(
-    row: Row,
-    column: String,
-    parser: (String) -> E?,
-): E? = this.handle(runnable = {
-    require(row.hasColumn(column)) { // Error message if column does not exist
+fun <E> ErrorHandling.handleParseValue(row: Row, column: String, parser: (String) -> E?): E? = this.handle(runnable = {
+    require(row.hasColumn(column)) {
+        // Error message if column does not exist
         "Could not find column '$column' in row: $row."
     }
 
     row(column, parser)
-}) { // Error message for parsing errors
+}) {
+    // Error message for parsing errors
     "Could not parse column '$column' of row ${row.index} (value: ${row(column)}) in '${row.source}': $row"
 }
 

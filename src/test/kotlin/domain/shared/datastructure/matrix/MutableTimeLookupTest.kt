@@ -79,6 +79,6 @@ class MutableTimeLookupTest {
 
     private operator fun TimeLookupBuilder<Int>.set(a: Number, b: Number, path: Int) = set(
         a.toAbsoluteHours()..<b.toAbsoluteHours(),
-        path
+        path,
     )
 }

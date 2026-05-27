@@ -12,13 +12,11 @@ import java.nio.channels.FileChannel
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 
-fun <T> Path.operateOnMemoryFile(run: MappedByteBuffer.() -> T): T {
-    return RandomAccessFile(toFile(), "r").use { file ->
-        val channel = file.channel
-        val size = channel.size()
-        val buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, size)
-        buffer.run(run)
-    }
+fun <T> Path.operateOnMemoryFile(run: MappedByteBuffer.() -> T): T = RandomAccessFile(toFile(), "r").use { file ->
+    val channel = file.channel
+    val size = channel.size()
+    val buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, size)
+    buffer.run(run)
 }
 
 /**
@@ -73,15 +71,14 @@ fun Path.bufferedDataOutputStream(write: (dataStream: DataOutputStream) -> Unit)
 /**
  * Creates and closes a DataInputStream on the path. While open, executes [read] on it.
  */
-fun <R> Path.bufferedDataInputStream(read: (dataStream: DataInputStream) -> R): R {
-    return toFile().inputStream().use { fileStream ->
+fun <R> Path.bufferedDataInputStream(read: (dataStream: DataInputStream) -> R): R =
+    toFile().inputStream().use { fileStream ->
         BufferedInputStream(fileStream).use { bufferedStream ->
             DataInputStream(bufferedStream).use { inputStream ->
                 inputStream.run(read)
             }
         }
     }
-}
 
 /**
  * Parse directly into a bulk byte buffer for speedup.

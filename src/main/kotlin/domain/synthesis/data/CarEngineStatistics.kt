@@ -46,17 +46,13 @@ data class CarEngineStatistics(
     val largeCombustionCarFuelConsumption100km: Volume = 8.liters,
 ) {
 
-    fun batteryCapacityOf(segment: CarSegment, engine: EngineType): Energy =
-        engine.batteryCapacityOf(segment, this)
+    fun batteryCapacityOf(segment: CarSegment, engine: EngineType): Energy = engine.batteryCapacityOf(segment, this)
 
-    fun batteryRangeOf(segment: CarSegment, engine: EngineType): Distance =
-        engine.batteryRangeOf(segment, this)
+    fun batteryRangeOf(segment: CarSegment, engine: EngineType): Distance = engine.batteryRangeOf(segment, this)
 
-    fun fuelCapacityOf(segment: CarSegment, engine: EngineType): Volume =
-        engine.fuelCapacityOf(segment, this)
+    fun fuelCapacityOf(segment: CarSegment, engine: EngineType): Volume = engine.fuelCapacityOf(segment, this)
 
-    fun fuelConsumption100kmOf(segment: CarSegment): Volume =
-        segment.fuelConsumption100km(this)
+    fun fuelConsumption100kmOf(segment: CarSegment): Volume = segment.fuelConsumption100km(this)
 }
 
 fun CarSegment.fuelConsumption100km(data: CarEngineStatistics): Volume = when (this) {

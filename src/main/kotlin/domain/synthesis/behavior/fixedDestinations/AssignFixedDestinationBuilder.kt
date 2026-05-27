@@ -77,7 +77,7 @@ fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA
             element.activityType,
             MinimalistPerson<T>::isPrimaryStudent,
             element.assignmentStrategy,
-        )
+        ),
     )
 }
 
@@ -91,7 +91,7 @@ fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA
             element.activityType,
             MinimalistPerson<T>::isSecondaryStudent,
             element.assignmentStrategy,
-        )
+        ),
     )
 }
 
@@ -105,7 +105,7 @@ fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA
             element.activityType,
             MinimalistPerson<T>::isTertiaryStudent,
             element.assignmentStrategy,
-        )
+        ),
     )
 }
 
@@ -118,7 +118,7 @@ fun <AREA, S : MinimumHouseholdAttributes, T> AssignFixedDestinationBuilder<AREA
         FixedLocationAssignmentStep(
             element.activityType,
             MinimalistPerson<T>::isWorker,
-            element.assignmentStrategy
-        )
+            element.assignmentStrategy,
+        ),
     )
 }

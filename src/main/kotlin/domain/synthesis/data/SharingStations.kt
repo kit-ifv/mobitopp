@@ -15,9 +15,7 @@ value class SharingProviderId(val value: Long) : Comparable<SharingProviderId> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: SharingProviderId): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: SharingProviderId): Int = value.compareTo(other.value)
 
     /**
      * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
@@ -25,9 +23,7 @@ value class SharingProviderId(val value: Long) : Comparable<SharingProviderId> {
      *
      * @return the next higher id.
      */
-    fun next(): SharingProviderId {
-        return SharingProviderId(value + 1)
-    }
+    fun next(): SharingProviderId = SharingProviderId(value + 1)
 }
 
 interface ISharingProvider : Identifiable<SharingProviderId> {
@@ -41,7 +37,7 @@ interface ISharingProvider : Identifiable<SharingProviderId> {
 
 @Mutable
 abstract class SharingProvider(
-    final override val id: SharingProviderId
+    final override val id: SharingProviderId,
     // todo should name and mode also be immutable?
 ) : ISharingProvider {
     abstract override val stations: Set<SharingStation>
@@ -58,16 +54,12 @@ value class SharingStationId(val value: Long) : Comparable<SharingStationId> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: SharingStationId): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: SharingStationId): Int = value.compareTo(other.value)
 
     /**
      * @return the next higher id.
      */
-    fun next(): SharingStationId {
-        return SharingStationId(value + 1)
-    }
+    fun next(): SharingStationId = SharingStationId(value + 1)
 }
 
 interface ISharingStation : Identifiable<SharingStationId> {

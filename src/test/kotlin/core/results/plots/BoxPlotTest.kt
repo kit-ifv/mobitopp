@@ -10,11 +10,10 @@ val testPlotResultDir = Path("results/test")
 @Tag("plot")
 class BoxPlotTest {
     //
-    private fun plotterBuilder() =
-        forData { data }
-            .groupBy { it.first }
-            .summarize { it.second }
-            .over { it.first }
+    private fun plotterBuilder() = forData { data }
+        .groupBy { it.first }
+        .summarize { it.second }
+        .over { it.first }
 
     @Test
     fun testBoxPlot() {
@@ -33,7 +32,7 @@ class BoxPlotTest {
                 values[length / 4],
                 values[length / 2],
                 values[length / 4 * 3],
-                values[length - 1]
+                values[length - 1],
             )
         }
 

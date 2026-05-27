@@ -3,10 +3,7 @@ package domain.synthesis.behavior.householdgeneration
 /**
  * This is the handwritten update history where an attribute produces a delta vector for signature indices.
  */
-data class AttributeUpdates(
-    val updateSigIndices: IntArray,
-    val updateTriggerPoints: IntArray,
-) {
+data class AttributeUpdates(val updateSigIndices: IntArray, val updateTriggerPoints: IntArray) {
 
     val updateArrays: Array<IntArray> = Array(updateTriggerPoints.size) { IntArray(updateSigIndices.size) }
 
@@ -31,7 +28,5 @@ data class AttributeUpdates(
         return updateSigIndices.contentEquals(other.updateSigIndices)
     }
 
-    override fun hashCode(): Int {
-        return updateSigIndices.contentHashCode()
-    }
+    override fun hashCode(): Int = updateSigIndices.contentHashCode()
 }

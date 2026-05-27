@@ -11,7 +11,8 @@ enum class RegioStaRGem5(override val code: Int, override val description: Strin
     REGIOPOLE(2, "Regiopole, Großstadt"),
     CENTRAL_CITY(3, "Zentrale Stadt, Mittelstadt"),
     URBAN_AREA(4, URBAN_AREA_STR),
-    RURAL_AREA(5, RURAL_AREA_STR);
+    RURAL_AREA(5, RURAL_AREA_STR),
+    ;
 
     companion object : EnumDecodable<RegioStaRGem5>(RegioStaRGem5::class)
 
@@ -38,7 +39,8 @@ enum class RegioStaRGem7(override val code: Int, override val description: Strin
     CENTRAL_CITY(4, "Zentrale Stadt"),
     MEDIUM_CITY(5, "Mittelstadt"),
     URBAN_AREA(6, URBAN_AREA_STR),
-    SMALL_TOWN_RURAL_AREA(7, RURAL_AREA_STR);
+    SMALL_TOWN_RURAL_AREA(7, RURAL_AREA_STR),
+    ;
 
     companion object : EnumDecodable<RegioStaRGem7>(RegioStaRGem7::class) {
         val regiopoleLargeCityGem5 = setOf(REGIOPOLE, LARGE_CITY)
@@ -60,10 +62,13 @@ enum class RegioStaRGem7(override val code: Int, override val description: Strin
         METROPOLE,
         REGIOPOLE,
         LARGE_CITY,
-        URBAN_AREA -> RegioStaR2.URBAN
+        URBAN_AREA,
+        -> RegioStaR2.URBAN
+
         CENTRAL_CITY,
         MEDIUM_CITY,
-        SMALL_TOWN_RURAL_AREA -> RegioStaR2.RURAL
+        SMALL_TOWN_RURAL_AREA,
+        -> RegioStaR2.RURAL
     }
 
     override fun toRegioStaR4() = toRegioStaR17().toRegioStaR4()

@@ -26,7 +26,7 @@ data class RawSurveyInfo(
     val hasBicycle: Boolean,
     val hasLicence: Boolean,
     val distanceWork: Distance,
-    val distanceEducation: Distance
+    val distanceEducation: Distance,
 ) {
     val age = year - birthyear
 

@@ -95,9 +95,8 @@ private val ageGroups = listOf(
 
 fun Int.ageGroup() = this.ageGroup(ageGroups)
 
-fun Int.ageGroup(intervals: List<Pair<Int, Int>>) =
-    intervals.find { it.first <= this && this < it.second }?.let {
-        "[${it.first},${it.second})"
-    } ?: "UNDEFINED"
+fun Int.ageGroup(intervals: List<Pair<Int, Int>>) = intervals.find { it.first <= this && this < it.second }?.let {
+    "[${it.first},${it.second})"
+} ?: "UNDEFINED"
 
 fun modeColor(mode: Mode): RGB = modeStringColor(mode.toString().lowercase())

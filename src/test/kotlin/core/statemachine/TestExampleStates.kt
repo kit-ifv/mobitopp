@@ -37,13 +37,13 @@ class TestExampleStates {
                 "$start > $end at $it",
                 it,
                 route,
-                travelTimes
+                travelTimes,
             )
         }
     }
 
     fun createRoute(stations: Map<String, Station>, vararg legs: Pair<String, Duration>) = linkedMapOf(
-        *legs.map { stations[it.first]!! to it.second }.toTypedArray()
+        *legs.map { stations[it.first]!! to it.second }.toTypedArray(),
     )
 
     var idCount = 0L
@@ -76,7 +76,7 @@ class TestExampleStates {
             "B" to 3.minutes,
             "C" to 5.minutes,
             "D" to 6.minutes,
-            "E" to 4.minutes
+            "E" to 4.minutes,
         ) // 26 min //every full hour
         val departures1 = start..end step 60.minutes
         val bussesRoute1 = createBussesBySchedule(departures1, route1)
@@ -87,7 +87,7 @@ class TestExampleStates {
             "D" to 6.minutes,
             "C" to 4.minutes,
             "B" to 3.minutes,
-            "A" to 5.minutes
+            "A" to 5.minutes,
         ) // 26 min //every hour, half past
         val departures2 = (start + 30.minutes)..end step 60.minutes
         val bussesRoute2 = createBussesBySchedule(departures2, route2)
@@ -122,7 +122,7 @@ class TestExampleStates {
             if (LOGGING) {
                 println("[${event.receiveTime}] ${queue.size} elements remaining in queue")
                 println(
-                    "  processing: ${event.sender.tag()} > ${event.receiver.tag()}: ${event.content::class.simpleName}"
+                    "  processing: ${event.sender.tag()} > ${event.receiver.tag()}: ${event.content::class.simpleName}",
                 )
                 println("  produced ${messages.size} events.")
             }

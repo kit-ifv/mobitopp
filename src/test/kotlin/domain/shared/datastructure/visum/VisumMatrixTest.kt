@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package domain.shared.datastructure.visum
 
 import domain.shared.datastructure.matrix.StandardMatrix
@@ -10,13 +12,13 @@ class VisumMatrixTest {
     @Test
     fun `test matrix returns correct values`() {
         val matrix = StandardMatrix.parseAsVisumMatrix(
-            Paths.get("src/test/resources/visum_parser/good_case_matrix.mtx")
+            Paths.get("src/test/resources/visum_parser/good_case_matrix.mtx"),
         )
 
         // Assertion for zoneIds
         val zoneIds = arrayOf(
             10101, 10301, 10302, 10601, 10701, 10702, 11001, 11002, 11003, 11101,
-            11102, 11103, 11104, 11201, 11202, 11203
+            11102, 11103, 11104, 11201, 11202, 11203,
         )
         val toZoneId = { id: Int -> ZoneId(id.toLong()) }
 
@@ -53,7 +55,7 @@ class VisumMatrixTest {
             0.085, 0.004, 0.003, 0.004, 0.037, 0.122, 0.055, 0.019, 0.043, 0.033,
             0.010, 0.011, 0.012, 0.001, 40.307, 0.001,
             0.151, 0.004, 0.003, 0.004, 0.042, 0.118, 0.051, 0.018, 0.040, 0.032,
-            0.010, 0.012, 0.013, 0.001, 0.001, 46.766
+            0.010, 0.012, 0.013, 0.001, 0.001, 46.766,
         )
 
         // Compare matrix values

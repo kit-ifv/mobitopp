@@ -9,6 +9,5 @@ fun MinimalistPerson<HasEmployment>.isPrimaryStudent(): Boolean = employment == 
 fun MinimalistPerson<HasEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
 fun MinimalistPerson<HasEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
 
-fun MinimalistPerson<HasEmployment>.isWorker(): Boolean {
-    return employment == Employment.FULLTIME || employment == Employment.PARTTIME
-}
+fun MinimalistPerson<HasEmployment>.isWorker(): Boolean =
+    employment == Employment.FULLTIME || employment == Employment.PARTTIME

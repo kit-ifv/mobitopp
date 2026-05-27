@@ -84,5 +84,5 @@ val carOwnershipCityParameters: CarOwnershipParameters = CarOwnershipParameters(
     b_hh_unemployed_on_4 = -1.81001905327479,
     lambda_car = 0.0563786710826848,
     lambda_two_more_car = 0.0232092332380213,
-    lambda_root = 1.0
+    lambda_root = 1.0,
 )

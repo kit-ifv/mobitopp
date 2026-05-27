@@ -23,15 +23,13 @@ class CommunityBasedGroupLocator<T : MinimumPersonAttributes>(
 ) : SimpleGroupLocator<T> {
 
     private val filteredLocations: Collection<StandardLocation> = potentialLocations.filter { it.hasCommunityMapping() }
-    override fun match(
-        agents: Collection<SurveyPerson<T>>,
-    ): List<StandardLocation> {
+    override fun match(agents: Collection<SurveyPerson<T>>): List<StandardLocation> {
         val targets = agents.groupBy { it.homeLocation.toCommunity() }
         verifyDemand(targets.keys)
         verifyLocationsPresent(targets.keys)
 
         return targets.entries.addProgressBar(
-            "Assigning demands for communities"
+            "Assigning demands for communities",
         ).flatMap { (communityNumber, agents) ->
             val demandsForCommunity = demands[communityNumber]
             val locationsInTargetCommunities = filteredLocations.filter { it.toCommunity() in demandsForCommunity }
@@ -55,22 +53,16 @@ class CommunityBasedGroupLocator<T : MinimumPersonAttributes>(
         }
     }
 
-    private fun StandardLocation.toCommunity(): CommunityNumber {
-        return demands.convert(this)
-    }
+    private fun StandardLocation.toCommunity(): CommunityNumber = demands.convert(this)
 
-    private fun StandardLocation.hasCommunityMapping(): Boolean {
-        return runCatching { toCommunity() }.isSuccess
-    }
+    private fun StandardLocation.hasCommunityMapping(): Boolean = runCatching { toCommunity() }.isSuccess
 }
 
 /**
  * Assign the agents of a given community a corresponding location.
  */
 fun interface AssignAgentsInCommunity<T : MinimumPersonAttributes> {
-    fun assign(
-        communityDemandPlaner: CommunityDemandPlaner<T>,
-    ): List<StandardLocation>
+    fun assign(communityDemandPlaner: CommunityDemandPlaner<T>): List<StandardLocation>
 
     /**
      * Convenience function to construct the wrapper for the Demand planner automatically.
@@ -105,14 +97,12 @@ data class CommunityDemandPlaner<T : MinimumPersonAttributes>(
      * The standard function to assign a location for each agent, find the best location as defined by the strategy
      * and decrease the demand in the community where the target location resides.
      */
-    fun plan(
-        strategy: BestLocationFromDemand<T>,
-    ): List<StandardLocation> {
+    fun plan(strategy: BestLocationFromDemand<T>): List<StandardLocation> {
         val size = agents.size
         if (size > demand.total) {
             System.err.println(
                 "\nThe amount of agents ($size) to be assigned in community ${demand.communityID} " +
-                    "exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment"
+                    "exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment",
             )
         }
         return agents.map { agent ->
@@ -128,15 +118,12 @@ data class CommunityDemandPlaner<T : MinimumPersonAttributes>(
  * which still has an unsaturated demand. If all demands are saturated, use the first
  */
 class TrivialDemands<T : MinimumPersonAttributes>(private val metric: DistanceMetric) : AssignAgentsInCommunity<T> {
-    override fun assign(
-        communityDemandPlaner: CommunityDemandPlaner<T>,
-    ): List<StandardLocation> {
-        return communityDemandPlaner.plan { a, dem, loc ->
+    override fun assign(communityDemandPlaner: CommunityDemandPlaner<T>): List<StandardLocation> =
+        communityDemandPlaner.plan { a, dem, loc ->
             loc.sortedBy {
                 metric.evaluate(a.homeLocation, it)
             }.firstOrNull { !dem.isSaturated(it) } ?: loc.first()
         }
-    }
 }
 
 /**
@@ -145,14 +132,12 @@ class TrivialDemands<T : MinimumPersonAttributes>(private val metric: DistanceMe
 class MetricCommuterDistance<T>(private val metric: DistanceMetric) :
     CommuterDistance<T>() where T : HasCommuteDistance, T : MinimumPersonAttributes {
 
-    override fun differenceToCommuteDistance(agent: SurveyPerson<T>, location: StandardLocation): Distance {
-        return abs(
-            metric.evaluate(
-                agent.homeLocation,
-                location
-            ) - agent.attributes.distanceWork
-        )
-    }
+    override fun differenceToCommuteDistance(agent: SurveyPerson<T>, location: StandardLocation): Distance = abs(
+        metric.evaluate(
+            agent.homeLocation,
+            location,
+        ) - agent.attributes.distanceWork,
+    )
 }
 
 /**
@@ -161,10 +146,8 @@ class MetricCommuterDistance<T>(private val metric: DistanceMetric) :
  * If all demands are saturated, the best location without regard to saturation is used as a fallback.
  */
 open class CommuterDistance<T> : AssignAgentsInCommunity<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
-    override fun assign(
-        communityDemandPlaner: CommunityDemandPlaner<T>,
-    ): List<StandardLocation> {
-        return communityDemandPlaner.plan { agent, demand, locations ->
+    override fun assign(communityDemandPlaner: CommunityDemandPlaner<T>): List<StandardLocation> =
+        communityDemandPlaner.plan { agent, demand, locations ->
             require(locations.isNotEmpty()) {
                 "Cannot assign a location from an empty location list $locations"
             }
@@ -175,13 +158,10 @@ open class CommuterDistance<T> : AssignAgentsInCommunity<T> where T : HasCommute
                 filteredLocations.minBy { differenceToCommuteDistance(agent, it) }
             }
         }
-    }
 
-    open fun differenceToCommuteDistance(agent: SurveyPerson<T>, location: StandardLocation): Distance {
-        return abs(
+    open fun differenceToCommuteDistance(agent: SurveyPerson<T>, location: StandardLocation): Distance = abs(
 
-            agent.homeLocation.distance(location) -
-                agent.attributes.distanceWork
-        )
-    }
+        agent.homeLocation.distance(location) -
+            agent.attributes.distanceWork,
+    )
 }

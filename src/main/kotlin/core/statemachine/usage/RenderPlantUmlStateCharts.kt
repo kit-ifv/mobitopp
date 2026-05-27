@@ -21,7 +21,7 @@ fun GlobalStateMachineUsage.renderAsPumlStateCharts(dir: Path = Path("docs/state
             val file = dir.resolve("${name.asPlantumlAlias()}.puml")
 
             file.toFile().writeText(
-                toPlantUml()
+                toPlantUml(),
             )
         }
     }
@@ -56,15 +56,14 @@ private fun StateUsage.toPlantUml(agents: Int, hasSelfTransition: Boolean, state
     |
 """.trimMargin()
 
-private fun SendMessageUsage.toPlantUml(agents: Int, stateAlias: String) =
-    if (messageCount.isEmpty()) {
-        ""
-    } else {
-        "$stateAlias: msg sent on $trigger:\n" +
-            messageCount.entries.joinToString("\n") { (message, count) ->
-                "$stateAlias: - ${message.asMessageName()} ${count.countString(agents)}"
-            }
-    }
+private fun SendMessageUsage.toPlantUml(agents: Int, stateAlias: String) = if (messageCount.isEmpty()) {
+    ""
+} else {
+    "$stateAlias: msg sent on $trigger:\n" +
+        messageCount.entries.joinToString("\n") { (message, count) ->
+            "$stateAlias: - ${message.asMessageName()} ${count.countString(agents)}"
+        }
+}
 
 private fun TransitionUsage.toPlantUml(agents: Int) = if (stayInState) {
     "${from.asPlantumlAlias()}: - ${key.message.asMessageName()} "

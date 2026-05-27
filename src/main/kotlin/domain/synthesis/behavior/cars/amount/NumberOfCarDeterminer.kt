@@ -10,7 +10,5 @@ fun interface NumberOfCarDeterminer<in S, in T> : AssignmentStep<MinimalistHouse
     fun determineNumberOfCars(householdBuilder: MinimalistHousehold<S, T>): Int
 
     context(random: Random)
-    override fun assign(input: MinimalistHousehold<S, T>): Int {
-        return determineNumberOfCars(input)
-    }
+    override fun assign(input: MinimalistHousehold<S, T>): Int = determineNumberOfCars(input)
 }

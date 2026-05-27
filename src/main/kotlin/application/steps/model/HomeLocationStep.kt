@@ -32,10 +32,8 @@ fun HomeLocationModelContext.householdHomeLocation(
  * Return the step, but do not execute it immediately.
  */
 fun HomeLocationModelContext.assignHouseholdLocation(
-    model: AssignHouseholdLocations<StandardZone, Household> = AssignAroundZoneCentroid(100.meters)
-): HomeLocationStep {
-    return HomeLocationStep(this, model)
-}
+    model: AssignHouseholdLocations<StandardZone, Household> = AssignAroundZoneCentroid(100.meters),
+): HomeLocationStep = HomeLocationStep(this, model)
 
 fun HomeLocationModelContext.groupedHouseholdHomeLocation(
     model: GroupAssignHouseholdLocations<StandardZone, MutableHousehold> =

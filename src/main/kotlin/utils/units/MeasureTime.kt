@@ -11,7 +11,7 @@ fun <R> logTime(label: String, block: () -> R): R {
         println(
             "$label took ${it.inWholeHours} h " +
                 "${it.inWholeMinutes % MINUTES_PER_HOUR} m " +
-                "${it.inWholeSeconds % SECONDS_PER_MINUTE} s"
+                "${it.inWholeSeconds % SECONDS_PER_MINUTE} s",
         )
     }
 

@@ -11,7 +11,6 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRoadAccess
@@ -49,10 +48,8 @@ interface LoadHouseholdContext : DemandSimContext {
     val defaultHouseholdPath: Path
         get() = dataFolder.resolve("demand-data").resolve("household.csv")
 
-    fun getZone(
-        matrixColumn: Int,
-    ) = requireNotNull(
-        zoneColumnIndex[matrixColumn]
+    fun getZone(matrixColumn: Int) = requireNotNull(
+        zoneColumnIndex[matrixColumn],
     ) {
         "Could not find zone with matrix column $matrixColumn " +
             "in index: ${zoneColumnIndex.keys}"
@@ -64,9 +61,7 @@ fun interface HouseholdIDFilter : IDFilter<HouseholdId>
 class PercentOfPopulation(fraction: Double) : HouseholdIDFilter {
     var counter = 0
     val acceptedIncrement = (1 / fraction).roundToInt()
-    override fun accept(id: HouseholdId): Boolean {
-        return (counter % acceptedIncrement == 0).also { counter++ }
-    }
+    override fun accept(id: HouseholdId): Boolean = (counter % acceptedIncrement == 0).also { counter++ }
 }
 
 /**
@@ -104,8 +99,8 @@ fun LoadHouseholdContext.prepareHouseholds(
         columns,
         roadPositionParser,
         incomeUnit,
-        filter
-    )
+        filter,
+    ),
 )
 
 data class HouseholdCsvConfig(
@@ -118,16 +113,12 @@ data class HouseholdCsvConfig(
     var filter: HouseholdColumns.(Row) -> Boolean = { true },
 )
 
-fun LoadHouseholdContext.prepareHouseholds(
-    householdCsvConfig: HouseholdCsvConfig,
-) {
+fun LoadHouseholdContext.prepareHouseholds(householdCsvConfig: HouseholdCsvConfig) {
     val (_, step) = householdsFromCsvStep(householdCsvConfig)
     this@prepareHouseholds.runStep(step)
 }
 
-fun LoadHouseholdContext.spawnCsvParser(
-    householdCsvConfig: HouseholdCsvConfig,
-) = householdCsvConfig.run {
+fun LoadHouseholdContext.spawnCsvParser(householdCsvConfig: HouseholdCsvConfig) = householdCsvConfig.run {
     val parser = CsvParser(errorHandling) { row ->
 
         MutableHousehold(
@@ -146,7 +137,7 @@ fun LoadHouseholdContext.spawnCsvParser(
             location = StandardLocation(
                 position = temp.position,
                 zone = getZone(row.int(columns.zoneColumn)),
-                roadAccess = temp.roadAccess
+                roadAccess = temp.roadAccess,
             )
         }
     }
@@ -165,26 +156,22 @@ fun LoadHouseholdContext.householdsFromCsvStep(
 
 fun LoadHouseholdContext.householdsFromCsvStep(
     config: HouseholdCsvConfig,
-): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
-    return config.run {
-        val parser = this@householdsFromCsvStep.spawnCsvParser(config)
+): FileBasedAddResourceStep<MutableHousehold, HouseholdId> = config.run {
+    val parser = this@householdsFromCsvStep.spawnCsvParser(config)
 
-        val step = LoadCsvStep(
-            path = path,
-            name = "Load households from csv",
-            parser = parser,
-            delimiter = delimiter,
-            repository = householdRepository,
-            dependentRepositories = setOf(zoneRepository),
-            validationMock = listOf() // TODO
-        )
-        FileBasedAddResourceStep(config.path, step)
-    }
+    val step = LoadCsvStep(
+        path = path,
+        name = "Load households from csv",
+        parser = parser,
+        delimiter = delimiter,
+        repository = householdRepository,
+        dependentRepositories = setOf(zoneRepository),
+        validationMock = listOf(), // TODO
+    )
+    FileBasedAddResourceStep(config.path, step)
 }
 
-fun LoadHouseholdContext.runStep(
-    step: AbstractAddResourceStep<MutableHousehold, HouseholdId>,
-) = runStep {
+fun LoadHouseholdContext.runStep(step: AbstractAddResourceStep<MutableHousehold, HouseholdId>) = runStep {
     step
 }
 
@@ -207,10 +194,8 @@ fun LoadHouseholdContext.filterHouseholds(valid: Collection<HouseholdId>) = runS
     FilterHouseholds(this, valid)
 }
 
-class FilterHouseholds(
-    context: LoadHouseholdContext,
-    private val valid: Collection<HouseholdId>,
-) : FilterIdsStep<MutableHousehold, HouseholdId>() {
+class FilterHouseholds(context: LoadHouseholdContext, private val valid: Collection<HouseholdId>) :
+    FilterIdsStep<MutableHousehold, HouseholdId>() {
 
     override val name: String = "filter household ids"
     override val repository: MutableRepository<MutableHousehold, HouseholdId> = context.householdRepository

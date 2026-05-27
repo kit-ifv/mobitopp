@@ -8,11 +8,7 @@ import kotlin.math.sqrt
 
 class ReadOnlyKDTreeTest {
 
-    private data class TestElement(
-        val x: Int,
-        val y: Int,
-        val z: Int,
-    ) {
+    private data class TestElement(val x: Int, val y: Int, val z: Int) {
 
         fun distanceTo(point: DoubleArray): Double {
             require(point.size == 3) {
@@ -27,12 +23,10 @@ class ReadOnlyKDTreeTest {
              * @param bound the dimensions of the cube
              */
 
-            fun generateGrid(bound: IntRange = 0..5): List<TestElement> {
-                return bound.flatMap { x ->
-                    bound.flatMap { y ->
-                        bound.map { z ->
-                            TestElement(x, y, z)
-                        }
+            fun generateGrid(bound: IntRange = 0..5): List<TestElement> = bound.flatMap { x ->
+                bound.flatMap { y ->
+                    bound.map { z ->
+                        TestElement(x, y, z)
                     }
                 }
             }
@@ -59,7 +53,7 @@ class ReadOnlyKDTreeTest {
         testPoints.forEach {
             Assertions.assertTrue(
                 tree.nearestNeighbor(it) in points.groupBy { point -> point.distanceTo(it) }
-                    .minBy { m -> m.key }.value
+                    .minBy { m -> m.key }.value,
             )
         }
     }

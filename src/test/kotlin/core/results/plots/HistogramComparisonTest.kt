@@ -5,10 +5,9 @@ import kotlin.test.Test
 @Tag("plot")
 class HistogramComparisonTest {
 
-    private fun plotterBuilder() =
-        forData { data }
-            .groupBy { it }
-            .count { it }
+    private fun plotterBuilder() = forData { data }
+        .groupBy { it }
+        .count { it }
 
     @Test
     fun `test comparison`() {
@@ -47,5 +46,5 @@ private val xMapping =
     mapOf(
         '1' to "var1",
         '2' to "var2",
-        '3' to "var3"
+        '3' to "var3",
     )

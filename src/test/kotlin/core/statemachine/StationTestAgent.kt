@@ -13,10 +13,12 @@ interface Station : Agent<StationMessage> {
     val name: String
 }
 
-class StationAgent(override val name: String) : StateBasedAgent<StationMessage>, Station {
+class StationAgent(override val name: String) :
+    StateBasedAgent<StationMessage>,
+    Station {
     override val stateMachine = stationStateMachine.create(
         AbsoluteTime.Companion.START,
-        this
+        this,
     ) // TODO move factory to constructor?
 
     private val currentBusses: MutableList<Bus> = mutableListOf()
@@ -89,7 +91,7 @@ val stationStateMachine = stateMachine<StationAgent>("StationAgentStateMachine")
 
     start(
         StartStation,
-        ::startStation
+        ::startStation,
     ).on(WaitingPassenger) { message, send ->
         val passenger = message.passenger
         agent.getBusForPassenger(passenger)?.let {

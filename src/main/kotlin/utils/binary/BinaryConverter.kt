@@ -39,9 +39,7 @@ fun interface BinaryReader<out MUTABLE> {
         return elements
     }
 
-    fun ByteBuffer.getBoolean(): Boolean {
-        return get().toInt() != 0
-    }
+    fun ByteBuffer.getBoolean(): Boolean = get().toInt() != 0
 
     /**
      * Read the first entry to represent what file the binary entry comes from.
@@ -102,9 +100,7 @@ fun interface BinaryWriter<in READONLY> {
         outStream.writeInt(getMaxStringSize(elements))
     }
 
-    fun getMaxStringSize(elements: Collection<READONLY>): Int {
-        return 0
-    }
+    fun getMaxStringSize(elements: Collection<READONLY>): Int = 0
 
     /**
      * Defines the custom logic for writing a collection of [READONLY] objects to a [DataOutputStream].

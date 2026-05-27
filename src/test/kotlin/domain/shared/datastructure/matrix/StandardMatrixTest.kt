@@ -79,7 +79,7 @@ class StandardMatrixTest {
         val c = ZoneId(9001)
         val standardMatrix = StandardMatrix.fromValues(
             listOf(0.0, 1.0, 0.01, 655.34, 999999.0, 9001.0, 100.15, 2.2, 3.3),
-            listOf(a, b, c)
+            listOf(a, b, c),
         )
         val format = MatrixShortFormat
         format.serialize(PathChecksum.from(1L), standardMatrix, targetPathS)

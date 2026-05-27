@@ -16,7 +16,9 @@ interface BinarySerializer {
     fun serialize(checksum: PathChecksum, matrix: StandardMatrix, path: Path)
 }
 
-interface StandardMatrixBinaryFormat : BinaryStandardSerializer, BinaryStandardDeserializer {
+interface StandardMatrixBinaryFormat :
+    BinaryStandardSerializer,
+    BinaryStandardDeserializer {
     val fileExtension: String
 }
 
@@ -53,52 +55,44 @@ interface BinaryDeserializer {
 
 interface BinaryStandardDeserializer : BinaryDeserializer {
     val elementByteSize: Int
-    override fun deserialize(path: Path): StandardMatrix {
-        return path.inputStream().buffered().use {
-            val input = DataInputStream(it)
-            input.readLong() // Skip the hashcode found at position 0 in the file as a long.
-            val size = input.readInt()
-            val zoneIds = Array(size) {
-                ZoneId(-1)
-            }
-            for (i in 0 until size) {
-                zoneIds[i] = ZoneId(
-                    input.readInt().toLong()
-                ) // The established format is writing IDs (represented as long) as int, so we need to read them as int.
-            }
-
-            val amountOfElements = size * size
-            val byteCount = amountOfElements * elementByteSize
-            val buffer = ByteArray(byteCount)
-            input.readFully(buffer)
-            val bb = ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN)
-            val doubleArray = readContentFromBuffer(bb, amountOfElements)
-            StandardMatrix.fromValues(doubleArray, zoneIds, path)
+    override fun deserialize(path: Path): StandardMatrix = path.inputStream().buffered().use {
+        val input = DataInputStream(it)
+        input.readLong() // Skip the hashcode found at position 0 in the file as a long.
+        val size = input.readInt()
+        val zoneIds = Array(size) {
+            ZoneId(-1)
         }
+        for (i in 0 until size) {
+            zoneIds[i] = ZoneId(
+                input.readInt().toLong(),
+            ) // The established format is writing IDs (represented as long) as int, so we need to read them as int.
+        }
+
+        val amountOfElements = size * size
+        val byteCount = amountOfElements * elementByteSize
+        val buffer = ByteArray(byteCount)
+        input.readFully(buffer)
+        val bb = ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN)
+        val doubleArray = readContentFromBuffer(bb, amountOfElements)
+        StandardMatrix.fromValues(doubleArray, zoneIds, path)
     }
 
     /*
     Since this format is the one using hash codes at position0 it should also be the interface that provides easy access
     to the hash code.
      */
-    fun checksum(path: Path): PathChecksum {
-        return path.inputStream().buffered().use {
-            val result = runCatching { PathChecksum.from(DataInputStream(it).readLong()) }
-            if (result.isFailure) {
-                println("The failure path is $path")
-            }
-            result.getOrThrow()
+    fun checksum(path: Path): PathChecksum = path.inputStream().buffered().use {
+        val result = runCatching { PathChecksum.from(DataInputStream(it).readLong()) }
+        if (result.isFailure) {
+            println("The failure path is $path")
         }
+        result.getOrThrow()
     }
 
     fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray
 }
 
-internal inline fun readLoop(
-    bb: ByteBuffer,
-    elements: Int,
-    crossinline decode: (ByteBuffer) -> Double
-): DoubleArray {
+internal inline fun readLoop(bb: ByteBuffer, elements: Int, crossinline decode: (ByteBuffer) -> Double): DoubleArray {
     val array = DoubleArray(elements)
     for (i in 0 until elements) {
         array[i] = decode(bb)
@@ -110,7 +104,7 @@ internal inline fun writeBuffer(
     output: DataOutputStream,
     values: DoubleArray,
     bytesPerElement: Int,
-    crossinline encode: ByteBuffer.(Double) -> Unit
+    crossinline encode: ByteBuffer.(Double) -> Unit,
 ) {
     val bb = ByteBuffer.allocate(values.size * bytesPerElement).order(ByteOrder.BIG_ENDIAN)
     for (v in values) {

@@ -48,7 +48,9 @@ sealed interface Action : Comparable<Action> {
      reader will understand what exactly is happening
      */
     override fun compareTo(other: Action): Int {
-        if (startTime == other.startTime && endTime == other.endTime) { return 0 }
+        if (startTime == other.startTime && endTime == other.endTime) {
+            return 0
+        }
         if (endTime <= other.startTime) return -1
         if (other.endTime <= startTime) return 1
         return 0
@@ -70,26 +72,21 @@ sealed interface Action : Comparable<Action> {
 /**
  * Strong consistency occurs when the actions are weakly consistent and all actions are well structured.
  */
-fun Iterable<Action>.isConsistent(): Boolean {
-    return isWeaklyConsistent() && all { it.startTime <= it.endTime }
-}
+fun Iterable<Action>.isConsistent(): Boolean = isWeaklyConsistent() && all { it.startTime <= it.endTime }
 
 /**
  * This method verifies the consistency of any iterable of actions by having continuous locations and no time interval
  * overlaps
  *
  */
-fun Iterable<Action>.isWeaklyConsistent(): Boolean {
-    return zipWithNext { first, second ->
-        first.endLocation == second.startLocation && first.endTime <= second.startTime }.all { it }
-}
-fun Iterable<Action>.hasTimeBoundViolations(): Boolean {
-    return any { it.startTime < it.earliestStartTime || it.endTime > it.latestEndTime }
+fun Iterable<Action>.isWeaklyConsistent(): Boolean = zipWithNext { first, second ->
+    first.endLocation == second.startLocation && first.endTime <= second.startTime
+}.all { it }
+fun Iterable<Action>.hasTimeBoundViolations(): Boolean = any {
+    it.startTime < it.earliestStartTime || it.endTime > it.latestEndTime
 }
 
-operator fun Iterable<Action>.contains(action: Action): Boolean {
-    return any { it.compareTo(action) == 0 }
-}
+operator fun Iterable<Action>.contains(action: Action): Boolean = any { it.compareTo(action) == 0 }
 
 /**
  * A [StationaryAction] is an [Action] that takes place at one and only one Location. The [startLocation] and [endLocation]
@@ -150,9 +147,7 @@ interface Activity : StationaryAction {
 
     override fun hashCode(): Int
 
-    override fun <T> accept(actionVisitor: ActionVisitor<T>): T {
-        return actionVisitor.visitActivity(this)
-    }
+    override fun <T> accept(actionVisitor: ActionVisitor<T>): T = actionVisitor.visitActivity(this)
 
     fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedActivity {
         val act = LinkedActivity(this)
@@ -182,16 +177,14 @@ interface Activity : StationaryAction {
             earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
             latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
             type: ActivityType = ActivityType.UNKNOWN,
-        ): Activity {
-            return RawActivity(
-                location = location,
-                startTime = startTime,
-                endTime = startTime + duration,
-                earliestStartTime = earliestStartTime,
-                latestEndTime = latestEndTime,
-                type = type
-            )
-        }
+        ): Activity = RawActivity(
+            location = location,
+            startTime = startTime,
+            endTime = startTime + duration,
+            earliestStartTime = earliestStartTime,
+            latestEndTime = latestEndTime,
+            type = type,
+        )
     }
 }
 
@@ -262,9 +255,7 @@ interface Leg : MovingAction {
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 
-    override fun <T> accept(actionVisitor: ActionVisitor<T>): T {
-        return actionVisitor.visitLeg(this)
-    }
+    override fun <T> accept(actionVisitor: ActionVisitor<T>): T = actionVisitor.visitLeg(this)
 
     fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedLeg {
         val act = LinkedLeg(this)
@@ -293,15 +284,13 @@ interface Leg : MovingAction {
             startLocation: StandardLocation,
             endLocation: StandardLocation,
             mode: Mode = MODEUNKOWN,
-        ): Leg {
-            return RawLeg(
-                startTime = startTime,
-                endTime = startTime + duration,
-                startLocation = startLocation,
-                endLocation = endLocation,
-                transportType = mode
-            )
-        }
+        ): Leg = RawLeg(
+            startTime = startTime,
+            endTime = startTime + duration,
+            startLocation = startLocation,
+            endLocation = endLocation,
+            transportType = mode,
+        )
 
         /**
          * Generates a leg with the provided [startLocation], [startTime], [endLocation] and [endTime].
@@ -320,15 +309,13 @@ interface Leg : MovingAction {
             startLocation: StandardLocation,
             endLocation: StandardLocation,
             mode: Mode = MODEUNKOWN,
-        ): Leg {
-            return RawLeg(
-                startTime = startTime,
-                endTime = endTime,
-                startLocation = startLocation,
-                endLocation = endLocation,
-                transportType = mode
-            )
-        }
+        ): Leg = RawLeg(
+            startTime = startTime,
+            endTime = endTime,
+            startLocation = startLocation,
+            endLocation = endLocation,
+            transportType = mode,
+        )
     }
 }
 
@@ -368,12 +355,10 @@ data class RawLeg(
         return result
     }
 
-    override fun toString(): String {
-        return "[$startTime, $endTime] mode=$transportType, from=$startLocation to=$endLocation"
-    }
+    override fun toString(): String = "[$startTime, $endTime] mode=$transportType, from=$startLocation to=$endLocation"
 }
 
 enum class ActionType {
     ACTIVITY,
-    LEG
+    LEG,
 }

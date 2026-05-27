@@ -28,7 +28,7 @@ class EventStepper(
         assertEquals(
             eventQueue.size,
             expectedQueueSize,
-            "Mismatch: current Queue is ${eventQueue.joinToString { it.toString() }}"
+            "Mismatch: current Queue is ${eventQueue.joinToString { it.toString() }}",
         )
     }
 
@@ -37,7 +37,7 @@ class EventStepper(
         assertEquals(
             eventQueue.size,
             expectedQueueSize,
-            "Mismatch: current Queue is ${eventQueue.joinToString { it.toString() }}"
+            "Mismatch: current Queue is ${eventQueue.joinToString { it.toString() }}",
         )
     }
 

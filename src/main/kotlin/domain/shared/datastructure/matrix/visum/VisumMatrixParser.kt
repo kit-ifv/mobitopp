@@ -12,9 +12,7 @@ const val NUMBER_LINE_PATTERN = "[\\d|\\s.-]+"
 const val OBJ = "* Obj"
 private val AS_DOUBLE: (String) -> Double = { it.toDouble() }
 private val AS_ZONE_ID: (String) -> ZoneId = { ZoneId(it.toLong()) }
-private fun String.splitByWhitespace(): List<String> {
-    return this.trim().split(Regex("\\s+"))
-}
+private fun String.splitByWhitespace(): List<String> = this.trim().split(Regex("\\s+"))
 
 /**
  * The `MatrixParser` class is responsible for parsing a matrix from a file and converting it into a `Matrix` object.
@@ -43,20 +41,16 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
     enum class MatrixParseState {
         LOCATE_NUMBER {
 
-            override fun nextState(s: String): MatrixParseState {
-                return when (s) {
-                    "* Anzahl Netzobjekte" -> FOUND_HEADER
-                    else -> this
-                }
+            override fun nextState(s: String): MatrixParseState = when (s) {
+                "* Anzahl Netzobjekte" -> FOUND_HEADER
+                else -> this
             }
         },
         FOUND_HEADER {
 
-            override fun nextState(s: String): MatrixParseState {
-                return when (s.toIntOrNull()) {
-                    is Int -> READ_NUMBER
-                    else -> this
-                }
+            override fun nextState(s: String): MatrixParseState = when (s.toIntOrNull()) {
+                is Int -> READ_NUMBER
+                else -> this
             }
         },
         READ_NUMBER {
@@ -65,21 +59,17 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
                 m.setInitialSize(s.toInt())
             }
 
-            override fun nextState(s: String): MatrixParseState {
-                return when (s) {
-                    "* Netzobjekt-Nummern" -> LOCATE_ZONE_IDS
-                    else -> this
-                }
+            override fun nextState(s: String): MatrixParseState = when (s) {
+                "* Netzobjekt-Nummern" -> LOCATE_ZONE_IDS
+                else -> this
             }
         },
 
         LOCATE_ZONE_IDS {
 
-            override fun nextState(s: String): MatrixParseState {
-                return when {
-                    s.matches(Regex(NUMBER_LINE_PATTERN)) -> READ_ZONE_IDS
-                    else -> this
-                }
+            override fun nextState(s: String): MatrixParseState = when {
+                s.matches(Regex(NUMBER_LINE_PATTERN)) -> READ_ZONE_IDS
+                else -> this
             }
         },
         READ_ZONE_IDS {
@@ -87,20 +77,16 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
                 m.addZones(s)
             }
 
-            override fun nextState(s: String): MatrixParseState {
-                return when {
-                    s.matches(Regex(NUMBER_LINE_PATTERN)) -> this
-                    else -> LOCATE_CONTENT_HEADER
-                }
+            override fun nextState(s: String): MatrixParseState = when {
+                s.matches(Regex(NUMBER_LINE_PATTERN)) -> this
+                else -> LOCATE_CONTENT_HEADER
             }
         },
         LOCATE_CONTENT_HEADER {
 
-            override fun nextState(s: String): MatrixParseState {
-                return when {
-                    s.startsWith(OBJ) -> READ_CONTENT_HEADER
-                    else -> this
-                }
+            override fun nextState(s: String): MatrixParseState = when {
+                s.startsWith(OBJ) -> READ_CONTENT_HEADER
+                else -> this
             }
         },
         READ_CONTENT_HEADER {
@@ -108,23 +94,19 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
                 m.increaseIndex()
             }
 
-            override fun nextState(s: String): MatrixParseState {
-                return READ_CONTENT
-            }
+            override fun nextState(s: String): MatrixParseState = READ_CONTENT
         },
         READ_CONTENT {
             override fun handle(s: String, m: VisumMatrixParser) {
                 m.addContent(s)
             }
 
-            override fun nextState(s: String): MatrixParseState {
-                return when {
-                    s.matches(Regex(NUMBER_LINE_PATTERN)) -> this
-                    s.startsWith(OBJ) -> READ_CONTENT_HEADER
-                    else -> LOCATE_CONTENT_HEADER
-                }
+            override fun nextState(s: String): MatrixParseState = when {
+                s.matches(Regex(NUMBER_LINE_PATTERN)) -> this
+                s.startsWith(OBJ) -> READ_CONTENT_HEADER
+                else -> LOCATE_CONTENT_HEADER
             }
-        };
+        }, ;
 
         open fun handle(s: String, m: VisumMatrixParser) {
         }
@@ -154,11 +136,7 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
 //        return Matrix(mutableList.withIndex().associate { it.value to it.index }, values)
 //    }
 
-    override fun getZoneIds(): Array<ZoneId> {
-        return mutableList.toTypedArray()
-    }
+    override fun getZoneIds(): Array<ZoneId> = mutableList.toTypedArray()
 
-    override fun getArray(): DoubleArray {
-        return values.flatten().toDoubleArray()
-    }
+    override fun getArray(): DoubleArray = values.flatten().toDoubleArray()
 }

@@ -15,10 +15,6 @@ fun Double.round(decimals: Int): Double {
  * Convenience function to get an [AbsoluteTime] from a number, by converting to Double -> Duration in Hours ->
  * Absolute Time.
  */
-fun Number.toAbsoluteHours(): AbsoluteTime {
-    return toDouble().hours.sinceStart
-}
+fun Number.toAbsoluteHours(): AbsoluteTime = toDouble().hours.sinceStart
 
-fun Number.toAbsoluteMinutes(): AbsoluteTime {
-    return toDouble().minutes.sinceStart
-}
+fun Number.toAbsoluteMinutes(): AbsoluteTime = toDouble().minutes.sinceStart

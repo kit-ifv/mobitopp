@@ -13,5 +13,5 @@ data class Conflict(
     val endTime: AbsoluteTime,
     val startLocation: HasZoneId?,
     val endLocation: HasZoneId?,
-    val actions: List<StationaryAction>
+    val actions: List<StationaryAction>,
 )

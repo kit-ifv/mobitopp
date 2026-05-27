@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package domain.synthesis.fixedDestinations.communityBased
 
 import TestZone
@@ -35,7 +37,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         person {
             Attrs(
                 10,
-                Sex.MALE
+                Sex.MALE,
             )
         }
     }
@@ -43,7 +45,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         person {
             Attrs(
                 20,
-                Sex.MALE
+                Sex.MALE,
             )
         }
     }
@@ -169,12 +171,12 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         val consoleOutput = captor.getText()
         assertContains(
             consoleOutput,
-            "(3) to be assigned in community CommunityNumber(int=2)"
+            "(3) to be assigned in community CommunityNumber(int=2)",
         )
 
         assertContains(
             consoleOutput,
-            "(2) to be assigned in community CommunityNumber(int=1)"
+            "(2) to be assigned in community CommunityNumber(int=1)",
         )
         assertEquals(work2, output[0])
         assertEquals(work3, output[1])

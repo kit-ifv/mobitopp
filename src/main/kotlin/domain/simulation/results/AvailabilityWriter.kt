@@ -27,9 +27,7 @@ object NoAvailabilityWriter : AvailabilityWriter {
     }
 }
 
-class ConcurrentAvailabilityWriter(
-    filePath: Path
-) : AvailabilityWriter {
+class ConcurrentAvailabilityWriter(filePath: Path) : AvailabilityWriter {
     private val channel: Channel<String> = Channel(Channel.UNLIMITED)
 
     private val job: Job = AppScope.launch {

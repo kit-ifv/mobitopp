@@ -30,7 +30,7 @@ interface Resource<out E> {
 data class SequenceResource<out E>(
     override val name: String,
     override val source: String,
-    override val elements: Sequence<E>
+    override val elements: Sequence<E>,
 ) : Resource<E> {
     override fun toString() = "$name ($source)"
 }
@@ -104,9 +104,7 @@ class CsvResource<E>(
  * @param E the generic type of provided entities
  * @property delegate the resource that should be made reusable
  */
-class ReusableResource<E>(
-    private val delegate: Resource<E>
-) : Resource<E> by delegate {
+class ReusableResource<E>(private val delegate: Resource<E>) : Resource<E> by delegate {
     private var storage: List<E>? = null
 
     override val elements: Sequence<E>

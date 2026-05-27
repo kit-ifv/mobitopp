@@ -24,14 +24,14 @@ fun LoadPersonsContext.loadPersonsFromBinary(path: Path) {
         householdRepository.elements.associateBy { it.id }::getValue,
         sharingProviderRepository.elements.associateBy { it.id }::getValue,
         drtProviderRepository.elements.associateBy { it.id }::getValue,
-        simulationSeed
+        simulationSeed,
     )
     runStep {
         LoadBinaryStep(
             path,
             parser = converter,
             repository = personRepository,
-            dependentRepositories = setOf(householdRepository)
+            dependentRepositories = setOf(householdRepository),
         )
     }
 }
@@ -65,7 +65,7 @@ fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
     val converter = BinaryActivityReader(
         activityTypes,
         { personRepository.find(it) ?: throw NoSuchElementException("No person of id $it in personRepository") },
-        simulationSeed
+        simulationSeed,
     )
     runStep {
         LoadBinaryStep(path, converter, plannedActivityRepository, setOf(personRepository))

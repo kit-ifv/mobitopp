@@ -17,7 +17,8 @@ class SynthesisHousehold<S : MinimumHouseholdAttributes, T : MinimumPersonAttrib
     override val surveyHouseholdId: Long = 0,
     override val attributes: S,
     override val members: MutableList<SynthesisPerson<S, T>> = mutableListOf(),
-) : ISurveyHousehold<S, T>, List<SynthesisPerson<S, T>> by members {
+) : ISurveyHousehold<S, T>,
+    List<SynthesisPerson<S, T>> by members {
     val id = getNextId()
 
     // Whatever the type T is of my household class, the members must be at least that type or better
@@ -28,27 +29,30 @@ class SynthesisHousehold<S : MinimumHouseholdAttributes, T : MinimumPersonAttrib
     @TestOnly
     fun locationIsAssigned() = attributes.location != StandardLocation.Companion.LOCATIONUNKNOWN
     fun addMember(member: SurveyPerson<T>, copyLambda: (T) -> T) {
-        members.add(SynthesisPerson(this, age = member.age, sex = member.sex, attributes = copyLambda(
-            member
-                .attributes
-        )))
+        members.add(
+            SynthesisPerson(
+                this,
+                age = member.age,
+                sex = member.sex,
+                attributes = copyLambda(
+                    member
+                        .attributes,
+                ),
+            ),
+        )
     }
 
     /**
      * Add members inserts the target readonly members into this household, requires a copy function to create a new
      * attribute instance for each member, so that no duplicate access problems occur.
      */
-    fun addMembers(
-        members: Collection<SurveyPerson<T>>,
-        copyLambda: (T) -> T
-    ) = members.forEach { addMember(it, copyLambda) }
+    fun addMembers(members: Collection<SurveyPerson<T>>, copyLambda: (T) -> T) =
+        members.forEach { addMember(it, copyLambda) }
 
     companion object {
         private val counter = AtomicInteger(0)
 
-        private fun getNextId(): Int {
-            return counter.getAndIncrement()
-        }
+        private fun getNextId(): Int = counter.getAndIncrement()
     }
 
     override val size: Int

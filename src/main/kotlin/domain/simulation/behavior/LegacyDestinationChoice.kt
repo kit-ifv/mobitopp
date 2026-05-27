@@ -1,4 +1,4 @@
-@file: Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
+@file:Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
 
 package domain.simulation.behavior
 
@@ -145,7 +145,7 @@ val DestinationAlternative.attractivity: Double
     get() =
         attractivityModel.attractivenessFor(
             choice.zoneId,
-            purpose
+            purpose,
         ).value
 val DestinationAlternative.distance: Distance get() = impedance.distance(origin, choice, LegacyMode.CAR)
 val DestinationAlternative.isIntrazonal: Double get() = (origin.zoneId == choice.zoneId).D
@@ -155,7 +155,7 @@ val DestinationAlternative.travelTimePed: Duration
         origin,
         choice,
         LegacyMode.PEDESTRIAN,
-        time
+        time,
     )
 val DestinationAlternative.travelTimeBike: Duration get() = impedance.duration(origin, choice, LegacyMode.BIKE, time)
 val DestinationAlternative.travelTimePut: Duration
@@ -163,7 +163,7 @@ val DestinationAlternative.travelTimePut: Duration
         origin,
         choice,
         LegacyMode.PUBLICTRANSPORT,
-        time
+        time,
     )
 val DestinationAlternative.travelTimeCar: Duration get() = impedance.duration(origin, choice, LegacyMode.CAR, time)
 val DestinationAlternative.travelCostPut: Currency
@@ -171,7 +171,7 @@ val DestinationAlternative.travelCostPut: Currency
         origin,
         choice,
         LegacyMode.PUBLICTRANSPORT,
-        time
+        time,
     )
 val DestinationAlternative.travelCostCar: Currency get() = impedance.cost(origin, choice, LegacyMode.CAR, time)
 
@@ -188,54 +188,53 @@ val DestinationAlternative.travelTimeFixedPed: Duration
         choice,
         nextFixedDestination,
         LegacyMode.PEDESTRIAN,
-        nextFixedActivityEnd
+        nextFixedActivityEnd,
     )
 val DestinationAlternative.travelTimeFixedBike: Duration
     get() = impedance.duration(
         choice,
         nextFixedDestination,
         LegacyMode.BIKE,
-        nextFixedActivityEnd
+        nextFixedActivityEnd,
     )
 val DestinationAlternative.travelTimeFixedPut: Duration
     get() = impedance.duration(
         choice,
         nextFixedDestination,
         LegacyMode.PUBLICTRANSPORT,
-        nextFixedActivityEnd
+        nextFixedActivityEnd,
     )
 val DestinationAlternative.travelTimeFixedCar: Duration
     get() = impedance.duration(
         choice,
         nextFixedDestination,
         LegacyMode.CAR,
-        nextFixedActivityEnd
+        nextFixedActivityEnd,
     )
 val DestinationAlternative.travelCostFixedPut: Currency
     get() = impedance.cost(
         choice,
         nextFixedDestination,
         LegacyMode.PUBLICTRANSPORT,
-        nextFixedActivityEnd
+        nextFixedActivityEnd,
     )
 val DestinationAlternative.travelCostFixedBikesharing: Currency
     get() = impedance.cost(
         choice,
         nextFixedDestination,
         LegacyMode.BIKESHARING,
-        nextFixedActivityEnd
+        nextFixedActivityEnd,
     )
 val DestinationAlternative.travelCostFixedCar: Currency
     get() = impedance.cost(
         choice,
         nextFixedDestination,
         LegacyMode.CAR,
-        nextFixedActivityEnd
+        nextFixedActivityEnd,
     )
 
 // availability properties
-fun DestinationAlternative.isAvailable(mode: Mode) =
-    modeAvailabilityFilter.filter(mode)
+fun DestinationAlternative.isAvailable(mode: Mode) = modeAvailabilityFilter.filter(mode)
 
 val DestinationAlternative.isPedAvailable get() = isAvailable(LegacyMode.PEDESTRIAN)
 val DestinationAlternative.isBikeAvailable get() = isAvailable(LegacyMode.BIKE)
@@ -249,7 +248,7 @@ val studentTypes = listOf(
     Employment.STUDENT_PRIMARY,
     Employment.STUDENT_SECONDARY,
     Employment.STUDENT_TERTIARY,
-    Employment.EDUCATION
+    Employment.EDUCATION,
 )
 val noWorkTypes = listOf(Employment.HOMEKEEPER, Employment.UNEMPLOYED)
 val Distance.kilometers get() = this.toDouble(DistanceUnit.KILOMETERS)
@@ -305,7 +304,7 @@ val legacyDestinationChoiceBuilder =
                             exp( // utility_put
                                 asc_put +
                                     b_tt_put * min(999.0, it.travelTimePut.minutes) +
-                                    b_cost * min(999.0, it.travelCostPut.euros)
+                                    b_cost * min(999.0, it.travelCostPut.euros),
                                 // + b_tt_acc_put * ( 1000 >
                                 // ACCESS_TIME_PUBLICTRANSPORT & 1000 > EGRESS_TIME_PUBLICTRANSPORT ) ?
                                 // ( ACCESS_TIME_PUBLICTRANSPORT + EGRESS_TIME_PUBLICTRANSPORT ) : ( 999 )
@@ -316,12 +315,12 @@ val legacyDestinationChoiceBuilder =
                             ) +
                                 exp( // utility_ped
                                     asc_ped +
-                                        b_tt_ped * min(999.0, it.travelTimePed.minutes)
+                                        b_tt_ped * min(999.0, it.travelTimePed.minutes),
                                 ) +
                                 exp( // utility_bike
                                     asc_bike +
-                                        b_tt_bike * min(999.0, it.travelTimeBike.minutes)
-                                )
+                                        b_tt_bike * min(999.0, it.travelTimeBike.minutes),
+                                ),
                         ) + (!it.isPedAvailable && !it.isBikeAvailable && !it.isPutAvailable).D * (-50)
                         )
                     ) +
@@ -344,12 +343,12 @@ val legacyDestinationChoiceBuilder =
                             it.isCarAvailable.D * exp( // utility_car_d
                                 asc_car_d +
                                     b_tt_car_d * min(999.0, it.travelTimeCar.minutes) +
-                                    b_cost * min(999.0, it.travelCostCar.euros)
+                                    b_cost * min(999.0, it.travelCostCar.euros),
                             ) +
                                 exp( // utility_car_p
                                     asc_car_p +
-                                        b_tt_car_p * min(999.0, it.travelTimeCar.minutes + 3)
-                                )
+                                        b_tt_car_p * min(999.0, it.travelTimeCar.minutes + 3),
+                                ),
                         ) + (!it.isCarAvailable && !it.isPassengerAvailable) * (-50)
                         )
 
@@ -373,26 +372,26 @@ val legacyDestinationChoiceBuilder =
                             exp( // utility_put
                                 asc_put +
                                     b_tt_put * min(999.0, it.travelTimeFixedPut.minutes) +
-                                    b_cost * min(999.0, it.travelCostFixedPut.euros)
+                                    b_cost * min(999.0, it.travelCostFixedPut.euros),
                                 // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT_FIX > (-50))?(LOGSUM_ACC_PUT_FIX):(-50))
                                 // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT_FIX > (-50))?(LOGSUM_EGR_PUT_FIX):(-50))
                             ) +
 
                                 exp( // utility_ped
                                     asc_ped +
-                                        b_tt_ped * min(999.0, it.travelTimeFixedPed.minutes)
+                                        b_tt_ped * min(999.0, it.travelTimeFixedPed.minutes),
                                 ) +
 
                                 exp( // utility_bike
                                     asc_bike +
-                                        b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes)
+                                        b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes),
                                 ) +
 
                                 it.isBikesharingAvailable.D * exp( // utility_bike
                                     asc_bs +
                                         b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes) +
-                                        b_cost * min(999.0, it.travelCostFixedBikesharing.euros)
-                                )
+                                        b_cost * min(999.0, it.travelCostFixedBikesharing.euros),
+                                ),
                         ) + (!it.isPedAvailable && !it.isBikeAvailable && !it.isPutAvailable).D * (-50)
 
                         )
@@ -416,13 +415,13 @@ val legacyDestinationChoiceBuilder =
                             it.isCarAvailable * exp( // utility_car_d
                                 asc_car_d +
                                     b_tt_car_d * min(999.0, it.travelTimeFixedCar.minutes) +
-                                    b_cost * min(999.0, it.travelCostFixedCar.euros)
+                                    b_cost * min(999.0, it.travelCostFixedCar.euros),
                             ) +
 
                                 exp( // utility_car_p
                                     asc_car_p +
-                                        b_tt_car_p * min(999.0, it.travelTimeFixedCar.minutes + 3)
-                                )
+                                        b_tt_car_p * min(999.0, it.travelTimeFixedCar.minutes + 3),
+                                ),
                         ) + (!it.isCarAvailable && !it.isPassengerAvailable).D * (-50)
                         )
                     )
@@ -430,5 +429,5 @@ val legacyDestinationChoiceBuilder =
     }.openMultinomialLogit("LegacyDestinationChoiceModel")
 
 val legacyDestinationChoice = legacyDestinationChoiceBuilder.build(
-    parameters = DestinationChoiceParameters()
+    parameters = DestinationChoiceParameters(),
 )

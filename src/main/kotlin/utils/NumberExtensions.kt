@@ -9,10 +9,6 @@ package utils
  * Binary search indicates such a case with a negative sign. In the case that we found the element we return the index
  * as usual
  */
-fun Int.smallerIndex(): Int {
-    return if (this < 0) -this - 2 else this
-}
+fun Int.smallerIndex(): Int = if (this < 0) -this - 2 else this
 
-fun Int.indexOfSearch(): Int {
-    return if (this < 0) -this - 1 else this
-}
+fun Int.indexOfSearch(): Int = if (this < 0) -this - 1 else this

@@ -24,9 +24,8 @@ class BinaryPersonReader(
     val converter: (HouseholdId) -> MutableHousehold?,
     val sharingConverter: (SharingProviderId) -> SharingProvider,
     val drtConverter: (DrtProviderId) -> DrtProvider,
-    private val contextSimulationSeed: Long
-) :
-    BinaryReader<MutablePerson> {
+    private val contextSimulationSeed: Long,
+) : BinaryReader<MutablePerson> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutablePerson? {
         val id = PersonId(long)

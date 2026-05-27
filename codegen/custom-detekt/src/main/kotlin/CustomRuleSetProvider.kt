@@ -1,15 +1,15 @@
-import io.gitlab.arturbosch.detekt.api.Config
-import io.gitlab.arturbosch.detekt.api.RuleSet
-import io.gitlab.arturbosch.detekt.api.RuleSetProvider
+import dev.detekt.api.Config
+import dev.detekt.api.RuleSet
+import dev.detekt.api.RuleSetId
+import dev.detekt.api.RuleSetProvider
 
 class CustomRuleSetProvider : RuleSetProvider {
-    override val ruleSetId: String = "custom-rules"
+    override val ruleSetId: RuleSetId = RuleSetId("custom-rules")
 
-    override fun instance(config: Config): RuleSet {
+    override fun instance(): RuleSet {
         return RuleSet(ruleSetId,
             listOf(
-                //LayeredArchitecture(config.subConfig(LAYERED_ARCHITECTURE))
-                        LayeredArchitecture(config)
+                ::LayeredArchitecture
             )
         )
     }

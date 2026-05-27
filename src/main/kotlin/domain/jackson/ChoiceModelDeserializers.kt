@@ -24,13 +24,13 @@ import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 fun getDestinationChoiceModelType(): JavaType = TypeFactory.defaultInstance().constructParametricType(
     UtilityBasedChoiceModel::class.java,
     StandardLocation::class.java,
-    DestinationChoiceCharacteristics::class.java
+    DestinationChoiceCharacteristics::class.java,
 )
 
 val DestinationChoiceModule = GenericKeyValueBuilder(
     getDestinationChoiceModelType(),
     mapOf("legacyDestinationChoiceModel" to legacyDestinationChoiceBuilder.build(DestinationChoiceParameters())),
-    loadFromSubmodules = true
+    loadFromSubmodules = true,
 ).getModule()
 
 /**
@@ -43,11 +43,11 @@ val DestinationChoiceModule = GenericKeyValueBuilder(
 fun getModeChoiceModelType(): JavaType = TypeFactory.defaultInstance().constructParametricType(
     FixedChoiceModel::class.java,
     Mode::class.java,
-    ModeChoiceCharacteristics::class.java
+    ModeChoiceCharacteristics::class.java,
 )
 
 val ModeChoiceModule = GenericKeyValueBuilder(
     getModeChoiceModelType(),
     mapOf("legacyModeChoiceModel" to legacyModeChoiceBuilder.build(ModeChoiceParameters())),
-    loadFromSubmodules = true
+    loadFromSubmodules = true,
 ).getModule()

@@ -7,13 +7,12 @@ import edu.kit.ifv.units.Currency
 
 interface ISurveyHousehold<
     out S : MinimumHouseholdAttributes,
-    out T : MinimumPersonAttributes> :
+    out T : MinimumPersonAttributes,
+    > :
     MinimalistHousehold<S, T> {
     val surveyHouseholdId: Long
     val income: Currency get() = attributes.income
     override val members: List<SurveyPerson<T>>
     val type: HouseholdType get() = attributes.type
-    fun count(condition: (SurveyPerson<T>) -> Boolean): Int {
-        return members.count(condition)
-    }
+    fun count(condition: (SurveyPerson<T>) -> Boolean): Int = members.count(condition)
 }

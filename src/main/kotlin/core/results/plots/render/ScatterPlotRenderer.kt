@@ -30,13 +30,11 @@ data class ScatterLayoutBuilder<G>(
     override var colorAxisLabel: String = "color",
     override var groupLabel: (G) -> String = { it.toString() },
     override var coloring: (G) -> RGB = { KIT_GREEN },
-    override val comparisonLabel: (Any) -> String = { "error" }
+    override val comparisonLabel: (Any) -> String = { "error" },
 ) : ScatterLayout<G>
 
 /** Renderer producing a scatter plot using the Lets-Plot backend. */
-class ScatterPlotRenderer<G, X : Number, Y : Number>(
-    override val style: ScatterLayout<G>,
-) : PlotRenderer<G, X, Y> {
+class ScatterPlotRenderer<G, X : Number, Y : Number>(override val style: ScatterLayout<G>) : PlotRenderer<G, X, Y> {
 
     override fun plot(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): Plot {
         val builder = DataFrameBuilder(style.name, data, comparisonData).groupAsString {
@@ -73,7 +71,7 @@ class ScatterPlotRenderer<G, X : Number, Y : Number>(
                         legend.name = style.colorAxisLabel
                         scale = categorical(
                             domain = colorMap.domain,
-                            range = colorMap.range
+                            range = colorMap.range,
                         )
                     }
                 }

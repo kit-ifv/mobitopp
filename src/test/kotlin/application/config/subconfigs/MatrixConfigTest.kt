@@ -12,20 +12,20 @@ import kotlin.test.assertEquals
 class MatrixConfigTest {
     val expected = listOf(
         MatrixConfig(
-            matrixRepo = Path("a")
+            matrixRepo = Path("a"),
         ),
         MatrixConfig(
-            matrixRepo = Path("b")
+            matrixRepo = Path("b"),
         ),
         MatrixConfig(
             matrixRepo = Path("c"),
-            durationMatrixConfig = Path("b")
+            durationMatrixConfig = Path("b"),
         ),
         MatrixConfig(
             costMatrixConfig = Path("e"),
             durationMatrixConfig = Path("f"),
-            distanceMatrix = Path("g")
-        )
+            distanceMatrix = Path("g"),
+        ),
     )
 
     @Test

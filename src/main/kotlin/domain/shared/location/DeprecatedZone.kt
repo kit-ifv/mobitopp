@@ -21,19 +21,15 @@ value class ZoneId(val value: Long) : Comparable<ZoneId> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: ZoneId): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: ZoneId): Int = value.compareTo(other.value)
 
     /**
      * @return the next higher id.
      */
-    fun next(): ZoneId {
-        return ZoneId(value + 1)
-    }
+    fun next(): ZoneId = ZoneId(value + 1)
 }
 
-fun Number.toZoneId()  = ZoneId(this.toLong())
+fun Number.toZoneId() = ZoneId(this.toLong())
 
 /**
  * Zone - a traffic assignment zone in a transport model.
@@ -55,11 +51,9 @@ fun Number.toZoneId()  = ZoneId(this.toLong())
  * @param seed
  */
 @Mutable
-abstract class DeprecatedZone(
-    override val id: ZoneId,
-    centroid: Location,
-    seed: Long,
-) : StochasticActor, Identifiable<ZoneId> {
+abstract class DeprecatedZone(override val id: ZoneId, centroid: Location, seed: Long) :
+    StochasticActor,
+    Identifiable<ZoneId> {
 
     final override val random: Random by lazy { Random(id.value + seed) }
 
@@ -99,11 +93,7 @@ abstract class DeprecatedZone(
 }
 
 @Mutable
-abstract class LegacyZone(
-    id: ZoneId,
-    centroid: Location,
-    seed: Long,
-) : DeprecatedZone(id, centroid, seed) {
+abstract class LegacyZone(id: ZoneId, centroid: Location, seed: Long) : DeprecatedZone(id, centroid, seed) {
 
     abstract val matrixColumn: Int
 }

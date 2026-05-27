@@ -37,10 +37,8 @@ class BuildAgents(
 
     val drtProvidersById: MutableMap<DrtProviderId, DrtProviderAgent> = mutableMapOf()
 
-    fun buildPersonAgents(
-        households: List<Household>
-    ): Set<PersonAgent> {
-        households.filter{it.members.isNotEmpty()}.map { it.toAgent(this) }
+    fun buildPersonAgents(households: List<Household>): Set<PersonAgent> {
+        households.filter { it.members.isNotEmpty() }.map { it.toAgent(this) }
 
         return personsById.values.toSet()
     }
@@ -65,11 +63,7 @@ class BuildAgents(
 }
 
 // To prevent recursion cycle, never call toAgent inside scope of getOrPut! Use initAfterPut scope instead
-private fun <K, V> MutableMap<K, V>.getOrInitAfterPut(
-    key: K,
-    defaultValue: () -> V,
-    initAfterPut: (V) -> Unit,
-): V {
+private fun <K, V> MutableMap<K, V>.getOrInitAfterPut(key: K, defaultValue: () -> V, initAfterPut: (V) -> Unit): V {
     var init = false
     val result = this.getOrPut(key) {
         init = true
@@ -85,14 +79,14 @@ private fun <K, V> MutableMap<K, V>.getOrInitAfterPut(
 
 fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAfterPut(
     key = this.id,
-    defaultValue = { MutableHouseholdAgent(id, context.seed) }
+    defaultValue = { MutableHouseholdAgent(id, context.seed) },
 ) { agent ->
     agent.loadAttributes(this)
     agent.members.addAll(
-        this.members.map { it.toAgent(context, agent) }
+        this.members.map { it.toAgent(context, agent) },
     )
     agent.cars.addAll(
-        this.cars.map { it.toAgent(context, agent) }
+        this.cars.map { it.toAgent(context, agent) },
     )
 }
 
@@ -114,7 +108,7 @@ fun MutableHouseholdAgent.loadAttributes(attributes: Household) {
 }
 
 context(household: Household, seed: Long)
-fun Person.toAgent(context: BuildAgents): PersonAgent{
+fun Person.toAgent(context: BuildAgents): PersonAgent {
     val hhAgent = household.toAgent()
     val personAgent = MutablePersonAgent(id, hhAgent, context.personStateMachine, seed)
     personAgent.loadAttributes(this)
@@ -137,16 +131,16 @@ fun MutablePersonAgent.loadAttributes(attributes: Person) {
 fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = household.toAgent(context)) =
     context.personsById.getOrInitAfterPut(
         key = this.id,
-        defaultValue = { MutablePersonAgent(id, householdAgent, context.personStateMachine, context.seed) }
+        defaultValue = { MutablePersonAgent(id, householdAgent, context.personStateMachine, context.seed) },
     ) { agent ->
 
         agent.loadAttributes(this)
         agent.sharingMemberships.addAll(
-            this.sharingMemberships.map { it.toAgent(context) }
+            this.sharingMemberships.map { it.toAgent(context) },
         )
 
         agent.drtMemberships.addAll(
-            this.drtMemberships.map { it.toAgent(context) }
+            this.drtMemberships.map { it.toAgent(context) },
         )
 
         agent.behavior = context.personBehavior
@@ -159,7 +153,7 @@ fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = househ
 fun PrivateCar.toAgent(context: BuildAgents, ownerAgent: HouseholdAgent = owner.toAgent(context)) =
     context.carsById.getOrInitAfterPut(
         key = this.id,
-        defaultValue = { MutablePrivateCarAgent(id, ownerAgent) }
+        defaultValue = { MutablePrivateCarAgent(id, ownerAgent) },
     ) { agent ->
 
         agent.segment = this.segment
@@ -173,10 +167,10 @@ fun PrivateCar.toAgent(context: BuildAgents, ownerAgent: HouseholdAgent = owner.
 
 fun SharingProvider.toAgent(context: BuildAgents) = context.sharingProvidersById.getOrInitAfterPut(
     key = this.id,
-    defaultValue = { MutableSharingProviderAgent(id, name, mode) }
+    defaultValue = { MutableSharingProviderAgent(id, name, mode) },
 ) { agent ->
     agent.stations.addAll(
-        this.stations.map { it.toAgent(context, agent) }
+        this.stations.map { it.toAgent(context, agent) },
     )
 }
 
@@ -190,7 +184,7 @@ fun SharingStation.toAgent(context: BuildAgents, ownerAgent: MutableSharingProvi
             SharingVehicleAgent(
                 SharingVehicleId(vehicleIdCounter++),
                 ownerAgent.mode,
-                ownerAgent
+                ownerAgent,
             )
         }
 
@@ -206,9 +200,8 @@ fun SharingStation.toAgent(context: BuildAgents, ownerAgent: MutableSharingProvi
     }
 
 fun DrtProvider.toAgent(context: BuildAgents) = context.drtProvidersById.getOrPut(
-    key = this.id
+    key = this.id,
 ) {
-
     val stateMachine = requireNotNull(context.drtStateMachine) {
         "Cannot convert DrtProviderData to Agent since drtStateMachine is null. Specify it in BuildAgents context object."
     }

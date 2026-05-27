@@ -58,7 +58,7 @@ class RidesharingOnlyScenario {
         val households = zones.generateHouseholds(
             10,
             memberships = mutableListOf(provider),
-            personScope = { it.generateActivitySchedule(10, random) }
+            personScope = { it.generateActivitySchedule(10, random) },
         )
 
         // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
@@ -67,18 +67,18 @@ class RidesharingOnlyScenario {
             legacyChoiceModelModes,
             mapOf(bikeSharing to setOf(provider.id)),
             mapOf(),
-            impedance
+            impedance,
         )
 
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { it.centroidLocation }.toSet()
+                zones.map { it.centroidLocation }.toSet(),
             ),
             modeChoice = FixedOrderChoiceModel(
                 "prefer ridesharing",
                 setOf(bikeSharing, pedestrian),
-                availability.asResourceAvailabilityFilter()
+                availability.asResourceAvailabilityFilter(),
             ),
             modes = legacyChoiceModelModes,
             impedance = impedance,
@@ -87,13 +87,13 @@ class RidesharingOnlyScenario {
             bikeSharingConnectionSelector = availability,
             drtAvailabilitySelector = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
-            spawnModeCharacteristics = StandardModeImplementation
+            spawnModeCharacteristics = StandardModeImplementation,
         )
 
         val builder = BuildAgents(
             seed = 1L,
             NoWriters.personStateMachine.withRecording(),
-            syntheticBehavior
+            syntheticBehavior,
         )
         val agents = builder.buildPersonAgents(households)
 
@@ -105,7 +105,7 @@ class RidesharingOnlyScenario {
                 }
             assertTrue(
                 sharedResources.any { it is SharingStationAgent },
-                "No sharing station available for person $person, from: ${person.location}, to: $dest"
+                "No sharing station available for person $person, from: ${person.location}, to: $dest",
             )
         }
 

@@ -42,7 +42,7 @@ data class Event<M : Message>(
     val sendTime: AbsoluteTime,
     val receiver: Agent<in M>,
     val receiveTime: AbsoluteTime,
-    val content: M
+    val content: M,
 ) : Comparable<Event<*>> {
     /**
      * Executes this event by delivering the message to the receiver.
@@ -120,8 +120,7 @@ interface SendScope {
  * @param scope A function that uses the [Send] interface to send messages
  * @return A pair containing all events generated within the scope and the result of the scope function
  */
-fun <R> sendScope(data: StateData, scope: (Send) -> R): Pair<Events, R> =
-    SingleUseSendScope(data).invoke(scope)
+fun <R> sendScope(data: StateData, scope: (Send) -> R): Pair<Events, R> = SingleUseSendScope(data).invoke(scope)
 
 // TODO maybe move to builder subpackage as it depends on StateData, a concept not known at this package level?
 
@@ -132,10 +131,9 @@ fun <R> sendScope(data: StateData, scope: (Send) -> R): Pair<Events, R> =
  * @property sendTime The fixed time at which messages are being sent
  * @property sender The fixed agent that is sending messages
  */
-private class SingleUseSendScope(
-    private val sendTime: AbsoluteTime,
-    private val sender: Agent<*>,
-) : Send, SendScope {
+private class SingleUseSendScope(private val sendTime: AbsoluteTime, private val sender: Agent<*>) :
+    Send,
+    SendScope {
 
     /**
      * Creates a [SingleUseSendScope] from state data.

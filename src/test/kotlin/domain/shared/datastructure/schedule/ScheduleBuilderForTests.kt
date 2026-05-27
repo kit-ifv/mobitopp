@@ -27,13 +27,11 @@ class ScheduleBuilderForTests(val duration: Number = 8) {
         return activity1
     }
 
-    private fun StandardLocation.alternate(): StandardLocation {
-        return when (this) {
-            homeLoc -> loc2
-            loc2 -> loc3
-            loc3 -> loc2
-            else -> throw IllegalArgumentException("Location $this is not a valid location")
-        }
+    private fun StandardLocation.alternate(): StandardLocation = when (this) {
+        homeLoc -> loc2
+        loc2 -> loc3
+        loc3 -> loc2
+        else -> throw IllegalArgumentException("Location $this is not a valid location")
     }
 
     fun activity(lambda: ActConfig.() -> Unit): Activity {
@@ -47,17 +45,13 @@ class ScheduleBuilderForTests(val duration: Number = 8) {
         return activity.also { activities.add(it) }
     }
 
-    fun home(lambda: ActConfig.() -> Unit): Activity {
-        return activity {
-            location = homeLoc
-            activityType = LegacyActivityType.HOME
-            lambda()
-        }
+    fun home(lambda: ActConfig.() -> Unit): Activity = activity {
+        location = homeLoc
+        activityType = LegacyActivityType.HOME
+        lambda()
     }
 
-    fun build(): Schedule {
-        return schedule
-    }
+    fun build(): Schedule = schedule
 
     fun actions() = activities
 }

@@ -44,9 +44,7 @@ enum class LegacyMode(override val code: Int, private val isFixed: Boolean = fal
 object MainModes : EnumDecodable<LegacyMode>(LegacyMode::class) {
     private val modes =
         setOf(LegacyMode.BIKE, LegacyMode.CAR, LegacyMode.PASSENGER, LegacyMode.PEDESTRIAN, LegacyMode.PUBLICTRANSPORT)
-    override fun values(): Set<LegacyMode> {
-        return modes
-    }
+    override fun values(): Set<LegacyMode> = modes
 }
 
 @Deprecated("Dont use legacy stuff")

@@ -246,7 +246,7 @@ class CarOwnershipParameters(
             isRetired = b_hh_retired_on_1,
             isUnemployed = b_hh_unemployed_on_1,
             mu = asc_1_mu,
-            sigma = asc_1_sig
+            sigma = asc_1_sig,
         )
     }
 
@@ -273,7 +273,7 @@ class CarOwnershipParameters(
             isRetired = b_hh_retired_on_2,
             isUnemployed = b_hh_unemployed_on_2,
             mu = asc_2_mu,
-            sigma = asc_2_sig
+            sigma = asc_2_sig,
         )
     }
 
@@ -300,7 +300,7 @@ class CarOwnershipParameters(
             isRetired = b_hh_retired_on_3,
             isUnemployed = b_hh_unemployed_on_3,
             mu = asc_3_mu,
-            sigma = asc_3_sig
+            sigma = asc_3_sig,
         )
     }
 
@@ -327,7 +327,7 @@ class CarOwnershipParameters(
             isRetired = b_hh_retired_on_4,
             isUnemployed = b_hh_unemployed_on_4,
             mu = asc_4,
-            sigma = 0.0
+            sigma = 0.0,
         )
     }
 }
@@ -365,9 +365,7 @@ class CarOwnershipParameters(
  *  @property isOnlyUnemployed This helper attribute returns whether all agents in the household are unemployed, based on the [EmploymentSorter]
  *  to determine unemployment.
  */
-class CarOwnershipAttributes(
-    infos: CarOwnershipFactors
-) {
+class CarOwnershipAttributes(infos: CarOwnershipFactors) {
     val randomNumber = 0.0
     val size = infos.size
     val economicStatus = infos.economicStatus
@@ -433,21 +431,13 @@ object DefaultEmploymentSorter : EmploymentSorter {
      * working employments.
      */
     private val workingOccupation = setOf(Employment.FULLTIME, Employment.PARTTIME)
-    override fun isWorking(employment: Employment): Boolean {
-        return employment in workingOccupation
-    }
+    override fun isWorking(employment: Employment): Boolean = employment in workingOccupation
 
-    override fun isUniversityStudent(employment: Employment): Boolean {
-        return employment == Employment.STUDENT_TERTIARY
-    }
+    override fun isUniversityStudent(employment: Employment): Boolean = employment == Employment.STUDENT_TERTIARY
 
-    override fun isRetired(employment: Employment): Boolean {
-        return employment == Employment.RETIRED
-    }
+    override fun isRetired(employment: Employment): Boolean = employment == Employment.RETIRED
 
-    override fun isUnemployed(employment: Employment): Boolean {
-        return employment == Employment.UNEMPLOYED
-    }
+    override fun isUnemployed(employment: Employment): Boolean = employment == Employment.UNEMPLOYED
 }
 
 /*
@@ -462,6 +452,7 @@ object DefaultEmploymentSorter : EmploymentSorter {
  *
  * [get() =] this snippet is necessary because we do not have a backing field. Not necessary to understand what that means
  */
+
 /**
  * @property poor Determines whether an economic status should be considered poor in the utility function. This is the
  * case if the [EconomicStatus] is either [EconomicStatus.VERY_LOW] or [EconomicStatus.LOW]
@@ -472,9 +463,7 @@ private inline val EconomicStatus.poor get(): Boolean = this == EconomicStatus.L
 Absolutely identical to the definition above. Only that in this case you need to write brackets in the utility function
 instead.
  */
-private fun EconomicStatus.poor(): Boolean {
-    return this == EconomicStatus.LOW || this == EconomicStatus.VERY_LOW
-}
+private fun EconomicStatus.poor(): Boolean = this == EconomicStatus.LOW || this == EconomicStatus.VERY_LOW
 
 /**
  * @property rich Determines whether an economic status should be considered poor in the utility function. This is the

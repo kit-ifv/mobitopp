@@ -14,7 +14,7 @@ data class PreliminaryActivitySchedule(private val activities: MutableList<Activ
 
         operator fun invoke(
             decoder: Decodable<ActivityType>,
-            lambda: ScheduleBuilder.() -> Unit
+            lambda: ScheduleBuilder.() -> Unit,
         ): PreliminaryActivitySchedule {
             val builder = ScheduleBuilder(decoder)
             builder.lambda()
@@ -22,9 +22,7 @@ data class PreliminaryActivitySchedule(private val activities: MutableList<Activ
         }
     }
 
-    override fun toString(): String {
-        return activities.toString()
-    }
+    override fun toString(): String = activities.toString()
 
     class ScheduleBuilder(private val decoder: Decodable<ActivityType>) {
         val activities: MutableList<Activity> = mutableListOf()
@@ -53,8 +51,6 @@ data class PreliminaryActivitySchedule(private val activities: MutableList<Activ
             activities.add(Activity.fromTimes(start, end, decoder.decode(type)))
         }
 
-        fun build(): PreliminaryActivitySchedule {
-            return PreliminaryActivitySchedule(activities)
-        }
+        fun build(): PreliminaryActivitySchedule = PreliminaryActivitySchedule(activities)
     }
 }

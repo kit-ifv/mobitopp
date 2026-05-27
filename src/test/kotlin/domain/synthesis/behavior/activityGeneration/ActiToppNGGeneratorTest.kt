@@ -27,7 +27,7 @@ class ActiToppNGGeneratorTest {
             householdSize = 42,
             year = 1984,
             areaTypeCode = 13,
-            amountOfCars = 9001
+            amountOfCars = 9001,
         ),
     ).apply {
         attributes.location = BetterLocation.wgs(10.0, 50.0)
@@ -51,8 +51,8 @@ class ActiToppNGGeneratorTest {
                 birthYear = 24024,
                 personNumber = -11111,
                 hasBicycle = true,
-                hasLicence = true
-            )
+                hasLicence = true,
+            ),
         )
         hh.addMember(person, MaximumPersonAttributes::copy)
 

@@ -16,10 +16,7 @@ interface JSONInitializer<T> {
  * does with the retrieved parameters.
  */
 class InitializableDeserializer<T>(val initializer: JSONInitializer<T>) : JsonDeserializer<T>() {
-    override fun deserialize(
-        p0: JsonParser?,
-        p1: DeserializationContext?
-    ): T? {
+    override fun deserialize(p0: JsonParser?, p1: DeserializationContext?): T? {
         if (p0 == null || p1 == null) return null
         if (p0.currentToken == JsonToken.START_OBJECT) {
             p0.nextToken()

@@ -24,14 +24,18 @@ fun <S : Any, X> Collection<X>.writeCsvWithGenericAttributes(
     val writer = config.build(writer)
 
     writer.use { csv ->
-        csv.writeRecord(headerPrefix + attributeMemberProperties.map {
-            it.findAnnotation<CsvRename>()?.name ?: it
-                .name
-        })
+        csv.writeRecord(
+            headerPrefix + attributeMemberProperties.map {
+                it.findAnnotation<CsvRename>()?.name ?: it
+                    .name
+            },
+        )
         forEach { element ->
-            csv.writeRecord(outputPrefix(element) + attributeMemberProperties.map {
-                it.get(attributeExtractor(element)).toString()
-            })
+            csv.writeRecord(
+                outputPrefix(element) + attributeMemberProperties.map {
+                    it.get(attributeExtractor(element)).toString()
+                },
+            )
         }
     }
 }
@@ -72,7 +76,6 @@ fun <X, Y> Collection<X>.writeCsvMulti(
     }
 }
 
-
 fun <X, Y> Collection<X>.writeCsvUnrolled(
     writer: Writer,
     config: FastCsvConfig = FastCsvConfig.DEFAULT,
@@ -89,7 +92,6 @@ fun <X, Y> Collection<X>.writeCsvUnrolled(
             for (y in ys) {
                 csv.writeRecord(output(x, y))
             }
-
         }
     }
 }
@@ -100,6 +102,5 @@ fun <X, Y> Map<X, Collection<Y>>.writeToCsv(
     header: List<String>,
     output: (X, Y) -> List<String>,
 ) {
-    keys.writeCsvUnrolled(writer, config, header, unroll = {get(it) ?: emptyList()}, output = output)
+    keys.writeCsvUnrolled(writer, config, header, unroll = { get(it) ?: emptyList() }, output = output)
 }
-

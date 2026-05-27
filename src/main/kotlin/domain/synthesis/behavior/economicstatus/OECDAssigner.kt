@@ -7,13 +7,10 @@ import domain.synthesis.attributes.household.numberOfMinors
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.data.EconomicStatus
-import domain.synthesis.results.fastcsv.FastCsvConfig
 import edu.kit.ifv.units.ClosedCurrencyRange
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.euros
 import processor.builder.splitOnce
-import utils.csv.DefaultCsvParser
-import utils.csv.SEMICOLON
 import java.io.InputStream
 import java.nio.file.Path
 import java.util.TreeMap
@@ -27,7 +24,7 @@ import kotlin.io.path.inputStream
 class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
     DetermineEconomicStatus<HasIncome, MinimumPersonAttributes> {
     override fun determineStatus(
-        surveyHousehold: MinimalistHousehold<HasIncome, MinimumPersonAttributes>
+        surveyHousehold: MinimalistHousehold<HasIncome, MinimumPersonAttributes>,
     ): EconomicStatus {
         val oecdNumber = calculateOECDAmount(surveyHousehold)
         val economicStatus = oecdTranslation(oecdNumber, surveyHousehold.attributes.income)
@@ -35,7 +32,7 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
     }
 
     @Suppress(
-        "MagicNumber"
+        "MagicNumber",
     ) // In this case I understand the complaint of detekt, these numbers, 1.0, 0.5 and 0.3 are magic
     private fun calculateOECDAmount(surveyHousehold: MinimalistHousehold<HasIncome, MinimumPersonAttributes>): Double {
         val adults = surveyHousehold.numberOfAdults
@@ -45,10 +42,7 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
 
     companion object {
 
-        private class FileEntry(
-            val amount: Double,
-            val intervals: List<Pair<ClosedCurrencyRange, EconomicStatus>>
-        )
+        private class FileEntry(val amount: Double, val intervals: List<Pair<ClosedCurrencyRange, EconomicStatus>>)
 
         fun default(): OECDAssigner {
             val inputStream = OECDAssigner::class.java
@@ -65,7 +59,7 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
                     it.getField("household_size").replace(",", ".").toDouble(),
                     it.header.drop(1).map { f ->
                         headerToRange(f) to EconomicStatus.decode(it.getField(f).toInt())
-                    }
+                    },
                 )
             }
             val map = TreeMap(readContent.associate { it.amount to it.intervals })
@@ -75,11 +69,8 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
                     ?: throw NoSuchElementException("There is no matching economic status for an income of $income")
             }
         }
-        fun fromPath(
-            path: Path = Path.of("src/main/resources/economical-status-oecd2017.csv")
-        ): OECDAssigner {
-            return fromInputStream(path.inputStream())
-        }
+        fun fromPath(path: Path = Path.of("src/main/resources/economical-status-oecd2017.csv")): OECDAssigner =
+            fromInputStream(path.inputStream())
 
         private fun headerToRange(input: String): ClosedCurrencyRange {
             val (start, end) = input.splitOnce(":").second.splitOnce("-")
@@ -91,8 +82,6 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
             return start.toCurrency()..endCurrency
         }
 
-        private fun String.toCurrency(): Currency {
-            return toDouble().euros
-        }
+        private fun String.toCurrency(): Currency = toDouble().euros
     }
 }

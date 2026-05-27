@@ -44,9 +44,7 @@ sealed class Ordering<T> {
      * @param R the generic type of the key used for ordering
      * @property key a function that extracts the key from an element of type T
      */
-    class AscendingBy<T, R>(
-        private val key: (T) -> R
-    ) : Ordering<T>() where R : Comparable<R> {
+    class AscendingBy<T, R>(private val key: (T) -> R) : Ordering<T>() where R : Comparable<R> {
 
         override fun <S> arrangeBy(elements: Collection<S>, by: (S) -> T): List<S> =
             elements.sortedBy { s -> key(by(s)) }
@@ -59,9 +57,7 @@ sealed class Ordering<T> {
      * @param R the generic type of the key used for ordering
      * @property key a function that extracts the key from an element of type T
      */
-    class DescendingBy<T, R>(
-        private val key: (T) -> R
-    ) : Ordering<T>() where R : Comparable<R> {
+    class DescendingBy<T, R>(private val key: (T) -> R) : Ordering<T>() where R : Comparable<R> {
 
         override fun <S> arrangeBy(elements: Collection<S>, by: (S) -> T): List<S> =
             elements.sortedByDescending { s -> key(by(s)) }

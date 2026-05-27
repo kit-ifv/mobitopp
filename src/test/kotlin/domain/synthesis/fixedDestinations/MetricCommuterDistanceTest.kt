@@ -1,3 +1,5 @@
+@file:Suppress("FunctionMaxNameLength")
+
 package domain.synthesis.fixedDestinations
 
 import TestZone
@@ -10,16 +12,24 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuter
 import domain.synthesis.behavior.fixedDestinations.communityBased.MutableCommunityDemand
 import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
-import edu.kit.ifv.units.*
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.WGS84Coordinate
+import edu.kit.ifv.units.kilometers
+import edu.kit.ifv.units.toDistance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import utils.ConsoleCaptor
 import utils.Identifiable
-import kotlin.test.*
+import kotlin.test.assertContains
+import kotlin.test.assertContentEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class MetricCommuterDistanceTest : SynthesisTest() {
     private val testZone1 = TestZone(1)
@@ -36,21 +46,21 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             Attrs(
                 age = 10,
                 sex = Sex.MALE,
-                distanceWork = 1.kilometers
+                distanceWork = 1.kilometers,
             )
         }
         person {
             Attrs(
                 age = 10,
                 sex = Sex.FEMALE,
-                distanceWork = 2.kilometers
+                distanceWork = 2.kilometers,
             )
         }
         person {
             Attrs(
                 age = 20,
                 sex = Sex.FEMALE,
-                distanceWork = (-2).kilometers
+                distanceWork = (-2).kilometers,
             )
         }
     }
@@ -60,7 +70,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             Attrs(
                 age = 10,
                 sex = Sex.MALE,
-                distanceWork = 1.kilometers
+                distanceWork = 1.kilometers,
             )
         }
     }
@@ -115,7 +125,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     fun throwsNoExceptionWhenNoAgentIsPresent() {
         val demand = MutableCommunityDemand(
             converter = { CommunityNumber(-42) },
-            communityID = CommunityNumber(-42)
+            communityID = CommunityNumber(-42),
         )
         // The strategy should not throw an exception if no agent is there to be assigned a location
         assertDoesNotThrow {
@@ -127,7 +137,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     fun throwsExceptionWhenNoLocationsArePresent() {
         val demand = MutableCommunityDemand(
             converter = { CommunityNumber(-42) },
-            communityID = CommunityNumber(-42)
+            communityID = CommunityNumber(-42),
         )
         // If a person is present and no location, there should be an exception
         assertThrows<IllegalArgumentException> {
@@ -208,7 +218,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
                 Attrs(
                     10,
                     Sex.MALE,
-                    1.0.kilometers
+                    1.0.kilometers,
                 )
             }
         }
@@ -227,7 +237,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
         val demand = MutableCommunityDemand(
             converter = { zoneCommunityMapping.getValue(it.zoneId) },
-            communityID = CommunityNumber(1)
+            communityID = CommunityNumber(1),
         )
         demand[2] = 1.0
         demand[1] = 2.0
@@ -245,9 +255,8 @@ class SymmetricMockDistance(default: Distance = 0.kilometers) : AsymmetricMockDi
 
 open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) : DistanceMetric {
     protected val map: MutableMap<HasZoneId, MutableMap<HasZoneId, Distance>> = mutableMapOf()
-    override fun evaluate(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Distance {
-        return get(origin, destination)
-    }
+    override fun evaluate(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Distance =
+        get(origin, destination)
 
     open operator fun set(origin: HasZoneId, destination: HasZoneId, value: Distance) {
         map.getOrPut(origin) { mutableMapOf() }[destination] = value
@@ -257,9 +266,8 @@ open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) 
         set(origin, destination, value.toDouble().toDistance(DistanceUnit.KILOMETERS))
     }
 
-    operator fun get(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Distance {
-        return (map[origin] ?: mutableMapOf())[destination] ?: default
-    }
+    operator fun get(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Distance =
+        (map[origin] ?: mutableMapOf())[destination] ?: default
 }
 
 class MockDistanceTest : SynthesisTest() {

@@ -166,6 +166,7 @@ class DataFrameBuilder<G, X, Y>(
 
     // access to raw data here without getter, since creation of color map does not add a column to dataframe
     // hence this should not update the data was used flags
+
     /** Build a categorical color scale from group raw values and add no column. */
     fun colorByGroup(map: (G) -> RGB) = colorBy(map, GROUP_COL, rawGroups)
 
@@ -191,7 +192,7 @@ class DataFrameBuilder<G, X, Y>(
         keyColumn: String,
         checkColumn: Boolean,
         newColumnName: String,
-        toCompLabel: (Any) -> String = ::compLabelWrapper
+        toCompLabel: (Any) -> String = ::compLabelWrapper,
     ): DataFrameBuilder<G, X, Y> {
         require(checkColumn) {
             "Cannot combine $IS_COMP_COL with $keyColumn since the latter was not yet created for plot: $name!" +
@@ -201,7 +202,11 @@ class DataFrameBuilder<G, X, Y>(
         dataFrame = dataFrame.add(newColumnName) {
             val x: String = this[keyColumn] as String
             val flag: Boolean = this[IS_COMP_COL] as Boolean
-            if (flag) { toCompLabel(x) } else { x }
+            if (flag) {
+                toCompLabel(x)
+            } else {
+                x
+            }
         }
 
         val indexCol = "_row_index"

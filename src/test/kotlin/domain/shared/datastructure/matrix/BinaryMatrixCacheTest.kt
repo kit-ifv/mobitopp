@@ -41,7 +41,7 @@ class BinaryMatrixCacheTest {
         val outputMatrix = fileCacheLookup[TestModes.BIKESHARING, 1.hours.sinceStart]
         assertTrue(readerCache.listCachedFiles().any { it.nameWithoutExtension == "good_case_matrix_1" })
         val matrix = readerCache.format.deserialize(
-            Path("src/test/resources/tempOutput/binary-cache/good_case_matrix_1.dbin")
+            Path("src/test/resources/tempOutput/binary-cache/good_case_matrix_1.dbin"),
         )
 
         assertEquals(outputMatrix, matrix)

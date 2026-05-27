@@ -32,16 +32,13 @@ data class LinePlotLayoutBuilder<G>(
 ) : LinePlotLayout<G>
 
 /** Renderer producing a line plot using the Lets-Plot backend. */
-class LinePlotRenderer<G, X, Y : Number>(
-    style: LinePlotLayout<G>,
-) : AbstractLinePlotRenderer<G, X, Y>(style) {
-    override fun getDFBuilder(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): DataFrameBuilder<G, X, Y> {
-        return DataFrameBuilder(style.name, data, comparisonData).groupAsString {
+class LinePlotRenderer<G, X, Y : Number>(style: LinePlotLayout<G>) : AbstractLinePlotRenderer<G, X, Y>(style) {
+    override fun getDFBuilder(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): DataFrameBuilder<G, X, Y> =
+        DataFrameBuilder(style.name, data, comparisonData).groupAsString {
             style.groupLabel(it)
         }.xAsString().yAsDouble()
-    }
 }
-abstract class AbstractLinePlotRenderer<G, X, Y>(override val style: LinePlotLayout<G>,) : PlotRenderer<G, X, Y> {
+abstract class AbstractLinePlotRenderer<G, X, Y>(override val style: LinePlotLayout<G>) : PlotRenderer<G, X, Y> {
     abstract fun getDFBuilder(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): DataFrameBuilder<G, X, Y>
 
     override fun plot(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): Plot {
@@ -77,15 +74,10 @@ abstract class AbstractLinePlotRenderer<G, X, Y>(override val style: LinePlotLay
         }
     }
 }
-class NumericLinePlotRenderer<G, X : Number, Y : Number>(
-    style: LinePlotLayout<G>,
-) : AbstractLinePlotRenderer<G, X, Y>(style) {
-    override fun getDFBuilder(
-        data: PlotData<G, X, Y>,
-        comparisonData: PlotData<G, X, Y>?
-    ): DataFrameBuilder<G, X, Y> {
-        return DataFrameBuilder(style.name, data, comparisonData).groupAsString {
+class NumericLinePlotRenderer<G, X : Number, Y : Number>(style: LinePlotLayout<G>) :
+    AbstractLinePlotRenderer<G, X, Y>(style) {
+    override fun getDFBuilder(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): DataFrameBuilder<G, X, Y> =
+        DataFrameBuilder(style.name, data, comparisonData).groupAsString {
             style.groupLabel(it)
         }.xAsDouble().yAsDouble()
-    }
 }

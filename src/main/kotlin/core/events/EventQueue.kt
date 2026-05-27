@@ -25,7 +25,7 @@ class MapEventQueue : EventQueue {
         require(
             timeSlice?.let {
                 event !in timeSlice
-            } ?: true
+            } ?: true,
         ) { "Attempted to add event to queue that was already added: $event" }
 
         events.append(event.receiveTime, event)
@@ -39,7 +39,7 @@ class MapEventQueue : EventQueue {
         targets.forEach { (k, v) ->
             val temp = this.events[k] ?: emptyList()
             require(
-                v.all { (it !in temp) }
+                v.all { (it !in temp) },
             )
             v.addAll(temp)
         }

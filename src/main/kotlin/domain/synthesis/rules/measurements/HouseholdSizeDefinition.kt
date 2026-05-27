@@ -17,45 +17,30 @@ import edu.kit.ifv.populationsynthesis.rules.measurement.BooleanMeasurementDefin
  */
 class HouseholdSizeDefinition(val targetSize: Int, val equalityOp: EqualityOp) :
     BooleanMeasurementDefinition<MinimalistHousehold<*, *>>() {
-    override fun generateDescription(): String {
-        return "Household $targetSize $equalityOp"
-    }
+    override fun generateDescription(): String = "Household $targetSize $equalityOp"
 
-    override fun evaluation(element: MinimalistHousehold<*, *>): Boolean {
-        return equalityOp.test(element.members.size, targetSize)
-    }
+    override fun evaluation(element: MinimalistHousehold<*, *>): Boolean =
+        equalityOp.test(element.members.size, targetSize)
 
     enum class EqualityOp(val symbol: String) {
         EQUALS("==") {
-            override fun <T : Comparable<T>> test(a: T, b: T): Boolean {
-                return a == b
-            }
+            override fun <T : Comparable<T>> test(a: T, b: T): Boolean = a == b
         },
         NOT_EQUALS("!=") {
-            override fun <T : Comparable<T>> test(a: T, b: T): Boolean {
-                return a != b
-            }
+            override fun <T : Comparable<T>> test(a: T, b: T): Boolean = a != b
         },
         LESS_THAN("<") {
-            override fun <T : Comparable<T>> test(a: T, b: T): Boolean {
-                return a < b
-            }
+            override fun <T : Comparable<T>> test(a: T, b: T): Boolean = a < b
         },
         LESS_OR_EQUAL("<=") {
-            override fun <T : Comparable<T>> test(a: T, b: T): Boolean {
-                return a <= b
-            }
+            override fun <T : Comparable<T>> test(a: T, b: T): Boolean = a <= b
         },
         GREATER_THAN(">") {
-            override fun <T : Comparable<T>> test(a: T, b: T): Boolean {
-                return a > b
-            }
+            override fun <T : Comparable<T>> test(a: T, b: T): Boolean = a > b
         },
         GREATER_OR_EQUAL(">=") {
-            override fun <T : Comparable<T>> test(a: T, b: T): Boolean {
-                return a >= b
-            }
-        };
+            override fun <T : Comparable<T>> test(a: T, b: T): Boolean = a >= b
+        }, ;
 
         abstract fun <T : Comparable<T>> test(a: T, b: T): Boolean
     }

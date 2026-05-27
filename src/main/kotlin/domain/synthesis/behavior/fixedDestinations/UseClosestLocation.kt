@@ -11,9 +11,5 @@ import domain.synthesis.behavior.SurveyPerson
  */
 class UseClosestLocation(potentialLocations: List<StandardLocation>) : SimpleLocator<MinimumPersonAttributes> {
     private val locationTree = LocationKDTree(potentialLocations)
-    override fun locate(
-        agent: SurveyPerson<*>,
-    ): StandardLocation {
-        return locationTree.nearestNeighbor(agent.homeLocation)
-    }
+    override fun locate(agent: SurveyPerson<*>): StandardLocation = locationTree.nearestNeighbor(agent.homeLocation)
 }

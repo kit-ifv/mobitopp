@@ -56,25 +56,21 @@ interface Distribution<T> {
  * @property name name of the [Distribution]
  * @property cumulativeDistribution sorted map of ascending cumulative probabilities per value of the distribution
  */
-class Histogram<T>(
-    override val name: String,
-    private val cumulativeDistribution: SortedMap<Double, T>
-) : Distribution<T> {
+class Histogram<T>(override val name: String, private val cumulativeDistribution: SortedMap<Double, T>) :
+    Distribution<T> {
 
     constructor(name: String, distribution: Map<T, Number>) : this(
         name,
-        cumulativeDistribution(name, distribution)
+        cumulativeDistribution(name, distribution),
     )
 
     constructor(name: String, values: Set<T>) : this(
         name,
-        cumulativeUniformDistribution(name, values)
+        cumulativeUniformDistribution(name, values),
     )
 
-    override fun drawValue(randomNum: Double): T {
-        return cumulativeDistribution.higherEntry(randomNum)?.value
-            ?: cumulativeDistribution.let { it[it.lastKey()]!! }
-    }
+    override fun drawValue(randomNum: Double): T = cumulativeDistribution.higherEntry(randomNum)?.value
+        ?: cumulativeDistribution.let { it[it.lastKey()]!! }
 }
 
 /**

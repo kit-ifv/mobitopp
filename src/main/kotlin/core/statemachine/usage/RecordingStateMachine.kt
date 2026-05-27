@@ -18,24 +18,19 @@ import utils.units.AbsoluteTime
  * @property factory delegate [core.statemachine.StateMachineFactory] used to delegate [initialState] creation
  * @constructor Create empty Recording state machine factory
  */
-class RecordingStateMachineFactory<A>(
-    private val factory: StateMachineFactory<A>,
-) : StateMachineFactory<A> where A : Agent<out Message> {
+class RecordingStateMachineFactory<A>(private val factory: StateMachineFactory<A>) :
+    StateMachineFactory<A> where A : Agent<out Message> {
     private val registry = mutableMapOf<A, RecordingStateMachine>()
 
     override val name: String get() = factory.name
 
-    override fun create(startTime: AbsoluteTime, agent: A): StateMachine =
-        create(initialState(startTime, agent)).also {
-            registry[agent] = it
-        }
-
-    override fun create(initialState: State): RecordingStateMachine {
-        return RecordingStateMachine(name, initialState)
+    override fun create(startTime: AbsoluteTime, agent: A): StateMachine = create(initialState(startTime, agent)).also {
+        registry[agent] = it
     }
 
-    override fun initialState(startTime: AbsoluteTime, agent: A): State =
-        factory.initialState(startTime, agent)
+    override fun create(initialState: State): RecordingStateMachine = RecordingStateMachine(name, initialState)
+
+    override fun initialState(startTime: AbsoluteTime, agent: A): State = factory.initialState(startTime, agent)
 
     /**
      * Returns the stored state machine of the given agent.
@@ -64,10 +59,7 @@ fun <A> StateMachineFactory<A>.withRecording(): RecordingStateMachineFactory<A> 
  * @property name The name of this state machine
  * @property initial The initial state of this state machine
  */
-class RecordingStateMachine(
-    name: String,
-    initial: State
-) : TransitoryStateMachine(name, initial) {
+class RecordingStateMachine(name: String, initial: State) : TransitoryStateMachine(name, initial) {
 
     init {
         globalUsage.registerStateMachine(this, initial)
@@ -102,7 +94,7 @@ class RecordingStateMachine(
             message,
             transitionTo,
             timeSinceEnter,
-            onMessageResponses
+            onMessageResponses,
         )
 
         val nextState = transitionTo ?: run {
@@ -114,7 +106,7 @@ class RecordingStateMachine(
                 currentState,
                 transitionElse,
                 timeSinceEnter,
-                onFallbackResponses
+                onFallbackResponses,
             )
 
             transitionElse
@@ -149,7 +141,7 @@ class RecordingStateMachine(
                 currentState,
                 transitionElse,
                 timeSinceEnter,
-                onFallbackMessages
+                onFallbackMessages,
             )
         }
 

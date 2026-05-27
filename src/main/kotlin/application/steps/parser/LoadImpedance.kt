@@ -15,7 +15,6 @@ import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Metrics
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZoneId
 import domain.simulation.config.DemandSimContext
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
@@ -38,7 +37,7 @@ fun DemandSimContext.loadImpedance(
     distanceUnit: DistanceUnit? = null,
     currencyUnit: CurrencyUnit? = null,
     durationUnit: DurationUnit? = null,
-    matrixCreator: ZoneMatrixCreation = KeyBasedMatrixCreation
+    matrixCreator: ZoneMatrixCreation = KeyBasedMatrixCreation,
 ) = runStep {
     LoadImpedanceStep(
         costMatrixConfig,
@@ -69,7 +68,7 @@ private class LoadImpedanceStep(
         val converter = UnitConverter.fromUnits(
             distanceUnit ?: DistanceUnit.KILOMETERS,
             currencyUnit ?: CurrencyUnit.EUROS,
-            durationUnit ?: DurationUnit.MINUTES
+            durationUnit ?: DurationUnit.MINUTES,
         )
         val impedance = MatrixMetrics.loadFromPaths(
             travelTimeYamlPath = durationMatrixConfig,
@@ -80,7 +79,7 @@ private class LoadImpedanceStep(
             converter = converter,
         )
 
-        context.impedance.value = (impedance)
+        context.impedance.value = impedance
     }
 
     override fun verifyInput(): Warning? = validateScope("Validate input data for impedance model:") {
@@ -118,18 +117,14 @@ fun DemandSimContext.loadTeleportation() = runStep {
     LoadTeleportation(this)
 }
 
-class LoadTeleportation(
-    private val context: DemandSimContext,
-) : ModelStep {
+class LoadTeleportation(private val context: DemandSimContext) : ModelStep {
     override val name: String = "Teleportation as Transport"
 
     override fun execute() {
         context.impedance.value = Teleportation()
     }
 
-    override fun verifyInput(): Warning? {
-        return null
-    }
+    override fun verifyInput(): Warning? = null
 
     override fun mockBehavior(): Warning? = validateScope("Moeck impedance data") {
         context.impedance.value = dummyImpedance
@@ -151,10 +146,7 @@ class Teleportation : Metrics {
 
     override fun distanceMetric(mode: Mode): DistanceMetric = distancMetric
 
-    override fun durationMetric(
-        mode: Mode,
-        time: Time
-    ): DurationMetric = durationMetric
+    override fun durationMetric(mode: Mode, time: Time): DurationMetric = durationMetric
 }
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"

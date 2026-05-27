@@ -18,7 +18,7 @@ typealias TimeLookupOperation<T> = TimeLookupBuilder<T>.(Int) -> Unit
  * Once populated, [build] finalizes the structure into an immutable [CalendarWeekLookup].
  */
 class CalendarWeekLookupBuilder<T>(
-    private val weekLookups: MutableMap<Int, MutableList<WeekLookupOperation<T>>> = mutableMapOf()
+    private val weekLookups: MutableMap<Int, MutableList<WeekLookupOperation<T>>> = mutableMapOf(),
 ) {
     private var defaultWeekLookupInstructions: MutableList<WeekLookupOperation<T>> = mutableListOf()
 

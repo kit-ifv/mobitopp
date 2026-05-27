@@ -35,7 +35,7 @@ class WeekLookupBuilder<T>(
         DayOfWeek.TUESDAY,
         DayOfWeek.WEDNESDAY,
         DayOfWeek.THURSDAY,
-        DayOfWeek.FRIDAY
+        DayOfWeek.FRIDAY,
     )
 
     /**
@@ -60,8 +60,7 @@ class WeekLookupBuilder<T>(
      * These segments override both workday and default definitions where they overlap,
      * but still fall back to lower-priority definitions where they do not provide coverage.
      */
-    operator fun set(dayOfWeek: DayOfWeek, day: TimeLookupOperation<T>) =
-        applyToDays(listOf(dayOfWeek), day, 2)
+    operator fun set(dayOfWeek: DayOfWeek, day: TimeLookupOperation<T>) = applyToDays(listOf(dayOfWeek), day, 2)
     private fun applyToDays(days: Iterable<DayOfWeek>, source: TimeLookupOperation<T>, priority: Int) =
         applyToDays(days, PrioritizedOperation(source, priority))
     private fun applyToDays(days: Iterable<DayOfWeek>, source: PrioritizedOperation<T>) {
@@ -78,11 +77,7 @@ class WeekLookupBuilder<T>(
      * Each [TimeLookupBuilder] is built into a [DayTimeLookup],
      * preserving the precedence rules that were applied.
      */
-    fun build(): WeekLookup<T> {
-        return WeekLookup(dayLookups.mapValues { it.value.build() })
-    }
+    fun build(): WeekLookup<T> = WeekLookup(dayLookups.mapValues { it.value.build() })
 
-    override fun toString(): String {
-        return dayLookups.toString()
-    }
+    override fun toString(): String = dayLookups.toString()
 }

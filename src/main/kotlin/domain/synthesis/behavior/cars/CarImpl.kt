@@ -22,19 +22,13 @@ data class CarImpl(
 
     companion object {
         @Suppress("MagicNumber") // Seat size is a number
-        private fun CarSegment.toSeats(): Int {
-            return when (this) {
-                CarSegment.SMALL -> 4
-                CarSegment.MIDSIZE -> 5
-                CarSegment.LARGE -> 5
-            }
+        private fun CarSegment.toSeats(): Int = when (this) {
+            CarSegment.SMALL -> 4
+            CarSegment.MIDSIZE -> 5
+            CarSegment.LARGE -> 5
         }
 
-        fun fromEngineType(
-            engineType: EngineType,
-            segment: CarSegment,
-            seats: Int? = null,
-        ): Car {
+        fun fromEngineType(engineType: EngineType, segment: CarSegment, seats: Int? = null): Car {
             val actualSeats = seats ?: segment.toSeats()
             return CarImpl(
                 engine = CarEngineStatistics().buildEngine(segment, engineType),

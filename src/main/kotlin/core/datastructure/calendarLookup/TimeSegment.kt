@@ -14,17 +14,12 @@ import utils.units.toAbsoluteHours
  * @property value the element active during [range]
  * @property priority precedence for conflict resolution (default `0`)
  */
-data class TimeSegment<T>(
-    val range: OpenEndRange<AbsoluteTime>,
-    val value: T,
-    val priority: Int = 0,
-) {
+data class TimeSegment<T>(val range: OpenEndRange<AbsoluteTime>, val value: T, val priority: Int = 0) {
     constructor(a: Number, b: Number, element: T) : this(a.toAbsoluteHours()..<b.toAbsoluteHours(), element)
 
     /** Returns `true` if this segment overlaps with [other]. */
-    fun intersects(other: OpenEndRange<AbsoluteTime>): Boolean {
-        return !(range.start >= other.endExclusive || range.endExclusive <= other.start)
-    }
+    fun intersects(other: OpenEndRange<AbsoluteTime>): Boolean =
+        !(range.start >= other.endExclusive || range.endExclusive <= other.start)
 
     /** Returns `true` if this segment overlaps with [other]. */
     fun intersects(other: TimeSegment<T>): Boolean = intersects(other.range)

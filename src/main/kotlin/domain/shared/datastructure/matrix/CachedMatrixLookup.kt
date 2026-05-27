@@ -21,10 +21,8 @@ import utils.units.AbsoluteTime
  * @param matrixCreator factory for constructing [ZoneIdMatrix] instances from the yaml info
  */
 
-class CachedMatrixLookup<M>(
-    private val yaml: YamlMatrixLookup<M>,
-    private val matrixCreator: ZoneMatrixCreation,
-) : ZoneMatrixLookup<M> {
+class CachedMatrixLookup<M>(private val yaml: YamlMatrixLookup<M>, private val matrixCreator: ZoneMatrixCreation) :
+    ZoneMatrixLookup<M> {
     private val cache: MatrixCache<M> = MatrixCache()
 
     // TODO this code is not parallel safe, because two threads will cause a double read from matrixCreator
@@ -42,9 +40,7 @@ class CachedMatrixLookup<M>(
     }
     private class MatrixCache<M> {
         private val cache: MutableMap<M, Pair<AbsoluteTime, ZoneIdMatrix>> = mutableMapOf()
-        operator fun get(mode: M, time: AbsoluteTime): Pair<AbsoluteTime, ZoneIdMatrix>? {
-            return cache[mode]
-        }
+        operator fun get(mode: M, time: AbsoluteTime): Pair<AbsoluteTime, ZoneIdMatrix>? = cache[mode]
 
         operator fun set(mode: M, validUntilExclusive: AbsoluteTime, matrix: ZoneIdMatrix) {
             cache[mode] = validUntilExclusive to matrix

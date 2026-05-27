@@ -1,6 +1,5 @@
 package domain.synthesis
 
-import BIELEFELD
 import LandUseParser
 import NetfileParser
 import UrbanAtlasGenerator
@@ -14,12 +13,9 @@ import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRegionType
-import domain.shared.location.toPoint
 import domain.shared.location.toZoneId
 import domain.shared.location.zone.HasVisumId
-import domain.shared.location.zone.StandardZone
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.ZoneAttributes
 import domain.synthesis.behavior.householdlocation.ZoneDistributedLocations
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.Hemisphere
@@ -44,7 +40,7 @@ class ZoneDistributedLocationsTest {
         file = Path("src/test/resources/synthesis/leopoldshafen.net"),
         locale = leopoldLocale,
         utmZone = 32,
-        utmHemisphere = Hemisphere.NORTHERN
+        utmHemisphere = Hemisphere.NORTHERN,
     )
 
     val weights: Map<ZoneType, Double> =
@@ -56,7 +52,7 @@ class ZoneDistributedLocationsTest {
             }.toMap()
     val landUseModel = LandUseParser(
         zoneTypePropertyName = "landUseType",
-        typeEncoder = ::ZoneType
+        typeEncoder = ::ZoneType,
     ).parse(Path("src/test/resources/synthesis/250410_landuse_rastatt.geojson"))
 
     private val polyZones = netfileParser.readPolyZones().associateBy { it.id }
@@ -64,27 +60,32 @@ class ZoneDistributedLocationsTest {
         landUseModel = landUseModel,
         weightFunction = { weights.getOrDefault(it, defaultValue = 0.0) },
         utmZone = netfileParser.utmZone,
-        utmHemisphere = netfileParser.utmHemisphere
+        utmHemisphere = netfileParser.utmHemisphere,
     )
-    private val distributedLocations = ZoneDistributedLocations<NecessaryAttributes, TestHouseHold>(polyZones, distributor)
-    private data class NecessaryAttributes(
-        override val visumId: Int,
-        override val regionType: RegionType
-    ) : HasVisumId, HasRegionType
-    private class AdvancedZone(
-        override val id: ZoneId,
-        override val attributes: NecessaryAttributes
-
-    ) : Zone<NecessaryAttributes> {
-        constructor(id: Number, visumId: Number): this(id = id.toZoneId(), NecessaryAttributes(visumId.toInt(),
-            RegioStaR17.URBAN_AREA_METRO))
+    private val distributedLocations = ZoneDistributedLocations<NecessaryAttributes, TestHouseHold>(
+        polyZones,
+        distributor,
+    )
+    private data class NecessaryAttributes(override val visumId: Int, override val regionType: RegionType) :
+        HasVisumId,
+        HasRegionType
+    private class AdvancedZone(override val id: ZoneId, override val attributes: NecessaryAttributes) :
+        Zone<NecessaryAttributes> {
+        constructor(id: Number, visumId: Number) : this(
+            id = id.toZoneId(),
+            NecessaryAttributes(
+                visumId.toInt(),
+                RegioStaR17.URBAN_AREA_METRO,
+            ),
+        )
     }
+
     // TODO this test is no longer testing sensible things since the location rework
     @Test
     fun singleAssign() {
         val generated = distributedLocations.generateLocation(
             AdvancedZone(1, 1),
-            TestHouseHold("MyHousehold")
+            TestHouseHold("MyHousehold"),
         )
 
         assertNotNull(generated)
@@ -97,7 +98,7 @@ class ZoneDistributedLocationsTest {
         val houseHolds = List(size) { TestHouseHold() }
         val generated = distributedLocations.generateLocations(
             AdvancedZone(1, 35),
-            houseHolds
+            houseHolds,
         )
 
         assert(generated.size == size)
@@ -108,7 +109,7 @@ class ZoneDistributedLocationsTest {
     }
 }
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "UnusedPrivateClass")
 private class TestZone(
     override var parkingPlaces: Int = 1,
     override val visumId: Long = 0L,
@@ -120,9 +121,7 @@ private class TestZone(
 ) : DeprecatedZone(
     id = ZoneId(visumId),
     centroid = Location.wgs(9.0, 50.0),
-    seed = 0L
+    seed = 0L,
 )
 
-private class TestHouseHold(
-    val name: String = "TestHouseHold",
-)
+private class TestHouseHold(val name: String = "TestHouseHold")

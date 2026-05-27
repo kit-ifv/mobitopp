@@ -9,16 +9,15 @@ import java.nio.file.Path
 fun <T : MinimumPersonAttributes> Collection<SynthesisPerson<*, T>>.write(
     path: Path,
     config: FastCsvConfig =
-        FastCsvConfig.DEFAULT
-) =
-    Files.newBufferedWriter(path).use { writer ->
-        this.write(writer, config)
-    }
+        FastCsvConfig.DEFAULT,
+) = Files.newBufferedWriter(path).use { writer ->
+    this.write(writer, config)
+}
 
 fun <T : MinimumPersonAttributes> Collection<SynthesisPerson<*, T>>.write(
     writer: Writer,
     config: FastCsvConfig =
-        FastCsvConfig.DEFAULT
+        FastCsvConfig.DEFAULT,
 ) {
     writeCsvWithGenericAttributes(
         writer,

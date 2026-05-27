@@ -84,7 +84,9 @@ object Yaml {
         fun load(path: Path): Map<String, Any?> {
             val map = mapper.readValue<Map<String, Any?>>(path.inputStream()).toMutableMap()
 
-            if (parentKey !in map) { return map }
+            if (parentKey !in map) {
+                return map
+            }
             require(isPathNotSeenBefore(path)) {
                 "Cycle detected, cannot read configs."
             }
@@ -121,11 +123,7 @@ object Yaml {
 val PathModule: SimpleModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
 private class PathSerializer : JsonSerializer<Path>() {
 
-    override fun serialize(
-        value: Path?,
-        gen: JsonGenerator?,
-        serializers: SerializerProvider?
-    ) {
+    override fun serialize(value: Path?, gen: JsonGenerator?, serializers: SerializerProvider?) {
         if (gen != null && value != null) {
             gen.writeString(value.toString())
         }

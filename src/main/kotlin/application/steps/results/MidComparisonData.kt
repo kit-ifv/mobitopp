@@ -40,10 +40,7 @@ val Resource<Row>.persons get() = elements.map {
     MidPersonRow(it)
 }.asResource(name, source)
 
-fun Resource<Row>.legs(
-    purposes: ChoiceModelPurposes,
-    modes: ChoiceModelModes,
-) = elements.map {
+fun Resource<Row>.legs(purposes: ChoiceModelPurposes, modes: ChoiceModelModes) = elements.map {
     MidLegRow(purposes, modes, it)
 }.asResource(name, source)
 
@@ -125,7 +122,7 @@ data class MidPersonRow(override val row: Row) : MidRow {
 data class MidLegRow(
     private val purposes: ChoiceModelPurposes,
     private val modes: ChoiceModelModes,
-    override val row: Row
+    override val row: Row,
 ) : MidRow {
 
     companion object {
@@ -148,7 +145,7 @@ data class MidLegRow(
                     }
                 } else {
                     OpenBin(
-                        key.replace("+", "").toDouble()
+                        key.replace("+", "").toDouble(),
                     )
                 }
             }
@@ -166,7 +163,7 @@ data class MidLegRow(
                     }
                 } else {
                     OpenBin(
-                        key.replace("+", "").toInt()
+                        key.replace("+", "").toInt(),
                     )
                 }
             }
@@ -196,10 +193,12 @@ private fun String.parseTime() = this.takeIf {
 
 private fun String.parseBool(): Boolean = when (this.lowercase()) {
     "yes", "true", "y", "t", "1" -> true
+
     "na", "no", "false", "n", "f", "0" -> false
+
     else -> error(
         "Invalid boolean string: '$this'\n" +
-            "Expected 'yes', 'true', 'y', 't', '1' for true or 'na', 'no', 'false', 'n', 'f', '0' for false."
+            "Expected 'yes', 'true', 'y', 't', '1' for true or 'na', 'no', 'false', 'n', 'f', '0' for false.",
     )
 }
 
@@ -221,17 +220,26 @@ private fun String.parseEmployment() = when (this) {
 
 private fun String.parseActivityType(purposes: ChoiceModelPurposes) = when (this) {
     "NA" -> purposes.undefined
+
     "business" -> purposes.business
+
     EDUCATION -> purposes.education
+
     "leisure" -> purposes.leisure
+
     "privateBusiness" -> purposes.privateBusiness
+
     "service" -> purposes.service
+
     "shopping" -> purposes.shopping
+
     "work" -> purposes.work
+
     "home" -> purposes.home
+
     else -> error(
         "Invalid purpose string: $this. " +
-            "Expected: 'NA', 'business', 'education', 'leisure', 'privateBusiness', 'service', 'shopping' or 'work'."
+            "Expected: 'NA', 'business', 'education', 'leisure', 'privateBusiness', 'service', 'shopping' or 'work'.",
     )
 }
 
@@ -264,56 +272,58 @@ fun Graduation.toEducationMID(): String = when (this) {
     Graduation.MASTER_DEGREE -> 4.parseEducation()
 }
 
-fun ActivityType.simplifyMID(purposes: ChoiceModelPurposes) =
-    this.simplifyEducationMID(purposes)
-        .simplifyLeisureMID(purposes)
-        .simplifyShoppingMID(purposes)
-        .simplifyBusinessMID(purposes)
+fun ActivityType.simplifyMID(purposes: ChoiceModelPurposes) = this.simplifyEducationMID(purposes)
+    .simplifyLeisureMID(purposes)
+    .simplifyShoppingMID(purposes)
+    .simplifyBusinessMID(purposes)
 
-fun ActivityType.simplifyEducationMID(purposes: ChoiceModelPurposes) =
-    if (this in purposes.educationTypes) {
-        purposes.education
-    } else {
-        this
-    }
+fun ActivityType.simplifyEducationMID(purposes: ChoiceModelPurposes) = if (this in purposes.educationTypes) {
+    purposes.education
+} else {
+    this
+}
 
-fun ActivityType.simplifyLeisureMID(purposes: ChoiceModelPurposes) =
-    if (this in purposes.leisureTypes) {
-        purposes.leisure
-    } else {
-        this
-    }
+fun ActivityType.simplifyLeisureMID(purposes: ChoiceModelPurposes) = if (this in purposes.leisureTypes) {
+    purposes.leisure
+} else {
+    this
+}
 
-fun ActivityType.simplifyShoppingMID(purposes: ChoiceModelPurposes) =
-    if (this in purposes.shoppingTypes) {
-        purposes.shopping
-    } else {
-        this
-    }
+fun ActivityType.simplifyShoppingMID(purposes: ChoiceModelPurposes) = if (this in purposes.shoppingTypes) {
+    purposes.shopping
+} else {
+    this
+}
 
-fun ActivityType.simplifyBusinessMID(purposes: ChoiceModelPurposes) =
-    if (this in purposes.businessTypes) {
-        purposes.business
-    } else {
-        this
-    }
+fun ActivityType.simplifyBusinessMID(purposes: ChoiceModelPurposes) = if (this in purposes.businessTypes) {
+    purposes.business
+} else {
+    this
+}
 
 fun Employment.simplifyEmploymentMID() = when (this) {
     Employment.STUDENT_PRIMARY -> Employment.STUDENT
+
     Employment.STUDENT_SECONDARY -> Employment.STUDENT
+
     Employment.STUDENT_TERTIARY -> Employment.STUDENT
+
     Employment.PARTTIME -> Employment.FULLTIME
+
     Employment.MARGINAL -> Employment.FULLTIME
+
     Employment.FULLTIME,
     Employment.STUDENT,
     Employment.RETIRED,
-    Employment.HOMEKEEPER -> this
+    Employment.HOMEKEEPER,
+    -> this
 
     Employment.UNEMPLOYED,
     Employment.EDUCATION,
     Employment.INFANT,
     Employment.NONE,
-    Employment.UNKNOWN -> Employment.UNKNOWN
+    Employment.UNKNOWN,
+    -> Employment.UNKNOWN
 }
 
 fun EconomicStatus.simplifyMID() = when (this) {

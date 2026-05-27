@@ -7,4 +7,4 @@ data class ZonedRoadAccessLocationImpl(
     override val zoneId: ZoneId,
     override val roadAccess: RoadAccess,
 
-    ) : ZonedRoadAccessLocation
+) : ZonedRoadAccessLocation

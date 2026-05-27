@@ -77,12 +77,12 @@ val FatParameters = EngineParameters(
     STADT_EREV = -9.5,
     KLEINSTADT_EREV = -3.0,
     STADTRAUM_EREV = -0.7000000000000001,
-    LANDRAUM_EREV = 0.0
+    LANDRAUM_EREV = 0.0,
 )
 
 @Suppress(
     "MagicNumber",
-    "ConstructorParameterNaming"
+    "ConstructorParameterNaming",
 ) // Parameters for configurations are magic, but there is no better representation
 data class EngineParameters(
     val CONST_BEV: Double = -2.3079 - 7.5,
@@ -148,77 +148,73 @@ data class EngineParameters(
     val STADTRAUM_EREV: Double = 0.1 - 0.8,
     val LANDRAUM_EREV: Double = 0.0,
 ) {
-    fun electicParameters(): EngineSpecificParameters {
-        return EngineSpecificParameters(
-            CONST_BEV,
-            WORKDIS_BEV,
-            AUSBDIS_BEV,
-            SEX_MALE_BEV,
-            JOB_FULLTIME_BEV,
-            JOB_PARTTIME_BEV,
-            JOBLESS_BEV,
-            STUDENT_TERTIARY_BEV,
-            STUDENT_SECONDARY_BEV,
-            EDUCATION_BEV,
-            UNEMPLOYED_BEV,
-            RETIRED_BEV,
-            AGE_18_TO_25_BEV,
-            AGE_25_TO_35_BEV,
-            AGE_35_TO_45_BEV,
-            AGE_45_TO_55_BEV,
-            AGE_55_TO_65_BEV,
-            AGE_65_TO_75_BEV,
-            AGE_75_TO_85_BEV,
-            ANZ_PKW_1_BEV,
-            ANZ_PKW_2_BEV,
-            ANZ_PKW_3_BEV,
-            ANZ_PKW_4_BEV,
-            HHGRO_1_BEV,
-            HHGRO_2_BEV,
-            HHGRO_3_BEV,
-            HHGRO_4_BEV,
-            STADT_BEV,
-            KLEINSTADT_BEV,
-            STADTRAUM_BEV,
-            LANDRAUM_BEV,
-        )
-    }
+    fun electicParameters(): EngineSpecificParameters = EngineSpecificParameters(
+        CONST_BEV,
+        WORKDIS_BEV,
+        AUSBDIS_BEV,
+        SEX_MALE_BEV,
+        JOB_FULLTIME_BEV,
+        JOB_PARTTIME_BEV,
+        JOBLESS_BEV,
+        STUDENT_TERTIARY_BEV,
+        STUDENT_SECONDARY_BEV,
+        EDUCATION_BEV,
+        UNEMPLOYED_BEV,
+        RETIRED_BEV,
+        AGE_18_TO_25_BEV,
+        AGE_25_TO_35_BEV,
+        AGE_35_TO_45_BEV,
+        AGE_45_TO_55_BEV,
+        AGE_55_TO_65_BEV,
+        AGE_65_TO_75_BEV,
+        AGE_75_TO_85_BEV,
+        ANZ_PKW_1_BEV,
+        ANZ_PKW_2_BEV,
+        ANZ_PKW_3_BEV,
+        ANZ_PKW_4_BEV,
+        HHGRO_1_BEV,
+        HHGRO_2_BEV,
+        HHGRO_3_BEV,
+        HHGRO_4_BEV,
+        STADT_BEV,
+        KLEINSTADT_BEV,
+        STADTRAUM_BEV,
+        LANDRAUM_BEV,
+    )
 
-    fun hybridParameters(): EngineSpecificParameters {
-        return EngineSpecificParameters(
-            CONST_EREV,
-            WORKDIS_EREV,
-            AUSBDIS_EREV,
-            SEX_MALE_EREV,
-            JOB_FULLTIME_EREV,
-            JOB_PARTTIME_EREV,
-            JOBLESS_EREV,
-            STUDENT_TERTIARY_EREV,
-            STUDENT_SECONDARY_EREV,
-            EDUCATION_EREV,
-            UNEMPLOYED_EREV,
-            RETIRED_EREV,
-            AGE_18_TO_25_EREV,
-            AGE_25_TO_35_EREV,
-            AGE_35_TO_45_EREV,
-            AGE_45_TO_55_EREV,
-            AGE_55_TO_65_EREV,
-            AGE_65_TO_75_EREV,
-            AGE_75_TO_85_EREV,
-            ANZ_PKW_1_EREV,
-            ANZ_PKW_2_EREV,
-            ANZ_PKW_3_EREV,
-            ANZ_PKW_4_EREV,
-            HHGRO_1_EREV,
-            HHGRO_2_EREV,
-            HHGRO_3_EREV,
-            HHGRO_4_EREV,
-            STADT_EREV,
-            KLEINSTADT_EREV,
-            STADTRAUM_EREV,
-            LANDRAUM_EREV,
-        )
-    }
+    fun hybridParameters(): EngineSpecificParameters = EngineSpecificParameters(
+        CONST_EREV,
+        WORKDIS_EREV,
+        AUSBDIS_EREV,
+        SEX_MALE_EREV,
+        JOB_FULLTIME_EREV,
+        JOB_PARTTIME_EREV,
+        JOBLESS_EREV,
+        STUDENT_TERTIARY_EREV,
+        STUDENT_SECONDARY_EREV,
+        EDUCATION_EREV,
+        UNEMPLOYED_EREV,
+        RETIRED_EREV,
+        AGE_18_TO_25_EREV,
+        AGE_25_TO_35_EREV,
+        AGE_35_TO_45_EREV,
+        AGE_45_TO_55_EREV,
+        AGE_55_TO_65_EREV,
+        AGE_65_TO_75_EREV,
+        AGE_75_TO_85_EREV,
+        ANZ_PKW_1_EREV,
+        ANZ_PKW_2_EREV,
+        ANZ_PKW_3_EREV,
+        ANZ_PKW_4_EREV,
+        HHGRO_1_EREV,
+        HHGRO_2_EREV,
+        HHGRO_3_EREV,
+        HHGRO_4_EREV,
+        STADT_EREV,
+        KLEINSTADT_EREV,
+        STADTRAUM_EREV,
+        LANDRAUM_EREV,
+    )
 }
 
 data class EngineSpecificParameters(
@@ -307,9 +303,8 @@ data class EngineAlternative(
 fun <X> EngineType.toAlternative(
     person: MaximumPersonAttributes,
     household: SynthesisHousehold<X, MaximumPersonAttributes>,
-): EngineAlternative where X : MinimumHouseholdAttributes, X : HasNumberOfCars {
-    return EngineAlternative.fromHousehold(person, household)
-}
+): EngineAlternative where X : MinimumHouseholdAttributes, X : HasNumberOfCars =
+    EngineAlternative.fromHousehold(person, household)
 
 val carEngineChoiceModel = DiscreteStructure<EngineType, EngineAlternative, EngineParameters> {
     option(EngineType.COMBUSTION) {

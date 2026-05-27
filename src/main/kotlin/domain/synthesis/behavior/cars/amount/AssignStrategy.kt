@@ -27,5 +27,5 @@ fun MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>.toC
     CarOwnershipAttributes(
         CarOwnershipFactors(
             this,
-        )
+        ),
     )

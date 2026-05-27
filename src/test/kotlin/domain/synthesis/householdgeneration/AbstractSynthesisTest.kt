@@ -6,9 +6,7 @@ import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRegionType
-import domain.shared.location.attributes.HasZoneId
 import domain.shared.location.toPoint
-import domain.shared.location.zone.StandardZone
 import domain.shared.location.zone.Zone
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
@@ -86,14 +84,11 @@ open class SynthesisTest {
         val builder = HouseholdBuilder<T>()
         builder.apply(lambda)
         val createHousehold = builder.createHousehold()
-        val synthesisHousehold = HouseholdFactory({
-                a:
-                MinimumHouseholdAttributes,
-            ->
+        val synthesisHousehold = HouseholdFactory({ a: MinimumHouseholdAttributes ->
             MinimumHouseholdAttributesImpl(
                 a.income,
                 a.type,
-                a.location
+                a.location,
             ) as MinimumHouseholdAttributes
         }, copier).createFrom(createHousehold)
         synthesisHousehold.attributes.location = this
@@ -108,16 +103,13 @@ open class SynthesisTest {
 
     private var counter: Double = .0
 
-    protected fun Zone<HasRegionType>.spawnLocation(coordinate: WGS84Coordinate): StandardLocation {
-        return StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
-    }
+    protected fun Zone<HasRegionType>.spawnLocation(coordinate: WGS84Coordinate): StandardLocation =
+        StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
 
     protected class FakeCoord : LocationWithZoneId {
         val idx = counter
 
-        override fun toString(): String {
-            return "FakeLoc($idx)"
-        }
+        override fun toString(): String = "FakeLoc($idx)"
 
         override val position: Point
             get() = error("The Fake Coord should never have to resolve its point")
@@ -141,7 +133,8 @@ open class SynthesisTest {
         override val sex: Sex,
         override val distanceWork: Distance = (-999).kilometers,
 
-    ) : MinimumPersonAttributes, HasCommuteDistance
+    ) : MinimumPersonAttributes,
+        HasCommuteDistance
 
     protected class HouseholdBuilder<T : MinimumPersonAttributes> {
         var id: Long = 0
@@ -156,9 +149,7 @@ open class SynthesisTest {
             var sex: Sex = Sex.MALE
             var age: Int = 0
             lateinit var information: () -> T
-            fun toPerson(): SurveyPerson<T> {
-                return SmallestSurveyPerson(-1, attributes = information())
-            }
+            fun toPerson(): SurveyPerson<T> = SmallestSurveyPerson(-1, attributes = information())
         }
 
         fun person(lambda: () -> T): SmallestSurveyPerson<T> {
@@ -168,8 +159,7 @@ open class SynthesisTest {
             return smallestSurveyPerson
         }
 
-        fun createHousehold(): SurveyHousehold<MinimumHouseholdAttributes, T> {
-            return SurveyHousehold(id, members, attributeSpawner())
-        }
+        fun createHousehold(): SurveyHousehold<MinimumHouseholdAttributes, T> =
+            SurveyHousehold(id, members, attributeSpawner())
     }
 }

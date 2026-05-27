@@ -6,9 +6,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class GPSLegacyCoordinateTest {
-    private fun Distance.fuzzyEquals(d: Distance): Boolean {
-        return (this - d) < 1.kilometers
-    }
+    private fun Distance.fuzzyEquals(d: Distance): Boolean = (this - d) < 1.kilometers
 
     @Test
     fun distance() {

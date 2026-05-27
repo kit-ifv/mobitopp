@@ -26,10 +26,9 @@ data class MyContext(
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
     var setDuringValidation: Boolean = false,
-) : core.modelsteps.Context, core.modelsteps.Cloneable<MyContext> {
-    override fun clone(): MyContext {
-        return this.copy()
-    }
+) : core.modelsteps.Context,
+    core.modelsteps.Cloneable<MyContext> {
+    override fun clone(): MyContext = this.copy()
 }
 
 class SimulationContextInitTest {
@@ -64,7 +63,7 @@ class SimulationContextInitTest {
     fun withFactoryMethodFactory() {
         val myContext: () -> MyContext = { MyContext() }
         Simulation(
-            myContext
+            myContext,
         ).steps {
             assert(!setDuringValidation) {
                 "If this fails, the variable was set during the " +

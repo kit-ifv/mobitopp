@@ -9,14 +9,12 @@ package utils.collections
  * @param E generic type of the contained elements
  * @property dataStream a lazy data stream to obtain list values
  */
-class LazyList<E>(
-    private val dataStream: Iterator<E>,
-    expectedSize: Int = 10
-) : List<E> {
+class LazyList<E>(private val dataStream: Iterator<E>, expectedSize: Int = 10) : List<E> {
     private val elements: MutableList<E> = ArrayList(expectedSize)
 
     override operator fun get(index: Int) = when {
         index < elements.size -> elements[index]
+
         else -> {
             readValuesUntil(index)
             elements[index]

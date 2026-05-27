@@ -17,11 +17,7 @@ import utils.units.AbsoluteTime
  *
  */
 object BananaReplanning : ReplanningStrategy {
-    override fun replan(
-        schedule: Schedule,
-        newStartTime: AbsoluteTime,
-        nextAction: LinkedActivity
-    ) {
+    override fun replan(schedule: Schedule, newStartTime: AbsoluteTime, nextAction: LinkedActivity) {
         nextAction.shiftStartTo(newStartTime)
     }
 }

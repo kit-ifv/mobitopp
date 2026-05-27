@@ -22,13 +22,13 @@ interface Encodable {
 interface Decodable<out T : Encodable> {
 
     fun decode(i: Int): T = requireNotNull(
-        decodeOrNull(i)
+        decodeOrNull(i),
     ) {
         errorMessage(i)
     }
     fun decodeOrNull(i: Int): T? = values().find { it.code == i }
     fun decode(s: String): T = requireNotNull(
-        decodeOrNull(s)
+        decodeOrNull(s),
     ) {
         errorMessage(s)
     }

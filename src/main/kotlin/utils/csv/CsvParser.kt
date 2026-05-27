@@ -20,9 +20,7 @@ interface CsvParser<out E> {
      * @param path the file path string of the csv file to be parsed
      * @return a sequence of parsed entities
      */
-    fun parse(path: String, separator: String = SEMICOLON): Sequence<E> {
-        return parse(Path.of(path), separator)
-    }
+    fun parse(path: String, separator: String = SEMICOLON): Sequence<E> = parse(Path.of(path), separator)
 
     /**
      * Parse the given path as csv.
@@ -44,10 +42,8 @@ interface CsvParser<out E> {
     fun parse(csv: CsvReader): Sequence<E>
 
     companion object {
-        operator fun <E> invoke(
-            errorHandling: ErrorHandling = ErrorHandling.WARNING,
-            mapping: (Row) -> E?
-        ) = DefaultCsvParser(exceptionHandling = errorHandling, mapping = mapping)
+        operator fun <E> invoke(errorHandling: ErrorHandling = ErrorHandling.WARNING, mapping: (Row) -> E?) =
+            DefaultCsvParser(exceptionHandling = errorHandling, mapping = mapping)
     }
 }
 
@@ -94,10 +90,8 @@ open class DefaultCsvParser<E>(
     protected val mapping: (Row) -> E?,
 ) : RowCsvParser<E> {
 
-    override fun parse(row: Row): E? {
-        return exceptionHandling.handleParseRow(row) {
-            mapping(ErrorHandlingRow(row, exceptionHandling))
-        }
+    override fun parse(row: Row): E? = exceptionHandling.handleParseRow(row) {
+        mapping(ErrorHandlingRow(row, exceptionHandling))
     }
 }
 
@@ -131,7 +125,7 @@ open class SingleColumnParser<E>(
 class ErrorHandlingRow(
     private val row: Row,
     private val errorHandling: ErrorHandling,
-    private val onError: (Exception) -> Unit = {}
+    private val onError: (Exception) -> Unit = {},
 ) : Row by row {
 
     @Suppress("TooGenericExceptionCaught")
@@ -155,26 +149,17 @@ class ErrorHandlingRow(
  * @property row the wrapped row
  * @property parser the parser to be applied when getting values
  */
-class TypedRow<T>(
-    val row: Row,
-    val parser: (String) -> T
-) {
+class TypedRow<T>(val row: Row, val parser: (String) -> T) {
 
-    fun <K> wrap(transformation: (T) -> K): TypedRow<K> {
-        return TypedRow(row) {
-            transformation(parser(it))
-        }
+    fun <K> wrap(transformation: (T) -> K): TypedRow<K> = TypedRow(row) {
+        transformation(parser(it))
     }
 
-    operator fun invoke(column: String): T {
-        return row(column, parser)
-    }
+    operator fun invoke(column: String): T = row(column, parser)
 }
 
-class FilterRowCsvParser<E>(
-    private val original: RowCsvParser<E>,
-    private val filter: (Row) -> Boolean
-) : RowCsvParser<E> {
+class FilterRowCsvParser<E>(private val original: RowCsvParser<E>, private val filter: (Row) -> Boolean) :
+    RowCsvParser<E> {
 
     /**
      * Parse the given Row as entity of generic type E.

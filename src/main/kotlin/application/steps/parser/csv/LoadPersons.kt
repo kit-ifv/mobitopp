@@ -76,8 +76,7 @@ class PersonStepBuilder(
     val converter: (HouseholdId) -> MutableHousehold?,
     val sharingConverter: (SharingProviderId) -> SharingProvider,
     val drtConverter: (DrtProviderId) -> DrtProvider,
-) :
-    GroupedStepBuilder<MutablePerson, PersonId>() {
+) : GroupedStepBuilder<MutablePerson, PersonId>() {
     override val reader = BinaryPersonReader(converter, sharingConverter, drtConverter, seed)
     override val writer: BinaryWriter<MutablePerson> = BinaryPersonWriter()
 
@@ -133,16 +132,13 @@ fun LoadPersonsContext.personsFromCsvStep(
             delimiter = delimiter,
             repository = personRepository,
             dependentRepositories = setOf(householdRepository, sharingProviderRepository),
-            validationMock = listOf() // TODO
+            validationMock = listOf(), // TODO
         )
         FileBasedAddResourceStep(path, step)
     }
 }
 
-fun LoadPersonsContext.preparePersonsFile(
-
-    addResourceStep: AbstractAddResourceStep<MutablePerson, PersonId>,
-) = runStep {
+fun LoadPersonsContext.preparePersonsFile(addResourceStep: AbstractAddResourceStep<MutablePerson, PersonId>) = runStep {
     addResourceStep
 }
 
@@ -150,14 +146,14 @@ fun LoadPersonsContext.finishPersons() = runStep {
     SealStep(personRepository)
 }
 
-fun LoadPersonsContext.loadPersons(
-    path: Path = defaultPersonPath,
-) {
+fun LoadPersonsContext.loadPersons(path: Path = defaultPersonPath) {
     this.preparePersons(path = path)
     this.finishPersons()
 }
 
-interface LoadPersonsContext : DemandSimContext, PersonCsvContext {
+interface LoadPersonsContext :
+    DemandSimContext,
+    PersonCsvContext {
     val personRepository: MutableRepository<MutablePerson, PersonId>
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
     val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
@@ -166,10 +162,8 @@ interface LoadPersonsContext : DemandSimContext, PersonCsvContext {
     val defaultPersonPath: Path
         get() = dataFolder.resolve("demand-data").resolve("person.csv")
 
-    fun getHousehold(
-        householdId: HouseholdId,
-    ) = requireNotNull(
-        householdRepository[householdId]
+    fun getHousehold(householdId: HouseholdId) = requireNotNull(
+        householdRepository[householdId],
     ) {
         "Referenced household id $householdId could not be found in householdRepo:" +
             " ${householdRepository.elements.map { it.id }.toList()}"

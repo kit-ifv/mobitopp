@@ -20,17 +20,11 @@ class PerpetualCache<K, V> : Cache<K, V> {
     override val size: Int
         get() = cache.size
 
-    override fun remove(key: K): V? {
-        return cache.remove(key)
-    }
+    override fun remove(key: K): V? = cache.remove(key)
 
-    override fun get(key: K): V? {
-        return cache[key]
-    }
+    override fun get(key: K): V? = cache[key]
 
-    override fun getOrPut(key: K, default: () -> V): V {
-        return cache.getOrPut(key, default)
-    }
+    override fun getOrPut(key: K, default: () -> V): V = cache.getOrPut(key, default)
 
     override fun set(key: K, value: V) {
         this.cache[key] = value

@@ -22,7 +22,8 @@ import kotlin.random.Random
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
 
-class SamplingCarGeneration<S> : GenerateCars<S, MaximumPersonAttributes>
+class SamplingCarGeneration<S> :
+    GenerateCars<S, MaximumPersonAttributes>
     where S : MinimumHouseholdAttributes, S : HasNumberOfCars {
     private val segmentModel = carSegmentChoiceModel.build(CarSegmentParameters())
 
@@ -43,7 +44,7 @@ class SamplingCarGeneration<S> : GenerateCars<S, MaximumPersonAttributes>
             }
             val engineType = context(
                 EngineAlternative.fromHousehold(person.attributes, householdBuilder),
-                random
+                random,
             ) {
                 engineModel.select()
             }

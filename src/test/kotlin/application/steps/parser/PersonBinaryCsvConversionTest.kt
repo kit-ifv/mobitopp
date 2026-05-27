@@ -57,10 +57,10 @@ class PersonBinaryCsvConversionTest {
             eMobilityAcceptance = row.unitShare(columns.eMobilityAcceptanceColumn)
             chargingInfluence = row.decodeName(columns.chargingInfluenceColumn, ChargingInfluence.Companion)
             sharingMemberships.addAll(
-                row("mobilityProviderCustomership").parseMemberships(sharingMap)
+                row("mobilityProviderCustomership").parseMemberships(sharingMap),
             )
             drtMemberships.addAll(
-                row("mobilityProviderCustomership").parseMemberships(drtMap)
+                row("mobilityProviderCustomership").parseMemberships(drtMap),
             )
         }
     }
@@ -82,13 +82,13 @@ class PersonBinaryCsvConversionTest {
                 "employment",
                 WriteStrategy { dataOutputStream: DataOutputStream, element: String, _ ->
                     dataOutputStream.writeInt(Employment.valueOf(element).code)
-                }
+                },
             ),
             Pair(
                 "gender",
                 WriteStrategy { dataOutputStream: DataOutputStream, element: String, _ ->
                     dataOutputStream.writeInt(Sex.valueOf(element).code)
-                }
+                },
             ),
             Pair("income", DataType().DOUBLE),
             Pair("hasBike", DataType().BOOLEAN),
@@ -99,7 +99,7 @@ class PersonBinaryCsvConversionTest {
                 "chargingInfluencesDestinationChoice",
                 WriteStrategy { dataOutputStream: DataOutputStream, element: String, _ ->
                     dataOutputStream.writeInt(ChargingInfluence.valueOf(element).code)
-                }
+                },
             ),
             Pair("graduation", DataType().INT),
             Pair(
@@ -120,7 +120,7 @@ class PersonBinaryCsvConversionTest {
                     } else {
                         dataOutputStream.writeInt(0)
                     }
-                }
+                },
             ),
             // TODO extend test
         )
@@ -129,7 +129,7 @@ class PersonBinaryCsvConversionTest {
             { _ -> hh1 },
             sharingId::getValue,
             drtId::getValue,
-            1
+            1,
         )
 
         val testBin = binaryConverter.makeCSVBinary(testData, dataTypeMap, maxStringLength, tempOutput)

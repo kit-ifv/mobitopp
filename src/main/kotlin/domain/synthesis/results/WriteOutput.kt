@@ -39,7 +39,7 @@ interface CSVOutput<T> {
     fun generateCSVString(elements: Collection<T>) =
         header.joinToString(separator = ";", postfix = "\n") { it } + elements.joinToString(separator = "\n") {
             convert(
-                it
+                it,
             )
         }
 
@@ -67,7 +67,7 @@ object LegacyActivityOutput : CSVOutput<Pair<SynthesisPerson<*, *>, Collection<A
         "duration",
         "tournr",
         "isMainActivity",
-        "isSupertour"
+        "isSupertour",
     )
 
     override fun convert(element: Pair<SynthesisPerson<*, *>, Collection<Activity>>): String {
@@ -97,28 +97,26 @@ object LegacyCarOutput : CSVOutput<SynthesisCar> {
         "mainUserId",
         "personalUserId",
         "carType",
-        "car attributes"
+        "car attributes",
     )
 
     @Suppress("MagicNumber")
-    override fun convert(element: SynthesisCar): String {
-        return element.run {
-            toCSV(
-                mainUser?.householdID ?: "Null",
-                mainUser?.personId ?: "-1",
-                mainUser?.personId ?: "-1",
-                this.engine.type.asText,
-                id,
-                "0", // TODO verify that this is acurraty
-                mainUser?.homeLocation ?: "Null",
-                segment,
-                seats,
-                0.0, // TODO this appears to be a fixed value.
-                1.0, // TODO this appears to be a fixed value.
-                1000.0, // TODO this appears to be a fixed value.
+    override fun convert(element: SynthesisCar): String = element.run {
+        toCSV(
+            mainUser?.householdID ?: "Null",
+            mainUser?.personId ?: "-1",
+            mainUser?.personId ?: "-1",
+            this.engine.type.asText,
+            id,
+            "0", // TODO verify that this is acurraty
+            mainUser?.homeLocation ?: "Null",
+            segment,
+            seats,
+            0.0, // TODO this appears to be a fixed value.
+            1.0, // TODO this appears to be a fixed value.
+            1000.0, // TODO this appears to be a fixed value.
 
-            )
-        }
+        )
     }
 }
 
@@ -140,26 +138,24 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
         "zoneId",
         "location",
         "locationX",
-        "locationY"
+        "locationY",
     )
 
     @Suppress("MagicNumber")
-    override fun convert(element: FixedDestinationElements): String {
-        return element.run {
-            toCSV(
-                person.personId,
-                -1, // Dummy value for dummy output: This is the number in the household.
-                person.householdID, // person.household.id,
-                1970, // Dummy value for dumb output household year taken from survey data.
-                -1, // Dummy value for dumb output: household ID from the survey data
-                activityType.description,
-                location.zoneId,
-                location.legacyStringRepresentation(),
-                location.position.x,
-                location.position.y
+    override fun convert(element: FixedDestinationElements): String = element.run {
+        toCSV(
+            person.personId,
+            -1, // Dummy value for dummy output: This is the number in the household.
+            person.householdID, // person.household.id,
+            1970, // Dummy value for dumb output household year taken from survey data.
+            -1, // Dummy value for dumb output: household ID from the survey data
+            activityType.description,
+            location.zoneId,
+            location.legacyStringRepresentation(),
+            location.position.x,
+            location.position.y,
 
-            )
-        }
+        )
     }
 }
 
@@ -167,14 +163,12 @@ object SurveyHouseholdOutput : CSVOutput<ISurveyHousehold<MaximumHouseholdAttrib
     override val header: List<String> = listOf("nominalSize", "numberOfMinors", "income")
 
     @Suppress("MagicNumber")
-    override fun convert(element: ISurveyHousehold<MaximumHouseholdAttributes, *>): String {
-        return element.run {
-            toCSV(
-                members.size,
-                members.count { it.age < 18 },
-                income.inEuros
-            )
-        }
+    override fun convert(element: ISurveyHousehold<MaximumHouseholdAttributes, *>): String = element.run {
+        toCSV(
+            members.size,
+            members.count { it.age < 18 },
+            income.inEuros,
+        )
     }
 }
 
@@ -187,25 +181,23 @@ object ModernizedHouseholdOutput : CSVOutput<SynthesisHousehold<MaximumHousehold
         "longitudeDegrees",
         "latitudeDegrees",
         "amountOfCars",
-        "economicStatusCode"
+        "economicStatusCode",
     )
 
-    override fun convert(element: SynthesisHousehold<MaximumHouseholdAttributes, *>): String {
-        return element.run {
-            val location = this.attributes.location
-            toCSV(
-                id,
-                location.zoneId,
-                surveyHouseholdId,
-                location,
-                location.position.x,
-                location.position.y,
+    override fun convert(element: SynthesisHousehold<MaximumHouseholdAttributes, *>): String = element.run {
+        val location = this.attributes.location
+        toCSV(
+            id,
+            location.zoneId,
+            surveyHouseholdId,
+            location,
+            location.position.x,
+            location.position.y,
 //                "TODO nomberofnotsimulatdchildren",
-                attributes.amountOfCars,
+            attributes.amountOfCars,
 //                "TODO incomeclass",
-                attributes.economicStatus.code,
-            )
-        }
+            attributes.economicStatus.code,
+        )
     }
 }
 
@@ -228,32 +220,30 @@ class LegacyHouseholdOutput<T : MaximumHouseholdAttributes> : CSVOutput<Synthesi
         "totalNumberOfCars",
         "incomeClass",
         "economicalStatus",
-        "canChargePrivately"
+        "canChargePrivately",
     ) + SurveyHouseholdOutput.header
 
-    override fun convert(element: SynthesisHousehold<T, *>): String {
-        return element.run {
-            val location = attributes.location
-            toCSV(
-                id,
-                1970, // Dummy value: Originally the year from Survey Info. Now useless.
-                "dummyval", // Dummy value: Originally the ID in the Survey Info.
-                -1, // Ok, here I am lost, I have absolutely no idea what "domcode" is supposed to be.
-                attributes.type.code, // The household type. Again taken from survey data.
-                "uselessattribute", // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
-                location.zoneId,
-                location.legacyStringRepresentation(),
-                location.position.x,
-                location.position.y,
-                -1, // ActiTopp once cared about the number of children, but it is entirely irrelevant
-                attributes.amountOfCars,
-                5, // I would assume that this is the encoding of the income based on some classes, but used it is not.
-                attributes.economicStatus.code,
-                "true", // Everyone can charge privately. Why this field was added to the general output / No one knows
+    override fun convert(element: SynthesisHousehold<T, *>): String = element.run {
+        val location = attributes.location
+        toCSV(
+            id,
+            1970, // Dummy value: Originally the year from Survey Info. Now useless.
+            "dummyval", // Dummy value: Originally the ID in the Survey Info.
+            -1, // Ok, here I am lost, I have absolutely no idea what "domcode" is supposed to be.
+            attributes.type.code, // The household type. Again taken from survey data.
+            "uselessattribute", // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
+            location.zoneId,
+            location.legacyStringRepresentation(),
+            location.position.x,
+            location.position.y,
+            -1, // ActiTopp once cared about the number of children, but it is entirely irrelevant
+            attributes.amountOfCars,
+            5, // I would assume that this is the encoding of the income based on some classes, but used it is not.
+            attributes.economicStatus.code,
+            "true", // Everyone can charge privately. Why this field was added to the general output / No one knows
 
-            )
-        } + ";" + SurveyHouseholdOutput.convert(element)
-    }
+        )
+    } + ";" + SurveyHouseholdOutput.convert(element)
 }
 
 data class OpportunityOutput constructor(
@@ -267,18 +257,16 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
     override val header: List<String> =
         listOf("zoneId", "activityType", "location", "attractivity", "locationX", "locationY")
 
-    override fun convert(element: OpportunityOutput): String {
-        return element.run {
-            toCSV(
-                location.zoneId.value,
-                activityType,
-                location.legacyStringRepresentation(),
-                attractiveness.value,
-                location.position.x,
-                location.position.y
+    override fun convert(element: OpportunityOutput): String = element.run {
+        toCSV(
+            location.zoneId.value,
+            activityType,
+            location.legacyStringRepresentation(),
+            attractiveness.value,
+            location.position.x,
+            location.position.y,
 
-            )
-        }
+        )
     }
 }
 
@@ -289,20 +277,18 @@ object SurveyPersonOutput : CSVOutput<SurveyPerson<MaximumPersonAttributes>> {
         "gender",
         "householdIncome",
         "hasBike",
-        "hasLicence"
+        "hasLicence",
     )
 
-    override fun convert(element: SurveyPerson<MaximumPersonAttributes>): String {
-        return element.run {
-            toCSV(
-                personId,
-                age,
-                sex,
-                "TODO Household Income is not part of person", // attributes.householdIncome.inEuros,
-                attributes.hasBicycle,
-                attributes.hasLicence
-            )
-        }
+    override fun convert(element: SurveyPerson<MaximumPersonAttributes>): String = element.run {
+        toCSV(
+            personId,
+            age,
+            sex,
+            "TODO Household Income is not part of person", // attributes.householdIncome.inEuros,
+            attributes.hasBicycle,
+            attributes.hasLicence,
+        )
     }
 }
 
@@ -323,7 +309,7 @@ class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttrib
         "preferencesSimulation",
         "eMobilityAcceptance",
         "chargingInfluencesDestinationChoice",
-        "mobilityProviderCustomership"
+        "mobilityProviderCustomership",
 
     )
 
@@ -344,7 +330,7 @@ class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttrib
                 surveyDummy,
                 0.5,
                 "NEVER",
-                this.getSharingMemberships()
+                this.getSharingMemberships(),
 
             )
         }
@@ -352,6 +338,4 @@ class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttrib
     }
 }
 
-fun toCSV(vararg elements: Any): String {
-    return elements.joinToString(";") { it.toString() }
-}
+fun toCSV(vararg elements: Any): String = elements.joinToString(";") { it.toString() }

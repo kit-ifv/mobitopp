@@ -24,10 +24,7 @@ interface PlotRenderer<G, X, V> {
      * @param data primary plot data
      * @param comparisonData optional reference/expected data to overlay or style differently
      */
-    fun plot(
-        data: PlotData<G, X, V>,
-        comparisonData: PlotData<G, X, V>?
-    ): Plot
+    fun plot(data: PlotData<G, X, V>, comparisonData: PlotData<G, X, V>?): Plot
 }
 
 /**

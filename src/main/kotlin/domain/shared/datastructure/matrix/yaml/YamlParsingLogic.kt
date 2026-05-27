@@ -42,9 +42,7 @@ interface YamlParsingLogic :
          * Returns the default implementation of [YamlParsingLogic],
          * which uses [YamlParsingLogicImpl] with the given YAML file path.
          */
-        fun default(yamlPath: Path): YamlParsingLogic {
-            return YamlParsingLogicImpl(yamlPath)
-        }
+        fun default(yamlPath: Path): YamlParsingLogic = YamlParsingLogicImpl(yamlPath)
     }
 }
 
@@ -103,26 +101,23 @@ internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
     override fun parseTimeLookupOperation(
         string: String,
         details: Pair<String, String>,
-    ): TimeLookupOperation<YamlInfo> {
-        return { priority ->
-            val (startTime, endTime) = string.split(" to ")
-            val (startHour, startMinute) = startTime.split(":").map { it.toInt() }
-            val (endHour, endMinute) = endTime.split(":").map { it.toInt() }
-            this[startHour.hours + startMinute.minutes, endHour.hours + endMinute.minutes] = YamlInfo(
-                details.first,
-                resolvePathIfRelative(details.second)
-            ) to priority
-        }
+    ): TimeLookupOperation<YamlInfo> = { priority ->
+        val (startTime, endTime) = string.split(" to ")
+        val (startHour, startMinute) = startTime.split(":").map { it.toInt() }
+        val (endHour, endMinute) = endTime.split(":").map { it.toInt() }
+        this[startHour.hours + startMinute.minutes, endHour.hours + endMinute.minutes] = YamlInfo(
+            details.first,
+            resolvePathIfRelative(details.second),
+        ) to priority
     }
 
-    private fun resolvePathIfRelative(pathString: String): Path =
-        pathString.let {
-            if (it.startsWith("$")) {
-                Path.of(path.parent.pathString, it.replaceFirstChar { "" })
-            } else {
-                Path.of(it)
-            }
+    private fun resolvePathIfRelative(pathString: String): Path = pathString.let {
+        if (it.startsWith("$")) {
+            Path.of(path.parent.pathString, it.replaceFirstChar { "" })
+        } else {
+            Path.of(it)
         }
+    }
 }
 
 /**

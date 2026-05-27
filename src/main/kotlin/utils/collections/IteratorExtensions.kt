@@ -33,12 +33,13 @@ fun <T> Iterable<T>.takeUntilSpliced(predicate: (T) -> Boolean): Pair<List<T>, T
 public inline fun <T> Iterable<T>.dropUntil(predicate: (T) -> Boolean): List<T> {
     var yielding = false
     val list = ArrayList<T>()
-    for (item in this)
+    for (item in this) {
         if (yielding) {
             list.add(item)
         } else if (!predicate(item)) {
             list.add(item)
             yielding = true
         }
+    }
     return list
 }

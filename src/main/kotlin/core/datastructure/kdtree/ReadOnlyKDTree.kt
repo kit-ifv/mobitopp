@@ -6,9 +6,7 @@ import kotlin.math.sqrt
 
 data class WithMetric<T, M : Comparable<M>>(val item: T, val metric: M)
 
-fun <T> Collection<WithMetric<T, *>>.discardMetric(): List<T> {
-    return map { it.item }
-}
+fun <T> Collection<WithMetric<T, *>>.discardMetric(): List<T> = map { it.item }
 
 /**
  * An implementation of a K-D Tree providing a search function for arbitrary elements. The dimensions of the tree are
@@ -32,9 +30,7 @@ class ReadOnlyKDTree<T : Any>(points: List<T>, firstAttribute: (T) -> Double, va
         }
     }
 
-    fun nearestNeighbor(point: KDPoint): T {
-        return nearestNeighbor(point) { it }
-    }
+    fun nearestNeighbor(point: KDPoint): T = nearestNeighbor(point) { it }
 
     /**
      * Locates the closest leaf node of an [element].
@@ -42,23 +38,19 @@ class ReadOnlyKDTree<T : Any>(points: List<T>, firstAttribute: (T) -> Double, va
      * @param converter A translation to turn the [element] into a multidimensional point, preferably matching the
      * multidimensional points of the tree elements.
      */
-    fun <S> nearestNeighbor(element: S, converter: (S) -> KDPoint): T {
-        return findUntil(element, converter).first().item
-    }
+    fun <S> nearestNeighbor(element: S, converter: (S) -> KDPoint): T = findUntil(element, converter).first().item
 
-    fun findUntil(doubleArray: DoubleArray): Sequence<WithMetric<T, Double>> {
-        return findUntil(doubleArray) { it }
-    }
+    fun findUntil(doubleArray: DoubleArray): Sequence<WithMetric<T, Double>> = findUntil(doubleArray) { it }
 
     fun <S, M : Comparable<M>> findUntil(
         element: S,
         converter: (S) -> KDPoint,
-        metric: (Double) -> M
+        metric: (Double) -> M,
     ): Sequence<WithMetric<T, M>> {
         require(converter(element).size == dimension) {
             "The conversion for element $element has ${
                 converter(
-                    element
+                    element,
                 ).size
             } dimensions, but the Tree is $dimension dimensional"
         }
@@ -79,16 +71,17 @@ class ReadOnlyKDTree<T : Any>(points: List<T>, firstAttribute: (T) -> Double, va
                 } else {
                     // Only an intermediate node will have children, which need to be added to the queue.
                     queue.addAll(
-                        result.item.evaluate(element, converter).map { WithMetric(it.item, metric(it.metric)) }
+                        result.item.evaluate(element, converter).map { WithMetric(it.item, metric(it.metric)) },
                     )
                 }
             }
         }
     }
 
-    fun <S> findUntil(element: S, converter: (S) -> KDPoint): Sequence<WithMetric<T, Double>> {
-        return findUntil(element, converter, { it })
-    }
+    fun <S> findUntil(element: S, converter: (S) -> KDPoint): Sequence<WithMetric<T, Double>> =
+        findUntil(element, converter, {
+            it
+        })
 }
 
 private fun <T> build(converter: (T) -> KDPoint, size: Int): ComparatorBlock<T> {
@@ -109,18 +102,12 @@ private class ComparatorBlock<T>(val index: Int, val comparator: Comparator<Doub
     lateinit var next: ComparatorBlock<T>
 }
 
-private fun <T> List<T>.splitByMedian(): Pair<List<T>, List<T>> {
-    return subList(0, size / 2) to subList(size / 2, size)
-}
+private fun <T> List<T>.splitByMedian(): Pair<List<T>, List<T>> = subList(0, size / 2) to subList(size / 2, size)
 
-private fun <T> List<T>.median(): T {
-    return get(size / 2)
-}
+private fun <T> List<T>.median(): T = get(size / 2)
 
 private class Hypercube(val min: KDPoint, val max: KDPoint) {
-    override fun toString(): String {
-        return "${min.joinToString { it.toString() }} ${max.joinToString { it.toString() }}"
-    }
+    override fun toString(): String = "${min.joinToString { it.toString() }} ${max.joinToString { it.toString() }}"
 
     fun closestDistance(to: KDPoint): Double {
         var distance = 0.0
@@ -142,12 +129,10 @@ private class Hypercube(val min: KDPoint, val max: KDPoint) {
     fun copy() = Hypercube(min.copyOf(), max.copyOf())
 
     companion object {
-        fun unlimited(size: Int): Hypercube {
-            return Hypercube(
-                DoubleArray(size) { Double.NEGATIVE_INFINITY },
-                DoubleArray(size) { Double.POSITIVE_INFINITY }
-            )
-        }
+        fun unlimited(size: Int): Hypercube = Hypercube(
+            DoubleArray(size) { Double.NEGATIVE_INFINITY },
+            DoubleArray(size) { Double.POSITIVE_INFINITY },
+        )
     }
 }
 
@@ -160,62 +145,41 @@ private sealed interface KDElement<T> {
 }
 
 private class KDTreeLeaf<T>(override val point: T, val converter: (T) -> DoubleArray) : KDElement<T> {
-    override fun find(element: T): T {
-        return point
-    }
+    override fun find(element: T): T = point
 
-    override fun elements(): List<T> {
-        return listOf(point)
-    }
+    override fun elements(): List<T> = listOf(point)
 
-    override fun <S> evaluate(element: S, metric: (S) -> KDPoint): List<WithMetric<KDElement<T>, Double>> {
-        return listOf()
-    }
+    override fun <S> evaluate(element: S, metric: (S) -> KDPoint): List<WithMetric<KDElement<T>, Double>> = listOf()
 
-    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double {
-        return converter(element).distanceTo(this.converter(point))
-    }
+    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double =
+        converter(element).distanceTo(this.converter(point))
 
-    override fun toString(): String {
-        return point.toString()
-    }
+    override fun toString(): String = point.toString()
 }
 
-private class KDTreeNode<T>(
-    points: List<T>,
-    comparatorBlock: ComparatorBlock<T>,
-
-    private val bounds: Hypercube,
-
-) : KDElement<T> {
+private class KDTreeNode<T>(points: List<T>, comparatorBlock: ComparatorBlock<T>, private val bounds: Hypercube) :
+    KDElement<T> {
 
     private val comparator: Comparator<Double> = comparatorBlock.comparator
     private val index: Int = comparatorBlock.index
     val converter: (T) -> DoubleArray = comparatorBlock.converter
     override val point: T
 
-    override fun elements(): List<T> {
-        return left.elements() + right.elements()
-    }
+    override fun elements(): List<T> = left.elements() + right.elements()
 
-    override fun <S> evaluate(element: S, metric: (S) -> KDPoint): List<WithMetric<KDElement<T>, Double>> {
-        return listOf(
-            WithMetric(left, left.distance(element, metric)),
-            WithMetric(right, right.distance(element, metric))
-        )
-    }
+    override fun <S> evaluate(element: S, metric: (S) -> KDPoint): List<WithMetric<KDElement<T>, Double>> = listOf(
+        WithMetric(left, left.distance(element, metric)),
+        WithMetric(right, right.distance(element, metric)),
+    )
 
-    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double {
-        return bounds.closestDistance(converter(element))
-    }
+    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double =
+        bounds.closestDistance(converter(element))
 
     //
-    override fun find(element: T): T {
-        return if (comparator.compare(converter(element)[index], pivot[index]) <= 0) {
-            left.find(element)
-        } else {
-            right.find(element)
-        }
+    override fun find(element: T): T = if (comparator.compare(converter(element)[index], pivot[index]) <= 0) {
+        left.find(element)
+    } else {
+        right.find(element)
     }
 
     private val left: KDElement<T>
@@ -235,6 +199,7 @@ private class KDTreeNode<T>(
 
         left = when (l.size) {
             1 -> KDTreeLeaf(l.first(), converter)
+
             else -> {
                 val bounds = bounds.copy()
                 bounds.max[index] = pivot[index]
@@ -243,6 +208,7 @@ private class KDTreeNode<T>(
         }
         right = when (r.size) {
             1 -> KDTreeLeaf(r.first(), converter)
+
             else -> {
                 val bounds = bounds.copy()
                 bounds.min[index] = pivot[index]
@@ -251,7 +217,5 @@ private class KDTreeNode<T>(
         }
     }
 
-    override fun toString(): String {
-        return "Hypercube: [$bounds]"
-    }
+    override fun toString(): String = "Hypercube: [$bounds]"
 }

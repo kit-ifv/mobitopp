@@ -12,11 +12,7 @@ package utils.collections
  *
  * @return a list of respective bin labels, one for each element in the provided order of the [Iterable]
  */
-fun <T> T.toEqualSizedBins(
-    min: Double,
-    max: Double,
-    n: Int,
-): Bin<Double> where T : Number {
+fun <T> T.toEqualSizedBins(min: Double, max: Double, n: Int): Bin<Double> where T : Number {
     require(n > 0) { "Number of intervals must be greater than zero" }
 
     val intervalSize = (max - min) / n
@@ -75,10 +71,7 @@ interface Bin<T> : Comparable<Bin<T>> where T : Comparable<T> {
     }.compare(this, other)
 }
 
-class BaseBin<T>(
-    override val lower: T,
-    override val upper: T
-) : Bin<T> where T : Comparable<T> {
+class BaseBin<T>(override val lower: T, override val upper: T) : Bin<T> where T : Comparable<T> {
 
     init {
         require(lower <= upper) { "The bins upper bound must not be lower than its lower bound: $lower <= $upper" }
@@ -140,10 +133,9 @@ fun <C, T> C.asBins(appendOpenBin: Boolean = false) where C : Collection<Pair<T,
     }
 }
 
-fun <S, T> List<Bin<S>>.mapBounds(transform: (S) -> T): List<Bin<T>> where T : Comparable<T>, S : Comparable<S> =
-    map {
-        BaseBin(transform(it.lower), transform(it.upper))
-    }
+fun <S, T> List<Bin<S>>.mapBounds(transform: (S) -> T): List<Bin<T>> where T : Comparable<T>, S : Comparable<S> = map {
+    BaseBin(transform(it.lower), transform(it.upper))
+}
 
 /**
  * Map to bins
@@ -152,9 +144,7 @@ fun <S, T> List<Bin<S>>.mapBounds(transform: (S) -> T): List<Bin<T>> where T : C
  * @param bins
  * @return
  */
-fun <T> T.mapToBins(
-    bins: Collection<Bin<T>>
-): Bin<T> where T : Comparable<T> {
+fun <T> T.mapToBins(bins: Collection<Bin<T>>): Bin<T> where T : Comparable<T> {
     require(assertNonOverlapping(bins))
     return bins.getBinOf(this)
 }
@@ -166,12 +156,10 @@ fun <T> T.mapToBins(
  * @param value
  * @return
  */
-fun <T> Iterable<Bin<T>>.getBinOf(value: T): Bin<T> where T : Comparable<T> =
-    this.find { it.contains(value) }
-        ?: error("No bin [a,b) found s.t. a <= $value < b: " + this.joinToString())
+fun <T> Iterable<Bin<T>>.getBinOf(value: T): Bin<T> where T : Comparable<T> = this.find { it.contains(value) }
+    ?: error("No bin [a,b) found s.t. a <= $value < b: " + this.joinToString())
 
-private fun <T> assertNonOverlapping(
-    bins: Collection<Bin<T>>
-): Boolean where T : Comparable<T> = bins.distinct().sorted().zipWithNext().all { (bin1, bin2) ->
-    bin1.upper <= bin2.lower
-}
+private fun <T> assertNonOverlapping(bins: Collection<Bin<T>>): Boolean where T : Comparable<T> =
+    bins.distinct().sorted().zipWithNext().all { (bin1, bin2) ->
+        bin1.upper <= bin2.lower
+    }

@@ -28,7 +28,7 @@ fun SynthesisContext.activityCsvParser(
     MutablePlannedActivity(
         id = ActivityId(row.index.toLong()),
         person = person,
-        seed = simulationSeed
+        seed = simulationSeed,
     ) {
         val shift = shiftActivityStart(this)
 
@@ -41,19 +41,18 @@ fun SynthesisContext.activityCsvParser(
 
 fun activityBinaryCsvParser(
     columns: ActivitiesColumns = ActivitiesColumns(),
-    errorHandling: ErrorHandling = ErrorHandling.WARNING
-) =
-    CsvParser(errorHandling) { row ->
-        ActivityBinaryRecord(
-            row.index.toLong(),
-            row.long(columns.personColumn),
-            row.int(columns.tripDurationColumn),
-            row.long(columns.startColumn),
-            duration = row.int(columns.durationColumn),
-            activityCode = row.int(columns.activityTypeColumn),
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+) = CsvParser(errorHandling) { row ->
+    ActivityBinaryRecord(
+        row.index.toLong(),
+        row.long(columns.personColumn),
+        row.int(columns.tripDurationColumn),
+        row.long(columns.startColumn),
+        duration = row.int(columns.durationColumn),
+        activityCode = row.int(columns.activityTypeColumn),
 
-        )
-    }
+    )
+}
 
 data class ActivitiesColumns(
     val personColumn: String = "personId",

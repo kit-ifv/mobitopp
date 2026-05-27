@@ -26,9 +26,7 @@ open class TimeLookupBuilder<T>(private val modulus: Duration? = null) {
     /**
      * Returns a read-only view of the current list of segments.
      */
-    fun segments(): List<TimeSegment<T>> {
-        return segments.toList()
-    }
+    fun segments(): List<TimeSegment<T>> = segments.toList()
 
     /**
      * Adds a time interval to the builder.
@@ -110,27 +108,21 @@ open class TimeLookupBuilder<T>(private val modulus: Duration? = null) {
      * Segments are sorted by their start times before building.
      * The resulting [TimeLookup] can be queried for elements at any absolute time.
      */
-    open fun build(): TimeLookup<T> {
-        return TimeLookup(
-            segments.map { it.range.start.sinceStart }.toTypedArray(),
-            segments.map { it.value },
-            modulus
-        )
-    }
+    open fun build(): TimeLookup<T> = TimeLookup(
+        segments.map { it.range.start.sinceStart }.toTypedArray(),
+        segments.map { it.value },
+        modulus,
+    )
 
-    override fun toString(): String {
-        return segments.toString()
-    }
+    override fun toString(): String = segments.toString()
 }
 
 /**
  * A [TimeLookupBuilder] is a [TimeLookupBuilder] with the modulus already fixed to 1 Day
  */
 class DayTimeLookupBuilder<T> : TimeLookupBuilder<T>(modulus = 1.days) {
-    override fun build(): DayTimeLookup<T> {
-        return DayTimeLookup(
-            segments.map { it.range.start.sinceStart }.toTypedArray(),
-            segments.map { it.value },
-        )
-    }
+    override fun build(): DayTimeLookup<T> = DayTimeLookup(
+        segments.map { it.range.start.sinceStart }.toTypedArray(),
+        segments.map { it.value },
+    )
 }

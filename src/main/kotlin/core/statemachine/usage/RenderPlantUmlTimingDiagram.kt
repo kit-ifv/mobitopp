@@ -12,13 +12,13 @@ import kotlin.io.path.createDirectories
 fun AgentInteractions.renderAsPumlTimingDiagram(
     agent: Agent<*>,
     file: Path = Path(
-        "docs/timing/${agent::class.simpleName ?: agent.instanceName}.puml"
+        "docs/timing/${agent::class.simpleName ?: agent.instanceName}.puml",
     ),
-    maxDepth: Int = 1
+    maxDepth: Int = 1,
 ) {
     file.parent.createDirectories()
     file.toFile().writeText(
-        getTransitiveRelatedActionsOf(agent, maxDepth).toPlantUml()
+        getTransitiveRelatedActionsOf(agent, maxDepth).toPlantUml(),
     )
 }
 
@@ -41,11 +41,11 @@ private fun List<Action>.toPlantUml(): String {
         |${agents.joinToString("\n") { it.agentToPlantUml() }}
         |
         |${this.mapNotNull { it as? Action.ChangeState }.groupBy { it.time.minutesSinceStart }.values.joinToString(
-        "\n"
+        "\n",
     ) { it.toTimeBlock(colors) }}
         |
         |${this.mapNotNull { it as? Action.SendMessage }.joinToString(
-        "\n"
+        "\n",
     ) { it.toPlantUml(colors[it.instance] ?: BLUE) } }
         |
         |@enduml
@@ -100,6 +100,6 @@ private fun String.agentAlias() = this.lowercase()
 private fun AbsoluteTime.asTimeString() = sinceStart.let {
     "@%d:%02d:00".format(
         it.inWholeHours,
-        it.inWholeMinutes % MINUTES_PER_HOUR
+        it.inWholeMinutes % MINUTES_PER_HOUR,
     ) // , it.inWholeSeconds % SECONDS_PER_MINUTE)
 }

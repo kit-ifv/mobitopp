@@ -43,7 +43,8 @@ class CachedAddResourceStep<E : Identifiable<I>, I>(
 
     cacheRootPath = cacheRootPath,
     originalSourcePath = originalSourcePath,
-), AddResourceStep<E, I> {
+),
+    AddResourceStep<E, I> {
 
     override val name: String = "load ${originalSourcePath.fileName} with background cache ${originalStep.name}"
 
@@ -57,9 +58,7 @@ class CachedAddResourceStep<E : Identifiable<I>, I>(
 
     override fun mockBehavior(): Warning? = originalStep.mockBehavior()
 
-    override fun generateElementsForCacheWrite(): Collection<E> {
-        return repository.elements.toList()
-    }
+    override fun generateElementsForCacheWrite(): Collection<E> = repository.elements.toList()
 
     override fun execute() {
         runCached {
@@ -67,9 +66,7 @@ class CachedAddResourceStep<E : Identifiable<I>, I>(
         }
     }
 
-    private fun cachedResource(): Resource<E> {
-        return BinaryFileResource(expectedCachePath, binaryReader)
-    }
+    private fun cachedResource(): Resource<E> = BinaryFileResource(expectedCachePath, binaryReader)
 }
 
 abstract class BinaryCachedFileInput<E>(
@@ -78,26 +75,20 @@ abstract class BinaryCachedFileInput<E>(
     cacheRootPath: Path,
     originalSourcePath: Path,
 ) : CachedFileInput(cacheRootPath, originalSourcePath) {
-    override fun calculateChecksum(expectedCachePath: Path): PathChecksum {
-        return binaryReader.checksum(expectedCachePath)
-    }
+    override fun calculateChecksum(expectedCachePath: Path): PathChecksum = binaryReader.checksum(expectedCachePath)
 
     override fun onCacheMiss() {
         binaryWriter.toBinary(
             expectedCachePath,
             generateElementsForCacheWrite(),
-            checksum = originalFileChecksum
+            checksum = originalFileChecksum,
         )
     }
 
     abstract fun generateElementsForCacheWrite(): Collection<E>
 }
 
-abstract class CachedFileInput(
-    val cacheRootPath: Path,
-    val originalSourcePath: Path,
-
-) {
+abstract class CachedFileInput(val cacheRootPath: Path, val originalSourcePath: Path) {
     protected val cacheFolder: Path by lazy {
         cacheRootPath.resolve("data-cache").apply { createDirectories() }
     }

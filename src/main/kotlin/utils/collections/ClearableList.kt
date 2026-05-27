@@ -7,7 +7,9 @@ interface ClearableList<T> : List<T> {
 }
 
 @JvmInline
-value class MutableClearableList<T>(val delegate: MutableList<T>) : MutableList<T> by delegate, ClearableList<T> {
+value class MutableClearableList<T>(val delegate: MutableList<T>) :
+    MutableList<T> by delegate,
+    ClearableList<T> {
 
     @Deprecated("This operation is ambiguous for an empty list.", level = DeprecationLevel.ERROR)
     override fun <T : Any?> toArray(generator: IntFunction<Array<out T?>?>): Array<out T?>? {

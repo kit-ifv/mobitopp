@@ -19,10 +19,7 @@ import java.nio.file.Path
 import kotlin.io.path.name
 import kotlin.io.path.pathString
 
-fun LoadAttractivenessDataContext.loadAttractivities(
-    path: Path,
-    purposes: ChoiceModelPurposes,
-) = runStep {
+fun LoadAttractivenessDataContext.loadAttractivities(path: Path, purposes: ChoiceModelPurposes) = runStep {
     LoadAttractivenessStep(this, path, purposes)
 }
 
@@ -41,7 +38,7 @@ class LoadAttractivenessStep(
     override fun execute() {
         context.attractivenessModel.value = AttractivenessFromCsv(
             path = path,
-            purposes = purposes
+            purposes = purposes,
         )
     }
 

@@ -9,17 +9,17 @@ fun main() {
     builder.addWarningLog("Warning", "You overused the number of calls...")
     builder.addWarningLog(
         "Too many parsing faults",
-        "It occured, that class XYZ had too many parsing faults during execution of the long-term-module."
+        "It occured, that class XYZ had too many parsing faults during execution of the long-term-module.",
     )
     builder.addSuccessLog(
         "Successfully completed the number of calls.",
-        Art
+        ART,
     )
     builder.addErrorLog("Error", "oh noooo we failed")
     builder.addNormalLog("Nothing happened", "Not even here")
     builder.addNormalLog(
         "Very long test case. Even the Title is hilariously long.\n Multiple lines even",
-        veryLongText
+        VERY_LONG_TEXT,
     )
     builder.addNormalLog("Nothing happened", "Not even here")
     builder.addOverviewItem("Load step", CardStatus.SUCCESS)
@@ -30,14 +30,14 @@ fun main() {
         builder.addOverviewItem(
             "Load step: person.csv, car.csv, public_transport.csv, config.toml",
             CardStatus.SUCCESS,
-            "Some entries were erroneous"
+            "Some entries were erroneous",
         )
     }
     builder.printReport(Path("src/test/resources/tempOutput/"))
 }
 
 @Suppress("TopLevelPropertyNaming")
-private const val Art = "⡿⡿⠟⠓⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
+private const val ART = "⡿⡿⠟⠓⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
     "⣷⣶⣾⣿⣷⣶⣤⣬⣟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
     "⣿⣟⣱⡿⠿⠿⠿⣮⣻⣿⣿⣿⣿⣏⢿⣿⡿⢁⢀⣀⣀⣀⣬⣉⣙⠋⠛⠿⢿⣿\n" +
     "⣟⣛⣡⣤⣤⣁⣀⣄⣉⣻⣿⣿⣿⣿⠛⡿⠻⠛⠭⠿⡿⠯⣭⣟⡻⢿⣶⣦⣀⢙\n" +
@@ -54,7 +54,7 @@ private const val Art = "⡿⡿⠟⠓⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿�
     "⠀⡹⣿⡆⠈⣠⣿⣷⣿⣿⣿⣿⣿⣿⣿⣷⣬⡛⣻⣿⣿⣿⣿⣹⢖⠝⠁⡳⣾⣾"
 
 @Suppress("TopLevelPropertyNaming", "MaximumLineLength", "Indentation")
-private const val veryLongText = "w: [ksp] Deferred SharingStation as it is not valid !!\n" +
+private const val VERY_LONG_TEXT = "w: [ksp] Deferred SharingStation as it is not valid !!\n" +
     "w: [ksp] Round 1 - RETRY processor: MutableProcessor\n" +
     "w: [ksp] Deferred PrivateCar as it is not valid !!\n" +
     "w: [ksp] Deferred Person as it is not valid !!\n" +

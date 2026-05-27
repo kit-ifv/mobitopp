@@ -12,7 +12,8 @@ enum class DayIdentifier {
     Saturday,
     Sunday,
     Weekday,
-    Everyday;
+    Everyday,
+    ;
 
     /*
      * The level determines which identifiers can overlay other identifiers. Higher level overrides lower level
@@ -20,18 +21,25 @@ enum class DayIdentifier {
     fun getDays(): Pair<List<DayOfWeek>, Int> {
         val weekdays = when (this) {
             Monday -> listOf(DayOfWeek.MONDAY)
+
             Tuesday -> listOf(DayOfWeek.TUESDAY)
+
             Wednesday -> listOf(DayOfWeek.WEDNESDAY)
+
             Thursday -> listOf(DayOfWeek.THURSDAY)
+
             Friday -> listOf(DayOfWeek.FRIDAY)
+
             Saturday -> listOf(DayOfWeek.SATURDAY)
+
             Sunday -> listOf(DayOfWeek.SUNDAY)
+
             Weekday -> listOf(
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
                 DayOfWeek.WEDNESDAY,
                 DayOfWeek.THURSDAY,
-                DayOfWeek.FRIDAY
+                DayOfWeek.FRIDAY,
             )
 
             Everyday -> DayOfWeek.entries
@@ -47,19 +55,17 @@ enum class DayIdentifier {
     }
 
     companion object {
-        fun fromString(value: String): DayIdentifier {
-            return when (value.lowercase(Locale.getDefault())) {
-                "monday" -> Monday
-                "tuesday" -> Tuesday
-                "wednesday" -> Wednesday
-                "thursday" -> Thursday
-                "friday" -> Friday
-                "saturday" -> Saturday
-                "sunday" -> Sunday
-                "weekday" -> Weekday
-                "everyday" -> Everyday
-                else -> throw IllegalArgumentException("Unknown day: $value")
-            }
+        fun fromString(value: String): DayIdentifier = when (value.lowercase(Locale.getDefault())) {
+            "monday" -> Monday
+            "tuesday" -> Tuesday
+            "wednesday" -> Wednesday
+            "thursday" -> Thursday
+            "friday" -> Friday
+            "saturday" -> Saturday
+            "sunday" -> Sunday
+            "weekday" -> Weekday
+            "everyday" -> Everyday
+            else -> throw IllegalArgumentException("Unknown day: $value")
         }
     }
 }

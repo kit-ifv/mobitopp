@@ -22,24 +22,19 @@ value class ActivityId(val value: Long) : Comparable<ActivityId> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: ActivityId): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: ActivityId): Int = value.compareTo(other.value)
 
     /**
      * @return the next higher id.
      */
-    fun next(): ActivityId {
-        return ActivityId(value + 1)
-    }
+    fun next(): ActivityId = ActivityId(value + 1)
 }
 
 @Mutable
-abstract class PlannedActivity(
-    override val id: ActivityId,
-    val person: MutablePerson,
-    seed: Long,
-) : StochasticActor, Identifiable<ActivityId>, Simplifiable<ActivityBinaryRecord> {
+abstract class PlannedActivity(override val id: ActivityId, val person: MutablePerson, seed: Long) :
+    StochasticActor,
+    Identifiable<ActivityId>,
+    Simplifiable<ActivityBinaryRecord> {
 
     final override val random: Random by lazy { Random(id.value + seed) }
 
@@ -60,19 +55,16 @@ abstract class PlannedActivity(
     val endTime: AbsoluteTime
         get() = startTime + duration
 
-    override fun simplify(): ActivityBinaryRecord {
-        return ActivityBinaryRecord(
-            id.value,
-            person.id.value,
-            observedTripDuration.toInt(DurationUnit.MINUTES),
-            startTime.minutesSinceStart,
-            duration.toInt(DurationUnit.MINUTES),
-            activityType.code
-        )
-    }
-    override fun toString(): String {
-        return "${activityType.description.first()}(${activityType.code}) start=$startTime duration=$duration"
-    }
+    override fun simplify(): ActivityBinaryRecord = ActivityBinaryRecord(
+        id.value,
+        person.id.value,
+        observedTripDuration.toInt(DurationUnit.MINUTES),
+        startTime.minutesSinceStart,
+        duration.toInt(DurationUnit.MINUTES),
+        activityType.code,
+    )
+    override fun toString(): String =
+        "${activityType.description.first()}(${activityType.code}) start=$startTime duration=$duration"
 }
 
 data class ActivityBinaryRecord(

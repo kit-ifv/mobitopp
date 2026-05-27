@@ -14,9 +14,7 @@ val standardMapper: ObjectMapper = CsvMapper().registerKotlinModule().registerMo
 
 val standardSchema = CsvSchema.emptySchema().withHeader()
 
-inline fun <reified T> standardCSVParse(input: InputStream, separator: Char = ';'): List<T> {
-    return standardMapper
-        .readerFor(T::class.java)
-        .with(standardSchema.withColumnSeparator(separator)).readValues<T>(input)
-        .readAll()
-}
+inline fun <reified T> standardCSVParse(input: InputStream, separator: Char = ';'): List<T> = standardMapper
+    .readerFor(T::class.java)
+    .with(standardSchema.withColumnSeparator(separator)).readValues<T>(input)
+    .readAll()

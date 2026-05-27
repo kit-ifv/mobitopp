@@ -22,7 +22,7 @@ class SynthesisHouseholdTest {
         override val type: HouseholdType,
         @CsvIgnore
         override var location: StandardLocation,
-        val economicStatus: EconomicStatus = EconomicStatus.MIDDLE
+        val economicStatus: EconomicStatus = EconomicStatus.MIDDLE,
     ) : MinimumHouseholdAttributes {
         val zoneID get() = location.zoneId
 

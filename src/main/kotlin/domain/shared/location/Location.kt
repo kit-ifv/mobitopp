@@ -12,25 +12,18 @@ import org.locationtech.jts.geom.PrecisionModel
 interface Location {
     val position: Point
 
-    fun withZone(zoneId: ZoneId): HasZoneId {
-        return ZoneIdLocation(position, zoneId)
-    }
+    fun withZone(zoneId: ZoneId): HasZoneId = ZoneIdLocation(position, zoneId)
 
-    fun withRoadAccess(access: RoadAccess): HasRoadAccess {
-        return RoadAccessLocationImpl(position, access)
-    }
+    fun withRoadAccess(access: RoadAccess): HasRoadAccess = RoadAccessLocationImpl(position, access)
 
     fun distance(other: Location): Distance = JTSDistanceCalculator.distance(position, other.position)
 
     companion object {
-        fun of(point: Point): Location {
-            return LocationImpl(point)
-        }
+        fun of(point: Point): Location = LocationImpl(point)
 
         @Suppress("MagicNumber")
-        fun utm(x: Double, y: Double): Location {
-            return of(GeometryFactory(PrecisionModel(), 25832).createPoint(Coordinate(x, y)))
-        }
+        fun utm(x: Double, y: Double): Location =
+            of(GeometryFactory(PrecisionModel(), 25832).createPoint(Coordinate(x, y)))
 
         fun utm(string: String): Location {
             val (x, y) = string.split(",").take(2)
@@ -38,9 +31,7 @@ interface Location {
         }
 
         fun wgs(coord: WGS84Coordinate) = wgs(coord.x, coord.y)
-        fun wgs(x: Double, y: Double): Location {
-            return of(PointCreator.createWGS(x, y))
-        }
+        fun wgs(x: Double, y: Double): Location = of(PointCreator.createWGS(x, y))
 
         val BIELEFELD by lazy {
             wgs(8.531007, 52.019101)

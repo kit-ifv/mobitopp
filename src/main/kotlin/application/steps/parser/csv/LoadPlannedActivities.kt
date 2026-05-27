@@ -62,7 +62,7 @@ class ConvertedCsvResource<X, E>(
     val parser: CsvParser<X>,
     val delimiter: String = SEMICOLON,
     private val reusable: Boolean = false,
-    val converter: (X) -> E
+    val converter: (X) -> E,
 
 ) : Resource<E> {
     override val name = path.fileName.toString()
@@ -99,7 +99,7 @@ fun LoadPlannedActivitiesContext.activitiesCsvConfig(
             delimiter = delimiter,
             repository = plannedActivityRepository,
             dependentRepositories = setOf(personRepository),
-            validationMock = listOf() // TODO
+            validationMock = listOf(), // TODO
         )
         FileBasedAddResourceStep(path, step)
     }
@@ -115,10 +115,7 @@ data class ActivityCsvConfig(
     var shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
 )
 
-fun LoadPlannedActivitiesContext.runStep(
-    step: AbstractAddResourceStep<MutablePlannedActivity, ActivityId>,
-
-) = runStep {
+fun LoadPlannedActivitiesContext.runStep(step: AbstractAddResourceStep<MutablePlannedActivity, ActivityId>) = runStep {
     step
 }
 
@@ -137,7 +134,7 @@ class ActivityBuild(
     override val reader: BinaryReader<MutablePlannedActivity> = BinaryActivityReader(
         codeActivity = activityCodes,
         personConverter = converter,
-        contextSimulationSeed = seed
+        contextSimulationSeed = seed,
     )
     override val writer: BinaryWriter<MutablePlannedActivity> = BinaryActivityWriter()
 
@@ -168,7 +165,7 @@ interface LoadPlannedActivitiesContext : DemandSimContext {
         get() = dataFolder.resolve("demand-data").resolve("activity.csv")
 
     fun getPerson(personId: PersonId) = requireNotNull(
-        personRepository[personId]
+        personRepository[personId],
     ) {
         "Referenced person id $personId could not be found in personRepo:" +
             " ${

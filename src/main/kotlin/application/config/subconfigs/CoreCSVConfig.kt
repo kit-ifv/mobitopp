@@ -51,14 +51,14 @@ data class CoreCSVConfig(
             fixedDestinationCSV = existsOrDefault(
                 fixedDestinationCSV,
                 defaultFixedDestinationCSV,
-                dataRepo
+                dataRepo,
             ),
             attractivitiesCSV = existsOrDefault(
                 attractivitiesCSV,
                 defaultAttractivitiesCSV,
-                zoneRepo
+                zoneRepo,
             ),
-            zonesCSV = existsOrDefault(zonesCSV, defaultZonesCSV, zoneRepo)
+            zonesCSV = existsOrDefault(zonesCSV, defaultZonesCSV, zoneRepo),
         )
 
     /**
@@ -74,7 +74,7 @@ data class CoreCSVConfig(
             privateCarsCSV,
             fixedDestinationCSV,
             attractivitiesCSV,
-            zonesCSV
+            zonesCSV,
         )
         return paths.filter { !it.exists() }
     }
@@ -89,18 +89,16 @@ data class CoreCSVConfig(
     fun overwriteZoneRepo(
         zoneRepo: Path,
         attractivitiesCSV: Path = defaultAttractivitiesCSV,
-        zonesCSV: Path = defaultZonesCSV
-    ): CoreCSVConfig {
-        return CoreCSVConfig(
-            personCSV = personCSV,
-            householdCSV = householdCSV,
-            activityCSV = activityCSV,
-            privateCarsCSV = privateCarsCSV,
-            fixedDestinationCSV = fixedDestinationCSV,
-            attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV),
-            zonesCSV = zoneRepo.resolve(zonesCSV)
-        )
-    }
+        zonesCSV: Path = defaultZonesCSV,
+    ): CoreCSVConfig = CoreCSVConfig(
+        personCSV = personCSV,
+        householdCSV = householdCSV,
+        activityCSV = activityCSV,
+        privateCarsCSV = privateCarsCSV,
+        fixedDestinationCSV = fixedDestinationCSV,
+        attractivitiesCSV = zoneRepo.resolve(attractivitiesCSV),
+        zonesCSV = zoneRepo.resolve(zonesCSV),
+    )
 
     /**
      * Returns new CSVConfig with changed person, household, activity, private_cars and fixed_destination paths.
@@ -124,17 +122,15 @@ data class CoreCSVConfig(
         activityCSV: Path = defaultActivityCSV,
         privateCarsCSV: Path = defaultPrivateCarsCSV,
         fixedDestinationCSV: Path = defaultFixedDestinationCSV,
-    ): CoreCSVConfig {
-        return CoreCSVConfig(
-            personCSV = dataRepo.resolve(personCSV),
-            householdCSV = dataRepo.resolve(householdCSV),
-            activityCSV = dataRepo.resolve(activityCSV),
-            privateCarsCSV = dataRepo.resolve(privateCarsCSV),
-            fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV),
-            attractivitiesCSV = attractivitiesCSV,
-            zonesCSV = zonesCSV
-        )
-    }
+    ): CoreCSVConfig = CoreCSVConfig(
+        personCSV = dataRepo.resolve(personCSV),
+        householdCSV = dataRepo.resolve(householdCSV),
+        activityCSV = dataRepo.resolve(activityCSV),
+        privateCarsCSV = dataRepo.resolve(privateCarsCSV),
+        fixedDestinationCSV = dataRepo.resolve(fixedDestinationCSV),
+        attractivitiesCSV = attractivitiesCSV,
+        zonesCSV = zonesCSV,
+    )
 
     companion object : JSONInitializer<CoreCSVConfig> {
         const val DATA_REPO_PARAM = "dataRepo"
@@ -150,27 +146,25 @@ data class CoreCSVConfig(
         /**
          * @return all the constructor parameter names, including dataRepo and zoneRepo.
          */
-        override fun getParameterNames(): Set<String> {
-            return setOf(
-                DATA_REPO_PARAM,
-                ZONE_REPO_PARAM,
-                PERSON_PARAM,
-                HOUSEHOLD_PARAM,
-                ACTIVITY_PARAM,
-                CAR_PARAM,
-                DESTINATION_PARAM,
-                ATTRACTIVITY_PARAM,
-                ZONES_PARAM
-            )
+        override fun getParameterNames(): Set<String> = setOf(
+            DATA_REPO_PARAM,
+            ZONE_REPO_PARAM,
+            PERSON_PARAM,
+            HOUSEHOLD_PARAM,
+            ACTIVITY_PARAM,
+            CAR_PARAM,
+            DESTINATION_PARAM,
+            ATTRACTIVITY_PARAM,
+            ZONES_PARAM,
+        )
+
+        fun Map<String, String>.retrieveAsPath(name: String): Path? = if (containsKey(name)) {
+            Path(get(name)!!)
+        } else {
+            null
         }
 
-        fun Map<String, String>.retrieveAsPath(name: String,): Path? {
-            return if (containsKey(name)) { Path(get(name)!!) } else null
-        }
-
-        fun allNotNull(vararg paths: Path?): Boolean {
-            return paths.all { it != null }
-        }
+        fun allNotNull(vararg paths: Path?): Boolean = paths.all { it != null }
 
         fun existsOrDefault(path: Path?, defaultPath: Path, resolveTarget: Path): Path {
             if (path == null) return resolveTarget.resolve(defaultPath)
@@ -204,7 +198,7 @@ data class CoreCSVConfig(
                     privateCarsCSV = privateCarsCSV,
                     fixedDestinationCSV = fixedDestinationCSV,
                     attractivitiesCSV = attractivitiesCSV,
-                    zonesCSV = zonesCSV
+                    zonesCSV = zonesCSV,
                 )
             } else {
                 if (allNotNull(
@@ -214,7 +208,7 @@ data class CoreCSVConfig(
                         privateCarsCSV,
                         fixedDestinationCSV,
                         attractivitiesCSV,
-                        zonesCSV
+                        zonesCSV,
                     )
                 ) {
                     return CoreCSVConfig(
@@ -224,7 +218,7 @@ data class CoreCSVConfig(
                         privateCarsCSV = privateCarsCSV!!,
                         fixedDestinationCSV = fixedDestinationCSV!!,
                         attractivitiesCSV = attractivitiesCSV!!,
-                        zonesCSV = zonesCSV!!
+                        zonesCSV = zonesCSV!!,
                     )
                 } else {
                     error("Missing mandatory fields. Either set 'dataRepo' and 'zoneRepo' or all other fields.")

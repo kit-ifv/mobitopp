@@ -110,13 +110,11 @@ private class ConflictBuilder {
         scheduleBuilder.lambda()
     }
 
-    fun build(): Conflict {
-        return Conflict(
-            startTime,
-            endTime,
-            startLocation,
-            endLocation,
-            scheduleBuilder.actions().drop(1) // Remove the home activity that the usual builder chucks in
-        )
-    }
+    fun build(): Conflict = Conflict(
+        startTime,
+        endTime,
+        startLocation,
+        endLocation,
+        scheduleBuilder.actions().drop(1), // Remove the home activity that the usual builder chucks in
+    )
 }

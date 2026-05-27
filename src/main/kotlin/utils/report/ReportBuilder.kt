@@ -125,42 +125,40 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         print("\n")
     }
 
-    private fun createBody(): String {
-        return createHTML().div("integration.main") {
-            h1("title") {
-                style = "color: var(--highlight-color)"
-                +reportTitle
+    private fun createBody(): String = createHTML().div("integration.main") {
+        h1("title") {
+            style = "color: var(--highlight-color)"
+            +reportTitle
+        }
+        if (quickOverview != null) unsafe { +quickOverview!!.getHtml() }
+        div("logs-card") {
+            h3("logs heading") {
+                style = "color: var(--normal-color)"
+                +"Logs"
             }
-            if (quickOverview != null) unsafe { +quickOverview!!.getHtml() }
-            div("logs-card") {
-                h3("logs heading") {
-                    style = "color: var(--normal-color)"
-                    +"Logs"
-                }
-                for (t in errors) {
-                    unsafe { +t.getHtml() }
-                }
-                for (t in success) {
-                    unsafe { +t.getHtml() }
-                }
-                for (t in warnings) {
-                    unsafe { +t.getHtml() }
-                }
-                for (t in normals) {
-                    unsafe { +t.getHtml() }
-                }
+            for (t in errors) {
+                unsafe { +t.getHtml() }
             }
-            button(classes = "darkmode-toggle") {
-                onClick = "toggleDarkMode()"
-                svg {
-                    attributes["fill"] = "none"
-                    attributes["stroke"] = "currentColor"
-                    attributes["width"] = "30"
-                    attributes["height"] = "30"
-                    attributes["viewbox"] = "0 0 24 24"
-                    unsafe {
-                        +darkmodeMoonSVG.trimIndent()
-                    }
+            for (t in success) {
+                unsafe { +t.getHtml() }
+            }
+            for (t in warnings) {
+                unsafe { +t.getHtml() }
+            }
+            for (t in normals) {
+                unsafe { +t.getHtml() }
+            }
+        }
+        button(classes = "darkmode-toggle") {
+            onClick = "toggleDarkMode()"
+            svg {
+                attributes["fill"] = "none"
+                attributes["stroke"] = "currentColor"
+                attributes["width"] = "30"
+                attributes["height"] = "30"
+                attributes["viewbox"] = "0 0 24 24"
+                unsafe {
+                    +DARKMODE_MOON_SVG.trimIndent()
                 }
             }
         }
@@ -172,4 +170,4 @@ private const val BOLD = "\u001B[1m"
 private const val RESET = "\u001B[0m"
 
 @Suppress("MaxLineLength", "MaximumLineLength", "TopLevelPropertyNaming")
-private const val darkmodeMoonSVG = """<path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>"""
+private const val DARKMODE_MOON_SVG = """<path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>"""

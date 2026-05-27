@@ -1,7 +1,6 @@
 package domain.shared.location
 
 import domain.shared.location.attributes.HasRoadAccess
-import domain.shared.location.attributes.HasZoneId
 import edu.kit.ifv.units.KCoordinate
 import edu.kit.ifv.units.UTMPosition
 import edu.kit.ifv.units.WGS84Coordinate
@@ -12,9 +11,7 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
 @Suppress("MagicNumber")
-fun WGS84Coordinate.toPoint(): Point {
-    return GeometryFactory(PrecisionModel(), 4326).createPoint(Coordinate(x, y))
-}
+fun WGS84Coordinate.toPoint(): Point = GeometryFactory(PrecisionModel(), 4326).createPoint(Coordinate(x, y))
 
 @Suppress("MagicNumber")
 object PointCreator {
@@ -28,13 +25,9 @@ object PointCreator {
         return createWGS(x.toDouble(), y.toDouble())
     }
 
-    fun createWGS(x: Double, y: Double): Point {
-        return wgsFactory.createPoint(Coordinate(x, y))
-    }
+    fun createWGS(x: Double, y: Double): Point = wgsFactory.createPoint(Coordinate(x, y))
 
-    fun createUTM(x: Double, y: Double): Point {
-        return utmFactory.createPoint(Coordinate(x, y))
-    }
+    fun createUTM(x: Double, y: Double): Point = utmFactory.createPoint(Coordinate(x, y))
 
     fun createUTM(string: String): Point {
         val (x, y) = string.split(",").take(2)
@@ -42,20 +35,17 @@ object PointCreator {
     }
 }
 
-data class RoadAccessLocationImpl(
-    override val position: Point,
-    override val roadAccess: RoadAccess,
-) : HasRoadAccess
+data class RoadAccessLocationImpl(override val position: Point, override val roadAccess: RoadAccess) : HasRoadAccess
 
-interface ZonedRoadAccessLocation : HasRoadAccess, LocationWithZoneId
+interface ZonedRoadAccessLocation :
+    HasRoadAccess,
+    LocationWithZoneId
 
 interface ZonedLocation : Location {
     val zoneId: ZoneId
 }
 
-fun CoordinateSystem.axisUnits(): Set<String> {
-    return (0 until dimension).map { this.getAxis(it).unit.name }.toSet()
-}
+fun CoordinateSystem.axisUnits(): Set<String> = (0 until dimension).map { this.getAxis(it).unit.name }.toSet()
 
 /**
  * Parse the legacy mobiTopp String format of coordinate and road access:
@@ -70,15 +60,13 @@ fun String.parseRoadPositionWGS(): HasRoadAccess {
     }
     return Location.wgs(
         res[0].toDouble(),
-        res[1].toDouble()
+        res[1].toDouble(),
     ).withRoadAccess(
         RoadAccess(
             roadId = res[2].toLongOrNull() ?: Long.MIN_VALUE,
             position = (res[3].toDoubleOrNull() ?: 0.5).share(),
-        )
+        ),
     )
 }
 
-fun KCoordinate.toUTM(): UTMPosition {
-    return WGS84Coordinate.decimalDegree(y, x).toUTM()
-}
+fun KCoordinate.toUTM(): UTMPosition = WGS84Coordinate.decimalDegree(y, x).toUTM()

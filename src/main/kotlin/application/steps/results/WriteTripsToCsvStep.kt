@@ -29,18 +29,19 @@ interface WriteTripsCsvContext : DemandSimContext {
 
 interface WriteLegToCSV {
     val header: String
-    fun generateCSVLine(index: Int, leg: LinkedLeg, person: PersonAgent, context: WriteTripsCsvContext) : String
+    fun generateCSVLine(index: Int, leg: LinkedLeg, person: PersonAgent, context: WriteTripsCsvContext): String
 }
 
-object StandardCSVLegWriter: WriteLegToCSV {
-    override val header: String = "legId;personId;duration_sec;mode;activityType;tripStart_sec;tripEnd_sec;ZoneStart;ZoneEnd;previousActivityType;distance_km;cost_euro"
+object StandardCSVLegWriter : WriteLegToCSV {
+    override val header: String = "legId;personId;duration_sec;mode;activityType;" +
+        "tripStart_sec;tripEnd_sec;ZoneStart;ZoneEnd;previousActivityType;distance_km;cost_euro"
 
     override fun generateCSVLine(
         index: Int,
         leg: LinkedLeg,
         person: PersonAgent,
         context: WriteTripsCsvContext,
-    ) : String{
+    ): String {
         val previous = leg.previous
         val next = leg.next
         val purpose = if (next is Activity) next.type.code.toString() else "-"
@@ -66,7 +67,7 @@ object StandardCSVLegWriter: WriteLegToCSV {
             leg.endLocation.zoneId.value,
             previousPurpose,
             dist.kilometers,
-            cost.euros
+            cost.euros,
         )
     }
 }
@@ -75,10 +76,10 @@ class WriteTripsToCsvStep(
     private val path: Path,
     private val context: WriteTripsCsvContext,
     private val legWriter: WriteLegToCSV = StandardCSVLegWriter,
-) : ModelStep, SameValidationBehavior {
+) : ModelStep,
+    SameValidationBehavior {
 
     override val name: String = "Write trip output to csv"
-
 
     override fun execute() {
         path.bufferedWriter().use { writer ->

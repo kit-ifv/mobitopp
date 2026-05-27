@@ -25,9 +25,7 @@ value class HouseholdId(val value: Long) : Comparable<HouseholdId> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: HouseholdId): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: HouseholdId): Int = value.compareTo(other.value)
 
     /**
      * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
@@ -35,12 +33,13 @@ value class HouseholdId(val value: Long) : Comparable<HouseholdId> {
      *
      * @return the next higher id.
      */
-    fun next(): HouseholdId {
-        return HouseholdId(value + 1)
-    }
+    fun next(): HouseholdId = HouseholdId(value + 1)
 }
 
-interface IHousehold : Identifiable<HouseholdId>, StochasticActor, Simplifiable<HouseholdBinaryRecord> {
+interface IHousehold :
+    Identifiable<HouseholdId>,
+    StochasticActor,
+    Simplifiable<HouseholdBinaryRecord> {
     val householdNumber: Long
     val surveyYear: Int
     val location: StandardLocation
@@ -51,26 +50,21 @@ interface IHousehold : Identifiable<HouseholdId>, StochasticActor, Simplifiable<
     val members: Set<IPerson>
     val cars: Set<IPrivateCar>
 
-    override fun simplify(): HouseholdBinaryRecord {
-        return HouseholdBinaryRecord(
-            id.value,
-            householdNumber,
-            surveyYear,
-            domCode,
-            type,
-            incomePerMonth.toDouble(CurrencyUnit.EUROS),
-            economicStatus.code,
-            location
+    override fun simplify(): HouseholdBinaryRecord = HouseholdBinaryRecord(
+        id.value,
+        householdNumber,
+        surveyYear,
+        domCode,
+        type,
+        incomePerMonth.toDouble(CurrencyUnit.EUROS),
+        economicStatus.code,
+        location,
 
-        )
-    }
+    )
 }
 
 @Mutable
-abstract class Household(
-    override val id: HouseholdId,
-    seed: Long,
-) : IHousehold {
+abstract class Household(override val id: HouseholdId, seed: Long) : IHousehold {
 
     final override val random: Random by lazy { Random(id.value + seed) }
 
@@ -110,7 +104,8 @@ enum class EconomicStatus(override val code: Int) : Encodable {
     LOW(2),
     MIDDLE(3),
     HIGH(4),
-    VERY_HIGH(5);
+    VERY_HIGH(5),
+    ;
 
     override val description: String = name
 
@@ -124,7 +119,8 @@ enum class HouseholdType(override val code: Int) : Encodable {
     COUPLE_WITH_CHILDREN(3),
     COUPLE_WITHOUT_CHILDREN(4),
     OTHER_MULTI_PERSON_HH(5),
-    UNDEFINED(-1);
+    UNDEFINED(-1),
+    ;
 
     override val description: String = name
 
@@ -135,21 +131,17 @@ enum class HouseholdType(override val code: Int) : Encodable {
             SINGLE_HH,
             COUPLE_WITH_CHILDREN,
             COUPLE_WITHOUT_CHILDREN,
-            OTHER_MULTI_PERSON_HH
+            OTHER_MULTI_PERSON_HH,
         )
 
         private val mapping = HouseholdType.entries.associateBy(HouseholdType::code).toMutableMap()
 
         private val toSet = HouseholdType.entries.toSet()
-        override fun values(): Set<HouseholdType> {
-            return toSet
-        }
+        override fun values(): Set<HouseholdType> = toSet
 
-        override fun decode(i: Int): HouseholdType {
-            return mapping[i] ?: UNDEFINED.also {
-                println("Code $i is an undefined Household Type.")
-                mapping[i] = it // So that later occurences do not get printed
-            }
+        override fun decode(i: Int): HouseholdType = mapping[i] ?: UNDEFINED.also {
+            println("Code $i is an undefined Household Type.")
+            mapping[i] = it // So that later occurences do not get printed
         }
     }
 }

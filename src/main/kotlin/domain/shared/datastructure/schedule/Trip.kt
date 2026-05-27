@@ -41,7 +41,7 @@ fun Trip.alternateByImpedance(impedance: Metrics, replanner: ReplanningStrategy,
 class RawTrip(
     override val legs: MutableList<Leg>,
     override val previousAction: Activity?,
-    override val nextAction: Activity?
+    override val nextAction: Activity?,
 ) : Trip {
 
     override fun alternate(replanner: ReplanningStrategy, lambda: TripBuilder.() -> Unit) {
@@ -61,8 +61,8 @@ class ImpedanceBuilder(val impedance: Metrics, private val tripBuilder: TripBuil
                 tripBuilder.currentLocation,
                 modeLocation.second,
                 modeLocation.first,
-                tripBuilder.currentTime
-            )
+                tripBuilder.currentTime,
+            ),
         )
     }
 }
@@ -75,14 +75,14 @@ class TripBuilder(
     val previousAction: StationaryAction?,
     val nextAction: StationaryAction?,
     val originals: List<MovingAction>,
-    val delayReplanningStrategy: ReplanningStrategy
+    val delayReplanningStrategy: ReplanningStrategy,
 ) {
 
     constructor(trip: Trip, delayReplanningStrategy: ReplanningStrategy) : this(
         trip.previousAction,
         trip.nextAction,
         trip.legs,
-        delayReplanningStrategy
+        delayReplanningStrategy,
     )
 
     // The previous action could be null, however the assumption that a previous location exists still holds, so I can
@@ -148,16 +148,16 @@ class LinkTrip constructor(
     private val legBlock: LinkedTrip,
     private var dispatcher: IDispatcher?,
     private val schedule: Schedule? = null,
-) : Trip, Comparable<LinkTrip>, Representative<LinkedLeg> {
+) : Trip,
+    Comparable<LinkTrip>,
+    Representative<LinkedLeg> {
     override val previousAction: StationaryAction? =
         schedule?.pastActivities()?.last() ?: legBlock.previous.lastElementOrNull()
 
     override val elements: List<LinkedLeg>
         get() = legBlock.item.toList()
 
-    override fun <X> accept(actionBlockVisitor: ActionBlockVisitor<X>): X {
-        return actionBlockVisitor.visitTrip(this)
-    }
+    override fun <X> accept(actionBlockVisitor: ActionBlockVisitor<X>): X = actionBlockVisitor.visitTrip(this)
 
     override val legs: List<Leg>
         get() = legBlock.item.toList()
@@ -198,9 +198,7 @@ class LinkTrip constructor(
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: LinkTrip): Int {
-        return legBlock.compareTo(other.legBlock)
-    }
+    override fun compareTo(other: LinkTrip): Int = legBlock.compareTo(other.legBlock)
 
     fun matches(other: LinkedTrip) = legBlock === other
 }

@@ -14,7 +14,7 @@ fun <T> printAsTree(
     root: T,
     label: (T) -> String,
     expandNonCycleDuplicates: Boolean = false,
-    getChildren: (T) -> List<T>
+    getChildren: (T) -> List<T>,
 ) {
     println(label(root))
 
@@ -28,7 +28,7 @@ fun <T> printAsTree(
             isLast = isLast,
             getChildren = getChildren,
             expandNonCycleDuplicates = expandNonCycleDuplicates,
-            visited = visited
+            visited = visited,
         )
 
         if (!isLast) {
@@ -52,7 +52,7 @@ private fun <T> printTreeRecursive(
     isLast: Boolean = true,
     expandNonCycleDuplicates: Boolean,
     visited: MutableList<T> = mutableListOf(),
-    getChildren: (T) -> List<T>
+    getChildren: (T) -> List<T>,
 ) {
     val label = toLabel(element)
     val mark = if (isLast) {
@@ -69,7 +69,7 @@ private fun <T> printTreeRecursive(
             "Duplicate"
         }
         println(
-            "$prefix$mark [$errorType] $label".indentSubsequentLines(prefix = prefix)
+            "$prefix$mark [$errorType] $label".indentSubsequentLines(prefix = prefix),
         )
         return
     }
@@ -92,7 +92,7 @@ private fun <T> printTreeRecursive(
                 isLastChild,
                 expandNonCycleDuplicates,
                 visited,
-                getChildren
+                getChildren,
             )
         }
     }

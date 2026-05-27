@@ -12,10 +12,9 @@ import domain.simulation.agent.DrtProviderMessage
 import utils.units.AbsoluteTime
 
 @StateCalled("StartDrtProvider")
-class DrtProviderStartState(
-    time: AbsoluteTime,
-    override val agent: DrtProviderAgent
-) : BaseStateData(time), DrtAlgorithm by agent.algorithm {
+class DrtProviderStartState(time: AbsoluteTime, override val agent: DrtProviderAgent) :
+    BaseStateData(time),
+    DrtAlgorithm by agent.algorithm {
     val self get() = agent
 }
 

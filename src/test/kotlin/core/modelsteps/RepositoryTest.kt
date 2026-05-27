@@ -48,10 +48,9 @@ open class MapRepositoryTest : RepositoryTest<TestEntity, TestId>() {
         TestEntity(rowIndex = 9, string = "fin"),
     )
 
-    override fun createRepo(): Repository<TestEntity, TestId> =
-        MapRepository<TestEntity, TestId>(name).also { repo ->
-            repo.addElements("init", expectedElements())
-        }
+    override fun createRepo(): Repository<TestEntity, TestId> = MapRepository<TestEntity, TestId>(name).also { repo ->
+        repo.addElements("init", expectedElements())
+    }
 
     override fun expectedSize() = 10
 

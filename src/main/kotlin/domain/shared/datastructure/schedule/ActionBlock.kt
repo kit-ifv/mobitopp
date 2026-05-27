@@ -23,10 +23,7 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
      * Adds an activity to the action block. Returns true if the structure of the block list changes and the relevant
      * views should be updated. Returns false if no update is required
      */
-    abstract fun insert(
-        activity: Activity,
-        callback: SortedSet<LinkedActivity>? = null
-    ): LinkedActivity?
+    abstract fun insert(activity: Activity, callback: SortedSet<LinkedActivity>? = null): LinkedActivity?
 
     /**
      * Adds a leg to the action block. Returns true if the structure of the block list changes and the relevant
@@ -84,9 +81,7 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     fun firstElementOrNull(): T? = item.firstOrNull()
     fun lastElementOrNull(): T? = item.lastOrNull()
 
-    override fun compareTo(other: ActionBlock<*>): Int {
-        return item.last().compareTo(other.firstElement())
-    }
+    override fun compareTo(other: ActionBlock<*>): Int = item.last().compareTo(other.firstElement())
 
     fun compareTo(action: Action): Int {
         if (item.isEmpty()) return -1
@@ -101,24 +96,20 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
         return item.any { it.compareTo(action) == 0 }
     }
 
-    private fun lower(other: Action): LinkedAction? {
-        return item.lastOrNull { it.original < other } ?: previous?.lastElementOrNull()
-    }
+    private fun lower(other: Action): LinkedAction? = item.lastOrNull {
+        it.original < other
+    } ?: previous?.lastElementOrNull()
 
-    private fun higher(other: Action): LinkedAction? {
-        return item.firstOrNull { it.original > other } ?: next?.firstElementOrNull()
-    }
+    private fun higher(other: Action): LinkedAction? = item.firstOrNull {
+        it.original > other
+    } ?: next?.firstElementOrNull()
 
     abstract fun clear()
 
     abstract fun unlink()
-    fun link(activity: Activity): LinkedActivity {
-        return activity.link(lower(activity), higher(activity))
-    }
+    fun link(activity: Activity): LinkedActivity = activity.link(lower(activity), higher(activity))
 
-    fun link(leg: Leg): LinkedLeg {
-        return leg.link(lower(leg), higher(leg))
-    }
+    fun link(leg: Leg): LinkedLeg = leg.link(lower(leg), higher(leg))
 
     /**
      * Generates a readonly view of the target action block. A schedule can be passed if the view is required to be
@@ -133,9 +124,9 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
 class ActivityBlock(
     start: NavigableSet<LinkedActivity>,
     override var next: LinkedTrip? = null,
-    override var previous: LinkedTrip? = null
-) :
-    ActionBlock<LinkedActivity>(), Iterable<ActivityBlock> {
+    override var previous: LinkedTrip? = null,
+) : ActionBlock<LinkedActivity>(),
+    Iterable<ActivityBlock> {
 
     override val item: NavigableSet<LinkedActivity> = sortedSetOf()
 
@@ -147,9 +138,7 @@ class ActivityBlock(
 
     constructor() : this(sortedSetOf())
     val location get() = item.first.location
-    override fun toString(): String {
-        return item.joinToString { it.toString() }
-    }
+    override fun toString(): String = item.joinToString { it.toString() }
 
     override fun clear() {
         item.forEach { it.unlink() }
@@ -157,12 +146,10 @@ class ActivityBlock(
         unlink()
     }
 
-    override fun representative(
-        dispatcher: IDispatcher?,
-        schedule: Schedule?
-    ): Representative<LinkedActivity> = RawAgenda(
-        this
-    )
+    override fun representative(dispatcher: IDispatcher?, schedule: Schedule?): Representative<LinkedActivity> =
+        RawAgenda(
+            this,
+        )
 
     override fun insert(activity: Activity, callback: SortedSet<LinkedActivity>?): LinkedActivity? {
         val element = link(activity)
@@ -247,25 +234,26 @@ class ActivityBlock(
         return false
     }
 
-    override fun accepts(action: StationaryAction): Boolean {
-        return !containsAction(action) && next?.item?.firstOrNull()?.startTime?.let { it >= action.endTime } ?: true
-    }
+    override fun accepts(action: StationaryAction): Boolean =
+        !containsAction(action) && next?.item?.firstOrNull()?.startTime?.let {
+            it >= action.endTime
+        } ?: true
 
     /**
      * This block must accept a leg if either no followup block exists or if the leg is smaller than the last element
      */
-    override fun accepts(action: MovingAction): Boolean {
-        return !containsAction(action) && (next == null || item.lastOrNull()?.let { it > action } ?: false)
-    }
+    override fun accepts(action: MovingAction): Boolean = !containsAction(action) && (
+        next == null || item.lastOrNull()?.let {
+            it > action
+        } ?: false
+        )
 
     override fun equals(other: Any?): Boolean {
         if (other !is ActivityBlock) return false
         return next == other.next && item.zip(other.item).all { (a, b) -> a == b }
     }
 
-    override fun hashCode(): Int {
-        return item.hashCode()
-    }
+    override fun hashCode(): Int = item.hashCode()
 
     /**
      * Returns an iterator over the elements of this object.
@@ -278,9 +266,7 @@ class ActivityBlock(
             /**
              * Returns `true` if the iteration has more elements.
              */
-            override fun hasNext(): Boolean {
-                return current?.let { nextIteratorElement != null } ?: true
-            }
+            override fun hasNext(): Boolean = current?.let { nextIteratorElement != null } ?: true
 
             /**
              * Returns the next element in the iteration.
@@ -294,12 +280,9 @@ class ActivityBlock(
     }
 }
 
-class LinkedTrip(
-    start: Collection<LinkedLeg>,
-    override var previous: ActivityBlock,
-    override var next: ActivityBlock
-) :
-    ActionBlock<LinkedLeg>(), Iterable<LinkedTrip> {
+class LinkedTrip(start: Collection<LinkedLeg>, override var previous: ActivityBlock, override var next: ActivityBlock) :
+    ActionBlock<LinkedLeg>(),
+    Iterable<LinkedTrip> {
     override var item: NavigableSet<LinkedLeg> = sortedSetOf()
 
     init {
@@ -329,9 +312,7 @@ class LinkedTrip(
             /**
              * Returns `true` if the iteration has more elements.
              */
-            override fun hasNext(): Boolean {
-                return current?.let { nextIteratorElement != null } ?: true
-            }
+            override fun hasNext(): Boolean = current?.let { nextIteratorElement != null } ?: true
 
             /**
              * Returns the next element in the iteration.
@@ -353,7 +334,7 @@ class LinkedTrip(
     override fun representative(dispatcher: IDispatcher?, schedule: Schedule?): LinkTrip = LinkTrip(
         this,
         dispatcher,
-        schedule
+        schedule,
     )
 
     /**
@@ -365,7 +346,7 @@ class LinkedTrip(
         require(
             item.none {
                 it.compareTo(activity) == 0
-            }
+            },
         ) { "A leg overlaps with the target activity. This case cannot be handled" }
 
         val l = item.find { it.startTime >= activity.startTime } ?: item.last()
@@ -387,17 +368,15 @@ class LinkedTrip(
         return newActivityBlock.insert(activity, callback)
     }
 
-    override fun accepts(action: StationaryAction): Boolean {
-        return !containsAction(action) && item.size >= 2 && item.first() < action && item.last() > action
-    }
+    override fun accepts(action: StationaryAction): Boolean =
+        !containsAction(action) && item.size >= 2 && item.first() < action && item.last() > action
 
-    override fun accepts(action: MovingAction): Boolean {
-        return !containsAction(action) && next.item.firstOrNull()?.startTime?.let { it >= action.endTime } ?: true
-    }
+    override fun accepts(action: MovingAction): Boolean =
+        !containsAction(action) && next.item.firstOrNull()?.startTime?.let {
+            it >= action.endTime
+        } ?: true
 
-    override fun toString(): String {
-        return item.joinToString { it.toString() }
-    }
+    override fun toString(): String = item.joinToString { it.toString() }
 
     override fun insert(leg: Leg): Pair<LinkedTrip, ActivityBlock>? {
         item.add(link(leg))
@@ -464,7 +443,5 @@ class LinkedTrip(
         return next == other.next && item.zip(other.item).all { (a, b) -> a == b }
     }
 
-    override fun hashCode(): Int {
-        return item.hashCode()
-    }
+    override fun hashCode(): Int = item.hashCode()
 }

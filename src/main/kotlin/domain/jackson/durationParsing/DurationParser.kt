@@ -20,8 +20,8 @@ class DurationParser(
         SimpleTimeStrategy,
         LowerCaseShortTimeStrategy,
         LowerCaseTimeStrategy,
-        ShortTimeStrategy
-    )
+        ShortTimeStrategy,
+    ),
 ) {
 
     fun parseDuration(input: String): Duration {
@@ -30,7 +30,7 @@ class DurationParser(
         }
         error(
             "Unsupported time format. Got '$input' as input. Supported formats are something like $strategies \n" +
-                "For negative durations surround the duration with -() like -(24Hours). Space are ignored."
+                "For negative durations surround the duration with -() like -(24Hours). Space are ignored.",
         )
     }
 

@@ -25,9 +25,7 @@ interface AssignCarsContext : DemandSimContext {
     val carRepository: MutableRepository<MutablePrivateCar, CarId>
 }
 
-class AssignCarUserStep(
-    context: AssignCarsContext,
-) : TransformEachStep<MutablePrivateCar, CarId>() {
+class AssignCarUserStep(context: AssignCarsContext) : TransformEachStep<MutablePrivateCar, CarId>() {
 
     override val name: String = "Assign cars to household members as integration.main users."
     override val repository: MutableRepository<MutablePrivateCar, CarId> = context.carRepository
@@ -36,9 +34,7 @@ class AssignCarUserStep(
 
     private val model = AssignCarUserModel()
 
-    override fun transform(element: MutablePrivateCar): MutablePrivateCar {
-        return model.assign(element)
-    }
+    override fun transform(element: MutablePrivateCar): MutablePrivateCar = model.assign(element)
 
     override fun verifyInput(): Warning? = null
 }

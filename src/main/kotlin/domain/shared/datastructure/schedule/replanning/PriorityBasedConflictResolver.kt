@@ -65,15 +65,11 @@ class PriorityBasedConflictResolver(
             }
         }
     },
-) :
-
-    ConflictResolver {
+) : ConflictResolver {
     fun setMinimumDuration(activity: LinkedActivity) {
         activity.duration = minimumDuration(activity)
     }
-    private inner class ChangeTracker(
-        activities: List<StationaryAction>,
-    ) {
+    private inner class ChangeTracker(activities: List<StationaryAction>) {
         private val minimumDuration = activities.map { minimumDuration(it) }.toMutableList()
 
         private val priorities: MutableList<Int> = activities.withIndex()
@@ -82,7 +78,7 @@ class PriorityBasedConflictResolver(
         private val changeArray: Array<Change?> = activities.map { it.toChange() }.toTypedArray()
         private val indexTracker: MutableList<Int> = changeArray.indices.toMutableList()
         val size get() = indexTracker.size
-        fun get(position: Int): Change = changeArray[ indexTracker[position]]!!
+        fun get(position: Int): Change = changeArray[indexTracker[position]]!!
         fun shiftStart(startTime: AbsoluteTime) {
             if (indexTracker.isEmpty()) return // There is nothing left to shift.
             get(0).startTime = startTime
@@ -93,9 +89,7 @@ class PriorityBasedConflictResolver(
             }
         }
 
-        fun canHandle(requiredTimeReduction: Duration): Boolean {
-            return minimalDuration() <= requiredTimeReduction
-        }
+        fun canHandle(requiredTimeReduction: Duration): Boolean = minimalDuration() <= requiredTimeReduction
         fun isNotEmpty(): Boolean = size != 0
 
         fun removeAt(position: Int) {
@@ -120,13 +114,13 @@ class PriorityBasedConflictResolver(
             changeArray[it]!!.duration
         } + tripBufferEstimate * (minimumDuration.size - 1)
 
-        fun minimalDuration(): Duration {
-            return minimumDuration.sumOfD { it } + tripBufferEstimate * (minimumDuration.size - 1)
-        }
+        fun minimalDuration(): Duration = minimumDuration.sumOfD {
+            it
+        } + tripBufferEstimate * (minimumDuration.size - 1)
 
         inline fun orderedByPriority(lambda: (IndexedValue<Change>) -> Unit) {
             priorities.withIndex().forEach { (index, pos) ->
-                lambda(IndexedValue(index, changeArray[pos]!!,))
+                lambda(IndexedValue(index, changeArray[pos]!!))
             }
         }
 
@@ -145,9 +139,7 @@ class PriorityBasedConflictResolver(
             }
         }
 
-        fun toActionSet(): List<Change?> {
-            return changeArray.toList()
-        }
+        fun toActionSet(): List<Change?> = changeArray.toList()
     }
 
     override fun resolveConflict(conflict: Conflict): List<Change?> {

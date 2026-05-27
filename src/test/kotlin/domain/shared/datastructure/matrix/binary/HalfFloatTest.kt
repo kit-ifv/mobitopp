@@ -88,9 +88,7 @@ fun Double.toHalfFloat(): Short {
     return matrixFormat.run { t.toHalfFloat() }
 }
 
-fun Double.toFromHF(): Double {
-    return this.toHalfFloat().fromHalfFloat()
-}
+fun Double.toFromHF(): Double = this.toHalfFloat().fromHalfFloat()
 
 /**
  * helper program for printing half floats in some range

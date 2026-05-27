@@ -44,11 +44,7 @@ import utils.units.AbsoluteTime
 class HomeActivityEndTimeAnchorStrategy(choiceModelPurposes: ChoiceModelPurposes) : ReplanningStrategy {
     private val homeActivity = choiceModelPurposes.home
     private val resolver: PriorityBasedConflictResolver = PriorityBasedConflictResolver(choiceModelPurposes)
-    override fun replan(
-        schedule: Schedule,
-        newStartTime: AbsoluteTime,
-        nextAction: LinkedActivity
-    ) {
+    override fun replan(schedule: Schedule, newStartTime: AbsoluteTime, nextAction: LinkedActivity) {
         val (relevantActivities, potentialNextHomeActivity) = schedule
             .activities()
             .dropWhile { it != nextAction }
@@ -73,7 +69,8 @@ class HomeActivityEndTimeAnchorStrategy(choiceModelPurposes: ChoiceModelPurposes
         }
         if (suggestedChanges.all { it == null } ||
             suggestedChanges.first() == null ||
-            suggestedChanges.last() == null) {
+            suggestedChanges.last() == null
+        ) {
             // The first one should not be null because that activity MUST happen.
             // Similar the potentialHome Activity also must happen (only if it is the last act of all but thats a todo)
 

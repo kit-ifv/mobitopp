@@ -65,9 +65,7 @@ fun <E> noGrouping(): (E) -> Unit = { _ -> }
 /**
  * Stage 1 of the builder: entities are known, grouping not yet specified (defaults to no grouping).
  */
-data class PlotDataBuilderWithEntities<E>(
-    override val entities: () -> List<E>
-) : PlotDataGroupingProvider<E, Unit> {
+data class PlotDataBuilderWithEntities<E>(override val entities: () -> List<E>) : PlotDataGroupingProvider<E, Unit> {
 
     override val groupBy: (E) -> Unit
         get() = noGrouping()
@@ -81,10 +79,8 @@ data class PlotDataBuilderWithEntities<E>(
 /**
  * Stage 2 of the builder: entities plus grouping function are known.
  */
-data class PlotDataBuilderWithGrouping<E, G>(
-    override val entities: () -> List<E>,
-    override val groupBy: (E) -> G,
-) : PlotDataGroupingProvider<E, G>
+data class PlotDataBuilderWithGrouping<E, G>(override val entities: () -> List<E>, override val groupBy: (E) -> G) :
+    PlotDataGroupingProvider<E, G>
 
 /**
  * Provides operations to configure which values are plotted and how they are aggregated.
@@ -108,7 +104,7 @@ interface PlotDataGroupingProvider<E, G> {
         entities,
         groupBy,
         yAttribute,
-        MinBy(sortBy = { it })
+        MinBy(sortBy = { it }),
     )
 
     /** Plot the maximum Y per X for each group. */
@@ -116,7 +112,7 @@ interface PlotDataGroupingProvider<E, G> {
         entities,
         groupBy,
         yAttribute,
-        MaxBy(sortBy = { it })
+        MaxBy(sortBy = { it }),
     )
 
     /** Plot the lower median (50th percentile) Y per X for each group. */
@@ -124,7 +120,7 @@ interface PlotDataGroupingProvider<E, G> {
         entities,
         groupBy,
         yAttribute,
-        LowerMedianBy(sortBy = { it })
+        LowerMedianBy(sortBy = { it }),
     )
 
     /** Plot an arbitrary lower quantile of Y per X for each group. */
@@ -133,7 +129,7 @@ interface PlotDataGroupingProvider<E, G> {
             entities,
             groupBy,
             yAttribute,
-            LowerQuantileBy(quantile = quantile, sortBy = { it })
+            LowerQuantileBy(quantile = quantile, sortBy = { it }),
         )
 
     /** Plot the sum of Y per X for each group. */
@@ -141,7 +137,7 @@ interface PlotDataGroupingProvider<E, G> {
         entities,
         groupBy,
         yAttribute,
-        Sum
+        Sum,
     )
 
     /** Plot the mean of Y per X for each group. */
@@ -149,7 +145,7 @@ interface PlotDataGroupingProvider<E, G> {
         entities,
         groupBy,
         yAttribute,
-        Mean
+        Mean,
     )
 
     /** Summarize Y per X for each group into box-plot friendly statistics. */
@@ -157,29 +153,28 @@ interface PlotDataGroupingProvider<E, G> {
         entities,
         groupBy,
         yAttribute,
-        SummarizeBy(sortBy = { it })
+        SummarizeBy(sortBy = { it }),
     )
 
     private fun <E> noYAtt(): (E) -> Unit = { _ -> }
 
     /** Count elements by X for each group. */
-    fun <X> count(xAttribute: (E) -> X) =
-        PlotDataTransformationBuilder(
-            PlotDataSource(
-                elements = entities,
-                factory = AggregateValuesPlotData(
-                    specs = PlotDataSpecs(xAttribute, noYAtt(), groupBy),
-                    aggregation = Count,
-                )
-            )
-        )
+    fun <X> count(xAttribute: (E) -> X) = PlotDataTransformationBuilder(
+        PlotDataSource(
+            elements = entities,
+            factory = AggregateValuesPlotData(
+                specs = PlotDataSpecs(xAttribute, noYAtt(), groupBy),
+                aggregation = Count,
+            ),
+        ),
+    )
 
     /** Custom aggregation of a computed attribute yAttribute with the provided aggregation. */
     fun <A, Y> aggregateBy(yAttribute: (E) -> A, aggregation: Aggregation<A, Y>) = PlotDataBuilderAggregateWithY(
         entities,
         groupBy,
         yAttribute,
-        aggregation
+        aggregation,
     )
 }
 
@@ -197,8 +192,8 @@ data class PlotDataBuilderAllValuesWithY<E, G, Y>(
             elements = entities,
             factory = AllValuesPlotData(
                 specs = PlotDataSpecs(xAttribute, yAttribute, groupBy),
-            )
-        )
+            ),
+        ),
     )
 }
 
@@ -209,20 +204,19 @@ data class PlotDataBuilderAggregateWithY<E, G, Y, V>(
     val entities: () -> List<E>,
     val groupBy: (E) -> G,
     val yAttribute: (E) -> Y,
-    val aggregation: Aggregation<Y, V>
+    val aggregation: Aggregation<Y, V>,
 ) {
 
     /** Choose the X attribute used to group points along the x-axis. */
-    fun <X> over(xAttribute: (E) -> X) =
-        PlotDataTransformationBuilder(
-            PlotDataSource(
-                elements = entities,
-                factory = AggregateValuesPlotData(
-                    specs = PlotDataSpecs(xAttribute, yAttribute, groupBy),
-                    aggregation = aggregation,
-                )
-            )
-        )
+    fun <X> over(xAttribute: (E) -> X) = PlotDataTransformationBuilder(
+        PlotDataSource(
+            elements = entities,
+            factory = AggregateValuesPlotData(
+                specs = PlotDataSpecs(xAttribute, yAttribute, groupBy),
+                aggregation = aggregation,
+            ),
+        ),
+    )
 }
 
 /** Marker interface for builder stages that can be converted to a PlotterBuilder. */
@@ -234,9 +228,7 @@ interface ReadyForRender<G, X, Y> {
 /**
  * Stage that holds a PlotData and allows chaining transformations before rendering.
  */
-data class PlotDataTransformationBuilder<G, X, Y>(
-    val plotData: PlotData<G, X, Y>
-) : ReadyForRender<G, X, Y> {
+data class PlotDataTransformationBuilder<G, X, Y>(val plotData: PlotData<G, X, Y>) : ReadyForRender<G, X, Y> {
 
     /** Fill missing x-values for all groups with a default provided by a lambda. */
     fun fillMissingXValues(defaultScope: () -> Y) = fillMissingXValues(defaultScope())
@@ -245,8 +237,8 @@ data class PlotDataTransformationBuilder<G, X, Y>(
     fun fillMissingXValues(defaultValue: Y) = PlotDataTransformationBuilder(
         TransformedPlotData(
             original = plotData,
-            transformer = FillMissingXValues(defaultValue)
-        )
+            transformer = FillMissingXValues(defaultValue),
+        ),
     )
 
     /** Provide ordering for groups/series. */
@@ -256,8 +248,8 @@ data class PlotDataTransformationBuilder<G, X, Y>(
     fun sortGroups(sortBy: Ordering<G>) = PlotDataTransformationBuilder(
         TransformedPlotData(
             original = plotData,
-            transformer = SortGroups(sortBy)
-        )
+            transformer = SortGroups(sortBy),
+        ),
     )
 
     /** Provide ordering for x-values within each series. */
@@ -267,8 +259,8 @@ data class PlotDataTransformationBuilder<G, X, Y>(
     fun sortX(sortBy: Ordering<X>) = PlotDataTransformationBuilder(
         TransformedPlotData(
             original = plotData,
-            transformer = SortPoints(sortBy)
-        )
+            transformer = SortPoints(sortBy),
+        ),
     )
 
     /** Convert to a PlotterBuilder without comparison data. */
@@ -287,8 +279,8 @@ fun <G, X, Y : Number> PlotDataTransformationBuilder<G, X, Y>.normalizeByGroup()
     PlotDataTransformationBuilder(
         TransformedPlotData(
             original = plotData,
-            NormalizeByGroup()
-        )
+            NormalizeByGroup(),
+        ),
     )
 
 /** Normalize Y values at each x by the total across groups (stack sums to 1). */
@@ -297,17 +289,15 @@ fun <G, X, Y : Number> PlotDataTransformationBuilder<G, X, Y>.normalizeByX():
     PlotDataTransformationBuilder(
         TransformedPlotData(
             original = plotData,
-            NormalizeByX()
-        )
+            NormalizeByX(),
+        ),
     )
 
 // TODO add transformation context collecting data about relative/normalized
 
 /** Holds plot data and optional comparison; final stage before choosing a renderer. */
-data class PlotterBuilder<G, X, Y>(
-    val data: PlotData<G, X, Y>,
-    val comparison: PlotData<G, X, Y>? = null,
-) : ReadyForRender<G, X, Y> {
+data class PlotterBuilder<G, X, Y>(val data: PlotData<G, X, Y>, val comparison: PlotData<G, X, Y>? = null) :
+    ReadyForRender<G, X, Y> {
 
     /** No-op: already a PlotterBuilder. */
     override fun asPlotterBuilder() = this
@@ -322,7 +312,7 @@ fun <G, X, Y : Number> ReadyForRender<G, X, Y>.asHistogram(styleScope: Histogram
         Plotter(
             data = data,
             comparison = comparison,
-            renderer = HistogramRenderer(style)
+            renderer = HistogramRenderer(style),
         )
     }
 
@@ -335,7 +325,7 @@ fun <G, X, Y : Number> ReadyForRender<G, X, Summary<Y>>.asBoxPlot(styleScope: Bo
         Plotter(
             data = data,
             comparison = comparison,
-            renderer = BoxPlotRenderer(style)
+            renderer = BoxPlotRenderer(style),
         )
     }
 
@@ -348,7 +338,7 @@ fun <G, X : Number, Y : Number> ReadyForRender<G, X, Y>.asScatterPlot(styleScope
         Plotter(
             data = data,
             comparison = comparison,
-            renderer = ScatterPlotRenderer(style)
+            renderer = ScatterPlotRenderer(style),
         )
     }
 
@@ -361,6 +351,6 @@ fun <G, X, Y : Number> ReadyForRender<G, X, Y>.asLinePlot(styleScope: LinePlotLa
         Plotter(
             data = data,
             comparison = comparison,
-            renderer = LinePlotRenderer(style)
+            renderer = LinePlotRenderer(style),
         )
     }

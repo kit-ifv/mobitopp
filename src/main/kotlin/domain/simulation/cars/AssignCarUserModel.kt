@@ -20,7 +20,7 @@ class AssignCarUserModel {
     @Suppress("UnusedPrivateMember")
     fun assign(car: MutablePrivateCar): MutablePrivateCar {
         val owner: Household = requireNotNull(
-            car.owner
+            car.owner,
         ) { "Cannot assign integration.main user of cars, since owner has not been defined yet!" }
 
         if (owner.id !in hhMembers.keys) {
@@ -46,9 +46,7 @@ class AssignCarUserModel {
         return car
     }
 
-    private fun initDrivers(
-        owner: Household,
-    ): UnAssignedPersons {
+    private fun initDrivers(owner: Household): UnAssignedPersons {
         val res = owner.getDrivers() to mutableSetOf<Person>()
         hhMembers[owner.id] = res
         return res
@@ -56,7 +54,7 @@ class AssignCarUserModel {
 
     private fun Household.getDrivers(): MutableSet<Person> {
         require(
-            members.isNotEmpty()
+            members.isNotEmpty(),
         ) { "Cannot assign integration.main user of cars if household members have not been defined!" }
 
         return members.filter { it.hasLicense }.toMutableSet().ifEmpty {

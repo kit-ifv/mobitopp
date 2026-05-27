@@ -12,7 +12,8 @@ private const val DEFAULT_MESSAGE = "No Message Specified!"
  * - ERROR: drop the entity and print an error + stack trace
  * - THROW: throw an exception with detailed message
  */
-enum class ErrorHandling { // TODO introduce interface? TODO maybe separate error handling for missing column
+enum class ErrorHandling {
+    // TODO introduce interface? TODO maybe separate error handling for missing column
 
     /** Upon parsing errors: Drop the entity/row without warning. */
     SILENT {
@@ -50,10 +51,9 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
             throw IllegalArgumentException(message, e)
             // TODO which specific exception type should we use here?
         }
-    };
+    }, ;
 
-    fun <E> handle(runnable: () -> E?): E? =
-        this.handle(runnable) { e -> e.message ?: DEFAULT_MESSAGE }
+    fun <E> handle(runnable: () -> E?): E? = this.handle(runnable) { e -> e.message ?: DEFAULT_MESSAGE }
 
     /**
      * Execute the given runnable and handle exceptions by applying the
@@ -65,10 +65,7 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
      *     errors
      */
     @Suppress("TooGenericExceptionCaught")
-    fun <E> handle(
-        runnable: () -> E?,
-        errorMessage: (Exception) -> String,
-    ): E? {
+    fun <E> handle(runnable: () -> E?, errorMessage: (Exception) -> String): E? {
         return try {
             runnable()
         } catch (e: Exception) { // TODO add more exceptions, can we build this without exceptions?
@@ -90,15 +87,15 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
 
 data class ValidationMessage(val message: String, val stepIsInvalid: Boolean, val cause: Throwable?)
 
-fun <R> errorScope(errorHandling: ErrorHandling = ErrorHandling.WARNING, message: String, runnable: () -> R): R? {
-    return errorHandling.handle(runnable) { e -> "$message:\n    ${e.message}" }
-}
+fun <R> errorScope(errorHandling: ErrorHandling = ErrorHandling.WARNING, message: String, runnable: () -> R): R? =
+    errorHandling.handle(runnable) { e ->
+        "$message:\n    ${e.message}"
+    }
 
-fun test(value: Boolean, lazyMessage: () -> String): Boolean =
-    errorScope(
-        errorHandling = ErrorHandling.WARNING,
-        message = if (value) "" else lazyMessage()
-    ) {
-        check(value)
-        true
-    } ?: false
+fun test(value: Boolean, lazyMessage: () -> String): Boolean = errorScope(
+    errorHandling = ErrorHandling.WARNING,
+    message = if (value) "" else lazyMessage(),
+) {
+    check(value)
+    true
+} ?: false

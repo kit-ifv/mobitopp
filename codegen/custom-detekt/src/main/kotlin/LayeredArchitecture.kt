@@ -1,32 +1,28 @@
-import io.gitlab.arturbosch.detekt.api.CodeSmell
-import io.gitlab.arturbosch.detekt.api.Config
-import io.gitlab.arturbosch.detekt.api.Debt
-import io.gitlab.arturbosch.detekt.api.Entity
-import io.gitlab.arturbosch.detekt.api.Issue
-import io.gitlab.arturbosch.detekt.api.Rule
-import io.gitlab.arturbosch.detekt.api.Severity
+import dev.detekt.api.Config
+import dev.detekt.api.Entity
+import dev.detekt.api.Finding
+import dev.detekt.api.Rule
+import dev.detekt.api.RuleName
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtImportDirective
 
 internal const val LAYERED_ARCHITECTURE = "LayeredArchitecture"
 
-class LayeredArchitecture(config: Config): Rule(config) {
+class LayeredArchitecture(config: Config): Rule(
+    config,
+    "Detects violations of import direction for the specified layered architecture!",
+) {
 
-    override val issue = Issue(
-        id = LAYERED_ARCHITECTURE,
-        severity = Severity.CodeSmell,
-        description = "Detects violations of import direction for the specified layered architecture!",
-        debt = Debt.TEN_MINS,
-    )
+    override val ruleName = RuleName(LAYERED_ARCHITECTURE)
 
     private val layers: List<String> =
-        valueOrDefault("layers", emptyList())
+        config.valueOrDefault("layers", emptyList())
 
     private val allowSameLayerImports: Boolean =
-        valueOrDefault("allowSameLayerImports", true)
+        config.valueOrDefault("allowSameLayerImports", true)
 
     private val transparentLayerAccess: Boolean =
-        valueOrDefault("transparentLayerAccess", true)
+        config.valueOrDefault("transparentLayerAccess", true)
 
 
     override fun visitKtFile(file: KtFile) {
@@ -61,14 +57,13 @@ class LayeredArchitecture(config: Config): Rule(config) {
                     depthViolation = violatesImportDepth
                 )
 
-                report(createCodeSmell(importDirective, message))
+                report(createFinding(importDirective, message))
             }
         }
     }
 
-    private fun createCodeSmell(importDirective: KtImportDirective, message: String): CodeSmell {
-        return CodeSmell(
-            issue = issue,
+    private fun createFinding(importDirective: KtImportDirective, message: String): Finding {
+        return Finding(
             entity = Entity.from(importDirective),
             message = message
         )

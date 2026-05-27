@@ -65,21 +65,23 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                 members = data.map {
                     SmallestSurveyPerson(
                         getNextId(),
-                        personDataExtractor(it)
+                        personDataExtractor(it),
                     )
                 },
-                attributes = householdDataExtractor(data)
+                attributes = householdDataExtractor(data),
             )
         }
     }
 
     companion object {
-        fun standard(input: Collection<RawSurveyInfo>): GenerateFromFlatInput<
+        fun standard(
+            input: Collection<RawSurveyInfo>,
+        ): GenerateFromFlatInput<
             RawSurveyInfo,
             MaximumHouseholdAttributes,
             MaximumPersonAttributes,
-            > {
-            return GenerateFromFlatInput(
+            > =
+            GenerateFromFlatInput(
                 input,
                 idExtractor = { it.householdId },
                 householdDataExtractor = {
@@ -90,7 +92,7 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                         householdSize = data.householdSize,
                         year = data.year,
                         areaTypeCode = data.areaType,
-                        amountOfCars = data.cars
+                        amountOfCars = data.cars,
                     )
                 },
                 personDataExtractor = {
@@ -105,9 +107,8 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                         hasBicycle = it.hasBicycle,
                         hasLicence = it.hasLicence,
                     )
-                }
+                },
             )
-        }
 
         fun fromPath(path: Path) = standard(parseSurvey(path).toList())
         fun fromPath(fileString: String) = fromPath(Path.of(fileString))

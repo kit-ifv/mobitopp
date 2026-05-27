@@ -25,7 +25,5 @@ class WriteBinaryStep<READONLY : Identifiable<ID>, ID>(
         return null // TODO("Not yet implemented")
     }
 
-    override fun mockBehavior(): Warning? {
-        return null
-    }
+    override fun mockBehavior(): Warning? = null
 }

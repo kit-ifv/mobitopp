@@ -11,9 +11,9 @@ import domain.synthesis.behavior.SurveyPerson
  */
 class MetricBasedClosestLocation(
     private val metric: DistanceMetric,
-    private val locations: Collection<StandardLocation>
+    private val locations: Collection<StandardLocation>,
 ) : SimpleLocator<MinimumPersonAttributes> {
-    override fun locate(agent: SurveyPerson<*>): StandardLocation {
-        return locations.minBy { metric.evaluate(agent.homeLocation, it) }
+    override fun locate(agent: SurveyPerson<*>): StandardLocation = locations.minBy {
+        metric.evaluate(agent.homeLocation, it)
     }
 }
