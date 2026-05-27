@@ -51,6 +51,7 @@ data class MyContext(
         MapRepository<MutableZone, ZoneId>("zones")
 }
 
+@Suppress("LongParameterList")
 class MyConfig(
     val dataFolder: Path = Path(""),
     val resultDir: Path = Path(""),

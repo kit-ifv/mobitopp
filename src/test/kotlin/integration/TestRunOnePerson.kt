@@ -29,7 +29,7 @@ private val rootHamburg = Path(
 )
 
 fun main() {
-    val input = "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input/transmove/mobitopp-env/data"
+//    val input = "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input/transmove/mobitopp-env/data"
     val config = TestConfig(
         regionTypeCodes = Bbsr17,
         sourceFiles = CoreCSVConfig(

@@ -132,6 +132,7 @@ class TestContext(
     override var currentStep: String = ""
 }
 
+@Suppress("LongParameterList")
 class TestConfig(
     override val seed: Long = 42L,
     override val fractionOfPopulation: UnitIntervalValue = 0.2.share(),

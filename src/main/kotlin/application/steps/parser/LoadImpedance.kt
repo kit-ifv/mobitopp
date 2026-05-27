@@ -39,8 +39,8 @@ private val IS_ERROR = false
  * @param CFG The configuration type. Must implement [MatrixConfig] and [UnitConfig].
  * @param config The configuration. Provided via context.
  */
-@Suppress("LongParameterList")
 context(config: CFG)
+@Suppress("LongParameterList")
 fun <C, CFG> C.loadImpedance(
     travelTimeYaml: Path = config.durationMatrixConfig,
     travelCostsYaml: Path = config.costMatrixConfig,
