@@ -1,0 +1,4 @@
+__parent__: parent.yaml
+name: Overwritten by child
+numberField: 500
+doubleField: 3.141592

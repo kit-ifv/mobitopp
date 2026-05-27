@@ -1,0 +1,10 @@
+parentConfs:
+  - name: "BaseListElement"
+    doubleField: 8.0
+    numberField: 90
+nestedConf:
+  sub:
+    name: "hi"
+    numberField: 0
+    doubleField: 0.5
+    extra: "nested nested"
