@@ -17,12 +17,10 @@ object MatrixShortFormat : StandardMatrixBinaryFormat {
         }
     }
 
-    fun Double.toConvertedShort(): Int {
-        return if (this >= 655.35) {
-            0xFFFF
-        } else {
-            (this * 100).roundToInt()
-        }
+    fun Double.toConvertedShort(): Int = if (this >= 655.35) {
+        0xFFFF
+    } else {
+        (this * 100).roundToInt()
     }
     override fun writeContentArray(output: DataOutputStream, values: DoubleArray) {
         writeBuffer(output, values, MatrixDoubleFormat.elementByteSize) {
@@ -30,11 +28,10 @@ object MatrixShortFormat : StandardMatrixBinaryFormat {
         }
     }
 
-    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
-        return readLoop(byteBuffer, elements) {
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray =
+        readLoop(byteBuffer, elements) {
             it.ushort.convertedDouble()
         }
-    }
 
     inline val ByteBuffer.ushort get(): Int {
         return short.toInt() and 0xFFFF

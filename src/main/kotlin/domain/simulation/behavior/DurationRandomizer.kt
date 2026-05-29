@@ -23,10 +23,8 @@ abstract class ActivityDurationRandomizer {
 }
 
 @Suppress("MagicNumber")
-class GaussianActivityDurationRandomizer(
-    private val min: Duration = 1.minutes,
-    private val max: Duration = 7.days,
-) : ActivityDurationRandomizer() {
+class GaussianActivityDurationRandomizer(private val min: Duration = 1.minutes, private val max: Duration = 7.days) :
+    ActivityDurationRandomizer() {
     override fun randomizeDuration(activity: Activity, currentDuration: Duration, rand: Random): Duration {
         val gaussian: Double = rand.getGaussian(0.0, 1.0)
         val deviation: Duration = (gaussian * currentDuration) / 20.0

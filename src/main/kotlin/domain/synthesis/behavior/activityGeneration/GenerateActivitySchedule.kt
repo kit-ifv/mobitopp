@@ -11,11 +11,14 @@ import kotlin.time.Duration.Companion.hours
 
 fun interface GenerateActivitySchedule<
     S : MinimumHouseholdAttributes,
-    T : MinimumPersonAttributes> : GenerateHouseholdActivitySchedule<S, T> {
+    T : MinimumPersonAttributes,
+    > :
+    GenerateHouseholdActivitySchedule<S, T> {
     fun generate(person: SurveyPerson<T>): PreliminaryActivitySchedule
-    override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
-        return household.members.map { generate(it) }
-    }
+    override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> =
+        household.members.map {
+            generate(it)
+        }
 }
 fun interface GenerateHouseholdActivitySchedule<in S : MinimumHouseholdAttributes, in T : MinimumPersonAttributes> {
     fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule>
@@ -23,14 +26,11 @@ fun interface GenerateHouseholdActivitySchedule<in S : MinimumHouseholdAttribute
 }
 class TrivialActivityGeneration(private val init: Decodable<ActivityType> = LegacyActivityType.Companion) :
     GenerateActivitySchedule<MinimumHouseholdAttributes, MinimumPersonAttributes> {
-    override fun generate(person: SurveyPerson<*>): PreliminaryActivitySchedule {
-        return PreliminaryActivitySchedule(init) {
-            home(0.hours, 10.hours)
-            shopping(11.hours, 13.5.hours)
-            work(14.hours, 16.hours)
-            leisure(17.hours, 18.hours)
-            home(19.hours, 30.hours)
-        }
+    override fun generate(person: SurveyPerson<*>): PreliminaryActivitySchedule = PreliminaryActivitySchedule(init) {
+        home(0.hours, 10.hours)
+        shopping(11.hours, 13.5.hours)
+        work(14.hours, 16.hours)
+        leisure(17.hours, 18.hours)
+        home(19.hours, 30.hours)
     }
 }
-

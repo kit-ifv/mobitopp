@@ -53,7 +53,7 @@ interface ModelStep {
      * @return a warning, if the validation discovered warnings or errors
      */
     fun validate(validationPrefix: Warning.() -> Unit = { }): Warning? = validateScope(
-        message = "Validate step $name produced warnings:"
+        message = "Validate step $name produced warnings:",
     ) {
         validationPrefix()
 
@@ -120,7 +120,7 @@ interface RepositoryDependentStep : ModelStep {
         validateCondition(
             message = "Step ${this@RepositoryDependentStep.name} depends on unsealed repository: ${it.name}. " +
                 "Make sure this is desired behavior!",
-            isError = false
+            isError = false,
         ) {
             it.sealed
         }
@@ -205,7 +205,9 @@ class LoadCsvStep<E, I>(
  * @param E the generic type of entities to be filtered
  * @param I the generic id type of entities
  */
-abstract class FilterStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+abstract class FilterStep<E, I> :
+    MutatingStep<E, I>,
+    SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
         repository.filterElements(name, this::check)
@@ -221,7 +223,9 @@ abstract class FilterStep<E, I> : MutatingStep<E, I>, SameValidationBehavior whe
  * @param E the generic type of entities
  * @param I the generic id type of entities to be filtered
  */
-abstract class FilterIdsStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+abstract class FilterIdsStep<E, I> :
+    MutatingStep<E, I>,
+    SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
         repository.filterIds(name, this::check)
@@ -241,7 +245,9 @@ abstract class FilterIdsStep<E, I> : MutatingStep<E, I>, SameValidationBehavior 
  * @param I the generic id type of entities
  * @property repository the repository in which each element should be updated
  */
-abstract class UpdateEachStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+abstract class UpdateEachStep<E, I> :
+    MutatingStep<E, I>,
+    SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
         repository.updateEach(name, this::update)
@@ -261,7 +267,9 @@ abstract class UpdateEachStep<E, I> : MutatingStep<E, I>, SameValidationBehavior
  * @param I the generic id type of entities
  * @property repository the repository in which all elements should be updated
  */
-abstract class UpdateAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+abstract class UpdateAllStep<E, I> :
+    MutatingStep<E, I>,
+    SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
         repository.updateAll(name, this::updateAll)
@@ -281,7 +289,9 @@ abstract class UpdateAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior 
  * @param I the generic id type of entities
  * @property repository the repository in which each element should be transformed
  */
-abstract class TransformEachStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+abstract class TransformEachStep<E, I> :
+    MutatingStep<E, I>,
+    SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
         repository.transformEach(name, this::transform)
@@ -299,7 +309,9 @@ abstract class TransformEachStep<E, I> : MutatingStep<E, I>, SameValidationBehav
  * @param I the generic id type of entities
  * @property repository the repository in which all elements should be transformed
  */
-abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+abstract class TransformAllStep<E, I> :
+    MutatingStep<E, I>,
+    SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
         repository.transformAll(name, this::transformAll)
@@ -318,7 +330,9 @@ abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavi
  * @param I the generic id type of entities
  * @property repository the repository in which each element should be processed
  */
-abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+abstract class ForEachStep<E, I> :
+    SameValidationBehavior,
+    RepositoryDependentStep where E : Identifiable<I> {
 
     abstract override val repository: Repository<E, I>
 
@@ -340,7 +354,9 @@ abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentSt
  * @param I the generic id type of entities
  * @property repository the repository in which all elements should be processed
  */
-abstract class ForAllStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+abstract class ForAllStep<E, I> :
+    SameValidationBehavior,
+    RepositoryDependentStep where E : Identifiable<I> {
 
     abstract override val repository: Repository<E, I>
 
@@ -357,9 +373,7 @@ abstract class ForAllStep<E, I> : SameValidationBehavior, RepositoryDependentSte
  * @param I the generic id type of entities
  * @property repository the repository to be built
  */
-class SealStep<E, I>(
-    override val repository: MutableRepository<E, I>,
-) : MutatingStep<E, I> where E : Identifiable<I> {
+class SealStep<E, I>(override val repository: MutableRepository<E, I>) : MutatingStep<E, I> where E : Identifiable<I> {
 
     override val name: String = "seal ${repository.name}"
 

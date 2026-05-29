@@ -8,13 +8,12 @@ fun <R> synchronizeAll(dependencies: Set<Any>, block: () -> R): R {
     return synchronizeNested(sortedDependencies, block)
 }
 
-private fun <R> synchronizeNested(dependencies: List<Any>, block: () -> R): R =
-    if (dependencies.isEmpty()) {
-        block()
-    } else {
-        val dependency = dependencies.first()
+private fun <R> synchronizeNested(dependencies: List<Any>, block: () -> R): R = if (dependencies.isEmpty()) {
+    block()
+} else {
+    val dependency = dependencies.first()
 
-        synchronized(dependency) {
-            synchronizeNested(dependencies.drop(1), block)
-        }
+    synchronized(dependency) {
+        synchronizeNested(dependencies.drop(1), block)
     }
+}

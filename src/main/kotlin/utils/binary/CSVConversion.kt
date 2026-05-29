@@ -47,7 +47,7 @@ data class DataType(
     },
     val BYTE: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, _: Int ->
         dataStream.writeByte(element.toInt())
-    }
+    },
 )
 
 /**
@@ -83,7 +83,7 @@ class CSVBinaryConverter {
         csvFile: Path,
         datatypeMapping: Map<String, WriteStrategy>,
         stringLength: Int,
-        outputFile: Path? = null
+        outputFile: Path? = null,
     ): Path {
         require(csvFile.exists()) { "Can't convert nonexistent csv file. $csvFile does not exist." }
         require(csvFile.toString().endsWith(".csv")) { "Pls enter a csv file: $csvFile" }
@@ -119,7 +119,7 @@ class CSVBinaryConverter {
         rows: Sequence<Row>,
         dataStream: DataOutputStream,
         datatypeMapping: Map<String, WriteStrategy>,
-        stringLength: Int
+        stringLength: Int,
     ) {
         rows.forEach { row ->
             datatypeMapping.forEach { (columnName, strategy) ->

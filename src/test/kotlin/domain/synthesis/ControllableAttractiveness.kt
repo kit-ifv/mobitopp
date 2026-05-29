@@ -7,7 +7,6 @@ import domain.shared.behavior.asAttractiveness
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
 import domain.shared.location.zone.StandardZone
 import utils.collections.cartesianProduct
@@ -17,12 +16,11 @@ class ControllableAttractiveness(zones: Collection<StandardZone>) : Attractivene
 
     val attractivenessMap: MutableMap<Pair<ZoneId, ActivityType>, Attractiveness> =
         zones.map { it.id }.cartesianProduct(
-            LegacyActivityType.entries
+            LegacyActivityType.entries,
         ).associateWith { Attractiveness.DEFAULT }.toMutableMap()
 
-    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness {
-        return attractivenessMap[Pair(zone, activityType)] ?: 0.0.asAttractiveness()
-    }
+    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
+        attractivenessMap[Pair(zone, activityType)] ?: 0.0.asAttractiveness()
 
     override val purposes: ChoiceModelPurposes = legacyChoiceModelPurposes
 

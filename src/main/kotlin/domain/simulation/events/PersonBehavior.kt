@@ -17,12 +17,7 @@ import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import utils.units.Time
 
 fun interface GenerateDestinationCharacteristics<out T> {
-    operator fun invoke(
-        person: PersonAgent,
-        time: Time,
-        behavior: PersonBehavior,
-        legs: LinkTrip,
-    ): T
+    operator fun invoke(person: PersonAgent, time: Time, behavior: PersonBehavior, legs: LinkTrip): T
 }
 
 fun interface GenerateModeCharacteristics<out T> {
@@ -34,7 +29,7 @@ fun interface GenerateModeCharacteristics<out T> {
         origin: StandardLocation,
         destination: StandardLocation,
         currentChoices: Collection<Mode>,
-        custom: Any?
+        custom: Any?,
     ): T
 }
 
@@ -46,13 +41,20 @@ val StandardDestinationImplementation =
             legs.elements.last().startLocation,
             behavior.impedance,
             behavior.attractivityModel,
-            behavior.availabilityModel.asProviderAvailabilityFilter()
+            behavior.availabilityModel.asProviderAvailabilityFilter(),
         )
     }
 
 val StandardModeImplementation =
     GenerateModeCharacteristics<ModeChoiceCharacteristics> {
-            person, time, behavior, origin, destination, currentChoices, custom ->
+            person,
+            time,
+            behavior,
+            origin,
+            destination,
+            currentChoices,
+            custom,
+        ->
         ModeChoiceCharacteristics(
             person,
             time,
@@ -60,7 +62,7 @@ val StandardModeImplementation =
             destination,
             behavior.impedance,
             currentChoices,
-            custom
+            custom,
         )
     }
 
@@ -89,20 +91,18 @@ data class PersonBehavior constructor(
             bikeSharingConnectionSelector: BikeSharingConnectionSelector,
             drtAvailabilitySelector: DrtAvailabilitySelector,
             replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
-        ): PersonBehavior {
-            return PersonBehavior(
-                destinationChoice,
-                modeChoice,
-                choiceModelModes,
-                impedance,
-                attractivenessModel,
-                modeAvailability,
-                bikeSharingConnectionSelector,
-                drtAvailabilitySelector,
-                StandardDestinationImplementation,
-                StandardModeImplementation,
-                replanningStrategy,
-            )
-        }
+        ): PersonBehavior = PersonBehavior(
+            destinationChoice,
+            modeChoice,
+            choiceModelModes,
+            impedance,
+            attractivenessModel,
+            modeAvailability,
+            bikeSharingConnectionSelector,
+            drtAvailabilitySelector,
+            StandardDestinationImplementation,
+            StandardModeImplementation,
+            replanningStrategy,
+        )
     }
 }

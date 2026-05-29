@@ -13,14 +13,11 @@ import edu.kit.ifv.units.Hemisphere
 import java.nio.file.Path
 import kotlin.io.path.name
 
-fun RoadNetworkContext.loadVisumNetwork(
-    file: Path,
-    localeLambda: VisumLocale.() -> Unit = {}
-) = runStep {
+fun RoadNetworkContext.loadVisumNetwork(file: Path, localeLambda: VisumLocale.() -> Unit = {}) = runStep {
     LoadRoadNetworkStep(
         this,
         file,
-        localeLambda
+        localeLambda,
     )
 
 //    mobitopp.roadNetwork.value = LocatableGraph( //TODO @Robin, why parse outside the model step?
@@ -32,12 +29,8 @@ interface RoadNetworkContext : DemandSimContext {
     val roadNetwork: LateInit<LocatableGraph>
 }
 
-class LoadRoadNetworkStep<C>(
-    private val context: C,
-    val file: Path,
-    val localeLambda: VisumLocale.() -> Unit = {}
-
-) : ModelStep where C : RoadNetworkContext {
+class LoadRoadNetworkStep<C>(private val context: C, val file: Path, val localeLambda: VisumLocale.() -> Unit = {}) :
+    ModelStep where C : RoadNetworkContext {
 
     override val name: String = "Load visum road network from ${file.name}"
 
@@ -49,8 +42,8 @@ class LoadRoadNetworkStep<C>(
                 file = file,
                 locale = locale,
                 utmZone = 32,
-                utmHemisphere = Hemisphere.NORTHERN
-            ).parseNetwork {}
+                utmHemisphere = Hemisphere.NORTHERN,
+            ).parseNetwork {},
         )
     }
 

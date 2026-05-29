@@ -19,7 +19,8 @@ class DrtProviderAgent(
     val data: DrtProvider,
     val algorithm: DrtAlgorithm,
     stateMachineFactory: StateMachineFactory<DrtProviderAgent>,
-) : DrtProvider by data, StateBasedAgent<Message> {
+) : DrtProvider by data,
+    StateBasedAgent<Message> {
 
     override val stateMachine: StateMachine = stateMachineFactory.create(AbsoluteTime.START, this)
 
@@ -49,7 +50,7 @@ data class DrtRequest(
     val person: PersonAgent,
     val departure: AbsoluteTime,
     val origin: StandardLocation,
-    val destination: StandardLocation
+    val destination: StandardLocation,
 )
 
 data class DrtOffer(
@@ -63,7 +64,7 @@ data class DrtOffer(
     val dropOffTime: AbsoluteTime, // TODO maybe min/max arrival time, guaranteed max time, but window for delays??
     val cost: Currency,
     val timeOfOffer: AbsoluteTime,
-    val arrivalTimeAtDest: AbsoluteTime
+    val arrivalTimeAtDest: AbsoluteTime,
 ) {
 
     val totalDuration: Duration get() = arrivalTimeAtDest - timeOfOffer
@@ -89,8 +90,7 @@ class SimpleMatrixDrtAlgorithm(
         }.add(ride)
     }
 
-    private fun removePickups(time: AbsoluteTime) =
-        pendingPickUps.remove(time)
+    private fun removePickups(time: AbsoluteTime) = pendingPickUps.remove(time)
 
     private fun addDropOff(ride: DrtRide) {
         pendingDropOffs.getOrPut(ride.offer.dropOffTime) {
@@ -98,8 +98,7 @@ class SimpleMatrixDrtAlgorithm(
         }.add(ride)
     }
 
-    private fun removeDropOff(absoluteTime: AbsoluteTime) =
-        pendingDropOffs.remove(absoluteTime)
+    private fun removeDropOff(absoluteTime: AbsoluteTime) = pendingDropOffs.remove(absoluteTime)
 
     private fun numPickUps() = pendingPickUps.values.flatten().size
     private fun numDropOffs() = pendingDropOffs.values.flatten().size
@@ -132,7 +131,7 @@ class SimpleMatrixDrtAlgorithm(
                 dropOffTime,
                 cost,
                 departure,
-                dropOffTime
+                dropOffTime,
             )
         }
     }
@@ -152,11 +151,9 @@ class SimpleMatrixDrtAlgorithm(
     override fun nextActionTime(): AbsoluteTime =
         (pendingPickUps.keys + pendingDropOffs.keys).minOrNull() ?: AbsoluteTime.INFINITY
 
-    override fun getPendingPickups(time: AbsoluteTime): List<DrtRide> =
-        removePickups(time)?.onEach {
-            addDropOff(it) // move pickups to drop off map
-        } ?: emptyList()
+    override fun getPendingPickups(time: AbsoluteTime): List<DrtRide> = removePickups(time)?.onEach {
+        addDropOff(it) // move pickups to drop off map
+    } ?: emptyList()
 
-    override fun getPendingArrivals(time: AbsoluteTime): List<DrtRide> =
-        removeDropOff(time) ?: emptyList()
+    override fun getPendingArrivals(time: AbsoluteTime): List<DrtRide> = removeDropOff(time) ?: emptyList()
 }

@@ -17,7 +17,8 @@ import utils.EnumDecodable
 enum class ZoneClassification(override val code: Int) : Encodable {
     STUDY_AREA(0),
     EXTENDED_STUDY_AREA(1),
-    OUTLYING_AREA(2);
+    OUTLYING_AREA(2),
+    ;
 
     override val description: String
         get() = name

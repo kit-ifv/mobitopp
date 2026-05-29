@@ -124,8 +124,7 @@ interface StateMachineFactory<A : Agent<out Message>> {
      * @param agent The agent for which to create the state machine
      * @return A new state machine for the agent
      */
-    fun create(startTime: AbsoluteTime, agent: A): StateMachine =
-        create(initialState(startTime, agent))
+    fun create(startTime: AbsoluteTime, agent: A): StateMachine = create(initialState(startTime, agent))
 
     /**
      * Creates a state machine with a specific initial state.
@@ -152,10 +151,7 @@ interface StateMachineFactory<A : Agent<out Message>> {
  * @property name The name of this state machine
  * @property initial The initial state of this state machine
  */
-open class TransitoryStateMachine(
-    override val name: String,
-    initial: State
-) : StateMachine {
+open class TransitoryStateMachine(override val name: String, initial: State) : StateMachine {
 
     /**
      * The current state of this state machine.

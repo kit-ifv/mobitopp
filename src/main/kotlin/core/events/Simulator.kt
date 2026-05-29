@@ -20,7 +20,7 @@ abstract class Simulator(
     initEvents: Collection<Event<*>> = emptyList(),
     eventListeners: Collection<EventListener> = emptyList(),
     protected val queue: EventQueue = MapEventQueue(),
-    val timeStep: Duration = 1.minutes
+    val timeStep: Duration = 1.minutes,
 ) {
 
     init {
@@ -39,7 +39,7 @@ abstract class Simulator(
         queue.addAll(
             agents.map {
                 it.init()
-            }.flatten().toList()
+            }.flatten().toList(),
         )
     }
     fun <E> addAgent(agent: E) where E : Identifiable<*>, E : Agent<*> {
@@ -85,7 +85,7 @@ abstract class Simulator(
         return seq.iterator().addProgressBar(
             label = "simulation time",
             expectedCount = count.toLong(),
-            visible = true
+            visible = true,
         ).asSequence()
     }
 
@@ -115,7 +115,7 @@ class ParallelSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
     eventListeners: Collection<EventListener> = emptyList(),
     queue: MapEventQueue = MapEventQueue(),
-    timeStep: Duration = 1.minutes
+    timeStep: Duration = 1.minutes,
 ) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
     override fun executePresentEvents(present: Events): Events = runBlocking {
@@ -133,7 +133,7 @@ class SequentialSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
     eventListeners: Collection<EventListener> = emptyList(),
     queue: MapEventQueue = MapEventQueue(),
-    timeStep: Duration = 1.minutes
+    timeStep: Duration = 1.minutes,
 ) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
     override fun executePresentEvents(present: Events): Events = present.map { it.execute() }.flatten()

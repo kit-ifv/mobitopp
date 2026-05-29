@@ -11,11 +11,10 @@ class LineChartPlotterTest {
 
     private val plotBuilder = getBuilder()
 
-    private fun getBuilder() =
-        forData { data }
-            .groupBy { it.first }
-            .plot { it.second.y }
-            .over { it.second.x }
+    private fun getBuilder() = forData { data }
+        .groupBy { it.first }
+        .plot { it.second.y }
+        .over { it.second.x }
 
     @Test
     fun test() {
@@ -61,13 +60,12 @@ class LineChartPlotterTest {
         this.plot(missing)
     }
 
-    private fun getAggregated() =
-        forData { data }
-            .groupBy { "it.first" }
-            .plotMeanOf {
-                it.second.y
-            }
-            .over { it.first }
+    private fun getAggregated() = forData { data }
+        .groupBy { "it.first" }
+        .plotMeanOf {
+            it.second.y
+        }
+        .over { it.first }
 
     @Test
     fun testAggregation() {
@@ -101,7 +99,7 @@ class LineChartPlotterTest {
     private val data = mapOf(
         "parabola" to xValues.map { Entity(it, it * it + 1, it % 3) },
         "line" to xValues.map { Entity(it, it + 10, it % 3) },
-        "sine" to xValues.map { Entity(it, sin(it) + 2, it % 3) }
+        "sine" to xValues.map { Entity(it, sin(it) + 2, it % 3) },
     ).toList().flatMap { (name, entities) -> entities.map { name to it } }
 
     private val colorFun = { color: Any ->
@@ -109,25 +107,23 @@ class LineChartPlotterTest {
             RGB(
                 120 * (abs(color) % 3) % 255,
                 120 * ((abs(color) + 1) % 3) % 255,
-                120 * ((abs(color) + 2) % 3) % 255
+                120 * ((abs(color) + 2) % 3) % 255,
             )
         } else {
             RGB(0, 120, 0)
         }
     }
 
-    private fun stringColorFun(function: String): RGB {
-        return when (function) {
-            "parabola" -> RGB(255, 0, 0)
-            "line" -> RGB(0, 255, 0)
-            "sine" -> RGB(0, 0, 255)
-            else -> RGB(0, 0, 0)
-        }
+    private fun stringColorFun(function: String): RGB = when (function) {
+        "parabola" -> RGB(255, 0, 0)
+        "line" -> RGB(0, 255, 0)
+        "sine" -> RGB(0, 0, 255)
+        else -> RGB(0, 0, 0)
     }
 
     private val comparisonData = mapOf(
         "parabola" to xValues.map { Entity(it, -it * it, it % 3) },
         "line" to xValues.map { Entity(it, 0.5 * it, it % 3) },
-        "sine" to xValues.map { Entity(it, cos(it), it % 3) }
+        "sine" to xValues.map { Entity(it, cos(it), it % 3) },
     ).toList().flatMap { (name, entities) -> entities.map { name to it } }
 }

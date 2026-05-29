@@ -6,8 +6,19 @@ import domain.shared.datastructure.matrix.optimized.DoubleToDuration
 import domain.shared.datastructure.matrix.yaml.YamlInfo
 import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.enums.Mode
-import domain.shared.location.*
-import edu.kit.ifv.units.*
+import domain.shared.location.CostMetric
+import domain.shared.location.DistanceMetric
+import domain.shared.location.DurationMetric
+import domain.shared.location.Metrics
+import domain.shared.location.ZoneId
+import edu.kit.ifv.units.Currency
+import edu.kit.ifv.units.CurrencyUnit
+import edu.kit.ifv.units.Distance
+import edu.kit.ifv.units.DistanceUnit
+import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.kilometers
+import edu.kit.ifv.units.toCurrency
+import edu.kit.ifv.units.toDistance
 import utils.Decodable
 import utils.units.Time
 import java.nio.file.Path
@@ -32,57 +43,31 @@ class MatrixMetrics(
     private val travelTimes: ZoneMatrixLookup<Mode>,
     private val travelCosts: ZoneMatrixLookup<Mode>,
     private val travelDistance: ZoneIdMatrix,
-    unitConverters: UnitConverter
+    unitConverters: UnitConverter,
 ) : Metrics {
     private val currencyConverter = unitConverters.currencyConverter
     private val timeConverter = unitConverters.timeConverter
     private val distanceConverter = unitConverters.distanceConverter
 
-    override fun costMetric(mode: Mode, time: Time): CostMetric {
-        return CostMetric { o, d ->
-            currencyConverter.from(travelCosts[mode, time][o.id, d.id])
-        }
+    override fun costMetric(mode: Mode, time: Time): CostMetric = CostMetric { o, d ->
+        currencyConverter.from(travelCosts[mode, time][o.id, d.id])
     }
 
-    override fun distanceMetric(mode: Mode): DistanceMetric {
-        return DistanceMetric { o, d ->
-            distanceConverter.from(travelDistance[o.id, d.id])
-        }
+    override fun distanceMetric(mode: Mode): DistanceMetric = DistanceMetric { o, d ->
+        distanceConverter.from(travelDistance[o.id, d.id])
     }
 
-    override fun durationMetric(
-        mode: Mode,
-        time: Time,
-    ): DurationMetric {
-        return DurationMetric { o, d ->
-            timeConverter.from(travelTimes[mode, time][o.id, d.id])
-        }
+    override fun durationMetric(mode: Mode, time: Time): DurationMetric = DurationMetric { o, d ->
+        timeConverter.from(travelTimes[mode, time][o.id, d.id])
     }
 
-    fun cost(
-        from: ZoneId,
-        to: ZoneId,
-        mode: Mode,
-        time: Time,
-    ): Currency {
-        return currencyConverter.from(travelCosts[mode, time][from, to])
-    }
+    fun cost(from: ZoneId, to: ZoneId, mode: Mode, time: Time): Currency =
+        currencyConverter.from(travelCosts[mode, time][from, to])
 
-    fun distance(
-        from: ZoneId,
-        to: ZoneId,
-    ): Distance {
-        return distanceConverter.from(travelDistance[from, to])
-    }
+    fun distance(from: ZoneId, to: ZoneId): Distance = distanceConverter.from(travelDistance[from, to])
 
-    fun duration(
-        from: ZoneId,
-        to: ZoneId,
-        mode: Mode,
-        time: Time,
-    ): Duration {
-        return timeConverter.from(travelTimes[mode, time][from, to])
-    }
+    fun duration(from: ZoneId, to: ZoneId, mode: Mode, time: Time): Duration =
+        timeConverter.from(travelTimes[mode, time][from, to])
 
     companion object {
         @Suppress("LongParameterList")
@@ -135,12 +120,10 @@ data class UnitConverter(
             distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
             currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
             timeUnit: DurationUnit = DurationUnit.MINUTES,
-        ): UnitConverter {
-            return UnitConverter(
-                { it.toDuration(timeUnit) },
-                { it.toDistance(distanceUnit) },
-                { it.toCurrency(currencyUnit) },
-            )
-        }
+        ): UnitConverter = UnitConverter(
+            { it.toDuration(timeUnit) },
+            { it.toDistance(distanceUnit) },
+            { it.toCurrency(currencyUnit) },
+        )
     }
 }

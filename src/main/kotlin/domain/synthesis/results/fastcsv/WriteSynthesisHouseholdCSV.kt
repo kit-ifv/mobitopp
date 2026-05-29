@@ -20,6 +20,6 @@ fun <S> Collection<SynthesisHousehold<S, *>>.write(writer: Writer) where S : Min
             buildList {
                 add(it.id.toString())
             }
-        }
+        },
     )
 }

@@ -8,13 +8,12 @@ import domain.synthesis.data.CarSegment
 import domain.synthesis.data.EngineType
 
 object InfoBasedCarGeneration : GenerateCars<HasNumberOfCars, Any?> {
-    override fun generate(householdBuilder: MinimalistHousehold<HasNumberOfCars, *>): List<Car> {
-        return (0..<householdBuilder.attributes.amountOfCars).map {
+    override fun generate(householdBuilder: MinimalistHousehold<HasNumberOfCars, *>): List<Car> =
+        (0..<householdBuilder.attributes.amountOfCars).map {
             CarImpl.Companion.fromEngineType(
                 engineType = EngineType.COMBUSTION,
                 segment = CarSegment.SMALL,
-                seats = 4
+                seats = 4,
             )
         }
-    }
 }

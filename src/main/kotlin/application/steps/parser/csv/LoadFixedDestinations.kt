@@ -8,8 +8,6 @@ import core.modelsteps.Warning
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
-import domain.shared.location.DeprecatedZone
-import domain.shared.location.LegacyZone
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRoadAccess
@@ -48,7 +46,7 @@ interface LoadFixedDestinationsContext : DemandSimContext {
         get() = dataFolder.resolve("demand-data").resolve("fixedDestination.csv")
 
     fun getZone(id: Long) = requireNotNull(
-        zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
+        zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()],
     ) {
         "Referenced ZoneId $id could not be found in zoneRepo:" +
             " ${zoneRepository.elements.map { it.id }.toList()}"
@@ -71,9 +69,7 @@ class FixedDestinationsBuilder(
 
     lateinit var fallback: GenerateFixedDestinationLocations
 
-    fun build(): GenerateFromCache {
-        return GenerateFromCache(fallback, reader, writer, cacheRootPath, sourcePath)
-    }
+    fun build(): GenerateFromCache = GenerateFromCache(fallback, reader, writer, cacheRootPath, sourcePath)
 }
 
 data class FixedDestinationColumns(
@@ -90,7 +86,7 @@ data class FixedDestinationCsvConfig(
     var filter: FixedDestinationColumns.(Row, LoadFixedDestinationsContext) -> Boolean = { row, context ->
         PersonId(row.long(this.personOid)) in context.personRepository
     },
-    var delimiter: String = SEMICOLON
+    var delimiter: String = SEMICOLON,
 )
 
 fun LoadFixedDestinationsContext.fixedDestinations(
@@ -103,7 +99,7 @@ fun LoadFixedDestinationsContext.fixedDestinations(
         activityTypes,
         zoneRepository::getValue,
         cacheRootPath,
-        this.defaultFixedDestinationsPath
+        this.defaultFixedDestinationsPath,
     )
     builder.apply(lambda)
     runStep {
@@ -111,7 +107,7 @@ fun LoadFixedDestinationsContext.fixedDestinations(
     }
 }
 fun LoadFixedDestinationsContext.fromCSV(
-    lambda: FixedDestinationCsvConfig.() -> Unit
+    lambda: FixedDestinationCsvConfig.() -> Unit,
 ): GenerateFixedDestinationLocations {
     val config = FixedDestinationCsvConfig(path = defaultFixedDestinationsPath)
     config.apply(lambda)
@@ -128,26 +124,24 @@ fun LoadFixedDestinationsContext.csvParser(
 
 fun LoadFixedDestinationsContext.csvParser(
     csvConfig: FixedDestinationCsvConfig,
-): FilterRowCsvParser<ActivityLocation> {
-    return csvConfig.run {
-        val filterWrap: (Row) -> Boolean = { columns.filter(it, this@csvParser) }
+): FilterRowCsvParser<ActivityLocation> = csvConfig.run {
+    val filterWrap: (Row) -> Boolean = { columns.filter(it, this@csvParser) }
 
-        CsvParser(errorHandling) { row ->
-            val id = PersonId(row.long(columns.personOid))
-            val p = personRepository[id]
-            val activityType = row.decodeName(
-                columns.activityType,
-                activityTypes
-            )
-            val zone = getZone(row.long(columns.zone))
+    CsvParser(errorHandling) { row ->
+        val id = PersonId(row.long(columns.personOid))
+        val p = personRepository[id]
+        val activityType = row.decodeName(
+            columns.activityType,
+            activityTypes,
+        )
+        val zone = getZone(row.long(columns.zone))
 
-            val coordinate: HasRoadAccess = row(columns.location, String::parseRoadPositionWGS)
-            val location = StandardLocation(coordinate.position, zone, coordinate.roadAccess)
-            p?.let { person ->
-                ActivityLocation(person, activityType, location)
-            }
-        }.withFilter(filterWrap)
-    }
+        val coordinate: HasRoadAccess = row(columns.location, String::parseRoadPositionWGS)
+        val location = StandardLocation(coordinate.position, zone, coordinate.roadAccess)
+        p?.let { person ->
+            ActivityLocation(person, activityType, location)
+        }
+    }.withFilter(filterWrap)
 }
 
 @Suppress("LongParameterList")
@@ -201,26 +195,22 @@ class GenerateFromCache(
     binaryWriter: BinaryWriter<ActivityLocation>,
     cacheRootPath: Path,
     originalSourcePath: Path,
-) :
-    BinaryCachedFileInput<ActivityLocation>(
-        binaryReader,
-        binaryWriter,
-        cacheRootPath,
-        originalSourcePath,
-    ), GenerateFixedDestinationLocations {
-    override fun generate(): Collection<ActivityLocation> {
-        return if (hasValidCacheEntry) {
-            binaryReader.fromBinary(expectedCachePath)
-        } else {
-            runCached {
-                generateElementsForCacheWrite()
-            }
+) : BinaryCachedFileInput<ActivityLocation>(
+    binaryReader,
+    binaryWriter,
+    cacheRootPath,
+    originalSourcePath,
+),
+    GenerateFixedDestinationLocations {
+    override fun generate(): Collection<ActivityLocation> = if (hasValidCacheEntry) {
+        binaryReader.fromBinary(expectedCachePath)
+    } else {
+        runCached {
+            generateElementsForCacheWrite()
         }
     }
 
-    override fun generateElementsForCacheWrite(): Collection<ActivityLocation> {
-        return fallback.generate()
-    }
+    override fun generateElementsForCacheWrite(): Collection<ActivityLocation> = fallback.generate()
 }
 
 class LoadFixedDestinationsStep(

@@ -1,10 +1,8 @@
 package domain.shared.behavior
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
 import domain.shared.location.zone.HasNumberParkingPlaces
-import domain.shared.location.zone.StandardZone
 import domain.shared.location.zone.Zone
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -58,10 +56,11 @@ class AttractivenessFromCsv(
     init {
 
         val parser = DefaultMapCsvParser(
-            CsvParser(errorHandling = ErrorHandling.THROW) { row -> // TODO error level as config param
+            CsvParser(errorHandling = ErrorHandling.THROW) { row ->
+                // TODO error level as config param
                 ZoneId(row.long(zoneColumn)) to
                     activityMapOf(row, activityTypes)
-            }
+            },
         )
 
         attractivenessMap = parser.parseMap(path, separator = delimiter)
@@ -75,7 +74,7 @@ class AttractivenessFromCsv(
             if (activityType !in activities && activityType !in warnedSet) {
                 println(
                     "Warning: could not find attractiveness for ZoneId $zone and activity $activityType in lookup " +
-                        "(Source $path)! Using 1.0 instead!"
+                        "(Source $path)! Using 1.0 instead!",
                 )
                 activities.add(activityType)
                 warnedSet.add(activityType)
@@ -83,12 +82,10 @@ class AttractivenessFromCsv(
         }
 }
 
-private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) =
-    activityTypes.associateWith { act ->
-        row.commaDouble("Attractivity:${act.description.capitalizeWithUnderscores()}").asAttractiveness()
-    }
+private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) = activityTypes.associateWith { act ->
+    row.commaDouble("Attractivity:${act.description.capitalizeWithUnderscores()}").asAttractiveness()
+}
 
-fun String.capitalizeWithUnderscores() =
-    this.split("_").joinToString("_") { part ->
-        part.lowercase().replaceFirstChar { it.uppercase() }
-    }
+fun String.capitalizeWithUnderscores() = this.split("_").joinToString("_") { part ->
+    part.lowercase().replaceFirstChar { it.uppercase() }
+}

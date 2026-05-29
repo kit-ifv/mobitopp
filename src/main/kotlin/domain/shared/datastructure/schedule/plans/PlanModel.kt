@@ -26,7 +26,9 @@ interface ActivityTracker {
 /**
  * A plan model should maintain the state of the Action plan by allowing legs and activities to
  */
-interface PlanModel : LegTracker, ActivityTracker {
+interface PlanModel :
+    LegTracker,
+    ActivityTracker {
 
     val dispatcher: IDispatcher
 
@@ -93,14 +95,12 @@ fun PlanModel.squeeze(from: AbsoluteTime, to: AbsoluteTime, force: Boolean = fal
                 }.map { (action, dur) ->
                     "${action.original} necessaryShift=$dur"
                 }
-            } \nrun with force=true IF and only IF you know what you are doing."
+            } \nrun with force=true IF and only IF you know what you are doing.",
         )
     }
 }
 
-fun PlanModel.squeeze(action: Action, force: Boolean = false) {
-    return this.squeeze(action.startTime, action.endTime, force)
-}
+fun PlanModel.squeeze(action: Action, force: Boolean = false) = this.squeeze(action.startTime, action.endTime, force)
 
 /**
  * This function is designed to shift all activities so that the Time Interval [from, block] is freed. All Actions

@@ -16,20 +16,17 @@ object ReadParameterFile {
         return map
     }
 
-    fun read(file: Path, charset: Charset = Charsets.UTF_8): Map<String, Double> {
-        return read(file.readText(charset = charset))
-    }
+    fun read(file: Path, charset: Charset = Charsets.UTF_8): Map<String, Double> =
+        read(file.readText(charset = charset))
 }
 
 /**
  * Use Exp4j to parse the mathematical expression found in the legacy parameter files
  */
 @Suppress("TooGenericExceptionCaught") // This is a exp4j problem throwing a wild assortment of exceptions
-private fun evaluateExpression(expression: String): Double {
-    return try {
-        val exp = ExpressionBuilder(expression).build()
-        exp.evaluate()
-    } catch (e: Exception) {
-        throw IllegalArgumentException("Error evaluating expression: $expression", e)
-    }
+private fun evaluateExpression(expression: String): Double = try {
+    val exp = ExpressionBuilder(expression).build()
+    exp.evaluate()
+} catch (e: Exception) {
+    throw IllegalArgumentException("Error evaluating expression: $expression", e)
 }

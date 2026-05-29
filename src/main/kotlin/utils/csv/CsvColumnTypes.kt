@@ -42,30 +42,25 @@ fun <T : Encodable> Row.decode(column: String, codePlan: CodePlan<T>) =
 
 fun <T : Encodable> Row.decode(index: Int, codePlan: CodePlan<T>) =
     this.valueAt(index) { s -> codePlan.decode(s.toInt()) }
-fun <T : Encodable> Row.decodeOrNull(index: Int, codePlan: CodePlan<T>): T? {
-    return this.valueAt(index) { s -> codePlan.decodeOrNull(s.toInt()) }
+fun <T : Encodable> Row.decodeOrNull(index: Int, codePlan: CodePlan<T>): T? = this.valueAt(index) { s ->
+    codePlan.decodeOrNull(s.toInt())
 }
 
-fun <T : Encodable> Row.decodeOrNull(column: String, codePlan: CodePlan<T>): T? {
-    return if (this.hasColumn(column)) {
-        this.invoke(column) { s -> codePlan.decodeOrNull(s.toInt()) }
-    } else {
-        null
-    }
+fun <T : Encodable> Row.decodeOrNull(column: String, codePlan: CodePlan<T>): T? = if (this.hasColumn(column)) {
+    this.invoke(column) { s -> codePlan.decodeOrNull(s.toInt()) }
+} else {
+    null
 }
 
 fun <T : Encodable> Row.decodeName(column: String, codePlan: CodePlan<T>) =
     this.invoke(column) { s -> codePlan.decode(s) }
 
-fun <T : Encodable> Row.decodeName(index: Int, codePlan: CodePlan<T>) =
-    this.valueAt(index) { s -> codePlan.decode(s) }
+fun <T : Encodable> Row.decodeName(index: Int, codePlan: CodePlan<T>) = this.valueAt(index) { s -> codePlan.decode(s) }
 
-fun <T : Encodable> Row.decodeNameOrNull(column: String, codePlan: CodePlan<T>): T? {
-    return if (this.hasColumn(column)) {
-        this.invoke(column) { s -> codePlan.decodeOrNull(s) }
-    } else {
-        null
-    }
+fun <T : Encodable> Row.decodeNameOrNull(column: String, codePlan: CodePlan<T>): T? = if (this.hasColumn(column)) {
+    this.invoke(column) { s -> codePlan.decodeOrNull(s) }
+} else {
+    null
 }
 
 fun Row.unitShare(column: String) = this.invoke(column) { s -> s.toDouble().share() }
@@ -90,11 +85,9 @@ fun Row.long() = TypedRow(this, String::toLong)
 fun Row.float() = TypedRow(this, String::toFloat)
 fun Row.double() = TypedRow(this, String::toDouble)
 fun Row.boolean() = TypedRow(this, String::toBoolean)
-fun <T : Encodable> Row.decode(codePlan: CodePlan<T>) =
-    TypedRow(this) { s -> codePlan.decode(s.toInt()) }
+fun <T : Encodable> Row.decode(codePlan: CodePlan<T>) = TypedRow(this) { s -> codePlan.decode(s.toInt()) }
 
-fun <T : Encodable> Row.decodeName(codePlan: CodePlan<T>) =
-    TypedRow(this) { s -> codePlan.decode(s) }
+fun <T : Encodable> Row.decodeName(codePlan: CodePlan<T>) = TypedRow(this) { s -> codePlan.decode(s) }
 
 fun <T> T.distance(unit: DistanceUnit) where T : TypedRow<Int> = this.wrap { it.toDistance(unit) }
 fun <T> T.distance(column: String, unit: DistanceUnit) where T : TypedRow<Double> =
@@ -109,13 +102,12 @@ fun <T> T.kilometers(column: String) where T : TypedRow<Int> = this.wrap { it.ki
 fun <T> T.currency(unit: CurrencyUnit) where T : TypedRow<Int> = this.wrap { it.toCurrency(unit) }
 fun <T> T.currency(column: String, unit: CurrencyUnit) where T : TypedRow<Int> =
     this.wrap { it.toCurrency(unit) }.invoke(column)
-fun <T> T.currencyOrNull(column: String, unit: CurrencyUnit): Currency? where T : TypedRow<Int> {
-    return if (this.row.hasColumn(column)) {
+fun <T> T.currencyOrNull(column: String, unit: CurrencyUnit): Currency? where T : TypedRow<Int> =
+    if (this.row.hasColumn(column)) {
         this.wrap { it.toCurrency(unit) }.invoke(column)
     } else {
         null
     }
-}
 
 fun <T> T.euros() where T : TypedRow<Int> = this.wrap { it.euros }
 fun <T> T.euros(column: String) where T : TypedRow<Int> = this.wrap { it.euros }.invoke(column)

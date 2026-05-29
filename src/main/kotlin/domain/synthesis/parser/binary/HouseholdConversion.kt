@@ -1,6 +1,5 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
 import domain.shared.location.zone.StandardZone
 import domain.synthesis.data.EconomicStatus
@@ -24,9 +23,8 @@ import java.nio.ByteBuffer
 @Suppress("MagicNumber")
 class BinaryHouseholdReader(
     private val zoneConverter: (ZoneId) -> StandardZone,
-    private val contextSimulationSeed: Long
-) :
-    BinaryReader<MutableHousehold> {
+    private val contextSimulationSeed: Long,
+) : BinaryReader<MutableHousehold> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutableHousehold {
         val id = HouseholdId(long)
@@ -39,7 +37,7 @@ class BinaryHouseholdReader(
         val location = decodeLocation(converter = zoneConverter)
         return MutableHousehold(
             id,
-            contextSimulationSeed
+            contextSimulationSeed,
         ).apply {
             this.householdNumber = householdNumber
             this.surveyYear = surveyYear

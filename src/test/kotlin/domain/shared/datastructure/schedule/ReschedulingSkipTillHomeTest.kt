@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package domain.shared.datastructure.schedule
 
 import domain.shared.datastructure.schedule.replanning.HomeActivityEndTimeAnchorStrategy

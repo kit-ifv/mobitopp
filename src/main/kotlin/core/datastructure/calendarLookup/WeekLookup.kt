@@ -45,9 +45,7 @@ class WeekLookup<T>(private val dayLookups: Map<DayOfWeek, DayTimeLookup<T>>) {
      *
      * @return the relative time within the week when the element changes, or `null` if it does not change.
      */
-    fun findFirstChangeInWeek(element: T): Duration? {
-        return findNextChangeInLaterDays(element, DayOfWeek.MONDAY)
-    }
+    fun findFirstChangeInWeek(element: T): Duration? = findNextChangeInLaterDays(element, DayOfWeek.MONDAY)
 
     /**
      * Finds the next change time for [element], starting from [absoluteTime].
@@ -63,7 +61,7 @@ class WeekLookup<T>(private val dayLookups: Map<DayOfWeek, DayTimeLookup<T>>) {
         val currentWeekDay = absoluteTime.weekDay
         val currentDayChange = findNextChangeInDay(
             element,
-            skipUntil = absoluteTime
+            skipUntil = absoluteTime,
         )?.plus(currentWeekDay.daysSinceStartOfWeek())
         val nextDaysChange = findNextChangeInLaterDays(element, skipUntil = currentWeekDay.next())
 
@@ -75,9 +73,8 @@ class WeekLookup<T>(private val dayLookups: Map<DayOfWeek, DayTimeLookup<T>>) {
      *
      * "Local" indicates that the search is confined to a single day, without looking into later days.
      */
-    private fun TimeLookup<T>.findNextChangeInDay(element: T, skipUntil: AbsoluteTime): Duration? {
-        return findNextChangeTime(element, skipUntil)
-    }
+    private fun TimeLookup<T>.findNextChangeInDay(element: T, skipUntil: AbsoluteTime): Duration? =
+        findNextChangeTime(element, skipUntil)
 
     /**
      * Finds the next change for [element], searching across later days in the week starting at [skipUntil].
@@ -102,9 +99,7 @@ class WeekLookup<T>(private val dayLookups: Map<DayOfWeek, DayTimeLookup<T>>) {
      *
      * Example: `MONDAY -> 0 days`, `TUESDAY -> 1 day`, … `SUNDAY -> 6 days`.
      */
-    private fun DayOfWeek.toDuration(): Duration {
-        return ordinal.days
-    }
+    private fun DayOfWeek.toDuration(): Duration = ordinal.days
 
     /**
      * Returns the next day of the week, or `null` if this is Sunday.
@@ -112,7 +107,5 @@ class WeekLookup<T>(private val dayLookups: Map<DayOfWeek, DayTimeLookup<T>>) {
      * Unlike some cyclic calendars, [WeekLookup] does not wrap from Sunday back to Monday.
      * That wrap-around is handled externally by higher-level logic.
      */
-    private fun DayOfWeek.next(): DayOfWeek? {
-        return if (this == DayOfWeek.SUNDAY) null else this.plus(1)
-    }
+    private fun DayOfWeek.next(): DayOfWeek? = if (this == DayOfWeek.SUNDAY) null else this.plus(1)
 }

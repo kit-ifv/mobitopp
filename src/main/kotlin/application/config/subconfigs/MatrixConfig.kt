@@ -17,11 +17,7 @@ private const val DEFAULT_DISTANCE_MATRIX_FILENAME = "DIS_Car.mtx.bz2"
  * @param durationMatrixConfig An absolute path to the duration-matrix.yaml.
  * @param distanceMatrix An absolute path to the .mtx.bz2 distance matrix.
  */
-data class MatrixConfig(
-    val costMatrixConfig: Path,
-    val durationMatrixConfig: Path,
-    val distanceMatrix: Path
-) {
+data class MatrixConfig(val costMatrixConfig: Path, val durationMatrixConfig: Path, val distanceMatrix: Path) {
 
     /**
      * Creation method for a rooted structure.
@@ -40,12 +36,12 @@ data class MatrixConfig(
         matrixRepo: Path,
         costMatrixConfig: Path? = null,
         durationMatrixConfig: Path? = null,
-        distanceMatrix: Path? = null
+        distanceMatrix: Path? = null,
     ) :
         this(
             costMatrixConfig = matrixRepo.resolve(costMatrixConfig ?: Path(DEFAULT_COST_MATRIX_FILENAME)),
             durationMatrixConfig = matrixRepo.resolve(durationMatrixConfig ?: Path(DEFAULT_DURATION_MATRIX_FILENAME)),
-            distanceMatrix = matrixRepo.resolve(distanceMatrix ?: Path(DEFAULT_DISTANCE_MATRIX_FILENAME))
+            distanceMatrix = matrixRepo.resolve(distanceMatrix ?: Path(DEFAULT_DISTANCE_MATRIX_FILENAME)),
         )
 
     /**
@@ -67,17 +63,17 @@ data class MatrixConfig(
         /**
          * @return all the constructor parameter names, including matrixRepo.
          */
-        override fun getParameterNames(): Set<String> {
-            return setOf(
-                REPO_PARAM,
-                COST_PARAM,
-                DURATION_PARAM,
-                DISTANCE_PARAM
-            )
-        }
+        override fun getParameterNames(): Set<String> = setOf(
+            REPO_PARAM,
+            COST_PARAM,
+            DURATION_PARAM,
+            DISTANCE_PARAM,
+        )
 
-        private fun Map<String, String>.retrieveAsPath(name: String): Path? {
-            return if (containsKey(name)) { Path(get(name)!!) } else null
+        private fun Map<String, String>.retrieveAsPath(name: String): Path? = if (containsKey(name)) {
+            Path(get(name)!!)
+        } else {
+            null
         }
 
         /**
@@ -96,7 +92,7 @@ data class MatrixConfig(
                     matrixRepo = matrixRepo,
                     costMatrixConfig = costMatrixConfig,
                     durationMatrixConfig = durationMatrixConfig,
-                    distanceMatrix = distanceMatrix
+                    distanceMatrix = distanceMatrix,
                 )
             } else if (
                 costMatrixConfig != null &&
@@ -106,7 +102,7 @@ data class MatrixConfig(
                 return MatrixConfig(
                     costMatrixConfig = costMatrixConfig,
                     durationMatrixConfig = durationMatrixConfig,
-                    distanceMatrix = distanceMatrix
+                    distanceMatrix = distanceMatrix,
                 )
             } else {
                 error("Missing mandatory fields. Either set 'matrixRepo' or all other fields.")

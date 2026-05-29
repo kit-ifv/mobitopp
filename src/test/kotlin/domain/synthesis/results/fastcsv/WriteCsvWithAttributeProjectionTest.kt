@@ -11,18 +11,21 @@ class WriteCsvWithAttributeProjectionTest {
         val bad: Unit = Unit,
         val e: Unit = Unit,
         @CsvIgnore
-        val ignore: Unit = Unit
+        val ignore: Unit = Unit,
     )
 
-    internal class Wrapper<T>(
-        val t: T
-    )
+    internal class Wrapper<T>(val t: T)
 
     @Test
     fun writeStandardOutputCSV() {
         val writer = StringWriter()
-        listOf(Wrapper<Output>(Output())).writeCsvWithGenericAttributes(writer, attributeExtractor =
-            { it.t }, headerPrefix = emptyList(), outputPrefix = { emptyList() })
+        listOf(Wrapper<Output>(Output())).writeCsvWithGenericAttributes(
+            writer,
+            attributeExtractor =
+            { it.t },
+            headerPrefix = emptyList(),
+            outputPrefix = { emptyList() },
+        )
         val split = writer.toString().split("\r\n").first()
         assertContains(split, "e")
         assertContains(split, "good")

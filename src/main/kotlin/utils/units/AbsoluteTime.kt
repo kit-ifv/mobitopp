@@ -37,12 +37,19 @@ fun Duration.floorRem(other: Duration): Duration {
 
 fun decodeDayOfWeek(s: String): DayOfWeek = when (s.lowercase()) {
     "monday", "montag", "mo", "mo." -> (DayOfWeek.MONDAY)
+
     "tuesday", "dienstag", "di", "tu." -> (DayOfWeek.TUESDAY)
+
     "wednesday", "mittwoch", "mi", "we." -> (DayOfWeek.WEDNESDAY)
+
     "thursday", "donnerstag", "do", "th." -> (DayOfWeek.THURSDAY)
+
     "friday", "freitag", "fr", "fr." -> (DayOfWeek.FRIDAY)
+
     "saturday", "samstag", "sa", "sa." -> (DayOfWeek.SATURDAY)
+
     "sunday", "sonntag", "so", "su." -> (DayOfWeek.SUNDAY)
+
     else -> {
         require(s.trim().all { it.isDigit() }) { "Invalid weekday string: $s" }
         decodeDayOfWeek(s.toInt())
@@ -50,17 +57,16 @@ fun decodeDayOfWeek(s: String): DayOfWeek = when (s.lowercase()) {
 }
 
 @Suppress("MagicNumber")
-fun decodeDayOfWeek(i: Int): DayOfWeek =
-    when (i) {
-        0 -> (DayOfWeek.MONDAY)
-        1 -> (DayOfWeek.TUESDAY)
-        2 -> (DayOfWeek.WEDNESDAY)
-        3 -> (DayOfWeek.THURSDAY)
-        4 -> (DayOfWeek.FRIDAY)
-        5 -> (DayOfWeek.SATURDAY)
-        6 -> (DayOfWeek.SUNDAY)
-        else -> throw IllegalArgumentException("Invalid weekday code: $i")
-    }
+fun decodeDayOfWeek(i: Int): DayOfWeek = when (i) {
+    0 -> (DayOfWeek.MONDAY)
+    1 -> (DayOfWeek.TUESDAY)
+    2 -> (DayOfWeek.WEDNESDAY)
+    3 -> (DayOfWeek.THURSDAY)
+    4 -> (DayOfWeek.FRIDAY)
+    5 -> (DayOfWeek.SATURDAY)
+    6 -> (DayOfWeek.SUNDAY)
+    else -> throw IllegalArgumentException("Invalid weekday code: $i")
+}
 
 const val DAYS_PER_WEEK = 7
 const val HOURS_PER_DAY = 24
@@ -86,7 +92,7 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
         (week * DAYS_PER_WEEK).days +
             weekday.daysSinceStartOfWeek() +
             hour.hours + minute.minutes +
-            second.seconds
+            second.seconds,
     )
 
     val sinceStart get() = offset
@@ -98,7 +104,7 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
 
     val weekDay
         get() = decodeDayOfWeek(
-            (day % DAYS_PER_WEEK).let { if (it >= 0) it else it + DAYS_PER_WEEK }
+            (day % DAYS_PER_WEEK).let { if (it >= 0) it else it + DAYS_PER_WEEK },
         )
 
     // TODO convert to duration?
@@ -113,35 +119,23 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
         return weekPrefix + (offset % 1.weeks).toString()
     }
 
-    operator fun plus(other: Duration): AbsoluteTime {
-        return AbsoluteTime(offset + other)
-    }
+    operator fun plus(other: Duration): AbsoluteTime = AbsoluteTime(offset + other)
 
-    operator fun minus(other: Duration): AbsoluteTime {
-        return AbsoluteTime(offset - other)
-    }
+    operator fun minus(other: Duration): AbsoluteTime = AbsoluteTime(offset - other)
 
-    operator fun minus(other: AbsoluteTime): Duration {
-        return offset - other.offset
-    }
+    operator fun minus(other: AbsoluteTime): Duration = offset - other.offset
 
-    override operator fun compareTo(other: AbsoluteTime): Int {
-        return this.offset.compareTo(other.offset)
-    }
+    override operator fun compareTo(other: AbsoluteTime): Int = this.offset.compareTo(other.offset)
 
-    operator fun rangeTo(other: AbsoluteTime): AbsoluteTimeProgression =
-        AbsoluteTimeProgression(this, other, 1.minutes)
+    operator fun rangeTo(other: AbsoluteTime): AbsoluteTimeProgression = AbsoluteTimeProgression(this, other, 1.minutes)
 
     /**
      * Using + mod cheat to always get a positive number
      */
-    operator fun rem(absoluteTime: AbsoluteTime): AbsoluteTime {
-        return AbsoluteTime((offset + absoluteTime.offset).floorRem(absoluteTime.offset))
-    }
+    operator fun rem(absoluteTime: AbsoluteTime): AbsoluteTime =
+        AbsoluteTime((offset + absoluteTime.offset).floorRem(absoluteTime.offset))
 
-    operator fun rem(duration: Duration): Duration {
-        return (offset + duration).floorRem(duration)
-    }
+    operator fun rem(duration: Duration): Duration = (offset + duration).floorRem(duration)
     fun floorDiv(duration: Duration): Long {
         val q = offset / duration
         return floor(q).toLong()
@@ -150,31 +144,24 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
         val q = offset / duration
         return ceil(q) * duration
     }
-    fun floorDiv(time: AbsoluteTime): Long {
-        return floorDiv(time.sinceStart)
-    }
+    fun floorDiv(time: AbsoluteTime): Long = floorDiv(time.sinceStart)
 
     companion object {
         val START = AbsoluteTime(Duration.ZERO)
         val MINUS_INFINITY = AbsoluteTime(-Duration.INFINITE)
         val INFINITY = AbsoluteTime(Duration.INFINITE)
 
-        fun max(first: AbsoluteTime, second: AbsoluteTime): AbsoluteTime {
-            return if (first >= second) first else second
-        }
+        fun max(first: AbsoluteTime, second: AbsoluteTime): AbsoluteTime = if (first >= second) first else second
 
-        fun min(first: AbsoluteTime, second: AbsoluteTime): AbsoluteTime {
-            return if (first <= second) first else second
-        }
+        fun min(first: AbsoluteTime, second: AbsoluteTime): AbsoluteTime = if (first <= second) first else second
     }
 
     fun truncateMinutes() = AbsoluteTime(minutesSinceStart.minutes)
     fun truncateHours() = AbsoluteTime(hoursSinceStart.hours)
     fun truncateDays() = AbsoluteTime(daysSinceStart.days)
-    fun roundToMultipleOf(duration: Duration) =
-        AbsoluteTime(
-            duration * (secondsSinceStart.div(duration.inWholeSeconds)).toInt()
-        )
+    fun roundToMultipleOf(duration: Duration) = AbsoluteTime(
+        duration * (secondsSinceStart.div(duration.inWholeSeconds)).toInt(),
+    )
 }
 
 /** Returns a [Duration] equal to this [Int] number of weeks. */
@@ -198,7 +185,8 @@ class AbsoluteTimeProgression(
     override val start: AbsoluteTime,
     override val endInclusive: AbsoluteTime,
     val step: Duration,
-) : Iterable<AbsoluteTime>, ClosedRange<AbsoluteTime> {
+) : Iterable<AbsoluteTime>,
+    ClosedRange<AbsoluteTime> {
 
     init {
         require(step != Duration.ZERO && !step.isNegative()) {
@@ -214,7 +202,7 @@ class AbsoluteTimeProgression(
         override fun next(): AbsoluteTime {
             if (!hasNext()) {
                 throw NoSuchElementException(
-                    "Nex increment step ${current + step} is out of range: [$start, $endInclusive]"
+                    "Nex increment step ${current + step} is out of range: [$start, $endInclusive]",
                 )
             }
 
@@ -224,6 +212,5 @@ class AbsoluteTimeProgression(
         }
     }
 
-    infix fun step(newStep: Duration): AbsoluteTimeProgression =
-        AbsoluteTimeProgression(start, endInclusive, newStep)
+    infix fun step(newStep: Duration): AbsoluteTimeProgression = AbsoluteTimeProgression(start, endInclusive, newStep)
 }

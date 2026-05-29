@@ -16,9 +16,7 @@ interface AddDrtMembershipContext : Context {
     val personRepository: MutableRepository<MutablePerson, PersonId>
 }
 
-fun AddDrtMembershipContext.addDrtMemberships(
-    predicate: (IPerson, DrtProviderData) -> Boolean
-) = runStep {
+fun AddDrtMembershipContext.addDrtMemberships(predicate: (IPerson, DrtProviderData) -> Boolean) = runStep {
     AddDrtMembershipsStep(this, predicate)
 }
 
@@ -42,11 +40,9 @@ class AddDrtMembershipsStep(
 
     override fun verifyInput(): Warning? = null
 
-    override fun validate(validationPrefix: Warning.() -> Unit): Warning? {
-        return super.validate(validationPrefix)
-    }
+    override fun validate(validationPrefix: Warning.() -> Unit): Warning? = super.validate(validationPrefix)
 
     override val dependentRepositories: Set<Repository<*, *>> = setOf(
-        context.drtProviderRepository
+        context.drtProviderRepository,
     )
 }

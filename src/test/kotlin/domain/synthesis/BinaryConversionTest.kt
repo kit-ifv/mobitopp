@@ -51,7 +51,6 @@ class BinaryConversionTest {
         writer.toBinary(path, listOf(testZone, testZone))
 
         val zones = BinaryZoneReader(1, RegioStaR17.Companion).fromBinary(path)
-
     }
 
     private val zone = TEST_ZONE
@@ -130,7 +129,7 @@ class BinaryConversionTest {
             map::getValue,
             mapOf<SharingProviderId, SharingProvider>()::getValue,
             mapOf<DrtProviderId, DrtProvider>()::getValue,
-            1
+            1,
         )
         val writer = BinaryPersonWriter()
 

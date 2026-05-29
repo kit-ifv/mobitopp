@@ -23,7 +23,7 @@ object LocationUtils {
         val zoneId = ZoneId(long) // Reading zone ID
         val coordinate = WGS84Coordinate.decimalDegree(
             double,
-            double
+            double,
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
         return StandardLocation(
@@ -39,7 +39,7 @@ object LocationUtils {
         val zoneId = ZoneId(long) // Reading zone ID
         val coordinate = WGS84Coordinate.decimalDegree(
             double,
-            double
+            double,
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
 

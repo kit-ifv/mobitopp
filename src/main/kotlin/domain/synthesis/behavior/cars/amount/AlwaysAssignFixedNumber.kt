@@ -4,7 +4,5 @@ import domain.synthesis.behavior.MinimalistHousehold
 
 class AlwaysAssignFixedNumber(val amount: Int) : NumberOfCarDeterminer<Any?, Any?> {
 
-    override fun determineNumberOfCars(householdBuilder: MinimalistHousehold<*, *>): Int {
-        return amount
-    }
+    override fun determineNumberOfCars(householdBuilder: MinimalistHousehold<*, *>): Int = amount
 }

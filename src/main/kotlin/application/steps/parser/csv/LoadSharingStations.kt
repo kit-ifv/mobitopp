@@ -8,8 +8,6 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.ValidateCsvMetadata
 import domain.shared.enums.Mode
-import domain.shared.location.DeprecatedZone
-import domain.shared.location.LegacyZone
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
@@ -69,7 +67,7 @@ fun LoadSharingProvidersContext.prepareSharingStations(
             "Cannot add another sharing provider with same name: $providerName but different mode: ${it.mode}!=$mode"
         }
     } ?: MutableSharingProvider(
-        id = SharingProviderId(providerIdCounter++)
+        id = SharingProviderId(providerIdCounter++),
     ) {
         name = providerName
         this.mode = mode
@@ -84,12 +82,12 @@ fun LoadSharingProvidersContext.prepareSharingStations(
             uid = row(columns.uidColumn)
             name = row(columns.nameColumn)
             zonesByFoot.addAll(
-                prepareZonesByFoot(row, columns.zonesByFootColumn).toMutableSet()
+                prepareZonesByFoot(row, columns.zonesByFootColumn).toMutableSet(),
             )
             location = StandardLocation(
                 zone = getZone(row.long(columns.zoneColumn)),
                 position = coordinateParser(row(columns.coordinatesColumn)),
-                roadAccess = RoadAccess.INVALID
+                roadAccess = RoadAccess.INVALID,
             )
             initialVehicleCount = row.int(columns.vehicleCountColumn)
         }
@@ -134,23 +132,19 @@ fun LoadSharingProvidersContext.finishSharingStations() = runStep {
     SealStep(sharingProviderRepository)
 }
 
-fun LoadSharingProvidersContext.loadSharingStations(
-    providerName: String,
-    mode: Mode,
-) {
+fun LoadSharingProvidersContext.loadSharingStations(providerName: String, mode: Mode) {
     this.prepareSharingStations(providerName = providerName, mode = mode)
     this.finishSharingStations()
 }
 
-fun String.parseCoordinate(): KCoordinate =
-    this.split(",")
-        .takeIf { it.size == 2 }
-        ?.let { it[0].toDouble() to it[1].toDouble() }
-        ?.toCoordinate()
-        ?: error(
-            "Malformed Coordinate: could not parse coordinate string '$this'." +
-                "Expected format: '<NUMBER>,<NUMBER>'!"
-        )
+fun String.parseCoordinate(): KCoordinate = this.split(",")
+    .takeIf { it.size == 2 }
+    ?.let { it[0].toDouble() to it[1].toDouble() }
+    ?.toCoordinate()
+    ?: error(
+        "Malformed Coordinate: could not parse coordinate string '$this'." +
+            "Expected format: '<NUMBER>,<NUMBER>'!",
+    )
 
 // fun MutableSharingProvider.prepareVehicles(count: Int, mode: Mode = this.mode): Set<SharingVehicle> {
 //    return (numberOfVehicles until numberOfVehicles + count).map {
@@ -162,20 +156,19 @@ fun String.parseCoordinate(): KCoordinate =
 //    }.toSet()
 // }
 
-fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<StandardZone> where C : LoadSharingProvidersContext {
-    return row(column).split(",").map { id ->
+fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<StandardZone> where C : LoadSharingProvidersContext =
+    row(column).split(",").map { id ->
 
         id.toLongOrNull()?.let {
             getZone(it)
         } ?: error(
             "Could not parse ZoneId $id (expected value of type Long) " +
-                "in column $column row${row.index} of ${row.source}: ${row(column)}!"
+                "in column $column row${row.index} of ${row.source}: ${row(column)}!",
         )
     }.toSet()
-}
 
 fun <C> C.getZone(id: Long): StandardZone where C : LoadSharingProvidersContext = requireNotNull(
-    this.zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
+    this.zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()],
 ) {
     "Referenced ZoneId $id could not be found in zoneRepo:" +
         " ${zoneRepository.elements.map { it.id }.toList()}"

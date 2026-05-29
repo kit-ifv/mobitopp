@@ -4,14 +4,15 @@ import me.tongfei.progressbar.ProgressBar
 import me.tongfei.progressbar.ProgressBarBuilder
 import me.tongfei.progressbar.ProgressBarStyle
 
-private var MUTE_PROGRESSBAR = false
+private var muteProgressbar = false
+// TODO check if still needed
 
 fun muteProgressBars() {
-    MUTE_PROGRESSBAR = true
+    muteProgressbar = true
 }
 
 fun unmuteProgressBars() {
-    MUTE_PROGRESSBAR = false
+    muteProgressbar = false
 }
 
 /** Add a progress bar logging the progress of the given iterator on the console.
@@ -22,43 +23,27 @@ fun unmuteProgressBars() {
 fun <I, T> I.addProgressBar(
     label: String,
     expectedCount: Long,
-    visible: Boolean = true
-): Iterator<T> where I : Iterator<T> {
-    return if (!MUTE_PROGRESSBAR and visible) {
-        val pbb = defaultProgressBarBuilder(label, expectedCount)
-        ProgressBar.wrap(this, pbb)
-    } else {
-        this
-    }
+    visible: Boolean = true,
+): Iterator<T> where I : Iterator<T> = if (!muteProgressbar and visible) {
+    val pbb = defaultProgressBarBuilder(label, expectedCount)
+    ProgressBar.wrap(this, pbb)
+} else {
+    this
 }
-fun standardProgressBar(
-    label: String,
-    expectedCount: Number
-) = defaultProgressBarBuilder(label, expectedCount).build()
+fun standardProgressBar(label: String, expectedCount: Number) = defaultProgressBarBuilder(label, expectedCount).build()
 fun <T> Collection<T>.addProgressBar(label: String, visible: Boolean = true) = this.addProgressBar(label, size, visible)
-fun <T> Iterable<T>.addProgressBar(
-    label: String,
-    expectedCount: Int,
-    visible: Boolean = true
-) = this.addProgressBar(label, expectedCount.toLong(), visible)
-fun <T> Iterable<T>.addProgressBar(
-    label: String,
-    expectedCount: Long,
-    visible: Boolean = true
-): Iterable<T> {
-    return if (!MUTE_PROGRESSBAR && visible) {
+fun <T> Iterable<T>.addProgressBar(label: String, expectedCount: Int, visible: Boolean = true) =
+    this.addProgressBar(label, expectedCount.toLong(), visible)
+fun <T> Iterable<T>.addProgressBar(label: String, expectedCount: Long, visible: Boolean = true): Iterable<T> =
+    if (!muteProgressbar && visible) {
         val pbb = defaultProgressBarBuilder(label, expectedCount)
         ProgressBar.wrap(this, pbb)
     } else {
         this
     }
-}
 
 @Suppress("MagicNumber")
-fun defaultProgressBarBuilder(
-    label: String,
-    expectedCount: Number
-): ProgressBarBuilder = ProgressBarBuilder()
+fun defaultProgressBarBuilder(label: String, expectedCount: Number): ProgressBarBuilder = ProgressBarBuilder()
     .setUpdateIntervalMillis(250)
     .setMaxRenderedLength(120)
     .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)

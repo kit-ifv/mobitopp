@@ -29,8 +29,8 @@ class TripTest {
             trip,
             listOf(
                 Leg.Companion.fromDuration(firstActivity.endTime, 10.minutes, START, THIRD),
-                Leg.Companion.fromDuration(firstActivity.endTime + 20.minutes, 10.minutes, THIRD, OTHER)
-            )
+                Leg.Companion.fromDuration(firstActivity.endTime + 20.minutes, 10.minutes, THIRD, OTHER),
+            ),
         )
         assertTrue(trip.isConsistent())
     }

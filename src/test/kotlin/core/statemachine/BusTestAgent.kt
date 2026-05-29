@@ -24,10 +24,11 @@ class BusAgent(
     val departure: AbsoluteTime,
     private val route: List<Station>,
     private val tripDuration: Map<Station, Duration>,
-) : StateBasedAgent<BusMessage>, Bus {
+) : StateBasedAgent<BusMessage>,
+    Bus {
     override val stateMachine = busStateMachine.create(
         AbsoluteTime.Companion.START,
-        this
+        this,
     ) // TODO move factory to constructor?
 
     private var index = 0
@@ -126,39 +127,15 @@ class ConfirmLeaveMessage : BusMessage
 
 val busStateMachine = stateMachine<BusAgent>("BusStateMachine") {
 
-    start(
-        StartBus,
-        ::startBus
-    ) { send ->
+    start(StartBus,::startBus) { send ->
         send(arrive(), bus, bus.departure)
         //
     }.transitionOn(Arrive) { message, send ->
         deboarding()
     }
 
-    transState(
-        Deboarding
-    ) { send ->
-        val deboarding = if (bus.hasNext()) {
-            bus.removeDeboardingPassengers()
-        } else {
-            bus.removeAllPassengers()
-        }
-
-        deboarding.forEach {
-            send.now(deboardBus(bus.currentStation()), it)
-            deboardingCount++
-        }
-        //
-    }.next { send ->
-        if (bus.hasNext()) {
-            boarding()
-        } else {
-            leavingStation()
-        }
-    }
-
     state(Boarding) { send ->
+        // on state enter
         send.now(startBoarding(), bus.currentStation())
         send(leave(), self, plannedLeaveTime)
         //
@@ -179,6 +156,29 @@ val busStateMachine = stateMachine<BusAgent>("BusStateMachine") {
             null
         }
     }
+
+    transState(
+        Deboarding,
+    ) { send ->
+        val deboarding = if (bus.hasNext()) {
+            bus.removeDeboardingPassengers()
+        } else {
+            bus.removeAllPassengers()
+        }
+
+        deboarding.forEach {
+            send.now(deboardBus(bus.currentStation()), it)
+            deboardingCount++
+        }
+        //
+    }.next { send ->
+        if (bus.hasNext()) {
+            boarding()
+        } else {
+            leavingStation()
+        }
+    }
+
 
     state(LeavingStation) { send ->
         send.now(stopBoarding(), bus.currentStation())
@@ -210,7 +210,7 @@ val busStateMachine = stateMachine<BusAgent>("BusStateMachine") {
     finState(FinishedBus) {
         if (bus.passengerCount > 0) {
             println(
-                "    WARNING: $bus still has ${bus.passengerCount} passengers on board when going into finished state!"
+                "    WARNING: $bus still has ${bus.passengerCount} passengers on board when going into finished state!",
             )
         }
     }

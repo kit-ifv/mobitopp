@@ -61,14 +61,12 @@ class ActConfig {
     var latestEndTime: Number = startTime.toInt() / 24 + 24
     lateinit var location2: StandardLocation
 
-    fun toActivity(): Activity {
-        return Activity.fromDuration(
-            location,
-            startTime.toDouble().hours.sinceStart,
-            duration.toDouble().hours,
-            earliestStartTime.toDouble().hours.sinceStart,
-            latestEndTime.toDouble().hours.sinceStart,
-            type = activityType
-        )
-    }
+    fun toActivity(): Activity = Activity.fromDuration(
+        location,
+        startTime.toDouble().hours.sinceStart,
+        duration.toDouble().hours,
+        earliestStartTime.toDouble().hours.sinceStart,
+        latestEndTime.toDouble().hours.sinceStart,
+        type = activityType,
+    )
 }

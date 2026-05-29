@@ -13,7 +13,7 @@ class CoreCSVConfigParsingTest {
     val instantiatedWithRepos = CoreCSVConfig(
         dataRepo = Path("testD"),
         zoneRepo = Path("testZ"),
-        householdCSV = Path("testH")
+        householdCSV = Path("testH"),
     )
     val instatiatedWithSingleParam = CoreCSVConfig(
         personCSV = Path("a"),

@@ -17,6 +17,6 @@ data class ChoiceModelModes(
 ) {
     val options = setOf(
         car, passenger, bike, pedestrian, publicTransport, bikeSharing, ridePooling, carSharingStation,
-        carSharingFree, taxi, eScooter
+        carSharingFree, taxi, eScooter,
     )
 }

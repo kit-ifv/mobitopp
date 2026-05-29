@@ -18,9 +18,7 @@ interface MapCsvParser<K, V> : CsvParser<Pair<K, V>> {
      * @param path the path of the csv file to be parsed
      * @return a map containing the parsed values by key
      */
-    fun parseMap(path: String, separator: String = SEMICOLON): Map<K, V> {
-        return parseMap(Path(path), separator)
-    }
+    fun parseMap(path: String, separator: String = SEMICOLON): Map<K, V> = parseMap(Path(path), separator)
 
     /**
      * Parse the given csv [Path] as map.
@@ -51,12 +49,8 @@ interface MapCsvParser<K, V> : CsvParser<Pair<K, V>> {
  * @constructor creates a [DefaultMapCsvParser] using the given [CsvParser]
  * @property pairParser the [CsvParser] used to parse key-value [Pair]s
  */
-open class DefaultMapCsvParser<K, V>(
-    protected val pairParser: CsvParser<Pair<K, V>>
-) : MapCsvParser<K, V> {
-    override fun parseMap(csv: CsvReader): Map<K, V> {
-        return parse(csv).toMap()
-    }
+open class DefaultMapCsvParser<K, V>(protected val pairParser: CsvParser<Pair<K, V>>) : MapCsvParser<K, V> {
+    override fun parseMap(csv: CsvReader): Map<K, V> = parse(csv).toMap()
 
     override fun parse(csv: CsvReader) = pairParser.parse(csv)
 }
@@ -72,18 +66,14 @@ fun <P, K, V> P.toMapParser() where P : CsvParser<Pair<K, V>> = DefaultMapCsvPar
  * @constructor creates a [DefaultMapCsvParser] using the given [CsvParser]
  * @property pairParser the [CsvParser] used to parse key-value [Pair]s
  */
-open class MapMergeCsvParser<K, V>(
-    protected val pairParser: CsvParser<Pair<K, V>>
-) : MapCsvParser<K, List<V>> {
-    override fun parseMap(csv: CsvReader): Map<K, List<V>> {
-        return pairParser.parse(csv).groupBy(keySelector = { it.first }, valueTransform = { it.second })
-    }
+open class MapMergeCsvParser<K, V>(protected val pairParser: CsvParser<Pair<K, V>>) : MapCsvParser<K, List<V>> {
+    override fun parseMap(csv: CsvReader): Map<K, List<V>> = pairParser.parse(csv).groupBy(keySelector = {
+        it.first
+    }, valueTransform = { it.second })
 
-    override fun parse(csv: CsvReader): Sequence<Pair<K, List<V>>> {
-        throw UnsupportedOperationException(
-            "MapMergeCsvParser#parse(CsvReader) is not supported and should not be called!"
-        )
-    }
+    override fun parse(csv: CsvReader): Sequence<Pair<K, List<V>>> = throw UnsupportedOperationException(
+        "MapMergeCsvParser#parse(CsvReader) is not supported and should not be called!",
+    )
 }
 
 fun <P, K, V> P.toMapMergeParser() where P : CsvParser<Pair<K, V>> = MapMergeCsvParser(this)
@@ -96,10 +86,8 @@ fun <P, K, V> P.toMapMergeParser() where P : CsvParser<Pair<K, V>> = MapMergeCsv
  * @property keyParser a [CsvParser] for the keys
  * @property valueParser a [CsvParser] for the values
  */
-class TwoColumnParser<K, V>(
-    protected val keyParser: RowCsvParser<K>,
-    protected val valueParser: RowCsvParser<V>,
-) : RowCsvParser<Pair<K, V>> {
+class TwoColumnParser<K, V>(protected val keyParser: RowCsvParser<K>, protected val valueParser: RowCsvParser<V>) :
+    RowCsvParser<Pair<K, V>> {
     override fun parse(row: Row): Pair<K, V>? {
         val key: K? = keyParser.parse(row)
         val value: V? = valueParser.parse(row)

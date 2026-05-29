@@ -16,10 +16,7 @@ fun <C : Context> C.addPlot(vararg subDirs: String = arrayOf("plots"), scope: ()
     AddPlotStep(scope(), dir)
 }
 
-data class AddPlotStep(
-    private val plotter: Plotter<*, *, *>,
-    val resultDir: Path
-) : ModelStep {
+data class AddPlotStep(private val plotter: Plotter<*, *, *>, val resultDir: Path) : ModelStep {
 
     override val name = "Add Plot ${plotter.name}"
 

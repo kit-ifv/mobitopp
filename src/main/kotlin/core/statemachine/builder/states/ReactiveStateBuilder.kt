@@ -26,10 +26,9 @@ import core.statemachine.sendScope
  * @property type The type of state this builder creates
  * @property onEnter Function to execute when entering this state
  */
-internal class ReactiveStateBuilder<D> (
-    override val type: AnyStateType,
-    private val onEnter: OnEnter<D>,
-) : StateBuilder<D>, MessageResponseBuilder<D> where D : StateData {
+internal class ReactiveStateBuilder<D>(override val type: AnyStateType, private val onEnter: OnEnter<D>) :
+    StateBuilder<D>,
+    MessageResponseBuilder<D> where D : StateData {
 
     /**
      * Map of message types to their handlers.
@@ -53,7 +52,7 @@ internal class ReactiveStateBuilder<D> (
         onEnterScope = onEnter,
         messageDispatcher = onMessageDispatch,
         fallbackTransition = fallbackTransition,
-        stateResolver = resolver
+        stateResolver = resolver,
     )
 
     /**
@@ -67,7 +66,7 @@ internal class ReactiveStateBuilder<D> (
      */
     override fun <T : Message> transitionOn(
         message: MessageType<T>,
-        onMessage: TransitionOnMessage<D, T>
+        onMessage: TransitionOnMessage<D, T>,
     ): MessageResponseBuilder<D> {
         require(message !in onMessageDispatch) {
             "Reaction to message $message already defined! "
@@ -190,9 +189,8 @@ private class ReactiveStateBehavior<D : StateData>(
      * @return This method always throws an exception
      * @throws UnsupportedOperationException always, as interrupt is not implemented for reactive states
      */
-    override fun interrupt(data: D): Events {
+    override fun interrupt(data: D): Events =
         throw UnsupportedOperationException("interrupt should not be called on ReactiveStates")
-    }
 }
 
 /**

@@ -46,10 +46,7 @@ class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAc
  * @property future The planned Actions.
  *
  */
-class Schedule(
-    private val model: TrackableModel,
-
-) : PlanView {
+class Schedule(private val model: TrackableModel) : PlanView {
     constructor(separablePlanModel: SeparablePlanModel) : this(TrackableModel(separablePlanModel))
 
     override val dispatcher: SingularDispatcher = SingularDispatcher()
@@ -95,18 +92,16 @@ class Schedule(
      * in a sense, it steps through the points of the schedule. Note that the time is updated based on the end time, so
      * no actions later than the step can be added to the plan.
      */
-    fun step(): StandardLocation {
-        return present?.let {
-            currentTime = it.endTime
-            alterableHistory.add(it.original)
-            present = null
-            pollFirst()
-            it.endLocation
-        } ?: run {
-            val target = firstAction()
-            target?.setNewAction() ?: { println("No Actions remaining in the plan") }
-            target?.startLocation ?: throw NoSuchElementException("No Location can be found")
-        }
+    fun step(): StandardLocation = present?.let {
+        currentTime = it.endTime
+        alterableHistory.add(it.original)
+        present = null
+        pollFirst()
+        it.endLocation
+    } ?: run {
+        val target = firstAction()
+        target?.setNewAction() ?: { println("No Actions remaining in the plan") }
+        target?.startLocation ?: throw NoSuchElementException("No Location can be found")
     }
 
     private fun LinkedAction.setNewAction() {
@@ -138,7 +133,7 @@ class Schedule(
 
         last?.let {
             super.add(
-                it.createLegTo(activity, MODEUNKOWN)
+                it.createLegTo(activity, MODEUNKOWN),
             )
         }
         return super.add(activity)

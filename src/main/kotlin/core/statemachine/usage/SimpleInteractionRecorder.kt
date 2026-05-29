@@ -51,6 +51,7 @@ class SimpleInteractionRecorder : AgentInteractions {
                 is Action.ChangeState ->
                     it.instance in visited &&
                         (start <= it.time && end?.let { e -> it.time <= e } ?: true)
+
                 is Action.SendMessage ->
                     it.from in visited &&
                         it.to in visited &&
@@ -63,24 +64,23 @@ class SimpleInteractionRecorder : AgentInteractions {
         instance: String,
         level: Int,
         maxDepth: Int,
-        visited: MutableList<String>
-    ): List<Action> =
-        if (level > maxDepth) {
-            emptyList()
-        } else if (level == maxDepth) {
-            visited.add(instance)
-            actionsByInstance[instance].orEmpty().toList()
-        } else {
-            visited.add(instance)
-            val (relations, actions) = getActionsAndRelationsOf(instance)
-            val relatedActions = relations.filter {
-                it !in visited
-            }.flatMap {
-                getTransitiveRelatedActionsOf(it, level + 1, maxDepth, visited)
-            }
-
-            actions + relatedActions
+        visited: MutableList<String>,
+    ): List<Action> = if (level > maxDepth) {
+        emptyList()
+    } else if (level == maxDepth) {
+        visited.add(instance)
+        actionsByInstance[instance].orEmpty().toList()
+    } else {
+        visited.add(instance)
+        val (relations, actions) = getActionsAndRelationsOf(instance)
+        val relatedActions = relations.filter {
+            it !in visited
+        }.flatMap {
+            getTransitiveRelatedActionsOf(it, level + 1, maxDepth, visited)
         }
+
+        actions + relatedActions
+    }
 
     private fun getActionsAndRelationsOf(instance: String): Pair<List<String>, List<Action>> {
         val relations = mutableListOf<String>()
@@ -90,6 +90,7 @@ class SimpleInteractionRecorder : AgentInteractions {
                     relations.add(it.from)
                     relations.add(it.to)
                 }
+
                 else -> Unit
             }
         }
@@ -108,11 +109,7 @@ class SimpleInteractionRecorder : AgentInteractions {
         registerResponseActions(response, instance)
     }
 
-    override fun registerTransition(
-        currentState: State,
-        nextState: State?,
-        response: Events
-    ) {
+    override fun registerTransition(currentState: State, nextState: State?, response: Events) {
         val instance = currentState.agent.instanceName
         registerResponseActions(response, instance)
 
@@ -126,36 +123,33 @@ class SimpleInteractionRecorder : AgentInteractions {
         }
     }
 
-    private fun SimpleInteractionRecorder.registerResponseActions(
-        response: Events,
-        instance: String
-    ) = response.forEach { event ->
-        val sendAction = Action.SendMessage(
-            instance,
-            event.sendTime,
-            event.receiver.instanceName,
-            event.receiveTime,
-            event.content.label
-        )
+    private fun SimpleInteractionRecorder.registerResponseActions(response: Events, instance: String) =
+        response.forEach { event ->
+            val sendAction = Action.SendMessage(
+                instance,
+                event.sendTime,
+                event.receiver.instanceName,
+                event.receiveTime,
+                event.content.label,
+            )
 
-        requireNotNull(sendAction)
+            requireNotNull(sendAction)
 
-        synchronized(instance) {
-            synchronized(sendAction.to) {
-                getActionListOf(instance).add(sendAction)
-                getActionListOf(sendAction.to).add(sendAction)
-            }
-        }
-    }
-
-    private fun getActionListOf(instance: String): ConcurrentLinkedDeque<Action> =
-        synchronized(this) {
             synchronized(instance) {
-                actionsByInstance.getOrPut(instance) {
-                    ConcurrentLinkedDeque<Action>()
+                synchronized(sendAction.to) {
+                    getActionListOf(instance).add(sendAction)
+                    getActionListOf(sendAction.to).add(sendAction)
                 }
             }
         }
+
+    private fun getActionListOf(instance: String): ConcurrentLinkedDeque<Action> = synchronized(this) {
+        synchronized(instance) {
+            actionsByInstance.getOrPut(instance) {
+                ConcurrentLinkedDeque<Action>()
+            }
+        }
+    }
 
     private val State.label get() = this.name.replace("state", "", ignoreCase = true)
 
@@ -170,11 +164,8 @@ sealed class Action {
     abstract val time: AbsoluteTime
     abstract val instance: String
 
-    data class ChangeState(
-        override val time: AbsoluteTime,
-        override val instance: String,
-        val newState: String,
-    ) : Action()
+    data class ChangeState(override val time: AbsoluteTime, override val instance: String, val newState: String) :
+        Action()
 
     data class SendMessage(
         val from: String,

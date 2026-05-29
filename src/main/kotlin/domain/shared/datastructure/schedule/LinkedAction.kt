@@ -52,9 +52,7 @@ abstract class LinkedAction : Action {
 
     fun requiresPullForward(target: AbsoluteTime) = startTime < target
 
-    override fun toString(): String {
-        return "[Linked] $original"
-    }
+    override fun toString(): String = "[Linked] $original"
 }
 
 /**
@@ -66,8 +64,9 @@ abstract class LinkedAction : Action {
 class LinkedActivity(
     override val original: Activity,
     override var previous: LinkedAction? = null,
-    override var next: LinkedAction? = null
-) : LinkedAction(), Activity by original {
+    override var next: LinkedAction? = null,
+) : LinkedAction(),
+    Activity by original {
 
     init {
         require(original !is LinkedActivity)
@@ -148,17 +147,11 @@ class LinkedActivity(
             original.type = value
         }
 
-    override fun equals(other: Any?): Boolean {
-        return original == other
-    }
+    override fun equals(other: Any?): Boolean = original == other
 
-    override fun hashCode(): Int {
-        return original.hashCode()
-    }
+    override fun hashCode(): Int = original.hashCode()
 
-    override fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedActivity {
-        return this
-    }
+    override fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedActivity = this
 }
 
 /**
@@ -171,8 +164,9 @@ class LinkedLeg(
     override val original: Leg,
     override var previous: LinkedAction? = null,
 
-    override var next: LinkedAction? = null
-) : LinkedAction(), Leg by original {
+    override var next: LinkedAction? = null,
+) : LinkedAction(),
+    Leg by original {
     override var startLocation: StandardLocation
         get() = original.startLocation
         set(value) {
@@ -224,15 +218,9 @@ class LinkedLeg(
             original.latestEndTime = value
         }
 
-    override fun equals(other: Any?): Boolean {
-        return original == other
-    }
+    override fun equals(other: Any?): Boolean = original == other
 
-    override fun hashCode(): Int {
-        return original.hashCode()
-    }
+    override fun hashCode(): Int = original.hashCode()
 
-    override fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedLeg {
-        return this
-    }
+    override fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedLeg = this
 }

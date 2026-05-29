@@ -54,7 +54,7 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
         message: Message,
         nextState: State?,
         timeSinceEnter: Duration,
-        response: Events
+        response: Events,
     ) {
         val transitionTarget = (nextState ?: currentState).name
         val stayInState = nextState == null
@@ -67,7 +67,7 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
             transitionKey,
             transitionTimeSinceEnter,
             response,
-            message
+            message,
         )
 
         interactionRecorder.registerTransition(currentState, nextState, response)
@@ -78,7 +78,7 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
         currentState: State,
         nextState: State?,
         timeSinceEnter: Duration,
-        response: Events
+        response: Events,
     ) {
         if (response.isEmpty() && nextState == null) {
             return
@@ -95,7 +95,7 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
             transitionKey,
             transitionTimeSinceEnter,
             response,
-            null
+            null,
         )
 
         interactionRecorder.registerTransition(currentState, nextState, response)
@@ -132,10 +132,7 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
 /**
  * An implementation of [StateMachineUsage] for recording the usage of the state given by [name].
  */
-class StateMachineUsageRecorder(
-    override val name: String,
-    override val initialState: String
-) : StateMachineUsage {
+class StateMachineUsageRecorder(override val name: String, override val initialState: String) : StateMachineUsage {
     override val instanceCount get() = count
     private var count: Int = 0
 
@@ -158,7 +155,7 @@ class StateMachineUsageRecorder(
     fun registerStateEnter(name: String) = synchronized(this) {
         states.putIfAbsent(
             name,
-            StateUsageRecorder(name)
+            StateUsageRecorder(name),
         )
     }
 
@@ -172,7 +169,7 @@ class StateMachineUsageRecorder(
 }
 
 class StateUsageRecorder( // TODO add triggerer information later for sequence diagram plots
-    override val name: String
+    override val name: String,
 ) : StateUsage {
     override val messagesByTrigger: Map<String, SendMessageUsageRecorder> get() = messages
     private val messages = mutableMapOf<String, SendMessageUsageRecorder>()
@@ -194,9 +191,7 @@ class StateUsageRecorder( // TODO add triggerer information later for sequence d
     }
 }
 
-class SendMessageUsageRecorder(
-    override val trigger: String
-) : SendMessageUsage {
+class SendMessageUsageRecorder(override val trigger: String) : SendMessageUsage {
     override val messageCount: Map<String, Int> get() = count
     private val count = mutableMapOf<String, Int>()
 
@@ -205,9 +200,7 @@ class SendMessageUsageRecorder(
     }
 }
 
-class TransitionUsageRecorder(
-    override val key: TransitionKey,
-) : TransitionUsage {
+class TransitionUsageRecorder(override val key: TransitionKey) : TransitionUsage {
     override val count get() = occurrences
     private var occurrences = 0
 

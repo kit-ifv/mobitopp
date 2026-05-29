@@ -1,11 +1,11 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package domain.synthesis.fixedDestinations
 
 import BIELEFELD
-import TestZone
 import core.datastructure.kdtree.WithMetric
 import core.datastructure.kdtree.discardMetric
 import domain.shared.enums.LegacyActivityType
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
@@ -33,13 +33,11 @@ class BandwidthLocatorTest : SynthesisTest() {
     private val myActivityType = LegacyActivityType.LEISURE_SIGHTSEEING
     private lateinit var attractivenessModel: ControllableAttractiveness
 
-    private fun StandardZone.spawnUTM(eOffset: Number, nOffset: Number): StandardLocation {
-        return StandardLocation(
-            Location.utm(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble()).position,
-            this,
-            RoadAccess.INVALID
-        )
-    }
+    private fun StandardZone.spawnUTM(eOffset: Number, nOffset: Number): StandardLocation = StandardLocation(
+        Location.utm(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble()).position,
+        this,
+        RoadAccess.INVALID,
+    )
 
     @BeforeTest
     fun setup() {
@@ -80,18 +78,18 @@ class BandwidthLocatorTest : SynthesisTest() {
         val parameters = BandwidthParameters(
             poleRadius = 1.5.kilometers,
             bDistance = 1.0,
-            aDistance = 1.0
+            aDistance = 1.0,
         )
         // To avoid randomness, we overwrite the selection function to pick the maximum utility instead.
         val model = standardBandwidthModel.build(parameters).copy(
-            selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key }
+            selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key },
         )
         val locator = BandwidthLocator<Attrs>(
             listOf(loc1, loc2, loc3, loc4, loc5, loc6, loc7),
             attractivenessModel,
             myActivityType,
             parameters = parameters,
-            model = model
+            model = model,
         )
 
         val output = locator.validTargetsForAgent(person).discardMetric()
@@ -103,10 +101,10 @@ class BandwidthLocatorTest : SynthesisTest() {
         val otherParameters = BandwidthParameters(
             poleRadius = 0.kilometers,
             bDistance = 1.0,
-            aDistance = 1.0
+            aDistance = 1.0,
         )
         val model2 = standardBandwidthModel.build(otherParameters).copy(
-            selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key }
+            selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key },
         )
 
         locator.parameters = otherParameters
@@ -121,12 +119,12 @@ class BandwidthLocatorTest : SynthesisTest() {
         val parameters = BandwidthParameters(
             poleRadius = 2.5.kilometers,
             bDistance = 1.0,
-            aDistance = 1.0
+            aDistance = 1.0,
         )
         val model = standardBandwidthModel.build(parameters)
         val sit1 = WithMetric(
             testZone.spawnFakeLoc(),
-            1.kilometers
+            1.kilometers,
         )
         val sit2 = WithMetric(testZone.spawnFakeLoc(), 2.kilometers)
         val sit3 = WithMetric(testZone.spawnFakeLoc(), 3.kilometers)
@@ -139,7 +137,7 @@ class BandwidthLocatorTest : SynthesisTest() {
         val otherParameters = BandwidthParameters(
             poleRadius = 2.5.kilometers,
             bDistance = 1.5,
-            aDistance = 2.0
+            aDistance = 2.0,
         )
         val model2 = standardBandwidthModel.build(otherParameters)
         context(LocationAlternative(attractivenessModel, myActivityType)) {

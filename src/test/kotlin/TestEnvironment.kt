@@ -4,7 +4,6 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
@@ -53,26 +52,28 @@ import kotlin.time.toDuration
 val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
 val ITZEHOE = WGS84Coordinate.decimalDegree(53.925032, 9.515585)
 val SCHWEINFURT = WGS84Coordinate.decimalDegree(50.049994, 10.233302)
-val TEST_ZONE = StandardZone(zoneId = 42, BIELEFELD.toPoint(), ZoneAttributes(regionType = RegioStaR17.URBAN_AREA_METRO))
+val TEST_ZONE =
+    StandardZone(zoneId = 42, BIELEFELD.toPoint(), ZoneAttributes(regionType = RegioStaR17.URBAN_AREA_METRO))
 
-class TestZone(
-    override val id: ZoneId,
-    override val attributes: HasRegionType
-) : Zone<HasRegionType> {
+class TestZone(override val id: ZoneId, override val attributes: HasRegionType) : Zone<HasRegionType> {
     private class AttributeImpl(override val regionType: RegionType) : HasRegionType
-    constructor(zoneId: Number, regionType: RegionType = RegioStaR17.URBAN_AREA_METRO) : this(ZoneId(zoneId.toLong()), AttributeImpl(regionType))
+    constructor(zoneId: Number, regionType: RegionType = RegioStaR17.URBAN_AREA_METRO) : this(
+        ZoneId(zoneId.toLong()),
+        AttributeImpl(regionType),
+    )
 }
-fun generateZones(numElements: Int): List<StandardZone> {
-    return (0..<numElements).map { StandardZone(it, BIELEFELD.toPoint(), ZoneAttributes(
-        regionType = RegioStaR17.URBAN_AREA_METRO
-    )) }
+fun generateZones(numElements: Int): List<StandardZone> = (0..<numElements).map {
+    StandardZone(
+        it,
+        BIELEFELD.toPoint(),
+        ZoneAttributes(
+            regionType = RegioStaR17.URBAN_AREA_METRO,
+        ),
+    )
 }
 
-fun StandardZone.generateSharingStation(
-    sharingProvider: MutableSharingProvider,
-    vehicles: Int,
-): SharingStation {
-    return MutableSharingStation(
+fun StandardZone.generateSharingStation(sharingProvider: MutableSharingProvider, vehicles: Int): SharingStation =
+    MutableSharingStation(
         SharingStationId(sharingProvider.numberOfVehicles.toLong()),
         sharingProvider,
     ) {
@@ -82,22 +83,19 @@ fun StandardZone.generateSharingStation(
         this.zonesByFoot.add(this@generateSharingStation)
         this.initialVehicleCount = vehicles
     }
-}
 
-//fun generateZoneLocations(numElements: Int): List<StandardLocation> {
+// fun generateZoneLocations(numElements: Int): List<StandardLocation> {
 //    return (0..<numElements).map {
 //        val testZone = TestZone(it.toLong())
 //        StandardLocation(testZone.centroid.position, zone = testZone, roadAccess = RoadAccess.INVALID)
 //    }
-//}
+// }
 
-fun Zone<HasRegionType>.point(wgs84coord: WGS84Coordinate): StandardLocation {
-    return StandardLocation(wgs84coord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)
-}
+fun Zone<HasRegionType>.point(wgs84coord: WGS84Coordinate): StandardLocation =
+    StandardLocation(wgs84coord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)
 
-fun Long.toRoadPositionInZone(zone: Zone<HasRegionType>): StandardLocation {
-    return StandardLocation(BIELEFELD.toPoint(), zone, RoadAccess(this, 0.5.share()))
-}
+fun Long.toRoadPositionInZone(zone: Zone<HasRegionType>): StandardLocation =
+    StandardLocation(BIELEFELD.toPoint(), zone, RoadAccess(this, 0.5.share()))
 
 val testHousehold = TEST_ZONE.generateHousehold(1) {
     householdNumber = 1
@@ -116,7 +114,7 @@ data class PersonSpawnLimits(
 
 val spawnDrivers = PersonSpawnLimits(
     hasLicense = listOf(true),
-    age = 18..100
+    age = 18..100,
 )
 
 class HouseholdSpawnLimits(
@@ -135,28 +133,26 @@ fun Zone<HasRegionType>.generateHouseholds(
     memberships: MutableList<SharingProvider> = mutableListOf(),
     drtMemberships: MutableList<DrtProvider>,
     personScope: (MutablePerson) -> Unit = {},
-): List<Household> {
-    return (0..<num).map {
-        val h = generateHousehold(it + this@generateHouseholds.id.value * 100) {
-            incomePerMonth = 0.euros
-            economicStatus = spawnLimits.economicStatus.random(random)
-            // TODO we could use this.random, since household is a stochastic actor
-            householdNumber = -1
-        }
-        repeat(spawnLimits.numCars.random(random)) {
-            h.spawnCar()
-        }
-
-        h.generatePersons(
-            spawnLimits.numPersons.random(random),
-            random,
-            personLimits,
-            memberships,
-            drtMemberships,
-            personScope
-        )
-        h
+): List<Household> = (0..<num).map {
+    val h = generateHousehold(it + this@generateHouseholds.id.value * 100) {
+        incomePerMonth = 0.euros
+        economicStatus = spawnLimits.economicStatus.random(random)
+        // TODO we could use this.random, since household is a stochastic actor
+        householdNumber = -1
     }
+    repeat(spawnLimits.numCars.random(random)) {
+        h.spawnCar()
+    }
+
+    h.generatePersons(
+        spawnLimits.numPersons.random(random),
+        random,
+        personLimits,
+        memberships,
+        drtMemberships,
+        personScope,
+    )
+    h
 }
 
 @Suppress("LongParameterList")
@@ -168,18 +164,16 @@ fun Collection<Zone<HasRegionType>>.generateHouseholds(
     memberships: MutableList<SharingProvider> = mutableListOf(),
     drtMemberships: MutableList<DrtProvider> = mutableListOf(),
     personScope: (MutablePerson) -> Unit = {},
-): List<Household> {
-    return flatMap {
-        it.generateHouseholds(
-            num,
-            random,
-            spawnLimits,
-            personLimits,
-            memberships,
-            drtMemberships,
-            personScope
-        )
-    }
+): List<Household> = flatMap {
+    it.generateHouseholds(
+        num,
+        random,
+        spawnLimits,
+        personLimits,
+        memberships,
+        drtMemberships,
+        personScope,
+    )
 }
 
 @Suppress("LongParameterList")
@@ -190,29 +184,24 @@ fun MutableHousehold.generatePersons(
     memberships: List<SharingProvider>,
     drtMemberships: MutableList<DrtProvider>,
     personScope: (MutablePerson) -> Unit = {},
-): List<MutablePerson> {
-    return (0..<num).map {
-        generateAndAddPerson(it.toLong() + this@generatePersons.id.value * 100) {
-            age = spawnLimits.age.random(random)
-            employment = spawnLimits.employment.random(random)
-            sex = spawnLimits.sex.random(random)
-            graduation = spawnLimits.graduation.random(random)
-            income = spawnLimits.income.random(random).euros
-            hasBike = spawnLimits.hasBike.random(random)
-            hasCommuterTicket = spawnLimits.hasCommuterTicket.random(random)
-            hasLicense = spawnLimits.hasLicense.random(random)
-            sharingMemberships.addAll(memberships)
-            this.drtMemberships.addAll(drtMemberships)
+): List<MutablePerson> = (0..<num).map {
+    generateAndAddPerson(it.toLong() + this@generatePersons.id.value * 100) {
+        age = spawnLimits.age.random(random)
+        employment = spawnLimits.employment.random(random)
+        sex = spawnLimits.sex.random(random)
+        graduation = spawnLimits.graduation.random(random)
+        income = spawnLimits.income.random(random).euros
+        hasBike = spawnLimits.hasBike.random(random)
+        hasCommuterTicket = spawnLimits.hasCommuterTicket.random(random)
+        hasLicense = spawnLimits.hasLicense.random(random)
+        sharingMemberships.addAll(memberships)
+        this.drtMemberships.addAll(drtMemberships)
 
-            personScope(this)
-        }
+        personScope(this)
     }
 }
 
-fun MutablePerson.generateActivitySchedule(
-    num: Int,
-    random: Random,
-) {
+fun MutablePerson.generateActivitySchedule(num: Int, random: Random) {
     val range = 0.days.sinceStart..1.days.sinceStart
     val targets = List(num) { range.random(random) }.sorted().distinct()
 
@@ -221,7 +210,7 @@ fun MutablePerson.generateActivitySchedule(
         MutablePlannedActivity(
             id = ActivityId(-1L),
             this,
-            seed = 42L
+            seed = 42L,
         ) {
             activityType = LegacyActivityType.entries.random(random)
             observedTripDuration = 0.minutes
@@ -247,34 +236,28 @@ fun Collection<Zone<HasRegionType>>.generateActivities(
     num: Int,
     random: Random = Random(1),
     spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits(),
-): List<Activity> {
-    return (0..<num).map {
-        RawActivity(
-            this.random(random).point(BIELEFELD),
-            spawnLimits.startTime.random(random).toAbsoluteTime(),
-            spawnLimits.endTime.random(random).toAbsoluteTime(),
-            type = spawnLimits.types.random(random)
+): List<Activity> = (0..<num).map {
+    RawActivity(
+        this.random(random).point(BIELEFELD),
+        spawnLimits.startTime.random(random).toAbsoluteTime(),
+        spawnLimits.endTime.random(random).toAbsoluteTime(),
+        type = spawnLimits.types.random(random),
 
-        )
-    }
+    )
 }
 
-fun Int.toAbsoluteTime(): AbsoluteTime {
-    return AbsoluteTime(toDuration(DurationUnit.HOURS))
-}
+fun Int.toAbsoluteTime(): AbsoluteTime = AbsoluteTime(toDuration(DurationUnit.HOURS))
 
-fun MutableHousehold.spawnCar(lambda: MutablePrivateCar.() -> Unit = {}): PrivateCar {
-    return MutablePrivateCar(
-        id = CarId(cars.size + 1L),
-        owner = this
-    ) {
-        segment = CarSegment.MIDSIZE
-        seats = 4
-        val engineType = EngineType.COMBUSTION
-        engine = CarEngineStatistics().buildEngine(segment, engineType)
-        location = owner.location
-    }.apply(lambda)
-}
+fun MutableHousehold.spawnCar(lambda: MutablePrivateCar.() -> Unit = {}): PrivateCar = MutablePrivateCar(
+    id = CarId(cars.size + 1L),
+    owner = this,
+) {
+    segment = CarSegment.MIDSIZE
+    seats = 4
+    val engineType = EngineType.COMBUSTION
+    engine = CarEngineStatistics().buildEngine(segment, engineType)
+    location = owner.location
+}.apply(lambda)
 
 fun MutableHousehold.generateAndAddPerson(builder: (Long, MutableHousehold) -> MutablePerson): MutablePerson {
     val person = builder(members.size + 1L, this)
@@ -352,6 +335,4 @@ fun Zone<HasRegionType>.generateHousehold(
     roadIndex: Long = -1L,
     lambda: MutableHousehold.() -> Unit = {
     },
-): MutableHousehold {
-    return generateHouseholdBuilder(id, roadIndex, lambda)
-}
+): MutableHousehold = generateHouseholdBuilder(id, roadIndex, lambda)

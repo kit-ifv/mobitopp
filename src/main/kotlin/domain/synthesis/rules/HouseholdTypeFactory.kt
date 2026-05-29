@@ -10,7 +10,7 @@ import edu.kit.ifv.populationsynthesis.rules.toRuleSet
 
 abstract class HouseholdTypeFactory<Input>(
     private val expectedTypes: Set<HouseholdType> = HouseholdType.validTypes,
-    val targetExtractor: (Input, HouseholdType) -> Number?
+    val targetExtractor: (Input, HouseholdType) -> Number?,
 ) {
     fun buildRuleSet(input: Input): CoverageGroup<ISurveyHousehold<*, *>> {
         val ruleset = expectedTypes.mapNotNull {
@@ -19,9 +19,8 @@ abstract class HouseholdTypeFactory<Input>(
         return FullCoverageGroup(ruleset)
     }
 
-    private fun optionalTypeRule(type: HouseholdType, input: Input): Rule<ISurveyHousehold<*, *>>? {
-        return getTypeDefinition(type).makeOptionalRule(targetExtractor(input, type))
-    }
+    private fun optionalTypeRule(type: HouseholdType, input: Input): Rule<ISurveyHousehold<*, *>>? =
+        getTypeDefinition(type).makeOptionalRule(targetExtractor(input, type))
 
     private fun getTypeDefinition(type: HouseholdType) = HouseholdTypeDefinition(type)
 }

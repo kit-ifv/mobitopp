@@ -19,10 +19,8 @@ interface LegcayCoordinate {
 
 // Certain numbers such as the radius of the earth or the fact that the maximum latitude is 90 does not feel like magic
 @Suppress("MagicNumber")
-class GPSLegcayCoordinate(
-    override val latitudeRadians: Double,
-    override val longitudeRadians: Double
-) : LegcayCoordinate {
+class GPSLegcayCoordinate(override val latitudeRadians: Double, override val longitudeRadians: Double) :
+    LegcayCoordinate {
 
     override fun distance(other: LegcayCoordinate): Distance {
         val deltaLat = this.latitudeRadians - other.latitudeRadians
@@ -47,6 +45,5 @@ class GPSLegcayCoordinate(
 }
 
 @Suppress("MagicNumber")
-fun Pair<Number, Number>.toCoordinate(): WGS84Coordinate {
-    return WGS84Coordinate.decimalDegree(first.toDouble(), second.toDouble())
-}
+fun Pair<Number, Number>.toCoordinate(): WGS84Coordinate =
+    WGS84Coordinate.decimalDegree(first.toDouble(), second.toDouble())

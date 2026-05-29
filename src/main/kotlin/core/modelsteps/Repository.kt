@@ -14,22 +14,20 @@ interface Repository<out T, I> : Resource<T> where T : Identifiable<I> {
 
     override val elements: Sequence<T>
 
-    operator fun contains(id: I): Boolean {
-        return find(id) != null
-    }
+    operator fun contains(id: I): Boolean = find(id) != null
 
     fun find(id: I): T? = getById(id)
 
     @Deprecated(
         "getById does not imply nullabilty by its name, use find instead. In case you compare against null " +
-            "just to check whether the key is present use operator contains instead."
+            "just to check whether the key is present use operator contains instead.",
     )
     fun getById(id: I): T?
     operator fun get(id: I) = getById(id)
     fun getValue(id: I) = getById(id)
         ?: throw NoSuchElementException(
             "Cannot find id [$id] in repository [$name], Repository contains [${elements.toList().size}] elements." +
-                "${elements.map { it.id }.toList()}"
+                "${elements.map { it.id }.toList()}",
         )
 
     val size: Int
@@ -54,9 +52,7 @@ private const val SEAL = "seal repository"
 
 private const val MAX_ELEMENTS_IN_TO_STRING = 20
 
-class MapRepository<T, I>(
-    override val name: String,
-) : MutableRepository<T, I> where T : Identifiable<I> {
+class MapRepository<T, I>(override val name: String) : MutableRepository<T, I> where T : Identifiable<I> {
 
     override val source: String
         get() = name + "\n" + changelog
@@ -87,7 +83,7 @@ class MapRepository<T, I>(
                 "Repository $name has already been sealed and can no longer be updated!\n" +
                     "attempted mutating action: $operation\n" +
                     "Repository changelog:\n" +
-                    source
+                    source,
             )
         }
     }
@@ -161,23 +157,19 @@ class MapRepository<T, I>(
     }
     """.trimMargin()
 
-    private fun elementsToString(it: List<T>) =
-        it.joinToString(", ") + if (it.size > MAX_ELEMENTS_IN_TO_STRING) {
-            ", ..."
-        } else {
-            ""
-        }
+    private fun elementsToString(it: List<T>) = it.joinToString(", ") + if (it.size > MAX_ELEMENTS_IN_TO_STRING) {
+        ", ..."
+    } else {
+        ""
+    }
 }
 
 fun <R, E, I> R.asRepository() where R : Resource<E>, E : Identifiable<I> = MapRepository<E, I>(name).also {
     it.addElements(this.source, this.elements)
 }
 
-fun validateNotSealed(
-    repository: MutableRepository<*, *>,
-    step: ModelStep,
-) = validateScope(
-    "Validate repository ${repository.name} is not sealed:"
+fun validateNotSealed(repository: MutableRepository<*, *>, step: ModelStep) = validateScope(
+    "Validate repository ${repository.name} is not sealed:",
 ) {
     require(!repository.sealed) {
         "Error: repository ${repository.name} was sealed before execution of step: ${step.name}\n$repository"

@@ -9,9 +9,7 @@ abstract class TestA {
 }
 
 @Mutable
-abstract class TestB(
-    val a: MutableTestA,
-) {
+abstract class TestB(val a: MutableTestA) {
 
     abstract val size: Int
 }

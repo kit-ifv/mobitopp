@@ -29,24 +29,20 @@ class ActionModelTest : PlanModelTest() {
         duration: Int,
         earliestStartTime: AbsoluteTime = (-Duration.INFINITE).sinceStart,
         latestEndTime: AbsoluteTime = Duration.INFINITE.sinceStart,
-    ): Activity {
-        return activity(start.toDouble(), duration.toDouble(), earliestStartTime, latestEndTime)
-    }
+    ): Activity = activity(start.toDouble(), duration.toDouble(), earliestStartTime, latestEndTime)
 
     private fun activity(
         start: Double,
         duration: Double,
         earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
         latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
-    ): Activity {
-        return Activity.Companion.fromDuration(
-            START,
-            AbsoluteTime.START + start.toDuration(DurationUnit.HOURS),
-            duration.toDuration(DurationUnit.HOURS)
-        ).apply {
-            this.earliestStartTime = earliestStartTime
-            this.latestEndTime = latestEndTime
-        }
+    ): Activity = Activity.Companion.fromDuration(
+        START,
+        AbsoluteTime.START + start.toDuration(DurationUnit.HOURS),
+        duration.toDuration(DurationUnit.HOURS),
+    ).apply {
+        this.earliestStartTime = earliestStartTime
+        this.latestEndTime = latestEndTime
     }
 
     @BeforeTest
@@ -69,8 +65,8 @@ class ActionModelTest : PlanModelTest() {
                 activity(0, 3),
                 activity(3, 1),
                 activity(4, 1),
-                activity(5, 1)
-            )
+                activity(5, 1),
+            ),
         )
     }
 
@@ -95,8 +91,8 @@ class ActionModelTest : PlanModelTest() {
                 activity(6.5, 1.0),
                 activity(7.5, 1.0),
                 activity(8.5, 1.0),
-                activity(10, 1)
-            )
+                activity(10, 1),
+            ),
         )
     }
 
@@ -118,8 +114,8 @@ class ActionModelTest : PlanModelTest() {
                 activity(0, 1),
                 activity(2, 1),
                 activity(4, 1, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart),
-                activity(6, 1)
-            )
+                activity(6, 1),
+            ),
         )
     }
 
@@ -144,8 +140,8 @@ class ActionModelTest : PlanModelTest() {
                 activity(6.5, 1.0, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart),
                 activity(7.5, 1.0),
                 activity(8.5, 1.0),
-                activity(10, 1)
-            )
+                activity(10, 1),
+            ),
         )
     }
 
@@ -167,8 +163,8 @@ class ActionModelTest : PlanModelTest() {
                 activity(6, 1, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart),
                 activity(8, 1),
                 activity(10, 1),
-                activity(12, 1)
-            )
+                activity(12, 1),
+            ),
         )
     }
 }

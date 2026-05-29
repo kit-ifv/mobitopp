@@ -32,9 +32,7 @@ data class BoxPlotLayoutBuilder<G, X>(
 ) : BoxPlotLayout<G, X>
 
 /** Renderer producing a box plot using the Lets-Plot backend. */
-class BoxPlotRenderer<G, X, Y : Number>(
-    override val style: BoxPlotLayout<G, X>,
-) : PlotRenderer<G, X, Summary<Y>> {
+class BoxPlotRenderer<G, X, Y : Number>(override val style: BoxPlotLayout<G, X>) : PlotRenderer<G, X, Summary<Y>> {
 
     override fun plot(data: PlotData<G, X, Summary<Y>>, comparisonData: PlotData<G, X, Summary<Y>>?): Plot {
         val builder = DataFrameBuilder(style.name, data, comparisonData).groupAsString {

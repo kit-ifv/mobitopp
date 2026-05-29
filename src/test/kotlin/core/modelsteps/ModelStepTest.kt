@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package core.modelsteps
 
 import assertNotContains
@@ -240,7 +242,7 @@ class ModelStepTest {
             parser = parser,
             repository = repository,
             dependentRepositories = setOf(unsealedDependentRepository),
-            validationMock = expectedElements
+            validationMock = expectedElements,
         )
 
         val warning = step.validate()
@@ -414,17 +416,14 @@ private fun filterIdStep(
     override fun verifyInput(): Warning? = null
 }
 
-private fun updateStep(
-    name: String,
-    update: (TestEntity) -> Unit,
-    repository: MutableRepository<TestEntity, TestId>,
-) = object : UpdateEachStep<TestEntity, TestId>() {
-    override val name = name
-    override val repository: MutableRepository<TestEntity, TestId> = repository
-    override fun update(element: TestEntity) = update(element)
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun verifyInput(): Warning? = null
-}
+private fun updateStep(name: String, update: (TestEntity) -> Unit, repository: MutableRepository<TestEntity, TestId>) =
+    object : UpdateEachStep<TestEntity, TestId>() {
+        override val name = name
+        override val repository: MutableRepository<TestEntity, TestId> = repository
+        override fun update(element: TestEntity) = update(element)
+        override val dependentRepositories: Set<Repository<*, *>> = emptySet()
+        override fun verifyInput(): Warning? = null
+    }
 
 private fun transformStep(
     name: String,
@@ -465,7 +464,7 @@ private fun forEachStep(
 private val parser: CsvParser<TestEntity> = CsvParser<TestEntity> { row ->
     TestEntity(
         rowIndex = row.index,
-        string = row(STR_COL)
+        string = row(STR_COL),
     )
 }
 
@@ -478,7 +477,7 @@ private val invalidParser: CsvParser<TestEntity> = CsvParser<TestEntity> { row -
 }
 
 private val unmockableParser: CsvParser<TestEntity> = CsvParser<TestEntity>(
-    errorHandling = ErrorHandling.SILENT
+    errorHandling = ErrorHandling.SILENT,
 ) { row ->
     TestEntity(
         rowIndex = row.index,
@@ -496,13 +495,12 @@ private fun updateIntAttToStringLength(element: TestEntity) {
 }
 
 private val transformedOddIdSquared = expectedElements.mapNotNull { transformOddIdSquared(it) }
-private fun transformOddIdSquared(element: TestEntity): TestEntity? =
-    element.takeIf {
-        it.id.value >= 2 &&
-            filterOddIndex(it)
-    }?.let {
-        it.copy(rowIndex = it.rowIndex * it.rowIndex)
-    }
+private fun transformOddIdSquared(element: TestEntity): TestEntity? = element.takeIf {
+    it.id.value >= 2 &&
+        filterOddIndex(it)
+}?.let {
+    it.copy(rowIndex = it.rowIndex * it.rowIndex)
+}
 
 private val transformedCumSumStringLength = transformAllCumSumStringLength(expectedElements)
 private fun transformAllCumSumStringLength(elements: Collection<TestEntity>): List<TestEntity> {
@@ -529,8 +527,8 @@ private fun customValidationStep(
         repository.addElements(
             "add_dummy",
             listOf(
-                TestEntity(repository.size, string = "execute_dummy")
-            )
+                TestEntity(repository.size, string = "execute_dummy"),
+            ),
         )
     }
 
@@ -543,8 +541,8 @@ private fun customValidationStep(
         repository.addElements(
             "add_dummy",
             listOf(
-                TestEntity(repository.size, string = "mock_dummy")
-            )
+                TestEntity(repository.size, string = "mock_dummy"),
+            ),
         )
         return null
     }

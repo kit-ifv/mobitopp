@@ -21,10 +21,9 @@ import core.statemachine.sendScope
  * @property type The type of state this builder creates
  * @property onEnter Function to execute when entering this state
  */
-internal class TransitoryStateBuilder<D>(
-    override val type: AnyStateType,
-    private val onEnter: OnEnter<D>
-) : StateBuilder<D>, MandatoryTransitionBuilder<D> where D : StateData {
+internal class TransitoryStateBuilder<D>(override val type: AnyStateType, private val onEnter: OnEnter<D>) :
+    StateBuilder<D>,
+    MandatoryTransitionBuilder<D> where D : StateData {
 
     /**
      * Function to determine the next state for this transitory state.
@@ -48,7 +47,9 @@ internal class TransitoryStateBuilder<D>(
      */
     override fun build(resolver: StateResolver): StateBehavior<D> = TransitoryStateBehavior(
         onEnterScope = onEnter,
-        nextStateTransition = if (::nextTransition.isInitialized) { nextTransition } else {
+        nextStateTransition = if (::nextTransition.isInitialized) {
+            nextTransition
+        } else {
             error(
                 "No next state was defined for transitory state '${type.simpleName}'!\n" +
                     "Use:\n" +
@@ -57,7 +58,7 @@ internal class TransitoryStateBuilder<D>(
                     "  }.next {\n" +
                     "      NEXT STATE HERE\n" +
                     "  }\n" +
-                    "to define the next state following this transitory state!"
+                    "to define the next state following this transitory state!",
             )
         },
         stateResolver = resolver,
@@ -99,9 +100,8 @@ private class TransitoryStateBehavior<D>(
      * @return This method always throws an exception
      * @throws UnsupportedOperationException always, as transitory states do not process messages
      */
-    override fun processMessage(data: D, message: Message): StateTransition {
+    override fun processMessage(data: D, message: Message): StateTransition =
         throw UnsupportedOperationException("processMessage should not be called on TransitoryState")
-    }
 
     /**
      * Determines the next state for this transitory state.
@@ -123,7 +123,6 @@ private class TransitoryStateBehavior<D>(
      * @return This method always throws an exception
      * @throws UnsupportedOperationException always, as interrupt is not implemented for transitory states
      */
-    override fun interrupt(data: D): Events {
+    override fun interrupt(data: D): Events =
         throw UnsupportedOperationException("interrupt should not be called on TransitoryState")
-    }
 }

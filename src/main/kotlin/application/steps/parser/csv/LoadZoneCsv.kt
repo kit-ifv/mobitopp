@@ -9,11 +9,9 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.location.Location
 import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
 import domain.shared.location.zone.StandardZone
-import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneAttributes
 import domain.simulation.config.DemandSimContext
 import edu.kit.ifv.units.DistanceUnit
@@ -68,7 +66,7 @@ fun LoadZonesContext.prepareZones(
         centroidParser,
         reliefUnit,
         regionTypeCodePlan = regionTypeCodes,
-        seed = simulationSeed
+        seed = simulationSeed,
     )
 
     this.prepareZoneFile(csvParser, path, delimiter) // TODO filter?
@@ -87,7 +85,7 @@ fun defaultCsvParser(
         MutableLegacyZone(
             id = ZoneId(row.long(columns.idColumn)),
             centroid = row(columns.centroidColumn, centroidParser),
-            seed = seed
+            seed = seed,
         ) {
             visumId = row.long(columns.idColumn)
             matrixColumn = row.index
@@ -107,8 +105,8 @@ fun defaultCsvParser(
             row(columns.centroidColumn, centroidParser).position,
             ZoneAttributes(
                 regionType =
-                    row.decode(columns.regionTypeColumn, regionTypeCodePlan)
-            )
+                row.decode(columns.regionTypeColumn, regionTypeCodePlan),
+            ),
         )
     }
 
@@ -123,7 +121,7 @@ fun cheatyDefaultCsvParser(
         MutableLegacyZone(
             id = ZoneId(row.long("id")),
             centroid = Location.BIELEFELD,
-            seed = seed
+            seed = seed,
         ) {
             visumId = row.long("id")
             matrixColumn = -1
@@ -154,7 +152,7 @@ fun LoadZonesContext.prepareZoneFile(
         delimiter = delimiter,
         repository = zoneRepository,
         dependentRepositories = setOf(),
-        validationMock = listOf() // TODO
+        validationMock = listOf(), // TODO
     )
 }
 
@@ -166,9 +164,7 @@ fun LoadZonesContext.finishZones() = runStep {
     SealStep(zoneRepository)
 }
 
-fun LoadZonesContext.loadZones(
-    errorHandling: ErrorHandling = ErrorHandling.WARNING
-) {
+fun LoadZonesContext.loadZones(errorHandling: ErrorHandling = ErrorHandling.WARNING) {
     this.prepareZones(errorHandling = errorHandling)
 //    this.filterZones()
     this.finishZones()
@@ -176,10 +172,13 @@ fun LoadZonesContext.loadZones(
 
 fun String.toZoneClassification() = when (this) {
     "studyArea" -> ZoneClassification.STUDY_AREA
+
     "outlyingArea" -> ZoneClassification.OUTLYING_AREA
+
     "extendedStudyArea" -> ZoneClassification.EXTENDED_STUDY_AREA
+
     else -> throw UnsupportedOperationException(
         "String '$this' cannot be parsed as a ZoneClassification! " +
-                "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'"
+            "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'",
     )
 }

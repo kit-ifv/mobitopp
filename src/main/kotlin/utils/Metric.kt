@@ -8,7 +8,7 @@ import kotlin.math.sqrt
 fun interface Metric {
     fun evaluateNumber(expected: Collection<Number>, actual: Collection<Number>) = evaluate(
         expected.map { it.toDouble() },
-        actual.map { it.toDouble() }
+        actual.map { it.toDouble() },
     )
 
     fun evaluateNumber(pair: Pair<Collection<Number>, Collection<Number>>) = evaluateNumber(pair.first, pair.second)
@@ -85,7 +85,7 @@ fun interface Metric {
         val meanAbsoluteLogError = Metric { expected, actual ->
 
             require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 }) {
-                warningLogError
+                WARNING_LOG_ERROR
             }
             val sum = expected.zip(actual).sumOf { (exp, act) ->
                 abs(ln(exp.coerceAtLeast(LOG_LOWER_BOUND)) - ln(act.coerceAtLeast(LOG_LOWER_BOUND)))
@@ -93,13 +93,13 @@ fun interface Metric {
             sum / expected.size
         }
 
-        const val warningLogError =
+        const val WARNING_LOG_ERROR =
             "Log error cannot handle negative values, the cheat to avoid log(0) by adding epsilon log(0 + e) could" +
                 "now result in a log(-e + e)"
         val rootMeanSquareLogError = Metric { expected, actual ->
 
             require(expected.all { it >= 0.0 } && actual.all { it >= 0.0 }) {
-                warningLogError
+                WARNING_LOG_ERROR
             }
             val sum = expected.zip(actual).sumOf { (exp, act) ->
                 (ln(exp.coerceAtLeast(LOG_LOWER_BOUND)) - ln(act.coerceAtLeast(LOG_LOWER_BOUND))).pow(2)

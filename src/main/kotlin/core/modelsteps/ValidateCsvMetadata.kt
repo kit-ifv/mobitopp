@@ -22,10 +22,9 @@ private const val VALIDATION_MODE_ERROR =
  *
  * Validate if csv file exists and can be read, then validate the existence of columns required by the csv parser.
  */
-class ValidateCsvMetadata<E>(
-    private val step: ModelStep,
-    private val csv: CsvResource<E>
-) : Row, CsvReader {
+class ValidateCsvMetadata<E>(private val step: ModelStep, private val csv: CsvResource<E>) :
+    Row,
+    CsvReader {
     companion object {
         private val testStrings = listOf("1", "1u", "1.0", "1.0f", "true", "", "(48.5, 8.6: 0, 0)")
     }
@@ -80,9 +79,7 @@ class ValidateCsvMetadata<E>(
         parentWarning = null
     }
 
-    override fun rows(): Sequence<Row> {
-        return listOf(this).asSequence()
-    }
+    override fun rows(): Sequence<Row> = listOf(this).asSequence()
 
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
         validateColumnExists(column)
@@ -107,28 +104,26 @@ class ValidateCsvMetadata<E>(
         parentWarning?.addChild(
             "WARNING: Value of column '$column' of $csv could not be mocked " +
                 "for parsing! Validation of columns in step '${step.name}' may be incomplete!",
-            isError = false
+            isError = false,
         )
 
         error(
             "Could not mock column $column. " +
-                "None of the following tests Strings matches the expected format for parsing: $testStrings"
+                "None of the following tests Strings matches the expected format for parsing: $testStrings",
         )
     }
 
-    private fun validateColumnIndex(columnIndex: Int) =
-        parentWarning?.validateNoException {
-            require(reader.columns.size >= columnIndex) {
-                "ERROR: Invalid column index '$columnIndex' accessed in step '${step.name}' " +
-                    "is higher than number of columns (${reader.columns.size}) in source csv file: ${reader.source}!"
-            }
-        } ?: error(VALIDATION_MODE_ERROR)
+    private fun validateColumnIndex(columnIndex: Int) = parentWarning?.validateNoException {
+        require(reader.columns.size >= columnIndex) {
+            "ERROR: Invalid column index '$columnIndex' accessed in step '${step.name}' " +
+                "is higher than number of columns (${reader.columns.size}) in source csv file: ${reader.source}!"
+        }
+    } ?: error(VALIDATION_MODE_ERROR)
 
-    private fun validateColumnExists(column: String) =
-        parentWarning?.validateNoException {
-            require(reader.columns.contains(column)) {
-                "ERROR: Invalid column '$column' accessed in step '${step.name}' " +
-                    "does not exist in the source csv file: ${reader.source}!"
-            }
-        } ?: error(VALIDATION_MODE_ERROR)
+    private fun validateColumnExists(column: String) = parentWarning?.validateNoException {
+        require(reader.columns.contains(column)) {
+            "ERROR: Invalid column '$column' accessed in step '${step.name}' " +
+                "does not exist in the source csv file: ${reader.source}!"
+        }
+    } ?: error(VALIDATION_MODE_ERROR)
 }

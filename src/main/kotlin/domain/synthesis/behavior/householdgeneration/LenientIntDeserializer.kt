@@ -30,9 +30,7 @@ val standardMapper = CsvMapper().registerKotlinModule().registerModule(module)
 
 val standardSchema = CsvSchema.emptySchema().withHeader().withColumnSeparator(';')
 
-inline fun <reified T> standardParse(path: Path): List<T> {
-    return standardMapper
-        .readerFor(T::class.java)
-        .with(standardSchema).readValues<T>(path.toFile())
-        .readAll()
-}
+inline fun <reified T> standardParse(path: Path): List<T> = standardMapper
+    .readerFor(T::class.java)
+    .with(standardSchema).readValues<T>(path.toFile())
+    .readAll()

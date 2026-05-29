@@ -7,8 +7,5 @@ import domain.shared.location.StandardLocation
  * collisions, for example)
  */
 fun interface GroupAssignHouseholdLocations<AREA, H> {
-    fun generateLocations(
-        zone: AREA,
-        householdsToLocate: List<H>,
-    ): List<Pair<H, StandardLocation>>
+    fun generateLocations(zone: AREA, householdsToLocate: List<H>): List<Pair<H, StandardLocation>>
 }

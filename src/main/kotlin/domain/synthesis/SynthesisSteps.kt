@@ -48,8 +48,10 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
 ) {
 
     lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<S, T>>>
+
     @Deprecated("Be mindfull when using this getter in a hot loop")
     val households: List<SynthesisHousehold<S, T>> get() = householdsByZone.flatMap { it.value }
+
     @Deprecated("Be mindfull when using this getter in a hot loop")
     val people get() = households.flatMap { it.members }
     val activities: MutableMap<SynthesisPerson<*, *>, Collection<Activity>> = mutableMapOf()
@@ -67,7 +69,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
 
         val allFixedDestinations = fixedDestinationBuilder.steps.flatMap { it.generateFixedDestinations(households) }
         allFixedDestinations.addProgressBar(
-            "Assign Fixed Destinations"
+            "Assign Fixed Destinations",
         ).forEach { it.person.fixedDestinations[it.activityType] = it.location }
         fixedDestinations = allFixedDestinations
     }
@@ -136,9 +138,12 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
         cars = households.flatMap { it.cars }
     }
-    @Deprecated("This implementation spawns a coroutine for each household, and only one strategy, thus not " +
+
+    @Deprecated(
+        "This implementation spawns a coroutine for each household, and only one strategy, thus not " +
             "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
-            "risk group. Use assignActivitiesPartitioned instead. ")
+            "risk group. Use assignActivitiesPartitioned instead. ",
+    )
     fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val strategy = lambda()
         val localHouseholdCopy = households
@@ -159,7 +164,6 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
                 activities[it] = it.plannedActivities
             }
         }
-
     }
 
     /**
@@ -175,7 +179,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
                 async(Default) {
                     var localIndex = workerId
                     val threadLocalStrategy = lambda()
-                    while(localIndex < localHouseholdCopy.size) {
+                    while (localIndex < localHouseholdCopy.size) {
                         val household = localHouseholdCopy[localIndex]
                         val generation = threadLocalStrategy.generate(household)
                         household.members.zip(generation).forEach { (person, activities) ->
@@ -184,14 +188,10 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
                         localIndex += workerCount
                         if (workerId == 0) {
                             progressBar.stepBy(1)
-
                         }
                         progressBar.step()
                     }
-
-
                 }
-
             }.joinAll()
         }
         localHouseholdCopy.forEach { household ->
@@ -199,8 +199,6 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
                 activities[it] = it.plannedActivities
             }
         }
-
-
     }
 
     fun writeStandardOutputCSV(path: Path) = writeStandardOutputCSV(OutputWriters.useDirectoryForCSV(path))
@@ -227,8 +225,8 @@ fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignAmou
     lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>,
 )
         where
-        S : MinimumHouseholdAttributes,
-        S : HasMutableNumberOfCars {
+              S : MinimumHouseholdAttributes,
+              S : HasMutableNumberOfCars {
     val strategy = lambda()
     households.forEach {
         context(Random(it.id)) {

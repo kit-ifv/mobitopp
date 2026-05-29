@@ -12,13 +12,11 @@ import java.nio.file.Path
  */
 class CommuterDemandsMatrix(
     private val demands: MutableMap<CommunityNumber, MutableCommunityDemand> = mutableMapOf(),
-    private val converter: (StandardLocation) -> CommunityNumber
+    private val converter: (StandardLocation) -> CommunityNumber,
 ) {
 
     val total get() = demands.values.sumOf { it.total }
-    fun convert(location: StandardLocation): CommunityNumber {
-        return converter(location)
-    }
+    fun convert(location: StandardLocation): CommunityNumber = converter(location)
 
     /**
      * Returns a mutable copy of the demands originating from the target community number. Note that the Mutable Demand
@@ -60,10 +58,7 @@ class CommuterDemandsMatrix(
          * The converter is converting the zoneId of the location based on the file mapping and thus requires the presence
          * of the zone field within the location.
          */
-        fun parse(
-            mappingFile: Path,
-            commuterFile: Path,
-        ): CommuterDemandsMatrix {
+        fun parse(mappingFile: Path, commuterFile: Path): CommuterDemandsMatrix {
             val match = readZoneToCommunity(mappingFile)
             return readCommuters(commuterFile) {
                 val zoneID = it.zoneId
@@ -112,30 +107,24 @@ class CommuterDemandsMatrix(
 open class CommunityDemand(
     protected val converter: (StandardLocation) -> CommunityNumber,
     protected val demands: MutableMap<CommunityNumber, Double> = mutableMapOf(),
-    val communityID: CommunityNumber
+    val communityID: CommunityNumber,
 ) {
     val total get() = demands.values.sum()
     val keys get() = demands.keys
     fun isEmpty() = demands.isEmpty()
     fun isNotEmpty() = demands.isNotEmpty()
-    operator fun get(j: CommunityNumber): Double {
-        return demands[j] ?: 0.0
-    }
+    operator fun get(j: CommunityNumber): Double = demands[j] ?: 0.0
 
     operator fun get(j: Number): Double = get(j.toCommunity())
 
-    operator fun contains(j: CommunityNumber): Boolean {
-        return j in demands.keys
-    }
+    operator fun contains(j: CommunityNumber): Boolean = j in demands.keys
 
     operator fun contains(j: Number): Boolean = contains(j.toCommunity())
 
     /**
      * A demand to a certain community is saturated once the demand has dropped below a positive number
      */
-    fun isSaturated(j: CommunityNumber): Boolean {
-        return get(j) <= 0.0
-    }
+    fun isSaturated(j: CommunityNumber): Boolean = get(j) <= 0.0
 
     fun isSaturated(location: StandardLocation): Boolean = isSaturated(converter(location))
     fun isSaturated(j: Number): Boolean = isSaturated(j.toCommunity())
@@ -152,9 +141,8 @@ open class CommunityDemand(
 class MutableCommunityDemand(
     converter: (StandardLocation) -> CommunityNumber,
     demands: MutableMap<CommunityNumber, Double> = mutableMapOf(),
-    communityID: CommunityNumber
-) :
-    CommunityDemand(converter, demands, communityID) {
+    communityID: CommunityNumber,
+) : CommunityDemand(converter, demands, communityID) {
 
     operator fun set(j: CommunityNumber, value: Double) {
         demands[j] = value

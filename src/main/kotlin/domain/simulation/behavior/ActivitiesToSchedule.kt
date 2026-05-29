@@ -73,7 +73,7 @@ fun List<PlannedActivity>.toSchedule(
             dispatcher,
             createdLegs.toMutableList(),
             firstActivityBlock,
-            filteredActivities.toSortedSet()
+            filteredActivities.toSortedSet(),
         )
 
     require(targetModel.actions().isConsistent()) {
@@ -84,14 +84,12 @@ fun List<PlannedActivity>.toSchedule(
 }
 
 // TODO this should be exposed in a factory so that the system can handle different start end time logics.
-fun PlannedActivity.toActivity(): Activity {
-    return Activity.fromDuration(
-        location = location ?: StandardLocation.LOCATIONUNKNOWN,
-        startTime = startTime,
-        duration = duration,
-        type = activityType,
-        earliestStartTime = startTime.truncateDays(),
-        latestEndTime = startTime.truncateDays() + 1.days
+fun PlannedActivity.toActivity(): Activity = Activity.fromDuration(
+    location = location ?: StandardLocation.LOCATIONUNKNOWN,
+    startTime = startTime,
+    duration = duration,
+    type = activityType,
+    earliestStartTime = startTime.truncateDays(),
+    latestEndTime = startTime.truncateDays() + 1.days,
 
-    )
-}
+)

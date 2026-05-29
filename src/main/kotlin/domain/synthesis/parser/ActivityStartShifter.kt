@@ -18,9 +18,7 @@ object NoActivityStartShifter : ActivityStartShifter {
     override operator fun invoke(actor: StochasticActor) = Duration.ZERO
 }
 
-class CachedActivityStartShifter(
-    private val shifter: ActivityStartShifter
-) : ActivityStartShifter {
+class CachedActivityStartShifter(private val shifter: ActivityStartShifter) : ActivityStartShifter {
     private val shifts: MutableMap<StochasticActor, Duration> = mutableMapOf()
     override operator fun invoke(actor: StochasticActor) = shifts.computeIfAbsent(actor) { shifter(actor) }
 }

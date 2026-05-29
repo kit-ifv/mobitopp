@@ -8,9 +8,10 @@ class BinaryIntegerFormat(private val scalingFactor: Int) : StandardMatrixBinary
     override val fileExtension: String = ".ibin"
     override val elementByteSize: Int = Int.SIZE_BYTES
 
-    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
-        return readLoop(byteBuffer, elements) { it.int.toDouble() / scalingFactor }
-    }
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray =
+        readLoop(byteBuffer, elements) {
+            it.int.toDouble() / scalingFactor
+        }
 
     override fun writeContentArray(output: DataOutputStream, values: DoubleArray) {
         writeBuffer(output, values, elementByteSize) {

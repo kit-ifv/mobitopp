@@ -21,16 +21,12 @@ abstract class HouseholdSizeFactory<Input>(
     private fun optionalGreaterEqualsRule(target: Int, input: Input): Rule<MinimalistHousehold<*, *>>? =
         getGreaterEqualDefinition(target).makeOptionalRule(greaterEqualTargetExtractor(input, target))
 
-    private fun optionalEqualityRule(
-        i: Int,
-        input: Input
-    ): Rule<MinimalistHousehold<*, *>>? = getEqualDefinition(i).makeOptionalRule(equalTargetExtractor(input, i))
+    private fun optionalEqualityRule(i: Int, input: Input): Rule<MinimalistHousehold<*, *>>? =
+        getEqualDefinition(i).makeOptionalRule(equalTargetExtractor(input, i))
 
-    private fun getEqualDefinition(size: Int): HouseholdSizeDefinition {
-        return HouseholdSizeDefinition(size, HouseholdSizeDefinition.EqualityOp.EQUALS)
-    }
+    private fun getEqualDefinition(size: Int): HouseholdSizeDefinition =
+        HouseholdSizeDefinition(size, HouseholdSizeDefinition.EqualityOp.EQUALS)
 
-    private fun getGreaterEqualDefinition(size: Int): HouseholdSizeDefinition {
-        return HouseholdSizeDefinition(size, HouseholdSizeDefinition.EqualityOp.GREATER_OR_EQUAL)
-    }
+    private fun getGreaterEqualDefinition(size: Int): HouseholdSizeDefinition =
+        HouseholdSizeDefinition(size, HouseholdSizeDefinition.EqualityOp.GREATER_OR_EQUAL)
 }

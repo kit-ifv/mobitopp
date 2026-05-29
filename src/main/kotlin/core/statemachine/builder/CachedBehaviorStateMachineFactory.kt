@@ -21,7 +21,8 @@ internal class CachedBehaviorStateMachineFactory<A : Agent<out Message>>(
     builders: List<StateBuilder<out StateData>>,
     val initialize: (AbsoluteTime, A) -> StateData,
     override val name: String,
-) : StateResolver, StateMachineFactory<A> {
+) : StateResolver,
+    StateMachineFactory<A> {
 
     /**
      * Map of state types to their behaviors.
@@ -54,11 +55,10 @@ internal class CachedBehaviorStateMachineFactory<A : Agent<out Message>>(
 
     override fun create(initialState: State): StateMachine = TransitoryStateMachine(
         name = name,
-        initial = initialState
+        initial = initialState,
     )
 
-    override fun initialState(startTime: AbsoluteTime, agent: A): State =
-        resolve(initialize(startTime, agent))
+    override fun initialState(startTime: AbsoluteTime, agent: A): State = resolve(initialize(startTime, agent))
 }
 
 /**
@@ -69,10 +69,7 @@ internal class CachedBehaviorStateMachineFactory<A : Agent<out Message>>(
  * @property data The state data for this state
  * @property behavior The behavior for this state
  */
-private data class StateImpl<D : StateData>(
-    private val data: D,
-    private val behavior: StateBehavior<D>,
-) : State {
+private data class StateImpl<D : StateData>(private val data: D, private val behavior: StateBehavior<D>) : State {
 
     override val name = data::class.simpleName!!
     override val time: AbsoluteTime get() = data.time

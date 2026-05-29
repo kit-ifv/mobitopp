@@ -16,11 +16,13 @@ class OECDAssignerTest {
     @Test
     fun defaultWorks() {
         val assigner = OECDAssigner.default()
-        val status = assigner.determineStatus(SurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>(
-            1,
-            emptyList(),
-            MinimumHouseholdAttributesImpl(income = 300.euros, type = HouseholdType.UNDEFINED)
-        ))
+        val status = assigner.determineStatus(
+            SurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>(
+                1,
+                emptyList(),
+                MinimumHouseholdAttributesImpl(income = 300.euros, type = HouseholdType.UNDEFINED),
+            ),
+        )
 
         assertEquals(status, EconomicStatus.VERY_LOW)
     }

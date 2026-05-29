@@ -23,14 +23,14 @@ val SimpleTimeStrategy get() = ParameterizedDurationParseStrategy(
     "Days".toRegex(),
     "Hours".toRegex(),
     "Minutes".toRegex(),
-    "Seconds".toRegex()
+    "Seconds".toRegex(),
 )
 
 val LowerCaseTimeStrategy get() = ParameterizedDurationParseStrategy(
     "days".toRegex(),
     "hours".toRegex(),
     "minutes".toRegex(),
-    "seconds".toRegex()
+    "seconds".toRegex(),
 )
 
 /**
@@ -49,14 +49,14 @@ val LowerCaseShortTimeStrategy get() = ParameterizedDurationParseStrategy(
     "d".toRegex(),
     "h".toRegex(),
     "m".toRegex(),
-    "s".toRegex()
+    "s".toRegex(),
 )
 
 val ShortTimeStrategy get() = ParameterizedDurationParseStrategy(
     "D".toRegex(),
     "H".toRegex(),
     "M".toRegex(),
-    "S".toRegex()
+    "S".toRegex(),
 )
 
 /**
@@ -70,21 +70,15 @@ val ShortTimeStrategy get() = ParameterizedDurationParseStrategy(
  * @param minutes The pattern for minutes. Should only match what comes after the number of minutes.
  * @param seconds The pattern for seconds. Should only match what comes after the number of seconds.
  */
-class ParameterizedDurationParseStrategy(
-    val days: Regex,
-    val hours: Regex,
-    val minutes: Regex,
-    val seconds: Regex
-) : DurationParseStrategy {
+class ParameterizedDurationParseStrategy(val days: Regex, val hours: Regex, val minutes: Regex, val seconds: Regex) :
+    DurationParseStrategy {
     override val formatRegex: Regex = "^(\\d+$days)?(\\d+$hours)?(\\d+$minutes)?(\\d+$seconds)?".toRegex()
     private val negativeRegex: Regex = "^-\\((\\d+$days)?(\\d+$hours)?(\\d+$minutes)?(\\d+$seconds)?\\)".toRegex()
     private val ensureNotEmpty: Regex = "(\\d+$days)|(\\d+$hours)|(\\d+$minutes)|(\\d+$seconds)".toRegex()
     private val negativeDuration: Regex = "^-\\(.+\\)".toRegex()
     private val removeNegative: Regex = "^(-\\()|\\)".toRegex()
     private val unexpectedCall = "This should not have happened. supportsFormat() should not have accepted this format"
-    override fun toString(): String {
-        return "1$days 2$hours 3$minutes 4$seconds"
-    }
+    override fun toString(): String = "1$days 2$hours 3$minutes 4$seconds"
 
     override fun supportsFormat(input: String): Boolean {
         val stripped = input.replace(" ", "")

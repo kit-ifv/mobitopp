@@ -189,9 +189,7 @@ class YamlMatrixTest {
         var dayOfWeek: DayOfWeek = DayOfWeek.MONDAY,
         var hours: Number = 0,
     ) {
-        fun toAbsolute(): AbsoluteTime {
-            return (week.weeks + dayOfWeek.ordinal.days + hours.toDouble().hours).sinceStart
-        }
+        fun toAbsolute(): AbsoluteTime = (week.weeks + dayOfWeek.ordinal.days + hours.toDouble().hours).sinceStart
     }
 
     private class TestBuilder<T : Any> {
@@ -221,9 +219,8 @@ class YamlMatrixTest {
         assertEquals(targetExpiration, expiration)
     }
 
-    private operator fun <T> CalendarWeekLookup<T>.get(week: Int, day: Int, hour: Number): WithExpiration<T> {
-        return get((week.weeks + day.days + hour.toDouble().hours).sinceStart)
-    }
+    private operator fun <T> CalendarWeekLookup<T>.get(week: Int, day: Int, hour: Number): WithExpiration<T> =
+        get((week.weeks + day.days + hour.toDouble().hours).sinceStart)
 
     private operator fun <T> TimeLookupBuilder<T>.set(a: Number, b: Number, element: T) =
         set(a.toDouble().hours, b.toDouble().hours, element)
@@ -250,9 +247,7 @@ private class MutableCalendarLookupBuilder<T> {
         allWeeks.applyDefaultInstructions(lookup)
     }
 
-    fun build(): CalendarWeekLookup<T> {
-        return allWeeks.build()
-    }
+    fun build(): CalendarWeekLookup<T> = allWeeks.build()
 }
 
 private class MutableWeekLookupBuilder<T> {
@@ -276,7 +271,5 @@ private class MutableWeekLookupBuilder<T> {
         }
     }
 
-    fun build(): Collection<WeekLookupOperation<T>> {
-        return thisWeek
-    }
+    fun build(): Collection<WeekLookupOperation<T>> = thisWeek
 }

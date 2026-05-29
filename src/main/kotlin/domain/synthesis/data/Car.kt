@@ -21,9 +21,7 @@ value class CarId(val value: Long) : Comparable<CarId> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: CarId): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: CarId): Int = value.compareTo(other.value)
 
     /**
      * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
@@ -31,9 +29,7 @@ value class CarId(val value: Long) : Comparable<CarId> {
      *
      * @return the next higher id.
      */
-    fun next(): CarId {
-        return CarId(value + 1)
-    }
+    fun next(): CarId = CarId(value + 1)
 }
 
 /**
@@ -48,30 +44,27 @@ interface Car : Identifiable<CarId> {
     val seats: Int
 }
 
-interface IPrivateCar : Car, Simplifiable<CarBinaryRecord> {
+interface IPrivateCar :
+    Car,
+    Simplifiable<CarBinaryRecord> {
     val owner: IHousehold
     val mainUser: IPerson?
 
-    override fun simplify(): CarBinaryRecord {
-        return CarBinaryRecord(
-            id.value,
-            owner.id.value,
-            seats,
-            mainUser?.id?.value ?: Long.MIN_VALUE,
-            segment.code,
-            engine.type.code
-        )
-    }
+    override fun simplify(): CarBinaryRecord = CarBinaryRecord(
+        id.value,
+        owner.id.value,
+        seats,
+        mainUser?.id?.value ?: Long.MIN_VALUE,
+        segment.code,
+        engine.type.code,
+    )
 }
 
 /**
  * A vehicle that is assigned to a specific household or user
  */
 @Mutable
-abstract class PrivateCar(
-    final override val id: CarId,
-    override val owner: MutableHousehold,
-) : IPrivateCar {
+abstract class PrivateCar(final override val id: CarId, override val owner: MutableHousehold) : IPrivateCar {
 
     abstract override val mainUser: Person?
 
@@ -89,12 +82,11 @@ abstract class PrivateCar(
  * to implement a different segment encoding it is up to the developer to extract an interface and provide a different
  * encoding.
  */
-enum class CarSegment(
-    override val code: Int
-) : Encodable {
+enum class CarSegment(override val code: Int) : Encodable {
     SMALL(1),
     MIDSIZE(2),
-    LARGE(3);
+    LARGE(3),
+    ;
 
     override val description: String = name
 
@@ -106,9 +98,7 @@ interface CarEngine {
     val range: Distance
 }
 
-fun CarEngine.identical(other: CarEngine): Boolean {
-    return type == other.type && range == other.range
-}
+fun CarEngine.identical(other: CarEngine): Boolean = type == other.type && range == other.range
 
 private const val CONV = "conventional"
 private const val BEV = "bev"
@@ -123,7 +113,7 @@ enum class EngineType(override val code: Int) : Encodable {
     },
     HYBRID(3) {
         override val asText: String = EREV
-    };
+    }, ;
 
     override val description: String = name
     abstract val asText: String
@@ -131,10 +121,13 @@ enum class EngineType(override val code: Int) : Encodable {
 
         fun parseEngineType(string: String): EngineType = when (string) {
             CONV -> COMBUSTION
+
             BEV -> ELECTRIC
+
             EREV -> HYBRID
+
             else -> throw IllegalArgumentException(
-                "Cannot parse string $string to EngineType: expected 'conventional', 'bev' or 'erev'!"
+                "Cannot parse string $string to EngineType: expected 'conventional', 'bev' or 'erev'!",
             )
         }
     }
@@ -170,7 +163,9 @@ interface ElectricEngine : CarEngine {
         get() = EngineType.ELECTRIC
 }
 
-interface HybridEngine : CombustionEngine, ElectricEngine {
+interface HybridEngine :
+    CombustionEngine,
+    ElectricEngine {
 
     override val range: Distance
         get() = electricRange + combustionRange

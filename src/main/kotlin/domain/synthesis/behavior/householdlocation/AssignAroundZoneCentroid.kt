@@ -8,26 +8,19 @@ import domain.shared.location.zone.GeometricZone
 import domain.shared.location.zone.HasCentroid
 import domain.shared.location.zone.StandardZone
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.centroidLocation
 import edu.kit.ifv.units.Distance
 import org.locationtech.jts.geom.Coordinate
-import utils.csv.meters
 import kotlin.random.Random
 
 @Suppress("UnusedPrivateProperty")
-class AssignAroundZoneCentroid<H>(
-    private val radius: Distance
-) : AssignHouseholdLocations<StandardZone, H>  {
-    override fun generateLocation(zone: StandardZone, household: H): StandardLocation {
-        return BetterLocation(zone.centroid, zone, RoadAccess.INVALID)
-    }
+class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<StandardZone, H> {
+    override fun generateLocation(zone: StandardZone, household: H): StandardLocation =
+        BetterLocation(zone.centroid, zone, RoadAccess.INVALID)
 }
 
-class AssignRandomLocation<AREA: GeometricZone<HasRegionType>, H> : AssignHouseholdLocations<AREA, H>{
-    override fun generateLocation(zone: AREA, household: H): StandardLocation {
-
-        return BetterLocation( zone.randomPoint(), zone, RoadAccess.INVALID)
-    }
+class AssignRandomLocation<AREA : GeometricZone<HasRegionType>, H> : AssignHouseholdLocations<AREA, H> {
+    override fun generateLocation(zone: AREA, household: H): StandardLocation =
+        BetterLocation(zone.randomPoint(), zone, RoadAccess.INVALID)
 }
 
 class AssignAroundPoint<T, AREA: Zone<T>, H>(

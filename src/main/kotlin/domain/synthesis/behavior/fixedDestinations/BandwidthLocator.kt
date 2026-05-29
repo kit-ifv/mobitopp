@@ -20,7 +20,7 @@ import kotlin.random.Random
 val standardBandwidthModel = RuleBasedStructure<
     WithMetric<StandardLocation, Distance>,
     LocationAlternative,
-    BandwidthParameters
+    BandwidthParameters,
     > {
     ruleForAll { option, characteristics ->
         val (loc, distance) = option
@@ -58,9 +58,7 @@ class BandwidthLocator<T>(
     @Suppress("MagicNumber")
     private val random = Random(42L) // TODO what is random source of opportunities?
 
-    override fun locate(
-        agent: SurveyPerson<T>,
-    ): StandardLocation {
+    override fun locate(agent: SurveyPerson<T>): StandardLocation {
         var validTargets =
             validTargetsForAgent(agent)
         if (validTargets.isEmpty()) {

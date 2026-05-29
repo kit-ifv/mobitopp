@@ -22,7 +22,7 @@ data class ChoiceModelPurposes constructor(
     //   this has been true for all projects up to this date, but not an assumption that i would like to carry into the
     //   future at all.
     @Deprecated(
-        "That is not up to choice model purposes, but the attractiveness model, using it for verification only is bad"
+        "That is not up to choice model purposes, but the attractiveness model, using it for verification only is bad",
     )
     val typesWithAttractivity: Set<ActivityType>,
     val leisureTypes: Set<ActivityType>,

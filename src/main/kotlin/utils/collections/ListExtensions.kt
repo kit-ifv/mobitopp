@@ -7,16 +7,12 @@ import java.util.BitSet
 /**
  * returns the previous element or null in the list regarding a target index.
  */
-fun <T> List<T>.previousOrNull(index: Int): T? {
-    return getOrNull(index - 1)
-}
+fun <T> List<T>.previousOrNull(index: Int): T? = getOrNull(index - 1)
 
 /**
  * returns the previous element or null in the list regarding a target index.
  */
-fun <T> List<T>.nextOrNull(index: Int): T? {
-    return getOrNull(index + 1)
-}
+fun <T> List<T>.nextOrNull(index: Int): T? = getOrNull(index + 1)
 
 fun <T> T?.iterate(followup: Iterable<T>): Iterable<T> {
     return if (this != null) {
@@ -33,20 +29,16 @@ fun <T> T?.iterate(followup: Iterable<T>): Iterable<T> {
                     /**
                      * Returns `true` if the iteration has more elements.
                      */
-                    override fun hasNext(): Boolean {
-                        return !elementWasReturned || originalIterator.hasNext()
-                    }
+                    override fun hasNext(): Boolean = !elementWasReturned || originalIterator.hasNext()
 
                     /**
                      * Returns the next element in the iteration.
                      */
-                    override fun next(): T {
-                        return if (!elementWasReturned) {
-                            elementWasReturned = true
-                            this@iterate
-                        } else {
-                            originalIterator.next()
-                        }
+                    override fun next(): T = if (!elementWasReturned) {
+                        elementWasReturned = true
+                        this@iterate
+                    } else {
+                        originalIterator.next()
                     }
                 }
             }
@@ -70,18 +62,14 @@ fun <T : Any> Iterable<T>.isSorted(comparator: Comparator<T>): Boolean {
     return target.all { it }
 }
 
-fun <T : Comparable<T>> Iterable<T>.isSorted(): Boolean {
-    return zipWithNext { a, b -> a <= b }.all { it }
-}
+fun <T : Comparable<T>> Iterable<T>.isSorted(): Boolean = zipWithNext { a, b -> a <= b }.all { it }
 
 fun <T : Any> Iterable<T>.isStrictlySorted(comparator: Comparator<T>): Boolean {
     val target = zipWithNext { a: T, b: T -> comparator.compare(a, b) == -1 }
     return target.all { it }
 }
 
-fun <T : Comparable<T>> Iterable<T>.isStrictlySorted(): Boolean {
-    return zipWithNext { a, b -> a < b }.all { it }
-}
+fun <T : Comparable<T>> Iterable<T>.isStrictlySorted(): Boolean = zipWithNext { a, b -> a < b }.all { it }
 
 /**
  * Returns the element of an iterable if the size is exactly one, null otherwise

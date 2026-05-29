@@ -1,4 +1,4 @@
-@file: Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
+@file:Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
 
 package domain.simulation.behavior
 
@@ -206,12 +206,13 @@ val legacyModeChoiceBuilder = DiscreteStructure<Mode, ModeChoiceCharacteristics,
                     female_on_b_cost_put * characteristics.isFemale +
                     inc_high_on_b_cost_put * characteristics.isEcoStatusHigh +
                     zk_on_b_cost_put * characteristics.hasCommuterTicket
-                ) * characteristics.travelCost(mode).euros * (1 - characteristics.hasCommuterTicket) // NO PUT COST IF OWNS TICKET
+                ) * characteristics.travelCost(mode).euros * (1 - characteristics.hasCommuterTicket)
+        // NO PUT COST IF OWNS TICKET
     }
 }.multinomialLogit(
-    name = "LegacyModeChoiceModel"
+    name = "LegacyModeChoiceModel",
 )
 
 val legacyModeChoice = legacyModeChoiceBuilder.build(
-    parameters = ModeChoiceParameters()
+    parameters = ModeChoiceParameters(),
 )

@@ -123,13 +123,7 @@ data class TonsOfDefaults(
 )
 
 @Buildable
-data class LessDefaults(
-    val a: Int = 0,
-    val b: Int = 0,
-    val c: Int = 0,
-    val d: Int = 0,
-    val e: Int = 0,
-)
+data class LessDefaults(val a: Int = 0, val b: Int = 0, val c: Int = 0, val d: Int = 0, val e: Int = 0)
 
 @Buildable(defaults = "i=2")
 data class IHaveADefault(val i: Int = 0)
@@ -141,11 +135,7 @@ data class IHaveADefaultAndOneNot(val i: Int = 0, val j: Int = 1)
 data class IHaveDefaultAndNotDefault(val i: Int = 0, val j: Int)
 
 @Buildable
-class Generic<T : Number, S : CharSequence>(
-    val t: T,
-    val mapp: Map<T, S>,
-    val id: Int = 0,
-)
+class Generic<T : Number, S : CharSequence>(val t: T, val mapp: Map<T, S>, val id: Int = 0)
 
 @Buildable
 data class Data(val i: Int)
@@ -214,9 +204,7 @@ data class AllPrimitives(
 )
 
 @Buildable
-class ValueHolder(
-    val duration: Duration,
-)
+class ValueHolder(val duration: Duration)
 
 @Buildable
 class ExternalDefault(val i: Int)
@@ -250,9 +238,7 @@ abstract class AbstractClass(val text: String) {
     val secondaryAttribute: String
         get() = text.uppercase()
 
-    fun yell(): String {
-        return text
-    }
+    fun yell(): String = text
 
     abstract fun abstractScream(): String
 }

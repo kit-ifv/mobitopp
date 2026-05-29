@@ -31,9 +31,7 @@ import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.LegacyZone
 import domain.shared.location.Metrics
-import domain.shared.location.MutableLegacyZone
 import domain.shared.location.ZoneId
 import domain.shared.location.zone.StandardZone
 import domain.simulation.agent.DrtProviderAgent
@@ -94,10 +92,12 @@ interface StandardContext :
     PersonStateContext
 
 @JsonIgnoreProperties(
-    value = ["zoneColumnIndex", "personAgents", "sharingProviderAgents",
+    value = [
+        "zoneColumnIndex", "personAgents", "sharingProviderAgents",
         "defaultZonePath", "defaultSharingStationPath", "defaultHouseholdPath", "defaultPersonPath",
         "defaultCarPath", "defaultActivityPath", "defaultFixedDestinationsPath",
-        "availabilityWriter", "zoneFolder"] // ignoring all properties not
+        "availabilityWriter", "zoneFolder",
+    ], // ignoring all properties not
 )
 data class ExampleProjectContext(
     override val scenarioName: String,
@@ -150,12 +150,12 @@ data class ExampleProjectContext(
 
     @JsonIgnore
     override val sharingProviderRepository = MapRepository<MutableSharingProvider, SharingProviderId>(
-        "sharing providers"
+        "sharing providers",
     )
 
     @JsonIgnore
     override val drtProviderRepository = MapRepository<MutableDrtProviderData, DrtProviderId>(
-        "drt providers"
+        "drt providers",
     )
 
     @JsonIgnore
@@ -172,7 +172,7 @@ data class ExampleProjectContext(
         require(zoneRepository.sealed) {
             "Expected zone repo to be sealed/finished before using the matrix column > zone mapping"
         }
-        zoneRepository.elements.withIndex().associate { it.index to it.value}
+        zoneRepository.elements.withIndex().associate { it.index to it.value }
     }
 
     @JsonIgnore
@@ -183,19 +183,17 @@ data class ExampleProjectContext(
 
     @JsonIgnore
     override val sharingProviderAgents = MapRepository<SharingProviderAgent, SharingProviderId>(
-        "sharing providers agents"
+        "sharing providers agents",
     )
 
     @JsonIgnore
     override val drtProviderAgents = MapRepository<DrtProviderAgent, DrtProviderId>(
-        "drt providers agents"
+        "drt providers agents",
     )
 
     override val availabilityWriter: AvailabilityWriter by lazy {
         ConcurrentAvailabilityWriter(resultDir.resolve("availability.csv"))
     }
 
-    override fun clone(): ExampleProjectContext {
-        return copy()
-    }
+    override fun clone(): ExampleProjectContext = copy()
 }

@@ -12,7 +12,7 @@ val CoreZoneMatrixCreationModule = GenericKeyValueBuilder(
     /* Register mappings here, to make them available in yaml configs.*/
     mapOf(
         "visum" to VisumMatrixCreator,
-        "keyBased" to KeyBasedMatrixCreation
+        "keyBased" to KeyBasedMatrixCreation,
     ),
-    loadFromSubmodules = true
+    loadFromSubmodules = true,
 ).getModule()

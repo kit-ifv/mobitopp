@@ -14,14 +14,11 @@ data class StandardLocationImpl constructor(
 ) : StandardLocation {
     override val zoneId: ZoneId get() = zone.id
 
-
     override val regionType: RegionType
         get() = zone.attributes.regionType
 
     override val sizebasedRegiostarClassification: SizebasedRegiostarClassification
         get() = regionType.toRegioStaR17().toSizebasedClassification()
 
-    override fun toString(): String {
-        return "${position.x},${position.y},${zone.id}"
-    }
+    override fun toString(): String = "${position.x},${position.y},${zone.id}"
 }

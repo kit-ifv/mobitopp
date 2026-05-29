@@ -8,7 +8,7 @@ import utils.collections.addProgressBar
 
 data class AssignedLocation<T : MinimumPersonAttributes>(
     val targetPerson: SynthesisPerson<*, T>,
-    val assignedLocation: StandardLocation
+    val assignedLocation: StandardLocation,
 )
 
 /**
@@ -18,7 +18,7 @@ fun interface AdjustableGroupLocator<T : MinimumPersonAttributes> {
 
     fun match(
         agents: Collection<SurveyPerson<T>>,
-        potentialLocations: Collection<StandardLocation>
+        potentialLocations: Collection<StandardLocation>,
     ): List<StandardLocation>
 }
 
@@ -36,7 +36,7 @@ fun interface SimpleGroupLocator<T : MinimumPersonAttributes> : AdjustableGroupL
 
     override fun match(
         agents: Collection<SurveyPerson<T>>,
-        potentialLocations: Collection<StandardLocation>
+        potentialLocations: Collection<StandardLocation>,
     ): List<StandardLocation> = match(agents)
 }
 
@@ -47,28 +47,27 @@ fun interface AdjustableAgentLocator<T : MinimumPersonAttributes> : AdjustableGr
     fun locate(agent: SurveyPerson<T>, locations: Collection<StandardLocation>): StandardLocation
     override fun match(
         agents: Collection<SurveyPerson<T>>,
-        potentialLocations: Collection<StandardLocation>
-    ): List<StandardLocation> {
-        return agents.map { locate(it, potentialLocations) }
-    }
+        potentialLocations: Collection<StandardLocation>,
+    ): List<StandardLocation> = agents.map { locate(it, potentialLocations) }
 }
 
 /**
  * The locations in this class are already set, thus only a locate needs to be implemented. This is useful if you don't
  * want to microscopically manage the potential locations of each agent.
  */
-fun interface SimpleLocator<T : MinimumPersonAttributes> : AdjustableAgentLocator<T>, SimpleGroupLocator<T> {
+fun interface SimpleLocator<T : MinimumPersonAttributes> :
+    AdjustableAgentLocator<T>,
+    SimpleGroupLocator<T> {
 
     fun locate(agent: SurveyPerson<T>): StandardLocation
 
     override fun locate(agent: SurveyPerson<T>, locations: Collection<StandardLocation>) = locate(agent)
-    override fun match(agents: Collection<SurveyPerson<T>>): List<StandardLocation> {
-        return agents.addProgressBar("Running Fixed Destination Locator").map { locate(it) }
-    }
+    override fun match(agents: Collection<SurveyPerson<T>>): List<StandardLocation> =
+        agents.addProgressBar("Running Fixed Destination Locator").map {
+            locate(it)
+        }
     override fun match(
         agents: Collection<SurveyPerson<T>>,
-        potentialLocations: Collection<StandardLocation>
-    ): List<StandardLocation> {
-        return agents.map { locate(it) }
-    }
+        potentialLocations: Collection<StandardLocation>,
+    ): List<StandardLocation> = agents.map { locate(it) }
 }

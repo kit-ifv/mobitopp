@@ -20,16 +20,12 @@ value class TestId(val value: Long) : Comparable<TestId> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: TestId): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: TestId): Int = value.compareTo(other.value)
 
     /**
      * @return the next higher id.
      */
-    fun next(): TestId {
-        return TestId(value + 1)
-    }
+    fun next(): TestId = TestId(value + 1)
 }
 
 interface ImmutableEntity : Identifiable<TestId> {
@@ -58,7 +54,8 @@ data class TestEntity(
     override var double: Double = 0.0,
     override var bool: Boolean = false,
     override var duration: Duration? = null,
-) : Identifiable<TestId>, ImmutableEntity {
+) : Identifiable<TestId>,
+    ImmutableEntity {
     override val id: TestId
         get() = TestId(rowIndex.toLong())
 }

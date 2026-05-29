@@ -10,7 +10,6 @@ import domain.shared.datastructure.schedule.Schedule
 import domain.shared.enums.Mode
 import domain.shared.location.LocationWithZoneId
 import domain.shared.location.StandardLocation
-import domain.shared.location.attributes.HasZoneId
 import domain.simulation.events.PersonBehavior
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.PersonId
@@ -28,7 +27,9 @@ abstract class PersonAgent(
     override val household: HouseholdAgent,
     stateMachine: StateMachineFactory<PersonAgent>,
     seed: Long,
-) : IPerson, StateBasedAgent<PersonMessage>, StochasticActor {
+) : IPerson,
+    StateBasedAgent<PersonMessage>,
+    StochasticActor {
 
     final override val random: Random by lazy { Random(id.value + seed) }
 
@@ -45,30 +46,24 @@ abstract class PersonAgent(
     var location: StandardLocation = household.location
 }
 
-fun PersonAgent.lastTransportMode(action: Action? = null): Mode? {
-    return schedule.pastLegs().lastOrNull { action?.let { act -> it < act } ?: true }?.transportType
-}
+fun PersonAgent.lastTransportMode(action: Action? = null): Mode? = schedule.pastLegs().lastOrNull {
+    action?.let { act -> it < act } ?: true
+}?.transportType
 
-fun PersonAgent.lastTransportModeDeprecated(): Mode? {
-    return schedule.past.filter { it is MovingAction }.map {
-        (it as MovingAction).transportType
-    }.lastOrNull()
-}
+fun PersonAgent.lastTransportModeDeprecated(): Mode? = schedule.past.filter { it is MovingAction }.map {
+    (it as MovingAction).transportType
+}.lastOrNull()
 
-fun Schedule.location(): LocationWithZoneId? {
-    return present?.startLocation ?: past.lastOrNull()?.endLocation
-}
+fun Schedule.location(): LocationWithZoneId? = present?.startLocation ?: past.lastOrNull()?.endLocation
 
 fun PersonAgent.locationBySchedule() = schedule.location() ?: household.location
 
-fun PersonAgent.getBestCarOrNull(): PrivateCarAgent? {
-    return household.cars.filter {
-        it.state == PrivateCarAgent.CarState.PARKED &&
-            (it.location == this.location) &&
-            (it.keyHolder?.let { kh -> kh == this } ?: true)
-    }.maxByOrNull {
-        if (it.mainUser == this) 1 else 0
-    }
+fun PersonAgent.getBestCarOrNull(): PrivateCarAgent? = household.cars.filter {
+    it.state == PrivateCarAgent.CarState.PARKED &&
+        (it.location == this.location) &&
+        (it.keyHolder?.let { kh -> kh == this } ?: true)
+}.maxByOrNull {
+    if (it.mainUser == this) 1 else 0
 }
 
 fun PersonAgent.getBestCar(): PrivateCarAgent = requireNotNull(this.getBestCarOrNull()) {

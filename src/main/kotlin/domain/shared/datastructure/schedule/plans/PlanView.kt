@@ -71,8 +71,7 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
         replaceActivities(target, to)
     }
 
-    override fun replaceLegs(target: SortedSet<Leg>, to: SortedSet<Leg>) =
-        modifyModels { replaceLegs(target, to) }
+    override fun replaceLegs(target: SortedSet<Leg>, to: SortedSet<Leg>) = modifyModels { replaceLegs(target, to) }
 
     override fun pollFirst(): LinkedAction? {
         val target = mutableCollection.first().first()
@@ -80,9 +79,7 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
         return target
     }
 
-    override fun firstAction(): LinkedAction? {
-        return mutableCollection.first().first()
-    }
+    override fun firstAction(): LinkedAction? = mutableCollection.first().first()
 
     override fun dropUntil(activity: Activity) = modifyModels { dropUntil(activity) }
 }
@@ -93,9 +90,7 @@ class SingularDispatcher : IDispatcher {
         this.model = model
     }
 
-    override fun add(activity: Activity): LinkedActivity? {
-        return model.add(activity)
-    }
+    override fun add(activity: Activity): LinkedActivity? = model.add(activity)
 
     override fun add(leg: Leg) {
         model.add(leg)
@@ -117,13 +112,9 @@ class SingularDispatcher : IDispatcher {
         model.replaceLegs(target, to)
     }
 
-    override fun pollFirst(): LinkedAction? {
-        return model.removeFirst()
-    }
+    override fun pollFirst(): LinkedAction? = model.removeFirst()
 
-    override fun firstAction(): LinkedAction? {
-        return model.first()
-    }
+    override fun firstAction(): LinkedAction? = model.first()
 
     override fun dropUntil(activity: Activity) {
         model.dropUntil(activity)

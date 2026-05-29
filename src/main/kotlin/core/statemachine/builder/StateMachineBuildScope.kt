@@ -18,7 +18,7 @@ import utils.units.AbsoluteTime
  */
 fun <A> stateMachine(
     name: String,
-    scope: StateMachineBuilder<A>.() -> Unit
+    scope: StateMachineBuilder<A>.() -> Unit,
 ): StateMachineFactory<A> where A : Agent<*> {
     val builder = StateMachineBuilderImpl<A>(name)
     builder.scope()
@@ -32,9 +32,7 @@ fun <A> stateMachine(
  * @param A The type of agent this state machine builder is for
  * @property name The name of the state machine being built
  */
-private class StateMachineBuilderImpl<A>(
-    private val name: String
-) : StateMachineBuilder<A> where A : Agent<*> {
+private class StateMachineBuilderImpl<A>(private val name: String) : StateMachineBuilder<A> where A : Agent<*> {
 
     private val builders: MutableList<StateBuilder<out StateData>> = mutableListOf()
 
@@ -63,7 +61,7 @@ private class StateMachineBuilderImpl<A>(
     override fun <D : StateData> start(
         state: StateType<D>,
         initialize: (AbsoluteTime, A) -> D,
-        onEnter: OnEnter<D>?
+        onEnter: OnEnter<D>?,
     ): MessageResponseBuilder<D> {
         require(!this::initialize.isInitialized) {
             "Start state was already defined for state machine: $name"
@@ -83,10 +81,7 @@ private class StateMachineBuilderImpl<A>(
      * @return A builder for defining message responses for this state
      * @throws IllegalArgumentException if a state with this type has already been defined
      */
-    override fun <D : StateData> state(
-        state: StateType<D>,
-        onEnter: OnEnter<D>?
-    ): MessageResponseBuilder<D> {
+    override fun <D : StateData> state(state: StateType<D>, onEnter: OnEnter<D>?): MessageResponseBuilder<D> {
         require(state !in stateTypes) { stateExistsError(state) }
         val builder = ReactiveStateBuilder<D>(state, onEnter ?: {})
         builders.add(builder)
@@ -105,10 +100,7 @@ private class StateMachineBuilderImpl<A>(
      * @return A builder for defining the mandatory transition for this state
      * @throws IllegalArgumentException if a state with this type has already been defined
      */
-    override fun <D : StateData> transState(
-        state: StateType<D>,
-        onEnter: OnEnter<D>?
-    ): MandatoryTransitionBuilder<D> {
+    override fun <D : StateData> transState(state: StateType<D>, onEnter: OnEnter<D>?): MandatoryTransitionBuilder<D> {
         require(state !in stateTypes) { stateExistsError(state) }
         val builder = TransitoryStateBuilder<D>(state, onEnter ?: {})
         builders.add(builder)
@@ -125,10 +117,7 @@ private class StateMachineBuilderImpl<A>(
      * @param onEnter Optional function to execute when entering this state
      * @throws IllegalArgumentException if a state with this type has already been defined
      */
-    override fun <D : StateData> finState(
-        state: StateType<D>,
-        onEnter: OnEnter<D>?
-    ) {
+    override fun <D : StateData> finState(state: StateType<D>, onEnter: OnEnter<D>?) {
         require(state !in stateTypes) { stateExistsError(state) }
         val builder = FinalStateBuilder<D>(state, onEnter ?: {})
         builders.add(builder)

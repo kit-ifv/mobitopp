@@ -9,7 +9,6 @@ import core.modelsteps.Resource
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.asResource
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.Metrics
 import domain.shared.location.zone.StandardZone
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm
@@ -83,18 +82,16 @@ fun AddDrtProviderContext.dummyDrtAlgorithm(
     avgWaitingTime,
     serviceArea,
     operationHours,
-    numVehicles
+    numVehicles,
 )
 
-class AddDrtProviderStep(
-    context: AddDrtProviderContext,
-    providers: List<MutableDrtProviderData>
-) : AddResourceStep<MutableDrtProviderData, DrtProviderId> {
+class AddDrtProviderStep(context: AddDrtProviderContext, providers: List<MutableDrtProviderData>) :
+    AddResourceStep<MutableDrtProviderData, DrtProviderId> {
     override val name = "Add DrtProviders"
 
     override val resource: Resource<MutableDrtProviderData> = providers.asSequence().asResource(
         "newDrtProviders",
-        "AddDrtProviderStep"
+        "AddDrtProviderStep",
     )
 
 //    override fun mockElementsForValidation() = emptyList<MutableDrtProviderData>()

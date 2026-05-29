@@ -11,27 +11,16 @@ class TrivialSynthesis<AREA, H>(private val targets: List<H>, private val areas:
     RuleBasedPopulationSynthesis<AREA, H> {
 
     override val ruleProvider: RuleProvider<AREA, H> = object : RuleProvider<AREA, H> {
-        override fun get(
-            target: AREA,
-            logicIdentifier: LogicIdentifier,
-        ): Rule<H>? {
-            return null
-        }
+        override fun get(target: AREA, logicIdentifier: LogicIdentifier): Rule<H>? = null
 
-        override fun getAllRules(): Map<AREA, RuleSet<H>> {
-            return emptyMap()
-        }
+        override fun getAllRules(): Map<AREA, RuleSet<H>> = emptyMap()
 
-        override fun getRules(target: AREA): RuleSet<H> {
-            return emptySet<Rule<H>>().toRuleSet()
-        }
+        override fun getRules(target: AREA): RuleSet<H> = emptySet<Rule<H>>().toRuleSet()
     }
 
-    override fun synthesizeAll(): Map<AREA, List<H>> {
-        return areas.associateWith { targets.toMutableList() }
-    }
+    override fun synthesizeAll(): Map<AREA, List<H>> = areas.associateWith { targets.toMutableList() }
 
-    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<H>> {
-        return targetAreas.associateWith { targets.toMutableList() }
+    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<H>> = targetAreas.associateWith {
+        targets.toMutableList()
     }
 }

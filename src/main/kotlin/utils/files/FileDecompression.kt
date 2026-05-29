@@ -74,7 +74,7 @@ fun Path.decompressedInputStream(): InputStream {
         if (fileExtension != null) {
             errorScope(
                 ErrorHandling.THROW,
-                message = "Error while decompressing [$fileExtension] file $currentFileName; source: $this"
+                message = "Error while decompressing [$fileExtension] file $currentFileName; source: $this",
             ) {
                 inputStream = fileExtension.decompress(inputStream)
             }
@@ -198,19 +198,16 @@ enum class Compression(val extension: String, val decompress: (InputStream) -> I
     ;
 
     companion object {
-        fun fromExtension(ext: String): Compression? {
-            return entries.find { it.extension == ext }
+        fun fromExtension(ext: String): Compression? = entries.find { it.extension == ext }
+    }
+}
+
+private fun firstEntryOf(decompress: (InputStream) -> ArchiveInputStream<*>): (InputStream) -> InputStream =
+    { inputStream ->
+        val decompress1 = decompress(inputStream)
+
+        requireNotNull(decompress1.nextEntry) {
+            "Cannot decompress '$decompress1', at least one entry in archive is expected."
         }
+        decompress1
     }
-}
-
-private fun firstEntryOf(
-    decompress: (InputStream) -> ArchiveInputStream<*>
-): (InputStream) -> InputStream = { inputStream ->
-    val decompress1 = decompress(inputStream)
-
-    requireNotNull(decompress1.nextEntry) {
-        "Cannot decompress '$decompress1', at least one entry in archive is expected."
-    }
-    decompress1
-}

@@ -67,9 +67,7 @@ class DefaultRowTest {
 
     @Test
     fun index() {
-        reader.rows().forEachIndexed {
-                index, row,
-            ->
+        reader.rows().forEachIndexed { index, row ->
             assertEquals(index, row.index)
         }
     }

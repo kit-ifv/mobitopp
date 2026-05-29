@@ -14,7 +14,5 @@ interface Agenda : Representative<LinkedActivity> {
 class RawAgenda(override val elements: List<LinkedActivity>) : Agenda {
     constructor(activityBlock: ActivityBlock) : this(activityBlock.item.toList())
 
-    override fun <X> accept(actionBlockVisitor: ActionBlockVisitor<X>): X {
-        return actionBlockVisitor.visitActivityBlock(this)
-    }
+    override fun <X> accept(actionBlockVisitor: ActionBlockVisitor<X>): X = actionBlockVisitor.visitActivityBlock(this)
 }

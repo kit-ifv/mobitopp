@@ -13,9 +13,7 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.Mode
 import domain.shared.enums.legacyChoiceModelModes
-import domain.shared.location.LegacyZone
 import domain.shared.location.StandardLocation
-import domain.shared.location.DeprecatedZone
 import domain.shared.location.ZoneId
 import domain.shared.location.zone.StandardZone
 import domain.simulation.agent.DrtOffer
@@ -57,7 +55,7 @@ fun LoadBehaviorModelsContext.loadBehaviorModels(
         StandardDestinationImplementation,
         StandardModeImplementation,
         replanningStrategy,
-    )
+    ),
 )
 
 data class LoadBehaviorModelConfig(
@@ -69,16 +67,12 @@ data class LoadBehaviorModelConfig(
     val replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
 )
 
-fun LoadBehaviorModelsContext.loadBehaviorModels(
-    config: LoadBehaviorModelConfig,
-) = runStep {
+fun LoadBehaviorModelsContext.loadBehaviorModels(config: LoadBehaviorModelConfig) = runStep {
     loadBehaviorModelsStep(config)
 }
 
-fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
-    config: LoadBehaviorModelConfig,
-): LoadBehaviorModelsStep {
-    return config.run {
+fun LoadBehaviorModelsContext.loadBehaviorModelsStep(config: LoadBehaviorModelConfig): LoadBehaviorModelsStep =
+    config.run {
         LoadBehaviorModelsStep(
             this@loadBehaviorModelsStep,
             destinationChoiceModel,
@@ -89,7 +83,6 @@ fun LoadBehaviorModelsContext.loadBehaviorModelsStep(
             replanningStrategy,
         )
     }
-}
 
 interface LoadBehaviorModelsContext : DemandSimContext {
     val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
@@ -115,7 +108,9 @@ open class LoadBehaviorModelsStep(
     override val name: String = "Load behavior models!"
     override val repository: MutableRepository<*, *>? = null
     override val dependentRepositories: Set<Repository<*, *>> = setOf(
-        context.zoneRepository, context.sharingProviderRepository, context.drtProviderRepository
+        context.zoneRepository,
+        context.sharingProviderRepository,
+        context.drtProviderRepository,
     )
 
     override fun execute() {
@@ -143,13 +138,13 @@ open class LoadBehaviorModelsStep(
             modes,
             sharingProvidersByMode,
             drtProvidersByMode,
-            impedance
+            impedance,
         )
 
         val modeChoice = modeChoiceModel.addFilter(availability.asResourceAvailabilityFilter())
 
         val destinationChoice = destinationChoiceModel.fixed(
-            context.zoneRepository.elements.map { it.centroidLocation }.toSet()
+            context.zoneRepository.elements.map { it.centroidLocation }.toSet(),
         )
 
         val behavior = PersonBehavior(
@@ -163,7 +158,7 @@ open class LoadBehaviorModelsStep(
             availability,
             spawnDestinationChoiceCharacteristics,
             spawnModeChoiceCharacteristics,
-            replanningStrategy
+            replanningStrategy,
         )
 
         context.behavior.value = behavior
@@ -195,20 +190,21 @@ open class LoadBehaviorModelsStep(
             StandardModeImplementation,
         )
     }
-
 }
 
 object DummyAvailability : ModeAvailabilityModel {
 
-    context(person: IPerson) override fun staticAvailability(mode: Mode) = true
+    context(person: IPerson)
+    override fun staticAvailability(mode: Mode) = true
 
     context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     override fun providerAvailability(mode: Mode) = mode.available()
 
-    context(characteristics: ModeChoiceCharacteristics) override fun resourceAvailability(mode: Mode) = true
+    context(characteristics: ModeChoiceCharacteristics)
+    override fun resourceAvailability(mode: Mode) = true
 }
 
-object DummyDrtAvailabilitySelector: DrtAvailabilitySelector {
+object DummyDrtAvailabilitySelector : DrtAvailabilitySelector {
 
     context(agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation)
     override fun getDrtProvidersCurrentlyOperating(): List<DrtProviderAgent> = emptyList()

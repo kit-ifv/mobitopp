@@ -9,7 +9,6 @@ import domain.shared.location.ZonedRoadAccessLocationImpl
 interface HasRoadAccess : Location {
     val roadAccess: RoadAccess
 
-    override fun withZone(zoneId: ZoneId): ZonedRoadAccessLocation {
-        return ZonedRoadAccessLocationImpl(position, zoneId, roadAccess)
-    }
+    override fun withZone(zoneId: ZoneId): ZonedRoadAccessLocation =
+        ZonedRoadAccessLocationImpl(position, zoneId, roadAccess)
 }

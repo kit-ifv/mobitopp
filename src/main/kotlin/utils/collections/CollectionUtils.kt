@@ -37,10 +37,7 @@ fun <K, V> MutableMap<K, V>.replaceOrRemoveAll(mapping: (K, V) -> V?) {
     }
 }
 
-fun <T> Collection<T>.pickWithReplacement(
-    amount: Int,
-    random: Random = Random(1)
-): List<T> {
+fun <T> Collection<T>.pickWithReplacement(amount: Int, random: Random = Random(1)): List<T> {
     val inputList = toList()
     return List(amount) { inputList[random.nextInt(inputList.size)] }
 }

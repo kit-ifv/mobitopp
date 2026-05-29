@@ -48,7 +48,7 @@ private const val HALF_FLOAT_MIN_POSITIVE_VALUE: Double = 6.10649585723877E-5 //
 class MatrixHalfFloatFormat(
     val overflowValue: Double = Double.POSITIVE_INFINITY,
     val underflowValue: Double = Double.NaN,
-    override val elementByteSize: Int = Short.SIZE_BYTES
+    override val elementByteSize: Int = Short.SIZE_BYTES,
 ) : StandardMatrixBinaryFormat {
     override val fileExtension: String = ".hfbin"
 
@@ -58,18 +58,20 @@ class MatrixHalfFloatFormat(
         }
     }
 
-    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray {
-        return readLoop(byteBuffer, elements) {
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray =
+        readLoop(byteBuffer, elements) {
             it.getShort().fromHalfFloat()
         }
-    }
 
     fun Short.fromHalfFloat(): Double {
         // half float has these three special values, everything else is a valid half float
         return when (this) {
             HALF_FLOAT_NEGATIVE_INFINITY -> underflowValue
+
             HALF_FLOAT_INFINITY -> overflowValue
+
             HALF_FLOAT_NAN -> Double.NaN
+
             else -> {
                 val bits = this.toDoubleExponent() or this.toDoubleMantissa()
                 Double.fromBits(bits)

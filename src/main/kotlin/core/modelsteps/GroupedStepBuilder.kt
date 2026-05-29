@@ -37,38 +37,32 @@ abstract class GroupedStepBuilder<E : Identifiable<I>, I> {
 //    ): FileBasedAddResourceStep<E, I>
 
     // If you dont want to use a binary cache.
-    fun FileBasedAddResourceStep<E, I>.disableCache(): AddResourceStep<E, I> {
-        return step
-    }
+    fun FileBasedAddResourceStep<E, I>.disableCache(): AddResourceStep<E, I> = step
 
     /**
      * Enables binary caching (using `enableCache`) if the cacheRootPath is not null.
      * Otherwise, no caching is done.
      */
-    fun FileBasedAddResourceStep<E, I>.optionalCache(cacheRootPath: Path?): AddResourceStep<E, I> {
-        return if (cacheRootPath != null) {
+    fun FileBasedAddResourceStep<E, I>.optionalCache(cacheRootPath: Path?): AddResourceStep<E, I> =
+        if (cacheRootPath != null) {
             enableCache(cacheRootPath)
         } else {
             disableCache()
         }
-    }
 
     // Enable the binary cache at the cacheRootPath.
-    fun FileBasedAddResourceStep<E, I>.enableCache(cacheRootPath: Path = Path.of("data")): AddResourceStep<E, I> {
-        return step.cacheInternally(cacheRootPath = cacheRootPath, sourcePath = source)
-    }
+    fun FileBasedAddResourceStep<E, I>.enableCache(cacheRootPath: Path = Path.of("data")): AddResourceStep<E, I> =
+        step.cacheInternally(cacheRootPath = cacheRootPath, sourcePath = source)
     private fun AbstractAddResourceStep<E, I>.cacheInternally(
         cacheRootPath: Path,
-        sourcePath: Path
-    ): AddResourceStep<E, I> {
-        return this.cached(
-            reader,
-            writer,
-            cacheRootPath = cacheRootPath,
-            sourcePath = sourcePath
+        sourcePath: Path,
+    ): AddResourceStep<E, I> = this.cached(
+        reader,
+        writer,
+        cacheRootPath = cacheRootPath,
+        sourcePath = sourcePath,
 
-        )
-    }
+    )
 
     /**
      * Executes the pipeline: [source] → optional [filter] → [additionalSteps].

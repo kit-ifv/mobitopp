@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package domain.jackson
 
 import domain.jackson.durationParsing.DurationParser
@@ -66,7 +68,7 @@ class DurationDeserializerTest {
         for ((durationString, duration) in durationTestMap) {
             assertEquals(
                 AbsoluteTime(duration),
-                AbsoluteTime(parser.parseDuration(durationString))
+                AbsoluteTime(parser.parseDuration(durationString)),
             )
             Yaml.writeYaml(tempFile, AbsoluteTime(duration))
             val parsed = Yaml.readYaml<AbsoluteTime>(tempFile)

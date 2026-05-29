@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package domain.shared.location
 
 import edu.kit.ifv.units.DistanceUnit

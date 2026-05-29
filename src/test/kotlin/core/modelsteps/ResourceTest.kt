@@ -46,7 +46,7 @@ abstract class ResourceTest<E> {
         assertEquals(
             expectedBaseSource(),
             resource.source,
-            "Expected '${expectedBaseSource()}' but got '${resource.source}'!"
+            "Expected '${expectedBaseSource()}' but got '${resource.source}'!",
         )
     }
 
@@ -60,7 +60,7 @@ abstract class ResourceTest<E> {
         assertEquals(
             expectedToString(),
             resource.toString(),
-            "Expected '${expectedToString()}' but got '$resource'!"
+            "Expected '${expectedToString()}' but got '$resource'!",
         )
     }
 
@@ -76,7 +76,7 @@ abstract class ResourceTest<E> {
         assertEquals(
             expectedSources.size,
             sourcePath.size,
-            "expected sources ${expectedSources.toList()} but got ${sourcePath.toList()}"
+            "expected sources ${expectedSources.toList()} but got ${sourcePath.toList()}",
         )
 
         expectedSources.zip(sourcePath).forEach { pair ->
@@ -94,7 +94,7 @@ class SequenceResourceTest : ResourceTest<String>() {
     override fun init() = SequenceResource(
         name,
         source,
-        elements.asSequence()
+        elements.asSequence(),
     )
 
     override fun expectedName() = name
@@ -111,13 +111,13 @@ class CsvResourceTest : ResourceTest<TestEntity>() {
         val parser = CsvParser { row ->
             TestEntity(
                 rowIndex = row.index,
-                string = row("str")
+                string = row("str"),
             )
         }
 
         return CsvResource(
             path = path,
-            parser = parser
+            parser = parser,
         )
     }
 

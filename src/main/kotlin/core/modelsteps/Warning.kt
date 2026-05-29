@@ -15,10 +15,7 @@ import kotlin.io.path.absolutePathString
  * @property message the warning message
  * @property isError whether this warning is a critical error
  */
-class Warning(
-    val message: String,
-    val isError: Boolean,
-) {
+class Warning(val message: String, val isError: Boolean) {
 
     constructor(cause: Throwable, isError: Boolean) : this(
         cause.message ?: (
@@ -28,7 +25,7 @@ class Warning(
                 "Warning"
             }
             ),
-        isError
+        isError,
     )
 
     private val childWarnings: MutableList<Warning> = mutableListOf()
@@ -83,7 +80,7 @@ class Warning(
                     "WARNING: "
                 } + it.message
             },
-            false
+            false,
         ) { it.subWarnings }
     }
 }
@@ -119,10 +116,7 @@ fun validateScope(
  * @receiver the paren [Warning] to which caught exceptions should be added to as child warnings
  */
 @Suppress("TooGenericExceptionCaught")
-fun Warning.validateNoException(
-    exceptionsAreErrors: Boolean = true,
-    scope: Warning.() -> Unit,
-) = try {
+fun Warning.validateNoException(exceptionsAreErrors: Boolean = true, scope: Warning.() -> Unit) = try {
     this.scope()
 } catch (e: Throwable) {
     this.addChild(e.toString(), exceptionsAreErrors)
@@ -141,14 +135,14 @@ fun Warning.subValidation(scope: Warning.() -> Warning?): Warning {
 
 fun validateFileReadAccess(path: Path, isError: Boolean = true, fileDescription: String = "") = validateScope(
     message = "Validate read access of: ${path.absolutePathString()}",
-    exceptionsAreErrors = isError
+    exceptionsAreErrors = isError,
 ) {
     requireFileReadAccess(path, messagePrefix = fileDescription, errorLevel = ErrorHandling.THROW_NO_LOG)
 }
 
 fun validateFileWriteAccess(path: Path, isError: Boolean = true, fileDescription: String = "") = validateScope(
     message = "Validate write access of: ${path.absolutePathString()}",
-    exceptionsAreErrors = isError
+    exceptionsAreErrors = isError,
 ) {
     requireFileWriteAccess(path, messagePrefix = fileDescription)
 }

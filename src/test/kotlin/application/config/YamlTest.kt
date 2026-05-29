@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package application.config
 
 import application.config.subconfigs.BikeSharingConfig
@@ -37,14 +39,10 @@ private class MyParameterClass(val name: String) {
         return this.name == other.name
     }
 
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
+    override fun hashCode(): Int = javaClass.hashCode()
 }
 
-private data class TestClass(
-    var t: MyParameterClass,
-)
+private data class TestClass(var t: MyParameterClass)
 
 class YamlTest {
 
@@ -92,7 +90,7 @@ class YamlTest {
             default = mapOf(
                 "custom" to MyParameterClass("test"),
             ),
-            loadFromSubmodules = false
+            loadFromSubmodules = false,
         )
 
         Yaml.mapper.registerModule(builder.getModule())
@@ -113,7 +111,7 @@ class YamlTest {
             default = mapOf(
                 "fileDoesntUseThisKey" to MyParameterClass("test"),
             ),
-            loadFromSubmodules = false
+            loadFromSubmodules = false,
         )
         Yaml.mapper.registerModule(builder.getModule())
         assertThrows(JsonMappingException::class.java) {
@@ -133,7 +131,7 @@ class YamlTest {
                 "custom" to MyParameterClass("test"),
                 "other" to MyParameterClass("test2"),
             ),
-            loadFromSubmodules = false
+            loadFromSubmodules = false,
         )
 
         Yaml.mapper.registerModule(builder.getModule())

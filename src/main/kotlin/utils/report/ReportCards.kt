@@ -20,14 +20,10 @@ internal enum class ReportType(val cssClass: String) {
     NORMAL("normal"),
     SUCCESS("success"),
     WARNING("warning"),
-    ERROR("error")
+    ERROR("error"),
 }
 
-internal abstract class ReportStandardCard(
-    val name: String,
-    val message: String,
-    val type: ReportType
-) {
+internal abstract class ReportStandardCard(val name: String, val message: String, val type: ReportType) {
     fun getHtml(): String {
         val contentID = Random.nextInt().toString()
 
@@ -63,8 +59,8 @@ internal abstract class ReportStandardCard(
  * @param classname additional css classnames, if needed.
  * @param contentID a, in the context of the document, unique identifier.
  */
-fun rotatableArrow(contentID: String, classname: String = ""): String {
-    return createHTML().svg(classes = "rotatable $classname") {
+fun rotatableArrow(contentID: String, classname: String = ""): String =
+    createHTML().svg(classes = "rotatable $classname") {
         id = contentID
         @Suppress("StringLiteralDuplication")
         attributes["stroke"] = "currentColor"
@@ -82,18 +78,13 @@ fun rotatableArrow(contentID: String, classname: String = ""): String {
             """.trimIndent()
         }
     }
-}
 
 internal class Warning(name: String, message: String) : ReportStandardCard(name, message, ReportType.WARNING)
 internal class Error(name: String, message: String) : ReportStandardCard(name, message, ReportType.ERROR)
 internal class Success(name: String, message: String) : ReportStandardCard(name, message, ReportType.SUCCESS)
 internal class Normal(name: String, message: String) : ReportStandardCard(name, message, ReportType.NORMAL)
 
-internal data class StatusStep(
-    val name: String,
-    val status: CardStatus,
-    val hoverInformation: String
-)
+internal data class StatusStep(val name: String, val status: CardStatus, val hoverInformation: String)
 
 /**
  * Generic status enum used in the ReportBuilder framework.
@@ -101,7 +92,7 @@ internal data class StatusStep(
 enum class CardStatus {
     SUCCESS,
     WARNING,
-    FAILURE
+    FAILURE,
 }
 
 /**
@@ -155,60 +146,58 @@ internal class OverviewCard {
     }
 }
 
-private fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
-    return createHTML().div("step") {
-        attributes["title"] = hoverInformation
-        span("flex-row-centered") {
-            span {
-                style = "color: var(--highlight-color);"
-                unsafe {
-                    +dotSVG
-                }
-                if (connectorEnabled) {
+private fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String = createHTML().div("step") {
+    attributes["title"] = hoverInformation
+    span("flex-row-centered") {
+        span {
+            style = "color: var(--highlight-color);"
+            unsafe {
+                +dotSVG
+            }
+            if (connectorEnabled) {
+                span {
+                    style = "position: relative;width: 0;"
                     span {
-                        style = "position: relative;width: 0;"
-                        span {
-                            style = "position: absolute; top: -75px;left: -12.5px;"
-                            unsafe {
-                                +Path("src/integration.main/kotlin/utils/report/assets/Connector.svg").readText()
-                            }
+                        style = "position: absolute; top: -75px;left: -12.5px;"
+                        unsafe {
+                            +Path("src/integration.main/kotlin/utils/report/assets/Connector.svg").readText()
                         }
                     }
                 }
             }
-            h6 {
-                style = "width: min-content;max-width: 80%; white-space: normal; text-wrap: nowrap; overflow:hidden; " +
-                    "overflow-inline: auto;"
-                +name
-            }
-            div("line")
-            unsafe {
-                +statusIcon(status)
-            }
+        }
+        h6 {
+            style = "width: min-content;max-width: 80%; white-space: normal; text-wrap: nowrap; overflow:hidden; " +
+                "overflow-inline: auto;"
+            +name
+        }
+        div("line")
+        unsafe {
+            +statusIcon(status)
         }
     }
 }
 
-private fun statusIcon(status: CardStatus): String {
-    return createHTML().span {
-        when (status) {
-            CardStatus.SUCCESS -> {
-                style = "color: var(--success-color)"
-                unsafe {
-                    +Path("src/integration.main/kotlin/utils/report/assets/Success_V3.svg").readText()
-                }
+private fun statusIcon(status: CardStatus): String = createHTML().span {
+    when (status) {
+        CardStatus.SUCCESS -> {
+            style = "color: var(--success-color)"
+            unsafe {
+                +Path("src/integration.main/kotlin/utils/report/assets/Success_V3.svg").readText()
             }
-            CardStatus.WARNING -> {
-                style = "color: var(--warning-color)"
-                unsafe {
-                    +Path("src/integration.main/kotlin/utils/report/assets/Warning_V3.svg").readText()
-                }
+        }
+
+        CardStatus.WARNING -> {
+            style = "color: var(--warning-color)"
+            unsafe {
+                +Path("src/integration.main/kotlin/utils/report/assets/Warning_V3.svg").readText()
             }
-            CardStatus.FAILURE -> {
-                style = "color: var(--error-color);"
-                unsafe {
-                    +Path("src/integration.main/kotlin/utils/report/assets/Failure_V3.svg").readText()
-                }
+        }
+
+        CardStatus.FAILURE -> {
+            style = "color: var(--error-color);"
+            unsafe {
+                +Path("src/integration.main/kotlin/utils/report/assets/Failure_V3.svg").readText()
             }
         }
     }

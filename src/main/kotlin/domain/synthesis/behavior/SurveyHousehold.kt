@@ -10,11 +10,8 @@ class SurveyHousehold<out HouseholdInfo : MinimumHouseholdAttributes, out Person
     override val members: List<SurveyPerson<PersonInfo>>,
 
     override val attributes: HouseholdInfo,
-) :
-    ISurveyHousehold<HouseholdInfo, PersonInfo> {
+) : ISurveyHousehold<HouseholdInfo, PersonInfo> {
     lateinit var economicStatus: EconomicStatus
 
-    override fun toString(): String {
-        return "Survey Household($surveyHouseholdId) [${members.joinToString { it.toString() }}"
-    }
+    override fun toString(): String = "Survey Household($surveyHouseholdId) [${members.joinToString { it.toString() }}"
 }

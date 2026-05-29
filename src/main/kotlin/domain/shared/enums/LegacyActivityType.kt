@@ -37,7 +37,7 @@ enum class LegacyActivityType(override val code: Int) : ActivityType {
     EDUCATION_PRIMARY(31),
     EDUCATION_SECONDARY(32),
     EDUCATION_TERTIARY(33),
-    EDUCATION_OCCUP(34)
+    EDUCATION_OCCUP(34),
     ;
 
     override val description: String
@@ -77,7 +77,7 @@ val legacyChoiceModelPurposes = ChoiceModelPurposes(
         LegacyActivityType.SHOPPING_OTHER,
         LegacyActivityType.EDUCATION_PRIMARY,
         LegacyActivityType.EDUCATION_SECONDARY,
-        LegacyActivityType.EDUCATION_TERTIARY
+        LegacyActivityType.EDUCATION_TERTIARY,
     ),
     leisureTypes = setOf(
         LegacyActivityType.LEISURE,
@@ -93,7 +93,7 @@ val legacyChoiceModelPurposes = ChoiceModelPurposes(
         LegacyActivityType.EDUCATION_PRIMARY,
         LegacyActivityType.EDUCATION_SECONDARY,
         LegacyActivityType.EDUCATION_TERTIARY,
-        LegacyActivityType.EDUCATION_OCCUP
+        LegacyActivityType.EDUCATION_OCCUP,
     ),
     shoppingTypes = setOf(
         LegacyActivityType.SHOPPING,
@@ -106,5 +106,5 @@ val legacyChoiceModelPurposes = ChoiceModelPurposes(
         LegacyActivityType.BUSINESS_TRAVEL,
         LegacyActivityType.BUSINESS_OUT,
         LegacyActivityType.BUSINESS_TO_WORK,
-    )
+    ),
 )

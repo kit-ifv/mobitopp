@@ -17,13 +17,9 @@ class ActionModel(override val dispatcher: IDispatcher) : PlanModel {
         dispatcher.register(this)
     }
 
-    override fun actions(): Collection<LinkedAction> {
-        return actions.toSet()
-    }
+    override fun actions(): Collection<LinkedAction> = actions.toSet()
 
-    override fun first(): LinkedAction? {
-        return actions.firstOrNull()
-    }
+    override fun first(): LinkedAction? = actions.firstOrNull()
 
     override fun clear() {
         actions.forEach { it.unlink() }
@@ -98,7 +94,9 @@ class ActionModel(override val dispatcher: IDispatcher) : PlanModel {
     }
 
     fun view() = ActionView(this)
-    class ActionView(private val model: ActionModel) : PlanView, Set<Action> by model.actions {
+    class ActionView(private val model: ActionModel) :
+        PlanView,
+        Set<Action> by model.actions {
         override val dispatcher: IDispatcher = model.dispatcher
     }
 }

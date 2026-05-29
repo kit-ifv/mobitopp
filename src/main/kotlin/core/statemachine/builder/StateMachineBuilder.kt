@@ -69,7 +69,7 @@ interface StateMachineBuilder<A> where A : Agent<*> {
     fun <D : StateData> start(
         state: StateType<D>,
         initialize: (AbsoluteTime, A) -> D,
-        onEnter: OnEnter<D>? = null
+        onEnter: OnEnter<D>? = null,
     ): MessageResponseBuilder<D>
 
     /**
@@ -95,7 +95,7 @@ interface StateMachineBuilder<A> where A : Agent<*> {
      */
     fun <D> transState(
         state: StateType<D>,
-        onEnter: OnEnter<D>? = null
+        onEnter: OnEnter<D>? = null,
     ): MandatoryTransitionBuilder<D> where D : StateData
     // TODO actually there is no need for an onEnter function in transStates,
     // the onEnter logic can always be prepended to the next transition code block
@@ -172,7 +172,7 @@ interface MessageResponseBuilder<D> : FallbackTransitionBuilder<D> where D : Sta
      */
     fun <T> transitionOn(
         message: MessageType<T>,
-        onMessage: TransitionOnMessage<D, T>
+        onMessage: TransitionOnMessage<D, T>,
     ): MessageResponseBuilder<D> where T : Message
 }
 
@@ -188,12 +188,10 @@ interface MessageResponseBuilder<D> : FallbackTransitionBuilder<D> where D : Sta
  */
 fun <D : StateData, T> MessageResponseBuilder<D>.on(
     message: MessageType<T>,
-    onMessage: OnMessage<D, T>
-): MessageResponseBuilder<D> where T : Message {
-    return transitionOn(message) { message, send ->
-        onMessage(message, send)
-        null
-    }
+    onMessage: OnMessage<D, T>,
+): MessageResponseBuilder<D> where T : Message = transitionOn(message) { message, send ->
+    onMessage(message, send)
+    null
 }
 
 /**

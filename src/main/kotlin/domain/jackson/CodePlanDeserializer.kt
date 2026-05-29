@@ -62,11 +62,7 @@ class CodePlanDeserializer : JsonDeserializer<CodePlan<*>>() {
  * Serializes `CodePlan<*>`. If no serialization is known it maps to a default value using that codeplan's hashcode.
  */
 class CodePlanSerializer : JsonSerializer<CodePlan<*>>() {
-    override fun serialize(
-        value: CodePlan<*>,
-        gen: JsonGenerator?,
-        serializers: SerializerProvider?
-    ) {
+    override fun serialize(value: CodePlan<*>, gen: JsonGenerator?, serializers: SerializerProvider?) {
         if (gen != null) {
             val t: String? = SurrogateRegistry.inverseMapping[value.javaClass]
             if (t != null) {
@@ -74,7 +70,7 @@ class CodePlanSerializer : JsonSerializer<CodePlan<*>>() {
             } else {
                 error(
                     "Unkown codeplan ${value.javaClass}. \n Codeplans that can be serialized:" +
-                        " ${SurrogateRegistry.inverseMapping}"
+                        " ${SurrogateRegistry.inverseMapping}",
                 )
             }
         }
@@ -117,7 +113,7 @@ object SurrogateRegistry {
     private fun register(
         key: String,
         value: Class<out CodePlanSurrogate<*>>,
-        target: MutableMap<String, Class<out CodePlanSurrogate<*>>>
+        target: MutableMap<String, Class<out CodePlanSurrogate<*>>>,
     ) {
         val existing = target.putIfAbsent(key, value)
         if (existing != null) {
@@ -149,9 +145,7 @@ class CoreCodePlans : CodePlanSurrogateProvider {
         registry["coreEconomicStatusCodes"] = CoreEconomicStatusSurrogate::class.java
     }
 
-    override fun getSurrogateTypes(): Map<String, Class<out CodePlanSurrogate<*>>> {
-        return registry
-    }
+    override fun getSurrogateTypes(): Map<String, Class<out CodePlanSurrogate<*>>> = registry
 }
 
 /**
@@ -164,60 +158,40 @@ abstract class CodePlanSurrogate<T : Encodable> {
 abstract class ModeSurrogate : CodePlanSurrogate<Mode>()
 abstract class RegionTypeSurrogate : CodePlanSurrogate<RegionType>()
 class CoreRegionTypeSurrogate : RegionTypeSurrogate() {
-    override fun resolve(): CodePlan<RegionType> {
-        return RegioStaR17
-    }
+    override fun resolve(): CodePlan<RegionType> = RegioStaR17
 }
 class CoreModeSurrogate : ModeSurrogate() {
-    override fun resolve(): CodePlan<Mode> {
-        return LegacyMode.Companion
-    }
+    override fun resolve(): CodePlan<Mode> = LegacyMode.Companion
 }
 
 class MainModeSurrogate : ModeSurrogate() {
-    override fun resolve(): CodePlan<Mode> {
-        return MainModes
-    }
+    override fun resolve(): CodePlan<Mode> = MainModes
 }
 
 class CoreSexSurrogate : CodePlanSurrogate<Sex>() {
-    override fun resolve(): CodePlan<Sex> {
-        return Sex.Companion
-    }
+    override fun resolve(): CodePlan<Sex> = Sex.Companion
 }
 
 class CoreGraduationSurrogate : CodePlanSurrogate<Graduation>() {
-    override fun resolve(): CodePlan<Graduation> {
-        return Graduation.Companion
-    }
+    override fun resolve(): CodePlan<Graduation> = Graduation.Companion
 }
 
 class CoreEmploymentSurrogate : CodePlanSurrogate<Employment>() {
-    override fun resolve(): CodePlan<Employment> {
-        return Employment.Companion
-    }
+    override fun resolve(): CodePlan<Employment> = Employment.Companion
 }
 
 class CoreEngineTypeSurrogate : CodePlanSurrogate<EngineType>() {
-    override fun resolve(): CodePlan<EngineType> {
-        return EngineType.Companion
-    }
+    override fun resolve(): CodePlan<EngineType> = EngineType.Companion
 }
 
 class CoreCarSegmentSurrogate : CodePlanSurrogate<CarSegment>() {
-    override fun resolve(): CodePlan<CarSegment> {
-        return CarSegment.Companion
-    }
+    override fun resolve(): CodePlan<CarSegment> = CarSegment.Companion
 }
 
 class CoreActivityTypeSurrogate : CodePlanSurrogate<ActivityType>() {
-    override fun resolve(): CodePlan<ActivityType> {
-        return LegacyActivityType.Companion
-    }
+    override fun resolve(): CodePlan<ActivityType> = LegacyActivityType.Companion
 }
 
 class CoreEconomicStatusSurrogate : CodePlanSurrogate<EconomicStatus>() {
-    override fun resolve(): CodePlan<EconomicStatus> {
-        return EconomicStatus.Companion
-    }
+    override fun resolve(): CodePlan<EconomicStatus> = EconomicStatus.Companion
 }

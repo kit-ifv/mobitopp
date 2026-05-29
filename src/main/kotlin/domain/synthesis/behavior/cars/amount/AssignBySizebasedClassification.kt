@@ -49,7 +49,7 @@ class AssignBySizebasedClassification<A, P>(
     }
 
     override fun determineNumberOfCars(
-        householdBuilder: MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>
+        householdBuilder: MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>,
     ): Int {
         val region = householdBuilder.attributes.location.sizebasedRegiostarClassification
         // TODO check where the randomness for this dcm should come from
@@ -58,13 +58,11 @@ class AssignBySizebasedClassification<A, P>(
         }
     }
 
-    private fun SizebasedRegiostarClassification.toParameters(): P {
-        return when (this) {
-            SizebasedRegiostarClassification.CITY -> cityParameters
-            SizebasedRegiostarClassification.SMALL_TOWN -> smallTownParameters
-            SizebasedRegiostarClassification.URBAN_AREA -> urbanAreaParameters
-            SizebasedRegiostarClassification.RURAL_AREA -> ruralAreaParameters
-        }
+    private fun SizebasedRegiostarClassification.toParameters(): P = when (this) {
+        SizebasedRegiostarClassification.CITY -> cityParameters
+        SizebasedRegiostarClassification.SMALL_TOWN -> smallTownParameters
+        SizebasedRegiostarClassification.URBAN_AREA -> urbanAreaParameters
+        SizebasedRegiostarClassification.RURAL_AREA -> ruralAreaParameters
     }
 
     companion object {
@@ -76,9 +74,7 @@ class AssignBySizebasedClassification<A, P>(
          * @param P The type of parameters used for the region classification. PARAMS needs to be Any, so that it can
          * be lateinit instead of nullable
          */
-        class AssignViaRegionTypeBuilder<A, P : Any>(
-            val model: EnumeratedDiscreteModelBuilder<Int, A, P>
-        ) {
+        class AssignViaRegionTypeBuilder<A, P : Any>(val model: EnumeratedDiscreteModelBuilder<Int, A, P>) {
 
             lateinit var converter: (MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>) -> A
             lateinit var cityParameters: P
@@ -91,16 +87,14 @@ class AssignBySizebasedClassification<A, P>(
              *
              * @return The fully constructed `AssignBySizebasedClassification` instance.
              */
-            fun build(): AssignBySizebasedClassification<A, P> {
-                return AssignBySizebasedClassification(
-                    model,
-                    converter,
-                    cityParameters,
-                    smallTownParameters,
-                    urbanAreaParameters,
-                    ruralAreaParameters
-                )
-            }
+            fun build(): AssignBySizebasedClassification<A, P> = AssignBySizebasedClassification(
+                model,
+                converter,
+                cityParameters,
+                smallTownParameters,
+                urbanAreaParameters,
+                ruralAreaParameters,
+            )
         }
 
         /**
@@ -113,7 +107,7 @@ class AssignBySizebasedClassification<A, P>(
          */
         fun <SIT, PARAMS : Any> createUsingModel(
             model: EnumeratedDiscreteModelBuilder<Int, SIT, PARAMS>,
-            lambda: AssignViaRegionTypeBuilder<SIT, PARAMS>.() -> Unit
+            lambda: AssignViaRegionTypeBuilder<SIT, PARAMS>.() -> Unit,
         ): AssignBySizebasedClassification<SIT, PARAMS> {
             val builder = AssignViaRegionTypeBuilder(model)
             builder.apply(lambda)

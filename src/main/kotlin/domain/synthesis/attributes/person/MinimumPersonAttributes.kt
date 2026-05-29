@@ -1,3 +1,5 @@
 package domain.synthesis.attributes.person
 
-interface MinimumPersonAttributes : HasAge, HasBiologicalSex
+interface MinimumPersonAttributes :
+    HasAge,
+    HasBiologicalSex

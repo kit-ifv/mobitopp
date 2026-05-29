@@ -20,7 +20,7 @@ import kotlin.random.Random
 
 data class CarSegmentSituation<S, T>(
     val person: MinimalistPerson<T>,
-    val household: MinimalistHousehold<S, T>
+    val household: MinimalistHousehold<S, T>,
 ) where S : HasNumberOfCars, S : HasIncome, T : HasBiologicalSex, T : HasCommuteDistance {
     // TODO delegate to household once merged with default household dataclass
     val random: Random = Random(System.currentTimeMillis())
@@ -34,47 +34,45 @@ data class CarSegmentChoice(
     val householdIncome: Currency,
     val numberOfCars: Int,
     val sex: Sex,
-    val isCommuting: Boolean
+    val isCommuting: Boolean,
 ) {
 
     companion object {
         fun <S, T> create(
             person: MinimalistPerson<T>,
-            household: MinimalistHousehold<S, T>
+            household: MinimalistHousehold<S, T>,
         ): CarSegmentChoice
             where S : HasNumberOfCars,
                   S : MinimumHouseholdAttributes,
                   T : HasCommuteDistance,
-                  T : HasBiologicalSex {
-            return CarSegmentChoice(
+                  T : HasBiologicalSex =
+            CarSegmentChoice(
                 person.attributes.distanceWork,
                 household.size,
                 household.attributes.income,
                 household.attributes.amountOfCars,
                 person.attributes.sex,
-                false
+                false,
             )
-        }
     }
 }
 
 fun <S, T> CarSegment.toAlternative(
     person: MinimalistPerson<T>,
-    household: MinimalistHousehold<S, T>
-): CarSegmentChoice where S : HasNumberOfCars, S : HasIncome, T : HasBiologicalSex, T : HasCommuteDistance {
-    return CarSegmentChoice(
+    household: MinimalistHousehold<S, T>,
+): CarSegmentChoice where S : HasNumberOfCars, S : HasIncome, T : HasBiologicalSex, T : HasCommuteDistance =
+    CarSegmentChoice(
         person.attributes.distanceWork,
         household.size,
         household.attributes.income,
         household.attributes.amountOfCars,
         person.attributes.sex,
-        false // TODO extract the infomration that the person is commuting
+        false, // TODO extract the infomration that the person is commuting
     )
-}
 
 @Suppress(
     "MagicNumber",
-    "ConstructorParameterNaming"
+    "ConstructorParameterNaming",
 ) // The parameters are magic numbers, but there is nothing we can do about that
 data class CarSegmentParameters(
     val MIDSIZE_CONSTANT: Double = 2.016,
@@ -120,57 +118,53 @@ data class CarSegmentParameters(
     val LARGE_PKWHH_2_PLUS: Double = -0.5291,
     val LARGE_FEMALE: Double = -1.2392,
 ) {
-    fun toMidsizeParameterSet(): SimplifiedParameters {
-        return SimplifiedParameters(
-            MIDSIZE_CONSTANT,
-            MIDSIZE_DIST_COMM_0_TO_9,
-            MIDSIZE_DIST_COMM_10_TO_19,
-            MIDSIZE_DIST_COMM_20_TO_29,
-            MIDSIZE_DIST_COMM_30_TO_39,
-            MIDSIZE_DIST_COMM_40_TO_49,
-            MIDSIZE_DIST_COMM_50_PLUS,
-            MIDSIZE_HHGRO_1,
-            MIDSIZE_HHGRO_2,
-            MIDSIZE_HHGRO_3_PLUS,
-            MIDSIZE_HHINCOME_0_TO_500,
-            MIDSIZE_HHINCOME_500_TO_1000,
-            MIDSIZE_HHINCOME_1000_TO_1500,
-            MIDSIZE_HHINCOME_1500_TO_2000,
-            MIDSIZE_HHINCOME_2000_TO_2500,
-            MIDSIZE_HHINCOME_2500_TO_3000,
-            MIDSIZE_HHINCOME_3000_TO_3500,
-            MIDSIZE_HHINCOME_3500_PLUS,
-            MIDSIZE_HHINCOME_NA,
-            MIDSIZE_PKWHH_2_PLUS,
-            MIDSIZE_FEMALE,
-        )
-    }
+    fun toMidsizeParameterSet(): SimplifiedParameters = SimplifiedParameters(
+        MIDSIZE_CONSTANT,
+        MIDSIZE_DIST_COMM_0_TO_9,
+        MIDSIZE_DIST_COMM_10_TO_19,
+        MIDSIZE_DIST_COMM_20_TO_29,
+        MIDSIZE_DIST_COMM_30_TO_39,
+        MIDSIZE_DIST_COMM_40_TO_49,
+        MIDSIZE_DIST_COMM_50_PLUS,
+        MIDSIZE_HHGRO_1,
+        MIDSIZE_HHGRO_2,
+        MIDSIZE_HHGRO_3_PLUS,
+        MIDSIZE_HHINCOME_0_TO_500,
+        MIDSIZE_HHINCOME_500_TO_1000,
+        MIDSIZE_HHINCOME_1000_TO_1500,
+        MIDSIZE_HHINCOME_1500_TO_2000,
+        MIDSIZE_HHINCOME_2000_TO_2500,
+        MIDSIZE_HHINCOME_2500_TO_3000,
+        MIDSIZE_HHINCOME_3000_TO_3500,
+        MIDSIZE_HHINCOME_3500_PLUS,
+        MIDSIZE_HHINCOME_NA,
+        MIDSIZE_PKWHH_2_PLUS,
+        MIDSIZE_FEMALE,
+    )
 
-    fun toLargeParameterSet(): SimplifiedParameters {
-        return SimplifiedParameters(
-            LARGE_CONSTANT,
-            LARGE_DIST_COMM_0_TO_9,
-            LARGE_DIST_COMM_10_TO_19,
-            LARGE_DIST_COMM_20_TO_29,
-            LARGE_DIST_COMM_30_TO_39,
-            LARGE_DIST_COMM_40_TO_49,
-            LARGE_DIST_COMM_50_PLUS,
-            LARGE_HHGRO_1,
-            LARGE_HHGRO_2,
-            LARGE_HHGRO_3_PLUS,
-            LARGE_HHINCOME_0_TO_500,
-            LARGE_HHINCOME_500_TO_1000,
-            LARGE_HHINCOME_1000_TO_1500,
-            LARGE_HHINCOME_1500_TO_2000,
-            LARGE_HHINCOME_2000_TO_2500,
-            LARGE_HHINCOME_2500_TO_3000,
-            LARGE_HHINCOME_3000_TO_3500,
-            LARGE_HHINCOME_3500_PLUS,
-            LARGE_HHINCOME_NA,
-            LARGE_PKWHH_2_PLUS,
-            LARGE_FEMALE,
-        )
-    }
+    fun toLargeParameterSet(): SimplifiedParameters = SimplifiedParameters(
+        LARGE_CONSTANT,
+        LARGE_DIST_COMM_0_TO_9,
+        LARGE_DIST_COMM_10_TO_19,
+        LARGE_DIST_COMM_20_TO_29,
+        LARGE_DIST_COMM_30_TO_39,
+        LARGE_DIST_COMM_40_TO_49,
+        LARGE_DIST_COMM_50_PLUS,
+        LARGE_HHGRO_1,
+        LARGE_HHGRO_2,
+        LARGE_HHGRO_3_PLUS,
+        LARGE_HHINCOME_0_TO_500,
+        LARGE_HHINCOME_500_TO_1000,
+        LARGE_HHINCOME_1000_TO_1500,
+        LARGE_HHINCOME_1500_TO_2000,
+        LARGE_HHINCOME_2000_TO_2500,
+        LARGE_HHINCOME_2500_TO_3000,
+        LARGE_HHINCOME_3000_TO_3500,
+        LARGE_HHINCOME_3500_PLUS,
+        LARGE_HHINCOME_NA,
+        LARGE_PKWHH_2_PLUS,
+        LARGE_FEMALE,
+    )
 }
 
 data class SimplifiedParameters(
@@ -194,7 +188,7 @@ data class SimplifiedParameters(
     val incomeAtLeast3500: Double,
     val incomeNegative: Double,
     val atLeast2Cars: Double,
-    val female: Double
+    val female: Double,
 )
 
 val carSegmentChoiceModel = DiscreteStructure<CarSegment, CarSegmentChoice, CarSegmentParameters> {

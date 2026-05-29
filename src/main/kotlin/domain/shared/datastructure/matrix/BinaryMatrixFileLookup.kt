@@ -29,10 +29,10 @@ class BinaryMatrixFileLookup(
         rootCachePath.resolve("binary-cache").apply { createDirectories() }
     }
 
-    fun readAllMatchingMatrices(): Map<String, StandardMatrix> {
-        return rootCachePath.filter { it.extension == format.fileExtension }.associate {
-            it.nameWithoutExtension to format.deserialize(it)
-        }
+    fun readAllMatchingMatrices(): Map<String, StandardMatrix> = rootCachePath.filter {
+        it.extension == format.fileExtension
+    }.associate {
+        it.nameWithoutExtension to format.deserialize(it)
     }
 
     override fun createMatrix(config: YamlInfo): ZoneIdMatrix {
@@ -43,7 +43,7 @@ class BinaryMatrixFileLookup(
                 format.serialize(
                     path.crc32(),
                     matrix,
-                    internalFolder.resolve(path.nameWithoutExtension + format.fileExtension)
+                    internalFolder.resolve(path.nameWithoutExtension + format.fileExtension),
                 )
             }
 
@@ -86,10 +86,9 @@ class BinaryMatrixFileLookup(
  * @return If `rootCachePath` is not null, a BinaryMatrixFileLookup with both params is returned
  * else `defaultCreation` is returned.
  */
-fun optionalCachedMatrixCreator(rootCachePath: Path?, defaultCreation: ZoneMatrixCreation): ZoneMatrixCreation {
-    return if (rootCachePath != null) {
+fun optionalCachedMatrixCreator(rootCachePath: Path?, defaultCreation: ZoneMatrixCreation): ZoneMatrixCreation =
+    if (rootCachePath != null) {
         BinaryMatrixFileLookup(rootCachePath, defaultCreation = defaultCreation)
     } else {
         defaultCreation
     }
-}

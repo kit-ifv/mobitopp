@@ -13,9 +13,15 @@ data class BetterLocation constructor(
     override val zoneId: ZoneId,
     override val roadAccess: RoadAccess,
     override val regionType: RegionType,
-    override val sizebasedRegiostarClassification: SizebasedRegiostarClassification = regionType.toRegioStaR17().toSizebasedClassification(),
+    override val sizebasedRegiostarClassification: SizebasedRegiostarClassification =
+        regionType.toRegioStaR17().toSizebasedClassification(),
 ) : StandardLocation {
-    constructor(position: Point, zone: Zone<HasRegionType>, roadAccess: RoadAccess) : this(position, zone.id, roadAccess, zone.attributes.regionType)
+    constructor(position: Point, zone: Zone<HasRegionType>, roadAccess: RoadAccess) : this(
+        position,
+        zone.id,
+        roadAccess,
+        zone.attributes.regionType,
+    )
 
     companion object {
         fun fromPoint(point: Point) = BetterLocation(
@@ -26,8 +32,6 @@ data class BetterLocation constructor(
             sizebasedRegiostarClassification = SizebasedRegiostarClassification.CITY,
         )
 
-        fun wgs(x: Double, y: Double): BetterLocation {
-            return fromPoint(PointCreator.createWGS(x, y))
-        }
+        fun wgs(x: Double, y: Double): BetterLocation = fromPoint(PointCreator.createWGS(x, y))
     }
 }

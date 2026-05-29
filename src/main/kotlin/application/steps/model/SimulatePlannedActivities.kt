@@ -16,9 +16,7 @@ interface RunSimContext : DemandSimContext {
     val personAgents: Repository<PersonAgent, PersonId>
 }
 
-class SimulateStep(
-    private val context: RunSimContext
-) : ModelStep {
+class SimulateStep(private val context: RunSimContext) : ModelStep {
     override val name: String = "Simulate agents"
 
     override fun execute() {
@@ -28,11 +26,7 @@ class SimulateStep(
         sim.run(context.simulationStart, context.simulationEnd)
     }
 
-    override fun verifyInput(): Warning? {
-        return null
-    }
+    override fun verifyInput(): Warning? = null
 
-    override fun mockBehavior(): Warning? {
-        return null
-    }
+    override fun mockBehavior(): Warning? = null
 }

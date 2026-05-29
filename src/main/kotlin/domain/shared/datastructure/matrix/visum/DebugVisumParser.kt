@@ -12,11 +12,8 @@ import java.nio.file.Path
  * @param message A descriptive message of the error.
  * @param cause The cause of the error, if available.
  */
-class VisumParseError(
-    message: String,
-    path: Path,
-    cause: Throwable? = null
-) : Exception("Error in visum file ${path.fileName} $message.\nSource: $path", cause)
+class VisumParseError(message: String, path: Path, cause: Throwable? = null) :
+    Exception("Error in visum file ${path.fileName} $message.\nSource: $path", cause)
 
 /**
  * Function to convert a string to a ZoneId.
@@ -26,9 +23,7 @@ private val AS_ZONE_ID: (String) -> ZoneId = { ZoneId(it.toLong()) }
 /**
  * Extension function to split a string by whitespace block.
  */
-private fun String.splitByWhitespaceBlock(): List<String> {
-    return this.trim().split(Regex("\\s+"))
-}
+private fun String.splitByWhitespaceBlock(): List<String> = this.trim().split(Regex("\\s+"))
 
 /**
  * A parser for Visum matrix files that emphasizes detailed error reporting.
@@ -98,24 +93,15 @@ class DebugVisumParser(val path: Path) : VisumParser {
      */
     enum class MatrixParseState {
         INIT {
-            override fun nextState(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser,
-            ): MatrixParseState {
-                return when (line) {
+            override fun nextState(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState =
+                when (line) {
                     "* Anzahl Netzobjekte" -> READ_NUMBER
                     else -> this
                 }
-            }
         },
 
         READ_NUMBER {
-            override fun nextState(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser,
-            ): MatrixParseState {
+            override fun nextState(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState {
                 try {
                     parser.numberOfNetworkObjects = line.toUInt().toInt()
                     parser.array =
@@ -133,27 +119,19 @@ class DebugVisumParser(val path: Path) : VisumParser {
         },
 
         PARSE_NET_OBJECT_NUMBER_HEADER {
-            override fun nextState(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser,
-            ): MatrixParseState {
-                return when (line) {
+            override fun nextState(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState =
+                when (line) {
                     "* Netzobjekt-Nummern" -> READ_NET_OBJECT_NUMBERS
+
                     else -> throw VisumParseError(
                         "Expected \"* Netzobjekt-Nummern\" in line $lineNumber. But the following string was found: \n\"$line\"",
                         parser.path,
                     )
                 }
-            }
         },
 
         READ_NET_OBJECT_NUMBERS {
-            override fun nextState(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser,
-            ): MatrixParseState {
+            override fun nextState(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState {
                 if (line == "*") {
                     if (parser.zoneIdIndex != parser.numberOfNetworkObjects) {
                         throw VisumParseError(
@@ -181,7 +159,7 @@ class DebugVisumParser(val path: Path) : VisumParser {
                     throw VisumParseError(
                         "Line $lineNumber contains a Number that could not be parsed to an ZoneId. Line $lineNumber: \n\"$line\"",
                         parser.path,
-                        error
+                        error,
                     )
                 }
 
@@ -203,26 +181,18 @@ class DebugVisumParser(val path: Path) : VisumParser {
         },
 
         PARSE_MATRIX_ROW {
-            private fun tryParseRowEnd(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser,
-            ): MatrixParseState {
-                return when (line) {
+            private fun tryParseRowEnd(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState =
+                when (line) {
                     "* Netzobjektnamen" -> END
+
                     else -> throw VisumParseError(
                         "Line $lineNumber could not be parsed. It did not match " +
                             "\"* Netzobjektnamen\". Line $lineNumber: \n\"$line\"",
-                        parser.path
+                        parser.path,
                     )
                 }
-            }
 
-            private fun tryParseRowHeader(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser,
-            ): MatrixParseState {
+            private fun tryParseRowHeader(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState {
                 val regex = Regex("""^\* Obj (\d+) Summe = (-?\d+(\.\d+)?)""")
                 val matchResult =
                     regex.matchEntire(line)
@@ -232,7 +202,7 @@ class DebugVisumParser(val path: Path) : VisumParser {
                                 "\"* Obj <NUMBER> Summe = <NUMBER>(.<NUMBER>)?\".\n" +
                                 "More precisely, it did not match this regex: " +
                                 "\"\"\"^\\* Obj (\\d+) Summe = (-?\\d+(\\.\\d+)?)\"\"\". Line $lineNumber: \n\"$line\"",
-                            parser.path
+                            parser.path,
                         )
 
                 val (objNum, _) = matchResult.destructured
@@ -256,18 +226,14 @@ class DebugVisumParser(val path: Path) : VisumParser {
                             "Expected ${parser.numberOfNetworkObjects} Rows but got at least ${parser.numberOfNetworkObjects + 1}. " +
                             "Error occurred while parsing line $lineNumber: \n\"$line\"",
                         parser.path,
-                        error
+                        error,
                     )
                 }
 
                 return PARSE_MATRIX_ROW
             }
 
-            private fun tryParseRowContent(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser
-            ): MatrixParseState {
+            private fun tryParseRowContent(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState {
                 line.trim().split(Regex("""\s+""")).forEachIndexed { index, number ->
                     val elementNumber = index + 1
                     try {
@@ -279,7 +245,7 @@ class DebugVisumParser(val path: Path) : VisumParser {
                                     "Expected ${parser.numberOfNetworkObjects} Rows but got at least ${parser.numberOfNetworkObjects + 1}. " +
                                     "Error occurred while parsing line $lineNumber: \n\"$line\"",
                                 parser.path,
-                                error
+                                error,
                             )
                         } else {
                             throw VisumParseError(
@@ -287,7 +253,7 @@ class DebugVisumParser(val path: Path) : VisumParser {
                                     "Expected ${parser.numberOfNetworkObjects} in this Row (Index: ${parser.rowIndex}, ZoneId: ${parser.zoneIds[parser.rowIndex]}). " +
                                     "Error occurred at element no. $elementNumber while parsing line $lineNumber: \n\"$line\"",
                                 parser.path,
-                                error
+                                error,
                             )
                         }
                     } catch (error: NumberFormatException) {
@@ -295,13 +261,13 @@ class DebugVisumParser(val path: Path) : VisumParser {
                             "Line $lineNumber contains a value \"$number\" that could not be parsed as a Double. " +
                                 "Error occurred at element no. $elementNumber while parsing line $lineNumber: \n\"$line\"",
                             parser.path,
-                            error
+                            error,
                         )
                     } catch (error: VisumParseError) {
                         throw VisumParseError(
                             "Line $lineNumber contains an element \"$number\" that could not be added to the matrix row. Error occurred at element no. $elementNumber: \n\"$line\"",
                             parser.path,
-                            error
+                            error,
                         )
                     }
                 }
@@ -309,11 +275,7 @@ class DebugVisumParser(val path: Path) : VisumParser {
                 return PARSE_MATRIX_ROW
             }
 
-            override fun nextState(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser,
-            ): MatrixParseState {
+            override fun nextState(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState {
                 val savedHeaderError: VisumParseError
                 try {
                     return tryParseRowHeader(line, lineNumber, parser)
@@ -342,27 +304,19 @@ class DebugVisumParser(val path: Path) : VisumParser {
                     "Could not Parse Line because it was neither a Header because: \n$headerMsg\n" +
                         "Nor could it be parsed as a data line because: \n$contentMsg\n" +
                         "Nor could it be parsed as data end because:\n$endMsg",
-                    parser.path
+                    parser.path,
                 )
             }
         },
 
         END {
-            override fun nextState(
-                line: String,
-                lineNumber: Int,
-                parser: DebugVisumParser,
-            ): MatrixParseState {
+            override fun nextState(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState {
                 parser.lines = null
                 return END
             }
-        };
+        }, ;
 
-        abstract fun nextState(
-            line: String,
-            lineNumber: Int,
-            parser: DebugVisumParser,
-        ): MatrixParseState
+        abstract fun nextState(line: String, lineNumber: Int, parser: DebugVisumParser): MatrixParseState
     }
 
     private fun parseStep() {
@@ -378,7 +332,7 @@ class DebugVisumParser(val path: Path) : VisumParser {
         if (value.isNaN()) {
             throw VisumParseError(
                 "Got NaN as a value for a matrix element row: $rowIndex, col: $columnIndex",
-                path
+                path,
             )
         }
 
@@ -398,7 +352,7 @@ class DebugVisumParser(val path: Path) : VisumParser {
         if (columnIndex < numberOfNetworkObjects && rowIndex != -1) {
             throw VisumParseError(
                 "The row with the $rowIndex for zone ${zoneIds[rowIndex]} has too few elements ($columnIndex / $numberOfNetworkObjects).",
-                path
+                path,
             )
         }
 

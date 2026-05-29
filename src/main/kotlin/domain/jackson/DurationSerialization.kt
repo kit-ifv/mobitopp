@@ -22,10 +22,7 @@ val DurationModule: SimpleModule get() = SimpleModule("Duration")
 
 private class DurationDeserializer(val durationParser: DurationParser = DurationParser()) :
     JsonDeserializer<Duration>() {
-    override fun deserialize(
-        p: JsonParser?,
-        ctxt: DeserializationContext?
-    ): Duration? {
+    override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): Duration? {
         if (p != null) {
             return durationParser.parseDuration(p.valueAsString)
         }
@@ -33,11 +30,7 @@ private class DurationDeserializer(val durationParser: DurationParser = Duration
     }
 }
 private class DurationSerializer(val durationParser: DurationParser = DurationParser()) : JsonSerializer<Duration>() {
-    override fun serialize(
-        value: Duration?,
-        gen: JsonGenerator?,
-        serializers: SerializerProvider?
-    ) {
+    override fun serialize(value: Duration?, gen: JsonGenerator?, serializers: SerializerProvider?) {
         if (gen != null && value != null) {
             gen.writeString(durationParser.serialize(value))
         }
@@ -46,10 +39,7 @@ private class DurationSerializer(val durationParser: DurationParser = DurationPa
 
 private class AbsoluteTimeDeserializer(val durationParser: DurationParser = DurationParser()) :
     JsonDeserializer<AbsoluteTime>() {
-    override fun deserialize(
-        p: JsonParser?,
-        ctxt: DeserializationContext?
-    ): AbsoluteTime? {
+    override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): AbsoluteTime? {
         if (p != null) {
             return AbsoluteTime(durationParser.parseDuration(p.valueAsString))
         }
@@ -59,11 +49,7 @@ private class AbsoluteTimeDeserializer(val durationParser: DurationParser = Dura
 
 private class AbsoluteTimeSerializer(val durationParser: DurationParser = DurationParser()) :
     JsonSerializer<AbsoluteTime>() {
-    override fun serialize(
-        value: AbsoluteTime?,
-        gen: JsonGenerator?,
-        serializers: SerializerProvider?
-    ) {
+    override fun serialize(value: AbsoluteTime?, gen: JsonGenerator?, serializers: SerializerProvider?) {
         if (gen != null && value != null) {
             gen.writeString(durationParser.serialize(value.sinceStart))
         }

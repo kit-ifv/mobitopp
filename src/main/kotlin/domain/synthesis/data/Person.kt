@@ -23,9 +23,7 @@ value class PersonId(val value: Long) : Comparable<PersonId> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: PersonId): Int {
-        return value.compareTo(other.value)
-    }
+    override fun compareTo(other: PersonId): Int = value.compareTo(other.value)
 
     /**
      * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
@@ -33,15 +31,16 @@ value class PersonId(val value: Long) : Comparable<PersonId> {
      *
      * @return the next higher id.
      */
-    fun next(): PersonId {
-        return PersonId(value + 1)
-    }
+    fun next(): PersonId = PersonId(value + 1)
 }
 
 const val ADULT_AGE_GER = 18
 
 @Suppress("ComplexInterface")
-interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<PersonBinaryRecord> {
+interface IPerson :
+    Identifiable<PersonId>,
+    StochasticActor,
+    Simplifiable<PersonBinaryRecord> {
     val household: IHousehold
     val age: Int
     val employment: Employment
@@ -56,24 +55,22 @@ interface IPerson : Identifiable<PersonId>, StochasticActor, Simplifiable<Person
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
 
-    override fun simplify(): PersonBinaryRecord {
-        return PersonBinaryRecord(
-            id.value,
-            household.id.value,
-            age,
-            employment.code,
-            sex.code,
-            income.toDouble(CurrencyUnit.EUROS),
-            hasBike,
-            hasCommuterTicket,
-            hasLicense,
-            eMobilityAcceptance.toDouble(),
-            chargingInfluence.code,
-            graduation.code,
-            sharingMemberships.map { it.id.value },
-            drtMemberships.map { it.id.value }
-        )
-    }
+    override fun simplify(): PersonBinaryRecord = PersonBinaryRecord(
+        id.value,
+        household.id.value,
+        age,
+        employment.code,
+        sex.code,
+        income.toDouble(CurrencyUnit.EUROS),
+        hasBike,
+        hasCommuterTicket,
+        hasLicense,
+        eMobilityAcceptance.toDouble(),
+        chargingInfluence.code,
+        graduation.code,
+        sharingMemberships.map { it.id.value },
+        drtMemberships.map { it.id.value },
+    )
 }
 
 val IPerson.sharingMembershipIds: Set<SharingProviderId>
@@ -124,11 +121,8 @@ data class PersonBinaryRecord(
 }
 
 @Mutable
-abstract class Person(
-    final override val id: PersonId,
-    override val household: MutableHousehold,
-    seed: Long,
-) : IPerson {
+abstract class Person(final override val id: PersonId, override val household: MutableHousehold, seed: Long) :
+    IPerson {
     // Agent<Person> TODO merge Agent and Stochastic Actor, or agent should just be wrapper in simulation
 
     final override val random: Random by lazy { Random(id.value + seed) }
@@ -161,15 +155,12 @@ abstract class Person(
 enum class Sex(override val code: Int) : Encodable {
     MALE(1),
     FEMALE(2),
-    UNKNOWN(9);
+    UNKNOWN(9),
+    ;
 
-    fun isFemale(): Boolean {
-        return this == FEMALE
-    }
+    fun isFemale(): Boolean = this == FEMALE
 
-    fun isMale(): Boolean {
-        return this == MALE
-    }
+    fun isMale(): Boolean = this == MALE
 
     override val description: String = name
 
@@ -194,7 +185,8 @@ enum class Employment(override val code: Int) : Encodable {
     HOMEKEEPER(6),
     RETIRED(7),
     INFANT(8),
-    NONE(9);
+    NONE(9),
+    ;
 
     override val description: String = name
 
@@ -205,7 +197,8 @@ enum class Employment(override val code: Int) : Encodable {
     }
 }
 
-enum class Graduation(override val code: Int) : Encodable { // TODO split into school and higher education
+enum class Graduation(override val code: Int) : Encodable {
+    // TODO split into school and higher education
     UNDEFINED(-1),
     OTHER(0),
     NOT_HIGH_SCHOOL(1),
@@ -213,7 +206,8 @@ enum class Graduation(override val code: Int) : Encodable { // TODO split into s
     SOME_COLLEGE_CREDIT_NO_DEGREE(3),
     ASSOCIATE_TECHNICAL_SCHOOL_DEGREE(4),
     BACHELOR_DEGREE(5),
-    MASTER_DEGREE(6);
+    MASTER_DEGREE(6),
+    ;
 
     override val description: String = name
 
@@ -223,7 +217,8 @@ enum class Graduation(override val code: Int) : Encodable { // TODO split into s
 enum class ChargingInfluence(override val code: Int) : Encodable {
     ALWAYS(0),
     ONLY_WHEN_BATTERY_LOW(1),
-    NEVER(2);
+    NEVER(2),
+    ;
 
     override val description: String = name
 

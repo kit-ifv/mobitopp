@@ -81,7 +81,7 @@ class EquivalenceClassTest {
                 return 0.5 * kotlin.math.abs(
                     x1 * (y2 - y3) +
                         x2 * (y3 - y1) +
-                        x3 * (y1 - y2)
+                        x3 * (y1 - y2),
                 )
             }
 
@@ -98,14 +98,14 @@ class EquivalenceClassTest {
                 val sidesThis = listOf(
                     distance(a, b),
                     distance(b, c),
-                    distance(c, a)
+                    distance(c, a),
                 ).sorted()
 
                 // Get the side lengths of the other triangle
                 val sidesOther = listOf(
                     distance(other.a, other.b),
                     distance(other.b, other.c),
-                    distance(other.c, other.a)
+                    distance(other.c, other.a),
                 ).sorted()
 
                 // Compare the sorted side lengths

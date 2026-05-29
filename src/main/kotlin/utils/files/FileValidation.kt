@@ -12,18 +12,17 @@ fun requireFileReadAccess(
     path: Path,
     errorLevel: ErrorHandling = ErrorHandling.THROW,
     messagePrefix: String = "",
-): Boolean =
-    errorScope(errorLevel, "$messagePrefix Error while checking read access to file: '$path'!") {
-        require(path.exists()) {
-            "File does not exist: $path!"
-        }
+): Boolean = errorScope(errorLevel, "$messagePrefix Error while checking read access to file: '$path'!") {
+    require(path.exists()) {
+        "File does not exist: $path!"
+    }
 
-        require(path.toFile().canRead()) {
-            "Cannot read from file $path! Make sure its a file and access rights are set correctly!"
-        }
+    require(path.toFile().canRead()) {
+        "Cannot read from file $path! Make sure its a file and access rights are set correctly!"
+    }
 
-        true
-    } ?: false
+    true
+} ?: false
 
 fun requireFileWriteAccess(
     path: Path, // TODO path

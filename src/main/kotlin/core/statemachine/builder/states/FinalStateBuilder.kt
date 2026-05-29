@@ -20,10 +20,8 @@ import core.statemachine.sendScope
  * @property type The type of state this builder creates
  * @property onEnterScope Function to execute when entering this state
  */
-internal class FinalStateBuilder<D>(
-    override val type: AnyStateType,
-    private val onEnterScope: OnEnter<D>,
-) : StateBuilder<D> where D : StateData {
+internal class FinalStateBuilder<D>(override val type: AnyStateType, private val onEnterScope: OnEnter<D>) :
+    StateBuilder<D> where D : StateData {
 
     /**
      * Builds a final state behavior with this builders [onEnterScope].
@@ -41,9 +39,7 @@ internal class FinalStateBuilder<D>(
  * @param D The type of state data this behavior works with
  * @property onEnterScope Function to execute when entering this state
  */
-private class FinalStateBehavior<D>(
-    private val onEnterScope: OnEnter<D>,
-) : StateBehavior<D> where D : StateData {
+private class FinalStateBehavior<D>(private val onEnterScope: OnEnter<D>) : StateBehavior<D> where D : StateData {
 
     /**
      * Called when the state machine enters this state.
@@ -65,9 +61,8 @@ private class FinalStateBehavior<D>(
      * @return This method always throws an exception
      * @throws UnsupportedOperationException always, as final states do not process messages
      */
-    override fun processMessage(data: D, message: Message): StateTransition {
+    override fun processMessage(data: D, message: Message): StateTransition =
         throw UnsupportedOperationException("processMessage should not be called on FinalStates")
-    }
 
     /**
      * Determines if a state transition should occur without receiving a message.
@@ -86,7 +81,6 @@ private class FinalStateBehavior<D>(
      * @return This method always throws an exception
      * @throws UnsupportedOperationException always, as interrupt is not implemented for final states
      */
-    override fun interrupt(data: D): Events {
+    override fun interrupt(data: D): Events =
         throw UnsupportedOperationException("interrupt should not be called on FinalStates")
-    }
 }

@@ -9,13 +9,13 @@ import kotlin.io.path.createDirectories
 fun AgentInteractions.renderAsPumlSequenceDiagram(
     agent: Agent<*>,
     file: Path = Path(
-        "docs/sequence/${agent::class.simpleName ?: agent.instanceName}.puml"
+        "docs/sequence/${agent::class.simpleName ?: agent.instanceName}.puml",
     ),
-    maxDepth: Int = 1
+    maxDepth: Int = 1,
 ) {
     file.parent.createDirectories()
     file.toFile().writeText(
-        getTransitiveRelatedActionsOf(agent, maxDepth).toPlantUml()
+        getTransitiveRelatedActionsOf(agent, maxDepth).toPlantUml(),
     )
 }
 
@@ -28,7 +28,7 @@ private fun List<Action>.toPlantUml(): String {
         |${agents.joinToString("\n") { it.agentToPlantUml() }}
         |
         |${this.toSeqEvents().sortedWith(
-        compareBy(SeqEvent::time, SeqEvent::index)
+        compareBy(SeqEvent::time, SeqEvent::index),
     ).joinToString("\n") { it.toPlantUml(activationState) }}
         |
         |@enduml
@@ -46,7 +46,7 @@ private sealed interface SeqEvent {
         override val time: AbsoluteTime,
         override val index: Int,
         val instance: String,
-        val newState: String
+        val newState: String,
     ) : SeqEvent
 
     data class SendNow(
@@ -54,7 +54,7 @@ private sealed interface SeqEvent {
         override val index: Int,
         val from: String,
         val to: String,
-        val message: String
+        val message: String,
     ) : SeqEvent
 
     data class SendLater(
@@ -63,7 +63,7 @@ private sealed interface SeqEvent {
         val from: String,
         val to: String,
         val message: String,
-        val reference: Int
+        val reference: Int,
     ) : SeqEvent
 
     data class ReceiveLater(
@@ -72,7 +72,7 @@ private sealed interface SeqEvent {
         val from: String,
         val to: String,
         val message: String,
-        val reference: Int
+        val reference: Int,
     ) : SeqEvent
 }
 
@@ -83,16 +83,15 @@ private fun List<Action>.toSeqEvents(counter: Counter = Counter()) = flatMap {
     }
 }
 
-private fun Action.SendMessage.toArrows(counter: Counter) =
-    if (sendTime == receiveTime) {
-        listOf(SeqEvent.SendNow(sendTime, index, from, to, message))
-    } else {
-        val reference = counter.value
-        listOf(
-            SeqEvent.SendLater(sendTime, index, from, to, message, reference),
-            SeqEvent.ReceiveLater(receiveTime, index, from, to, message, reference)
-        )
-    }
+private fun Action.SendMessage.toArrows(counter: Counter) = if (sendTime == receiveTime) {
+    listOf(SeqEvent.SendNow(sendTime, index, from, to, message))
+} else {
+    val reference = counter.value
+    listOf(
+        SeqEvent.SendLater(sendTime, index, from, to, message, reference),
+        SeqEvent.ReceiveLater(receiveTime, index, from, to, message, reference),
+    )
+}
 
 private fun SeqEvent.toPlantUml(activationState: MutableMap<String, Boolean>) = when (this) {
     is SeqEvent.ChangeState -> toStateChangeCode(activationState)
@@ -101,14 +100,13 @@ private fun SeqEvent.toPlantUml(activationState: MutableMap<String, Boolean>) = 
     is SeqEvent.ReceiveLater -> "${to.agentAlias()} --> ${to.agentAlias()}: recv [$reference]\\n$message"
 }
 
-private fun SeqEvent.ChangeState.toStateChangeCode(activationState: MutableMap<String, Boolean>) =
-    (
-        takeIf { activationState.getOrPut(instance) { false } }?.let {
-            "deactivate ${instance.agentAlias()}\n"
-        } ?: ""
-        ) + "${instance.agentAlias()} -> ${instance.agentAlias()} ++: **$newState**".also {
-        activationState[instance] = true
-    }
+private fun SeqEvent.ChangeState.toStateChangeCode(activationState: MutableMap<String, Boolean>) = (
+    takeIf { activationState.getOrPut(instance) { false } }?.let {
+        "deactivate ${instance.agentAlias()}\n"
+    } ?: ""
+    ) + "${instance.agentAlias()} -> ${instance.agentAlias()} ++: **$newState**".also {
+    activationState[instance] = true
+}
 
 private fun String.agentAlias() = this.lowercase()
     .replace(Regex("[^a-z0-9]+"), "_") // Replace non-alphanumeric with _

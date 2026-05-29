@@ -37,18 +37,18 @@ import edu.kit.ifv.populationsynthesis.rules.toRuleSet
 abstract class PersonAgeSexFactory<Input>(
     val definitionDecoder: (Input) -> List<Pair<PersonAgeSexDefinition, Number>>,
 
-    ) {
+) {
 
     fun buildRuleSet(input: Input): CoverageGroup<ISurveyHousehold<*, *>> {
         val requestedRules = definitionDecoder(input).map { it.first.toMutableDefinition() to it.second }
         val ageIntervals = requestedRules.map { it.first }
         val maleAgeIntervals = ageIntervals.filter { it.acceptedSex == Sex.MALE }.map { it.acceptedAgeRange }
-        require(maleAgeIntervals.none{it.isEmpty()}) {
+        require(maleAgeIntervals.none { it.isEmpty() }) {
             "Cannot operate on empty ranges but at least one range is empty: $maleAgeIntervals"
         }
         require(testIntervalConsistency(maleAgeIntervals)) {
             "There is an overlap in age interval creation: This is problematic because a person could now contribute " +
-                    "to multiple measurements"
+                "to multiple measurements"
         }
 
         makeValidDefinitions(ageIntervals, Sex.MALE)
@@ -61,9 +61,9 @@ abstract class PersonAgeSexFactory<Input>(
      * No protection, no guarantee that you get a coverage group, just a straight translation to a rule set
      * from the definitions as read bu definition decoder, no check of interval bounds.
      */
-    fun buildDirect(input: Input): RuleSet<ISurveyHousehold<*, *>> {
-        return definitionDecoder(input).map { it.first.makeRule(it.second) }.toRuleSet()
-    }
+    fun buildDirect(input: Input): RuleSet<ISurveyHousehold<*, *>> = definitionDecoder(input).map {
+        it.first.makeRule(it.second)
+    }.toRuleSet()
 
     /**
      * We only demand the input to be converted to a proper PersonAgeSexDefinition, but we nowhere demand that
@@ -83,7 +83,7 @@ abstract class PersonAgeSexFactory<Input>(
             .filter { it.acceptedSex == targetSex }
             .sortedBy { it.acceptedAgeRange.start }
 
-        if(ordered.isEmpty()) {
+        if (ordered.isEmpty()) {
             return
         }
         val ranges: List<IntRange> = ordered.map { it.acceptedAgeRange }
@@ -93,23 +93,16 @@ abstract class PersonAgeSexFactory<Input>(
 
         ordered.first().acceptedAgeRange = ordered.first().acceptedAgeRange.extrude(0, null)
         ordered.last().acceptedAgeRange = ordered.last().acceptedAgeRange.extrude(null, Int.MAX_VALUE)
-
-
     }
 
-    private fun IntRange.extrude(
-        lowerbound: Int?,
-        upperbound: Int?,
-    ): IntRange {
-
+    private fun IntRange.extrude(lowerbound: Int?, upperbound: Int?): IntRange {
         val extrudedStart = (lowerbound?.let { start.coerceAtMost(it) } ?: start)
         val extrudedEnd = (upperbound?.let { endInclusive.coerceAtLeast(it) } ?: endInclusive)
         return (extrudedStart..extrudedEnd)
     }
 
-    private fun testIntervalConsistency(ordered: Collection<IntRange>): Boolean {
-        return ordered.zipWithNext().all { (first, second) ->
+    private fun testIntervalConsistency(ordered: Collection<IntRange>): Boolean =
+        ordered.zipWithNext().all { (first, second) ->
             first.endInclusive + 1 == second.start
         }
-    }
 }

@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package utils.csv
 
 import assertEmpty
@@ -35,7 +37,7 @@ class CsvParserTest {
             bool = row.boolean(BOOL_COL),
             csvIndex = row(INDEX_COL).toInt(),
             int = row(INT_COL).toInt(),
-            float = row(FLOAT_COL).toFloat()
+            float = row(FLOAT_COL).toFloat(),
         )
     }
 
@@ -52,7 +54,7 @@ class CsvParserTest {
 
         assertEquals(10, values.size)
         val expected = listOf(
-            "a", "Hello; World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV", "fin"
+            "a", "Hello; World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV", "fin",
         )
 
         values.forEachIndexed { index, value ->
@@ -64,7 +66,7 @@ class CsvParserTest {
     fun parsePairs() {
         val parser = TwoColumnParser(
             keyParser = SingleColumnParser(INDEX_COL, ErrorHandling.SILENT) { it.toInt() },
-            valueParser = SingleColumnParser(STR_COL, ErrorHandling.SILENT) { it }
+            valueParser = SingleColumnParser(STR_COL, ErrorHandling.SILENT) { it },
         )
 
         val values = parser.parse(path).toList()
@@ -72,7 +74,7 @@ class CsvParserTest {
 
         assertEquals(10, values.size)
         val expected = listOf(
-            "a", "Hello; World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV", "fin"
+            "a", "Hello; World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV", "fin",
         )
 
         values.forEachIndexed { index, value ->
@@ -86,7 +88,7 @@ class CsvParserTest {
     fun parsePairsMerge() {
         val parser = TwoColumnParser(
             keyParser = SingleColumnParser(INDEX_COL, ErrorHandling.SILENT) { 0 },
-            valueParser = SingleColumnParser(STR_COL, ErrorHandling.SILENT) { it }
+            valueParser = SingleColumnParser(STR_COL, ErrorHandling.SILENT) { it },
         )
 
         val values = parser.parse(path).toList()
@@ -94,7 +96,7 @@ class CsvParserTest {
 
         assertEquals(10, values.size)
         val expected = listOf(
-            "a", "Hello; World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV", "fin"
+            "a", "Hello; World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV", "fin",
         )
 
         values.forEachIndexed { index, value ->
@@ -150,7 +152,7 @@ class CsvParserTest {
             string = "%&#)!?",
             bool = true,
             int = 42,
-            float = 1.11f
+            float = 1.11f,
         )
         assertEquals(expectedEntity5, entities[5])
     }
@@ -163,7 +165,7 @@ class CsvParserTest {
             .toList()
 
         val expected = listOf(
-            "a", "Hello; World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV", "fin"
+            "a", "Hello; World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV", "fin",
         )
 
         entities.forEachIndexed { index, entity ->
@@ -276,7 +278,7 @@ class CsvParserTest {
         val entities = DefaultCsvParser { row ->
             TestEntity(
                 rowIndex = row.index,
-                duration = row(INT_COL).toInt().minutes
+                duration = row(INT_COL).toInt().minutes,
             )
         }.parse(path).toList()
 
@@ -340,7 +342,7 @@ class CsvParserTest {
         listOf(0, 1, 3, 4, 8).forEach { index ->
             assertContains(
                 consoleText,
-                "$prefix Could not parse row $index in 'test_data.csv': test_data.csv[$index]=["
+                "$prefix Could not parse row $index in 'test_data.csv': test_data.csv[$index]=[",
             )
         }
         assertStackTrace(consoleText)

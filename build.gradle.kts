@@ -1,12 +1,9 @@
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-
 plugins {
-    alias(libs.plugins.ksp) // id("com.google.devtools.ksp") version "2.0.10-1.0.24" //
-    alias(libs.plugins.kotlin.jvm) // kotlin("jvm") version "2.0.10" //
-    alias(libs.plugins.kover) // id("org.jetbrains.kotlinx.kover") version "0.9.1" //
-    alias(libs.plugins.detekt) // id("io.gitlab.arturbosch.detekt") version "1.23.7" //
-    alias(libs.plugins.kotlin.serialization) // kotlin("plugin.serialization") version "2.0.10" //
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kover)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.shadowjar)
     application
     id("maven-publish")
@@ -44,7 +41,7 @@ repositories {
 }
 
 detekt {
-    version = libs.versions.detekt.get() // "1.23.7"
+    version = libs.versions.detekt.get() // "2.0.0-alpha.3"
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
@@ -72,7 +69,7 @@ dependencies {
     ksp(project(":processor")) // to make KSP work
     api(project(":processor")) // to make KSP work
 
-    testImplementation(libs.kotlin.compile.testing.ksp) //1.5.0
+    testImplementation(libs.kotlin.compile.testing.ksp) //1.6.0
 
     //detekt libs
     detekt(libs.detekt.formatting)
@@ -88,7 +85,7 @@ dependencies {
     implementation(libs.kotlin.statistics) //0.2.1
     implementation(libs.kotlinx.coroutines) //1.10.1
     implementation(libs.kotlinx.serialization.core) //1.8.0
-    implementation(libs.kotlinx.serialization.cbor) //1.8.0
+//    implementation(libs.kotlinx.serialization.cbor) //1.8.0
     implementation(libs.kotlinx.html) //0.12.0
 
     // other libs
@@ -112,45 +109,36 @@ tasks.test {
         }
     }
 }
+
 tasks {
     shadowJar {
+        isZip64 = true
         archiveClassifier.set("all") // produces e.g. myapp-all.jar
         mergeServiceFiles() // optional: handles META-INF/services
     }
 }
 
-tasks.withType<Detekt>().configureEach {
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
     reports {
         // observe findings in your browser with structure and code snippets
         html.required.set(true)
-        // checkstyle like format mainly for integrations like Jenkins
-        xml.required.set(true)
-        // similar to the console output, contains issue signature to manually edit baseline files
-        txt.required.set(true)
+//        // checkstyle like format mainly for integrations like Jenkins
+//        xml.required.set(true)
+//        // similar to the console output, contains issue signature to manually edit baseline files
+//        txt.required.set(true)
         // standardized SARIF format (https://sarifweb.azurewebsites.net/) for integrations with GitHub Code Scanning
         sarif.required.set(true)
-        // simple Markdown format
-        md.required.set(true)
+//        // simple Markdown format
+//        md.required.set(true)
     }
 }
 
 
-tasks.withType<Detekt>().configureEach {
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
     jvmTarget = "1.8"
-    exclude(
-        "**/BuildAgents.kt",
-        "**/FixedModesFilter.kt",
-        "**/ModeAvailabilityFilter.kt",
-        "**/PersonEvents.kt",
-        "**/OverridableDestinationChoiceModel.kt",
-        "**/OverridableModeChoiceModel.kt",
-        "**/LoadBehaviorModelsStep.kt",
-        "**/WriteTripsToCsvStep.kt",
-        "**/ModeAvailabilityModel.kt"
-    )
 }
 
-tasks.withType<DetektCreateBaselineTask>().configureEach {
+tasks.withType<dev.detekt.gradle.DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
 }
 

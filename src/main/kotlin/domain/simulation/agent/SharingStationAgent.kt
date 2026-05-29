@@ -27,7 +27,7 @@ abstract class SharingProviderAgent(
 @Mutable
 abstract class SharingStationAgent(
     final override val id: SharingStationId,
-    final override val owner: SharingProviderAgent
+    final override val owner: SharingProviderAgent,
 ) : ISharingStation {
 
     // only provide an immutable view of the vehicle set, since adding/removing vehicles requires additional logic
@@ -57,7 +57,8 @@ abstract class SharingStationAgent(
             "Cannot take a sharing vehicle from station '${this.name}' as none are currently available."
         }
 
-        require(_vehicles.isNotEmpty()) { // TODO is this a duplicate/redundant require?
+        require(_vehicles.isNotEmpty()) {
+            // TODO is this a duplicate/redundant require?
             "Empty $hasAvailableVehicles"
         }
         return _vehicles.first().also { take(it) }
@@ -68,9 +69,7 @@ abstract class SharingStationAgent(
         vehicle.returnTo(this)
     }
 
-    override fun toString(): String {
-        return "$id ${_vehicles.size}"
-    }
+    override fun toString(): String = "$id ${_vehicles.size}"
 
     val hasAvailableVehicles: Boolean
         get() = _vehicles.isNotEmpty()
@@ -84,9 +83,7 @@ value class SharingVehicleId(val value: Long) {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    fun compareTo(other: SharingVehicleId): Int {
-        return value.compareTo(other.value)
-    }
+    fun compareTo(other: SharingVehicleId): Int = value.compareTo(other.value)
 
     /**
      * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
@@ -94,16 +91,11 @@ value class SharingVehicleId(val value: Long) {
      *
      * @return the next higher id.
      */
-    fun next(): SharingVehicleId {
-        return SharingVehicleId(value + 1)
-    }
+    fun next(): SharingVehicleId = SharingVehicleId(value + 1)
 }
 
-class SharingVehicleAgent(
-    override val id: SharingVehicleId,
-    val mode: Mode,
-    val owner: SharingProviderAgent,
-) : Identifiable<SharingVehicleId> {
+class SharingVehicleAgent(override val id: SharingVehicleId, val mode: Mode, val owner: SharingProviderAgent) :
+    Identifiable<SharingVehicleId> {
 //
 //     init {
 //         owner.ownedVehicles.add(this)
@@ -128,7 +120,5 @@ class SharingVehicleAgent(
         }
     }
 
-    override fun toString(): String {
-        return "$id -> ${currentStation?.name}"
-    }
+    override fun toString(): String = "$id -> ${currentStation?.name}"
 }

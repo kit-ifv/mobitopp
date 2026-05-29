@@ -31,10 +31,9 @@ abstract class CarAgent : Car {
 }
 
 @Mutable
-abstract class PrivateCarAgent(
-    final override val id: CarId,
-    override val owner: HouseholdAgent,
-) : CarAgent(), IPrivateCar {
+abstract class PrivateCarAgent(final override val id: CarId, override val owner: HouseholdAgent) :
+    CarAgent(),
+    IPrivateCar {
 
     abstract override val mainUser: PersonAgent?
 
@@ -42,6 +41,7 @@ abstract class PrivateCarAgent(
     override var location: Location = owner.location
 
     enum class CarState {
-        PARKED, IN_USE
+        PARKED,
+        IN_USE,
     }
 }

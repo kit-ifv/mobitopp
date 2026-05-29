@@ -18,13 +18,9 @@ class DoubleMatrix(private val values: DoubleArray, val numColumns: Int) {
         return values[index]
     }
 
-    fun values(): List<Double> {
-        return values.toList()
-    }
+    fun values(): List<Double> = values.toList()
 
-    override fun toString(): String {
-        return "Matrix: $size [${values.joinToString()}]"
-    }
+    override fun toString(): String = "Matrix: $size [${values.joinToString()}]"
 
     override fun equals(other: Any?): Boolean {
         if (other !is DoubleMatrix) return false

@@ -5,7 +5,8 @@ import domain.shared.enums.Mode
 import domain.simulation.agent.PersonAgent
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 
-object FixedModesFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics> { // TODO should filters have names for debugging?
+// TODO should filters have names for debugging?
+object FixedModesFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics> {
     context(characteristics: ModeChoiceCharacteristics)
     override fun filter(alternative: Mode): Boolean {
         val person = characteristics.person
@@ -19,7 +20,6 @@ object FixedModesFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics> { // TOD
             lastMode?.let {
                 if (it.requiresVehicleTakeAlong) {
                     alternative == lastMode
-
                 } else {
                     !alternative.requiresVehicleTakeAlong
                 }
@@ -27,7 +27,6 @@ object FixedModesFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics> { // TOD
         } ?: true
     }
 
-    private fun isNotAtHome(person: PersonAgent, activity: StationaryAction): Boolean {
-        return person.household.location != activity.location
-    }
+    private fun isNotAtHome(person: PersonAgent, activity: StationaryAction): Boolean =
+        person.household.location != activity.location
 }

@@ -18,10 +18,11 @@ class PassengerAgent(
     val from: Station,
     override val to: Station,
     val departure: AbsoluteTime,
-) : StateBasedAgent<PassengerMessage>, Passenger {
+) : StateBasedAgent<PassengerMessage>,
+    Passenger {
     override val stateMachine = passengerStateMachine.create(
         AbsoluteTime.Companion.START,
-        this
+        this,
     ) // TODO move factory to constructor?
 
     var stateDescriptor = "IDLE"
@@ -63,10 +64,11 @@ abstract class PassengerState(time: AbsoluteTime, override val agent: PassengerA
 class PassengerStartState(time: AbsoluteTime, passenger: PassengerAgent) : PassengerState(time, passenger)
 
 @StateCalled("WaitingForBus", PassengerStartState::class, RidingBusState::class)
-class WaitingForBusState(time: AbsoluteTime, passenger: PassengerAgent, val station: Station) : PassengerState(
-    time,
-    passenger
-)
+class WaitingForBusState(time: AbsoluteTime, passenger: PassengerAgent, val station: Station) :
+    PassengerState(
+        time,
+        passenger,
+    )
 
 @StateCalled("RidingBus", PassengerState::class)
 class RidingBusState(state: PassengerState, val bus: Bus) : PassengerState(state)
@@ -88,7 +90,7 @@ val passengerStateMachine = stateMachine<PassengerAgent>("PassengerStateMachine"
 
     start( // TODO autogenerate start extension method if constructor has exactly arguments Time and Agent?
         StartPassenger,
-        ::startPassenger
+        ::startPassenger,
     ) { send ->
         send(enterStation(self.from), self, self.departure)
         //

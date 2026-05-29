@@ -21,9 +21,7 @@ class InternalIterator(activityBlock: ActivityBlock) : Iterator<ActionBlock<*>> 
     /**
      * Returns `true` if the iteration has more elements.
      */
-    override fun hasNext(): Boolean {
-        return current?.let { next != null } ?: true
-    }
+    override fun hasNext(): Boolean = current?.let { next != null } ?: true
 
     /**
      * Returns the next element in the iteration.
@@ -56,7 +54,7 @@ class BlockModel(
     override val dispatcher: IDispatcher,
     private val legBlockList: MutableList<LinkTrip> = mutableListOf(),
     private var activityBlocks: ActivityBlock = ActivityBlock(sortedSetOf()),
-    private val activitySortedSet: SortedSet<LinkedActivity> = sortedSetOf()
+    private val activitySortedSet: SortedSet<LinkedActivity> = sortedSetOf(),
 ) : SeparablePlanModel {
 
     constructor(dispatcher: IDispatcher) : this(dispatcher, mutableListOf())
@@ -82,13 +80,9 @@ class BlockModel(
     private val actionBlocks = InternalIterable { activityBlocks }
 
     override fun nextBlock(): ActionBlock<*>? = actionBlocks.firstOrNull { !it.isEmpty() }
-    override fun activities(): Collection<LinkedActivity> {
-        return activitySortedSet
-    }
+    override fun activities(): Collection<LinkedActivity> = activitySortedSet
 
-    override fun legs(): Collection<LinkedLeg> {
-        return legBlocks?.flatMap { it.item } ?: emptySet()
-    }
+    override fun legs(): Collection<LinkedLeg> = legBlocks?.flatMap { it.item } ?: emptySet()
 
     override fun dropUntil(activity: Activity) {
         val previousElement = first()?.previous
@@ -146,8 +140,8 @@ class BlockModel(
                 legBlockList.addByOrder(
                     LinkTrip(
                         it.first,
-                        dispatcher
-                    )
+                        dispatcher,
+                    ),
                 )
             } else {
                 legBlockList.add(LinkTrip(it.first, dispatcher))
@@ -157,7 +151,7 @@ class BlockModel(
 
     private fun <T : Action> getCorrespondingBlock(
         element: T,
-        acceptor: ActionBlock<*>.(T) -> Boolean
+        acceptor: ActionBlock<*>.(T) -> Boolean,
     ): ActionBlock<*>? {
         for (block in actionBlocks) {
             if (block.containsAction(element)) {
@@ -225,17 +219,12 @@ class BlockModel(
         }
     }
 
-    override fun actions(): List<LinkedAction> {
-        return actionBlocks.flatMap { it.item }
-    }
+    override fun actions(): List<LinkedAction> = actionBlocks.flatMap { it.item }
 
-    override fun first(): LinkedAction? {
-        return actionBlocks.firstOrNull { !it.item.isEmpty() }?.firstElement()
-    }
+    override fun first(): LinkedAction? = actionBlocks.firstOrNull { !it.item.isEmpty() }?.firstElement()
 
-    override fun lastActivity(): LinkedActivity {
+    override fun lastActivity(): LinkedActivity =
         throw UnsupportedOperationException("BlockModel.lastActivity() should not be called!")
-    }
 
     override fun clear() {
         legBlockList.clear()
@@ -243,11 +232,11 @@ class BlockModel(
         activityBlocks.item.clear()
     }
 
-    override fun view(): TripView {
-        return TripView(this)
-    }
+    override fun view(): TripView = TripView(this)
 
-    class TripView(private val model: BlockModel) : List<LinkTrip> by model.legBlockList, PlanView {
+    class TripView(private val model: BlockModel) :
+        List<LinkTrip> by model.legBlockList,
+        PlanView {
         override val dispatcher: IDispatcher = model.dispatcher
     }
 }

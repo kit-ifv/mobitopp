@@ -36,7 +36,7 @@ fun WithFillColor.fillColorFromMap(colorColumn: String, colorMap: ColorScale, le
 /** Apply the provided ColorScale to a non-positional color mapping and name its legend. */
 fun LetsPlotNonPositionalMappingParametersContinuous<Any?, Color>.applyScale(
     colorMap: ColorScale,
-    legendTitle: String = COLOR_LABEL
+    legendTitle: String = COLOR_LABEL,
 ) {
     if (colorMap.range.size <= 1) {
         legend.type = LegendType.None
@@ -45,14 +45,14 @@ fun LetsPlotNonPositionalMappingParametersContinuous<Any?, Color>.applyScale(
     legend.name = legendTitle
     scale = categorical(
         domain = colorMap.domain,
-        range = colorMap.range
+        range = colorMap.range,
     )
 }
 
 /** Build a Boolean categorical scale mapping true/false to two values. */
 fun <RangeType> NonPositionalMappingParameters<*, *>.booleanScale(
     positive: RangeType,
-    negative: RangeType
+    negative: RangeType,
 ): NonPositionalCategoricalScale<Boolean, RangeType> = categorical(
     true to positive,
     false to negative,
@@ -61,9 +61,8 @@ fun <RangeType> NonPositionalMappingParameters<*, *>.booleanScale(
 /** Convenience for a Boolean color scale mapping to two Color values. */
 fun NonPositionalMappingParameters<*, *>.booleanColorScale(
     positive: Color = Color.Companion.RED,
-    negative: Color = Color.Companion.BLACK
-) =
-    booleanScale(positive, negative)
+    negative: Color = Color.Companion.BLACK,
+) = booleanScale(positive, negative)
 
 /** Provides the mobiTopp logo lazily from classpath. */
 object LogoProvider {
@@ -83,13 +82,7 @@ object LogoProvider {
  * @param alpha Opacity of the logo [0f..1f]
  * @param marginPx Margin from edges (top and right)
  */
-fun overlayLogoTopRight(
-    basePng: Path,
-    outPng: Path,
-    scale: Double = 0.15,
-    alpha: Float = 1.0f,
-    marginPx: Int = 8
-) {
+fun overlayLogoTopRight(basePng: Path, outPng: Path, scale: Double = 0.15, alpha: Float = 1.0f, marginPx: Int = 8) {
     require(scale > 0.0) { "scale must be > 0" }
     require(alpha in 0f..1f) { "alpha must be in [0, 1]" }
 

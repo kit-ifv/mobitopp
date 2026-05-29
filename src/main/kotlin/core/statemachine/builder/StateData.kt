@@ -52,9 +52,7 @@ interface StateData {
  *
  * @property time The initial time for this state data
  */
-abstract class BaseStateData(
-    time: AbsoluteTime,
-) : StateData {
+abstract class BaseStateData(time: AbsoluteTime) : StateData {
 
     final override var time: AbsoluteTime = time
         private set

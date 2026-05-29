@@ -39,7 +39,7 @@ class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier 
         nextHomeActivity.apply {
             startTime = AbsoluteTime.max(
                 schedule.lastStartedAction().endTime + 10.minutes,
-                latestEndTime - duration
+                latestEndTime - duration,
             )
             endTime = latestEndTime
         }
@@ -50,15 +50,13 @@ class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier 
                     AbsoluteTime.max(schedule.lastStartedAction().endTime, currentTime),
                     nextHomeActivity.startTime,
                     schedule.lastStartedAction().endLocation,
-                    nextHomeActivity.location
-                )
+                    nextHomeActivity.location,
+                ),
             )
         }
     }
 
     // I currently have no info on how to calculate the duration from an unknown location to the destination, also I
     // have no information about the mode.
-    private fun complexCalPlsImplement(currentTime: AbsoluteTime): AbsoluteTime {
-        return currentTime + 10.minutes
-    }
+    private fun complexCalPlsImplement(currentTime: AbsoluteTime): AbsoluteTime = currentTime + 10.minutes
 }

@@ -47,7 +47,7 @@ val YesTransitPass = TransitPassParameters(
     incomeIn3000to3999 = 0.397233443164943,
     incomeAtLeast4000 = 0.457279239343281,
     numChildsAge0to5 = -0.291721944623581,
-    numChildsAge6to17 = -0.305570335406822
+    numChildsAge6to17 = -0.305570335406822,
 )
 
 data class TransitPassParameters(
@@ -84,13 +84,13 @@ data class TransitPassParameters(
     val incomeIn3000to3999: Double,
     val incomeAtLeast4000: Double,
     val numChildsAge0to5: Double,
-    val numChildsAge6to17: Double
+    val numChildsAge6to17: Double,
 )
 
 @Suppress("MagicNumber") // These magic numbers are ok
 data class TicketCharacteristics(
     val household: ISurveyHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>,
-    val person: SurveyPerson<MaximumPersonAttributes>
+    val person: SurveyPerson<MaximumPersonAttributes>,
 ) {
     val householdSize = household.members.size
     val gender = person.sex

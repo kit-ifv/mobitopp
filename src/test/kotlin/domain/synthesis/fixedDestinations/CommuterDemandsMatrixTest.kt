@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package domain.synthesis.fixedDestinations
 
 import BIELEFELD
@@ -124,14 +126,10 @@ class CommuterDemandsMatrixTest {
         assertEquals(CommunityNumber.INVALID, demands.convert(42.toZone().point(BIELEFELD)))
     }
 
-    private fun Number.toZone(): TestZone {
-        return TestZone(id = ZoneId(toLong()), ZoneAttributes.STANDARD)
-    }
+    private fun Number.toZone(): TestZone = TestZone(id = ZoneId(toLong()), ZoneAttributes.STANDARD)
 
-    private fun CommuterDemandsMatrix.Companion.parseRastatt(): CommuterDemandsMatrix {
-        return parse(
-            Path("src/test/resources/synthesis/zone-to-community.csv"),
-            Path("src/test/resources/synthesis/commuters-rastatt.csv")
-        )
-    }
+    private fun CommuterDemandsMatrix.Companion.parseRastatt(): CommuterDemandsMatrix = parse(
+        Path("src/test/resources/synthesis/zone-to-community.csv"),
+        Path("src/test/resources/synthesis/commuters-rastatt.csv"),
+    )
 }

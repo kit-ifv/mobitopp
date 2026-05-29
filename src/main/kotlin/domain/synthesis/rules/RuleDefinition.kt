@@ -2,7 +2,6 @@ package domain.synthesis.rules
 
 import edu.kit.ifv.populationsynthesis.rules.measurement.MeasurementDefinition
 
-
 /**
  * Combines a [MeasurementDefinition] with the target value that the resulting rule should satisfy.
  *
@@ -17,9 +16,6 @@ import edu.kit.ifv.populationsynthesis.rules.measurement.MeasurementDefinition
  * @property definition the measurement definition used to create the rule.
  * @property target the target value passed to [MeasurementDefinition.makeRule].
  */
-data class RuleDefinition<X, T: MeasurementDefinition<X>>(
-    val definition: T,
-    val target: Number
-) {
+data class RuleDefinition<X, T : MeasurementDefinition<X>>(val definition: T, val target: Number) {
     fun toRule() = definition.makeRule(target)
 }

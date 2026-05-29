@@ -46,7 +46,7 @@ object RandomRGBProvider {
     private val colors = KIT_GREEN.lighterShades(3) + KIT_RED.lighterShades(3) + KIT_BLUE.lighterShades(3) + listOf(
         KIT_BLACK, KIT_GREY, KIT_LIGHT_GREY, KIT_BROWN, KIT_GREEN, KIT_TEAL,
         KIT_MAYGREEN, KIT_YELLOW, KIT_ORANGE, KIT_RED, KIT_PURPLE, KIT_BLUE,
-        KIT_STEELBLUE, KIT_CYAN
+        KIT_STEELBLUE, KIT_CYAN,
     ).distinct().shuffled(random)
 
     fun next(): RGB = colors.random(random)
@@ -62,19 +62,15 @@ fun modeStringColor(modeString: String): RGB = when (modeString.lowercase()) {
     "e_scooter", "e scooter" -> kitBlueShades[1]
     "pedelec" -> kitBlueShades[2]
     "bikesharing", "bike_sharing", "bike sharing" -> kitBlueShades[3]
-
     "car" -> kitRedShades[0]
     "carsharing_station", "carsharing station" -> kitRedShades[1]
     "carsharing_free", "carsharing free" -> kitRedShades[2]
     "passenger" -> KIT_ORANGE
-
     "pedestrian" -> KIT_CYAN
     "publictransport", "public_transport", "public transport" -> KIT_MAYGREEN
     "truck" -> KIT_BROWN
     "taxi" -> KIT_YELLOW
-
     "ridepooling", "ride_pooling", "ride pooling" -> KIT_PURPLE
-
     else -> randomColor()
 }
 
@@ -150,7 +146,7 @@ private data class HSL(val h: Double, val s: Double, val l: Double) {
         return RGB(
             ((r + m) * MAX_COLOR_INT).toInt(),
             ((g + m) * MAX_COLOR_INT).toInt(),
-            ((b + m) * MAX_COLOR_INT).toInt()
+            ((b + m) * MAX_COLOR_INT).toInt(),
         )
     }
 
@@ -178,65 +174,59 @@ private fun Color.toHsl() = this.toRgb().toHsl()
 
 fun Color.scaleLightness(factor: Double): Color = toRgb().scaleLightness(factor).toColor()
 
-fun RGB.scaleLightness(factor: Double): RGB =
-    require(factor >= 0.0) {
-        "Scaling factor for color lightness should not be negative but is $factor!"
-    }.let {
-        this.toHsl().let {
-            val scaledLightness = (it.l * factor).coerceIn(0.0, 1.0)
-            it.copy(l = scaledLightness)
-        }.toRbg()
-    }
+fun RGB.scaleLightness(factor: Double): RGB = require(factor >= 0.0) {
+    "Scaling factor for color lightness should not be negative but is $factor!"
+}.let {
+    this.toHsl().let {
+        val scaledLightness = (it.l * factor).coerceIn(0.0, 1.0)
+        it.copy(l = scaledLightness)
+    }.toRbg()
+}
 
 fun Color.withLightness(lightness: UnitIntervalValue): Color = toRgb().withLightness(lightness).toColor()
 
-fun RGB.withLightness(lightness: UnitIntervalValue): RGB =
-    this.toHsl().copy(l = lightness.toDouble()).toRbg()
+fun RGB.withLightness(lightness: UnitIntervalValue): RGB = this.toHsl().copy(l = lightness.toDouble()).toRbg()
 
 fun Color.scaleSaturation(factor: Double): Color = toRgb().scaleSaturation(factor).toColor()
 
-fun RGB.scaleSaturation(factor: Double): RGB =
-    require(factor >= 0.0) {
-        "Scaling factor for color saturation should not be negative but is $factor!"
-    }.let {
-        this.toHsl().let {
-            val scaledSaturation = (it.l * factor).coerceIn(0.0, 1.0)
-            it.copy(s = scaledSaturation)
-        }.toRbg()
-    }
+fun RGB.scaleSaturation(factor: Double): RGB = require(factor >= 0.0) {
+    "Scaling factor for color saturation should not be negative but is $factor!"
+}.let {
+    this.toHsl().let {
+        val scaledSaturation = (it.l * factor).coerceIn(0.0, 1.0)
+        it.copy(s = scaledSaturation)
+    }.toRbg()
+}
 
 fun Color.withSaturation(saturation: UnitIntervalValue): Color = toRgb().withSaturation(saturation).toColor()
 
-fun RGB.withSaturation(saturation: UnitIntervalValue): RGB =
-    this.toHsl().copy(s = saturation.toDouble()).toRbg()
+fun RGB.withSaturation(saturation: UnitIntervalValue): RGB = this.toHsl().copy(s = saturation.toDouble()).toRbg()
 
 fun Color.shiftHue(by: Double): Color = toRgb().shiftHue(by).toColor()
 
-fun RGB.shiftHue(by: Double): RGB =
-    this.toHsl().let {
-        val shiftedHue = ((it.h + by) % 360.0).let { hue ->
-            if (hue < 0.0) {
-                hue + 360
-            } else {
-                hue
-            }
+fun RGB.shiftHue(by: Double): RGB = this.toHsl().let {
+    val shiftedHue = ((it.h + by) % 360.0).let { hue ->
+        if (hue < 0.0) {
+            hue + 360
+        } else {
+            hue
         }
-        it.copy(h = shiftedHue)
-    }.toRbg()
+    }
+    it.copy(h = shiftedHue)
+}.toRbg()
 
 fun Color.withHue(hue: Double): Color = toRgb().withHue(hue).toColor()
 
-fun RGB.withHue(hue: Double): RGB =
-    this.toHsl().let {
-        val newHue = (hue % 360.0).let { h ->
-            if (h < 0.0) {
-                h + 360
-            } else {
-                h
-            }
+fun RGB.withHue(hue: Double): RGB = this.toHsl().let {
+    val newHue = (hue % 360.0).let { h ->
+        if (h < 0.0) {
+            h + 360
+        } else {
+            h
         }
-        it.copy(h = newHue).toRbg()
     }
+    it.copy(h = newHue).toRbg()
+}
 
 fun Color.darkerShades(n: Int): List<Color> = toRgb().darkerShades(n).map { it.toColor() }
 

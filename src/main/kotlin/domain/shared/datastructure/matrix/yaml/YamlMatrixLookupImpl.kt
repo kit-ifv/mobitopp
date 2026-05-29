@@ -52,7 +52,7 @@ class YamlMatrixLookupImpl<M : Encodable>(
 
         // Read the YAML file into a Map
         val yamlMap: YamlMap = yaml.load(
-            yamlPath.inputStream()
+            yamlPath.inputStream(),
         )
 
         yamlMap.entries.associate { (transportType, weekMap) ->
@@ -79,17 +79,13 @@ class YamlMatrixLookupImpl<M : Encodable>(
         return build
     }
 
-    private fun parseWeekLookups(dayMap: DayMap): Collection<WeekLookupOperation<YamlInfo>> {
-        return dayMap.map { (t, u) ->
-            val timeOperations = parseTimeLookups(u)
-            yamlParsingLogic.parseWeekLookupOperation(t, timeOperations)
-        }
+    private fun parseWeekLookups(dayMap: DayMap): Collection<WeekLookupOperation<YamlInfo>> = dayMap.map { (t, u) ->
+        val timeOperations = parseTimeLookups(u)
+        yamlParsingLogic.parseWeekLookupOperation(t, timeOperations)
     }
 
-    private fun parseTimeLookups(timeMap: TimeMap): Collection<TimeLookupOperation<YamlInfo>> {
-        return timeMap.map { (t, u) ->
-            val (key, value) = u.entries.first()
-            yamlParsingLogic.parseTimeLookupOperation(t, key to value as String)
-        }
+    private fun parseTimeLookups(timeMap: TimeMap): Collection<TimeLookupOperation<YamlInfo>> = timeMap.map { (t, u) ->
+        val (key, value) = u.entries.first()
+        yamlParsingLogic.parseTimeLookupOperation(t, key to value as String)
     }
 }

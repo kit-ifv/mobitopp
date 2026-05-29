@@ -67,7 +67,7 @@ val standardConfig = ShortTermConfig(
         dataFolder = dataFolder,
         modes = MainModes,
         simulationSeed = 42,
-        regionTypeCodes = RegioStaR17
+        regionTypeCodes = RegioStaR17,
     ),
     errorHandling = ErrorHandling.WARNING,
     resultPath = Path("results"),
@@ -96,7 +96,7 @@ fun main(args: Array<String>) {
         shortTermConfig.simulationContext
     }.steps {
         loadVisumNetwork(
-            shortTermConfig.visumNetwork ?: visum_network
+            shortTermConfig.visumNetwork ?: visum_network,
         ) {
             connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
         }
@@ -106,14 +106,15 @@ fun main(args: Array<String>) {
         prepareZones(shortTermConfig.sourceFiles.zonesCSV, errorHandling = shortTermConfig.errorHandling)
         finishZones()
         households {
-            source = householdsFromCsvStep(path = shortTermConfig.sourceFiles.householdCSV
+            source = householdsFromCsvStep(
+                path = shortTermConfig.sourceFiles.householdCSV,
             ) {
                 errorHandling = shortTermConfig.errorHandling
                 this.filter = { filter(it) }
             }.optionalCache(shortTermConfig.cachePath)
             +HomeLocationStep(
                 this@steps,
-                AssignAroundZoneCentroid(50.meters)
+                AssignAroundZoneCentroid(50.meters),
             )
         }
 
@@ -155,19 +156,19 @@ fun main(args: Array<String>) {
             distanceMatrix = shortTermConfig.matrixConfig.distanceMatrix,
             matrixCreator = optionalCachedMatrixCreator(
                 shortTermConfig.cachePath,
-                shortTermConfig.zoneMatrixCreationMethod
-            )
+                shortTermConfig.zoneMatrixCreationMethod,
+            ),
         )
 
         loadBehaviorModels(
             shortTermConfig.destinationChoiceModel,
             shortTermConfig.modeChoiceModel,
-            shortTermConfig.choiceModelModes
+            shortTermConfig.choiceModelModes,
         )
 
         assignFixedDestinations(
             path = shortTermConfig.sourceFiles.fixedDestinationCSV,
-            homeActivity = LegacyActivityType.HOME
+            homeActivity = LegacyActivityType.HOME,
         )
 
         buildAgents(
@@ -175,9 +176,9 @@ fun main(args: Array<String>) {
             drtStateMachine = drtProviderStateMachine,
             drtAlgorithm = dummyDrtAlgorithm(
 //                zoneRepository.elements.filter { it.isDestination }.toList()
-                zoneRepository.elements.toList()
+                zoneRepository.elements.toList(),
             ),
-            durationRandomizer = GaussianActivityDurationRandomizer()
+            durationRandomizer = GaussianActivityDurationRandomizer(),
         )
 
         simulate()

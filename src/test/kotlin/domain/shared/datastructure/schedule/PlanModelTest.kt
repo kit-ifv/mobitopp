@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNameMaxLength")
+
 package domain.shared.datastructure.schedule
 
 import FOURTH
@@ -42,12 +44,10 @@ abstract class PlanModelTest {
         val expected: SortedSet<Action>.() -> Unit,
     )
 
-    private fun fromString(text: String): Helper {
-        return when {
-            text.contains("L") -> decodeLeg(text)
-            text.contains("A") -> decodeActivity(text)
-            else -> throw NoSuchElementException("Still no element")
-        }
+    private fun fromString(text: String): Helper = when {
+        text.contains("L") -> decodeLeg(text)
+        text.contains("A") -> decodeActivity(text)
+        else -> throw NoSuchElementException("Still no element")
     }
 
     private fun decodeLeg(text: String): Helper {
@@ -82,36 +82,33 @@ abstract class PlanModelTest {
         }
     }
 
-    private fun invalidLeg(action: Action): Leg {
-        return Leg.Companion.fromDuration(action.startTime, action.duration, action.startLocation, action.endLocation)
-    }
+    private fun invalidLeg(action: Action): Leg =
+        Leg.Companion.fromDuration(action.startTime, action.duration, action.startLocation, action.endLocation)
 
-    private fun invalidActivity(action: Action): Activity {
-        return Activity.Companion.fromDuration(action.startLocation, action.startTime, action.duration)
-    }
+    private fun invalidActivity(action: Action): Activity =
+        Activity.Companion.fromDuration(action.startLocation, action.startTime, action.duration)
 
-    private fun Triple<Collection<Action>, Collection<Action>, Collection<Action>>.decode(): String {
-        return first.joinToString { it.decodeToShorthand() } + "|" +
+    private fun Triple<Collection<Action>, Collection<Action>, Collection<Action>>.decode(): String =
+        first.joinToString {
+            it.decodeToShorthand()
+        } + "|" +
             second.joinToString { it.decodeToShorthand() } + "|" +
             third.joinToString { it.decodeToShorthand() }
-    }
 
-    private fun Pair<Collection<Action>, Collection<Action>>.decode(): String {
-        return first.joinToString { it.decodeToShorthand() } + "|" + second.joinToString { it.decodeToShorthand() }
-    }
+    private fun Pair<Collection<Action>, Collection<Action>>.decode(): String = first.joinToString {
+        it.decodeToShorthand()
+    } + "|" + second.joinToString { it.decodeToShorthand() }
 
-    private fun Action.decodeToShorthand(): String {
-        return when {
-            compareTo(activity1) == 0 -> "A1"
-            compareTo(activity2) == 0 -> "A2"
-            compareTo(activity2b) == 0 -> "A2b"
-            compareTo(activity3) == 0 -> "A3"
-            compareTo(leg1) == 0 -> "L1"
-            compareTo(leg1b) == 0 -> "L1b"
-            compareTo(leg2) == 0 -> "L2"
-            compareTo(leg2b) == 0 -> "L2b"
-            else -> "UNKNOWN"
-        }
+    private fun Action.decodeToShorthand(): String = when {
+        compareTo(activity1) == 0 -> "A1"
+        compareTo(activity2) == 0 -> "A2"
+        compareTo(activity2b) == 0 -> "A2b"
+        compareTo(activity3) == 0 -> "A3"
+        compareTo(leg1) == 0 -> "L1"
+        compareTo(leg1b) == 0 -> "L1b"
+        compareTo(leg2) == 0 -> "L2"
+        compareTo(leg2b) == 0 -> "L2b"
+        else -> "UNKNOWN"
     }
 
     /**
@@ -155,7 +152,7 @@ abstract class PlanModelTest {
                 "+A1" to "-A1",
                 "+L1" to "-L1",
                 "+L1b" to "-L1b",
-                "+A2" to "-A2"
+                "+A2" to "-A2",
             ).map { fromString(it.first) to fromString(it.second) }
         return actions.orderedPermutations().map { test ->
             DynamicTest.dynamicTest(test.map { it.name }.toString()) {
@@ -337,7 +334,7 @@ abstract class PlanModelTest {
                     setOf(
                         activity2,
                         activity2b,
-                        activity3
+                        activity3,
                     ).filter { it >= test } + legs.filter { it > test }
                     ).toSortedSet()
                 assertContentEquals(model.actions(), target)

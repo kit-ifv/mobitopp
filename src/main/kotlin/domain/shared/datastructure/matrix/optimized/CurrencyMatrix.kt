@@ -10,18 +10,10 @@ fun interface DoubleToCurrency {
     fun from(x: Double): Currency
 }
 
-class CurrencyMatrix(
-    private val translatedMatrix: ZoneIdMatrix,
-    private val converter: DoubleToCurrency,
-) : CostMetric {
-    operator fun get(row: ZoneId, column: ZoneId): Currency {
-        return converter.from(translatedMatrix[row, column])
-    }
+class CurrencyMatrix(private val translatedMatrix: ZoneIdMatrix, private val converter: DoubleToCurrency) :
+    CostMetric {
+    operator fun get(row: ZoneId, column: ZoneId): Currency = converter.from(translatedMatrix[row, column])
 
-    override fun evaluate(
-        origin: Identifiable<ZoneId>,
-        destination: Identifiable<ZoneId>,
-    ): Currency {
-        return this[origin.id, destination.id]
-    }
+    override fun evaluate(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Currency =
+        this[origin.id, destination.id]
 }

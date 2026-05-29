@@ -67,7 +67,7 @@ class RidepoolingScenario {
             10,
             memberships = mutableListOf(),
             drtMemberships = mutableListOf(provider),
-            personScope = { it.generateActivitySchedule(10, random) }
+            personScope = { it.generateActivitySchedule(10, random) },
         )
 
         // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
@@ -75,18 +75,18 @@ class RidepoolingScenario {
             legacyChoiceModelModes,
             mapOf(),
             mapOf(ridePooling to setOf(provider.id)),
-            impedance
+            impedance,
         )
 
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { it.centroidLocation }.toSet()
+                zones.map { it.centroidLocation }.toSet(),
             ),
             modeChoice = FixedOrderChoiceModel(
                 "prefer ridepooling",
                 setOf(ridePooling, pedestrian),
-                availability.asResourceAvailabilityFilter()
+                availability.asResourceAvailabilityFilter(),
             ),
             modes = legacyChoiceModelModes,
             impedance = impedance,
@@ -95,7 +95,7 @@ class RidepoolingScenario {
             bikeSharingConnectionSelector = availability,
             drtAvailabilitySelector = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
-            spawnModeCharacteristics = StandardModeImplementation
+            spawnModeCharacteristics = StandardModeImplementation,
         )
 
         val builder = BuildAgents(
@@ -115,7 +115,7 @@ class RidepoolingScenario {
                 }
             assertTrue(
                 sharedResources.any { it is DrtProviderAgent },
-                "No sharing station available for person $person, from: ${person.location}, to: $dest"
+                "No sharing station available for person $person, from: ${person.location}, to: $dest",
             )
         }
 

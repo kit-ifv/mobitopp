@@ -33,9 +33,7 @@ data class HistogramLayoutBuilder<G, X>(
 ) : HistogramLayout<G, X>
 
 /** Renderer producing a stacked histogram using the Lets-Plot backend. */
-class HistogramRenderer<G, X, Y : Number>(
-    override val style: HistogramLayout<G, X>,
-) : PlotRenderer<G, X, Y> {
+class HistogramRenderer<G, X, Y : Number>(override val style: HistogramLayout<G, X>) : PlotRenderer<G, X, Y> {
 
     override fun plot(data: PlotData<G, X, Y>, comparisonData: PlotData<G, X, Y>?): Plot {
         val builder = DataFrameBuilder(style.name, data, comparisonData).groupAsString {
@@ -49,7 +47,7 @@ class HistogramRenderer<G, X, Y : Number>(
         val keyCol = "x_key"
         val df = builder.combineCompAndXLabel(
             keyCol,
-            style.comparisonLabel
+            style.comparisonLabel,
         ).build()
 
         return df.plot {

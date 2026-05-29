@@ -9,16 +9,17 @@ import domain.shared.location.zone.ZoneAttributes
 import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import utils.Decodable
-import utils.binary.*
+import utils.binary.BinaryReader
+import utils.binary.BinaryWriter
+import utils.binary.readAsByteBuffer
+import utils.binary.readString
+import utils.binary.writeString
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
-class BinaryZoneReader(
-    val seed: Long,
-    private val regionCode: Decodable<RegionType>,
-) : BinaryReader<StandardZone> {
+class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionType>) : BinaryReader<StandardZone> {
     override fun fromBinary(path: Path): List<StandardZone> {
         val byteBuffer = path.readAsByteBuffer()
         byteBuffer.long // Consume hash code at start of file
@@ -46,7 +47,7 @@ class BinaryZoneReader(
         return StandardZone(
             zoneId,
             position,
-            ZoneAttributes(regionType)
+            ZoneAttributes(regionType),
         )
     }
 }
@@ -84,11 +85,9 @@ class BinaryZoneWriter : BinaryWriter<StandardZone> {
         elements.forEach { outStream.encodeZone(it, maxStringLength) }
     }
     private val fakeName = "FakeName"
-    override fun getMaxStringSize(elements: Collection<StandardZone>): Int {
-        return elements.maxOf {
+    override fun getMaxStringSize(elements: Collection<StandardZone>): Int = elements.maxOf {
 //            it.name.length
-            fakeName.length
-        }
+        fakeName.length
     }
 
     fun DataOutputStream.encodeZone(zone: StandardZone, maxNameLength: Int) {
