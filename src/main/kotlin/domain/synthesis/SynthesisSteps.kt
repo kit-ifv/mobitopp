@@ -72,8 +72,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         fixedDestinations = allFixedDestinations
     }
 
-    fun assignSharingMemberships(lambda: SharingMembershipsBuilder<T>.() -> Unit) {
-        val builder = SharingMembershipsBuilder<T>().apply(lambda)
+    fun assignSharingMemberships(lambda: SharingMembershipsBuilder<S, T>.() -> Unit) {
+        val builder = SharingMembershipsBuilder<S, T>().apply(lambda)
         val steps = builder.build()
         households.addProgressBar("assign sharing memberships").forEach { hh ->
             hh.members.forEach {

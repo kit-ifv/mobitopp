@@ -6,6 +6,7 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.BetterLocation
+import domain.shared.location.LocationWithZoneId
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.attributes.HasZoneId
@@ -416,7 +417,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes> SynthesisSteps<StandardZone, C, T>.writeLegacyOutput() {
+fun <C : MaximumHouseholdAttributes, T : MaximumPersonAttributes> SynthesisSteps<*, C, T>.writeLegacyOutput() {
     LegacyHouseholdOutput<C>().writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     LegacyPersonOutput<C, T>().writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     LegacyFixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)

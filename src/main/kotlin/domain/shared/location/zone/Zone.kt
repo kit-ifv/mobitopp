@@ -5,6 +5,7 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.location.BetterLocation
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.attributes.HasZoneId
@@ -25,6 +26,10 @@ interface Zone<out T>: Identifiable<ZoneId> {
     operator fun contains(location: HasZoneId): Boolean = id == location.zoneId
 }
 
+
+fun <T> Zone<T>.centroidLocation(): StandardLocation where T: HasRegionType, T: HasCentroid {
+    return BetterLocation(this.attributes.centroid, this, RoadAccess.INVALID)
+}
 data class MinimalZone<T>(
     override val id: ZoneId,
 override val attributes: T,
