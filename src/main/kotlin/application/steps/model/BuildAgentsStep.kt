@@ -16,7 +16,7 @@ import core.modelsteps.resources.LazyResource
 import core.modelsteps.steps.addResourceStep
 import core.modelsteps.steps.seal
 import core.statemachine.StateMachineFactory
-import domain.shared.location.Zone
+import domain.shared.location.zone.Zone
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.DrtAlgorithm
 import domain.simulation.agent.DrtProviderAgent
@@ -43,7 +43,7 @@ import domain.synthesis.data.SharingProvider
  */
 context(config: SimulationConfig)
 fun gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
-    max = config.simulationEnd.minus(config.simulationStart)
+    max = config.simulationEnd.minus(config.simulationStart),
 )
 
 /**
@@ -76,10 +76,10 @@ fun <C> C.buildSimulationAgents( // TODO refactor to Context requirements and on
     personStateMachine: StateMachineFactory<PersonAgent>,
     durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
     drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
-    drtAlgorithm: ((DrtProvider) -> DrtAlgorithm)? = null
+    drtAlgorithm: ((DrtProvider) -> DrtAlgorithm)? = null,
 )
     where C : HasPersonRepo<*, Person>,
-          C : HasZoneRepo<*, Zone>,
+          C : HasZoneRepo<*, Zone<*>>,
           C : HasHouseholdRepo<*, Household>,
           C : HasCarRepo<*, PrivateCar>,
           C : HasSharingProviderRepo<*, SharingProvider>,
@@ -95,7 +95,7 @@ fun <C> C.buildSimulationAgents( // TODO refactor to Context requirements and on
             personBehavior,
             drtStateMachine,
             drtAlgorithm,
-            durationRandomizer
+            durationRandomizer,
         )
     }
 
@@ -106,7 +106,7 @@ fun <C> C.buildSimulationAgents( // TODO refactor to Context requirements and on
             builder.buildSharingProviderAgents(sharingProviderRepository.elements.toList()).asSequence()
         },
         repository = mutableSharingProviderAgentRepository,
-        dependentRepositories = setOf(sharingProviderRepository, zoneRepository)
+        dependentRepositories = setOf(sharingProviderRepository, zoneRepository),
     )
 
     seal(mutableSharingProviderAgentRepository)
@@ -117,7 +117,7 @@ fun <C> C.buildSimulationAgents( // TODO refactor to Context requirements and on
             builder.buildDrtProviderAgents(drtProviderRepository.elements.toList()).asSequence()
         },
         repository = mutableDrtProviderAgentRepository,
-        dependentRepositories = setOf(drtProviderRepository, zoneRepository)
+        dependentRepositories = setOf(drtProviderRepository, zoneRepository),
     )
 
     seal(mutableDrtProviderAgentRepository)
@@ -134,8 +134,8 @@ fun <C> C.buildSimulationAgents( // TODO refactor to Context requirements and on
             carRepository,
             zoneRepository,
             sharingProviderRepository,
-            drtProviderRepository
-        )
+            drtProviderRepository,
+        ),
     )
 
     seal(mutablePersonAgentRepository)

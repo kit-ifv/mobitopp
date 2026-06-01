@@ -44,7 +44,7 @@ data class PersonColumns(
 data class PersonCodePlans(
     val employmentCodes: CodePlan<Employment> = Employment,
     val graduationCodes: CodePlan<Graduation> = Graduation,
-    val sexCodes: CodePlan<Sex> = Sex
+    val sexCodes: CodePlan<Sex> = Sex,
 )
 
 data class PersonCsvConfig(
@@ -62,9 +62,7 @@ data class PersonCsvConfig(
 )
 
 @Suppress("LongParameterList")
-fun createPersonCsvParser(
-    csvConfig: PersonCsvConfig
-): CsvParser<MutablePerson> = csvConfig.run {
+fun createPersonCsvParser(csvConfig: PersonCsvConfig): CsvParser<MutablePerson> = csvConfig.run {
     val csvParser = CsvParser<MutablePerson>(errorHandling) { row ->
 
         MutablePerson(
@@ -99,7 +97,7 @@ fun createPersonCsvParser(
 
     return csvParser.withFilter { row ->
         hasHousehold(
-            HouseholdId(row.long(columns.householdColumn))
+            HouseholdId(row.long(columns.householdColumn)),
         )
     }
 }

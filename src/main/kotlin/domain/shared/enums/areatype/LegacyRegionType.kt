@@ -137,12 +137,10 @@ fun RegioStaR17.toSizebasedClassification(): SizebasedRegiostarClassification = 
 }
 
 @Suppress("MagicNumber")
-fun RegioStaR7.toSizebasedClassification(): SizebasedRegiostarClassification {
-    return when (code) {
-        71, 72 -> SizebasedRegiostarClassification.CITY
-        74, 77 -> SizebasedRegiostarClassification.SMALL_TOWN
-        73 -> SizebasedRegiostarClassification.URBAN_AREA
-        75, 76 -> SizebasedRegiostarClassification.RURAL_AREA
-        else -> error("RegioStaR7 code $code should not exist!")
-    }
+fun RegioStaR7.toSizebasedClassification(): SizebasedRegiostarClassification = when (code) {
+    71, 72 -> SizebasedRegiostarClassification.CITY
+    74, 77 -> SizebasedRegiostarClassification.SMALL_TOWN
+    73 -> SizebasedRegiostarClassification.URBAN_AREA
+    75, 76 -> SizebasedRegiostarClassification.RURAL_AREA
+    else -> error("RegioStaR7 code $code should not exist!")
 }

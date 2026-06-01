@@ -235,7 +235,7 @@ data class ReportDiff<R>(
     val newErrors: Boolean,
     val newSuccess: Boolean,
     val newWarnings: Boolean,
-    val newNormals: Boolean
+    val newNormals: Boolean,
 )
 
 private const val BLUE = "\u001B[34m"

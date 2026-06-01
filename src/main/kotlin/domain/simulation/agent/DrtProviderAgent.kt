@@ -7,7 +7,7 @@ import core.statemachine.StateMachineFactory
 import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
 import domain.shared.location.attributes.HasZoneId
-import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
 import domain.synthesis.data.DrtProvider
 import edu.kit.ifv.units.Currency
 import utils.units.AbsoluteTime
@@ -21,7 +21,8 @@ class DrtProviderAgent(
     val data: DrtProvider,
     val algorithm: DrtAlgorithm,
     stateMachineFactory: StateMachineFactory<DrtProviderAgent>,
-) : DrtProvider by data, StateBasedAgent<DrtProviderMessage> {
+) : DrtProvider by data,
+    StateBasedAgent<DrtProviderMessage> {
 
     override val stateMachine: StateMachine = stateMachineFactory.create(AbsoluteTime.START, this)
 
@@ -53,7 +54,7 @@ data class DrtRequest(
     val departure: AbsoluteTime,
     val origin: StandardLocation,
     val destination: StandardLocation,
-    val id: RequestId = RequestId.next()
+    val id: RequestId = RequestId.next(),
 )
 
 @JvmInline
@@ -96,7 +97,7 @@ data class DrtRide(val offer: DrtOffer) // TODO maybe add car in the future here
 class SimpleMatrixDrtAlgorithm(
     private val impedance: Impedance,
     private val avgWaitTime: Duration,
-    private val serviceArea: Collection<StandardZone>,
+    private val serviceArea: Collection<Zone<*>>,
     private val operationHours: Pair<Int, Int>,
     private val numVehicles: Int,
 ) : DrtAlgorithm {
@@ -154,7 +155,7 @@ class SimpleMatrixDrtAlgorithm(
                 departure,
                 dropOffTime,
                 1,
-                request.id
+                request.id,
             )
         }
     }
@@ -174,11 +175,9 @@ class SimpleMatrixDrtAlgorithm(
     override fun nextActionTime(currentTime: AbsoluteTime): AbsoluteTime =
         (pendingPickUps.keys + pendingDropOffs.keys).minOrNull() ?: AbsoluteTime.INFINITY
 
-    override fun getPendingPickups(time: AbsoluteTime): List<DrtRide> =
-        removePickups(time)?.onEach {
-            addDropOff(it) // move pickups to drop off map
-        } ?: emptyList()
+    override fun getPendingPickups(time: AbsoluteTime): List<DrtRide> = removePickups(time)?.onEach {
+        addDropOff(it) // move pickups to drop off map
+    } ?: emptyList()
 
-    override fun getPendingArrivals(time: AbsoluteTime): List<DrtRide> =
-        removeDropOff(time) ?: emptyList()
+    override fun getPendingArrivals(time: AbsoluteTime): List<DrtRide> = removeDropOff(time) ?: emptyList()
 }

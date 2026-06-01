@@ -49,13 +49,13 @@ import kotlin.time.Duration.Companion.minutes
  */
 context(repository: MutableRepository<P, PersonId>)
 fun <CTXT, P> CTXT.plannedActivities(
-    scope: context(MutableRepository<MutablePlannedActivity, ActivityId>) CTXT.() -> Unit
+    scope: context(MutableRepository<MutablePlannedActivity, ActivityId>) CTXT.() -> Unit,
 ) where CTXT : Context, P : HasPlannedActivities<PlannedActivity>, P : Identifiable<PersonId> {
     val plannedActivities = MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
 
     mutableRepositoryScope<CTXT, MutablePlannedActivity, ActivityId>(
         { plannedActivities },
-        sealed = true
+        sealed = true,
     ) {
         scope()
     }
@@ -65,7 +65,7 @@ fun <CTXT, P> CTXT.plannedActivities(
 
     updateEachStep<CTXT, P, PersonId>(
         name = "assign planned activites to persons",
-        dependentRepositories = setOf(plannedActivities)
+        dependentRepositories = setOf(plannedActivities),
     ) {
         val activities = requireNotNull(activitiesById[it.id]) {
             "Could not find activities for person ${it.id}"
@@ -113,12 +113,11 @@ val oneMinuteGapFix: (Activity, LinkedActivity) -> Unit = { prev, broken ->
  * @param resource The resource (e.g., CSV) to load activities from.
  */
 context(repository: MutableRepository<MutablePlannedActivity, ActivityId>)
-fun <C> C.loadActivities(
-    resource: Resource<MutablePlannedActivity>,
-) where C : Context = addResourceStep<C, MutablePlannedActivity, ActivityId>(
-    name = "load planned activities from ${resource.name}",
-    resource = resource,
-)
+fun <C> C.loadActivities(resource: Resource<MutablePlannedActivity>) where C : Context =
+    addResourceStep<C, MutablePlannedActivity, ActivityId>(
+        name = "load planned activities from ${resource.name}",
+        resource = resource,
+    )
 
 /**
  * Creates a CSV resource for planned activities.
@@ -140,12 +139,12 @@ fun <C, CFG, P> C.plannedActivityCsv(
     parser: CsvParser<MutablePlannedActivity> = plannedActivityCsvParser(),
     path: Path = config.sourceFiles.activityCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutablePlannedActivity>? = binaryPlannedActivityFormat() // TODO move binary format to load level?
+    binaryCache: BinaryCacheConfig<MutablePlannedActivity>? = binaryPlannedActivityFormat(), // TODO move binary format to load level?
 ): Resource<MutablePlannedActivity>
     where C : Context, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : ActivityTypesConfig, C : HasPersonRepo<*, P>, P : StochasticActor, P : Identifiable<PersonId> = CsvResource(
     path,
     parser,
-    delimiter
+    delimiter,
 ).let { csv ->
     binaryCache?.let {
         csv.cachedCsv(it)
@@ -165,22 +164,23 @@ fun <C, CFG, P> C.plannedActivityCsv(
  */
 context(config: CFG)
 fun <C, CFG, P> C.plannedActivityCsvParser(
-    customizeCsvConfig: ActivityCsvConfig<P>.() -> Unit = {}
+    customizeCsvConfig: ActivityCsvConfig<P>.() -> Unit = {},
 ): CsvParser<MutablePlannedActivity>
-    where C : Context, CFG : ActivityTypesConfig, CFG : UnitConfig, C : HasPersonRepo<*, P>, P : StochasticActor, P : Identifiable<PersonId> = createActivityCsvParser(
-    ActivityCsvConfig(
-        columns = ActivitiesColumns(),
-        personExists = personRepository::contains,
-        personProvider = personRepository::getValue,
-        durationUnit = config.durationUnit,
-        activityTypes = config.activityTypes,
-        errorHandling = config.errorHandling,
-        shiftActivityStart = NoActivityStartShifter,
-        seed = config.seed
-    ).also {
-        it.customizeCsvConfig()
-    }
-)
+    where C : Context, CFG : ActivityTypesConfig, CFG : UnitConfig, C : HasPersonRepo<*, P>, P : StochasticActor, P : Identifiable<PersonId> =
+    createActivityCsvParser(
+        ActivityCsvConfig(
+            columns = ActivitiesColumns(),
+            personExists = personRepository::contains,
+            personProvider = personRepository::getValue,
+            durationUnit = config.durationUnit,
+            activityTypes = config.activityTypes,
+            errorHandling = config.errorHandling,
+            shiftActivityStart = NoActivityStartShifter,
+            seed = config.seed,
+        ).also {
+            it.customizeCsvConfig()
+        },
+    )
 
 /**
  * Creates a binary cache configuration for planned activities.
@@ -193,14 +193,13 @@ fun <C, CFG, P> C.plannedActivityCsvParser(
  */
 context(config: CFG)
 fun <C, CFG> C.binaryPlannedActivityFormat(): BinaryCacheConfig<MutablePlannedActivity>
-    where C : Context, CFG : SourceFilesConfig, CFG : ActivityTypesConfig {
-    return BinaryCacheConfig<MutablePlannedActivity>(
+    where C : Context, CFG : SourceFilesConfig, CFG : ActivityTypesConfig =
+    BinaryCacheConfig<MutablePlannedActivity>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryActivityReader(
             codeActivity = config.activityTypes,
 //            personConverter = converter,
-            contextSimulationSeed = config.seed
+            contextSimulationSeed = config.seed,
         ),
-        binaryWriter = BinaryActivityWriter()
+        binaryWriter = BinaryActivityWriter(),
     )
-}

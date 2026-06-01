@@ -1,10 +1,11 @@
 package domain.synthesis.parser
 
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
+import domain.shared.location.zone.Zone
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
@@ -22,7 +23,7 @@ import utils.csv.withFilter
 // household csv parsers
 data class HouseholdCsvConfig(
     var columns: HouseholdColumns = HouseholdColumns(),
-    var getZone: (ZoneId) -> Zone, // TODO maybe Row.() -> Zone instead to be more flexible
+    var getZone: (ZoneId) -> Zone<HasRegionType>, // TODO maybe Row.() -> Zone instead to be more flexible
     var roadPositionParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
     var incomeUnit: CurrencyUnit,
     var economicStatusCodes: CodePlan<EconomicStatus>,
@@ -31,9 +32,7 @@ data class HouseholdCsvConfig(
     val seed: Long,
 )
 
-fun createHouseholdCsvParser(
-    householdCsvConfig: HouseholdCsvConfig,
-) = householdCsvConfig.run {
+fun createHouseholdCsvParser(householdCsvConfig: HouseholdCsvConfig) = householdCsvConfig.run {
     val parser = CsvParser.Companion(errorHandling) { row ->
 
         MutableHousehold(
@@ -52,7 +51,7 @@ fun createHouseholdCsvParser(
             location = StandardLocation.Companion(
                 position = temp.position,
                 zone = getZone(ZoneId(row.long(columns.zoneColumn))),
-                roadAccess = temp.roadAccess
+                roadAccess = temp.roadAccess,
             )
         }
     }

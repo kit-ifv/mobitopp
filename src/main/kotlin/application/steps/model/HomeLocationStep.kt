@@ -1,18 +1,14 @@
 package application.steps.model
 
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
-import core.modelsteps.UpdateAllStep
-import core.modelsteps.UpdateEachStep
-import core.modelsteps.Warning
-import domain.shared.location.ZoneId
-import domain.shared.location.zone.StandardZone
-import domain.simulation.config.DemandSimContext
 import application.steps.HasZoneRepo
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.updateBulkStep
 import core.modelsteps.scopes.updateEachStep
-import domain.shared.location.Zone
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.HasCentroid
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneWithCentroid
+import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
@@ -37,17 +33,16 @@ import edu.kit.ifv.units.meters
  * @param model The model used to generate locations. Defaults to [AssignAroundZoneCentroid].
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>)
-fun <C> C.assignHouseholdLocation(
-    model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters),
-) where C : HasZoneRepo<*, Zone> =
-    updateEachStep(
-        name = "Assign Home Location to each Household",
-        dependentRepositories = setOf(zoneRepository)
-    ) { household ->
-        val zoneID = household.location.zoneID
-        val zone = getZone(zoneID)
-        household.location = model.generateLocation(zone, household)
-    }
+fun <C, Z> C.assignHouseholdLocation(
+    model: AssignHouseholdLocations<ZoneWithCentroid<Z>, Household> = AssignAroundPoint(100.meters),
+) where C : HasZoneRepo<*, ZoneWithCentroid<Z>>, Z: HasRegionType = updateEachStep(
+    name = "Assign Home Location to each Household",
+    dependentRepositories = setOf(zoneRepository),
+) { household ->
+    val zoneID = household.location.zoneId
+    val zone = getZone(zoneID)
+    household.location = model.generateLocation(zone, household)
+}
 
 /**
  * Assigns home locations to households in bulk, grouped by zone.
@@ -62,21 +57,19 @@ fun <C> C.assignHouseholdLocation(
  * @param model The model used to generate locations in bulk. Defaults to [TrivialGroupStrategy].
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>)
-fun <C> C.assignHouseholdLocationsInBulk(
-    model: GroupAssignHouseholdLocations<Zone, MutableHousehold> =
-        TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
-) where C : HasZoneRepo<*, Zone> =
-    updateBulkStep(
-        name = "Assign Home Location to Households grouped by zone",
-        dependentRepositories = setOf(zoneRepository)
-    ) { households ->
-        val householdsByZone = households.groupBy { it.location.zoneID }
-        householdsByZone.entries.forEach { (zoneID, households) ->
-            val zone = getZone(zoneID)
+fun <C, Z> C.assignHouseholdLocationsInBulk(
+    model: GroupAssignHouseholdLocations<ZoneWithCentroid<Z>, MutableHousehold> =
+        TrivialGroupStrategy(AssignAroundPoint(100.meters)),
+) where C : HasZoneRepo<*, ZoneWithCentroid<Z>> , Z: HasRegionType = updateBulkStep(
+    name = "Assign Home Location to Households grouped by zone",
+    dependentRepositories = setOf(zoneRepository),
+) { households ->
+    val householdsByZone = households.groupBy { it.location.zoneId }
+    householdsByZone.entries.forEach { (zoneID, households) ->
+        val zone = getZone(zoneID)
 
-            model.generateLocations(zone, households).forEach { (hh, loc) ->
-                hh.location = loc
-            }
+        model.generateLocations(zone, households).forEach { (hh, loc) ->
+            hh.location = loc
         }
     }
-
+}

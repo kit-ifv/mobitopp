@@ -82,9 +82,10 @@ import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.location.Impedance
-import domain.shared.location.MutableZone
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneWithCentroid
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
@@ -162,7 +163,7 @@ val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 val exampleChoiceModelModes = legacyChoiceModelModes.copy(options = MainModes.values())
 
 class MyContext :
-    HasZoneRepo<MutableZone, Zone>,
+    HasZoneRepo<MaximalZone, MaximalZone>,
     HasHouseholdRepo<MutableHousehold, Household>,
     HasCarRepo<MutablePrivateCar, PrivateCar>,
     HasPersonRepo<MutablePerson, Person>,
@@ -183,7 +184,7 @@ class MyContext :
     override lateinit var personBehavior: PersonBehavior
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
-    override val mutableZoneRepository: MutableRepository<MutableZone, ZoneId> = MapRepository("zone")
+    override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> = MapRepository("zone")
     override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> =
         MapRepository("household")
     override val mutableCarRepository: MutableRepository<MutablePrivateCar, CarId> = MapRepository("car")
@@ -285,10 +286,10 @@ fun main(args: Array<String>) {
 
         loadImpedance()
 
-        //hacky fix of distance matrix due to faulty input data
+        // hacky fix of distance matrix due to faulty input data
         modelStep("fix distance matrix in impedance") {
             impedance = (impedance as MatrixImpedance).copy(
-                travelDistance = ConstantZoneIdMatrix(5.0)
+                travelDistance = ConstantZoneIdMatrix(5.0),
             )
         }
 
@@ -318,14 +319,17 @@ fun main(args: Array<String>) {
 //                    serviceArea.addAll(zoneRepository.elements.map { it.id })
 //                }
 //            }
-        val zoneByIndex: (ZoneId) -> Zone = { zoneRepository.elements.elementAt(it.value.toInt()) }
+        val zoneByIndex: (ZoneId) -> MaximalZone = { zoneRepository.elements.elementAt(it.value.toInt()) }
+
 
         households {
-            loadHouseholds(householdCsv(
+            loadHouseholds(
+                householdCsv(
                 parser = householdCsvParser {
                     getZone = zoneByIndex
-                }
-            ))
+                },
+            )
+            )
 
             filterFractionOfPopulation()
 
@@ -345,8 +349,8 @@ fun main(args: Array<String>) {
                     fixedDestinationCsv(
                         fixedDestinationCsvParser {
                             zoneConverter = zoneByIndex
-                        }
-                    )
+                        },
+                    ),
                 )
             }
 //
@@ -364,7 +368,7 @@ fun main(args: Array<String>) {
         loadBehaviorModels(
             legacyDestinationChoice,
             legacyModeChoice,
-            exampleChoiceModelModes
+            exampleChoiceModelModes,
         )
 
         buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines
@@ -373,10 +377,10 @@ fun main(args: Array<String>) {
             drtAlgorithm = { _ ->
                 simpleDrtAlgorithm(
                     impedance,
-                    zoneRepository.elements.filter { it.isDestination }.toList()
+                    zoneRepository.elements.filter { it.isDestination }.toList(),
                 )
             },
-            durationRandomizer = gaussianDurationRandomizer()
+            durationRandomizer = gaussianDurationRandomizer(),
         )
 
         simulate()

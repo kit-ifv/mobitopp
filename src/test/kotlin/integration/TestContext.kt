@@ -48,9 +48,8 @@ import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.Impedance
-import domain.shared.location.MutableZone
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.MaximalZone
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
@@ -90,8 +89,7 @@ import kotlin.time.DurationUnit
 class TestContext(
     override val scenarioName: String = "integration test",
     override val modes: CodePlan<Mode> = LegacyMode,
-) :
-    HasZoneRepo<MutableZone, Zone>,
+) : HasZoneRepo<MaximalZone, MaximalZone>,
     HasHouseholdRepo<MutableHousehold, Household>,
     HasCarRepo<MutablePrivateCar, PrivateCar>,
     HasPersonRepo<MutablePerson, Person>,
@@ -112,7 +110,7 @@ class TestContext(
     override lateinit var attractiveness: AttractivenessModel
     override lateinit var personBehavior: PersonBehavior
 
-    override val mutableZoneRepository: MutableRepository<MutableZone, ZoneId> = MapRepository("zone")
+    override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> = MapRepository("zone")
     override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> =
         MapRepository("household")
     override val mutableCarRepository: MutableRepository<MutablePrivateCar, CarId> = MapRepository("car")
@@ -179,8 +177,7 @@ class TestConfig(
     override val ridePoolingMode: Mode = LegacyMode.RIDE_POOLING,
     override val work: ActivityType = LegacyActivityType.WORK,
     override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT,
-) :
-    Config,
+) : Config,
     SimulationConfig,
     MatrixConfig,
     UnitConfig,

@@ -22,12 +22,9 @@ import utils.csv.Row
  * @return false if the [CsvHeaderChecker.validate] evaluates to false or an exception occurs.
  *  Regarding fuzzy logic please read KDoc of [CsvHeaderChecker].
  */
-fun <C : Context, E> C.validateCsvMetadata(
-    modelStep: String,
-    csv: CsvResource<E>
-): Boolean = validateNoException(
+fun <C : Context, E> C.validateCsvMetadata(modelStep: String, csv: CsvResource<E>): Boolean = validateNoException(
     { "Validate csv metadata of ${csv.path} produced exception:" },
-    exceptionsAreErrors = true
+    exceptionsAreErrors = true,
 ) {
     CsvHeaderChecker<E>(modelStep, this, csv).validate()
 } ?: false
@@ -48,11 +45,9 @@ fun <C : Context, E> C.validateCsvMetadata(
  * @property context the simulation context
  * @property csv the CSV resource to be validated
  */
-class CsvHeaderChecker<E>(
-    private val step: String,
-    private val context: Context,
-    private val csv: CsvResource<E>,
-) : Row, CsvReader {
+class CsvHeaderChecker<E>(private val step: String, private val context: Context, private val csv: CsvResource<E>) :
+    Row,
+    CsvReader {
 
     private lateinit var reader: CsvReader
 
@@ -125,25 +120,23 @@ class CsvHeaderChecker<E>(
 
     override fun rows(): Sequence<Row> = listOf(this).asSequence()
 
-    private fun validateColumnIndex(columnIndex: Int) =
-        context.validateCondition({
-            "Invalid column index '$columnIndex' accessed in step '$step' " +
-                "is higher than number of columns (${reader.columns.size}) in source csv file: ${reader.source}!"
-        }, isError = true) {
-            reader.columns.size >= columnIndex
-        }.also {
-            valid = valid && it
-        }
+    private fun validateColumnIndex(columnIndex: Int) = context.validateCondition({
+        "Invalid column index '$columnIndex' accessed in step '$step' " +
+            "is higher than number of columns (${reader.columns.size}) in source csv file: ${reader.source}!"
+    }, isError = true) {
+        reader.columns.size >= columnIndex
+    }.also {
+        valid = valid && it
+    }
 
-    private fun validateColumnExists(column: String): Boolean =
-        context.validateCondition({
-            "Invalid column '$column' accessed in step '$step' " +
-                "does not exist in the source csv file: ${reader.source}!"
-        }, isError = true) {
-            reader.columns.contains(column)
-        }.also {
-            valid = valid && it
-        }
+    private fun validateColumnExists(column: String): Boolean = context.validateCondition({
+        "Invalid column '$column' accessed in step '$step' " +
+            "does not exist in the source csv file: ${reader.source}!"
+    }, isError = true) {
+        reader.columns.contains(column)
+    }.also {
+        valid = valid && it
+    }
 
     @Suppress("TooGenericExceptionCaught", "SwallowedException")
     private fun <T> mockResult(converter: (String) -> T, column: String): T {
@@ -161,7 +154,7 @@ class CsvHeaderChecker<E>(
 
         error(
             "Could not mock column $column. " +
-                "None of the following tests Strings matches the expected format for parsing: $testStrings"
+                "None of the following tests Strings matches the expected format for parsing: $testStrings",
         )
     }
 

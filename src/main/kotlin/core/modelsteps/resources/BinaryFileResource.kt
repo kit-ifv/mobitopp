@@ -16,10 +16,7 @@ import java.nio.file.Path
  * @property path the binary file to read from
  * @property reader the decoder for deserializing elements from the file
  */
-class BinaryFileResource<E>(
-    private val path: Path,
-    private val reader: BinaryReader<E>,
-) : Resource<E> {
+class BinaryFileResource<E>(private val path: Path, private val reader: BinaryReader<E>) : Resource<E> {
     /** The file name of the binary resource. */
     override val name: String
         get() = path.fileName.toString()

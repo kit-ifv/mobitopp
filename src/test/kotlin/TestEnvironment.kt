@@ -2,16 +2,22 @@ import domain.shared.datastructure.schedule.Activity
 import domain.shared.datastructure.schedule.RawActivity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.toPoint
+import domain.shared.location.toZoneId
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.MaximumZoneAttributes
 import domain.shared.location.zone.StandardZone
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneAttributes
+import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
@@ -37,8 +43,10 @@ import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
 import domain.synthesis.data.buildEngine
+import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
+import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
@@ -53,36 +61,49 @@ val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99
 val ITZEHOE = WGS84Coordinate.decimalDegree(53.925032, 9.515585)
 val SCHWEINFURT = WGS84Coordinate.decimalDegree(50.049994, 10.233302)
 val TEST_ZONE =
-    StandardZone(zoneId = 42, BIELEFELD.toPoint(), ZoneAttributes(regionType = RegioStaR17.URBAN_AREA_METRO))
+    MaximalZone(42.toZoneId(), ZoneTestAttributesFake(), BIELEFELD.toPoint())
 
-class TestZone(override val id: ZoneId, override val attributes: HasRegionType) : Zone<HasRegionType> {
+class TestZone(override val zoneId: ZoneId, override val attributes: HasRegionType) : Zone<HasRegionType> {
     private class AttributeImpl(override val regionType: RegionType) : HasRegionType
+
     constructor(zoneId: Number, regionType: RegionType = RegioStaR17.URBAN_AREA_METRO) : this(
         ZoneId(zoneId.toLong()),
         AttributeImpl(regionType),
     )
-}
-fun generateZones(numElements: Int): List<StandardZone> = (0..<numElements).map {
-    StandardZone(
-        it,
-        BIELEFELD.toPoint(),
-        ZoneAttributes(
-            regionType = RegioStaR17.URBAN_AREA_METRO,
-        ),
-    )
+
+    override val centroidLocation: StandardLocation = BetterLocation(BIELEFELD.toPoint(), this, RoadAccess.INVALID)
 }
 
-fun StandardZone.generateSharingStation(sharingProvider: MutableSharingProvider, vehicles: Int): SharingStation =
-    MutableSharingStation(
-        SharingStationId(sharingProvider.numberOfVehicles.toLong()),
-        sharingProvider,
-    ) {
-        this.uid = "${this.id} Station"
-        this.name = "noName"
-        this.location = StandardLocation.fromWGS(BIELEFELD)
-        this.zonesByFoot.add(this@generateSharingStation)
-        this.initialVehicleCount = vehicles
-    }
+fun generateZones(numElements: Int): List<MaximalZone> = (0..<numElements).map {
+    MaximalZone(it.toZoneId(), attributes = ZoneTestAttributesFake(), BIELEFELD.toPoint())
+}
+
+class ZoneTestAttributesFake(
+    override val visumId: Long = 1,
+    override val name: String = "Noname",
+    override val classification: ZoneClassification = ZoneClassification.STUDY_AREA,
+    override val isDestination: Boolean = true,
+    override val relief: Distance = 0.meters,
+    override val regionType: RegionType = RegioStaR17.URBAN_AREA_METRO,
+    override val parkingPlaces: Int = 42,
+    ) : MaximumZoneAttributes {
+
+}
+
+
+fun ZoneWithCentroid<HasRegionType>.generateSharingStation(
+    sharingProvider: MutableSharingProvider,
+    vehicles: Int,
+): SharingStation = MutableSharingStation(
+    SharingStationId(sharingProvider.numberOfVehicles.toLong()),
+    sharingProvider,
+) {
+    this.uid = "${this.id} Station"
+    this.name = "noName"
+    this.location = StandardLocation.fromWGS(BIELEFELD)
+    this.zonesByFoot.add(this@generateSharingStation)
+    this.initialVehicleCount = vehicles
+}
 
 // fun generateZoneLocations(numElements: Int): List<StandardLocation> {
 //    return (0..<numElements).map {
@@ -122,7 +143,7 @@ class HouseholdSpawnLimits(
     val numPersons: IntRange = 0..5,
     val economicStatus: Collection<EconomicStatus> = EconomicStatus.entries,
 
-)
+    )
 
 @Suppress("LongParameterList")
 fun Zone<HasRegionType>.generateHouseholds(
@@ -209,7 +230,7 @@ fun MutablePerson.generateActivitySchedule(num: Int, random: Random) {
 
         MutablePlannedActivity(
             id = ActivityId(-1L),
-            this,
+            this.id,
             seed = 42L,
         ) {
             activityType = LegacyActivityType.entries.random(random)
@@ -243,7 +264,7 @@ fun Collection<Zone<HasRegionType>>.generateActivities(
         spawnLimits.endTime.random(random).toAbsoluteTime(),
         type = spawnLimits.types.random(random),
 
-    )
+        )
 }
 
 fun Int.toAbsoluteTime(): AbsoluteTime = AbsoluteTime(toDuration(DurationUnit.HOURS))
@@ -291,7 +312,7 @@ fun MutablePerson.generatePlannedActivity(
     seed: Long = 1L,
     lambda: MutablePlannedActivity.() -> Unit,
 ): MutablePlannedActivity {
-    val mutable = MutablePlannedActivity(ActivityId(id), this, seed)
+    val mutable = MutablePlannedActivity(ActivityId(id), this.id, seed)
     mutable.apply(lambda)
     return mutable
 }
@@ -333,6 +354,5 @@ fun Zone<HasRegionType>.generateHouseholdBuilder(
 fun Zone<HasRegionType>.generateHousehold(
     id: Long,
     roadIndex: Long = -1L,
-    lambda: MutableHousehold.() -> Unit = {
-    },
+    lambda: MutableHousehold.() -> Unit = {},
 ): MutableHousehold = generateHouseholdBuilder(id, roadIndex, lambda)

@@ -19,9 +19,8 @@ import core.modelsteps.resources.MapRepository
 import core.modelsteps.resources.MutableRepository
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.MutableZone
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import org.junit.jupiter.api.Test
@@ -39,16 +38,16 @@ data class MyContext(
     override val execMode: ExecutionMode = ExecutionMode(),
     override val scenarioName: String = "",
     var setDuringValidation: Boolean = false,
-) : Context, Cloneable<MyContext>, HasZoneRepo<MutableZone, Zone> {
+) : Context,
+    Cloneable<MyContext>,
+    HasZoneRepo<MaximalZone, MaximalZone> {
     override var currentStep: String = ""
     override val report: ReportBuilder = initReport()
 
-    override fun clone(): MyContext {
-        return this.copy()
-    }
+    override fun clone(): MyContext = this.copy()
 
-    override val mutableZoneRepository: MutableRepository<MutableZone, ZoneId> =
-        MapRepository<MutableZone, ZoneId>("zones")
+    override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> =
+        MapRepository<MaximalZone, ZoneId>("zones")
 }
 
 @Suppress("LongParameterList")
@@ -67,7 +66,10 @@ class MyConfig(
     override val durationUnit: DurationUnit = DurationUnit.MINUTES,
     override val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val regionTypeCodes: CodePlan<RegionType> = RegioStaR17,
-): Config, SourceFilesConfig, UnitConfig, RegionCodesConfig
+) : Config,
+    SourceFilesConfig,
+    UnitConfig,
+    RegionCodesConfig
 
 class SimulationContextInitTest {
     @Test
@@ -102,7 +104,7 @@ class SimulationContextInitTest {
         val myContext: () -> MyContext = { MyContext() }
         Simulation(
             MyConfig(),
-            myContext
+            myContext,
         ).steps {
             assert(!setDuringValidation) {
                 "If this fails, the variable was set during the " +
@@ -114,15 +116,15 @@ class SimulationContextInitTest {
 
     @Test
     fun repositorySealFix() {
-
         Simulation(MyConfig()) {
             MyContext()
         }.steps {
-
-            zones(sealed=false) {
-                loadZones(zoneCsv(
-                    path = Path("src/test/resources/testDemand/zone-repository/zones.csv")
-                ))
+            zones(sealed = false) {
+                loadZones(
+                    zoneCsv(
+                    path = Path("src/test/resources/testDemand/zone-repository/zones.csv"),
+                )
+                )
             }
 
             assert(!zoneRepository.sealed) {
@@ -130,12 +132,11 @@ class SimulationContextInitTest {
                     "Why does this fail?"
             }
 
-            zones(sealed=true) { }
+            zones(sealed = true) { }
 
             assert(zoneRepository.sealed) {
                 "Zone repository should now be sealed!"
             }
-
         }
     }
 }

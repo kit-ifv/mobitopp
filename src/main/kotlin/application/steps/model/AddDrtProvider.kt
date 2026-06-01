@@ -4,7 +4,7 @@ import core.modelsteps.Context
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.mutatingStep
 import domain.shared.location.Impedance
-import domain.shared.location.Zone
+import domain.shared.location.zone.Zone
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
@@ -29,7 +29,7 @@ import kotlin.time.Duration.Companion.minutes
 context(repository: MutableRepository<MutableDrtProviderData, DrtProviderId>)
 fun <C : Context> C.newDrtProvider(
     idProvider: () -> DrtProviderId = GlobalDrtProviderIdCounter,
-    scope: MutableDrtProviderData.() -> Unit
+    scope: MutableDrtProviderData.() -> Unit,
 ) = mutatingStep(
     "add single new drt provider",
 ) {
@@ -37,7 +37,7 @@ fun <C : Context> C.newDrtProvider(
     newDrtProvider.scope()
     repository.addElements(
         "add single drt provider '${newDrtProvider.name}'",
-        listOf(newDrtProvider)
+        listOf(newDrtProvider),
     )
 }
 
@@ -58,7 +58,7 @@ private val allDay = 0 to 24
  */
 fun simpleDrtAlgorithm(
     impedance: Impedance,
-    serviceArea: Collection<Zone>,
+    serviceArea: Collection<Zone<*>>,
     numVehicles: Int = serviceArea.size,
     avgWaitingTime: Duration = 4.minutes,
     operationHours: Pair<Int, Int> = allDay,
@@ -67,5 +67,5 @@ fun simpleDrtAlgorithm(
     avgWaitingTime,
     serviceArea,
     operationHours,
-    numVehicles
+    numVehicles,
 )

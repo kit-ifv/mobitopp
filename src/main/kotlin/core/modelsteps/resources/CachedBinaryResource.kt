@@ -19,10 +19,8 @@ import kotlin.io.path.nameWithoutExtension
  * @param binaryConfig the configuration for binary caching
  * @return a [CachedBinaryResource] instance
  */
-fun <E> Resource<E>.cached(
-    path: Path,
-    binaryConfig: BinaryCacheConfig<E>,
-): CachedBinaryResource<E> = CachedBinaryResource(path, binaryConfig) { this }
+fun <E> Resource<E>.cached(path: Path, binaryConfig: BinaryCacheConfig<E>): CachedBinaryResource<E> =
+    CachedBinaryResource(path, binaryConfig) { this }
 
 /**
  * Decorates a [CsvResource] with binary caching.
@@ -32,9 +30,8 @@ fun <E> Resource<E>.cached(
  * @param binaryConfig the configuration for binary caching
  * @return a [CachedBinaryResource] instance
  */
-fun <E> CsvResource<E>.cachedCsv(
-    binaryConfig: BinaryCacheConfig<E>,
-): CachedBinaryResource<E> = CachedBinaryResource(path, binaryConfig) { this }
+fun <E> CsvResource<E>.cachedCsv(binaryConfig: BinaryCacheConfig<E>): CachedBinaryResource<E> =
+    CachedBinaryResource(path, binaryConfig) { this }
 
 /**
  * A [Resource] that attempts to load its elements from a binary cache file.
@@ -57,20 +54,25 @@ class CachedBinaryResource<E>(
     binaryConfig.binaryWriter,
     binaryConfig.cacheRootPath,
     path,
-), Resource<E> {
+),
+    Resource<E> {
 
     /** The name of the resource, prefixed with 'cached' if loaded from cache. */
     override val name: String by lazy {
         if (hasValidCacheEntry) {
             "cached ${path.nameWithoutExtension}.bin"
-        } else { path.fileName.toString() }
+        } else {
+            path.fileName.toString()
+        }
     }
 
     /** The source path, pointing to the .bin file if loaded from cache. */
     override val source: String by lazy {
         if (hasValidCacheEntry) {
             path.absolutePathString().replaceAfterLast(".", "bin")
-        } else { path.fileName.toString() }
+        } else {
+            path.fileName.toString()
+        }
     }
 
     /**
@@ -108,7 +110,7 @@ class CachedBinaryResource<E>(
 data class BinaryCacheConfig<E>(
     val binaryReader: BinaryReader<E>,
     val binaryWriter: BinaryWriter<E>,
-    val cacheRootPath: Path
+    val cacheRootPath: Path,
 )
 
 /**
@@ -133,9 +135,7 @@ abstract class BinaryCachedFileInput<E>(
      * @param expectedCachePath the path to the cache file
      * @return the computed [PathChecksum]
      */
-    override fun cachedChecksum(expectedCachePath: Path): PathChecksum {
-        return binaryReader.checksum(expectedCachePath)
-    }
+    override fun cachedChecksum(expectedCachePath: Path): PathChecksum = binaryReader.checksum(expectedCachePath)
 
     /**
      * Called when the cache is missing or invalid. Writes the current data to the cache.
@@ -144,7 +144,7 @@ abstract class BinaryCachedFileInput<E>(
         binaryWriter.toBinary(
             expectedCachePath,
             getData(),
-            checksum = originalFileChecksum
+            checksum = originalFileChecksum,
         )
     }
 
@@ -165,10 +165,7 @@ abstract class BinaryCachedFileInput<E>(
  * @property cacheRootPath the root directory for cache storage
  * @property originalSourcePath the path to the original source file
  */
-abstract class CachedFileInput(
-    val cacheRootPath: Path,
-    val originalSourcePath: Path,
-) {
+abstract class CachedFileInput(val cacheRootPath: Path, val originalSourcePath: Path) {
     /** The directory where cache files are stored. */
     protected val cacheFolder: Path by lazy { cacheRootPath.resolve("data-cache").apply { createDirectories() } }
 

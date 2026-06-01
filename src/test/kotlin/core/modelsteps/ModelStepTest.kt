@@ -82,7 +82,6 @@ class ModelStepTest {
         addCsvStep = addCsvStep("test_add_csv", csvResource, repository)
         loadCsvStepWrapper = loadCsvStep(csvFile, parser, repository)
 
-
         filterStep = filterStep("test_filter", ::filterOddIndex, repository)
         filterIdsStep = filterIdStep("test_filter_ids", ::filterOddId, repository)
         updateEachStep = updateStep("test_update", ::updateIntAttToStringLength, repository)
@@ -196,7 +195,7 @@ class ModelStepTest {
     private fun reportText(): String {
         val captor = ConsoleCaptor()
         context.report.printToConsole()
-        return  captor.getText()
+        return captor.getText()
     }
 
     @Test
@@ -238,7 +237,6 @@ class ModelStepTest {
 
         val step = customValidationStep(repository)
 
-
         val warning = step(context)
 
         val consoleText = reportText()
@@ -266,10 +264,12 @@ class ModelStepTest {
                 parser,
                 name = "DummyCsvStepWithUnsealedDependent",
                 dependentRepositories = setOf(unsealedDependentRepository),
-                validation = listOf { repository.addElements("add mock elements", expectedElements); true }
+                validation = listOf {
+                    repository.addElements("add mock elements", expectedElements);
+                    true
+                },
             )
         }
-
 
         step(context)
         assert(context.report.hasWarnings())
@@ -309,7 +309,6 @@ class ModelStepTest {
         val consoleText = reportText()
         assertContains(consoleText, "(FAILURE) load invalid_path.csv - validation failed.")
         assertContains(consoleText, "File does not exist: invalid_path.csv!")
-
     }
 
     @Test
@@ -375,19 +374,18 @@ class ModelStepTest {
     }
 }
 
-private fun createContext() = object: Context {
+private fun createContext() = object : Context {
     override var currentStep: String = ""
     override val execMode: ExecutionMode = ExecutionMode()
     override val scenarioName: String = "ModelStepTests"
     override val report: ReportBuilder = initReport()
-
 }
 
 private fun addResourceStep(
     name: String,
     resource: Resource<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-) : (Context) -> Unit = {
+): (Context) -> Unit = {
     it.addResourceStep(name, repository, resource)
 }
 
@@ -395,7 +393,7 @@ private fun addCsvStep(
     name: String,
     resource: CsvResource<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-): (Context) -> Unit  = {
+): (Context) -> Unit = {
     it.addCsvResourceStep(name, repository, resource)
 }
 
@@ -403,7 +401,7 @@ private fun loadCsvStep(
     path: Path,
     parser: CsvParser<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-): (Context) -> Unit  = {
+): (Context) -> Unit = {
     it.loadCsvStep(repository, path, parser)
 }
 
@@ -423,15 +421,15 @@ private fun filterIdStep(
     name: String,
     filter: (TestId) -> Boolean,
     repository: MutableRepository<TestEntity, TestId>,
-): (Context) -> Unit  = {
-    it.filterIdsStep(name, repository, check=filter)
+): (Context) -> Unit = {
+    it.filterIdsStep(name, repository, check = filter)
 }
 
 private fun updateStep(
     name: String,
     update: (TestEntity) -> Unit,
     repository: MutableRepository<TestEntity, TestId>,
-) : (Context) -> Unit  = {
+): (Context) -> Unit = {
     it.updateEachStep(name, repository, update = update)
 }
 
@@ -439,7 +437,7 @@ private fun transformStep(
     name: String,
     transform: (TestEntity) -> TestEntity?,
     repository: MutableRepository<TestEntity, TestId>,
-) : (Context) -> Unit  = {
+): (Context) -> Unit = {
     it.transformEachStep(name, repository, transform = transform)
 }
 
@@ -447,7 +445,7 @@ private fun transformAllStep(
     name: String,
     transformAll: (Collection<TestEntity>) -> Collection<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-) : (Context) -> Unit  = {
+): (Context) -> Unit = {
     it.transformBulkStep(name, repository, transform = transformAll)
 }
 
@@ -455,20 +453,18 @@ private fun forEachStep(
     name: String,
     process: (ImmutableEntity) -> Unit,
     repository: Repository<ImmutableEntity, TestId>,
-) : (Context) -> Unit  = {
-    it.forEachStep(name, repository, process=process)
+): (Context) -> Unit = {
+    it.forEachStep(name, repository, process = process)
 }
 
-private fun sealStep(
-    repository: MutableRepository<TestEntity, TestId>,
-) : (Context) -> Unit  = {
+private fun sealStep(repository: MutableRepository<TestEntity, TestId>): (Context) -> Unit = {
     it.seal(repository)
 }
 
 private val parser: CsvParser<TestEntity> = CsvParser<TestEntity> { row ->
     TestEntity(
         rowIndex = row.index,
-        string = row(STR_COL)
+        string = row(STR_COL),
     )
 }
 
@@ -481,7 +477,7 @@ private val invalidParser: CsvParser<TestEntity> = CsvParser<TestEntity> { row -
 }
 
 private val unmockableParser: CsvParser<TestEntity> = CsvParser<TestEntity>(
-    errorHandling = ErrorHandling.SILENT
+    errorHandling = ErrorHandling.SILENT,
 ) { row ->
     TestEntity(
         rowIndex = row.index,
@@ -499,13 +495,12 @@ private fun updateIntAttToStringLength(element: TestEntity) {
 }
 
 private val transformedOddIdSquared = expectedElements.mapNotNull { transformOddIdSquared(it) }
-private fun transformOddIdSquared(element: TestEntity): TestEntity? =
-    element.takeIf {
-        it.id.value >= 2 &&
-            filterOddIndex(it)
-    }?.let {
-        it.copy(rowIndex = it.rowIndex * it.rowIndex)
-    }
+private fun transformOddIdSquared(element: TestEntity): TestEntity? = element.takeIf {
+    it.id.value >= 2 &&
+        filterOddIndex(it)
+}?.let {
+    it.copy(rowIndex = it.rowIndex * it.rowIndex)
+}
 
 private val transformedCumSumStringLength = transformAllCumSumStringLength(expectedElements)
 private fun transformAllCumSumStringLength(elements: Collection<TestEntity>): List<TestEntity> {
@@ -526,13 +521,13 @@ private fun customValidationStep(
     repository: MutableRepository<TestEntity, TestId>,
     name: String = "CustomValidationStep_AddDummy",
 ): (Context) -> Unit = {
-
-    val check: Check<Context> = { //validation check produces warning and adds mock element to repo
+    val check: Check<Context> = {
+        // validation check produces warning and adds mock element to repo
         repository.addElements(
             "add_dummy",
             listOf(
-                TestEntity(repository.size, string = "mock_dummy")
-            )
+                TestEntity(repository.size, string = "mock_dummy"),
+            ),
         )
         validateCondition({ "${name}_Warning" }, isError = false, predicate = { false })
     }
@@ -541,9 +536,8 @@ private fun customValidationStep(
         repository.addElements(
             "add_dummy",
             listOf(
-                TestEntity(repository.size, string = "execute_dummy")
-            )
+                TestEntity(repository.size, string = "execute_dummy"),
+            ),
         )
     }
 }
-

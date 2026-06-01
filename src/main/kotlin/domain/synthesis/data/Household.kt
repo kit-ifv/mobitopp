@@ -42,7 +42,7 @@ interface IHousehold :
     Identifiable<HouseholdId>,
     StochasticActor,
     Simplifiable<HouseholdBinaryRecord>,
-    HasStandardLocation{
+    HasStandardLocation {
     val householdNumber: Long
     val surveyYear: Int
     override val location: StandardLocation

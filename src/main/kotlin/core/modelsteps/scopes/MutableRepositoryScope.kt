@@ -25,7 +25,7 @@ import utils.Identifiable
 fun <C : Context, E : Identifiable<I>, I> C.mutableRepositoryScope(
     getter: C.() -> MutableRepository<E, I>,
     sealed: Boolean = false,
-    scope: context(MutableRepository<E, I>) C.() -> Unit
+    scope: context(MutableRepository<E, I>) C.() -> Unit,
 ) {
     val mutableRepo = getter()
 

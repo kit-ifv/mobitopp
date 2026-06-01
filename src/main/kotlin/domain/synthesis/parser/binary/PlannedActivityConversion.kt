@@ -2,9 +2,7 @@ package domain.synthesis.parser.binary
 
 import domain.shared.enums.ActivityType
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.PlannedActivity
 import utils.CodePlan

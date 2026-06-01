@@ -201,7 +201,7 @@ open class DefaultCsvReader(
             .map { line -> parseSafely(idCnt++, line) }
             .filterNotNull()
 
-        return sequence.iterator().addProgressBar(
+        return sequence.addProgressBar(
             label = "read $name",
             expectedCount = rowCount.toLong(),
             visible = showProgressBar,

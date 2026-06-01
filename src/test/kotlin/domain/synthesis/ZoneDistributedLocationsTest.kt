@@ -11,6 +11,7 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.location.DeprecatedZone
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.toZoneId
@@ -69,15 +70,18 @@ class ZoneDistributedLocationsTest {
     private data class NecessaryAttributes(override val visumId: Int, override val regionType: RegionType) :
         HasVisumId,
         HasRegionType
-    private class AdvancedZone(override val id: ZoneId, override val attributes: NecessaryAttributes) :
+    private class AdvancedZone(override val zoneId: ZoneId, override val attributes: NecessaryAttributes) :
         Zone<NecessaryAttributes> {
         constructor(id: Number, visumId: Number) : this(
-            id = id.toZoneId(),
+            zoneId = id.toZoneId(),
             NecessaryAttributes(
                 visumId.toInt(),
                 RegioStaR17.URBAN_AREA_METRO,
             ),
         )
+
+        override val centroidLocation: StandardLocation
+            get() = TODO("Not yet implemented")
     }
 
     // TODO this test is no longer testing sensible things since the location rework

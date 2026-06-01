@@ -40,23 +40,21 @@ data class PrivateCarCsvConfig(
     var carSegmentCodes: CodePlan<CarSegment>,
 //    var delimiter: String = SEMICOLON,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    var filter: PrivateCarCsvConfig.(Row) -> Boolean = ownerExistsFilter // TODO allow edit filter for other entities
+    var filter: PrivateCarCsvConfig.(Row) -> Boolean = ownerExistsFilter, // TODO allow edit filter for other entities
 )
 
 val ownerExistsFilter: PrivateCarCsvConfig.(Row) -> Boolean = { row ->
     householdExists(
-        HouseholdId(row.long(columns.ownerColumn))
+        HouseholdId(row.long(columns.ownerColumn)),
     )
 }
 
-fun createPrivateCarCsvParser(
-    csvConfig: PrivateCarCsvConfig
-): CsvParser<MutablePrivateCar> = csvConfig.run {
+fun createPrivateCarCsvParser(csvConfig: PrivateCarCsvConfig): CsvParser<MutablePrivateCar> = csvConfig.run {
     return CsvParser.Companion<MutablePrivateCar>(errorHandling) { row ->
 
         MutablePrivateCar(
             id = CarId(row.index.toLong()),
-            owner = getOwnerHousehold(row, columns.ownerColumn)
+            owner = getOwnerHousehold(row, columns.ownerColumn),
         ) {
             seats = row.int(columns.seatsColumnIndex)
             mainUser = getMainUser(row, columns.mainUserColumn)

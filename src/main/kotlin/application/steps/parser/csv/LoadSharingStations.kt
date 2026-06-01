@@ -19,7 +19,10 @@ import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.parser.GetZone
@@ -46,12 +49,12 @@ import java.nio.file.Path
  */
 fun <C> C.sharingProviders(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableSharingProvider, SharingProviderId>) C.() -> Unit
-) where C : HasZoneRepo<*, Zone>, C : HasSharingProviderRepo<MutableSharingProvider, *> =
+    scope: context(MutableRepository<MutableSharingProvider, SharingProviderId>) C.() -> Unit,
+) where C : HasZoneRepo<*, StandardZone>, C : HasSharingProviderRepo<MutableSharingProvider, *> =
     mutableRepositoryScope<C, MutableSharingProvider, SharingProviderId>(
         getter = { mutableSharingProviderRepository },
         sealed = sealed,
-        scope
+        scope,
     )
 
 /**
@@ -66,13 +69,12 @@ fun <C> C.sharingProviders(
 context(repository: MutableRepository<MutableSharingProvider, SharingProviderId>)
 fun <C> C.loadSharingProviders(
     resource: Resource<MutableSharingProvider>,
-    dependentRepositories: Set<Repository<*, *>> = setOf(zoneRepository)
-) where C : HasZoneRepo<*, Zone> =
-    addResourceStep<C, MutableSharingProvider, SharingProviderId>(
-        name = "load sharing providers from ${resource.name}",
-        resource = resource,
-        dependentRepositories = dependentRepositories,
-    )
+    dependentRepositories: Set<Repository<*, *>> = setOf(zoneRepository),
+) where C : HasZoneRepo<*, StandardZone> = addResourceStep<C, MutableSharingProvider, SharingProviderId>(
+    name = "load sharing providers from ${resource.name}",
+    resource = resource,
+    dependentRepositories = dependentRepositories,
+)
 
 /**
  * Creates a CSV resource for sharing providers.
@@ -93,7 +95,7 @@ fun <C, CFG> C.sharingProviderCsv(
     parser: CsvParser<MutableSharingProvider>,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableSharingProvider>? = null, // TODO binarySharingProviderFormat()
-): Resource<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig =
+): Resource<MutableSharingProvider> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SourceFilesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
             csv.cachedCsv(it)
@@ -114,24 +116,23 @@ fun <C, CFG> C.sharingProviderCsv(
 context(config: CFG)
 fun <C, CFG> C.sharingProviderStationParser(
     sharingMode: Mode,
-    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {}
-): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : Config =
-    createSharingProviderStationParser(
-        SharingProviderByStationCsvConfig(
-            columns = SharingProviderByStationCsvColumns(),
-            sharingMode = sharingMode,
-            getZone = ::getZone,
-            zonesByFoot = onlySameZoneByFoot(),
-            locationParser = { _, z -> z.centroid },
-            operatingHours = allDay,
-            providerIdSource = GlobalSharingProviderIdCounter,
-            stationIdSource = GlobalSharingStationIdCounter,
-            errorHandling = config.errorHandling,
-            seed = config.seed,
-        ).also {
-            it.customizeCsvConfig()
-        }
-    )
+    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
+): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : Config = createSharingProviderStationParser(
+    SharingProviderByStationCsvConfig(
+        columns = SharingProviderByStationCsvColumns(),
+        sharingMode = sharingMode,
+        getZone = ::getZone,
+        zonesByFoot = onlySameZoneByFoot(),
+        locationParser = { _, z -> z.centroidLocation },
+        operatingHours = allDay,
+        providerIdSource = GlobalSharingProviderIdCounter,
+        stationIdSource = GlobalSharingStationIdCounter,
+        errorHandling = config.errorHandling,
+        seed = config.seed,
+    ).also {
+        it.customizeCsvConfig()
+    },
+)
 
 /**
  * A zone filtering strategy that selects zones within a certain radius by foot.
@@ -143,13 +144,14 @@ fun <C, CFG> C.sharingProviderStationParser(
  */
 fun <C> C.zonesByFootInRadius(
     threshold: Distance,
-): (Row, Mode, StandardLocation, GetZone) -> List<Zone>
-    where C : HasZoneRepo<*, Zone>, C : HasImpedance = { _, mode, stationLocation, getZone ->
-    val zone = getZone(stationLocation.zoneID)
-    zoneRepository.elements.filter {
-        impedance.distance(zone.centroid, it.centroid, mode) <= threshold
-    }.toList()
-}
+): (Row, Mode, StandardLocation, GetZone) -> List<ZoneWithCentroid<*>>
+    where C : HasZoneRepo<*, ZoneWithCentroid<*>>, C : HasImpedance =
+    { _, mode, stationLocation, getZone ->
+        val zone = getZone(stationLocation.zoneId)
+        zoneRepository.elements.filter {
+            impedance.distance(zone, it, mode) <= threshold
+        }.toList()
+    }
 
 // convenience function for different sharing systems
 
@@ -173,7 +175,7 @@ fun <C, CFG> C.bikeSharingProviderCsv(
     parser: CsvParser<MutableSharingProvider> = bikeSharingProviderStationParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableSharingProvider>? = null,
-): Resource<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
+): Resource<MutableSharingProvider> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
     sharingProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -190,8 +192,8 @@ fun <C, CFG> C.bikeSharingProviderCsv(
 context(config: CFG)
 fun <C, CFG> C.bikeSharingProviderStationParser(
     sharingMode: Mode = config.bikeSharingMode,
-    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {}
-): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : SharingModesConfig =
+    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
+): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SharingModesConfig =
     sharingProviderStationParser<C, CFG>(sharingMode, customizeCsvConfig)
 
 /**
@@ -214,7 +216,7 @@ fun <C, CFG> C.carSharingStationProviderCsv(
     parser: CsvParser<MutableSharingProvider> = carSharingProviderStationParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableSharingProvider>? = null,
-): Resource<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
+): Resource<MutableSharingProvider> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
     sharingProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -231,8 +233,8 @@ fun <C, CFG> C.carSharingStationProviderCsv(
 context(config: CFG)
 fun <C, CFG> C.carSharingProviderStationParser(
     sharingMode: Mode = config.carSharingStationMode,
-    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {}
-): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : SharingModesConfig =
+    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
+): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SharingModesConfig =
     sharingProviderStationParser<C, CFG>(sharingMode, customizeCsvConfig)
 
 /**
@@ -255,7 +257,7 @@ fun <C, CFG> C.carSharingFloatingProviderCsv(
     parser: CsvParser<MutableSharingProvider> = carSharingProviderStationParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableSharingProvider>? = null,
-): Resource<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
+): Resource<MutableSharingProvider> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
     sharingProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -272,6 +274,6 @@ fun <C, CFG> C.carSharingFloatingProviderCsv(
 context(config: CFG)
 fun <C, CFG> C.carSharingProviderFloatAreaParser(
     sharingMode: Mode = config.carSharingFloatingMode,
-    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {}
-): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone>, CFG : SharingModesConfig =
+    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
+): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SharingModesConfig =
     sharingProviderStationParser<C, CFG>(sharingMode, customizeCsvConfig)

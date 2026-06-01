@@ -29,14 +29,13 @@ import domain.synthesis.data.PersonId
 context(repository: MutableRepository<MutablePerson, PersonId>, _: CFG)
 fun <C, CFG : Config> C.addDrtMembershipsIf(
     predicate: context(CFG) C.(IPerson, DrtProvider) -> Boolean,
-) where C : HasDrtProviderRepo<*, DrtProvider> =
-    updateEachStep(
-        name = "add drt memberships to each person",
-        dependentRepositories = setOf(drtProviderRepository)
-    ) { person ->
-        for (provider in drtProviderRepository.elements) {
-            if (predicate(person, provider)) {
-                person.drtMemberships.add(provider)
-            }
+) where C : HasDrtProviderRepo<*, DrtProvider> = updateEachStep(
+    name = "add drt memberships to each person",
+    dependentRepositories = setOf(drtProviderRepository),
+) { person ->
+    for (provider in drtProviderRepository.elements) {
+        if (predicate(person, provider)) {
+            person.drtMemberships.add(provider)
         }
     }
+}

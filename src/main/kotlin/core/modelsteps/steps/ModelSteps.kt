@@ -96,23 +96,23 @@ fun <C : Context> C.repositoryDependentStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>>,
     validation: Validation<C> = emptyList(),
-    execution: C.() -> Unit
+    execution: C.() -> Unit,
 ) = modelStep(
     name,
     validation + { checkDependentRepositories(name, dependentRepositories) },
-    execution
+    execution,
 )
 
 private fun <C : Context> C.checkDependentRepositories(
     name: String,
-    dependentRepositories: Set<Repository<*, *>>
+    dependentRepositories: Set<Repository<*, *>>,
 ): Boolean {
     dependentRepositories.forEach {
         validateCondition(
             message = {
                 "Step $name depends on unsealed repository: ${it.name}. Make sure this is desired behavior!"
             },
-            isError = false
+            isError = false,
         ) { it.sealed }
     }
     return true

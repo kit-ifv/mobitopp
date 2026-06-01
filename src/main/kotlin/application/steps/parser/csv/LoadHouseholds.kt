@@ -16,8 +16,11 @@ import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.filterIdsStep
 import core.modelsteps.scopes.filterStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.shared.location.Zone
+import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.parseRoadPositionWGS
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
@@ -41,11 +44,11 @@ import kotlin.math.roundToInt
  */
 fun <C> C.households(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableHousehold, HouseholdId>) C.() -> Unit
+    scope: context(MutableRepository<MutableHousehold, HouseholdId>) C.() -> Unit,
 ) where C : HasHouseholdRepo<MutableHousehold, Household> = mutableRepositoryScope(
     getter = { mutableHouseholdRepository },
     sealed = sealed,
-    scope = scope
+    scope = scope,
 )
 
 /**
@@ -57,12 +60,11 @@ fun <C> C.households(
  * @param resource The resource (e.g., CSV) to load households from.
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>)
-fun <C : Context> C.loadHouseholds(
-    resource: Resource<MutableHousehold>,
-) = addResourceStep<C, MutableHousehold, HouseholdId>(
-    name = "load households from ${resource.name}",
-    resource = resource,
-)
+fun <C : Context> C.loadHouseholds(resource: Resource<MutableHousehold>) =
+    addResourceStep<C, MutableHousehold, HouseholdId>(
+        name = "load households from ${resource.name}",
+        resource = resource,
+    )
 
 /**
  * Creates a CSV resource for households.
@@ -83,17 +85,18 @@ fun <C, CFG> C.householdCsv(
     parser: CsvParser<MutableHousehold> = householdCsvParser(),
     path: Path = config.sourceFiles.householdCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutableHousehold>? = binaryHouseholdFormat()
+    binaryCache: BinaryCacheConfig<MutableHousehold>? = binaryHouseholdFormat(),
 ): Resource<MutableHousehold>
-    where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig = CsvResource(
-    path,
-    parser,
-    delimiter
-).let { csv ->
-    binaryCache?.let {
-        csv.cachedCsv(it)
-    } ?: csv
-}
+    where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
+    CsvResource(
+        path,
+        parser,
+        delimiter,
+    ).let { csv ->
+        binaryCache?.let {
+            csv.cachedCsv(it)
+        } ?: csv
+    }
 
 /**
  * Creates a binary cache configuration for households.
@@ -106,16 +109,15 @@ fun <C, CFG> C.householdCsv(
  */
 context(config: CFG)
 fun <C, CFG> C.binaryHouseholdFormat(): BinaryCacheConfig<MutableHousehold>
-    where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig {
-    return BinaryCacheConfig<MutableHousehold>(
+    where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SourceFilesConfig =
+    BinaryCacheConfig<MutableHousehold>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryHouseholdReader(
             zoneConverter = ::getZone,
-            contextSimulationSeed = config.seed
+            contextSimulationSeed = config.seed,
         ),
-        binaryWriter = BinaryHouseholdWriter()
+        binaryWriter = BinaryHouseholdWriter(),
     )
-}
 
 /**
  * Creates a CSV parser for households.
@@ -132,7 +134,7 @@ context(config: CFG)
 fun <C, CFG> C.householdCsvParser(
     customizeCsvConfig: HouseholdCsvConfig.() -> Unit = {},
 ): CsvParser<MutableHousehold>
-    where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
+    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
     createHouseholdCsvParser(
         HouseholdCsvConfig(
             columns = HouseholdColumns(),
@@ -145,7 +147,7 @@ fun <C, CFG> C.householdCsvParser(
             seed = config.seed,
         ).also {
             it.customizeCsvConfig()
-        }
+        },
     )
 
 /**
@@ -171,10 +173,10 @@ fun <C : Context> C.filterHouseholds(valid: Collection<HouseholdId>) =
  * @param config The simulation configuration. Provided via context. Must implement [SimulationConfig].
  * @param fraction The fraction of households to keep. Defaults to [config.fractionOfPopulation].
  */
-context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: SimulationConfig)
 @Suppress("MagicNumber")
+context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: SimulationConfig)
 fun <C : Context> C.filterFractionOfPopulation(
-    fraction: UnitIntervalValue = config.fractionOfPopulation
+    fraction: UnitIntervalValue = config.fractionOfPopulation,
 ) {
     var counter = 0
     val acceptedIncrement = (1 / fraction.toDouble()).roundToInt()

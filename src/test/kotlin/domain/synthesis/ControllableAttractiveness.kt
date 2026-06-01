@@ -2,16 +2,15 @@ package domain.synthesis
 
 import domain.shared.behavior.Attractiveness
 import domain.shared.behavior.AttractivenessModel
-import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.behavior.asAttractiveness
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
-import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.StandardZone
 import utils.collections.cartesianProduct
 
-class ControllableAttractiveness(zones: Collection<StandardZone>) : AttractivenessModel {
+class ControllableAttractiveness(zones: Collection<MaximalZone>) : AttractivenessModel {
     constructor() : this(emptyList())
 
     val attractivenessMap: MutableMap<Pair<ZoneId, ActivityType>, Attractiveness> =
@@ -36,4 +35,4 @@ class ControllableAttractiveness(zones: Collection<StandardZone>) : Attractivene
     }
 }
 
-fun Collection<StandardZone>.spawnAttractiveness() = ControllableAttractiveness(this)
+fun Collection<MaximalZone>.spawnAttractiveness() = ControllableAttractiveness(this)

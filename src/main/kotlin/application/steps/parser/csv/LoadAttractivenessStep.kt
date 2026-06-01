@@ -17,7 +17,6 @@ import domain.shared.location.ZoneId
 import utils.csv.CsvReader
 import java.nio.file.Path
 import kotlin.io.path.name
-import kotlin.io.path.pathString
 
 /**
  * Loads an attractiveness model from a CSV file.
@@ -51,7 +50,7 @@ fun <C, CFG> C.loadAttractivenessModelFromCsv(
             path = path,
             work = work,
             privateVisit = privateVisit,
-            activityTypes = activityTypes
+            activityTypes = activityTypes,
         )
     }
 
@@ -81,10 +80,8 @@ private fun <C> validateAttractivenessColumns(
 
     // Mock attractiveness model for following validation steps -> the can check attractiveness is initialized
     attractiveness = object : AttractivenessModel {
-        override fun attractivenessFor(
-            zone: ZoneId,
-            activityType: ActivityType
-        ): Attractiveness = Attractiveness.DEFAULT
+        override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
+            Attractiveness.DEFAULT
         override val work: ActivityType = work
         override val privateVisit: ActivityType = privateVisit
     }

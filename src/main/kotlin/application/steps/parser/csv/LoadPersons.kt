@@ -44,11 +44,11 @@ import java.nio.file.Path
  */
 fun <C> C.persons(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutablePerson, PersonId>) C.() -> Unit
+    scope: context(MutableRepository<MutablePerson, PersonId>) C.() -> Unit,
 ) where C : HasPersonRepo<MutablePerson, Person> = mutableRepositoryScope<C, MutablePerson, PersonId>(
     getter = { mutablePersonRepository },
     sealed = sealed,
-    scope
+    scope,
 )
 
 /**
@@ -71,10 +71,10 @@ fun <C> C.loadPersons(
     dependentRepositories: Set<Repository<*, *>> = setOf(
         householdRepository,
         sharingProviderRepository,
-        drtProviderRepository
-    )
+        drtProviderRepository,
+    ),
 ) where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-      C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider> =
+        C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider> =
     addResourceStep<C, MutablePerson, PersonId>(
         name = "load persons from ${resource.name}",
         resource = resource,
@@ -103,11 +103,12 @@ fun <C, CFG> C.personCsv(
     parser: CsvParser<MutablePerson> = personCsvParser(),
     path: Path = config.sourceFiles.personCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutablePerson>? = binaryPersonFormat()
+    binaryCache: BinaryCacheConfig<MutablePerson>? = binaryPersonFormat(),
 ): Resource<MutablePerson>
     where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
           C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
-          CFG : UnitConfig, CFG : SourceFilesConfig = // TODO config as required upper bound type in context
+          CFG : UnitConfig, CFG : SourceFilesConfig =
+    // TODO config as required upper bound type in context
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
             csv.cachedCsv(it)
@@ -131,8 +132,8 @@ context(config: CFG)
 fun <C, CFG> C.binaryPersonFormat(): BinaryCacheConfig<MutablePerson>
     where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
           C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
-          CFG : SourceFilesConfig {
-    return BinaryCacheConfig<MutablePerson>(
+          CFG : SourceFilesConfig =
+    BinaryCacheConfig<MutablePerson>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryPersonReader(
             converter = this::getMutableHousehold,
@@ -141,9 +142,8 @@ fun <C, CFG> C.binaryPersonFormat(): BinaryCacheConfig<MutablePerson>
             contextSimulationSeed = config.seed,
         ),
 
-        binaryWriter = BinaryPersonWriter()
+        binaryWriter = BinaryPersonWriter(),
     )
-}
 
 /**
  * Creates a CSV parser for persons.
@@ -161,7 +161,7 @@ fun <C, CFG> C.binaryPersonFormat(): BinaryCacheConfig<MutablePerson>
  */
 context(config: CFG)
 fun <C, CFG> C.personCsvParser(
-    customizeCsvConfig: PersonCsvConfig.() -> Unit = {}
+    customizeCsvConfig: PersonCsvConfig.() -> Unit = {},
 ): CsvParser<MutablePerson>
     where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
           C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
@@ -172,7 +172,9 @@ fun <C, CFG> C.personCsvParser(
             employmentCodes = Employment,
             graduationCodes = Graduation,
             sexCodes = Sex,
-            sharingProvidersByName = { sharingProviderRepository.elements.toList().associateBy { it.name } }, // TODO check if lazy still necessary
+            sharingProvidersByName = {
+                sharingProviderRepository.elements.toList().associateBy { it.name }
+            }, // TODO check if lazy still necessary
             drtProvidersByName = { drtProviderRepository.elements.toList().associateBy { it.name } },
             householdProvider = this::getMutableHousehold,
             hasHousehold = householdRepository::contains,
@@ -181,5 +183,5 @@ fun <C, CFG> C.personCsvParser(
             errorHandling = config.errorHandling,
         ).also {
             it.customizeCsvConfig()
-        }
+        },
     )

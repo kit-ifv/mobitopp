@@ -47,7 +47,7 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     fun validate() {
         val paths = mutableListOf(
 //            simulationContext.dataFolder,
-            cachePath
+            cachePath,
         )
 
         val nonExistentPaths =

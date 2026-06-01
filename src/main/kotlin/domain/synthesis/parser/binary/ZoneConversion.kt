@@ -1,13 +1,15 @@
 package domain.synthesis.parser.binary
 
 import domain.jackson.BinaryWritable
+import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
-import domain.shared.location.zone.StandardZone
-import domain.shared.location.zone.ZoneAttributes
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.MaximumZoneAttributesImpl
 import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
+import edu.kit.ifv.units.meters
 import utils.Decodable
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
@@ -19,14 +21,14 @@ import java.nio.ByteBuffer
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
-class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionType>) : BinaryReader<StandardZone> {
-    override fun fromBinary(path: Path): List<StandardZone> {
+class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionType>) : BinaryReader<MaximalZone> {
+    override fun fromBinary(path: Path): List<MaximalZone> {
         val byteBuffer = path.readAsByteBuffer()
         byteBuffer.long // Consume hash code at start of file
         val size = byteBuffer.int
         val stringLength = byteBuffer.int
 
-        var elements = ArrayList<StandardZone>(size)
+        var elements = ArrayList<MaximalZone>(size)
         repeat(size) {
             elements.add(byteBuffer.decode(stringLength))
         }
@@ -34,21 +36,40 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionT
         return elements
     }
 
-    override fun ByteBuffer.decode(stringLength: Int): StandardZone {
+    override fun ByteBuffer.decode(stringLength: Int): MaximalZone {
+
         val zoneId = ZoneId(long)
         val position = decodeNakedLocation().position
-        long // advance the reader, the visumId field is no longer needed in the construction of a zone
-        readString(stringLength) // advance and drop the name field
+        val visumId = long // advance the reader, the visumId field is no longer needed in the construction of a zone
+        val name = readString(stringLength) // advance and drop the name field
         val regionType = regionCode.decode(int)
-        int // drop classification
-        int // drop parking places
-        getBoolean() // drop is destination
-        double // drop relief
-        return StandardZone(
-            zoneId,
-            position,
-            ZoneAttributes(regionType),
+        val classificationCode = int // drop classification
+        val parkingPlaces = int // drop parking places
+        val isDestination = getBoolean() // drop is destination
+        val reliefInMeters = double // drop relief
+
+        val attributes = MaximumZoneAttributesImpl(
+            visumId = visumId,
+            name = name,
+            classification = runCatching { ZoneClassification.decode(classificationCode) }.getOrElse {
+                ZoneClassification.STUDY_AREA
+            },
+            isDestination = isDestination,
+            relief = reliefInMeters.meters,
+            regionType = regionType,
+            parkingPlaces = parkingPlaces,
         )
+
+        return MaximalZone(
+            zoneId = zoneId,
+            attributes = attributes,
+            centroid = position
+        )
+//        return MaximalZone(
+//            zoneId,
+//            position,
+//            ZoneAttributes(regionType),
+//        )
     }
 }
 
@@ -78,22 +99,22 @@ data class ZoneBinaryRecord(
     }
 }
 
-class BinaryZoneWriter : BinaryWriter<StandardZone> {
+class BinaryZoneWriter : BinaryWriter<MaximalZone> {
 
-    override fun operateStream(outStream: DataOutputStream, elements: Collection<StandardZone>) {
+    override fun operateStream(outStream: DataOutputStream, elements: Collection<MaximalZone>) {
         val maxStringLength = getMaxStringSize(elements)
         elements.forEach { outStream.encodeZone(it, maxStringLength) }
     }
     private val fakeName = "FakeName"
-    override fun getMaxStringSize(elements: Collection<StandardZone>): Int = elements.maxOf {
+    override fun getMaxStringSize(elements: Collection<MaximalZone>): Int = elements.maxOf {
 //            it.name.length
         fakeName.length
     }
 
-    fun DataOutputStream.encodeZone(zone: StandardZone, maxNameLength: Int) {
+    fun DataOutputStream.encodeZone(zone: MaximalZone, maxNameLength: Int) {
         zone.run {
             writeLong(id.value)
-            encodeLocation(centroidLocation)
+            encodeLocation(this.centroidLocation)
             writeLong(-1L)
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader

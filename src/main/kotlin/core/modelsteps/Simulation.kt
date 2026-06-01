@@ -70,7 +70,7 @@ class Simulation<C, CFG>(val config: CFG, contextFactory: () -> C) where C : Con
         } catch (e: Exception) {
             simulationContext.report.addErrorLog(
                 logTitle,
-                "Error during execution of ${simulationContext.scenarioName}: " + (e.message ?: NO_ERROR_MESSAGE)
+                "Error during execution of ${simulationContext.scenarioName}: " + (e.message ?: NO_ERROR_MESSAGE),
             )
             simulationContext.report.printToConsole()
             throw e
@@ -96,7 +96,7 @@ class Simulation<C, CFG>(val config: CFG, contextFactory: () -> C) where C : Con
         } catch (e: Exception) {
             report.addErrorLog(
                 logTitle,
-                "Error during validation not caught by validation checks: " + (e.message ?: NO_ERROR_MESSAGE)
+                "Error during validation not caught by validation checks: " + (e.message ?: NO_ERROR_MESSAGE),
             )
             report.printToConsole()
             throw e

@@ -2,7 +2,6 @@ package core.modelsteps.validation
 
 import core.modelsteps.Context
 import core.modelsteps.NO_ERROR_MESSAGE
-import utils.report.ReportBuilder
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -54,7 +53,7 @@ fun <C : Context, R> C.validateNoException(
 fun <C : Context> C.validateCondition(
     message: C.() -> String,
     isError: Boolean = false,
-    predicate: () -> Boolean
+    predicate: () -> Boolean,
 ): Boolean {
     if (!predicate()) {
         log(message(), isError)
@@ -90,7 +89,7 @@ fun <C : Context> C.validateFileReadWriteAccess(path: Path, isError: Boolean = t
 fun <C : Context> C.validateFileReadAccess(path: Path, isError: Boolean = true, fileDescription: String = ""): Boolean =
     validateNoException(
         message = { "Validate read access of: ${path.absolutePathString()} ($fileDescription)" },
-        exceptionsAreErrors = isError
+        exceptionsAreErrors = isError,
     ) {
         require(path.exists()) {
             "File does not exist: $path!"
@@ -116,7 +115,7 @@ fun <C : Context> C.validateFileReadAccess(path: Path, isError: Boolean = true, 
 fun <C : Context> C.validateFileWriteAccess(path: Path, isError: Boolean = true, fileDescription: String = "") =
     validateNoException(
         message = { "Validate write access of: ${path.absolutePathString()} ($fileDescription)" },
-        exceptionsAreErrors = isError
+        exceptionsAreErrors = isError,
     ) {
         val parentDir = path.parent ?: Path("")
 

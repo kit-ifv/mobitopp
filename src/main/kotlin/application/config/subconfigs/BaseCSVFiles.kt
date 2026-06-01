@@ -1,6 +1,5 @@
 package application.config.subconfigs
 
-import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.Path
 

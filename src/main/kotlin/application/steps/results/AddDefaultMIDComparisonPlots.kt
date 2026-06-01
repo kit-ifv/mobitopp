@@ -25,8 +25,8 @@ import domain.synthesis.data.sharingMembershipIds
 import java.nio.file.Path
 import java.time.DayOfWeek
 
-context(config: ResultsConfig)
 @Suppress("LongMethod", "CyclomaticComplexMethod", "CognitiveComplexMethod", "LongParameterList")
+context(config: ResultsConfig)
 fun <C> C.addDefaultMIDComparisonPlots(
     subDir: String = "mid-comparison",
     midPersonPath: Path,
@@ -40,7 +40,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         rowFilter: (MidPersonRow) -> Boolean = { true },
         personGroup: (IPerson) -> G,
         midGroup: (MidPersonRow) -> G,
-        normalize: Boolean = true
+        normalize: Boolean = true,
     ) = midComparisonPlotForPerson(
         personAgentRepository,
         midPersonPath,
@@ -48,7 +48,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         rowFilter,
         personGroup,
         midGroup,
-        normalize
+        normalize,
     )
 
     fun <G> midPlotForLegs(
@@ -56,10 +56,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
         rowFilter: (MidLegRow) -> Boolean = { true },
         legGroup: (PersonLeg) -> G,
         midGroup: (MidLegRow) -> G,
-        normalize: Boolean = true
+        normalize: Boolean = true,
     ) = midComparisonPlotForLegs(
         personAgentRepository, midLegPath, choiceModelPurposes, choiceModelModes,
-        impedance, legFilter, rowFilter, legGroup, midGroup, normalize
+        impedance, legFilter, rowFilter, legGroup, midGroup, normalize,
     )
 
     // 1 gender age Histogram abs
@@ -68,7 +68,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             rowFilter = { it.row("gender") != "NA" },
             personGroup = { it.sex },
             midGroup = { it.sex },
-            normalize = false
+            normalize = false,
         ).overAge().asHistogram {
             name = "age distribution by sex"
             xAxisLabel = "age"
@@ -123,7 +123,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.economicStatus },
         ).overHousehold(
             { householdSizeMID },
-            { householdSize }
+            { householdSize },
         ).asHistogram {
             name = "economic status by household size"
             xAxisLabel = "household size"
@@ -153,7 +153,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.hhNumberOfCars },
         ).over(
             { sex },
-            { sex }
+            { sex },
         ).asHistogram {
             name = "number of cars by sex"
             xAxisLabel = "sex"
@@ -169,7 +169,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.hhNumberOfCars },
         ).over(
             { employment.simplifyEmploymentMID() },
-            { employment }
+            { employment },
         ).asHistogram {
             name = "number of cars by occupation"
             xAxisLabel = "occupation"
@@ -185,7 +185,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.hhNumberOfCars },
         ).overHousehold(
             { economicStatus.simplifyMID() },
-            { economicStatus }
+            { economicStatus },
         ).asHistogram {
             name = "number of cars by economic status"
             xAxisLabel = "economic status"
@@ -201,7 +201,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.hhNumberOfCars },
         ).overHousehold(
             { location.regionType.toRegioStaR17().toRegioStaR7().code },
-            { regioStaR7.code }
+            { regioStaR7.code },
         ).asHistogram {
             name = "number of cars by region type"
             xAxisLabel = "region type [RegioStaR7]"
@@ -233,7 +233,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.hasCommuterTicket },
         ).over(
             { sex },
-            { sex }
+            { sex },
         ).asHistogram {
             name = "commuter ticket by sex"
             xAxisLabel = "sex"
@@ -249,7 +249,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.hasCommuterTicket },
         ).over(
             { employment.simplifyEmploymentMID() },
-            { employment }
+            { employment },
         ).asHistogram {
             name = "commuter ticket by occupation"
             xAxisLabel = "occupation"
@@ -265,7 +265,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.hasCommuterTicket },
         ).overHousehold(
             { location.regionType.toRegioStaR17().toRegioStaR7().code },
-            { regioStaR7.code }
+            { regioStaR7.code },
         ).asHistogram {
             name = "commuter ticket by region type"
             xAxisLabel = "region type [RegioStaR7]"
@@ -297,7 +297,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.isCarsharingMember },
         ).over(
             { sex },
-            { sex }
+            { sex },
         ).asHistogram {
             name = "carsharing member by sex"
             xAxisLabel = "sex"
@@ -313,7 +313,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.isCarsharingMember },
         ).over(
             { employment.simplifyEmploymentMID() },
-            { employment }
+            { employment },
         ).asHistogram {
             name = "carsharing member by occupation"
             xAxisLabel = "occupation"
@@ -329,7 +329,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             midGroup = { it.isCarsharingMember },
         ).overHousehold(
             { location.regionType.toRegioStaR17().toRegioStaR7().code },
-            { regioStaR7.code }
+            { regioStaR7.code },
         ).asHistogram {
             name = "carsharing member by region type"
             xAxisLabel = "region type [RegioStaR7]"
@@ -358,7 +358,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
         midPlotForLegs(
             legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose }, // TODO check undefined
             midGroup = { it.activityType },
-            normalize = false
+            normalize = false,
         ).overDistance().asHistogram {
             name = "relative travel distance distribution by purpose"
             stackAxisLabel = "purpose"
@@ -387,7 +387,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             legFilter = { it.leg.transportType != MODEUNKOWN },
             legGroup = { it.leg.transportType },
             midGroup = { it.mode },
-            normalize = false
+            normalize = false,
         ).overDistance().asHistogram {
             name = "relative travel distance distribution by mode"
             stackAxisLabel = "mode"
@@ -525,7 +525,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             rowFilter = { it.tripStart != null },
             legGroup = { it.leg.transportType },
             midGroup = { it.mode },
-            normalize = false
+            normalize = false,
         ).overTripStart().asLinePlot {
             name = "time series (trip starts on monday) by mode"
             xAxisLabel = "time"
@@ -541,7 +541,7 @@ fun <C> C.addDefaultMIDComparisonPlots(
             legGroup = { it.purpose?.simplifyMID(choiceModelPurposes) ?: defaultPurpose },
             rowFilter = { it.activityStart != null },
             midGroup = { it.activityType },
-            normalize = false
+            normalize = false,
         ).overActivityStart().asLinePlot {
             name = "time series (activity starts on monday) by purpose"
             xAxisLabel = "time"

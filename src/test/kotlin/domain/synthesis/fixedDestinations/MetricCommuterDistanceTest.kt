@@ -25,7 +25,6 @@ import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import utils.ConsoleCaptor
-import utils.Identifiable
 import kotlin.test.assertContains
 import kotlin.test.assertContentEquals
 import kotlin.test.assertFalse
@@ -175,7 +174,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             listOf(person4, person1, person2, person3),
             listOf(person3, person2, person1, person4),
 
-        )
+            )
         val locations = listOf(
             listOf(work2),
             listOf(work3),
@@ -229,11 +228,11 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
     private fun generateStandardDemand(): MutableCommunityDemand {
         val zoneCommunityMapping: Map<ZoneId, CommunityNumber> = mapOf(
-            testZone1.id to CommunityNumber(1),
-            testZone2.id to CommunityNumber(2),
-            testZone3.id to CommunityNumber(2),
+            testZone1.zoneId to CommunityNumber(1),
+            testZone2.zoneId to CommunityNumber(2),
+            testZone3.zoneId to CommunityNumber(2),
 
-        )
+            )
 
         val demand = MutableCommunityDemand(
             converter = { zoneCommunityMapping.getValue(it.zoneId) },
@@ -247,27 +246,39 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
 class SymmetricMockDistance(default: Distance = 0.kilometers) : AsymmetricMockDistance(default) {
 
-    override operator fun set(origin: HasZoneId, destination: HasZoneId, value: Distance) {
-        map.getOrPut(origin) { mutableMapOf() }[destination] = value
-        map.getOrPut(destination) { mutableMapOf() }[origin] = value
+    override operator fun set(origin: HasZoneId, destination: HasZoneId, value: Number) {
+        map.getOrPut(origin) { mutableMapOf() }[destination] =
+            value.toDouble().toDistance(DistanceUnit.KILOMETERS)
+        map.getOrPut(destination) { mutableMapOf() }[origin] =
+            value.toDouble().toDistance(DistanceUnit.KILOMETERS)
     }
 }
 
 open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) : DistanceMetric {
     protected val map: MutableMap<HasZoneId, MutableMap<HasZoneId, Distance>> = mutableMapOf()
-    override fun evaluate(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Distance =
-        get(origin, destination)
 
-    open operator fun set(origin: HasZoneId, destination: HasZoneId, value: Distance) {
-        map.getOrPut(origin) { mutableMapOf() }[destination] = value
+//    open operator fun set(origin: ZoneId, destination: ZoneId, value: Number) {
+//        map.getOrPut(origin) { mutableMapOf() }[destination] = value.toDouble().toDistance(DistanceUnit.KILOMETERS)
+//    }
+
+    open operator fun set(origin: HasZoneId, destination: HasZoneId, value: Number) {
+        map.getOrPut(origin) { mutableMapOf() }[destination] =
+            value.toDouble().toDistance(DistanceUnit.KILOMETERS)
     }
-
-    operator fun set(origin: HasZoneId, destination: HasZoneId, value: Number) {
-        set(origin, destination, value.toDouble().toDistance(DistanceUnit.KILOMETERS))
-    }
-
-    operator fun get(origin: Identifiable<ZoneId>, destination: Identifiable<ZoneId>): Distance =
+    
+//    operator fun get(origin: ZoneId, destination: ZoneId): Distance =
+//        (map[origin] ?: mutableMapOf())[destination] ?: default
+    operator fun get(origin: HasZoneId, destination: HasZoneId): Distance =
         (map[origin] ?: mutableMapOf())[destination] ?: default
+
+    override fun evaluate(
+        origin: HasZoneId,
+        destination: HasZoneId,
+    ): Distance {
+        return get(origin, destination)
+    }
+
+
 }
 
 class MockDistanceTest : SynthesisTest() {
@@ -289,11 +300,11 @@ class MockDistanceTest : SynthesisTest() {
         assertEquals(distances[l3, l1], 0.kilometers)
         assertEquals(distances[l3, l2], 0.kilometers)
 
-        distances[l1, l2] = 1.kilometers
+        distances[l1, l2] = 1
         assertEquals(distances[l1, l2], 1.kilometers)
         assertEquals(distances[l2, l1], 0.kilometers)
 
-        distances[l1, l2] = 2.kilometers
+        distances[l1, l2] = 2
         assertEquals(distances[l1, l2], 2.kilometers)
         assertEquals(distances[l2, l1], 0.kilometers)
     }
@@ -316,11 +327,11 @@ class MockDistanceTest : SynthesisTest() {
         assertEquals(distances[l3, l1], 0.kilometers)
         assertEquals(distances[l3, l2], 0.kilometers)
 
-        distances[l1, l2] = 1.kilometers
+        distances[l1, l2] = 1
         assertEquals(distances[l1, l2], 1.kilometers)
         assertEquals(distances[l2, l1], 1.kilometers)
 
-        distances[l1, l2] = 2.kilometers
+        distances[l1, l2] = 2
         assertEquals(distances[l1, l2], 2.kilometers)
         assertEquals(distances[l2, l1], 2.kilometers)
     }

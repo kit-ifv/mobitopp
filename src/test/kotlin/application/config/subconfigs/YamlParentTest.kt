@@ -6,11 +6,7 @@ import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private data class ParentConf(
-    val name: String,
-    val numberField: Int,
-    val doubleField: Double,
-)
+private data class ParentConf(val name: String, val numberField: Int, val doubleField: Double)
 
 /**
  * Tests the functionality of yaml files declaring a parent with a `__parent__` field.
@@ -76,12 +72,7 @@ class YamlParentTest {
     }
 
     /** Config with extra field*/
-    private data class ChildConf(
-        val name: String,
-        val numberField: Int,
-        val doubleField: Double,
-        val extra: String,
-    )
+    private data class ChildConf(val name: String, val numberField: Int, val doubleField: Double, val extra: String)
 
     /**
      * Child now specifies more than parent. Therefore, it is a different config we want to read.
@@ -92,7 +83,7 @@ class YamlParentTest {
             "Overwritten by child with extra fields",
             420,
             6767.0,
-            extra = "My Parent does not have this field"
+            extra = "My Parent does not have this field",
         )
         val parsed = Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "over-overwrite-child.yaml"))
         assertEquals(expected, parsed)
@@ -117,7 +108,7 @@ class YamlParentTest {
             420,
             6767.0,
             extra = "My Parent does not have this field",
-            extraExtraField = "Only second gen has this lit field"
+            extraExtraField = "Only second gen has this lit field",
         )
         val parsed = Yaml.readYamlWithParent<SecondChildConf>(Path(testFileRoot + "extend-child-child.yaml"))
         assertEquals(expected, parsed)
@@ -142,7 +133,7 @@ class YamlParentTest {
             "Overwritten by child",
             500,
             3.141592,
-            extra = "With extra field"
+            extra = "With extra field",
         )
         val parsed = Yaml.readYamlWithParent<ChildConf>(Path(testFileRoot + "position-in-file-child.yaml"))
         assertEquals(expected, parsed)
@@ -164,9 +155,7 @@ class YamlParentTest {
         }
     }
 
-    private data class NestedConf(
-        val sub: SecondChildConf,
-    )
+    private data class NestedConf(val sub: SecondChildConf)
 
     @Test
     fun nestedParentReadTest() {
@@ -200,7 +189,7 @@ class YamlParentTest {
     @Test
     fun completingIncompleteParent() {
         val parsed = Yaml.readYamlWithParent<NestedConf>(
-            Path(testFileRoot + "completing-incomplete-nested-parent.yaml")
+            Path(testFileRoot + "completing-incomplete-nested-parent.yaml"),
         )
         assertEquals("Incomplete Parent", parsed.sub.name)
         assertEquals(1000, parsed.sub.numberField)
@@ -209,10 +198,7 @@ class YamlParentTest {
         assertEquals("Value", parsed.sub.extraExtraField)
     }
 
-    private data class MultipleNested(
-        val parentConfs: List<ParentConf>,
-        val nestedConf: NestedConf,
-    )
+    private data class MultipleNested(val parentConfs: List<ParentConf>, val nestedConf: NestedConf)
 
     @Test
     fun overwriteDoubleNested() {

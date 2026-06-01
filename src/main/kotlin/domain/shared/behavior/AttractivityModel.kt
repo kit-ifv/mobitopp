@@ -1,8 +1,8 @@
 package domain.shared.behavior
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.zone.MaximalZone
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultMapCsvParser
@@ -10,7 +10,6 @@ import utils.csv.Row
 import utils.csv.commaDouble
 import utils.csv.long
 import java.nio.file.Path
-import java.time.temporal.TemporalQueries.zoneId
 import kotlin.math.abs
 
 // TODO Debate with Jelle, There is a more generalized version of attractiveness, which takes in a location, rather than
@@ -30,7 +29,7 @@ fun AttractivenessModel.sumAttractiveness(zone: ZoneId, vararg activityTypes: Ac
     activityTypes.sumOf { attractivenessFor(zone, it).value }
 
 @Suppress("MagicNumber")
-fun AttractivenessModel.parkingPressure(target: Zone): Double {
+fun AttractivenessModel.parkingPressure(target: MaximalZone): Double {
     val attractiveness = sumAttractiveness(target.id, work, privateVisit)
     if (target.parkingPlaces == 0) {
         return if (abs(attractiveness) < 1e-6) 0.0 else 999.0
@@ -38,7 +37,9 @@ fun AttractivenessModel.parkingPressure(target: Zone): Double {
     return attractiveness / target.parkingPlaces
 }
 
-@Deprecated("This class needs to be reworked: switch to fastCSV or Jackson parsing and log warnings to report instead of console")
+@Deprecated(
+    "This class needs to be reworked: switch to fastCSV or Jackson parsing and log warnings to report instead of console",
+)
 class AttractivenessFromCsv(
     private val path: Path,
     delimiter: String = ";",
@@ -54,11 +55,12 @@ class AttractivenessFromCsv(
         var filteredActivityTypes: Set<ActivityType>? = null
 
         val parser = DefaultMapCsvParser(
-            CsvParser(errorHandling = ErrorHandling.THROW) { row -> // TODO error level as config param
+            CsvParser(errorHandling = ErrorHandling.THROW) { row ->
+                // TODO error level as config param
                 filteredActivityTypes = filteredActivityTypes ?: activityTypes.filterExistingColumns(row)
                 ZoneId(row.long(zoneColumn)) to
                     activityMapOf(row, filteredActivityTypes)
-            }
+            },
         )
 
         attractivenessMap = parser.parseMap(path, separator = delimiter)
@@ -73,7 +75,7 @@ class AttractivenessFromCsv(
             if (activityType !in activities && activityType !in warnedSet) {
                 println(
                     "Warning: could not find attractiveness for ZoneId $zone and activity $activityType in lookup " +
-                        "(Source $path)! Using 1.0 instead!"
+                        "(Source $path)! Using 1.0 instead!",
                 )
                 activities.add(activityType)
                 warnedSet.add(activityType)
@@ -81,15 +83,13 @@ class AttractivenessFromCsv(
         }
 }
 
-private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) =
-    activityTypes.associateWith { act ->
-        row.commaDouble(act.columnString).asAttractiveness()
-    }
+private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) = activityTypes.associateWith { act ->
+    row.commaDouble(act.columnString).asAttractiveness()
+}
 
-fun String.capitalizeWithUnderscores() =
-    this.split("_").joinToString("_") { part ->
-        part.lowercase().replaceFirstChar { it.uppercase() }
-    }
+fun String.capitalizeWithUnderscores() = this.split("_").joinToString("_") { part ->
+    part.lowercase().replaceFirstChar { it.uppercase() }
+}
 
 fun Set<ActivityType>.filterExistingColumns(row: Row) = this.filter { act ->
     row.hasColumn(act.columnString)

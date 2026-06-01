@@ -50,11 +50,11 @@ import kotlin.reflect.KClass
 fun <C, P : Identifiable<PersonId>, M : P> C.customPersons(
     personClass: KClass<M>,
     sealed: Boolean = false,
-    scope: context(MutableRepository<M, PersonId>) C.() -> Unit
+    scope: context(MutableRepository<M, PersonId>) C.() -> Unit,
 ) where C : HasPersonRepo<M, P>, C : Context = mutableRepositoryScope<C, M, PersonId>(
     getter = { mutablePersonRepository },
     sealed,
-    scope
+    scope,
 )
 
 /**
@@ -111,10 +111,8 @@ fun <P : Identifiable<PersonId>> customPersonCsv(
  * @return A [BinaryCacheConfig] instance.
  */
 context(config: SourceFilesConfig)
-fun <M> binaryFormat(
-    reader: BinaryReader<M>,
-    writer: BinaryWriter<M>,
-) = BinaryCacheConfig<M>(reader, writer, config.cachePath)
+fun <M> binaryFormat(reader: BinaryReader<M>, writer: BinaryWriter<M>) =
+    BinaryCacheConfig<M>(reader, writer, config.cachePath)
 
 // // context requirements
 // interface HasHouseholdId : Identifiable<HouseholdId>

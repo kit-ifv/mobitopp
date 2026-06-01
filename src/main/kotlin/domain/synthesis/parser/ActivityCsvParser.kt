@@ -1,10 +1,8 @@
 package domain.synthesis.parser
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference
 import domain.shared.enums.ActivityType
 import domain.synthesis.data.ActivityBinaryRecord
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.PersonId
 import utils.CodePlan
@@ -39,7 +37,7 @@ data class ActivityCsvConfig<P>(
 //    var filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
     var shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    val seed: Long
+    val seed: Long,
 ) where P : Identifiable<PersonId>, P : StochasticActor
 
 fun <P> createActivityCsvParser(
@@ -58,10 +56,10 @@ fun <P> createActivityCsvParser(
         MutablePlannedActivity(
             id = ActivityId(row.index.toLong()),
             person = person.id,
-            seed = seed
+            seed = seed,
         ) {
             val shift = shiftActivityStart(
-                this
+                this,
             ) // TODO this is broken! cache should use person instead of activity for reuse
 
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
@@ -76,16 +74,15 @@ fun <P> createActivityCsvParser(
 
 fun activityBinaryCsvParser(
     columns: ActivitiesColumns = ActivitiesColumns(),
-    errorHandling: ErrorHandling = ErrorHandling.WARNING
-) =
-    CsvParser(errorHandling) { row ->
-        ActivityBinaryRecord(
-            row.index.toLong(),
-            row.long(columns.personColumn),
-            row.int(columns.tripDurationColumn),
-            row.long(columns.startColumn),
-            duration = row.int(columns.durationColumn),
-            activityCode = row.int(columns.activityTypeColumn),
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+) = CsvParser(errorHandling) { row ->
+    ActivityBinaryRecord(
+        row.index.toLong(),
+        row.long(columns.personColumn),
+        row.int(columns.tripDurationColumn),
+        row.long(columns.startColumn),
+        duration = row.int(columns.durationColumn),
+        activityCode = row.int(columns.activityTypeColumn),
 
-        )
-    }
+    )
+}

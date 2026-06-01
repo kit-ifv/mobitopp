@@ -84,7 +84,7 @@ fun Context.initReport() = ReportBuilder(
         "Validation report for: $scenarioName"
     } else {
         "Execute report for: $scenarioName"
-    }
+    },
 )
 
 typealias Check<C> = C.() -> Boolean

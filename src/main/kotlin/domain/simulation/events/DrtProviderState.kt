@@ -15,8 +15,9 @@ import utils.units.AbsoluteTime
 class DrtProviderStartState(
     time: AbsoluteTime,
     override val agent: DrtProviderAgent,
-    var lastSentUpdateTime: AbsoluteTime = AbsoluteTime.START
-) : BaseStateData(time), DrtAlgorithm by agent.algorithm {
+    var lastSentUpdateTime: AbsoluteTime = AbsoluteTime.START,
+) : BaseStateData(time),
+    DrtAlgorithm by agent.algorithm {
     val self get() = agent
 }
 

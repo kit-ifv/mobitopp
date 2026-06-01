@@ -66,19 +66,6 @@ val legacyChoiceModelPurposes = ChoiceModelPurposes(
     undefined = LegacyActivityType.UNDEFINED,
 
     allActivityTypes = LegacyActivityType.entries.toSet(),
-    typesWithAttractivity = setOf(
-        LegacyActivityType.BUSINESS,
-        LegacyActivityType.LEISURE_INDOOR,
-        LegacyActivityType.LEISURE_OUTDOOR,
-        LegacyActivityType.PRIVATE_BUSINESS,
-        LegacyActivityType.PRIVATE_VISIT,
-        LegacyActivityType.SERVICE,
-        LegacyActivityType.SHOPPING_DAILY,
-        LegacyActivityType.SHOPPING_OTHER,
-        LegacyActivityType.EDUCATION_PRIMARY,
-        LegacyActivityType.EDUCATION_SECONDARY,
-        LegacyActivityType.EDUCATION_TERTIARY,
-    ),
     leisureTypes = setOf(
         LegacyActivityType.LEISURE,
         LegacyActivityType.LEISURE_INDOOR,

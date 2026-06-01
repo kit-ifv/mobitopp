@@ -12,7 +12,10 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.updateEachStep
 import core.modelsteps.steps.modelStep
 import domain.shared.enums.ActivityType
-import domain.shared.location.Zone
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneWithCentroid
+
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.HasHousehold
 import domain.synthesis.data.HasStandardLocation
@@ -47,15 +50,19 @@ import java.nio.file.Path
  * @param homeActivity The [ActivityType] that represents being at home.
  * @param resource The resource containing fixed destination data. Defaults to [fixedDestinationCsv].
  */
-context(repository: MutableRepository<P, PersonId>, activityRepo: MutableRepository<MutablePlannedActivity, ActivityId>, config: CFG)
+context(
+    repository: MutableRepository<P, PersonId>,
+    activityRepo: MutableRepository<MutablePlannedActivity, ActivityId>,
+    config: CFG
+)
 fun <CTXT, CFG, P, H> CTXT.fixedDestinations(
     homeActivity: ActivityType,
-    resource: Resource<ActivityLocation> = fixedDestinationCsv()
-) where CTXT : HasZoneRepo<*, Zone>, CTXT : HasPersonRepo<*, *>, // TODO unify HasPersonRepo with P
-      P : Identifiable<PersonId>, P : HasHousehold<H>,
-      H : Identifiable<HouseholdId>, H : HasStandardLocation,
-      CFG : ActivityTypesConfig, CFG : SourceFilesConfig {
-
+    resource: Resource<ActivityLocation> = fixedDestinationCsv(),
+) where CTXT : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CTXT : HasPersonRepo<*, *>, // TODO unify
+// HasPersonRepo with P
+        P : Identifiable<PersonId>, P : HasHousehold<H>,
+        H : Identifiable<HouseholdId>, H : HasStandardLocation,
+        CFG : ActivityTypesConfig, CFG : SourceFilesConfig {
     val fixedLocationsById: MutableMap<PersonId, Map<ActivityType, ActivityLocation>> = mutableMapOf()
     modelStep("load fixed destination csv") {
         fixedLocationsById.putAll(
@@ -63,7 +70,7 @@ fun <CTXT, CFG, P, H> CTXT.fixedDestinations(
                 it.personId
             }.mapValues { (_, locations) ->
                 locations.associateBy { it.activityType }
-            }
+            },
         )
     }
 
@@ -100,8 +107,10 @@ fun <C, CFG> C.fixedDestinationCsv(
     parser: CsvParser<ActivityLocation> = fixedDestinationCsvParser(),
     path: Path = config.sourceFiles.fixedDestinationCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<ActivityLocation>? = binaryFixedDestinationFormat() // TODO move binary format to load level?
-): Resource<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig, CFG : ActivityTypesConfig =
+    binaryCache: BinaryCacheConfig<ActivityLocation>? = binaryFixedDestinationFormat(), // TODO move binary format to load level?
+): Resource<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG :
+SourceFilesConfig,
+                                    CFG : ActivityTypesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
             csv.cachedCsv(it)
@@ -120,8 +129,8 @@ fun <C, CFG> C.fixedDestinationCsv(
  */
 context(config: CFG)
 fun <C, CFG> C.fixedDestinationCsvParser(
-    customizeCsvConfig: FixedDestinationCsvConfig.() -> Unit = {}
-): CsvParser<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, Zone>, CFG : ActivityTypesConfig =
+    customizeCsvConfig: FixedDestinationCsvConfig.() -> Unit = {},
+): CsvParser<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : ActivityTypesConfig =
     createFixedDestinationCsvParser(
         FixedDestinationCsvConfig(
             columns = FixedDestinationColumns(),
@@ -131,7 +140,7 @@ fun <C, CFG> C.fixedDestinationCsvParser(
             errorHandling = config.errorHandling,
         ).also {
             it.customizeCsvConfig()
-        }
+        },
     )
 
 /**
@@ -145,14 +154,13 @@ fun <C, CFG> C.fixedDestinationCsvParser(
  */
 context(config: CFG)
 fun <C, CFG> C.binaryFixedDestinationFormat(): BinaryCacheConfig<ActivityLocation>
-    where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig, CFG : ActivityTypesConfig {
-    return BinaryCacheConfig<ActivityLocation>(
+    where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SourceFilesConfig, CFG : ActivityTypesConfig =
+    BinaryCacheConfig<ActivityLocation>(
         cacheRootPath = config.cachePath,
         binaryReader = FixedDestinationReader(
             activityTypeConverter = config.activityTypes,
             zoneConverter = zoneRepository::getValue,
         ),
 
-        binaryWriter = FixedDestinationWriter()
+        binaryWriter = FixedDestinationWriter(),
     )
-}

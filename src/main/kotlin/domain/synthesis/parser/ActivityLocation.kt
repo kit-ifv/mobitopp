@@ -5,13 +5,14 @@ import domain.jackson.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.synthesis.data.Person
+import domain.synthesis.data.PersonId
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import java.io.DataOutputStream
 
-data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: StandardLocation) :
+data class ActivityLocation(val personId: PersonId, val activityType: ActivityType, val location: StandardLocation) :
     Simplifiable<ActivityLocationBinaryRecord> {
     override fun simplify(): ActivityLocationBinaryRecord = ActivityLocationBinaryRecord(
-        person.id.value,
+        personId.value,
         activityType.code,
         location,
     )

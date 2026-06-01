@@ -32,7 +32,7 @@ interface Trip {
 fun Trip.alternateByImpedance(
     impedance: Impedance,
     replanner: ReplanningStrategy,
-    lambda: ImpedanceBuilder.() -> Unit
+    lambda: ImpedanceBuilder.() -> Unit,
 ) {
     alternate(replanner) {
         byImpedance(impedance, lambda)

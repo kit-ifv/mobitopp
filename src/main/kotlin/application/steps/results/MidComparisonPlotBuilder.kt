@@ -37,9 +37,9 @@ fun <G> midComparisonPlotForLegs(
     rowFilter: (MidLegRow) -> Boolean,
     legGroup: (PersonLeg) -> G,
     midGroup: (MidLegRow) -> G,
-    normalize: Boolean = true
+    normalize: Boolean = true,
 ) = MidComparisonLegPlotBuilder(
-    personAgents, midCsv, purposes, modes, impedance, legFilter, rowFilter, legGroup, midGroup, normalize
+    personAgents, midCsv, purposes, modes, impedance, legFilter, rowFilter, legGroup, midGroup, normalize,
 )
 
 @Suppress("LongParameterList")
@@ -50,7 +50,7 @@ fun <G> midComparisonPlotForPerson(
     rowFilter: (MidPersonRow) -> Boolean,
     personGroup: (IPerson) -> G,
     midGroup: (MidPersonRow) -> G,
-    normalize: Boolean = true
+    normalize: Boolean = true,
 ) = MidComparisonPersonPlotBuilder(
     personAgents,
     midCsv,
@@ -58,7 +58,7 @@ fun <G> midComparisonPlotForPerson(
     rowFilter,
     personGroup,
     midGroup,
-    normalize
+    normalize,
 )
 
 @Suppress("LongParameterList")
@@ -104,7 +104,11 @@ class MidComparisonPersonPlotBuilder<G>(
         val dataCount = dataBuilder.count {
             min(100, it.age).mapToBins(ageBins)
         }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+            if (normalize) {
+                it.normalizeByX()
+            } else {
+                it.normalizeByGroup()
+            }
         }.sortAndFill(0.0)
 
         val compCount = comparisonBuilder.comparisonOver(normalize) { ageBin }
@@ -119,7 +123,11 @@ class MidComparisonPersonPlotBuilder<G>(
         val dataCount = dataBuilder.count {
             it.personAtt()
         }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+            if (normalize) {
+                it.normalizeByX()
+            } else {
+                it.normalizeByGroup()
+            }
         }.sortAndFill(0.0)
 
         val compCount = comparisonBuilder.comparisonOver(normalize) { midAtt() }
@@ -127,10 +135,8 @@ class MidComparisonPersonPlotBuilder<G>(
         return dataCount.compareTo { compCount }
     }
 
-    fun <T : Comparable<T>> overHousehold(
-        householdAtt: IHousehold.() -> T,
-        midAtt: MidPersonRow.() -> T,
-    ) = over({ household.householdAtt() }, midAtt)
+    fun <T : Comparable<T>> overHousehold(householdAtt: IHousehold.() -> T, midAtt: MidPersonRow.() -> T) =
+        over({ household.householdAtt() }, midAtt)
 }
 
 @Suppress("LongParameterList")
@@ -179,7 +185,11 @@ class MidComparisonLegPlotBuilder<G>(
         val dataCount = dataBuilder.count {
             it.person.age.let { a -> min(100, a) }.mapToBins(ageBins)
         }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+            if (normalize) {
+                it.normalizeByX()
+            } else {
+                it.normalizeByGroup()
+            }
         }.sortAndFill(0.0)
 
         val compCount = comparisonBuilder.comparisonOver(normalize) { ageBin }
@@ -191,7 +201,11 @@ class MidComparisonLegPlotBuilder<G>(
         val dataCount = dataBuilder.count {
             it.person.employment.simplifyEmploymentMID()
         }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+            if (normalize) {
+                it.normalizeByX()
+            } else {
+                it.normalizeByGroup()
+            }
         }.sortAndFill(0.0)
 
         val compCount = comparisonBuilder.comparisonOver(normalize) { employment }
@@ -206,7 +220,11 @@ class MidComparisonLegPlotBuilder<G>(
         val dataCount = dataBuilder.count {
             it.distance(impedance).inKilometers.mapToBins(distanceBins)
         }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+            if (normalize) {
+                it.normalizeByX()
+            } else {
+                it.normalizeByGroup()
+            }
         }.sortAndFill(0.0)
 
         val compCount = comparisonBuilder.comparisonOver(normalize) { distanceBin }
@@ -223,7 +241,11 @@ class MidComparisonLegPlotBuilder<G>(
         val dataCount = dataBuilder.count {
             it.duration(impedance).inWholeMinutes.toInt().mapToBins(durationBins)
         }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+            if (normalize) {
+                it.normalizeByX()
+            } else {
+                it.normalizeByGroup()
+            }
         }.sortAndFill(0.0)
 
         val compCount = comparisonBuilder.comparisonOver(normalize) { durationBin }
@@ -243,7 +265,11 @@ class MidComparisonLegPlotBuilder<G>(
         val dataCount = dataBuilder.count {
             legToTime(it).let { t -> t - t.daysSinceStart.days }.roundToMultipleOf(1.hours)
         }.let {
-            if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+            if (normalize) {
+                it.normalizeByX()
+            } else {
+                it.normalizeByGroup()
+            }
         }.fillMissingXValues {
             0.0
         }.sortAndFill(0.0)
@@ -260,13 +286,21 @@ class MidComparisonLegPlotBuilder<G>(
 
 private fun <E : MidRow, T : Comparable<T>, G> PlotDataBuilderWithGrouping<E, G>.comparisonOver(
     normalize: Boolean,
-    scope: E.() -> T
+    scope: E.() -> T,
 ): PlotDataTransformationBuilder<G, T, Double> = this.plotSumOf {
-    if (normalize) { it.absolute } else { it.relative }
+    if (normalize) {
+        it.absolute
+    } else {
+        it.relative
+    }
 }.over {
     it.scope()
 }.let {
-    if (normalize) { it.normalizeByX() } else { it.normalizeByGroup() }
+    if (normalize) {
+        it.normalizeByX()
+    } else {
+        it.normalizeByGroup()
+    }
 }.sortAndFill(0.0)
 
 private fun <G, B : Comparable<B>, T : Number> PlotDataTransformationBuilder<G, B, T>.sortAndFill(default: T) =

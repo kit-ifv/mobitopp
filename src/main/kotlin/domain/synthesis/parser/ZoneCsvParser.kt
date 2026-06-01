@@ -3,11 +3,11 @@ package domain.synthesis.parser
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.MutableZone
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRoadAccess
-import domain.shared.location.parseRoadPositionWGS
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.MaximumZoneAttributesImpl
 import edu.kit.ifv.units.DistanceUnit
+import org.locationtech.jts.geom.Point
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -34,31 +34,35 @@ data class ZoneColumns(
 
 data class ZoneCsvConfig(
     var columns: ZoneColumns = ZoneColumns(),
-    var centroidParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
+    var centroidParser: (String) -> Point =  TODO(), // String::parseRoadPositionWGS,
     var reliefUnit: DistanceUnit = DistanceUnit.METERS,
     var regionTypeCodes: CodePlan<RegionType> = RegioStaR17,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    val seed: Long
+    val seed: Long,
 )
 
 @Suppress("LongParameterList")
-fun createZoneCsvParser(
-    csvConfig: ZoneCsvConfig
-): DefaultCsvParser<MutableZone> = csvConfig.run {
+fun createZoneCsvParser(csvConfig: ZoneCsvConfig): DefaultCsvParser<MaximalZone> = csvConfig.run {
     val csvParser = CsvParser(errorHandling) { row ->
-        MutableZone(
-            id = ZoneId(row.long(columns.idColumn)),
+        val attributes = MaximumZoneAttributesImpl(
+
+
+
+            visumId = row.long(columns.idColumn),
+            name = row(columns.nameColumn),
+            regionType = row.decode(columns.regionTypeColumn, regionTypeCodes),
+            classification = row(columns.classificationColumn).toZoneClassification(),
+            parkingPlaces = row.int(columns.parkingPlacesColumn),
+            isDestination = row.boolean(columns.isDestinationColumn),
+            relief = row.double().distance(columns.reliefColumn, reliefUnit),
+        )
+
+
+        MaximalZone(
+            zoneId = ZoneId(row.long(columns.idColumn)),
+            attributes = attributes,
             centroid = row(columns.centroidColumn, centroidParser),
-            seed = seed
-        ) {
-            visumId = row.long(columns.idColumn)
-            name = row(columns.nameColumn)
-            regionType = row.decode(columns.regionTypeColumn, regionTypeCodes)
-            classification = row(columns.classificationColumn).toZoneClassification()
-            parkingPlaces = row.int(columns.parkingPlacesColumn)
-            isDestination = row.boolean(columns.isDestinationColumn)
-            relief = row.double().distance(columns.reliefColumn, reliefUnit)
-        }
+        )
     }
 
     return csvParser
@@ -66,10 +70,13 @@ fun createZoneCsvParser(
 
 fun String.toZoneClassification() = when (this) { // TODO config option in csv config
     "studyArea" -> ZoneClassification.STUDY_AREA
+
     "outlyingArea" -> ZoneClassification.OUTLYING_AREA
+
     "extendedStudyArea" -> ZoneClassification.EXTENDED_STUDY_AREA
+
     else -> throw UnsupportedOperationException(
         "String '$this' cannot be parsed as a ZoneClassification! " +
-            "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'"
+                "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'",
     )
 }

@@ -20,10 +20,7 @@ import kotlin.io.path.name
  * @param file The path to the Visum .net file.
  * @param localeLambda A lambda to configure the [VisumLocale] used during parsing.
  */
-fun HasMutableRoadNetwork.loadVisumNetwork(
-    file: Path,
-    localeLambda: VisumLocale.() -> Unit = {}
-) = modelStep(
+fun HasMutableRoadNetwork.loadVisumNetwork(file: Path, localeLambda: VisumLocale.() -> Unit = {}) = modelStep(
     "Load visum road network from ${file.name}",
     listOf({ validateLoadVisumNetwork(file) }),
 ) {
@@ -35,8 +32,8 @@ fun HasMutableRoadNetwork.loadVisumNetwork(
             file = file,
             locale = locale,
             utmZone = 32,
-            utmHemisphere = Hemisphere.NORTHERN // TODO why fixed?
-        ).parseNetwork {}
+            utmHemisphere = Hemisphere.NORTHERN, // TODO why fixed?
+        ).parseNetwork {},
     )
 }
 

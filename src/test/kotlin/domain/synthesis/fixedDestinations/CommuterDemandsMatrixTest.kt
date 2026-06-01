@@ -3,10 +3,11 @@
 package domain.synthesis.fixedDestinations
 
 import BIELEFELD
-import TestZone
+import ZoneTestAttributesFake
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
-import domain.shared.location.zone.ZoneAttributes
+import domain.shared.location.toPoint
+import domain.shared.location.zone.MaximalZone
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import org.junit.jupiter.api.Test
@@ -126,7 +127,7 @@ class CommuterDemandsMatrixTest {
         assertEquals(CommunityNumber.INVALID, demands.convert(42.toZone().point(BIELEFELD)))
     }
 
-    private fun Number.toZone(): TestZone = TestZone(id = ZoneId(toLong()), ZoneAttributes.STANDARD)
+    private fun Number.toZone(): MaximalZone = MaximalZone(ZoneId(toLong()), ZoneTestAttributesFake(), BIELEFELD.toPoint())
 
     private fun CommuterDemandsMatrix.Companion.parseRastatt(): CommuterDemandsMatrix = parse(
         Path("src/test/resources/synthesis/zone-to-community.csv"),

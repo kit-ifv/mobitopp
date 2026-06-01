@@ -105,8 +105,10 @@ object Yaml {
             require(isPathNotSeenBefore(path)) {
                 "Cycle detected, cannot read configs."
             }
-            require(map[parentKey] != null) { "Parent field present, but no value specified. Occured in file: " +
-                "$path\nIf no parent is necessary, remove the __parent__ field from the file." }
+            require(map[parentKey] != null) {
+                "Parent field present, but no value specified. Occured in file: " +
+                    "$path\nIf no parent is necessary, remove the __parent__ field from the file."
+            }
             val parentPath = resolveParentKey(map[parentKey]!!, path)
             val parentMap = load(parentPath)
             // Remove the parentKey field from the output map.

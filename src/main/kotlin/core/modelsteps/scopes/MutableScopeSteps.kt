@@ -44,7 +44,7 @@ fun <C : Context, E : Identifiable<I>, I> C.mutatingStep(
     name: String,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
-    execution: C.() -> Unit
+    execution: C.() -> Unit,
 ) = mutatingStep(name, repository, dependentRepositories, validation, execution)
 
 /**
@@ -101,8 +101,8 @@ fun <C : Context, E : Identifiable<I>, I> C.addCsvResourceStep(
  * @param dependentRepositories A set of repositories that this step depends on.
  * @param validation Additional validation checks.
  */
-context(repository: MutableRepository<E, I>)
 @Suppress("LongParameterList")
+context(repository: MutableRepository<E, I>)
 fun <C : Context, E : Identifiable<I>, I> C.loadCsvStep(
     path: Path,
     parser: CsvParser<E>,

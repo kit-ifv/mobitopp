@@ -36,11 +36,7 @@ import utils.concurrent.synchronizeAll
 import utils.units.AbsoluteTime
 
 abstract class
-PersonState(
-    time: AbsoluteTime,
-    override val agent: PersonAgent,
-    doStep: Boolean
-) : BaseStateData(time) {
+PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean) : BaseStateData(time) {
 
     init {
         if (doStep) {
@@ -88,19 +84,21 @@ PersonState(
     override fun toString() = "P" + person.id.value.toString()
 }
 
-abstract class ActivityState(val agenda: Agenda, time: AbsoluteTime, agent: PersonAgent, doStep: Boolean) : PersonState(
-    time,
-    agent,
-    doStep
-) {
+abstract class ActivityState(val agenda: Agenda, time: AbsoluteTime, agent: PersonAgent, doStep: Boolean) :
+    PersonState(
+        time,
+        agent,
+        doStep,
+    ) {
     constructor(agenda: Agenda, state: PersonState, doStep: Boolean) : this(agenda, state.time, state.agent, doStep)
 }
 
-abstract class TripState(val trip: LinkTrip, time: AbsoluteTime, agent: PersonAgent, doStep: Boolean) : PersonState(
-    time,
-    agent,
-    doStep
-) {
+abstract class TripState(val trip: LinkTrip, time: AbsoluteTime, agent: PersonAgent, doStep: Boolean) :
+    PersonState(
+        time,
+        agent,
+        doStep,
+    ) {
     constructor(trip: LinkTrip, state: PersonState, doStep: Boolean) : this(trip, state.time, state.agent, doStep)
 
     val origin: StandardLocation
@@ -134,13 +132,10 @@ class PersonStartState(time: AbsoluteTime, agent: PersonAgent) : PersonState(tim
     PersonStartState::class,
     PerformingActivityState::class,
     PerformLegState::class,
-    FinishDrtTripState::class
+    FinishDrtTripState::class,
 )
-class PerformingActivityState(
-    agenda: Agenda,
-    val activity: StationaryAction,
-    state: PersonState
-) : ActivityState(agenda, activity.startTime, state.agent, doStep = true) {
+class PerformingActivityState(agenda: Agenda, val activity: StationaryAction, state: PersonState) :
+    ActivityState(agenda, activity.startTime, state.agent, doStep = true) {
     val location: StandardLocation
         get() = activity.location
 }
@@ -151,7 +146,7 @@ class StartingTripState constructor(trip: LinkTrip, state: PersonState) : TripSt
 @StateCalled(
     "PerformLeg",
     StartingTripState::class,
-    PerformLegState::class
+    PerformLegState::class,
 )
 class PerformLegState(trip: LinkTrip, val leg: Leg, val afterLegAction: AfterLegAction, state: PersonState) :
     TripState(trip, state, doStep = true)
@@ -178,32 +173,36 @@ data class FinishDrtEgressMessage(val ride: DrtRide) : PersonMessage
 
 // DRT states
 @StateCalled("WaitingForPickup", StartingTripState::class)
-class WaitingForPickupState constructor(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
-    state.time,
-    state.agent,
-    doStep = false
-)
+class WaitingForPickupState constructor(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) :
+    PersonState(
+        state.time,
+        state.agent,
+        doStep = false,
+    )
 
 @StateCalled("WaitingForDropOff", WaitingForPickupState::class)
-class WaitingForDropOffState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
-    state.time,
-    state.agent,
-    doStep = true
-)
+class WaitingForDropOffState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) :
+    PersonState(
+        state.time,
+        state.agent,
+        doStep = true,
+    )
 
 @StateCalled("OnDrtEgress", WaitingForDropOffState::class)
-class OnDrtEgressState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
-    state.time,
-    state.agent,
-    doStep = true
-)
+class OnDrtEgressState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) :
+    PersonState(
+        state.time,
+        state.agent,
+        doStep = true,
+    )
 
 @StateCalled("FinishDrtTrip", OnDrtEgressState::class)
-class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) : PersonState(
-    state.time,
-    state.agent,
-    doStep = true
-)
+class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: DrtRide) :
+    PersonState(
+        state.time,
+        state.agent,
+        doStep = true,
+    )
 
 // TODO for DTR
 // add person messages sent by drt provider agent (see DrtProviderStateMachine):
@@ -221,7 +220,6 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // (on dropoff) >
 // State: walking to dest
 // - send self: finish drt trip
-
 
 val personStateMachine: StateMachineFactory<PersonAgent> get() =
     stateMachine<PersonAgent>("PersonsStateMachine") {
@@ -322,17 +320,20 @@ val personStateMachine: StateMachineFactory<PersonAgent> get() =
 
             when (block) {
                 null -> finishedPerson()
+
                 is LinkTrip -> performLeg(block as LinkTrip, leg = trip.legs[0])
+
                 is Agenda -> {
                     val agenda = block as Agenda
                     agenda.elements.firstOrNull()?.let {
                         performingActivity(agenda, agenda.elements[0])
                     } ?: finishedPerson()
                 }
+
                 else -> error(
                     "Cannot process EndLeg: '$message' ins PerformLeg state: $this!" +
                         " Current schedule block should be Agenda or LinkTrip but is of type " +
-                        block.agendaBlockDescription()
+                        block.agendaBlockDescription(),
                 )
             }
         }
@@ -374,16 +375,18 @@ val personStateMachine: StateMachineFactory<PersonAgent> get() =
 
             when (block) {
                 null -> finishedPerson()
+
                 is Agenda -> {
                     val agenda = block as Agenda
                     agenda.elements.firstOrNull()?.let {
                         performingActivity(agenda, agenda.elements[0])
                     } ?: finishedPerson()
                 }
+
                 else -> error(
                     "Expected next block to be null or Agenda in FinishDrtTrip state: $this!" +
                         " Current schedule block should be Agenda or null but is of type " +
-                        block.agendaBlockDescription()
+                        block.agendaBlockDescription(),
                 )
             }
         }
@@ -458,7 +461,7 @@ fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPicku
 internal fun StartingTripState.modeChoiceDrtWrapper(
     choices: List<Mode>,
     send: Send,
-    modeChoiceScope: StartingTripState.(List<Mode>, DrtOffer?) -> Mode
+    modeChoiceScope: StartingTripState.(List<Mode>, DrtOffer?) -> Mode,
 ): Pair<Mode, DrtRide?> {
     val drtOffers = takeIf { modes.ridePooling in choices }?.let {
         context(person, time, destination) {

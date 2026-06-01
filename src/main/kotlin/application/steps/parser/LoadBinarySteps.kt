@@ -16,9 +16,12 @@ import core.modelsteps.steps.forAllStep
 import core.modelsteps.steps.loadBinary
 import core.modelsteps.steps.writeBinary
 import core.modelsteps.validation.validateFileReadAccess
-import domain.shared.location.MutableZone
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.MutableMaximalZone
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarId
 import domain.synthesis.data.DrtProvider
@@ -57,7 +60,9 @@ import java.nio.file.Path
  * @param path The path to the binary file.
  */
 context(repository: MutableRepository<MutablePerson, PersonId>, config: ShortTermConfig<*>)
-fun <C> C.loadPersonsFromBinary(path: Path)
+fun <C> C.loadPersonsFromBinary(
+    path: Path,
+)
     where C : HasHouseholdRepo<MutableHousehold, *>,
           C : HasSharingProviderRepo<*, SharingProvider>,
           C : HasDrtProviderRepo<*, DrtProvider> {
@@ -65,14 +70,14 @@ fun <C> C.loadPersonsFromBinary(path: Path)
         ::getMutableHousehold,
         ::getSharingProvider,
         ::getDrtProvider,
-        config.seed
+        config.seed,
     )
 
     loadBinary(
         path,
         converter,
         repository,
-        dependentRepositories = setOf(householdRepository)
+        dependentRepositories = setOf(householdRepository),
     )
 }
 
@@ -87,17 +92,17 @@ fun <C> C.loadPersonsFromBinary(path: Path)
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: ShortTermConfig<*>)
 fun <C> C.loadHouseholdFromBinary(path: Path)
-    where C : HasZoneRepo<*, Zone> {
+    where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>> {
     val converter = BinaryHouseholdReader(
         ::getZone,
-        config.seed
+        config.seed,
     )
 
     loadBinary(
         path,
         converter,
         repository,
-        dependentRepositories = setOf(zoneRepository)
+        dependentRepositories = setOf(zoneRepository),
     )
 }
 
@@ -110,7 +115,7 @@ fun <C> C.loadHouseholdFromBinary(path: Path)
  * @param config The configuration. Provided via context.
  * @param path The path to the binary file.
  */
-context(repository: MutableRepository<MutableZone, ZoneId>, config: CFG)
+context(repository: MutableRepository<MaximalZone, ZoneId>, config: CFG)
 fun <CFG> Context.loadZonesFromBinary(path: Path)
     where CFG : RegionCodesConfig, CFG : SourceFilesConfig {
     val converter = BinaryZoneReader(config.seed, config.regionTypeCodes)
@@ -118,7 +123,7 @@ fun <CFG> Context.loadZonesFromBinary(path: Path)
         path,
         converter,
         repository,
-        dependentRepositories = emptySet()
+        dependentRepositories = emptySet(),
     )
 }
 
@@ -133,7 +138,9 @@ fun <CFG> Context.loadZonesFromBinary(path: Path)
  * @param path The path to the binary file.
  */
 context(repository: MutableRepository<MutablePrivateCar, CarId>)
-fun <C> C.loadCarsFromBinary(path: Path)
+fun <C> C.loadCarsFromBinary(
+    path: Path,
+)
     where C : HasHouseholdRepo<MutableHousehold, *>,
           C : HasPersonRepo<*, Person> {
     val converter = BinaryCarReader(
@@ -145,7 +152,7 @@ fun <C> C.loadCarsFromBinary(path: Path)
         path,
         converter,
         repository,
-        dependentRepositories = emptySet()
+        dependentRepositories = emptySet(),
     )
 }
 
@@ -160,18 +167,20 @@ fun <C> C.loadCarsFromBinary(path: Path)
  * @param path The path to the binary file.
  */
 context(repository: MutableRepository<MutablePlannedActivity, ActivityId>, config: CFG)
-fun <C, CFG> C.loadActivitiesFromBinary(path: Path)
+fun <C, CFG> C.loadActivitiesFromBinary(
+    path: Path,
+)
     where C : HasPersonRepo<MutablePerson, *>, CFG : ShortTermConfig<*>, CFG : ActivityTypesConfig {
     val converter = BinaryActivityReader(
         config.activityTypes,
-        config.seed
+        config.seed,
     )
 
     loadBinary(
         path,
         converter,
         repository,
-        dependentRepositories = setOf(personRepository)
+        dependentRepositories = setOf(personRepository),
     )
 }
 
@@ -183,7 +192,7 @@ fun <C, CFG> C.loadActivitiesFromBinary(path: Path)
 fun HasHouseholdRepo<*, Household>.writeHouseholdBinary(path: Path) = writeBinary(
     path = path,
     writer = BinaryHouseholdWriter(),
-    repository = householdRepository
+    repository = householdRepository,
 )
 
 /**
@@ -191,10 +200,10 @@ fun HasHouseholdRepo<*, Household>.writeHouseholdBinary(path: Path) = writeBinar
  *
  * @param path The path to the output binary file.
  */
-fun HasZoneRepo<*, Zone>.writeZoneBinary(path: Path) = writeBinary(
+fun HasZoneRepo<*, MaximalZone>.writeZoneBinary(path: Path) = writeBinary(
     path = path,
     writer = BinaryZoneWriter(),
-    repository = zoneRepository
+    repository = zoneRepository,
 )
 
 /**
@@ -205,7 +214,7 @@ fun HasZoneRepo<*, Zone>.writeZoneBinary(path: Path) = writeBinary(
 fun HasPersonRepo<*, Person>.writePersonBinary(path: Path) = writeBinary(
     path = path,
     writer = BinaryPersonWriter(),
-    repository = personRepository
+    repository = personRepository,
 )
 
 // TODO no longer use activity repository!
@@ -219,7 +228,7 @@ fun HasPersonRepo<*, Person>.writeActivitiesBinary(path: Path) = forAllStep(
     "write activities of persons tto binary ${path.fileName}",
     personRepository,
     emptySet(),
-    validation = listOf { validateFileReadAccess(path, true, "binary cache file ${path.fileName}") }
+    validation = listOf { validateFileReadAccess(path, true, "binary cache file ${path.fileName}") },
 ) { elements ->
     BinaryActivityWriter().toBinary(path, elements.flatMap { it.plannedActivities })
 }
@@ -232,5 +241,5 @@ fun HasPersonRepo<*, Person>.writeActivitiesBinary(path: Path) = forAllStep(
 fun HasCarRepo<*, PrivateCar>.writeCarsBinary(path: Path) = writeBinary(
     path = path,
     writer = BinaryCarWriter(),
-    repository = carRepository
+    repository = carRepository,
 )

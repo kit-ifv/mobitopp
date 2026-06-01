@@ -49,10 +49,12 @@ interface StandardLocation :
     companion object {
 
         private val invalidZone: Zone<HasRegionType> = object : Zone<HasRegionType> {
-            override val id: ZoneId = ZoneId(-1L)
+            override val zoneId: ZoneId = ZoneId(-1L)
             override val attributes: HasRegionType = object : HasRegionType {
                 override val regionType: RegionType = RegioStaR17.LARGE_CITY_METRO
             }
+            override val centroidLocation: StandardLocation
+                get() = TODO("Not yet implemented")
         }
 
         operator fun invoke(position: Point, zone: Zone<HasRegionType>, roadAccess: RoadAccess): StandardLocation =

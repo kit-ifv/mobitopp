@@ -82,7 +82,7 @@ abstract class Simulator(
         val seq = clock(start, timeStep, end)
         val count = clock(start, timeStep, end).count()
 
-        return seq.iterator().addProgressBar(
+        return seq.addProgressBar(
             label = "simulation time",
             expectedCount = count.toLong(),
             visible = true,

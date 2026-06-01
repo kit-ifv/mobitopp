@@ -3,6 +3,7 @@
 package domain.synthesis.fixedDestinations
 
 import BIELEFELD
+import ZoneTestAttributesFake
 import core.datastructure.kdtree.WithMetric
 import core.datastructure.kdtree.discardMetric
 import domain.shared.enums.LegacyActivityType
@@ -11,8 +12,7 @@ import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.toPoint
-import domain.shared.location.zone.StandardZone
-import domain.shared.location.zone.ZoneAttributes
+import domain.shared.location.zone.MaximalZone
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.BandwidthParameters
@@ -29,11 +29,11 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
 class BandwidthLocatorTest : SynthesisTest() {
-    private val testZone = StandardZone(id = ZoneId(1L), BIELEFELD.toPoint(), ZoneAttributes.STANDARD)
+    private val testZone = MaximalZone(ZoneId(1L), ZoneTestAttributesFake(), BIELEFELD.toPoint())
     private val myActivityType = LegacyActivityType.LEISURE_SIGHTSEEING
     private lateinit var attractivenessModel: ControllableAttractiveness
 
-    private fun StandardZone.spawnUTM(eOffset: Number, nOffset: Number): StandardLocation = StandardLocation(
+    private fun MaximalZone.spawnUTM(eOffset: Number, nOffset: Number): StandardLocation = StandardLocation(
         Location.utm(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble()).position,
         this,
         RoadAccess.INVALID,

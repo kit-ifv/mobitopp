@@ -12,10 +12,10 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.shared.location.MutableZone
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
-import domain.shared.location.parseRoadPositionWGS
+import domain.shared.location.parsePoint
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.MutableMaximalZone
 import domain.synthesis.parser.ZoneColumns
 import domain.synthesis.parser.ZoneCsvConfig
 import domain.synthesis.parser.binary.BinaryZoneReader
@@ -34,11 +34,11 @@ import java.nio.file.Path
  */
 fun <C> C.zones(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableZone, ZoneId>) C.() -> Unit
-) where C : HasZoneRepo<MutableZone, Zone> = mutableRepositoryScope<C, MutableZone, ZoneId>(
+    scope: context(MutableRepository<MaximalZone, ZoneId>) C.() -> Unit,
+) where C : HasZoneRepo<MaximalZone, MaximalZone> = mutableRepositoryScope<C, MaximalZone, ZoneId>(
     getter = { mutableZoneRepository },
     sealed = sealed,
-    scope = scope
+    scope = scope,
 )
 
 /**
@@ -49,10 +49,8 @@ fun <C> C.zones(
  * @param repository The mutable repository of zones to populate. Provided via context.
  * @param resource The resource (e.g., CSV) to load zones from.
  */
-context(repository: MutableRepository<MutableZone, ZoneId>)
-fun <C : Context> C.loadZones(
-    resource: Resource<MutableZone>,
-) = addResourceStep<C, MutableZone, ZoneId>(
+context(repository: MutableRepository<MaximalZone, ZoneId>)
+fun <C : Context> C.loadZones(resource: Resource<MaximalZone>) = addResourceStep<C, MaximalZone, ZoneId>(
     name = "load zones from ${resource.name}",
     resource = resource,
 )
@@ -73,11 +71,11 @@ fun <C : Context> C.loadZones(
  */
 context(config: CFG)
 fun <C : Context, CFG> C.zoneCsv(
-    parser: CsvParser<MutableZone> = zoneCsvParser(),
+    parser: CsvParser<MaximalZone> = zoneCsvParser(),
     path: Path = config.sourceFiles.zonesCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutableZone>? = binaryZoneFormat()
-): Resource<MutableZone>
+    binaryCache: BinaryCacheConfig<MaximalZone>? = binaryZoneFormat(),
+): Resource<MaximalZone>
     where CFG : SourceFilesConfig, CFG : UnitConfig, CFG : RegionCodesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
@@ -95,17 +93,16 @@ fun <C : Context, CFG> C.zoneCsv(
  * @return A [BinaryCacheConfig] instance.
  */
 context(config: CFG)
-fun <C : Context, CFG> C.binaryZoneFormat(): BinaryCacheConfig<MutableZone>
-    where CFG : SourceFilesConfig, CFG : RegionCodesConfig {
-    return BinaryCacheConfig<MutableZone>(
+fun <C : Context, CFG> C.binaryZoneFormat(): BinaryCacheConfig<MaximalZone>
+    where CFG : SourceFilesConfig, CFG : RegionCodesConfig =
+    BinaryCacheConfig<MaximalZone>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryZoneReader(
             seed = config.seed,
-            regionCode = config.regionTypeCodes
+            regionCode = config.regionTypeCodes,
         ),
-        binaryWriter = BinaryZoneWriter()
+        binaryWriter = BinaryZoneWriter(),
     )
-}
 
 /**
  * Creates a CSV parser for zones.
@@ -120,20 +117,20 @@ fun <C : Context, CFG> C.binaryZoneFormat(): BinaryCacheConfig<MutableZone>
  */
 context(config: CFG)
 fun <C : Context, CFG> C.zoneCsvParser(
-    customizeCsvConfig: ZoneCsvConfig.() -> Unit = {}
-): CsvParser<MutableZone>
+    customizeCsvConfig: ZoneCsvConfig.() -> Unit = {},
+): CsvParser<MaximalZone>
     where CFG : SourceFilesConfig, CFG : UnitConfig, CFG : RegionCodesConfig =
     createZoneCsvParser(
         ZoneCsvConfig(
             columns = ZoneColumns(),
-            centroidParser = String::parseRoadPositionWGS,
+            centroidParser = String::parsePoint,
             reliefUnit = config.distanceUnit,
             regionTypeCodes = config.regionTypeCodes,
             errorHandling = config.errorHandling,
-            seed = config.seed
+            seed = config.seed,
         ).also {
             it.customizeCsvConfig()
-        }
+        },
     )
 
 // fun cheatyDefaultCsvParser(

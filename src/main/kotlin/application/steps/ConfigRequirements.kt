@@ -12,7 +12,6 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue
 import utils.CodePlan
-import utils.ErrorHandling
 import utils.units.AbsoluteTime
 import java.nio.file.Path
 import kotlin.time.Duration

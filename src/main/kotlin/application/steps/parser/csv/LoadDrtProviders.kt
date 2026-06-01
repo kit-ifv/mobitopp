@@ -15,7 +15,9 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
-import domain.shared.location.Zone
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.parser.DrtProviderByAreaCsvColumns
@@ -37,12 +39,12 @@ import java.nio.file.Path
  */
 fun <C> C.drtProviders(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableDrtProviderData, DrtProviderId>) C.() -> Unit
-) where C : HasZoneRepo<*, Zone>, C : HasDrtProviderRepo<MutableDrtProviderData, *> =
+    scope: context(MutableRepository<MutableDrtProviderData, DrtProviderId>) C.() -> Unit,
+) where C : HasZoneRepo<*, Zone<*>>, C : HasDrtProviderRepo<MutableDrtProviderData, *> =
     mutableRepositoryScope<C, MutableDrtProviderData, DrtProviderId>(
         getter = { mutableDrtProviderRepository },
         sealed = sealed,
-        scope
+        scope,
     )
 
 /**
@@ -57,13 +59,12 @@ fun <C> C.drtProviders(
 context(repository: MutableRepository<MutableDrtProviderData, DrtProviderId>)
 fun <C> C.loadDrtProviders(
     resource: Resource<MutableDrtProviderData>,
-    dependentRepositories: Set<Repository<*, *>> = setOf(zoneRepository)
-) where C : HasZoneRepo<*, Zone> =
-    addResourceStep<C, MutableDrtProviderData, DrtProviderId>(
-        name = "load drt providers from ${resource.name}",
-        resource = resource,
-        dependentRepositories = dependentRepositories,
-    )
+    dependentRepositories: Set<Repository<*, *>> = setOf(zoneRepository),
+) where C : HasZoneRepo<*, Zone<*>> = addResourceStep<C, MutableDrtProviderData, DrtProviderId>(
+    name = "load drt providers from ${resource.name}",
+    resource = resource,
+    dependentRepositories = dependentRepositories,
+)
 
 /**
  * Creates a CSV resource for DRT providers.
@@ -84,7 +85,7 @@ fun <C, CFG> C.drtProviderCsv(
     parser: CsvParser<MutableDrtProviderData>,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableDrtProviderData>? = null, // TODO binaryDrtProviderFormat()?
-): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig =
+): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, Zone<*>>, CFG : SourceFilesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
             csv.cachedCsv(it)
@@ -105,8 +106,8 @@ fun <C, CFG> C.drtProviderCsv(
 context(config: CFG)
 fun <C, CFG> C.drtProviderServiceAreaParser(
     drtMode: Mode,
-    customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {}
-): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : Config =
+    customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {},
+): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : Config =
     createDrtProvidersByAreaParser(
         DrtProviderByAreaCsvConfig(
             columns = DrtProviderByAreaCsvColumns(),
@@ -118,7 +119,7 @@ fun <C, CFG> C.drtProviderServiceAreaParser(
             seed = config.seed,
         ).also {
             it.customizeCsvConfig()
-        }
+        },
     )
 
 /**
@@ -141,7 +142,7 @@ fun <C, CFG> C.ridePoolingProviderCsv(
     parser: CsvParser<MutableDrtProviderData> = poolingProviderServiceAreaParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableDrtProviderData>? = null,
-): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : DrtSourceFilesConfig, CFG : SourceFilesConfig, CFG : DrtModesConfig =
+): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : DrtSourceFilesConfig, CFG : SourceFilesConfig, CFG : DrtModesConfig =
     drtProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -158,6 +159,6 @@ fun <C, CFG> C.ridePoolingProviderCsv(
 context(config: CFG)
 fun <C, CFG> C.poolingProviderServiceAreaParser(
     sharingMode: Mode = config.ridePoolingMode,
-    customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {}
-): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone>, CFG : DrtModesConfig =
+    customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {},
+): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : DrtModesConfig =
     drtProviderServiceAreaParser<C, CFG>(sharingMode, customizeCsvConfig)

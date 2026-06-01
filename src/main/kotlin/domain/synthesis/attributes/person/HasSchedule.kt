@@ -8,7 +8,7 @@ interface HasSchedule {
     val schedule: Schedule
 }
 
-interface HasMutableSchedule: HasSchedule {
+interface HasMutableSchedule : HasSchedule {
     override var schedule: Schedule
 }
 

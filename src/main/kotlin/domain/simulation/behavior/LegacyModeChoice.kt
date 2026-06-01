@@ -209,7 +209,6 @@ val legacyModeChoiceBuilder = DiscreteStructure<Mode, ModeChoiceCharacteristics,
                 ) * characteristics.travelCost(mode).euros * (1 - characteristics.hasCommuterTicket)
         // NO PUT COST IF OWNS TICKET
     }
-
 }.multinomialLogit(
     name = "LegacyModeChoiceModel",
 )

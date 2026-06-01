@@ -54,6 +54,7 @@ import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteM
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
+import edu.kit.ifv.units.toCurrency
 import utils.csv.DefaultCsvParser
 import utils.csv.Row
 import java.nio.file.Path
@@ -262,7 +263,9 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
                 lateinit var purposes: ChoiceModelPurposes
                 fun build(): AttractivenessModel = AttractivenessFromCsv(
                     path = path,
-                    purposes = purposes,
+                    work = purposes.work,
+                    privateVisit = purposes.privateVisit,
+                    activityTypes = purposes.allActivityTypes,
                 )
             }
 

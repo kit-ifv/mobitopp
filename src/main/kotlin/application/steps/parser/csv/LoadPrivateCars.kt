@@ -39,11 +39,11 @@ import java.nio.file.Path
  */
 fun <C> C.cars(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutablePrivateCar, CarId>) C.() -> Unit
+    scope: context(MutableRepository<MutablePrivateCar, CarId>) C.() -> Unit,
 ) where C : HasCarRepo<MutablePrivateCar, *> = mutableRepositoryScope<C, MutablePrivateCar, CarId>(
     getter = { mutableCarRepository },
     sealed = sealed,
-    scope
+    scope,
 )
 
 /**
@@ -83,7 +83,7 @@ fun <C, CFG> C.carCsv(
     parser: CsvParser<MutablePrivateCar> = privateCarCsvParser(),
     path: Path = config.sourceFiles.privateCarsCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutablePrivateCar>? = binaryPrivateCarFormat() // TODO move binary format to load level?
+    binaryCache: BinaryCacheConfig<MutablePrivateCar>? = binaryPrivateCarFormat(), // TODO move binary format to load level?
 ): Resource<MutablePrivateCar>
     where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>, CFG : SourceFilesConfig, CFG : CarCodesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
@@ -105,7 +105,7 @@ fun <C, CFG> C.carCsv(
  */
 context(config: CFG)
 fun <C, CFG> C.privateCarCsvParser(
-    customizeCsvConfig: PrivateCarCsvConfig.() -> Unit = {}
+    customizeCsvConfig: PrivateCarCsvConfig.() -> Unit = {},
 ): CsvParser<MutablePrivateCar>
     where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>, CFG : CarCodesConfig =
     createPrivateCarCsvParser(
@@ -119,7 +119,7 @@ fun <C, CFG> C.privateCarCsvParser(
             errorHandling = config.errorHandling,
         ).also {
             it.customizeCsvConfig()
-        }
+        },
     )
 
 /**
@@ -135,15 +135,14 @@ fun <C, CFG> C.privateCarCsvParser(
 context(config: CFG)
 fun <C, CFG> C.binaryPrivateCarFormat(): BinaryCacheConfig<MutablePrivateCar>
     where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>,
-          CFG : SourceFilesConfig {
-    return BinaryCacheConfig<MutablePrivateCar>(
+          CFG : SourceFilesConfig =
+    BinaryCacheConfig<MutablePrivateCar>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryCarReader(
             householdConverter = this.mutableHouseholdRepository::get,
             personConverter = this.personRepository::get,
-            carEngineStatistics = CarEngineStatistics()
+            carEngineStatistics = CarEngineStatistics(),
         ),
 
-        binaryWriter = BinaryCarWriter()
+        binaryWriter = BinaryCarWriter(),
     )
-}

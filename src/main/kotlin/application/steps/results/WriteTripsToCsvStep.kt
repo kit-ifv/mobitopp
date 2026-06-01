@@ -55,16 +55,10 @@ interface WriteLegToCSV {
     fun generateCSVLine(index: Int, leg: LinkedLeg, person: PersonAgent): String
 }
 
-class StandardCSVLegWriter(
-    private val impedance: Impedance
-) : WriteLegToCSV {
+class StandardCSVLegWriter(private val impedance: Impedance) : WriteLegToCSV {
     override val header: String = "legId;personId;duration_sec;mode;activityType;tripStart_sec;tripEnd_sec;ZoneStart;ZoneEnd;previousActivityType;distance_km;cost_euro"
 
-    override fun generateCSVLine(
-        index: Int,
-        leg: LinkedLeg,
-        person: PersonAgent,
-    ): String {
+    override fun generateCSVLine(index: Int, leg: LinkedLeg, person: PersonAgent): String {
         val previous = leg.previous
         val next = leg.next
         val purpose = if (next is Activity) next.type.code.toString() else "-"
@@ -86,11 +80,11 @@ class StandardCSVLegWriter(
             purpose,
             leg.startTime.secondsSinceStart,
             leg.endTime.secondsSinceStart,
-            leg.startLocation.zoneID.value,
-            leg.endLocation.zoneID.value,
+            leg.startLocation.zoneId.value,
+            leg.endLocation.zoneId.value,
             previousPurpose,
             dist.kilometers,
-            cost.euros
+            cost.euros,
         )
     }
 }

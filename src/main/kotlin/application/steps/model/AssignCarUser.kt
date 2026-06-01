@@ -21,7 +21,7 @@ import domain.synthesis.data.Person
  */
 context(repository: MutableRepository<MutablePrivateCar, CarId>)
 fun <C> C.assignMainCarUsers(
-    model: AssignCarUserModel = AssignCarUserModel() // TODO create interface CarUserAssignment
+    model: AssignCarUserModel = AssignCarUserModel(), // TODO create interface CarUserAssignment
 ) where C : HasPersonRepo<*, Person> {
     transformEachStep( // TODO maybe request ordering on elements for this transformation?
         name = "Assign cars to household members as main users.",

@@ -110,9 +110,8 @@ private fun TransitionKey.toPlantUmlArrow(idx: Int) =
     "${from.asPlantumlAlias()} -[#${idx.color}]-> ${to.asPlantumlAlias()}: " +
         "<color:${idx.color}>${message.asMessageName()}"
 
-private fun String?.asMessageName() =
-    this?.replace("Message", "", ignoreCase = true)
-        ?.replace("Msg", "", ignoreCase = true) ?: "-"
+private fun String?.asMessageName() = this?.replace("Message", "", ignoreCase = true)
+    ?.replace("Msg", "", ignoreCase = true) ?: "-"
 
 private fun String.asStateName() = this.replace("State", "", ignoreCase = true)
 

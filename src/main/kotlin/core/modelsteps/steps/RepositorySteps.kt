@@ -36,12 +36,12 @@ fun <C : Context, E : Identifiable<I>, I> C.mutatingStep(
     repository: MutableRepository<E, I>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
     validation: Validation<C> = emptyList(),
-    execution: C.() -> Unit
+    execution: C.() -> Unit,
 ) = repositoryDependentStep(
     name,
     dependentRepositories,
     validation + { validateNotSealed(repository, name) },
-    execution
+    execution,
 )
 
 /**
@@ -70,7 +70,7 @@ fun <C : Context, E : Identifiable<I>, I> C.addResourceStep(
     name,
     repository,
     dependentRepositories,
-    validation
+    validation,
 ) {
     var count = 0
     repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements.onEach { count++ })
@@ -103,7 +103,7 @@ fun <C : Context, E : Identifiable<I>, I> C.addCsvResourceStep(
     repository,
     resource,
     dependentRepositories,
-    validation + { validateCsvMetadata(name, resource) }
+    validation + { validateCsvMetadata(name, resource) },
 )
 
 /**
@@ -137,7 +137,7 @@ fun <C : Context, E : Identifiable<I>, I> C.loadCsvStep(
     repository,
     CsvResource(path, parser, delimiter),
     dependentRepositories,
-    validation
+    validation,
 )
 
 /**
@@ -165,13 +165,13 @@ fun <C : Context, E : Identifiable<I>, I> C.filterStep(
     name,
     repository,
     dependentRepositories,
-    validation
+    validation,
 ) {
     val sizeBefore = repository.size
     repository.filterElements(name, check)
     val sizeAfter = repository.size
     logNormal(
-        "filter removed ${sizeBefore - sizeAfter} elements from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)"
+        "filter removed ${sizeBefore - sizeAfter} elements from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)",
     )
 }
 
@@ -200,13 +200,13 @@ fun <C : Context, E : Identifiable<I>, I> C.filterIdsStep(
     name,
     repository,
     dependentRepositories,
-    validation
+    validation,
 ) {
     val sizeBefore = repository.size
     repository.filterIds(name, check)
     val sizeAfter = repository.size
     logNormal(
-        "filter removed ${sizeBefore - sizeAfter} elements by id from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)"
+        "filter removed ${sizeBefore - sizeAfter} elements by id from repo '${repository.name}' (before: $sizeBefore, after: $sizeAfter)",
     )
 }
 
@@ -235,7 +235,7 @@ fun <C : Context, E : Identifiable<I>, I> C.updateEachStep(
     name,
     repository,
     dependentRepositories,
-    validation
+    validation,
 ) {
     repository.updateEach(name, update)
 }
@@ -265,7 +265,7 @@ fun <C : Context, E : Identifiable<I>, I> C.updateBulkStep(
     name,
     repository,
     dependentRepositories,
-    validation
+    validation,
 ) {
     repository.updateAll(name, update)
 }
@@ -296,7 +296,7 @@ fun <C : Context, E : Identifiable<I>, I> C.transformEachStep(
     name,
     repository,
     dependentRepositories,
-    validation
+    validation,
 ) {
     repository.transformEach(name, transform)
 }
@@ -327,7 +327,7 @@ fun <C : Context, E : Identifiable<I>, I> C.transformBulkStep(
     name,
     repository,
     dependentRepositories,
-    validation
+    validation,
 ) {
     repository.transformAll(name, transform)
 }
@@ -354,7 +354,7 @@ fun <C : Context, E : Identifiable<I>, I> C.forEachStep(
 ) = repositoryDependentStep(
     name,
     dependentRepositories,
-    validation
+    validation,
 ) {
     repository.elements.forEach {
         process(it)
@@ -383,7 +383,7 @@ fun <C : Context, E : Identifiable<I>, I> C.forAllStep(
 ) = repositoryDependentStep(
     name,
     dependentRepositories,
-    validation
+    validation,
 ) {
     processAll(repository.elements.toList())
 }
@@ -405,10 +405,13 @@ fun <C : Context, E : Identifiable<I>, I> C.forAllStep(
 fun <C : Context, E : Identifiable<I>, I> C.seal(
     repository: MutableRepository<E, I>,
     name: String = "seal ${repository.name}",
-    validation: Validation<C> = emptyList()
+    validation: Validation<C> = emptyList(),
 ) = modelStep(
     name,
-    validation + listOf { repository.seal(); true } //seal repo also in validation mode, for subsequent checks
+    validation + listOf {
+        repository.seal();
+        true
+    }, // seal repo also in validation mode, for subsequent checks
 ) {
     repository.seal()
     logNormal("sealed ${repository.name} with ${repository.size} elements. This repo can no longer be updated!")

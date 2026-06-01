@@ -5,7 +5,9 @@ import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
+import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
 import java.io.DataOutputStream
@@ -19,7 +21,7 @@ import java.nio.ByteBuffer
  */
 @Suppress("MagicNumber")
 object LocationUtils {
-    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> StandardZone?): StandardLocation {
+    fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone<HasRegionType>?): StandardLocation {
         val zoneId = ZoneId(long) // Reading zone ID
         val coordinate = WGS84Coordinate.decimalDegree(
             double,

@@ -41,7 +41,7 @@ fun <C : Context, E : Identifiable<I>, I> C.loadBinary(
         reader.fromBinary(path).asSequence()
     },
     dependentRepositories,
-    validation + { validateFileReadAccess(path, true, "source binary cache file ${path.fileName}") }
+    validation + { validateFileReadAccess(path, true, "source binary cache file ${path.fileName}") },
 )
 
 /**
@@ -66,7 +66,7 @@ fun <C : Context, E : Identifiable<I>, I> C.writeBinary(
     name,
     repository,
     emptySet(),
-    validation + { validateFileReadAccess(path, true, "target binary cache file ${path.fileName}") }
+    validation + { validateFileReadAccess(path, true, "target binary cache file ${path.fileName}") },
 ) { elements ->
     writer.toBinary(path, elements)
 }

@@ -6,8 +6,11 @@ import domain.shared.location.Impedance
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
 import domain.synthesis.data.SharingProviderId
@@ -36,55 +39,58 @@ object GlobalSharingStationIdCounter : (Row) -> SharingStationId {
 }
 
 // parsers for zones by foot
-fun onlySameZoneByFoot(): (Row, Mode, StandardLocation, GetZone) -> List<Zone> = { _, _, stationLocation, getZone ->
-    listOf(getZone(stationLocation.zoneID))
+fun onlySameZoneByFoot(): (Row, Mode, StandardLocation, GetZone) -> List<ZoneWithCentroid<HasRegionType>> = { _, _,
+                                                                                                              stationLocation, getZone ->
+    listOf(getZone(stationLocation.zoneId))
 }
 
-fun parseCommaSeparatedZones(column: String): (Row, Mode, StandardLocation, GetZone) -> List<Zone> = { row, _, _, getZone ->
+fun parseCommaSeparatedZones(column: String): (Row, Mode, StandardLocation, GetZone) -> List<Zone<HasRegionType>> = {
+        row,
+        _,
+        _,
+        getZone,
+    ->
     row(column).split(',').map { getZone(ZoneId(it.toLong())) }
 }
 
 fun filterZonesByFootInRadius(
     threshold: Distance,
-    zoneRepository: Repository<Zone, ZoneId>,
+    zoneRepository: Repository<StandardZone, ZoneId>,
     impedance: Impedance,
 ): (
     Row,
     Mode,
     StandardLocation,
-    GetZone
-) -> List<Zone> = { _, mode, stationLocation, getZone ->
-    val zone = getZone(stationLocation.zoneID)
+    GetZone,
+) -> List<StandardZone> = { _, mode, stationLocation, getZone ->
+    val zone = getZone(stationLocation.zoneId)
     zoneRepository.elements.filter {
-        impedance.distance(zone.centroid, it.centroid, mode) <= threshold
+        impedance.distance(zone, it, mode) <= threshold
     }.toList()
 }
 
 // station location parser
-fun locationAtZoneCentroid(): (Row, Zone) -> StandardLocation = { _, zone ->
-    zone.centroid
+fun locationAtZoneCentroid(): (Row, ZoneWithCentroid<HasRegionType>) -> StandardLocation = { _, zone ->
+    zone.centroidLocation
 }
 
-fun parseLocationXY(
-    xColumn: String = "x",
-    yColumn: String = "y",
-): (Row, Zone) -> StandardLocation = { row, zone ->
+fun parseLocationXY(xColumn: String = "x", yColumn: String = "y"): (Row, Zone<HasRegionType>) -> StandardLocation = { row, zone ->
 
-    StandardLocation.Companion(
+    StandardLocation(
         position = PointCreator.createWGS(row.double(xColumn), row.double(yColumn)),
         zone = zone,
         roadAccess = RoadAccess.INVALID,
     )
 }
 
-typealias GetZone = (ZoneId) -> Zone
+typealias GetZone = (ZoneId) -> ZoneWithCentroid<HasRegionType>
 
 data class SharingProviderByStationCsvConfig(
     var columns: SharingProviderByStationCsvColumns = SharingProviderByStationCsvColumns(),
     var sharingMode: Mode,
     var getZone: GetZone,
-    var zonesByFoot: (Row, Mode, StandardLocation, GetZone) -> List<Zone>,
-    var locationParser: (Row, Zone) -> StandardLocation,
+    var zonesByFoot: (Row, Mode, StandardLocation, GetZone) -> List<ZoneWithCentroid<HasRegionType>>,
+    var locationParser: (Row, ZoneWithCentroid<HasRegionType>) -> StandardLocation,
     var providerIdSource: (Row) -> SharingProviderId,
     var stationIdSource: (Row) -> SharingStationId,
     var operatingHours: IntRange,
@@ -101,7 +107,7 @@ data class SharingProviderByStationCsvColumns(
 )
 
 fun createSharingProviderStationParser(
-    csvConfig: SharingProviderByStationCsvConfig
+    csvConfig: SharingProviderByStationCsvConfig,
 ): CsvParser<MutableSharingProvider> = csvConfig.run {
     val providers = mutableMapOf<String, MutableSharingProvider>()
 

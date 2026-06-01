@@ -15,7 +15,8 @@ import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Impedance
-import domain.shared.location.attributes.HasZoneID
+import domain.shared.location.attributes.HasZoneId
+
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
@@ -39,8 +40,8 @@ private val IS_ERROR = false
  * @param CFG The configuration type. Must implement [MatrixConfig] and [UnitConfig].
  * @param config The configuration. Provided via context.
  */
-context(config: CFG)
 @Suppress("LongParameterList")
+context(config: CFG)
 fun <C, CFG> C.loadImpedance(
     travelTimeYaml: Path = config.durationMatrixConfig,
     travelCostsYaml: Path = config.costMatrixConfig,
@@ -50,7 +51,7 @@ fun <C, CFG> C.loadImpedance(
     converter: UnitConverter = UnitConverter.fromUnits(
         config.distanceUnit,
         config.currencyUnit,
-        config.durationUnit
+        config.durationUnit,
     ),
 )
     where C : HasModes, C : HasMutableImpedance, CFG : MatrixConfig, CFG : UnitConfig = modelStep(
@@ -65,7 +66,6 @@ fun <C, CFG> C.loadImpedance(
         matrixFactory = matrixFactory,
         converter = converter,
     )
-
 
     this.impedance = impedance
 }
@@ -129,7 +129,7 @@ private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path
  * @receiver The simulation context which can store an impedance model.
  */
 fun HasMutableImpedance.loadTeleportation() = modelStep(
-    "create Teleportation impedance for Transport"
+    "create Teleportation impedance for Transport",
 ) {
     this.impedance = Teleportation()
 }
@@ -149,19 +149,16 @@ class Teleportation : Impedance {
 
     override fun distanceMetric(mode: Mode): DistanceMetric = distanceMetric
 
-    override fun durationMetric(
-        mode: Mode,
-        time: Time
-    ): DurationMetric = durationMetric
+    override fun durationMetric(mode: Mode, time: Time): DurationMetric = durationMetric
 }
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
 
 @Deprecated("dummy impedance should no longer be used, try using Teleportation")
 val dummyImpedance = object : Impedance {
-    override fun duration(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.minutes
-    override fun cost(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.euros
-    override fun distance(from: HasZoneID, to: HasZoneID, mode: Mode) = 5.kilometers
+    override fun duration(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time) = 5.minutes
+    override fun cost(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time) = 5.euros
+    override fun distance(from: HasZoneId, to: HasZoneId, mode: Mode) = 5.kilometers
     override fun costMetric(mode: Mode, time: Time): CostMetric = error(SHOULD_NOT_BE_CALLED)
     override fun distanceMetric(mode: Mode): DistanceMetric = error(SHOULD_NOT_BE_CALLED)
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = error(SHOULD_NOT_BE_CALLED)

@@ -6,13 +6,14 @@ import domain.shared.datastructure.matrix.optimized.DoubleToDuration
 import domain.shared.datastructure.matrix.yaml.YamlInfo
 import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.enums.Mode
-import domain.shared.location.ConstantMetric
 import domain.shared.location.CostMetric
+import domain.shared.location.CostZoneMetric
 import domain.shared.location.DistanceMetric
+import domain.shared.location.DistanceZoneMetric
 import domain.shared.location.DurationMetric
+import domain.shared.location.DurationZoneMetric
 import domain.shared.location.Impedance
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.Distance
@@ -45,57 +46,25 @@ data class MatrixImpedance(
     private val travelTimes: ZoneMatrixLookup<Mode>,
     private val travelCosts: ZoneMatrixLookup<Mode>,
     private val travelDistance: ZoneIdMatrix,
-    private val unitConverters: UnitConverter
+    private val unitConverters: UnitConverter,
 ) : Impedance {
     private val currencyConverter = unitConverters.currencyConverter
     private val timeConverter = unitConverters.timeConverter
     private val distanceConverter = unitConverters.distanceConverter
 
-    override fun costMetric(mode: Mode, time: Time): CostMetric {
-        return CostMetric { o: HasZoneID, d: HasZoneID ->
-            currencyConverter.from(travelCosts[mode, time][o.zoneID, d.zoneID])
+    override fun costMetric(mode: Mode, time: Time): CostMetric = CostZoneMetric { o, d ->
+        currencyConverter.from(travelCosts[mode, time][o, d])
+    }
+
+    override fun distanceMetric(mode: Mode): DistanceMetric = DistanceZoneMetric { o, d ->
+        distanceConverter.from(travelDistance[o, d])
+    }
+
+    override fun durationMetric(mode: Mode, time: Time): DurationMetric =
+        DurationZoneMetric { o, d ->
+            timeConverter.from(travelTimes[mode, time][o, d])
         }
-    }
 
-    override fun distanceMetric(mode: Mode): DistanceMetric {
-        return DistanceMetric { o, d ->
-            distanceConverter.from(travelDistance[o.zoneID, d.zoneID])
-        }
-    }
-
-    override fun durationMetric(
-        mode: Mode,
-        time: Time,
-    ): DurationMetric {
-        return DurationMetric { o: HasZoneID, d: HasZoneID ->
-            timeConverter.from(travelTimes[mode, time][o.zoneID, d.zoneID])
-        }
-    }
-
-    fun cost(
-        from: ZoneId,
-        to: ZoneId,
-        mode: Mode,
-        time: Time,
-    ): Currency {
-        return currencyConverter.from(travelCosts[mode, time][from, to])
-    }
-
-    fun distance(
-        from: ZoneId,
-        to: ZoneId,
-    ): Distance {
-        return distanceConverter.from(travelDistance[from, to])
-    }
-
-    fun duration(
-        from: ZoneId,
-        to: ZoneId,
-        mode: Mode,
-        time: Time,
-    ): Duration {
-        return timeConverter.from(travelTimes[mode, time][from, to])
-    }
 
     companion object {
         @Suppress("LongParameterList")
@@ -118,7 +87,7 @@ data class MatrixImpedance(
             ).cached(matrixFactory)
 
             val travelDistanceMatrix = matrixFactory.createMatrix(
-                YamlInfo("visum_matrix", travelDistanceMatrixPath)
+                YamlInfo("visum_matrix", travelDistanceMatrixPath),
             )
 
             return MatrixImpedance(
@@ -151,12 +120,10 @@ data class UnitConverter(
             distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
             currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
             timeUnit: DurationUnit = DurationUnit.MINUTES,
-        ): UnitConverter {
-            return UnitConverter(
-                { it.toDuration(timeUnit) },
-                { it.toDistance(distanceUnit) },
-                { it.toCurrency(currencyUnit) },
-            )
-        }
+        ): UnitConverter = UnitConverter(
+            { it.toDuration(timeUnit) },
+            { it.toDistance(distanceUnit) },
+            { it.toCurrency(currencyUnit) },
+        )
     }
 }

@@ -47,7 +47,7 @@ fun List<PersonAgent>.legs(): List<PersonLeg> = this.flatMap { person ->
 
             else -> error(
                 "Cannot process $action of type ${action::class.simpleName} while creating PersonLegs," +
-                    " expected MovingAction or StationaryAction"
+                    " expected MovingAction or StationaryAction",
             )
         }
     }

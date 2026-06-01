@@ -46,7 +46,7 @@ class CarOnlyScenario {
             ),
             personLimits = spawnDrivers,
             memberships = mutableListOf(),
-            personScope = { it.generateActivitySchedule(10, random) }
+            personScope = { it.generateActivitySchedule(10, random) },
         )
 
         val impedance = ControllableImpedance()
@@ -54,20 +54,20 @@ class CarOnlyScenario {
             legacyModes,
             mapOf(),
             mapOf(),
-            impedance
+            impedance,
         )
 
         val car = legacyModes.car
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { it.centroid }.toSet()
+                zones.map { it.centroidLocation }.toSet(),
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel(
                 "prefer car",
                 setOf(car, legacyModes.pedestrian),
-                availability.asResourceAvailabilityFilter()
+                availability.asResourceAvailabilityFilter(),
             ),
             modes = legacyChoiceModelModes,
             attractivityModel = testAttractivenessModel,
@@ -75,14 +75,14 @@ class CarOnlyScenario {
             bikeSharingConnectionSelector = availability,
             drtAvailabilitySelector = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
-            spawnModeCharacteristics = StandardModeImplementation
+            spawnModeCharacteristics = StandardModeImplementation,
 
         )
 
         val agents = BuildAgents(
             seed = 1L,
             personStateMachine.withRecording(),
-            syntheticBehavior
+            syntheticBehavior,
         ).buildPersonAgents(households)
 
         RecordingStateMachine.recordInteractions()

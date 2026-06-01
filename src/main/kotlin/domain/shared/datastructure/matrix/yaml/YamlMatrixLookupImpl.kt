@@ -60,12 +60,11 @@ class YamlMatrixLookupImpl<M : Encodable>(
             mode to buildCalendarWeeks(weekMap)
         }
     }
-    override operator fun get(mode: M, time: AbsoluteTime): WithExpiration<YamlInfo> {
-        return requireNotNull(modeLookup[mode]) {
+    override operator fun get(mode: M, time: AbsoluteTime): WithExpiration<YamlInfo> =
+        requireNotNull(modeLookup[mode]) {
             "Key $mode (type: ${mode::class.simpleName}) is missing in matrix config lookup. Available keys:\n" +
                 modeLookup.keys.joinToString("\n") { "  - $it (type: ${it::class.simpleName})" }
         }[time]
-    }
 
     private fun buildCalendarWeeks(weekMap: WeekMap): CalendarWeekLookup<YamlInfo> {
         // Create a ruleset as a map, when the corresponding week hits use the value, else use the default value

@@ -11,7 +11,8 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.Zone
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.Zone
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.ModeChoiceCharacteristics
@@ -58,14 +59,14 @@ fun <C> C.loadBehaviorModels(
     spawnModeChoiceCharacteristics: NewModeCharacteristics = StandardModeImplementation,
     replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
 ) where C : HasMutablePersonBehavior,
-      C : HasZoneRepo<*, Zone>,
-      C : HasSharingProviderRepo<*, SharingProvider>,
-      C : HasDrtProviderRepo<*, DrtProvider>,
-      C : HasImpedance,
-      C : HasAttractivenessModel =
+        C : HasZoneRepo<*, MaximalZone>,
+        C : HasSharingProviderRepo<*, SharingProvider>,
+        C : HasDrtProviderRepo<*, DrtProvider>,
+        C : HasImpedance,
+        C : HasAttractivenessModel =
     repositoryDependentStep(
         "load behavior models",
-        dependentRepositories = setOf(zoneRepository, sharingProviderRepository, drtProviderRepository)
+        dependentRepositories = setOf(zoneRepository, sharingProviderRepository, drtProviderRepository),
     ) {
         val sharingProviders = sharingProviderRepository.elements.associateBy { it.id }
         val sharingProvidersByMode = sharingProviders.values.groupBy {
@@ -86,15 +87,16 @@ fun <C> C.loadBehaviorModels(
             modes,
             sharingProvidersByMode,
             drtProvidersByMode,
-            impedance
+            impedance,
         )
 
-        val modeChoice = modeChoiceModel //.addFilter(availability.asResourceAvailabilityFilter())
+        val modeChoice = modeChoiceModel // .addFilter(availability.asResourceAvailabilityFilter())
 
         val destinationChoice = destinationChoiceModel.fixed(
+
             zoneRepository.elements.filter { it.isDestination }.map {
-                it.centroid
-            }.toSet()
+                it.centroidLocation
+            }.toSet(),
         )
 
         personBehavior = PersonBehavior(
@@ -108,7 +110,7 @@ fun <C> C.loadBehaviorModels(
             availability,
             spawnDestinationChoiceCharacteristics,
             spawnModeChoiceCharacteristics,
-            replanningStrategy
+            replanningStrategy,
         )
     }
 
