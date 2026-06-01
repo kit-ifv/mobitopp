@@ -1,9 +1,9 @@
 @file:Suppress("TooManyFunctions")
 
-package domain.simulation.results
+package application.steps.results
 
-import core.modelsteps.LateInit
-import core.modelsteps.Repository
+import application.steps.HasHouseholdRepo
+import application.steps.HasPersonAgentRepo
 import core.results.plots.RGB
 import core.results.plots.modeStringColor
 import domain.shared.datastructure.schedule.LinkedActivity
@@ -15,52 +15,45 @@ import domain.shared.enums.Mode
 import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
 import domain.synthesis.data.Household
-import domain.synthesis.data.HouseholdId
-import domain.synthesis.data.PersonId
 import edu.kit.ifv.units.kilometers
 import kotlin.time.Duration.Companion.minutes
 
-interface AgentResultsContext {
-    val personAgents: Repository<PersonAgent, PersonId>
-    val householdRepository: Repository<Household, HouseholdId>
-    val impedance: LateInit<Impedance>
-}
+fun HasPersonAgentRepo<*, PersonAgent>.persons(): List<PersonAgent> = personAgentRepository.elements.toList()
 
-val AgentResultsContext.persons: List<PersonAgent>
-    get() = personAgents.elements.toList()
-
-val AgentResultsContext.households: List<Household>
-    get() = householdRepository.elements.toList()
+fun HasHouseholdRepo<*, Household>.households(): List<Household> = householdRepository.elements.toList()
 
 data class PersonLeg(val person: PersonAgent, val leg: MovingAction, val purpose: ActivityType?)
 
-val AgentResultsContext.personLegs: List<PersonLeg>
-    get() = persons.flatMap { person ->
+fun HasPersonAgentRepo<*, PersonAgent>.personLegs(): List<PersonLeg> = persons().legs()
 
-        val result = mutableListOf<PersonLeg>()
-        var lastPurpose: ActivityType? = null
+fun List<PersonAgent>.legs(): List<PersonLeg> = this.flatMap { person ->
 
-        person.schedule.past.reversed().forEach { action ->
-            when (action) {
-                is StationaryAction -> {
-                    lastPurpose = action.type
-                }
-                is MovingAction -> {
-                    result += if (lastPurpose == null) {
-                        PersonLeg(person, action, null)
-                    } else {
-                        PersonLeg(person, action, lastPurpose)
-                    }
-                }
-                else -> error(
-                    "Cannot process $action of type ${action::class.simpleName} while creating PersonLegs," +
-                        " expected MovingAction or StationaryAction"
-                )
+    val result = mutableListOf<PersonLeg>()
+    var lastPurpose: ActivityType? = null
+
+    person.schedule.past.reversed().forEach { action ->
+        when (action) {
+            is StationaryAction -> {
+                lastPurpose = action.type
             }
-        }
 
-        result.reversed()
+            is MovingAction -> {
+                result += if (lastPurpose == null) {
+                    PersonLeg(person, action, null)
+                } else {
+                    PersonLeg(person, action, lastPurpose)
+                }
+            }
+
+            else -> error(
+                "Cannot process $action of type ${action::class.simpleName} while creating PersonLegs," +
+                    " expected MovingAction or StationaryAction"
+            )
+        }
     }
+
+    result.reversed()
+}
 
 fun LinkedLeg.nextActivity(): LinkedActivity? = this.next?.let {
     when (it) {

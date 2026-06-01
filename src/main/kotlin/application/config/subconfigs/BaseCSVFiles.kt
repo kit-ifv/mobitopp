@@ -1,5 +1,6 @@
 package application.config.subconfigs
 
+import utils.ErrorHandling
 import java.nio.file.Path
 import kotlin.io.path.Path
 
@@ -15,6 +16,8 @@ val defaultZonesCSV: Path = Path("zones.csv")
  * Base paths for a short term simulation.
  */
 interface BaseCSVFiles {
+    val defaultCsvDelimiter: String
+
     val personCSV: Path
     val householdCSV: Path
     val activityCSV: Path

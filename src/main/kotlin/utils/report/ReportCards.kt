@@ -111,6 +111,8 @@ enum class CardStatus {
 internal class OverviewCard {
     private val stepRegister: MutableList<StatusStep> = mutableListOf()
 
+    val size: Int get() = stepRegister.size
+
     /**
      * Adds a new item to this card.
      * @param name The name of the item.
@@ -120,6 +122,13 @@ internal class OverviewCard {
      */
     fun addOverviewItem(name: String, status: CardStatus, hoverInformation: String = "") {
         stepRegister.add(StatusStep(name, status, hoverInformation))
+    }
+
+    fun printToConsole() {
+        println("Overview:")
+        stepRegister.forEach { step ->
+            println("   (${step.status.name}) ${step.name} - ${step.hoverInformation}")
+        }
     }
 
     /**

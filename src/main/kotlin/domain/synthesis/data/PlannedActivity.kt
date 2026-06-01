@@ -37,19 +37,19 @@ value class ActivityId(val value: Long) : Comparable<ActivityId> {
 @Mutable
 abstract class PlannedActivity(
     override val id: ActivityId,
-    val person: MutablePerson,
+    val person: PersonId, // MutablePerson,
     seed: Long,
 ) : StochasticActor, Identifiable<ActivityId>, Simplifiable<ActivityBinaryRecord> {
 
     final override val random: Random by lazy { Random(id.value + seed) }
 
-    init {
-        this.addAsActivity()
-    }
-
-    private fun addAsActivity() {
-        this.person.plannedActivities.add(this)
-    }
+//    init {
+//        this.addAsActivity()
+//    }
+//
+//    private fun addAsActivity() {
+//        this.person.plannedActivities.add(this)
+//    }
 
     abstract val activityType: ActivityType
     abstract val observedTripDuration: Duration
@@ -63,7 +63,7 @@ abstract class PlannedActivity(
     override fun simplify(): ActivityBinaryRecord {
         return ActivityBinaryRecord(
             id.value,
-            person.id.value,
+            person.value, // person.id.value,
             observedTripDuration.toInt(DurationUnit.MINUTES),
             startTime.minutesSinceStart,
             duration.toInt(DurationUnit.MINUTES),

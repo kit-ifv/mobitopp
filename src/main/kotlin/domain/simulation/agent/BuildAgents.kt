@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package domain.simulation.agent
 
 import core.statemachine.StateMachineFactory
@@ -42,7 +44,7 @@ class BuildAgents(
         households: List<Household>
     ): Set<PersonAgent> {
         val count = households.sumOf { it.members.size }
-        households.filter{
+        households.filter {
             it.members.isNotEmpty()
         }.addProgressBar("create person agent", expectedCount = count).map {
             it.toAgent(this)
@@ -126,7 +128,7 @@ fun MutableHouseholdAgent.loadAttributes(attributes: Household) {
 }
 
 context(household: Household, seed: Long)
-fun Person.toAgent(context: BuildAgents): PersonAgent{
+fun Person.toAgent(context: BuildAgents): PersonAgent {
     val hhAgent = household.toAgent()
     val personAgent = MutablePersonAgent(id, hhAgent, context.personStateMachine, seed)
     personAgent.loadAttributes(this)
@@ -220,7 +222,6 @@ fun SharingStation.toAgent(context: BuildAgents, ownerAgent: MutableSharingProvi
 fun DrtProvider.toAgent(context: BuildAgents) = context.drtProvidersById.getOrPut(
     key = this.id
 ) {
-
     val stateMachine = requireNotNull(context.drtStateMachine) {
         "Cannot convert DrtProviderData to Agent since drtStateMachine is null. Specify it in BuildAgents context object."
     }

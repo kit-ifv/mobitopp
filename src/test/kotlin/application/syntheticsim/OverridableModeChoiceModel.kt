@@ -5,8 +5,6 @@ import domain.simulation.behavior.ModeChoiceAlternative
 import domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
-
-
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 import kotlin.random.Random
 
@@ -20,7 +18,6 @@ class OverridableModeChoiceModel(
     var overrideMode: Mode? = null
     override val name: String = original.name
 
-
     context(_: ModeChoiceCharacteristics, _: Random)
     override fun select(choices: Set<Mode>): Mode {
         return overrideMode ?: original.select(choices)
@@ -28,11 +25,11 @@ class OverridableModeChoiceModel(
 
     context(_: ModeChoiceCharacteristics)
     override fun utility(alternative: Mode): Double {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException("Not yet implemented")
     }
 
     override fun probabilities(utilities: Map<Mode, Double>): Map<Mode, Double> {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException("Not yet implemented")
     }
 
     override fun addFilter(filter: ChoiceFilter<Mode, ModeChoiceCharacteristics>): FilteredChoiceModel<Mode, ModeChoiceCharacteristics> {
@@ -44,7 +41,6 @@ class OverridableModeChoiceModel(
         choices: Set<Mode>,
         injections: Map<Mode, (Double) -> Double>,
     ): Mode {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException("Not yet implemented")
     }
-
 }

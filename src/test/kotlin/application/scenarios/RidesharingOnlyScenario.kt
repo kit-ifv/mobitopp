@@ -3,7 +3,7 @@ package application.scenarios
 import application.syntheticsim.ControllableImpedance
 import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
-import core.modelsteps.asResource
+import core.modelsteps.resources.asResource
 import core.statemachine.usage.RecordingStateMachine
 import core.statemachine.usage.renderAsPumlSequenceDiagram
 import core.statemachine.usage.renderAsPumlStateCharts
@@ -14,7 +14,6 @@ import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.currentlyAffectedProviders
-import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
@@ -92,7 +91,7 @@ class RidesharingOnlyScenario {
 
         val builder = BuildAgents(
             seed = 1L,
-            NoWriters.personStateMachine.withRecording(),
+            personStateMachine.withRecording(),
             syntheticBehavior
         )
         val agents = builder.buildPersonAgents(households)

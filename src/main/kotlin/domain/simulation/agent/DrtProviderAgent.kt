@@ -20,7 +20,7 @@ class DrtProviderAgent(
     val data: DrtProvider,
     val algorithm: DrtAlgorithm,
     stateMachineFactory: StateMachineFactory<DrtProviderAgent>,
-) : DrtProvider by data, StateBasedAgent<Message> {
+) : DrtProvider by data, StateBasedAgent<DrtProviderMessage> {
 
     override val stateMachine: StateMachine = stateMachineFactory.create(AbsoluteTime.START, this)
 

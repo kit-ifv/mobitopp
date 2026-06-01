@@ -1,5 +1,6 @@
 package application.steps.results
 
+import core.modelsteps.resources.Repository
 import core.results.plots.PlotDataBuilderWithGrouping
 import core.results.plots.PlotDataTransformationBuilder
 import core.results.plots.PlotterBuilder
@@ -10,15 +11,11 @@ import core.results.plots.normalizeByX
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.location.Impedance
-import domain.simulation.results.AgentResultsContext
-import domain.simulation.results.PersonLeg
-import domain.simulation.results.distance
-import domain.simulation.results.duration
-import domain.simulation.results.personLegs
-import domain.simulation.results.persons
+import domain.simulation.agent.PersonAgent
 import domain.synthesis.data.Employment
 import domain.synthesis.data.IHousehold
 import domain.synthesis.data.IPerson
+import domain.synthesis.data.PersonId
 import utils.collections.Bin
 import utils.collections.mapToBins
 import utils.units.AbsoluteTime
@@ -30,7 +27,8 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
 @Suppress("LongParameterList")
-fun <G> AgentResultsContext.midComparisonPlotForLegs(
+fun <G> midComparisonPlotForLegs(
+    personAgents: Repository<PersonAgent, PersonId>,
     midCsv: Path,
     purposes: ChoiceModelPurposes,
     modes: ChoiceModelModes,
@@ -41,11 +39,12 @@ fun <G> AgentResultsContext.midComparisonPlotForLegs(
     midGroup: (MidLegRow) -> G,
     normalize: Boolean = true
 ) = MidComparisonLegPlotBuilder(
-    this, midCsv, purposes, modes, impedance, legFilter, rowFilter, legGroup, midGroup, normalize
+    personAgents, midCsv, purposes, modes, impedance, legFilter, rowFilter, legGroup, midGroup, normalize
 )
 
 @Suppress("LongParameterList")
-fun <G> AgentResultsContext.midComparisonPlotForPerson(
+fun <G> midComparisonPlotForPerson(
+    personAgents: Repository<PersonAgent, PersonId>,
     midCsv: Path,
     personFilter: (IPerson) -> Boolean = { true },
     rowFilter: (MidPersonRow) -> Boolean,
@@ -53,7 +52,7 @@ fun <G> AgentResultsContext.midComparisonPlotForPerson(
     midGroup: (MidPersonRow) -> G,
     normalize: Boolean = true
 ) = MidComparisonPersonPlotBuilder(
-    this,
+    personAgents,
     midCsv,
     personFilter,
     rowFilter,
@@ -64,7 +63,7 @@ fun <G> AgentResultsContext.midComparisonPlotForPerson(
 
 @Suppress("LongParameterList")
 class MidComparisonPersonPlotBuilder<G>(
-    context: AgentResultsContext,
+    private val personAgents: Repository<PersonAgent, PersonId>,
     midCsv: Path,
     personFilter: (IPerson) -> Boolean = { true },
     rowFilter: (MidPersonRow) -> Boolean,
@@ -72,6 +71,10 @@ class MidComparisonPersonPlotBuilder<G>(
     midGroup: (MidPersonRow) -> G,
     private val normalize: Boolean = true,
 ) {
+
+    private val persons: List<PersonAgent>
+        get() = personAgents.elements.toList()
+
     companion object {
         private val midPersonCache: MutableMap<String, List<MidPersonRow>> = mutableMapOf()
     }
@@ -82,7 +85,7 @@ class MidComparisonPersonPlotBuilder<G>(
         }
 
     private val dataBuilder = forData {
-        context.persons.filter(personFilter)
+        persons.filter(personFilter)
     }.groupBy {
         personGroup(it)
     }
@@ -132,7 +135,7 @@ class MidComparisonPersonPlotBuilder<G>(
 
 @Suppress("LongParameterList")
 class MidComparisonLegPlotBuilder<G>(
-    context: AgentResultsContext,
+    private val personAgents: Repository<PersonAgent, PersonId>,
     midCsv: Path,
     purposes: ChoiceModelPurposes,
     modes: ChoiceModelModes,
@@ -144,6 +147,9 @@ class MidComparisonLegPlotBuilder<G>(
     private val normalize: Boolean = true,
 ) {
 
+    private val persons: List<PersonAgent>
+        get() = personAgents.elements.toList()
+
     companion object {
         private val midLegCache: MutableMap<String, List<MidLegRow>> = mutableMapOf()
     }
@@ -154,7 +160,7 @@ class MidComparisonLegPlotBuilder<G>(
         }
 
     private val dataBuilder = forData {
-        context.personLegs.filter(legFilter)
+        persons.legs().filter(legFilter)
     }.groupBy {
         legGroup(it)
     }

@@ -1,222 +1,184 @@
 package application.steps.parser.csv
 
-import core.modelsteps.AbstractAddResourceStep
-import core.modelsteps.FileBasedAddResourceStep
-import core.modelsteps.FilterIdsStep
-import core.modelsteps.GroupedStepBuilder
-import core.modelsteps.IDFilter
-import core.modelsteps.LoadCsvStep
-import core.modelsteps.MutableRepository
-import core.modelsteps.Repository
-import core.modelsteps.SealStep
-import core.modelsteps.Warning
-import core.modelsteps.validateScope
-import domain.shared.location.LegacyZone
-import domain.shared.location.StandardLocation
+import application.steps.HasHouseholdRepo
+import application.steps.HasZoneRepo
+import application.steps.HouseholdCodesConfig
+import application.steps.SimulationConfig
+import application.steps.SourceFilesConfig
+import application.steps.UnitConfig
+import core.modelsteps.Context
+import core.modelsteps.resources.BinaryCacheConfig
+import core.modelsteps.resources.CsvResource
+import core.modelsteps.resources.MutableRepository
+import core.modelsteps.resources.Resource
+import core.modelsteps.resources.cachedCsv
+import core.modelsteps.scopes.addResourceStep
+import core.modelsteps.scopes.filterIdsStep
+import core.modelsteps.scopes.filterStep
+import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.location.Zone
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRoadAccess
 import domain.shared.location.parseRoadPositionWGS
-import domain.simulation.config.DemandSimContext
-import domain.synthesis.data.EconomicStatus
+import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
+import domain.synthesis.parser.HouseholdColumns
+import domain.synthesis.parser.HouseholdCsvConfig
 import domain.synthesis.parser.binary.BinaryHouseholdReader
 import domain.synthesis.parser.binary.BinaryHouseholdWriter
-import edu.kit.ifv.units.CurrencyUnit
-import utils.CodePlan
-import utils.ErrorHandling
-import utils.binary.BinaryReader
-import utils.binary.BinaryWriter
+import domain.synthesis.parser.createHouseholdCsvParser
+import edu.kit.ifv.units.UnitIntervalValue
 import utils.csv.CsvParser
-import utils.csv.Row
-import utils.csv.SEMICOLON
-import utils.csv.currency
-import utils.csv.decode
-import utils.csv.int
-import utils.csv.long
-import utils.csv.withFilter
 import java.nio.file.Path
 import kotlin.math.roundToInt
 
-interface LoadHouseholdContext : DemandSimContext {
-    val zoneRepository: Repository<Zone, ZoneId>
-    val zoneColumnIndex: Map<Int, LegacyZone>
+/**
+ * Provides a scope for configuring household repositories.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasHouseholdRepo].
+ * @param sealed Whether the repository should be sealed after the scope finishes. Defaults to `false`.
+ * @param scope The configuration scope.
+ */
+fun <C> C.households(
+    sealed: Boolean = false,
+    scope: context(MutableRepository<MutableHousehold, HouseholdId>) C.() -> Unit
+) where C : HasHouseholdRepo<MutableHousehold, Household> = mutableRepositoryScope(
+    getter = { mutableHouseholdRepository },
+    sealed = sealed,
+    scope = scope
+)
 
-    val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
-    val economicalStatusCodes: CodePlan<EconomicStatus>
+/**
+ * Loads households from a resource.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [Context].
+ * @param repository The mutable repository of households to populate. Provided via context.
+ * @param resource The resource (e.g., CSV) to load households from.
+ */
+context(repository: MutableRepository<MutableHousehold, HouseholdId>)
+fun <C : Context> C.loadHouseholds(
+    resource: Resource<MutableHousehold>,
+) = addResourceStep<C, MutableHousehold, HouseholdId>(
+    name = "load households from ${resource.name}",
+    resource = resource,
+)
 
-    val defaultHouseholdPath: Path
-        get() = dataFolder.resolve("demand-data").resolve("household.csv")
-
-    fun getLegacyZone(
-        matrixColumn: Int,
-    ) = requireNotNull(
-        zoneColumnIndex[matrixColumn]
-    ) {
-        "Could not find zone with matrix column $matrixColumn " +
-            "in index: ${zoneColumnIndex.keys}"
-    }
-}
-
-fun interface HouseholdIDFilter : IDFilter<HouseholdId>
-
-class PercentOfPopulation(fraction: Double) : HouseholdIDFilter {
-    var counter = 0
-    val acceptedIncrement = (1 / fraction).roundToInt()
-    override fun accept(id: HouseholdId): Boolean {
-        return (counter % acceptedIncrement == 0).also { counter++ }
-    }
+/**
+ * Creates a CSV resource for households.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasZoneRepo] for [Zone].
+ * @param CFG The configuration type. Must implement [SourceFilesConfig], [UnitConfig],
+ *            and [HouseholdCodesConfig].
+ * @param config The configuration. Provided via context.
+ * @param parser The CSV parser for households. Defaults to [householdCsvParser].
+ * @param path The path to the household CSV file. Defaults to [config.sourceFiles.householdCSV].
+ * @param delimiter The CSV delimiter. Defaults to [config.sourceFiles.defaultCsvDelimiter].
+ * @param binaryCache Optional configuration for binary caching. Defaults to [binaryHouseholdFormat].
+ * @return A [Resource] representing the household CSV.
+ */
+context(config: CFG)
+fun <C, CFG> C.householdCsv(
+    parser: CsvParser<MutableHousehold> = householdCsvParser(),
+    path: Path = config.sourceFiles.householdCSV,
+    delimiter: String = config.sourceFiles.defaultCsvDelimiter,
+    binaryCache: BinaryCacheConfig<MutableHousehold>? = binaryHouseholdFormat()
+): Resource<MutableHousehold>
+    where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig = CsvResource(
+    path,
+    parser,
+    delimiter
+).let { csv ->
+    binaryCache?.let {
+        csv.cachedCsv(it)
+    } ?: csv
 }
 
 /**
- * Build a DSL function call that wraps the operations on the household context in curly brackets, by operating on
- * a [HouseholdStepBuilder] object. collects all the steps created and finalizes the repository at the end of the
- * block.
+ * Creates a binary cache configuration for households.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasZoneRepo] for [Zone].
+ * @param CFG The configuration type. Must implement [SourceFilesConfig].
+ * @param config The configuration. Provided via context.
+ * @return A [BinaryCacheConfig] instance.
  */
-fun LoadHouseholdContext.households(lambda: HouseholdStepBuilder.() -> Unit) {
-    val builder = HouseholdStepBuilder(simulationSeed, zoneRepository::getValue)
-    builder.apply(lambda)
-    builder.executeOn(this)
-    finishHouseholds()
-}
-
-class HouseholdStepBuilder(val seed: Long, val converter: (ZoneId) -> Zone) :
-    GroupedStepBuilder<MutableHousehold, HouseholdId>() {
-    override val reader: BinaryReader<MutableHousehold> = BinaryHouseholdReader(converter, seed)
-    override val writer: BinaryWriter<MutableHousehold> = BinaryHouseholdWriter()
-}
-
-@Suppress("LongParameterList", "UnusedParameter")
-fun LoadHouseholdContext.prepareHouseholds(
-    path: Path = defaultHouseholdPath,
-    delimiter: String = SEMICOLON,
-    errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    columns: HouseholdColumns = HouseholdColumns(),
-    roadPositionParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
-    incomeUnit: CurrencyUnit = costUnit,
-    filter: HouseholdColumns.(Row) -> Boolean = { true },
-) = prepareHouseholds(
-    HouseholdCsvConfig(
-        path,
-        delimiter,
-        errorHandling,
-        columns,
-        roadPositionParser,
-        incomeUnit,
-        filter
+context(config: CFG)
+fun <C, CFG> C.binaryHouseholdFormat(): BinaryCacheConfig<MutableHousehold>
+    where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig {
+    return BinaryCacheConfig<MutableHousehold>(
+        cacheRootPath = config.cachePath,
+        binaryReader = BinaryHouseholdReader(
+            zoneConverter = ::getZone,
+            contextSimulationSeed = config.seed
+        ),
+        binaryWriter = BinaryHouseholdWriter()
     )
-)
-
-data class HouseholdCsvConfig(
-    var path: Path,
-    var delimiter: String = SEMICOLON,
-    var errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    var columns: HouseholdColumns = HouseholdColumns(),
-    var roadPositionParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
-    var incomeUnit: CurrencyUnit,
-    var filter: HouseholdColumns.(Row) -> Boolean = { true },
-)
-
-fun LoadHouseholdContext.prepareHouseholds(
-    householdCsvConfig: HouseholdCsvConfig,
-) {
-    val (_, step) = householdsFromCsvStep(householdCsvConfig)
-    this@prepareHouseholds.runStep(step)
 }
 
-fun LoadHouseholdContext.spawnCsvParser(
-    householdCsvConfig: HouseholdCsvConfig,
-) = householdCsvConfig.run {
-    val parser = CsvParser(errorHandling) { row ->
-
-        MutableHousehold(
-            id = HouseholdId(row.long(columns.hhIdColumn)),
-            simulationSeed,
-        ) {
-            householdNumber = row.long(columns.hhNumberColumn)
-            surveyYear = row.int(columns.yearColumn)
-            domCode = row.int(columns.domCodeColumn)
-            type = row.int(columns.typeColumn)
-            incomePerMonth = row.currency(columns.incomeColumn, incomeUnit)
-            economicStatus = row.decode(columns.economicalStatusColumn, economicalStatusCodes)
-
-            // Robin: I converted this builder call to the location as found in [Household]
-            val temp = row(columns.locationColumn, roadPositionParser)
-            location = StandardLocation(
-                position = temp.position,
-                zone = getLegacyZone(row.int(columns.zoneColumn)),
-                roadAccess = temp.roadAccess
-            )
+/**
+ * Creates a CSV parser for households.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasZoneRepo] for [Zone].
+ * @param CFG The configuration type. Must implement [SourceFilesConfig], [UnitConfig],
+ *            and [HouseholdCodesConfig].
+ * @param config The configuration. Provided via context.
+ * @param customizeCsvConfig Lambda to customize the [HouseholdCsvConfig].
+ * @return A [CsvParser] for [MutableHousehold].
+ */
+context(config: CFG)
+fun <C, CFG> C.householdCsvParser(
+    customizeCsvConfig: HouseholdCsvConfig.() -> Unit = {},
+): CsvParser<MutableHousehold>
+    where C : HasZoneRepo<*, Zone>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
+    createHouseholdCsvParser(
+        HouseholdCsvConfig(
+            columns = HouseholdColumns(),
+            getZone = ::getZone,
+            roadPositionParser = String::parseRoadPositionWGS,
+            incomeUnit = config.currencyUnit,
+            economicStatusCodes = config.economicStatusCodes,
+            filter = { true },
+            errorHandling = config.errorHandling,
+            seed = config.seed,
+        ).also {
+            it.customizeCsvConfig()
         }
+    )
+
+/**
+ * Filters households by a list of valid IDs.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [Context].
+ * @param repository The mutable repository of households to filter. Provided via context.
+ * @param valid The collection of household IDs to keep.
+ */
+context(repository: MutableRepository<MutableHousehold, HouseholdId>)
+fun <C : Context> C.filterHouseholds(valid: Collection<HouseholdId>) =
+    filterIdsStep("filter households by list of valid ids") {
+        it in valid
     }
-    val filterWrap: (Row) -> Boolean = { columns.filter(it) }
-    parser.withFilter(filterWrap)
-}
 
-fun LoadHouseholdContext.householdsFromCsvStep(
-    path: Path = defaultHouseholdPath,
-    lambda: HouseholdCsvConfig.() -> Unit = {},
-): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
-    val config = HouseholdCsvConfig(path = path, incomeUnit = costUnit)
-    config.apply(lambda)
-    return householdsFromCsvStep(config)
-}
-
-fun LoadHouseholdContext.householdsFromCsvStep(
-    config: HouseholdCsvConfig,
-): FileBasedAddResourceStep<MutableHousehold, HouseholdId> {
-    return config.run {
-        val parser = this@householdsFromCsvStep.spawnCsvParser(config)
-
-        val step = LoadCsvStep(
-            path = path,
-            name = "Load households from csv",
-            parser = parser,
-            delimiter = delimiter,
-            repository = householdRepository,
-            dependentRepositories = setOf(zoneRepository),
-            validationMock = listOf() // TODO
-        )
-        FileBasedAddResourceStep(config.path, step)
-    }
-}
-
-fun LoadHouseholdContext.runStep(
-    step: AbstractAddResourceStep<MutableHousehold, HouseholdId>,
-) = runStep {
-    step
-}
-
-fun LoadHouseholdContext.finishHouseholds() = runStep {
-    SealStep(householdRepository)
-}
-
-fun LoadHouseholdContext.loadHouseholds(
-    path: Path = defaultHouseholdPath,
-    errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    filter: HouseholdColumns.(Row) -> Boolean = {
-        true
-    },
+/**
+ * Filters a fraction of the population from the household repository.
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [Context].
+ * @param repository The mutable repository of households to filter. Provided via context.
+ * @param config The simulation configuration. Provided via context. Must implement [SimulationConfig].
+ * @param fraction The fraction of households to keep. Defaults to [config.fractionOfPopulation].
+ */
+context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: SimulationConfig)
+@Suppress("MagicNumber")
+fun <C : Context> C.filterFractionOfPopulation(
+    fraction: UnitIntervalValue = config.fractionOfPopulation
 ) {
-    this.prepareHouseholds(path = path, errorHandling = errorHandling, filter = filter)
-    this.finishHouseholds()
-}
-
-fun LoadHouseholdContext.filterHouseholds(valid: Collection<HouseholdId>) = runStep {
-    FilterHouseholds(this, valid)
-}
-
-class FilterHouseholds(
-    context: LoadHouseholdContext,
-    private val valid: Collection<HouseholdId>,
-) : FilterIdsStep<MutableHousehold, HouseholdId>() {
-
-    override val name: String = "filter household ids"
-    override val repository: MutableRepository<MutableHousehold, HouseholdId> = context.householdRepository
-
-    override fun check(id: HouseholdId): Boolean = id in valid
-
-    override val dependentRepositories: Set<Repository<*, *>> = setOf()
-    override fun verifyInput(): Warning? = validateScope { }
+    var counter = 0
+    val acceptedIncrement = (1 / fraction.toDouble()).roundToInt()
+    filterStep("filter ${(fraction.toDouble() * 100).toInt()}% of households") {
+        (counter % acceptedIncrement == 0).also { counter++ }
+    }
 }

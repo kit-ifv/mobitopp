@@ -19,7 +19,6 @@ object FixedModesFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics> { // TOD
             lastMode?.let {
                 if (it.requiresVehicleTakeAlong) {
                     alternative == lastMode
-
                 } else {
                     !alternative.requiresVehicleTakeAlong
                 }

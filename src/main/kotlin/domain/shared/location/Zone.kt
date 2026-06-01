@@ -64,7 +64,7 @@ abstract class Zone(
 
     abstract val visumId: Long // TODO not a general property of zone, only here because we use visum
     abstract val name: String
-    abstract val regionType: RegionType // Region type and area type are the same. RegionType is the more adequate name
+    abstract val regionType: RegionType
     abstract val classification: ZoneClassification
     abstract val parkingPlaces: Int
     abstract val isDestination: Boolean
@@ -79,31 +79,6 @@ abstract class Zone(
     }
 
     operator fun contains(location: HasZoneID): Boolean = location.zoneID == this.id
-
-    /* This is really annoying. Legacy mobiTopp had two different IDs for zones: The VISUM ID and the internal
-    enumeration so say 6113, 6114, 6116,... and 0, 1, 2,... Obviously the latter was used for determining which zone
-    a household would be placed in. So for compatablity reasons alone I add this counter variable, in the silent hope
-    that the zones are created in order and can simply take an incrementing ID.
-     */
-
-    val legacyId = nextId
-    companion object {
-        @OptIn(ExperimentalAtomicApi::class)
-        private var counter = AtomicInt(0)
-
-        @OptIn(ExperimentalAtomicApi::class)
-        private val nextId get() = counter.fetchAndIncrement()
-    }
-}
-
-@Mutable
-abstract class LegacyZone(
-    id: ZoneId,
-    centroid: Location,
-    seed: Long,
-) : Zone(id, centroid, seed) {
-
-    abstract val matrixColumn: Int
 }
 
 fun Zone.point(wgsCoord: WGS84Coordinate) = StandardLocation(

@@ -17,7 +17,7 @@ class StandardMatrix private constructor(
 
     override val converter: IndexEncoder<ZoneId> = IndexEncoder {
         indexLookup[it] ?: throw NoSuchElementException(
-            "There is no zone id in the lookup $it"
+            "There is no zone id in the lookup $it. Source: ${sourcePath ?: "undefined"}"
         )
     }
     val size get() = keys.size

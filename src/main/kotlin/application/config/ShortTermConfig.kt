@@ -21,12 +21,14 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     val visumNetwork: Path? = null,
     val fractionOfPopulation: Double = 1.0,
 
+    val seed: Long = 42,
+
     // Robin: Caching is optional, if the end user doesn't want caches then they shouldn't be forced to specify this
-    val cachePath: Path? = null,
+    val cachePath: Path? = null, // TODO instead of nullable maybe specify default path
     val zoneMatrixCreationMethod: ZoneMatrixCreation = KeyBasedMatrixCreation,
 
     /* simulation */
-    val simulationContext: ExampleProjectContext,
+//    val simulationContext: ExampleProjectContext,
     val errorHandling: ErrorHandling = ErrorHandling.THROW,
     val resultPath: Path = Path("results"),
 
@@ -44,7 +46,7 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
 
     fun validate() {
         val paths = mutableListOf(
-            simulationContext.dataFolder,
+//            simulationContext.dataFolder,
             cachePath
         )
 

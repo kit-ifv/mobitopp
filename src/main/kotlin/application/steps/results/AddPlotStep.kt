@@ -1,33 +1,24 @@
 package application.steps.results
 
+import application.steps.ResultsConfig
 import core.modelsteps.Context
-import core.modelsteps.ModelStep
-import core.modelsteps.Warning
-import core.modelsteps.validateScope
+import core.modelsteps.steps.modelStep
 import core.results.plots.Plotter
 import java.nio.file.Path
 
-fun <C : Context> C.addPlot(vararg subDirs: String = arrayOf("plots"), scope: () -> Plotter<*, *, *>) = runStep {
-    var dir = resultDir
-    for (subDir in subDirs) {
-        dir = dir.resolve(subDir)
+context(config: ResultsConfig)
+fun <C : Context> C.addPlot(
+    vararg subDirs: String = arrayOf("plots"),
+    scope: () -> Plotter<*, *, *>
+) {
+    val plotter = scope()
+
+    modelStep("Add plot ${plotter.name}") {
+        var dir = config.resultDir
+        for (subDir in subDirs) {
+            dir = dir.resolve(subDir)
+        }
+
+        plotter.plot(dir)
     }
-
-    AddPlotStep(scope(), dir)
-}
-
-data class AddPlotStep(
-    private val plotter: Plotter<*, *, *>,
-    val resultDir: Path
-) : ModelStep {
-
-    override val name = "Add Plot ${plotter.name}"
-
-    override fun execute() {
-        plotter.plot(resultDir)
-    }
-
-    override fun verifyInput(): Warning? = validateScope { }
-
-    override fun mockBehavior(): Warning? = validateScope { }
 }

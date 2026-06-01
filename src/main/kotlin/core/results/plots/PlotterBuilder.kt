@@ -1,6 +1,6 @@
 package core.results.plots
 
-import core.modelsteps.Resource
+import core.modelsteps.resources.Resource
 import core.results.plots.data.AggregateValuesPlotData
 import core.results.plots.data.Aggregation
 import core.results.plots.data.AllValuesPlotData

@@ -4,10 +4,7 @@ import domain.shared.location.StandardLocation
 import domain.simulation.behavior.DestinationAlternative
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
-
 import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
-
-
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 import kotlin.random.Random
 
@@ -21,7 +18,6 @@ class OverridableDestinationChoiceModel(
     var overrideDestination: StandardLocation? = null
     override val name: String = original.name
 
-
     context(characteristics: DestinationChoiceCharacteristics, random: Random)
     override fun select(choices: Set<StandardLocation>): StandardLocation {
         return overrideDestination ?: original.select(choices)
@@ -29,11 +25,11 @@ class OverridableDestinationChoiceModel(
 
     context(_: DestinationChoiceCharacteristics)
     override fun utility(alternative: StandardLocation): Double {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException("Not yet implemented")
     }
 
     override fun probabilities(utilities: Map<StandardLocation, Double>): Map<StandardLocation, Double> {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException("Not yet implemented")
     }
 
     override fun addFilter(filter: ChoiceFilter<StandardLocation, DestinationChoiceCharacteristics>): FilteredChoiceModel<StandardLocation, DestinationChoiceCharacteristics> {
@@ -45,6 +41,6 @@ class OverridableDestinationChoiceModel(
         choices: Set<StandardLocation>,
         injections: Map<StandardLocation, (Double) -> Double>,
     ): StandardLocation {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException("Not yet implemented")
     }
 }

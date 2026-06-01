@@ -316,7 +316,7 @@ naming:
   FunctionMaxLength:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
-    maximumFunctionNameLength: 30
+    maximumFunctionNameLength: 35
   FunctionMinLength:
     active: true
     minimumFunctionNameLength: 2

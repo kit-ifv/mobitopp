@@ -264,13 +264,16 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
 
                 var path = attractivenessModelPath
 
-                @Deprecated("This parameter does nothing")
-                var activityTypes: Set<ActivityType> = emptySet()
+                lateinit var activityTypes: Set<ActivityType>
                 lateinit var purposes: ChoiceModelPurposes
+                lateinit var work: ActivityType
+                lateinit var privateVisit: ActivityType
                 fun build(): AttractivenessModel {
                     return AttractivenessFromCsv(
                         path = path,
-                        purposes = purposes
+                        work = work,
+                        privateVisit = privateVisit,
+                        activityTypes = activityTypes,
                     )
                 }
             }
@@ -330,6 +333,8 @@ fun examplePopulationSynthesis() {
         attractivenessModel = attractivenessFromFile {
             path = attractivenessModelPath
             activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
+            work = LegacyActivityType.WORK
+            privateVisit = LegacyActivityType.PRIVATE_VISIT
         }
     }
 

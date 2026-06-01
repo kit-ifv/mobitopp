@@ -2,7 +2,6 @@ package domain.simulation.behavior
 
 import domain.shared.datastructure.schedule.Activity
 import domain.simulation.agent.PersonAgent
-import domain.simulation.config.DemandSimContext
 import utils.random.getGaussian
 import kotlin.random.Random
 import kotlin.time.Duration
@@ -13,7 +12,7 @@ import kotlin.time.times
 abstract class ActivityDurationRandomizer {
     fun randomizeAll(person: PersonAgent) {
         val schedule = person.schedule
-        for (i in 0 until schedule.activities().size) {
+        for (i in schedule.activities().indices) {
             val act = schedule.activities().toList()[i]
             act.duration = randomizeDuration(act, act.duration, person.random)
         }
@@ -34,12 +33,6 @@ class GaussianActivityDurationRandomizer(
         return (currentDuration + deviation).coerceIn(min, max)
     }
 }
-
-// TODO move to other file knowing about mobitopp when restructuring packages
-
-fun DemandSimContext.gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
-    max = this.simulationEnd.minus(this.simulationStart),
-)
 
 object NoDurationRandomizer : ActivityDurationRandomizer() {
     override fun randomizeDuration(activity: Activity, currentDuration: Duration, rand: Random) = currentDuration
