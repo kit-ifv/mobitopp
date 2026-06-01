@@ -42,7 +42,7 @@ shadowjar = { id = "com.gradleup.shadow", version.ref = "shadowjar"}
 [libraries]
 # ifv libs
 ifv-units = { module = "edu.kit.ifv.mobitopp:kotlin-units", version.ref = "ifv-units" }
-ifv-visum-netparser = { module = "edu.kit.ifv.mobitopp:visumnetfileparser", version.ref = "ifv-visum-netparser" }
+ifv-visum-netparser = { module = "edu.kit.ifv.mobitopp:mobiToppIO", version.ref = "ifv-visum-netparser" }
 ifv-actitoppNG = { module = "edu.kit.ifv.mobitopp:actitoppNG", version.ref = "ifv-actitopp-NG" }
 ifv-synthesisAlgorithms = { module = "edu.kit.ifv.mobitopp:synthesisalgorithms", version.ref = "ifv-synthesis-algorithms" }
 ifv-discrete-choice = {module = "edu.kit.ifv.mobitopp:discrete-choice", version.ref = "ifv-discrete-choice"}

@@ -228,7 +228,7 @@ fun MutablePerson.generateActivitySchedule(num: Int, random: Random) {
 
     targets.zipWithNext { a, b ->
 
-        MutablePlannedActivity(
+        val act = MutablePlannedActivity(
             id = ActivityId(-1L),
             this.id,
             seed = 42L,
@@ -238,6 +238,8 @@ fun MutablePerson.generateActivitySchedule(num: Int, random: Random) {
             startTime = a
             duration = (b - a) / 2
         }
+
+        this.plannedActivities.add(act)
     }
 }
 

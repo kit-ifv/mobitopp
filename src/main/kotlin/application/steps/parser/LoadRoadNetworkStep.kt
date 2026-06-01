@@ -1,12 +1,12 @@
 package application.steps.parser
 
-import NetfileParser
-import VisumLocale
 import application.steps.HasMutableRoadNetwork
 import core.modelsteps.Context
 import core.modelsteps.steps.modelStep
 import core.modelsteps.validation.validateFileReadAccess
 import domain.shared.datastructure.LocatableGraph
+import edu.kit.ifv.NetfileParser
+import edu.kit.ifv.VisumLocale
 import edu.kit.ifv.units.Hemisphere
 import java.nio.file.Path
 import kotlin.io.path.name

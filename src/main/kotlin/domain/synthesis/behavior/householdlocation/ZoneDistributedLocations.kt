@@ -1,6 +1,5 @@
 package domain.synthesis.behavior.householdlocation
 
-import CoordinateGenerator
 import domain.VisumPolyZone
 import domain.VisumZoneId
 import domain.shared.location.BetterLocation
@@ -9,6 +8,7 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.HasVisumId
 import domain.shared.location.zone.Zone
+import edu.kit.ifv.CoordinateGenerator
 import org.locationtech.jts.geom.Point
 
 /**

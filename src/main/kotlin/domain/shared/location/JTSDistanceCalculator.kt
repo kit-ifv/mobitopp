@@ -1,5 +1,6 @@
 package domain.shared.location
 
+import edu.kit.ifv.JTSConverter
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.meters

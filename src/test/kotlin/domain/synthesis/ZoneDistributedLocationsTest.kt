@@ -1,10 +1,5 @@
 package domain.synthesis
 
-import LandUseParser
-import NetfileParser
-import UrbanAtlasGenerator
-import VisumLocale
-import ZoneType
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
@@ -18,10 +13,15 @@ import domain.shared.location.toZoneId
 import domain.shared.location.zone.HasVisumId
 import domain.shared.location.zone.Zone
 import domain.synthesis.behavior.householdlocation.ZoneDistributedLocations
+import edu.kit.ifv.LandUseParser
+import edu.kit.ifv.NetfileParser
+import edu.kit.ifv.UrbanAtlasGenerator
+import edu.kit.ifv.VisumLocale
+import edu.kit.ifv.ZoneType
+import edu.kit.ifv.readPolyZones
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.Hemisphere
 import edu.kit.ifv.units.meters
-import readPolyZones
 import utils.csv.DefaultCsvReader
 import kotlin.io.path.Path
 import kotlin.test.Test
