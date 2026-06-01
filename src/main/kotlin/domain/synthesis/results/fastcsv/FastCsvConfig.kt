@@ -12,7 +12,7 @@ import java.io.Writer
 data class FastCsvConfig(var separator: Char = ';') {
     fun build(writer: Writer): CsvWriter = CsvWriter.builder().fieldSeparator(separator).build(writer)
 
-    fun <T> buildReader(reader: Reader, lambda: ()-> CsvCallbackHandler<T>): CsvReader<T> {
+    fun <T> buildReader(reader: Reader, lambda: () -> CsvCallbackHandler<T>): CsvReader<T> {
         val callback = lambda()
         return CsvReader.builder().fieldSeparator(separator).build(callback, reader)
     }

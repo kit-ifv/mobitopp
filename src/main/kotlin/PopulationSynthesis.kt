@@ -6,7 +6,6 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.BetterLocation
-import domain.shared.location.LocationWithZoneId
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.attributes.HasZoneId
@@ -55,7 +54,6 @@ import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteM
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
-import edu.kit.ifv.units.toCurrency
 import utils.csv.DefaultCsvParser
 import utils.csv.Row
 import java.nio.file.Path
@@ -418,7 +416,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun <C, T> SynthesisSteps<StandardZone, C, T>.writeLegacyOutput()
+fun <C, T> SynthesisSteps<*, C, T>.writeLegacyOutput()
 where C : MaximumHouseholdAttributes, T : MaximumPersonAttributes {
     LegacyHouseholdOutput<C>().writeCSVToFile(
         outputDirectory.resolve("household.csv"),

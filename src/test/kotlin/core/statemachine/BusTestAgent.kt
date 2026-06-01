@@ -127,7 +127,7 @@ class ConfirmLeaveMessage : BusMessage
 
 val busStateMachine = stateMachine<BusAgent>("BusStateMachine") {
 
-    start(StartBus,::startBus) { send ->
+    start(StartBus, ::startBus) { send ->
         send(arrive(), bus, bus.departure)
         //
     }.transitionOn(Arrive) { message, send ->
@@ -178,7 +178,6 @@ val busStateMachine = stateMachine<BusAgent>("BusStateMachine") {
             leavingStation()
         }
     }
-
 
     state(LeavingStation) { send ->
         send.now(stopBoarding(), bus.currentStation())

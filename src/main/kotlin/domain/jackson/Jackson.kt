@@ -21,11 +21,9 @@ inline fun <reified T> standardCSVParse(
     input: InputStream,
     separator: Char = ';',
     charset: Charset = StandardCharsets.UTF_8,
-): List<T> {
-    return InputStreamReader(input, charset).use { reader ->
-        standardMapper
-            .readerFor(T::class.java)
-            .with(standardSchema.withColumnSeparator(separator)).readValues<T>(reader)
-            .readAll()
-    }
+): List<T> = InputStreamReader(input, charset).use { reader ->
+    standardMapper
+        .readerFor(T::class.java)
+        .with(standardSchema.withColumnSeparator(separator)).readValues<T>(reader)
+        .readAll()
 }

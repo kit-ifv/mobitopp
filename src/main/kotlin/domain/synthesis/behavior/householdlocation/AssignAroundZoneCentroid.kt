@@ -23,15 +23,11 @@ class AssignRandomLocation<AREA : GeometricZone<HasRegionType>, H> : AssignHouse
         BetterLocation(zone.randomPoint(), zone, RoadAccess.INVALID)
 }
 
-class AssignAroundPoint<T, AREA: Zone<T>, H>(
-    distance: Distance,
-): AssignHouseholdLocations<AREA, H> where T: HasCentroid, T: HasRegionType {
+class AssignAroundPoint<T, AREA : Zone<T>, H>(distance: Distance) :
+    AssignHouseholdLocations<AREA, H> where T : HasCentroid, T : HasRegionType {
     private val scalingFactorWGS = distance.inMeters * 0.00001
     val random: Random = Random(42)
-    override fun generateLocation(
-        zone: AREA,
-        household: H,
-    ): StandardLocation {
+    override fun generateLocation(zone: AREA, household: H): StandardLocation {
         val centroid = zone.attributes.centroid
         val factory = centroid.factory
 

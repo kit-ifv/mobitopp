@@ -24,17 +24,9 @@ interface Zone<out T> : Identifiable<ZoneId> {
     operator fun contains(location: HasZoneId): Boolean = id == location.zoneId
 }
 
-
-fun <T> Zone<T>.centroidLocation(): StandardLocation where T: HasRegionType, T: HasCentroid {
-    return BetterLocation(this.attributes.centroid, this, RoadAccess.INVALID)
-}
-data class MinimalZone<T>(
-    override val id: ZoneId,
-override val attributes: T,
-
-): Zone<T> {
-
-}
+fun <T> Zone<T>.centroidLocation(): StandardLocation where T : HasRegionType, T : HasCentroid =
+    BetterLocation(this.attributes.centroid, this, RoadAccess.INVALID)
+data class MinimalZone<T>(override val id: ZoneId, override val attributes: T) : Zone<T>
 data class StandardZone(
     override val id: ZoneId,
     override val geometry: Geometry,
