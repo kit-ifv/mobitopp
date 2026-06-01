@@ -11,12 +11,13 @@ class StandardMatrix private constructor(
     override val matrix: DoubleMatrix,
     private val indexLookup: Map<ZoneId, Int>,
     private val sourcePath: Path?,
-) : ZoneIdMatrix,
+) :
+    ZoneIdMatrix,
     MappedDoubleMatrix<ZoneId> {
 
     override val converter: IndexEncoder<ZoneId> = IndexEncoder {
         indexLookup[it] ?: throw NoSuchElementException(
-            "There is no zone id in the lookup $it",
+            "There is no zone id in the lookup $it. Source: ${sourcePath ?: "undefined"}"
         )
     }
     val size get() = keys.size
@@ -53,7 +54,8 @@ class StandardMatrix private constructor(
             return StandardMatrix(doubleMatrix, indexLookup, sourcePath)
         }
 
-        fun fromValues(values: Collection<Double>, zoneIds: Collection<ZoneId>): StandardMatrix =
-            fromValues(values.toDoubleArray(), zoneIds.toTypedArray())
+        fun fromValues(values: Collection<Double>, zoneIds: Collection<ZoneId>): StandardMatrix {
+            return fromValues(values.toDoubleArray(), zoneIds.toTypedArray())
+        }
     }
 }

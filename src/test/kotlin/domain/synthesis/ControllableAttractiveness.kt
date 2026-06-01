@@ -22,7 +22,8 @@ class ControllableAttractiveness(zones: Collection<StandardZone>) : Attractivene
     override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
         attractivenessMap[Pair(zone, activityType)] ?: 0.0.asAttractiveness()
 
-    override val purposes: ChoiceModelPurposes = legacyChoiceModelPurposes
+    override val work: ActivityType = LegacyActivityType.WORK
+    override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT
 
     operator fun set(zone: ZoneId, activityType: ActivityType, value: Double) {
         attractivenessMap[Pair(zone, activityType)] = value.asAttractiveness()

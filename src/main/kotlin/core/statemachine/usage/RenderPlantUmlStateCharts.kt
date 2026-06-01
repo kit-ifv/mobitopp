@@ -4,9 +4,39 @@ package core.statemachine.usage
 
 import utils.units.round
 import java.nio.file.Path
+import kotlin.collections.mapIndexed
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.time.Duration
+
+private val pumlColors = listOf(
+    "Maroon",
+    "Silver",
+    "Magenta",
+    "Sienna",
+    "MediumSeaGreen",
+    "Crimson",
+    "ForestGreen",
+    "Red",
+    "DarkSlateBlue",
+    "SandyBrown",
+    "Blue",
+    "DeepPink",
+    "Gold",
+    "Chocolate",
+    "Plum",
+    "DarkOrange",
+    "DarkSeaGreen",
+    "MidnightBlue",
+    "DarkGoldenRod",
+    "LightSalmon",
+    "DarkMagenta",
+    "DarkOliveGreen",
+    "DarkKhaki",
+    "DarkOrchid",
+)
+
+private val Int.color get() = pumlColors[this % pumlColors.size]
 
 /**
  * Render the receiver [GlobalStateMachineUsage] as plant uml files encoding a state chart.
@@ -33,14 +63,19 @@ private fun StateMachineUsage.toPlantUml() = """
     |${name.asPlantumlAlias()}: instances = $instanceCount
     |
     |'states
-    |${stateUsages.values.joinToString("\n") {
-    it.toPlantUml(instanceCount, hasSelfTransition(it.name))
-}
+    |${
+    stateUsages.values.joinToString("\n") {
+        it.toPlantUml(instanceCount, hasSelfTransition(it.name))
+    }
 }
     |
     |'transitions
     |[*] --> ${initialState.asPlantumlAlias()}
-    |${transitionUsages.values.joinToString("\n") { it.toPlantUml(instanceCount) }}
+    |${
+    transitionUsages.values.mapIndexed { idx: Int, transition: TransitionUsage ->
+        transition.toPlantUml(instanceCount, idx)
+    }.joinToString("\n")
+}
     |}
     |
     |@enduml
@@ -51,7 +86,7 @@ private fun StateUsage.toPlantUml(agentCount: Int, hasSelfTransition: Boolean) =
 
 private fun StateUsage.toPlantUml(agents: Int, hasSelfTransition: Boolean, stateAlias: String) = """
     |state "${name.asStateName()}" as $stateAlias
-    |${messagesByTrigger.values.joinToString("\n") { it.toPlantUml(agents, stateAlias)} }
+    |${messagesByTrigger.values.joinToString("\n") { it.toPlantUml(agents, stateAlias) }}
     |${if (hasSelfTransition) "${name.asPlantumlAlias()}: self transitions:" else ""}
     |
 """.trimMargin()
@@ -65,16 +100,19 @@ private fun SendMessageUsage.toPlantUml(agents: Int, stateAlias: String) = if (m
         }
 }
 
-private fun TransitionUsage.toPlantUml(agents: Int) = if (stayInState) {
+private fun TransitionUsage.toPlantUml(agents: Int, idx: Int) = if (stayInState) {
     "${from.asPlantumlAlias()}: - ${key.message.asMessageName()} "
 } else {
-    "${key.toPlantUmlArrow()}\\n${avgTimeSinceEnter.durationString()} "
+    "${key.toPlantUmlArrow(idx)}\\n<color:${idx.color}>${avgTimeSinceEnter.durationString()} "
 } + count.countString(agents)
 
-private fun TransitionKey.toPlantUmlArrow() =
-    "${from.asPlantumlAlias()} --> ${to.asPlantumlAlias()}: ${message.asMessageName()}"
+private fun TransitionKey.toPlantUmlArrow(idx: Int) =
+    "${from.asPlantumlAlias()} -[#${idx.color}]-> ${to.asPlantumlAlias()}: " +
+        "<color:${idx.color}>${message.asMessageName()}"
 
-private fun String?.asMessageName() = this?.replace("Message", "", ignoreCase = true) ?: "-"
+private fun String?.asMessageName() =
+    this?.replace("Message", "", ignoreCase = true)
+        ?.replace("Msg", "", ignoreCase = true) ?: "-"
 
 private fun String.asStateName() = this.replace("State", "", ignoreCase = true)
 

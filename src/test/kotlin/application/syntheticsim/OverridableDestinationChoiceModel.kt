@@ -19,23 +19,28 @@ class OverridableDestinationChoiceModel(
     override val name: String = original.name
 
     context(characteristics: DestinationChoiceCharacteristics, random: Random)
-    override fun select(choices: Set<StandardLocation>): StandardLocation =
-        overrideDestination ?: original.select(choices)
+    override fun select(choices: Set<StandardLocation>): StandardLocation {
+        return overrideDestination ?: original.select(choices)
+    }
 
     context(_: DestinationChoiceCharacteristics)
-    override fun utility(alternative: StandardLocation): Double =
+    override fun utility(alternative: StandardLocation): Double {
         throw UnsupportedOperationException("Not yet implemented")
+    }
 
-    override fun probabilities(utilities: Map<StandardLocation, Double>): Map<StandardLocation, Double> =
+    override fun probabilities(utilities: Map<StandardLocation, Double>): Map<StandardLocation, Double> {
         throw UnsupportedOperationException("Not yet implemented")
+    }
 
-    override fun addFilter(
-        filter: ChoiceFilter<StandardLocation, DestinationChoiceCharacteristics>,
-    ): FilteredChoiceModel<StandardLocation, DestinationChoiceCharacteristics> = original.addFilter(filter)
+    override fun addFilter(filter: ChoiceFilter<StandardLocation, DestinationChoiceCharacteristics>): FilteredChoiceModel<StandardLocation, DestinationChoiceCharacteristics> {
+        return original.addFilter(filter)
+    }
 
     context(_: DestinationChoiceCharacteristics, random: Random)
     override fun selectInjected(
         choices: Set<StandardLocation>,
         injections: Map<StandardLocation, (Double) -> Double>,
-    ): StandardLocation = throw UnsupportedOperationException("Not yet implemented")
+    ): StandardLocation {
+        throw UnsupportedOperationException("Not yet implemented")
+    }
 }

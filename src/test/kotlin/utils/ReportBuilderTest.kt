@@ -33,7 +33,7 @@ fun main() {
             "Some entries were erroneous",
         )
     }
-    builder.printReport(Path("src/test/resources/tempOutput/"))
+    builder.writeHtmlReport(Path("src/test/resources/tempOutput/"))
 }
 
 @Suppress("TopLevelPropertyNaming")

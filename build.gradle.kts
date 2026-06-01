@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.jackson.parser)
     implementation(libs.jackson.dataformat.csv)
     implementation(libs.jackson.kotlin.serialization)
+    implementation(libs.scala.lang)
     implementation(libs.commons.compress) //1.26.2
     implementation(libs.xz) //1.9
     implementation(libs.progressbar) //0.10.1

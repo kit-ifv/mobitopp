@@ -4,7 +4,7 @@ import HouseholdSpawnLimits
 import application.syntheticsim.ControllableImpedance
 import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
-import core.modelsteps.asResource
+import core.modelsteps.resources.asResource
 import core.statemachine.usage.RecordingStateMachine
 import core.statemachine.usage.renderAsPumlSequenceDiagram
 import core.statemachine.usage.renderAsPumlStateCharts
@@ -13,7 +13,6 @@ import core.statemachine.usage.withRecording
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.behavior.AvailabilityModelWithSharing
-import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
@@ -47,7 +46,7 @@ class CarOnlyScenario {
             ),
             personLimits = spawnDrivers,
             memberships = mutableListOf(),
-            personScope = { it.generateActivitySchedule(10, random) },
+            personScope = { it.generateActivitySchedule(10, random) }
         )
 
         val impedance = ControllableImpedance()
@@ -55,20 +54,20 @@ class CarOnlyScenario {
             legacyModes,
             mapOf(),
             mapOf(),
-            impedance,
+            impedance
         )
 
         val car = legacyModes.car
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { it.centroidLocation }.toSet(),
+                zones.map { it.centroid }.toSet()
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel(
                 "prefer car",
                 setOf(car, legacyModes.pedestrian),
-                availability.asResourceAvailabilityFilter(),
+                availability.asResourceAvailabilityFilter()
             ),
             modes = legacyChoiceModelModes,
             attractivityModel = testAttractivenessModel,
@@ -76,14 +75,14 @@ class CarOnlyScenario {
             bikeSharingConnectionSelector = availability,
             drtAvailabilitySelector = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
-            spawnModeCharacteristics = StandardModeImplementation,
+            spawnModeCharacteristics = StandardModeImplementation
 
         )
 
         val agents = BuildAgents(
             seed = 1L,
-            NoWriters.personStateMachine.withRecording(),
-            syntheticBehavior,
+            personStateMachine.withRecording(),
+            syntheticBehavior
         ).buildPersonAgents(households)
 
         RecordingStateMachine.recordInteractions()

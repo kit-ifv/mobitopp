@@ -1,0 +1,5 @@
+__parent__: parent.yaml
+name: Overwritten by child with extra fields
+numberField: 420
+doubleField: 6767.0
+extra: My Parent does not have this field

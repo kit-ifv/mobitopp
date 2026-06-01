@@ -180,7 +180,7 @@ class BinaryConversionTest {
     fun testActivities() {
         val path = Path("src/test/resources/tempOutput/activities.bin")
         val map = listOf(p1, p2).associateBy { it.id }
-        val reader = BinaryActivityReader(LegacyActivityType.Companion, map::getValue, 1L)
+        val reader = BinaryActivityReader(LegacyActivityType.Companion, 1L)
         val writer = BinaryActivityWriter()
         writer.toBinary(path, listOf(act1, act2))
         val activities = reader.fromBinary(path)

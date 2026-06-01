@@ -18,8 +18,11 @@ import domain.jackson.DestinationChoiceModule
 import domain.jackson.DurationModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
+import scala.jdk.javaapi.CollectionConverters.asJava
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.io.path.inputStream
+import kotlin.reflect.jvm.jvmName
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
@@ -62,6 +65,16 @@ object Yaml {
         return mapper.readValue(file)
     }
 
+    /**
+     * Can read yaml files with a `__parent__` field. The parent field specifies another yaml file, which this yaml
+     * file is based on. All values from the parent file are included in the result. Single-Value-Fields specified in the child,
+     * that are also present in the parent, are overwritten by the child.
+     * Object fields are merged.
+     * List fields are overwritten by child.
+     *
+     * - A file can at most contain one parent keyword
+     * - Cyclic dependencies will lead to IllegalArgumentExceptions
+     */
     inline fun <reified T> readYamlWithParent(path: Path): T {
         val mergedMap = YamlParentStackLoader().load(path)
         return mapper.convertValue(mergedMap, T::class.java)
@@ -75,13 +88,15 @@ object Yaml {
     inline fun <reified T> writeYaml(string: String, obj: T) = writeYaml(Path.of(string), obj)
 
     /**
-     * A single use loader that can handle parent references in a yaml file. Indicated with a __parent__ field.
+     * A single use loader that can handle parent references in a yaml file. Indicated with a `__parent__` field.
      */
     class YamlParentStackLoader {
 
         private val parentKey = "__parent__"
         val stack = mutableListOf<Path>()
         fun load(path: Path): Map<String, Any?> {
+            require(path.toString().endsWith(".yaml")) { "Trying to load non-yaml file with a yaml parser: $path" }
+            require(path.exists()) { "Yaml file $path does not exist." }
             val map = mapper.readValue<Map<String, Any?>>(path.inputStream()).toMutableMap()
 
             if (parentKey !in map) {
@@ -90,13 +105,56 @@ object Yaml {
             require(isPathNotSeenBefore(path)) {
                 "Cycle detected, cannot read configs."
             }
+            require(map[parentKey] != null) { "Parent field present, but no value specified. Occured in file: " +
+                "$path\nIf no parent is necessary, remove the __parent__ field from the file." }
             val parentPath = resolveParentKey(map[parentKey]!!, path)
-
             val parentMap = load(parentPath)
             // Remove the parentKey field from the output map.
             map.remove(parentKey)
             // Overwrite each and every field that is found in the parent map with entries from the childmap
-            return parentMap + map
+            return mergeMaps(childMap = map, parentMap = parentMap)
+        }
+
+        /**
+         * Recursively merges both provided maps by prioritizing the child over the parent. If the child contains a field with a
+         * single value, it will overwrite the parents value. If the child contains a field which contains an object,
+         * so a map of strings to values, it will merge those maps together, again prioritizing the child over the
+         * parent, if a field occurs in both maps.
+         */
+        private fun mergeMaps(childMap: Map<String, Any?>, parentMap: Map<String, Any?>): Map<String, Any?> {
+            val keysToMerge = childMap.filter { parentMap.containsKey(it.key) }.keys
+            val nonConflicting = childMap.filter { it.key !in keysToMerge } +
+                parentMap.filter { it.key !in keysToMerge }
+
+            val merged = keysToMerge.map {
+                if (childMap[it].isMap() && parentMap[it].isMap()) {
+                    it to mergeMaps(childMap[it].toMap(), parentMap[it].toMap())
+                } else {
+                    it to childMap[it]
+                }
+            }
+            return nonConflicting + merged
+        }
+
+        /**
+         * Checks if `this::class` is a map (map used by yaml mapper)
+         */
+        private fun Any?.isMap(): Boolean {
+            if (this == null) return false
+            return this::class.jvmName.contains("Map")
+        }
+
+        /**
+         * Converts `this `to a map. Expects this to be a scala map. (Mapper seems to output scala maps, in nested
+         * values)
+         */
+        private fun Any?.toMap(): Map<String, Any?> {
+            if (this == null) return emptyMap()
+            if (this::class.jvmName.contains("Map")) {
+                val java = asJava(this as scala.collection.Map<String, Any?>)
+                return java
+            }
+            return emptyMap()
         }
 
         private fun isPathNotSeenBefore(path: Path): Boolean {

@@ -85,3 +85,4 @@ progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 exp4j = { module = "net.objecthunter:exp4j", version.ref = "exp4j" }
 fast-util = { module = "it.unimi.dsi:fastutil", version.ref = "fast-utils"}
 fast-csv = { module = "de.siegmar:fastcsv", version.ref = "fast-csv"}
+scala-lang = { module = "org.scala-lang:scala3-library_3", version.ref = "scala-lang"}

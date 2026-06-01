@@ -35,14 +35,17 @@ value class HouseholdId(val value: Long) : Comparable<HouseholdId> {
      */
     fun next(): HouseholdId = HouseholdId(value + 1)
 }
-
+interface HasStandardLocation {
+    val location: StandardLocation
+}
 interface IHousehold :
     Identifiable<HouseholdId>,
     StochasticActor,
-    Simplifiable<HouseholdBinaryRecord> {
+    Simplifiable<HouseholdBinaryRecord>,
+    HasStandardLocation{
     val householdNumber: Long
     val surveyYear: Int
-    val location: StandardLocation
+    override val location: StandardLocation
     val domCode: Int
     val type: Int
     val incomePerMonth: Currency

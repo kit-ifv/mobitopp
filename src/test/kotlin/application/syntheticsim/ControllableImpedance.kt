@@ -21,7 +21,8 @@ import utils.collections.cartesianProduct
 import utils.units.AbsoluteTime
 import utils.units.Time
 import utils.units.sinceStart
-import java.util.*
+import java.util.NavigableMap
+import java.util.TreeMap
 import kotlin.random.Random
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -39,7 +40,7 @@ class ControllableImpedance(
     var standardCost: Currency = 1.euros,
     var standardTime: Duration = 10.minutes,
     var standardDistance: Distance = 1.kilometers,
-) : Metrics {
+) : Impedance {
 
     private val currencyMap: MutableMap<Mode, RangeMap<Time, Currency>> =
         mutableMapOf()

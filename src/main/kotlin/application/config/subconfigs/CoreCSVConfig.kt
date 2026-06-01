@@ -2,6 +2,8 @@ package application.config.subconfigs
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import domain.jackson.JSONInitializer
+import utils.ErrorHandling
+import utils.report.Error
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -19,6 +21,7 @@ data class CoreCSVConfig(
     override val fixedDestinationCSV: Path,
     override val attractivitiesCSV: Path,
     override val zonesCSV: Path,
+    override val defaultCsvDelimiter: String = ";",
 ) : BaseCSVFiles {
 
     /**

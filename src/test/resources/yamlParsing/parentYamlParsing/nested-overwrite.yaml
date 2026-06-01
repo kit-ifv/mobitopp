@@ -1,0 +1,3 @@
+__parent__: nested-parent.yaml
+sub:
+  extra: "overwritten by child"

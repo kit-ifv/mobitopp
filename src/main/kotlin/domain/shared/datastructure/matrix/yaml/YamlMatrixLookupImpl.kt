@@ -61,9 +61,10 @@ class YamlMatrixLookupImpl<M : Encodable>(
         }
     }
     override operator fun get(mode: M, time: AbsoluteTime): WithExpiration<YamlInfo> {
-        val lookup = modeLookup[mode]
-            ?: throw NoSuchElementException("There is no mode $mode")
-        return lookup[time]
+        return requireNotNull(modeLookup[mode]) {
+            "Key $mode (type: ${mode::class.simpleName}) is missing in matrix config lookup. Available keys:\n" +
+                modeLookup.keys.joinToString("\n") { "  - $it (type: ${it::class.simpleName})" }
+        }[time]
     }
 
     private fun buildCalendarWeeks(weekMap: WeekMap): CalendarWeekLookup<YamlInfo> {

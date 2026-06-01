@@ -20,8 +20,8 @@ class AssignCarUserModel {
     @Suppress("UnusedPrivateMember")
     fun assign(car: MutablePrivateCar): MutablePrivateCar {
         val owner: Household = requireNotNull(
-            car.owner,
-        ) { "Cannot assign integration.main user of cars, since owner has not been defined yet!" }
+            car.owner
+        ) { "Cannot assign main user of cars, since owner has not been defined yet!" }
 
         if (owner.id !in hhMembers.keys) {
             // assume cars of households appear as sequence of rows in csv (TODO assert via sorted?)
@@ -35,7 +35,7 @@ class AssignCarUserModel {
             assigned.clear()
         }
 
-        require(unassigned.isNotEmpty()) { "Cannot assign integration.main user of car if household has no members!" }
+        require(unassigned.isNotEmpty()) { "Cannot assign main user of car if household has no members!" }
 
         val user = unassigned.random(owner.random)
         car.mainUser = user
@@ -46,7 +46,9 @@ class AssignCarUserModel {
         return car
     }
 
-    private fun initDrivers(owner: Household): UnAssignedPersons {
+    private fun initDrivers(
+        owner: Household,
+    ): UnAssignedPersons {
         val res = owner.getDrivers() to mutableSetOf<Person>()
         hhMembers[owner.id] = res
         return res
@@ -54,8 +56,8 @@ class AssignCarUserModel {
 
     private fun Household.getDrivers(): MutableSet<Person> {
         require(
-            members.isNotEmpty(),
-        ) { "Cannot assign integration.main user of cars if household members have not been defined!" }
+            members.isNotEmpty()
+        ) { "Cannot assign main user of cars if household members have not been defined!" }
 
         return members.filter { it.hasLicense }.toMutableSet().ifEmpty {
             members.filter { it.isAdult }.toMutableSet()

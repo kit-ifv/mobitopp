@@ -1,6 +1,6 @@
 package core
 
-import core.modelsteps.CsvResource
+import core.modelsteps.resources.CsvResource
 import core.results.plots.PlotDataBuilderWithEntities
 import utils.csv.CsvParser
 import utils.csv.Row

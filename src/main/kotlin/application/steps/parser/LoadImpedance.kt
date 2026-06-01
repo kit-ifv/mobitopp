@@ -1,137 +1,140 @@
 package application.steps.parser
 
-import core.modelsteps.ModelStep
-import core.modelsteps.Warning
-import core.modelsteps.validateCondition
-import core.modelsteps.validateFileReadAccess
-import core.modelsteps.validateScope
-import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
-import domain.shared.datastructure.matrix.MatrixMetrics
+import application.steps.HasModes
+import application.steps.HasMutableImpedance
+import application.steps.MatrixConfig
+import application.steps.UnitConfig
+import core.modelsteps.steps.modelStep
+import core.modelsteps.validation.validateCondition
+import core.modelsteps.validation.validateFileReadAccess
+import domain.shared.datastructure.matrix.MatrixImpedance
 import domain.shared.datastructure.matrix.UnitConverter
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
-import domain.shared.location.Metrics
-import domain.shared.location.ZoneId
-import domain.simulation.config.DemandSimContext
-import edu.kit.ifv.units.CurrencyUnit
-import edu.kit.ifv.units.DistanceUnit
+import domain.shared.location.Impedance
+import domain.shared.location.attributes.HasZoneID
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
-import utils.Identifiable
+import utils.Decodable
 import utils.units.Time
 import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
 
+private val IS_ERROR = false
+
+/**
+ * Loads impedance matrices (travel time, costs, distances) from configured paths.
+ *
+ * This step reads matrix configuration files and initializes a [MatrixImpedance] model,
+ * which is then assigned to the context's [HasMutableImpedance.impedance].
+ *
+ * @receiver The simulation context [C].
+ * @param C The context type. Must implement [HasModes] and [HasMutableImpedance].
+ * @param CFG The configuration type. Must implement [MatrixConfig] and [UnitConfig].
+ * @param config The configuration. Provided via context.
+ */
+context(config: CFG)
 @Suppress("LongParameterList")
-fun DemandSimContext.loadImpedance(
-    costMatrixConfig: Path,
-    durationMatrixConfig: Path,
-    distanceMatrix: Path,
-    distanceUnit: DistanceUnit? = null,
-    currencyUnit: CurrencyUnit? = null,
-    durationUnit: DurationUnit? = null,
-    matrixCreator: ZoneMatrixCreation = KeyBasedMatrixCreation,
-) = runStep {
-    LoadImpedanceStep(
-        costMatrixConfig,
-        durationMatrixConfig,
-        distanceMatrix,
-        distanceUnit,
-        currencyUnit,
-        durationUnit,
-        matrixCreator,
-        this,
+fun <C, CFG> C.loadImpedance(
+    travelTimeYaml: Path = config.durationMatrixConfig,
+    travelCostsYaml: Path = config.costMatrixConfig,
+    travelDistanceMatrix: Path = config.distanceMatrix,
+    decoder: Decodable<Mode> = modes,
+    matrixFactory: ZoneMatrixCreation = config.matrixCreation,
+    converter: UnitConverter = UnitConverter.fromUnits(
+        config.distanceUnit,
+        config.currencyUnit,
+        config.durationUnit
+    ),
+)
+    where C : HasModes, C : HasMutableImpedance, CFG : MatrixConfig, CFG : UnitConfig = modelStep(
+    "load impedance matrices",
+    validation = listOf({ validateLoadImpedance(config) }),
+) {
+    val impedance = MatrixImpedance.loadFromPaths(
+        travelTimeYamlPath = travelTimeYaml,
+        travelCostsYamlPath = travelCostsYaml,
+        travelDistanceMatrixPath = travelDistanceMatrix,
+        decoder = decoder,
+        matrixFactory = matrixFactory,
+        converter = converter,
     )
+
+
+    this.impedance = impedance
 }
 
-@Suppress("LongParameterList")
-private class LoadImpedanceStep(
-    private val costMatrixConfig: Path,
-    private val durationMatrixConfig: Path,
-    private val distanceMatrix: Path,
-    private val distanceUnit: DistanceUnit? = null,
-    private val currencyUnit: CurrencyUnit? = null,
-    private val durationUnit: DurationUnit? = null,
-    private val matrixCreator: ZoneMatrixCreation,
-    private val context: DemandSimContext,
-) : ModelStep {
-    override val name: String = "Load matrix impedance from yaml"
+private fun HasModes.validateLoadImpedance(config: MatrixConfig): Boolean = config.run {
+    val fileAccess: Boolean =
+        validateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:") &&
+            validateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:") &&
+            validateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
 
-    override fun execute() {
-        val converter = UnitConverter.fromUnits(
-            distanceUnit ?: DistanceUnit.KILOMETERS,
-            currencyUnit ?: CurrencyUnit.EUROS,
-            durationUnit ?: DurationUnit.MINUTES,
-        )
-        val impedance = MatrixMetrics.loadFromPaths(
-            travelTimeYamlPath = durationMatrixConfig,
-            travelCostsYamlPath = costMatrixConfig,
-            travelDistanceMatrixPath = distanceMatrix,
-            decoder = context.modes,
-            matrixFactory = matrixCreator,
-            converter = converter,
-        )
-
-        context.impedance.value = impedance
+    if (!fileAccess) {
+        return false
     }
 
-    override fun verifyInput(): Warning? = validateScope("Validate input data for impedance model:") {
-        validateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:")
-        validateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:")
-        validateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
+    val costConfig = costMatrixConfig.readText()
+    val durationConfig = durationMatrixConfig.readText()
 
-        if (subWarnings.isEmpty()) {
-            val costConfig = costMatrixConfig.readText()
-            val durationConfig = durationMatrixConfig.readText()
+    var isValid = checkConfigKeysAreKnownModes(costConfig, path = costMatrixConfig)
+    isValid = checkConfigKeysAreKnownModes(durationConfig, path = durationMatrixConfig) && isValid
 
-            context.modes.values().forEach { mode ->
-                val modeLabel = "$mode:"
-                val errorMessage = { path: Path ->
-                    "Matrix config ${path.fileName} does not specify mode $mode"
-                }
-
-                validateCondition(errorMessage(costMatrixConfig), true) {
-                    modeLabel in costConfig
-                }
-
-                validateCondition(errorMessage(durationMatrixConfig), true) {
-                    modeLabel in durationConfig
-                }
-            }
+    modes.values().forEach { mode ->
+        val modeLabel = "$mode:"
+        val errorMessage = { path: Path ->
+            "Matrix config ${path.fileName} does not specify mode $mode"
         }
+
+        isValid = validateCondition({ errorMessage(costMatrixConfig) }, IS_ERROR) {
+            modeLabel in costConfig
+        } && isValid
+
+        isValid = validateCondition({ errorMessage(durationMatrixConfig) }, IS_ERROR) {
+            modeLabel in durationConfig
+        } && isValid
     }
 
-    override fun mockBehavior(): Warning? = validateScope("Mock impedance data") {
-        context.impedance.value = dummyImpedance
-    }
+    isValid || !IS_ERROR
 }
 
-fun DemandSimContext.loadTeleportation() = runStep {
-    LoadTeleportation(this)
+private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path): Boolean { // , modes: CodePlan<Mode>
+    val unknownModeMessage = { label: String ->
+        "Matrix config ${path.fileName} contains unknown mode $label. Known modes are ${modes.values()}"
+    }
+    val modeKeyRegex = Regex("^[A-Za-z_]+:[ \\t]*$")
+
+    return configText.lineSequence().filter {
+        it.matches(modeKeyRegex)
+    }.map {
+        it.trim().removeSuffix(":")
+    }.map {
+        validateCondition({ unknownModeMessage(it) }, IS_ERROR) {
+            modes.decodeOrNull(it) != null
+        }
+    }.toList().all { it }
 }
 
-class LoadTeleportation(private val context: DemandSimContext) : ModelStep {
-    override val name: String = "Teleportation as Transport"
-
-    override fun execute() {
-        context.impedance.value = Teleportation()
-    }
-
-    override fun verifyInput(): Warning? = null
-
-    override fun mockBehavior(): Warning? = validateScope("Moeck impedance data") {
-        context.impedance.value = dummyImpedance
-    }
+/**
+ * Creates and assigns a [Teleportation] impedance model.
+ *
+ * This model provides zero costs and minimal fixed duration/distance for all trips.
+ *
+ * @receiver The simulation context which can store an impedance model.
+ */
+fun HasMutableImpedance.loadTeleportation() = modelStep(
+    "create Teleportation impedance for Transport"
+) {
+    this.impedance = Teleportation()
 }
 
-class Teleportation : Metrics {
+class Teleportation : Impedance {
 
     private val costMetric: CostMetric = CostMetric { _, _ ->
         0.euros
@@ -139,21 +142,26 @@ class Teleportation : Metrics {
     private val durationMetric: DurationMetric = DurationMetric { _, _ ->
         1.seconds
     }
-    private val distancMetric: DistanceMetric = DistanceMetric { _, _ ->
+    private val distanceMetric: DistanceMetric = DistanceMetric { _, _ ->
         1.meters
     }
     override fun costMetric(mode: Mode, time: Time): CostMetric = costMetric
 
-    override fun distanceMetric(mode: Mode): DistanceMetric = distancMetric
+    override fun distanceMetric(mode: Mode): DistanceMetric = distanceMetric
 
-    override fun durationMetric(mode: Mode, time: Time): DurationMetric = durationMetric
+    override fun durationMetric(
+        mode: Mode,
+        time: Time
+    ): DurationMetric = durationMetric
 }
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
-val dummyImpedance = object : Metrics {
-    override fun duration(from: Identifiable<ZoneId>, to: Identifiable<ZoneId>, mode: Mode, time: Time) = 5.minutes
-    override fun cost(from: Identifiable<ZoneId>, to: Identifiable<ZoneId>, mode: Mode, time: Time) = 5.euros
-    override fun distance(from: Identifiable<ZoneId>, to: Identifiable<ZoneId>, mode: Mode) = 5.kilometers
+
+@Deprecated("dummy impedance should no longer be used, try using Teleportation")
+val dummyImpedance = object : Impedance {
+    override fun duration(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.minutes
+    override fun cost(from: HasZoneID, to: HasZoneID, mode: Mode, time: Time) = 5.euros
+    override fun distance(from: HasZoneID, to: HasZoneID, mode: Mode) = 5.kilometers
     override fun costMetric(mode: Mode, time: Time): CostMetric = error(SHOULD_NOT_BE_CALLED)
     override fun distanceMetric(mode: Mode): DistanceMetric = error(SHOULD_NOT_BE_CALLED)
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = error(SHOULD_NOT_BE_CALLED)

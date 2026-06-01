@@ -3,7 +3,7 @@ package application.scenarios
 import application.syntheticsim.ControllableImpedance
 import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
-import core.modelsteps.asResource
+import core.modelsteps.resources.asResource
 import core.statemachine.usage.RecordingStateMachine
 import core.statemachine.usage.renderAsPumlSequenceDiagram
 import core.statemachine.usage.renderAsPumlStateCharts
@@ -14,7 +14,6 @@ import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.currentlyAffectedProviders
-import domain.simulation.events.NoWriters
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
@@ -58,7 +57,7 @@ class RidesharingOnlyScenario {
         val households = zones.generateHouseholds(
             10,
             memberships = mutableListOf(provider),
-            personScope = { it.generateActivitySchedule(10, random) },
+            personScope = { it.generateActivitySchedule(10, random) }
         )
 
         // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
@@ -67,18 +66,18 @@ class RidesharingOnlyScenario {
             legacyChoiceModelModes,
             mapOf(bikeSharing to setOf(provider.id)),
             mapOf(),
-            impedance,
+            impedance
         )
 
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { it.centroidLocation }.toSet(),
+                zones.map { it.centroid }.toSet()
             ),
             modeChoice = FixedOrderChoiceModel(
                 "prefer ridesharing",
                 setOf(bikeSharing, pedestrian),
-                availability.asResourceAvailabilityFilter(),
+                availability.asResourceAvailabilityFilter()
             ),
             modes = legacyChoiceModelModes,
             impedance = impedance,
@@ -87,25 +86,25 @@ class RidesharingOnlyScenario {
             bikeSharingConnectionSelector = availability,
             drtAvailabilitySelector = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
-            spawnModeCharacteristics = StandardModeImplementation,
+            spawnModeCharacteristics = StandardModeImplementation
         )
 
         val builder = BuildAgents(
             seed = 1L,
-            NoWriters.personStateMachine.withRecording(),
-            syntheticBehavior,
+            personStateMachine.withRecording(),
+            syntheticBehavior
         )
         val agents = builder.buildPersonAgents(households)
 
         agents.forEach { person ->
-            val dest = zones.first { it.id != person.location.id }
+            val dest = zones.first { it.id != person.location.zoneID }
             val sharedResources =
-                context(person, AbsoluteTime.START, dest.centroidLocation) {
+                context(person, AbsoluteTime.START, dest.centroid) {
                     availability.currentlyAffectedProviders(legacyChoiceModelModes.options)
                 }
             assertTrue(
                 sharedResources.any { it is SharingStationAgent },
-                "No sharing station available for person $person, from: ${person.location}, to: $dest",
+                "No sharing station available for person $person, from: ${person.location}, to: $dest"
             )
         }
 

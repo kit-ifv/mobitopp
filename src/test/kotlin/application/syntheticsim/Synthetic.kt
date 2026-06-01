@@ -1,6 +1,7 @@
 package application.syntheticsim
 
 import BIELEFELD
+import TestZone
 import core.statemachine.State
 import core.statemachine.builder.StateData
 import core.statemachine.usage.RecordingStateMachineFactory
@@ -15,7 +16,6 @@ import domain.shared.enums.LegacyMode
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.ZoneId
-import domain.shared.location.zone.StandardZone
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PrivateCarAgent
@@ -29,7 +29,6 @@ import domain.simulation.events.EndActivityMessage
 import domain.simulation.events.EndLegMessage
 import domain.simulation.events.FinishedPerson
 import domain.simulation.events.FirstActivityMessage
-import domain.simulation.events.NoWriters
 import domain.simulation.events.PerformLeg
 import domain.simulation.events.PerformingActivity
 import domain.simulation.events.PersonBehavior
@@ -69,7 +68,7 @@ import kotlin.time.Duration.Companion.seconds
 fun MutablePerson.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
     val plan = PlanLoader(this)
     plan.apply(lambda)
-//    plan.plannedActivities.forEach { addActivity(it) }
+    plan.plannedActivities.forEach { this.plannedActivities.add(it) }
 }
 
 class PlanLoader(private val person: MutablePerson) {
@@ -80,14 +79,14 @@ class PlanLoader(private val person: MutablePerson) {
         plannedActivities.add(
             MutablePlannedActivity(
                 id = ActivityId(-1L),
-                person = person,
+                person = person.id,
                 seed = 42L,
             ) {
                 activityType = first
                 observedTripDuration = (-1).minutes
                 startTime = AbsoluteTime(second.toDouble().hours)
                 duration = third.toDouble().hours
-            },
+            }
         )
     }
 
@@ -99,23 +98,25 @@ class PlanLoader(private val person: MutablePerson) {
 
             MutablePlannedActivity(
                 ActivityId(-1L),
-                person = p,
-                seed = 42L,
+                person = p.id,
+                seed = 42L
             ) {
                 activityType = this@unaryPlus
                 observedTripDuration = (-1).minutes
                 startTime = start
                 duration = 4.hours
-            }.also { start += 8.hours },
+            }.also { start += 8.hours }
 
         )
     }
 }
 
-fun PersonAgent.hasAccessToCar(): Boolean = getBestCarOrNull() != null
+fun PersonAgent.hasAccessToCar(): Boolean {
+    return getBestCarOrNull() != null
+}
 
 abstract class Scenario(
-    val zones: List<StandardZone>,
+    val zones: List<TestZone>,
     val impedance: ControllableImpedance = ControllableImpedance(),
 ) {
     val currentAttractivenessModel: ControllableAttractiveness = ControllableAttractiveness(zones)
@@ -129,25 +130,25 @@ abstract class Scenario(
             zones[0].point(BIELEFELD),
             (-1).hours.sinceStart,
             (1).seconds,
-            type = ActivityType.UNKNOWN,
+            type = ActivityType.UNKNOWN
         )
 
     val availability = AvailabilityModelWithSharing(
         legacyChoiceModelModes,
         emptyMap(),
         mapOf(),
-        impedance,
+        impedance
     )
 
     val destinationChoice: OverridableDestinationChoiceModel = OverridableDestinationChoiceModel(
-        legacyDestinationChoice,
+        legacyDestinationChoice
     )
     val modeChoice: OverridableModeChoiceModel = OverridableModeChoiceModel(
-        legacyModeChoice.addFilter(availability.asResourceAvailabilityFilter()),
+        legacyModeChoice.addFilter(availability.asResourceAvailabilityFilter())
     )
 
     protected val behavior = PersonBehavior(
-        destinationChoice = destinationChoice.fixed(zones.map { it.centroidLocation }.toSet()),
+        destinationChoice = destinationChoice.fixed(zones.map { it.centroid }.toSet()),
         modeChoice = modeChoice.fixed(legacyModeChoice.choices),
         modes = legacyChoiceModelModes,
         impedance,
@@ -156,7 +157,7 @@ abstract class Scenario(
         bikeSharingConnectionSelector = availability,
         drtAvailabilitySelector = availability,
         spawnDestinationCharacteristics = StandardDestinationImplementation,
-        spawnModeCharacteristics = StandardModeImplementation,
+        spawnModeCharacteristics = StandardModeImplementation
     )
 
     fun PersonAgent.stepper(): EventStepper {
@@ -171,20 +172,17 @@ abstract class Scenario(
 
 val testAttractivenessModel = object : AttractivenessModel {
 
-    override val purposes: ChoiceModelPurposes = legacyChoiceModelPurposes
 
-    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness = when (zone) {
-        ZoneId(0L) -> 0.0
+    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
+        when (zone) {
+            ZoneId(0L) -> 0.0 // Home zone attractiveness should be 0
+            ZoneId(1L) -> 999999.9 // Zone 1 should be the most attractive zone ever
+            ZoneId(2L) -> 1.0 // Zone 2 should be barely attractive at all
+            else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
+        }.asAttractiveness()
 
-        // Home zone attractiveness should be 0
-        ZoneId(1L) -> 999999.9
-
-        // Zone 1 should be the most attractive zone ever
-        ZoneId(2L) -> 1.0
-
-        // Zone 2 should be barely attractive at all
-        else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
-    }.asAttractiveness()
+    override val work: ActivityType = LegacyActivityType.WORK
+    override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT
 }
 
 class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
@@ -192,7 +190,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     override val households: List<MutableHousehold> = listOf(
         zones[0].generateHousehold(id = 1) {
             householdNumber = 1
-        },
+        }
     )
     val household = households[0]
     val car = household.spawnCar()
@@ -200,7 +198,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
         2,
         spawnLimits = spawnDrivers,
         memberships = mutableListOf(),
-        drtMemberships = mutableListOf(),
+        drtMemberships = mutableListOf()
     )
     val first = persons[0]
     val second = persons[1]
@@ -217,7 +215,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 //        difficultAccess(zones[2], zones[2])
 //
 //    }
-    val stateMachine = RecordingStateMachineFactory(NoWriters.personStateMachine)
+    val stateMachine = RecordingStateMachineFactory(personStateMachine)
 
     fun statesOf(agent: PersonAgent) = stateMachine.of(agent)!!.history
     fun popStatesOf(agent: PersonAgent) = stateMachine.of(agent)!!.let { sm ->
