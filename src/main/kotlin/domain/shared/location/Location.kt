@@ -1,7 +1,6 @@
 package domain.shared.location
 
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Point
 
 interface Location<out L> {
@@ -20,11 +19,7 @@ interface Location<out L> {
             return utm(x.toDouble(), y.toDouble())
         }
 
-        fun wgs(coord: WGS84Coordinate) = wgs(coord.x, coord.y)
         fun wgs(x: Double, y: Double): Location<*> = of(PointCreator.createWGS(x, y))
 
-        val BIELEFELD by lazy {
-            wgs(8.531007, 52.019101)
-        }
     }
 }

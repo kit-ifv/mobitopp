@@ -1,14 +1,12 @@
-import domain.shared.datastructure.schedule.Activity
-import domain.shared.datastructure.schedule.RawActivity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.StandardLocationImpl
-import domain.shared.location.toPoint
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
@@ -41,7 +39,6 @@ import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
 import domain.synthesis.data.buildEngine
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
@@ -55,9 +52,12 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
-val ITZEHOE = WGS84Coordinate.decimalDegree(53.925032, 9.515585)
-val SCHWEINFURT = WGS84Coordinate.decimalDegree(50.049994, 10.233302)
+val BIELEFELD = PointCreator.createWGS(8.531007, 52.019101)
+
+fun main() {
+    val b = BIELEFELD
+    println(b)
+}
 val TEST_ZONE =
     MaximalZone(42.toZoneId(), ZoneTestAttributesFake())
 
@@ -69,7 +69,7 @@ class TestZone(override val zoneId: ZoneId, override val attributes: HasRegionTy
         AttributeImpl(regionType),
     )
 
-    override val centroidLocation: StandardLocation = StandardLocationImpl(BIELEFELD.toPoint(), this)
+    override val centroidLocation: StandardLocation = StandardLocationImpl(BIELEFELD, this)
 }
 
 fun generateZones(numElements: Int): List<MaximalZone> = (0..<numElements).map {
@@ -84,7 +84,7 @@ class ZoneTestAttributesFake(
     override val relief: Distance = 0.meters,
     override val regionType: RegionType = RegioStaR17.URBAN_AREA_METRO,
     override val parkingPlaces: Int = 42,
-    override val centroid: Point = BIELEFELD.toPoint(),
+    override val centroid: Point = BIELEFELD,
 ) : MaximumZoneAttributes
 
 fun Zone<HasRegionType>.generateSharingStation(
@@ -96,7 +96,7 @@ fun Zone<HasRegionType>.generateSharingStation(
 ) {
     this.uid = "${this.id} Station"
     this.name = "noName"
-    this.location = StandardLocation.fromWGS(BIELEFELD)
+    this.location = StandardLocationImpl(BIELEFELD, this@generateSharingStation)
     this.zonesByFoot.add(this@generateSharingStation)
     this.initialVehicleCount = vehicles
 }
@@ -108,11 +108,11 @@ fun Zone<HasRegionType>.generateSharingStation(
 //    }
 // }
 
-fun Zone<HasRegionType>.point(wgs84coord: WGS84Coordinate): StandardLocation =
-    StandardLocation(wgs84coord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)
+fun Zone<HasRegionType>.point(point: Point): StandardLocation =
+    StandardLocation(point, zone = this, roadAccess = RoadAccess.INVALID)
 
 fun Long.toRoadPositionInZone(zone: Zone<HasRegionType>): StandardLocation =
-    StandardLocation(BIELEFELD.toPoint(), zone, RoadAccess(this, 0.5.share()))
+    StandardLocation(BIELEFELD, zone, RoadAccess(this, 0.5.share()))
 
 val testHousehold = TEST_ZONE.generateHousehold(1) {
     householdNumber = 1
@@ -251,19 +251,19 @@ class ActivitySpawnLimits(
     val types: Collection<ActivityType> = LegacyActivityType.entries,
 )
 
-fun Collection<Zone<HasRegionType>>.generateActivities(
-    num: Int,
-    random: Random = Random(1),
-    spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits(),
-): List<Activity> = (0..<num).map {
-    RawActivity(
-        this.random(random).point(BIELEFELD),
-        spawnLimits.startTime.random(random).toAbsoluteTime(),
-        spawnLimits.endTime.random(random).toAbsoluteTime(),
-        type = spawnLimits.types.random(random),
-
-    )
-}
+//fun Collection<Zone<HasRegionType>>.generateActivities(
+//    num: Int,
+//    random: Random = Random(1),
+//    spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits(),
+//): List<Activity> = (0..<num).map {
+//    RawActivity(
+//        this.random(random).point(BIELEFELD),
+//        spawnLimits.startTime.random(random).toAbsoluteTime(),
+//        spawnLimits.endTime.random(random).toAbsoluteTime(),
+//        type = spawnLimits.types.random(random),
+//
+//    )
+//}
 
 fun Int.toAbsoluteTime(): AbsoluteTime = AbsoluteTime(toDuration(DurationUnit.HOURS))
 

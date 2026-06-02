@@ -4,7 +4,6 @@ import TestZone
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.toPoint
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
@@ -22,7 +21,6 @@ import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -104,8 +102,8 @@ open class SynthesisTest {
 
     private var counter: Double = .0
 
-    protected fun Zone<HasRegionType>.spawnLocation(coordinate: WGS84Coordinate): StandardLocation =
-        StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
+    protected fun Zone<HasRegionType>.spawnLocation(coordinate: Point): StandardLocation =
+        StandardLocation(coordinate, this, RoadAccess.INVALID)
 
     protected class FakeCoord :
         Location<HasZoneId>,

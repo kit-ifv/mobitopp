@@ -1,7 +1,6 @@
 package utils.units
 
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.kilometers
 import kotlin.math.PI
 import kotlin.math.asin
@@ -44,8 +43,3 @@ class GPSLegcayCoordinate(override val latitudeRadians: Double, override val lon
     }
 }
 
-@Suppress("MagicNumber")
-fun Pair<Number, Number>.toCoordinate(): WGS84Coordinate = WGS84Coordinate.decimalDegree(
-    first.toDouble(),
-    second.toDouble(),
-)

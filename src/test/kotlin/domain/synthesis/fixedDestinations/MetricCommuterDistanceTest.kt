@@ -4,6 +4,7 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import domain.shared.location.DistanceMetric
+import domain.shared.location.PointCreator
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
@@ -14,7 +15,6 @@ import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.toDistance
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -211,7 +211,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     @Test
     fun testLocationBased() {
         val strategy = CommuterDistance<Attrs>()
-        val home = testZone1.spawnLocation(WGS84Coordinate.decimalDegree(0.0, 0.0))
+        val home = testZone1.spawnLocation(PointCreator.createWGS(0.0, 0.0))
         val household = home.createHousehold(Attrs::copy) {
             person {
                 Attrs(
@@ -221,7 +221,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
                 )
             }
         }
-        val work1 = testZone1.spawnLocation(WGS84Coordinate.decimalDegree(0.0, 0.0))
+        val work1 = testZone1.spawnLocation(PointCreator.createWGS(0.0, 0.0))
 
         assertEquals(strategy.differenceToCommuteDistance(household[0], work1), 1.0.kilometers)
     }

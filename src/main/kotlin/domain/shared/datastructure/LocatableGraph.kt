@@ -5,10 +5,10 @@ import domain.LinkInfo
 import domain.VisumNode
 import domain.shared.location.Location
 import domain.shared.location.attributes.HasRoadAccess
+import edu.kit.ifv.JTSConverter
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UTMPosition
-import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.toDistance
 import org.jgrapht.Graph
 import org.locationtech.jts.geom.Coordinate
@@ -44,7 +44,7 @@ fun UTMPosition.distance(other: UTMPosition): Distance = sqrt(
  * A locatable graph is a representation of the road network, where in addition to the usual graph utility, a location
  * can be assigned to the closest road edge.
  */
-class LocatableGraph(private val graph: Graph<VisumNode, LinkInfo>) :
+class LocatableGraph(private val graph: Graph<VisumNode, LinkInfo>, private val srid: Int = 25832) :
     Graph<VisumNode, LinkInfo> by graph,
     VisumLinkIdLocator {
     /* Extract all edges from the road network and map them to the midpoint, for locating the closest edge.
@@ -72,11 +72,13 @@ class LocatableGraph(private val graph: Graph<VisumNode, LinkInfo>) :
     //  but it is good enough for approximation.
     override fun linkIdFor(location: Location<*>): Long {
         // Use UTM as baseline, WGS is imprecise, depending on location.
-        val utm = WGS84Coordinate.decimalDegree(
-            location.position.y,
-            location.position.x,
-        ).toUTM()
-        val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.e, it.n) }
+//        val utm = WGS84Coordinate.decimalDegree(
+//            location.position.y,
+//            location.position.x,
+//        ).toUTM()
+//
+        val utm = JTSConverter.convertPoint(location.position, srid)
+        val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.x, it.y) }
         return edge.edge.id?.toLong() ?: Long.MIN_VALUE
     }
 }

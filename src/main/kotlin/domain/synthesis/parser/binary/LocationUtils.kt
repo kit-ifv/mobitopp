@@ -1,6 +1,5 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.Location
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
@@ -8,7 +7,6 @@ import domain.shared.location.ZonedRoadAccessLocationDTO
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
@@ -23,13 +21,13 @@ import java.nio.ByteBuffer
 object LocationUtils {
     fun ByteBuffer.decodeLocation(converter: (ZoneId) -> Zone<HasRegionType>?): StandardLocation {
         val zoneId = ZoneId(long) // Reading zone ID
-        val coordinate = WGS84Coordinate.decimalDegree(
+        val coordinate = PointCreator.createWGS(
             double,
             double,
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
         return StandardLocation(
-            position = Location.wgs(coordinate.x, coordinate.y).position,
+            position = coordinate,
             zone = converter(zoneId) ?: run {
                 throw NoSuchElementException("No Zone For thing")
             },
@@ -62,13 +60,9 @@ object LocationUtils {
      */
     fun DataOutputStream.encodeLocation(location: ZonedRoadAccessLocationDTO) {
         writeLong(location.zoneId.value)
-        writeDouble(location.position.y)
         writeDouble(location.position.x)
+        writeDouble(location.position.y)
         writeLong(location.roadAccess.roadId)
         writeDouble(location.roadAccess.position.toDouble())
     }
-// TODO remove if not needed
-//    fun DataOutputStream.encodeLocation(location: HasZoneId) {
-//        encodeLocation(location.withRoadAccess(RoadAccess.INVALID))
-//    }
 }

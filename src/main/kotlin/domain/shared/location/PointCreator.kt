@@ -11,9 +11,9 @@ object PointCreator {
     private val wgsFactory = GeometryFactory(PrecisionModel(), 4326)
     private val utmFactory = GeometryFactory(PrecisionModel(), 25832)
 
-    fun createWGS(x: Double, y: Double): Point = wgsFactory.createPoint(Coordinate(x, y))
+    fun createWGS(x: Number, y: Number): Point = wgsFactory.createPoint(Coordinate(x.toDouble(), y.toDouble()))
 
-    fun createUTM(x: Double, y: Double): Point = utmFactory.createPoint(Coordinate(x, y))
+    fun createUTM(x: Number, y: Number): Point = utmFactory.createPoint(Coordinate(x.toDouble(), y.toDouble()))
 
     fun createUTM(string: String): Point {
         val (x, y) = string.split(",").take(2)

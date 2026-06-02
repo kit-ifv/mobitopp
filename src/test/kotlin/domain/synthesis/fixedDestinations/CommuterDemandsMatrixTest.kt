@@ -5,6 +5,7 @@ package domain.synthesis.fixedDestinations
 import BIELEFELD
 import ZoneTestAttributesFake
 import domain.shared.location.StandardLocation
+import domain.shared.location.StandardLocationImpl
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
@@ -17,7 +18,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CommuterDemandsMatrixTest {
-    val bielefeld = StandardLocation.fromWGS(BIELEFELD)
+    val bielefeld = StandardLocation.fromPoint(BIELEFELD)
 
     @Test
     fun communityConfiguration() {
@@ -107,10 +108,10 @@ class CommuterDemandsMatrixTest {
     @Test
     fun properParsing() {
         val demands = CommuterDemandsMatrix.parseRastatt()
-        assertEquals(demands.convert(6113.toZone().point(BIELEFELD)), CommunityNumber(8216043))
-        assertEquals(demands.convert(10015.toZone().point(BIELEFELD)), CommunityNumber(10015))
-        assertEquals(demands.convert(6650.toZone().point(BIELEFELD)), CommunityNumber(8211000))
-        assertEquals(demands.convert(6114.toZone().point(BIELEFELD)), CommunityNumber(8216043))
+        assertEquals(demands.convert(6113.toZone().centroidLocation), CommunityNumber(8216043))
+        assertEquals(demands.convert(10015.toZone().centroidLocation), CommunityNumber(10015))
+        assertEquals(demands.convert(6650.toZone().centroidLocation), CommunityNumber(8211000))
+        assertEquals(demands.convert(6114.toZone().centroidLocation), CommunityNumber(8216043))
 
         val demandFor = demands[8216052]
         assertTrue(10002 in demandFor)
@@ -123,7 +124,7 @@ class CommuterDemandsMatrixTest {
     @Test
     fun parseNonexistingCommunity() {
         val demands = CommuterDemandsMatrix.parseRastatt()
-        assertEquals(CommunityNumber.INVALID, demands.convert(42.toZone().point(BIELEFELD)))
+        assertEquals(CommunityNumber.INVALID, demands.convert(42.toZone().centroidLocation))
     }
 
     private fun Number.toZone(): MaximalZone = MaximalZone(
