@@ -9,7 +9,7 @@ import kotlin.io.path.createDirectories
 fun AgentInteractions.renderAsPumlSequenceDiagram(
     agent: Agent<*>,
     file: Path = Path(
-        "docs/sequence/${agent::class.simpleName ?: agent.instanceName}.puml",
+        "results/sequence/${agent::class.simpleName ?: agent.instanceName}.puml",
     ),
     maxDepth: Int = 1,
 ) {

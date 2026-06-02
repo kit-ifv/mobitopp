@@ -42,9 +42,9 @@ private val Int.color get() = pumlColors[this % pumlColors.size]
  * Render the receiver [GlobalStateMachineUsage] as plant uml files encoding a state chart.
  * Stores the charts in the given directory [dir].
  *
- * @param dir directory where the .puml files are saved. Defaults to "/docs" inside the working directory.
+ * @param dir directory where the .puml files are saved. Defaults to "results/state_machines" inside the working directory.
  */
-fun GlobalStateMachineUsage.renderAsPumlStateCharts(dir: Path = Path("docs/state_machines")) =
+fun GlobalStateMachineUsage.renderAsPumlStateCharts(dir: Path = Path("results/state_machines")) =
     usageByStateMachine.values.forEach {
         it.apply {
             dir.createDirectories()
