@@ -119,13 +119,11 @@ class ParallelSimulator(
 ) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
     override fun executePresentEvents(present: Events): Events = runBlocking {
-//        coroutineScope {
         val deferredNewEvents = present.map {
             AppScope.async(Dispatchers.Default) { it.execute() }
         }
 
         deferredNewEvents.awaitAll().flatten()
-//        }
     }
 }
 
