@@ -251,11 +251,11 @@ class ActivitySpawnLimits(
     val types: Collection<ActivityType> = LegacyActivityType.entries,
 )
 
-//fun Collection<Zone<HasRegionType>>.generateActivities(
+// fun Collection<Zone<HasRegionType>>.generateActivities(
 //    num: Int,
 //    random: Random = Random(1),
 //    spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits(),
-//): List<Activity> = (0..<num).map {
+// ): List<Activity> = (0..<num).map {
 //    RawActivity(
 //        this.random(random).point(BIELEFELD),
 //        spawnLimits.startTime.random(random).toAbsoluteTime(),
@@ -263,7 +263,7 @@ class ActivitySpawnLimits(
 //        type = spawnLimits.types.random(random),
 //
 //    )
-//}
+// }
 
 fun Int.toAbsoluteTime(): AbsoluteTime = AbsoluteTime(toDuration(DurationUnit.HOURS))
 

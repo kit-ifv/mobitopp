@@ -5,13 +5,11 @@ package domain.synthesis.fixedDestinations
 import BIELEFELD
 import ZoneTestAttributesFake
 import domain.shared.location.StandardLocation
-import domain.shared.location.StandardLocationImpl
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import org.junit.jupiter.api.Test
-import point
 import kotlin.io.path.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

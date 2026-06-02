@@ -3,12 +3,10 @@ package domain.shared.location
 import edu.kit.ifv.units.share
 import org.locationtech.jts.geom.Point
 
-fun interface PointAndRoadPositionParser: PointParser {
+fun interface PointAndRoadPositionParser : PointParser {
     fun parse(string: String): Pair<Point, RoadAccess>
 
-    override fun parsePoint(string: String): Point {
-        return parse(string).first
-    }
+    override fun parsePoint(string: String): Point = parse(string).first
 
     companion object {
         /**
@@ -31,5 +29,3 @@ fun interface PointAndRoadPositionParser: PointParser {
         }
     }
 }
-
-

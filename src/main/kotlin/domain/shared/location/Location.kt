@@ -20,6 +20,5 @@ interface Location<out L> {
         }
 
         fun wgs(x: Double, y: Double): Location<*> = of(PointCreator.createWGS(x, y))
-
     }
 }
