@@ -15,10 +15,10 @@ import domain.shared.enums.ActivityType
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.person.HasHousehold
 import domain.synthesis.data.HasStandardLocation
-import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.MutablePlannedActivity
+import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.person.HasHousehold
 import domain.synthesis.data.person.PersonId
 import domain.synthesis.parser.ActivityLocation
 import domain.synthesis.parser.FixedDestinationColumns

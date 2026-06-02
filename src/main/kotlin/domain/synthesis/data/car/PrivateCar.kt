@@ -1,7 +1,7 @@
 package domain.synthesis.data.car
 
 import Mutable
-import domain.synthesis.data.MutableHousehold
+import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.person.Person
 
 /**

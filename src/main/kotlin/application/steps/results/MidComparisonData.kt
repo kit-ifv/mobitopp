@@ -10,9 +10,9 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR7
 import domain.synthesis.data.household.EconomicStatus
+import domain.synthesis.data.household.IHousehold
 import domain.synthesis.data.person.Employment
 import domain.synthesis.data.person.Graduation
-import domain.synthesis.data.household.IHousehold
 import domain.synthesis.data.person.IPerson
 import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.Distance

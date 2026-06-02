@@ -16,9 +16,9 @@ import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.car.engine.EngineType
 import domain.synthesis.data.household.EconomicStatus
 import domain.synthesis.data.person.Employment
-import domain.synthesis.data.car.engine.EngineType
 import domain.synthesis.data.person.Graduation
 import domain.synthesis.data.person.Sex
 import utils.CodePlan

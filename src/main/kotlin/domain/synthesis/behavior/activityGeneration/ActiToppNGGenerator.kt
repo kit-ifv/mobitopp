@@ -22,7 +22,6 @@ import edu.kit.ifv.mobitopp.actitoppNG.HouseholdPlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.PersonAttributes
 import edu.kit.ifv.mobitopp.actitoppNG.PlanGenerationParameters
 import edu.kit.ifv.mobitopp.actitoppNG.StandardHouseholdPlanGeneration
-import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.ReusablePlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.plan.MobilityPlan
 import edu.kit.ifv.units.Distance
@@ -78,23 +77,22 @@ class ActiToppNGGenerator<in S, in T>(
     val strategy: HouseholdPlanGeneration = StandardHouseholdPlanGeneration.fromModels(
         models = AllChoiceModels.create(PlanGenerationParameters()),
 
-        ) {
+    ) {
         ReusablePlanGeneration(it)
     },
     val maxCommute: Distance = 150.kilometers,
     private val actiToppAdapter: ActiToppAdapter,
 ) : GenerateHouseholdActivitySchedule<S, T>
-        where S : MinimumHouseholdAttributes,
-              S : HasNumberOfCars,
-              T : MinimumPersonAttributes,
-              T : HasCommuteDistance,
-              T : HasEducationDistance,
-              T : HasEmployment {
+    where S : MinimumHouseholdAttributes,
+          S : HasNumberOfCars,
+          T : MinimumPersonAttributes,
+          T : HasCommuteDistance,
+          T : HasEducationDistance,
+          T : HasEmployment {
 
-
-    constructor(    purposes: ChoiceModelPurposes, converter: (RegionType) -> ZoneRegionType): this(
+    constructor(purposes: ChoiceModelPurposes, converter: (RegionType) -> ZoneRegionType) : this(
         purposes,
-        actiToppAdapter = StandardActiToppAdapter(purposes, converter= converter),
+        actiToppAdapter = StandardActiToppAdapter(purposes, converter = converter),
     )
 
     /** Generates a schedule for *all* members of the supplied [household]. */
@@ -141,11 +139,13 @@ class ActiToppNGGenerator<in S, in T>(
         }
         return actHousehold
     }
+
     @Suppress("MagicNumber") // TODO this may be relevant to fix, age 10 is magic
     val ISurveyHousehold<*, *>.numberOfChilds get() = members.count { it.age <= 10 }
 
     @Suppress("MagicNumber") // TODO this may be relevant to fix, age 10 is magic
     val ISurveyHousehold<*, *>.numberOfYouths get() = members.count { it.age in 10..<18 }
+
     /**
      * Builds a [PersonAttributes] instance from a [SurveyPerson].
      *
@@ -159,6 +159,4 @@ class ActiToppNGGenerator<in S, in T>(
         commuteDistanceEducation = min(attributes.distanceEducation.inKilometers, maxCommute.inKilometers),
         isAllowedToWork = true, // TODO cross check with modellierer where this field comes from.
     )
-
 }
-

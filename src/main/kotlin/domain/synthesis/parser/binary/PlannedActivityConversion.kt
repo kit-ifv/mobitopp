@@ -3,8 +3,8 @@ package domain.synthesis.parser.binary
 import domain.shared.enums.ActivityType
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.person.PersonId
 import domain.synthesis.data.PlannedActivity
+import domain.synthesis.data.person.PersonId
 import utils.CodePlan
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter

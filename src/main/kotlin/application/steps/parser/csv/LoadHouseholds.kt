@@ -21,7 +21,7 @@ import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.MutableHousehold
+import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.parser.HouseholdColumns
 import domain.synthesis.parser.HouseholdCsvConfig
 import domain.synthesis.parser.binary.BinaryHouseholdReader

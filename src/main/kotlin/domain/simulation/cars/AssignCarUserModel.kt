@@ -1,8 +1,8 @@
 package domain.simulation.cars
 
+import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.MutablePrivateCar
 import domain.synthesis.data.person.Person
 import domain.synthesis.data.person.isAdult
 

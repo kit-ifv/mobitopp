@@ -5,7 +5,7 @@ import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.transformEachStep
 import domain.simulation.cars.AssignCarUserModel
 import domain.synthesis.data.car.CarId
-import domain.synthesis.data.MutablePrivateCar
+import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.person.Person
 
 /**
