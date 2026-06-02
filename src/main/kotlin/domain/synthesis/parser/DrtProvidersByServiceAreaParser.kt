@@ -55,9 +55,9 @@ fun createDrtProvidersByAreaParser(csvConfig: DrtProviderByAreaCsvConfig): CsvPa
             val initVehicles = row.int(columns.numVehicles)
             val zone = getZone(ZoneId(row.long(columns.zone)))
 
-            provider.serviceArea.add(zone.id)
+            provider.serviceArea.add(zone.zoneId)
             if (initVehicles > 0) {
-                provider.initVehicles[zone.id] = initVehicles
+                provider.initVehicles[zone.zoneId] = initVehicles
             }
 
             provider.takeIf { newProvider }

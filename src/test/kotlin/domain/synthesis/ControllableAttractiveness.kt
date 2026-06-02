@@ -7,7 +7,6 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.location.ZoneId
 import domain.shared.location.zone.MaximalZone
-import domain.shared.location.zone.StandardZone
 import utils.collections.cartesianProduct
 
 class ControllableAttractiveness(zones: Collection<MaximalZone>) : AttractivenessModel {

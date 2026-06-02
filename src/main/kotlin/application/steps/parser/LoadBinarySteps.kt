@@ -19,9 +19,7 @@ import core.modelsteps.validation.validateFileReadAccess
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.MaximalZone
-import domain.shared.location.zone.MutableMaximalZone
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarId
 import domain.synthesis.data.DrtProvider
@@ -92,7 +90,7 @@ fun <C> C.loadPersonsFromBinary(
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: ShortTermConfig<*>)
 fun <C> C.loadHouseholdFromBinary(path: Path)
-    where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>> {
+    where C : HasZoneRepo<*, Zone<HasRegionType>> {
     val converter = BinaryHouseholdReader(
         ::getZone,
         config.seed,

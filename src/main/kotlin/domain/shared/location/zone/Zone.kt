@@ -24,13 +24,14 @@ interface Zone<out T> : HasZoneId {
     val centroidLocation: StandardLocation
     operator fun contains(location: HasZoneId): Boolean = zoneId == location.zoneId
 }
-private fun <T> ZoneWithCentroid<T>.centroidLocation(): StandardLocation where T : HasRegionType =
-    BetterLocation(this.centroid, this, RoadAccess.INVALID)
+private fun <T> Zone<T>.centroidLocation(): StandardLocation where T : HasRegionType, T : HasCentroid =
+    BetterLocation(this.attributes.centroid, this, RoadAccess.INVALID)
 
 data class MinimalZone<T>(override val zoneId: ZoneId, override val attributes: T) : Zone<T> {
     override val centroidLocation: StandardLocation
         get() = TODO("Not yet implemented")
 }
+
 @Mutable
 data class StandardZone(
     override val zoneId: ZoneId,
@@ -51,9 +52,6 @@ interface GeometricZone<out T> :
     Zone<T>,
     HasGeometricEmbedding
 
-interface ZoneWithCentroid<out T>: Zone<T>, HasCentroid {
-}
-
 interface HasNumberParkingPlaces {
     val parkingPlaces: Int
 }
@@ -64,8 +62,11 @@ data class ZoneAttributes(override val regionType: RegionType) : HasRegionType {
     }
 }
 
-data class GeometricZoneImpl<T>(override val zoneId: ZoneId, override val geometry: Geometry, override val attributes: T) :
-    GeometricZone<T> {
+data class GeometricZoneImpl<T>(
+    override val zoneId: ZoneId,
+    override val geometry: Geometry,
+    override val attributes: T,
+) : GeometricZone<T> {
     constructor(number: Number, geometry: Geometry, attributes: T) : this(
         zoneId = ZoneId(number.toLong()),
         geometry = geometry,
@@ -78,9 +79,6 @@ data class GeometricZoneImpl<T>(override val zoneId: ZoneId, override val geomet
 
 typealias NakedZone = GeometricZoneImpl<Unit>
 
-interface HasCentroid {
-    val centroid: Point
-}
 interface HasVisumId {
     val visumId: Int
 }
@@ -106,11 +104,8 @@ interface HasGeometricEmbedding : HasCentroid {
 }
 
 @Mutable
-open class MaximalZone(
-    override val zoneId: ZoneId,
-    override val attributes: MaximumZoneAttributes,
-    override val centroid: Point
-) : ZoneWithCentroid<MaximumZoneAttributes> {
+open class MaximalZone(override val zoneId: ZoneId, override val attributes: MaximumZoneAttributes) :
+    Zone<MaximumZoneAttributes> {
     val parkingPlaces get() = attributes.parkingPlaces
     val isDestination get() = attributes.isDestination
     override val centroidLocation: StandardLocation = centroidLocation()
@@ -119,7 +114,10 @@ open class MaximalZone(
 /**
  * The maximum information a zone can hold in the simulation framework, even with the most asinine information available.
  */
-interface MaximumZoneAttributes: HasRegionType, HasNumberParkingPlaces {
+interface MaximumZoneAttributes :
+    HasRegionType,
+    HasNumberParkingPlaces,
+    HasCentroid {
     val visumId: Long
     val name: String
     val classification: ZoneClassification
@@ -134,5 +132,6 @@ data class MaximumZoneAttributesImpl(
     override val isDestination: Boolean,
     override val relief: Distance,
     override val regionType: RegionType,
-    override val parkingPlaces: Int
-): MaximumZoneAttributes
+    override val parkingPlaces: Int,
+    override val centroid: Point,
+) : MaximumZoneAttributes

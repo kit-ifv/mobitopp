@@ -6,7 +6,6 @@ import BIELEFELD
 import ZoneTestAttributesFake
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZoneId
-import domain.shared.location.toPoint
 import domain.shared.location.zone.MaximalZone
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
@@ -127,7 +126,10 @@ class CommuterDemandsMatrixTest {
         assertEquals(CommunityNumber.INVALID, demands.convert(42.toZone().point(BIELEFELD)))
     }
 
-    private fun Number.toZone(): MaximalZone = MaximalZone(ZoneId(toLong()), ZoneTestAttributesFake(), BIELEFELD.toPoint())
+    private fun Number.toZone(): MaximalZone = MaximalZone(
+        ZoneId(toLong()),
+        ZoneTestAttributesFake(),
+    )
 
     private fun CommuterDemandsMatrix.Companion.parseRastatt(): CommuterDemandsMatrix = parse(
         Path("src/test/resources/synthesis/zone-to-community.csv"),

@@ -174,7 +174,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             listOf(person4, person1, person2, person3),
             listOf(person3, person2, person1, person4),
 
-            )
+        )
         val locations = listOf(
             listOf(work2),
             listOf(work3),
@@ -232,7 +232,7 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             testZone2.zoneId to CommunityNumber(2),
             testZone3.zoneId to CommunityNumber(2),
 
-            )
+        )
 
         val demand = MutableCommunityDemand(
             converter = { zoneCommunityMapping.getValue(it.zoneId) },
@@ -265,20 +265,13 @@ open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) 
         map.getOrPut(origin) { mutableMapOf() }[destination] =
             value.toDouble().toDistance(DistanceUnit.KILOMETERS)
     }
-    
+
 //    operator fun get(origin: ZoneId, destination: ZoneId): Distance =
 //        (map[origin] ?: mutableMapOf())[destination] ?: default
     operator fun get(origin: HasZoneId, destination: HasZoneId): Distance =
         (map[origin] ?: mutableMapOf())[destination] ?: default
 
-    override fun evaluate(
-        origin: HasZoneId,
-        destination: HasZoneId,
-    ): Distance {
-        return get(origin, destination)
-    }
-
-
+    override fun evaluate(origin: HasZoneId, destination: HasZoneId): Distance = get(origin, destination)
 }
 
 class MockDistanceTest : SynthesisTest() {

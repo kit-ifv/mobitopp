@@ -13,6 +13,5 @@ class CurrencyMatrix(private val translatedMatrix: ZoneIdMatrix, private val con
     CostZoneMetric {
     operator fun get(row: ZoneId, column: ZoneId): Currency = converter.from(translatedMatrix[row, column])
 
-    override fun evaluate(origin: ZoneId, destination: ZoneId): Currency =
-        this[origin, destination]
+    override fun evaluate(origin: ZoneId, destination: ZoneId): Currency = this[origin, destination]
 }

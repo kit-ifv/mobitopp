@@ -1,7 +1,6 @@
 package domain.shared.datastructure.matrix.optimized
 
 import domain.shared.datastructure.matrix.ZoneIdMatrix
-import domain.shared.location.DistanceMetric
 import domain.shared.location.DistanceZoneMetric
 import domain.shared.location.ZoneId
 import edu.kit.ifv.units.Distance
@@ -14,6 +13,5 @@ class DistanceMatrix(private val translatedMatrix: ZoneIdMatrix, private val con
     DistanceZoneMetric {
     operator fun get(row: ZoneId, column: ZoneId): Distance = converter(translatedMatrix[row, column])
 
-    override fun evaluate(origin: ZoneId, destination: ZoneId): Distance =
-        this[origin, destination]
+    override fun evaluate(origin: ZoneId, destination: ZoneId): Distance = this[origin, destination]
 }

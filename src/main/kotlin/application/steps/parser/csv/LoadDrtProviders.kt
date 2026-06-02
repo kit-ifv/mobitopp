@@ -17,7 +17,6 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.parser.DrtProviderByAreaCsvColumns
@@ -107,7 +106,7 @@ context(config: CFG)
 fun <C, CFG> C.drtProviderServiceAreaParser(
     drtMode: Mode,
     customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {},
-): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : Config =
+): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : Config =
     createDrtProvidersByAreaParser(
         DrtProviderByAreaCsvConfig(
             columns = DrtProviderByAreaCsvColumns(),
@@ -142,7 +141,7 @@ fun <C, CFG> C.ridePoolingProviderCsv(
     parser: CsvParser<MutableDrtProviderData> = poolingProviderServiceAreaParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableDrtProviderData>? = null,
-): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : DrtSourceFilesConfig, CFG : SourceFilesConfig, CFG : DrtModesConfig =
+): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : DrtSourceFilesConfig, CFG : SourceFilesConfig, CFG : DrtModesConfig =
     drtProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -160,5 +159,5 @@ context(config: CFG)
 fun <C, CFG> C.poolingProviderServiceAreaParser(
     sharingMode: Mode = config.ridePoolingMode,
     customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {},
-): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : DrtModesConfig =
+): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : DrtModesConfig =
     drtProviderServiceAreaParser<C, CFG>(sharingMode, customizeCsvConfig)

@@ -60,11 +60,9 @@ data class MatrixImpedance(
         distanceConverter.from(travelDistance[o, d])
     }
 
-    override fun durationMetric(mode: Mode, time: Time): DurationMetric =
-        DurationZoneMetric { o, d ->
-            timeConverter.from(travelTimes[mode, time][o, d])
-        }
-
+    override fun durationMetric(mode: Mode, time: Time): DurationMetric = DurationZoneMetric { o, d ->
+        timeConverter.from(travelTimes[mode, time][o, d])
+    }
 
     companion object {
         @Suppress("LongParameterList")

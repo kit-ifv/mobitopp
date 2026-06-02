@@ -14,10 +14,7 @@ import domain.shared.location.toPoint
 import domain.shared.location.toZoneId
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.MaximumZoneAttributes
-import domain.shared.location.zone.StandardZone
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.ZoneAttributes
-import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
@@ -48,6 +45,7 @@ import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
+import org.locationtech.jts.geom.Point
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import kotlin.random.Random
@@ -61,7 +59,7 @@ val BIELEFELD = WGS84Coordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99
 val ITZEHOE = WGS84Coordinate.decimalDegree(53.925032, 9.515585)
 val SCHWEINFURT = WGS84Coordinate.decimalDegree(50.049994, 10.233302)
 val TEST_ZONE =
-    MaximalZone(42.toZoneId(), ZoneTestAttributesFake(), BIELEFELD.toPoint())
+    MaximalZone(42.toZoneId(), ZoneTestAttributesFake())
 
 class TestZone(override val zoneId: ZoneId, override val attributes: HasRegionType) : Zone<HasRegionType> {
     private class AttributeImpl(override val regionType: RegionType) : HasRegionType
@@ -75,7 +73,7 @@ class TestZone(override val zoneId: ZoneId, override val attributes: HasRegionTy
 }
 
 fun generateZones(numElements: Int): List<MaximalZone> = (0..<numElements).map {
-    MaximalZone(it.toZoneId(), attributes = ZoneTestAttributesFake(), BIELEFELD.toPoint())
+    MaximalZone(it.toZoneId(), attributes = ZoneTestAttributesFake())
 }
 
 class ZoneTestAttributesFake(
@@ -86,12 +84,10 @@ class ZoneTestAttributesFake(
     override val relief: Distance = 0.meters,
     override val regionType: RegionType = RegioStaR17.URBAN_AREA_METRO,
     override val parkingPlaces: Int = 42,
-    ) : MaximumZoneAttributes {
+    override val centroid: Point = BIELEFELD.toPoint(),
+) : MaximumZoneAttributes
 
-}
-
-
-fun ZoneWithCentroid<HasRegionType>.generateSharingStation(
+fun Zone<HasRegionType>.generateSharingStation(
     sharingProvider: MutableSharingProvider,
     vehicles: Int,
 ): SharingStation = MutableSharingStation(
@@ -143,7 +139,7 @@ class HouseholdSpawnLimits(
     val numPersons: IntRange = 0..5,
     val economicStatus: Collection<EconomicStatus> = EconomicStatus.entries,
 
-    )
+)
 
 @Suppress("LongParameterList")
 fun Zone<HasRegionType>.generateHouseholds(
@@ -266,7 +262,7 @@ fun Collection<Zone<HasRegionType>>.generateActivities(
         spawnLimits.endTime.random(random).toAbsoluteTime(),
         type = spawnLimits.types.random(random),
 
-        )
+    )
 }
 
 fun Int.toAbsoluteTime(): AbsoluteTime = AbsoluteTime(toDuration(DurationUnit.HOURS))

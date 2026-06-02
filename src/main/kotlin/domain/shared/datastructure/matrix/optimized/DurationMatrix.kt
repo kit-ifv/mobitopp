@@ -13,6 +13,5 @@ class DurationMatrix(private val translatedMatrix: ZoneIdMatrix, private val con
     DurationZoneMetric {
     operator fun get(row: ZoneId, column: ZoneId): Duration = converter.from(translatedMatrix[row, column])
 
-    override fun evaluate(origin: ZoneId, destination: ZoneId): Duration =
-        this[origin, destination]
+    override fun evaluate(origin: ZoneId, destination: ZoneId): Duration = this[origin, destination]
 }

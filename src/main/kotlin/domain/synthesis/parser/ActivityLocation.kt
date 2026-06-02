@@ -4,7 +4,6 @@ import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
-import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import java.io.DataOutputStream
