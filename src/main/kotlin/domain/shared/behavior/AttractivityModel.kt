@@ -29,15 +29,6 @@ interface AttractivenessModel {
 fun AttractivenessModel.sumAttractiveness(zone: ZoneId, vararg activityTypes: ActivityType): Double =
     activityTypes.sumOf { attractivenessFor(zone, it).value }
 
-@Suppress("MagicNumber")
-fun AttractivenessModel.parkingPressure(target: Zone): Double {
-    val attractiveness = sumAttractiveness(target.id, work, privateVisit)
-    if (target.parkingPlaces == 0) {
-        return if (abs(attractiveness) < 1e-6) 0.0 else 999.0
-    }
-    return attractiveness / target.parkingPlaces
-}
-
 @Deprecated("This class needs to be reworked: switch to fastCSV or Jackson parsing and log warnings to report instead of console")
 class AttractivenessFromCsv(
     private val path: Path,

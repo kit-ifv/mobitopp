@@ -15,6 +15,7 @@ import application.steps.HasModes
 import application.steps.HasMutableAttractivenessModel
 import application.steps.HasMutableImpedance
 import application.steps.HasMutablePersonBehavior
+import application.steps.HasParkingPressureModel
 import application.steps.HasPersonAgentRepo
 import application.steps.HasPersonRepo
 import application.steps.HasSharingProviderAgentRepo
@@ -59,6 +60,7 @@ import application.steps.parser.csv.plannedActivityCsv
 import application.steps.parser.csv.zoneCsv
 import application.steps.parser.csv.zones
 import application.steps.parser.loadImpedance
+import application.steps.parser.loadParkingPressureModel
 import application.steps.results.writeTrips
 import core.modelsteps.Cloneable
 import core.modelsteps.Config
@@ -69,6 +71,7 @@ import core.modelsteps.resources.MapRepository
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.steps.modelStep
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ParkingPressureModel
 import domain.shared.datastructure.matrix.ConstantZoneIdMatrix
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.MatrixImpedance
@@ -175,6 +178,7 @@ class MyContext :
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
     HasModes, // TODO discuss whether modes are context or config
+    HasParkingPressureModel,
     HasMutablePersonBehavior {
     override val scenarioName: String = "regression test short term scenario"
     override val modes: CodePlan<Mode> = LegacyMode
@@ -197,6 +201,7 @@ class MyContext :
         MapRepository("SharingProviderAgents")
     override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> =
         MapRepository("DrtProviderAgents")
+    override lateinit var parkingPressure: ParkingPressureModel
 
     override fun clone(): MyContext = MyContext() // TODO doppelt zu context factory
 
@@ -383,4 +388,9 @@ fun main(args: Array<String>) {
 
         writeTrips()
     }
+}
+
+context(config: CGF)
+fun <CGF, C> C.foo() {
+
 }

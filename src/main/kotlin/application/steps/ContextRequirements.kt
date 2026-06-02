@@ -5,6 +5,7 @@ import core.modelsteps.resources.MutableRepository
 import core.modelsteps.resources.Repository
 import core.statemachine.Agent
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ParkingPressureModel
 import domain.shared.datastructure.LocatableGraph
 import domain.shared.enums.Mode
 import domain.shared.location.Impedance
@@ -219,6 +220,10 @@ interface HasAttractivenessModel : Context {
 
 interface HasMutableAttractivenessModel : HasAttractivenessModel {
     override var attractiveness: AttractivenessModel
+}
+
+interface HasParkingPressureModel : Context {
+    var parkingPressure: ParkingPressureModel
 }
 
 interface HasPersonBehavior : Context {
