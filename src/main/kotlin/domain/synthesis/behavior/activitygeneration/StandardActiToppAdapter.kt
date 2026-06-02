@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.activityGeneration
+package domain.synthesis.behavior.activitygeneration
 
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType

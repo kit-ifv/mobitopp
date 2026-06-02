@@ -27,7 +27,7 @@ import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
+import domain.synthesis.behavior.activitygeneration.ActiToppNGGenerator
 import domain.synthesis.behavior.cars.amount.standardAssignmentByRegionSize
 import domain.synthesis.behavior.cars.generation.SamplingCarGeneration
 import domain.synthesis.behavior.cars.ownership.UnfilteredSeniority
@@ -55,7 +55,6 @@ import domain.synthesis.results.OpportunityOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.meters
-import integration.TrivialSynthesis
 import org.locationtech.jts.geom.Geometry
 import java.nio.file.Path
 import kotlin.io.path.Path

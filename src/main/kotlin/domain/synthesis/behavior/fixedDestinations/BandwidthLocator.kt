@@ -29,14 +29,6 @@ val standardBandwidthModel = RuleBasedStructure<
     }
 }.openMultinomialLogit("DefaultBandwidthLocationSelector")
 
-//    DiscreteChoiceModel<Location, LocationAlternative, BandwidthParameters>(
-//        AllocatedLogit.create {
-//            ruleForAll {
-//                ln(it.attractiveness) / (bDistance * it.distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
-//            }
-//        },
-//    )
-
 /**
  * The bandwidth locator first determines which potential locations are valid targets by filtering the locations which
  * are within the commute distance of the agent +/- the poleRadius defined in the [BandwidthParameters]. If no locations

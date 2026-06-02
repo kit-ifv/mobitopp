@@ -5,7 +5,7 @@ import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.activityGeneration.PreliminaryActivitySchedule
+import domain.synthesis.behavior.activitygeneration.PreliminaryActivitySchedule
 import domain.synthesis.data.person.Sex
 
 /**

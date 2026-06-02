@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.activityGeneration
+package domain.synthesis.behavior.activitygeneration
 
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes

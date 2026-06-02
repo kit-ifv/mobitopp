@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.activityGeneration
+package domain.synthesis.behavior.activitygeneration
 
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType

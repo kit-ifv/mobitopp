@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.activityGeneration
+package domain.synthesis.behavior.activitygeneration
 
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType

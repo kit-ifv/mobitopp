@@ -7,7 +7,7 @@ import domain.synthesis.attributes.household.HasMutableNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
+import domain.synthesis.behavior.activitygeneration.GenerateHouseholdActivitySchedule
 import domain.synthesis.behavior.cars.SynthesisCar
 import domain.synthesis.behavior.cars.generation.GenerateCars
 import domain.synthesis.behavior.cars.ownership.AssignMainUser
