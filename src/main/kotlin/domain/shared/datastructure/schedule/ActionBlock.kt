@@ -234,10 +234,11 @@ class ActivityBlock(
         return false
     }
 
-    override fun accepts(action: StationaryAction): Boolean =
-        !containsAction(action) && next?.item?.firstOrNull()?.startTime?.let {
-            it >= action.endTime
-        } ?: true
+    override fun accepts(action: StationaryAction): Boolean = !containsAction(
+        action,
+    ) && next?.item?.firstOrNull()?.startTime?.let {
+        it >= action.endTime
+    } ?: true
 
     /**
      * This block must accept a leg if either no followup block exists or if the leg is smaller than the last element
@@ -368,13 +369,15 @@ class LinkedTrip(start: Collection<LinkedLeg>, override var previous: ActivityBl
         return newActivityBlock.insert(activity, callback)
     }
 
-    override fun accepts(action: StationaryAction): Boolean =
-        !containsAction(action) && item.size >= 2 && item.first() < action && item.last() > action
+    override fun accepts(action: StationaryAction): Boolean = !containsAction(
+        action,
+    ) && item.size >= 2 && item.first() < action && item.last() > action
 
-    override fun accepts(action: MovingAction): Boolean =
-        !containsAction(action) && next.item.firstOrNull()?.startTime?.let {
-            it >= action.endTime
-        } ?: true
+    override fun accepts(action: MovingAction): Boolean = !containsAction(
+        action,
+    ) && next.item.firstOrNull()?.startTime?.let {
+        it >= action.endTime
+    } ?: true
 
     override fun toString(): String = item.joinToString { it.toString() }
 

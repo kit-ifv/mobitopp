@@ -15,5 +15,8 @@ fun Activity.Companion.fromTimes(start: AbsoluteTime, end: AbsoluteTime, type: A
     return fromDuration(StandardLocation.LOCATIONUNKNOWN, start, end - start, type = type)
 }
 
-fun Activity.Companion.fromTimes(start: Duration, end: Duration, type: ActivityType): Activity =
-    fromTimes(start.sinceStart, end.sinceStart, type)
+fun Activity.Companion.fromTimes(start: Duration, end: Duration, type: ActivityType): Activity = fromTimes(
+    start.sinceStart,
+    end.sinceStart,
+    type,
+)

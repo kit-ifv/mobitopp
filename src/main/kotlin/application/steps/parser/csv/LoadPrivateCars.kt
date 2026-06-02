@@ -83,9 +83,12 @@ fun <C, CFG> C.carCsv(
     parser: CsvParser<MutablePrivateCar> = privateCarCsvParser(),
     path: Path = config.sourceFiles.privateCarsCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutablePrivateCar>? = binaryPrivateCarFormat(), // TODO move binary format to load level?
+    binaryCache: BinaryCacheConfig<MutablePrivateCar>? = binaryPrivateCarFormat(),
 ): Resource<MutablePrivateCar>
-    where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>, CFG : SourceFilesConfig, CFG : CarCodesConfig =
+    where C : HasPersonRepo<*, Person>,
+          C : HasHouseholdRepo<MutableHousehold, *>,
+          CFG : SourceFilesConfig,
+          CFG : CarCodesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
             csv.cachedCsv(it)

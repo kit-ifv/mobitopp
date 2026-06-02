@@ -138,42 +138,50 @@ fun MutablePersonAgent.loadAttributes(attributes: Person) {
     chargingInfluence = attributes.chargingInfluence
 }
 
-fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = household.toAgent(context)) =
-    context.personsById.getOrInitAfterPut(
-        key = this.id,
-        defaultValue = { MutablePersonAgent(id, householdAgent, context.personStateMachine, context.seed) },
-    ) { agent ->
+fun Person.toAgent(
+    context: BuildAgents,
+    householdAgent: HouseholdAgent = household.toAgent(
+        context,
+    ),
+) = context.personsById.getOrInitAfterPut(
+    key = this.id,
+    defaultValue = { MutablePersonAgent(id, householdAgent, context.personStateMachine, context.seed) },
+) { agent ->
 
-        agent.loadAttributes(this)
-        agent.sharingMemberships.addAll(
-            this.sharingMemberships.map { it.toAgent(context) },
-        )
+    agent.loadAttributes(this)
+    agent.sharingMemberships.addAll(
+        this.sharingMemberships.map { it.toAgent(context) },
+    )
 
-        agent.drtMemberships.addAll(
-            this.drtMemberships.map { it.toAgent(context) },
-        )
+    agent.drtMemberships.addAll(
+        this.drtMemberships.map { it.toAgent(context) },
+    )
 
-        agent.behavior = context.personBehavior
+    agent.behavior = context.personBehavior
 
-        agent.schedule = this.plannedActivities.toSchedule(SingularDispatcher())
-        this.clearPlannedActivities() // clear to save memory
-        context.durationRandomizer.randomizeAll(agent)
-    }
+    agent.schedule = this.plannedActivities.toSchedule(SingularDispatcher())
+    this.clearPlannedActivities() // clear to save memory
+    context.durationRandomizer.randomizeAll(agent)
+}
 
-fun PrivateCar.toAgent(context: BuildAgents, ownerAgent: HouseholdAgent = owner.toAgent(context)) =
-    context.carsById.getOrInitAfterPut(
-        key = this.id,
-        defaultValue = { MutablePrivateCarAgent(id, ownerAgent) },
-    ) { agent ->
+fun PrivateCar.toAgent(
+    context: BuildAgents,
+    ownerAgent: HouseholdAgent = owner.toAgent(
+        context,
+    ),
+) = context.carsById.getOrInitAfterPut(
+    key = this.id,
+    defaultValue = { MutablePrivateCarAgent(id, ownerAgent) },
+) { agent ->
 
-        agent.segment = this.segment
-        agent.seats = this.seats
-        agent.engine = this.engine
-        agent.mainUser = this.mainUser?.toAgent(context)
-        // TODO idea to reduce copy: in Agent definition:
-        // pass long term entity for delegation of interface implementation,
-        // only overwrite parts where other agent types are now referenced!
-    }
+    agent.segment = this.segment
+    agent.seats = this.seats
+    agent.engine = this.engine
+    agent.mainUser = this.mainUser?.toAgent(context)
+    // TODO idea to reduce copy: in Agent definition:
+    // pass long term entity for delegation of interface implementation,
+    // only overwrite parts where other agent types are now referenced!
+}
 
 fun SharingProvider.toAgent(context: BuildAgents) = context.sharingProvidersById.getOrInitAfterPut(
     key = this.id,
@@ -187,7 +195,9 @@ fun SharingProvider.toAgent(context: BuildAgents) = context.sharingProvidersById
 private var vehicleIdCounter = 0L
 
 fun SharingStation.toAgent(context: BuildAgents, ownerAgent: MutableSharingProviderAgent) =
-    context.sharingStationsById.getOrPut(this.id) {
+    context.sharingStationsById.getOrPut(
+        this.id,
+    ) {
         val data = this
 
         val vehicles = (0 until initialVehicleCount).map {

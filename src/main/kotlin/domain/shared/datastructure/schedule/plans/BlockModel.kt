@@ -223,8 +223,9 @@ class BlockModel(
 
     override fun first(): LinkedAction? = actionBlocks.firstOrNull { !it.item.isEmpty() }?.firstElement()
 
-    override fun lastActivity(): LinkedActivity =
-        throw UnsupportedOperationException("BlockModel.lastActivity() should not be called!")
+    override fun lastActivity(): LinkedActivity = throw UnsupportedOperationException(
+        "BlockModel.lastActivity() should not be called!",
+    )
 
     override fun clear() {
         legBlockList.clear()

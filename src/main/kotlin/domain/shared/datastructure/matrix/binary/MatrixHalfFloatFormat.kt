@@ -58,10 +58,12 @@ class MatrixHalfFloatFormat(
         }
     }
 
-    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray =
-        readLoop(byteBuffer, elements) {
-            it.getShort().fromHalfFloat()
-        }
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray = readLoop(
+        byteBuffer,
+        elements,
+    ) {
+        it.getShort().fromHalfFloat()
+    }
 
     fun Short.fromHalfFloat(): Double {
         // half float has these three special values, everything else is a valid half float

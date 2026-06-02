@@ -52,11 +52,13 @@ interface HasSharingProviderRepo<M : S, out S : Identifiable<SharingProviderId>>
 
     val mutableSharingProviderRepository: MutableRepository<M, SharingProviderId>
 
-    fun getMutableSharingProvider(providerId: SharingProviderId) =
-        requireNotNull(mutableSharingProviderRepository[providerId]) {
-            "Mutable sharing provider referenced by id $providerId could not be found in ${mutableSharingProviderRepository.name}: " +
-                reportList(mutableSharingProviderRepository.elements.map { it.id }.toList())
-        }
+    fun getMutableSharingProvider(providerId: SharingProviderId) = requireNotNull(
+        mutableSharingProviderRepository[providerId],
+    ) {
+        "Mutable sharing provider referenced by id $providerId " +
+            "could not be found in ${mutableSharingProviderRepository.name}: " +
+            reportList(mutableSharingProviderRepository.elements.map { it.id }.toList())
+    }
 }
 
 interface HasDrtProviderRepo<M : D, out D : Identifiable<DrtProviderId>> : Context {
@@ -71,7 +73,8 @@ interface HasDrtProviderRepo<M : D, out D : Identifiable<DrtProviderId>> : Conte
     val mutableDrtProviderRepository: MutableRepository<M, DrtProviderId>
 
     fun getMutableDrtProvider(providerId: DrtProviderId) = requireNotNull(mutableDrtProviderRepository[providerId]) {
-        "Mutable Drt provider referenced by id $providerId could not be found in ${mutableDrtProviderRepository.name}: " +
+        "Mutable Drt provider referenced by id $providerId " +
+            "could not be found in ${mutableDrtProviderRepository.name}: " +
             reportList(mutableDrtProviderRepository.elements.map { it.id }.toList())
     }
 }
@@ -149,19 +152,23 @@ interface HasSharingProviderAgentRepo<M : S, out S> : Context where S : Identifi
     val sharingProviderAgentRepository: Repository<S, SharingProviderId>
         get() = mutableSharingProviderAgentRepository
 
-    fun getSharingProviderAgent(providerId: SharingProviderId) =
-        requireNotNull(sharingProviderAgentRepository[providerId]) {
-            "Sharing provider agent referenced  by id $providerId could not be found in ${sharingProviderAgentRepository.name}: " +
-                reportList(sharingProviderAgentRepository.elements.map { it.id }.toList())
-        }
+    fun getSharingProviderAgent(providerId: SharingProviderId) = requireNotNull(
+        sharingProviderAgentRepository[providerId],
+    ) {
+        "Sharing provider agent referenced  by id $providerId " +
+            "could not be found in ${sharingProviderAgentRepository.name}: " +
+            reportList(sharingProviderAgentRepository.elements.map { it.id }.toList())
+    }
 
     val mutableSharingProviderAgentRepository: MutableRepository<M, SharingProviderId>
 
-    fun getMutableSharingProviderAgent(providerId: SharingProviderId) =
-        requireNotNull(sharingProviderAgentRepository[providerId]) {
-            "Mutable sharing provider agent referenced  by id $providerId could not be found in ${sharingProviderAgentRepository.name}: " +
-                reportList(sharingProviderAgentRepository.elements.map { it.id }.toList())
-        }
+    fun getMutableSharingProviderAgent(providerId: SharingProviderId) = requireNotNull(
+        sharingProviderAgentRepository[providerId],
+    ) {
+        "Mutable sharing provider agent referenced  by id $providerId " +
+            "could not be found in ${sharingProviderAgentRepository.name}: " +
+            reportList(sharingProviderAgentRepository.elements.map { it.id }.toList())
+    }
 }
 
 interface HasDrtProviderAgentRepo<M : D, out D> :
@@ -177,7 +184,8 @@ interface HasDrtProviderAgentRepo<M : D, out D> :
     val mutableDrtProviderAgentRepository: MutableRepository<M, DrtProviderId>
 
     fun getMutableDrtProviderAgent(providerId: DrtProviderId) = requireNotNull(drtProviderAgentRepository[providerId]) {
-        "Mutable drt provider agent referenced  by id $providerId could not be found in ${drtProviderAgentRepository.name}: " +
+        "Mutable drt provider agent referenced  by id $providerId " +
+            "could not be found in ${drtProviderAgentRepository.name}: " +
             reportList(drtProviderAgentRepository.elements.map { it.id }.toList())
     }
 }

@@ -65,7 +65,9 @@ class SimpleInteractionRecorder : AgentInteractions {
         level: Int,
         maxDepth: Int,
         visited: MutableList<String>,
-    ): List<Action> = if (level > maxDepth) {
+    ): List<Action> = if (level >
+        maxDepth
+    ) {
         emptyList()
     } else if (level == maxDepth) {
         visited.add(instance)

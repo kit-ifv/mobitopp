@@ -27,7 +27,9 @@ class OverridableDestinationChoiceModel(
         throw UnsupportedOperationException("Not yet implemented")
 
     override fun probabilities(utilities: Map<StandardLocation, Double>): Map<StandardLocation, Double> =
-        throw UnsupportedOperationException("Not yet implemented")
+        throw UnsupportedOperationException(
+            "Not yet implemented",
+        )
 
     override fun addFilter(
         filter: ChoiceFilter<StandardLocation, DestinationChoiceCharacteristics>,

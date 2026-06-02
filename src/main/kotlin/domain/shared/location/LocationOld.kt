@@ -32,6 +32,7 @@ fun CoordinateSystem.axisUnits(): Set<String> = (0 until dimension).map { this.g
 /**
  * Parse a point from the legacy point definition.
  */
+@Suppress("MagicNumber")
 fun String.parsePoint(factory: GeometryFactory = GeometryFactory(PrecisionModel(), 4326)): Point {
     val res = this.removeSurrounding(prefix = "(", suffix = ")").split(":", ",").map { it.trim() }
     return factory.createPoint(Coordinate(res[0].toDouble(), res[1].toDouble()))

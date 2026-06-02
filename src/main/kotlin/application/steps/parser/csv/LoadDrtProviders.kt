@@ -141,7 +141,11 @@ fun <C, CFG> C.ridePoolingProviderCsv(
     parser: CsvParser<MutableDrtProviderData> = poolingProviderServiceAreaParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableDrtProviderData>? = null,
-): Resource<MutableDrtProviderData> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : DrtSourceFilesConfig, CFG : SourceFilesConfig, CFG : DrtModesConfig =
+): Resource<MutableDrtProviderData>
+where C : HasZoneRepo<*, Zone<HasRegionType>>,
+      CFG : DrtSourceFilesConfig,
+      CFG : SourceFilesConfig,
+      CFG : DrtModesConfig =
     drtProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -160,4 +164,7 @@ fun <C, CFG> C.poolingProviderServiceAreaParser(
     sharingMode: Mode = config.ridePoolingMode,
     customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {},
 ): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : DrtModesConfig =
-    drtProviderServiceAreaParser<C, CFG>(sharingMode, customizeCsvConfig)
+    drtProviderServiceAreaParser<C, CFG>(
+        sharingMode,
+        customizeCsvConfig,
+    )

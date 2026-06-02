@@ -36,8 +36,9 @@ fun Point.midPoint(other: Point): Point {
     return factory.createPoint(Coordinate(x, y))
 }
 
-fun UTMPosition.distance(other: UTMPosition): Distance =
-    sqrt((e - other.e).pow(2) + (n - other.n).pow(2)).toDistance(DistanceUnit.METERS)
+fun UTMPosition.distance(other: UTMPosition): Distance = sqrt(
+    (e - other.e).pow(2) + (n - other.n).pow(2),
+).toDistance(DistanceUnit.METERS)
 
 /**
  * A locatable graph is a representation of the road network, where in addition to the usual graph utility, a location
@@ -80,5 +81,8 @@ class LocatableGraph(private val graph: Graph<VisumNode, LinkInfo>) :
     }
 }
 
-private fun Graph<VisumNode, LinkInfo>.convertLink(linkInfo: LinkInfo): LocatedLinkInfo =
-    LocatedLinkInfo(getEdgeSource(linkInfo).coordinate, getEdgeTarget(linkInfo).coordinate, linkInfo)
+private fun Graph<VisumNode, LinkInfo>.convertLink(linkInfo: LinkInfo): LocatedLinkInfo = LocatedLinkInfo(
+    getEdgeSource(linkInfo).coordinate,
+    getEdgeTarget(linkInfo).coordinate,
+    linkInfo,
+)

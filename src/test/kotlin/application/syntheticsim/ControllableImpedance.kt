@@ -159,7 +159,9 @@ class ControllableImpedance(
         travelTimes: Pair<Number, Number>,
         travelDistances: Pair<Number, Number>,
         travelCost: Pair<Number, Number>,
-        random: Random = Random(1),
+        random: Random = Random(
+            1,
+        ),
     ) {
         val rng: (Pair<Number, Number>) -> Double = {
             random.nextDouble(it.first.toDouble(), it.second.toDouble())

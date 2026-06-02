@@ -46,8 +46,11 @@ sealed class Ordering<T> {
      */
     class AscendingBy<T, R>(private val key: (T) -> R) : Ordering<T>() where R : Comparable<R> {
 
-        override fun <S> arrangeBy(elements: Collection<S>, by: (S) -> T): List<S> =
-            elements.sortedBy { s -> key(by(s)) }
+        override fun <S> arrangeBy(elements: Collection<S>, by: (S) -> T): List<S> = elements.sortedBy { s ->
+            key(
+                by(s),
+            )
+        }
     }
 
     /**
@@ -59,8 +62,11 @@ sealed class Ordering<T> {
      */
     class DescendingBy<T, R>(private val key: (T) -> R) : Ordering<T>() where R : Comparable<R> {
 
-        override fun <S> arrangeBy(elements: Collection<S>, by: (S) -> T): List<S> =
-            elements.sortedByDescending { s -> key(by(s)) }
+        override fun <S> arrangeBy(elements: Collection<S>, by: (S) -> T): List<S> = elements.sortedByDescending { s ->
+            key(
+                by(s),
+            )
+        }
     }
 
     /**

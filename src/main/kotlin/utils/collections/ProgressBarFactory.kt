@@ -4,22 +4,24 @@ import me.tongfei.progressbar.ProgressBar
 import me.tongfei.progressbar.ProgressBarBuilder
 import me.tongfei.progressbar.ProgressBarStyle
 
-private var MUTE_PROGRESSBAR = false
+private var muteProgressbar = false
 // TODO check if still needed
 
 fun muteProgressBars() {
-    MUTE_PROGRESSBAR = true
+    muteProgressbar = true
 }
 
 fun unmuteProgressBars() {
-    MUTE_PROGRESSBAR = false
+    muteProgressbar = false
 }
 
 fun <S, T> S.addProgressBar(
     label: String,
     expectedCount: Long,
     visible: Boolean = true,
-): Iterator<T> where S : Sequence<T> = if (!MUTE_PROGRESSBAR and visible) {
+): Iterator<T> where S : Sequence<T> = if (!muteProgressbar and
+    visible
+) {
     val pbb = defaultProgressBarBuilder(label, expectedCount)
     ProgressBar.wrap(this.iterator(), pbb)
 } else {
@@ -31,7 +33,7 @@ fun <T> Collection<T>.addProgressBar(label: String, visible: Boolean = true) = t
 fun <T> Iterable<T>.addProgressBar(label: String, expectedCount: Int, visible: Boolean = true) =
     this.addProgressBar(label, expectedCount.toLong(), visible)
 fun <T> Iterable<T>.addProgressBar(label: String, expectedCount: Long, visible: Boolean = true): Iterable<T> =
-    if (!MUTE_PROGRESSBAR && visible) {
+    if (!muteProgressbar && visible) {
         val pbb = defaultProgressBarBuilder(label, expectedCount)
         ProgressBar.wrap(this, pbb)
     } else {

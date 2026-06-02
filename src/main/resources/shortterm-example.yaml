@@ -17,7 +17,7 @@ sourceFiles:
   attractivitiesCSV: data/attractivities.csv
 
 resultPath: results
-resultName: mobitopp-integration.main.csv
+resultName: mobitopp-main.csv
 errorHandling: WARNING
 
 

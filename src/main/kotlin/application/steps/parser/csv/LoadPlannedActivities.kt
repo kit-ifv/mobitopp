@@ -139,17 +139,24 @@ fun <C, CFG, P> C.plannedActivityCsv(
     parser: CsvParser<MutablePlannedActivity> = plannedActivityCsvParser(),
     path: Path = config.sourceFiles.activityCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<MutablePlannedActivity>? = binaryPlannedActivityFormat(), // TODO move binary format to load level?
+    binaryCache: BinaryCacheConfig<MutablePlannedActivity>? = binaryPlannedActivityFormat(),
 ): Resource<MutablePlannedActivity>
-    where C : Context, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : ActivityTypesConfig, C : HasPersonRepo<*, P>, P : StochasticActor, P : Identifiable<PersonId> = CsvResource(
-    path,
-    parser,
-    delimiter,
-).let { csv ->
-    binaryCache?.let {
-        csv.cachedCsv(it)
-    } ?: csv
-}
+    where C : Context,
+          CFG : SourceFilesConfig,
+          CFG : UnitConfig,
+          CFG : ActivityTypesConfig,
+          C : HasPersonRepo<*, P>,
+          P : StochasticActor,
+          P : Identifiable<PersonId> =
+    CsvResource(
+        path,
+        parser,
+        delimiter,
+    ).let { csv ->
+        binaryCache?.let {
+            csv.cachedCsv(it)
+        } ?: csv
+    }
 
 /**
  * Creates a CSV parser for planned activities.
@@ -166,7 +173,12 @@ context(config: CFG)
 fun <C, CFG, P> C.plannedActivityCsvParser(
     customizeCsvConfig: ActivityCsvConfig<P>.() -> Unit = {},
 ): CsvParser<MutablePlannedActivity>
-    where C : Context, CFG : ActivityTypesConfig, CFG : UnitConfig, C : HasPersonRepo<*, P>, P : StochasticActor, P : Identifiable<PersonId> =
+    where C : Context,
+          CFG : ActivityTypesConfig,
+          CFG : UnitConfig,
+          C : HasPersonRepo<*, P>,
+          P : StochasticActor,
+          P : Identifiable<PersonId> =
     createActivityCsvParser(
         ActivityCsvConfig(
             columns = ActivitiesColumns(),

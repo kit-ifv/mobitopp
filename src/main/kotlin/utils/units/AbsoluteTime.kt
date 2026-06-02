@@ -27,8 +27,9 @@ fun DayOfWeek.encode() = when (this) {
 
 fun DayOfWeek.daysSinceStartOfWeek() = this.encode().days
 
-operator fun Duration.rem(other: Duration): Duration =
-    (this.inWholeSeconds % other.inWholeSeconds).toDuration(DurationUnit.SECONDS)
+operator fun Duration.rem(other: Duration): Duration = (this.inWholeSeconds % other.inWholeSeconds).toDuration(
+    DurationUnit.SECONDS,
+)
 
 fun Duration.floorRem(other: Duration): Duration {
     val result = this % other

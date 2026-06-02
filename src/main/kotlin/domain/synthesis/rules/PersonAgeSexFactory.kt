@@ -36,7 +36,6 @@ import edu.kit.ifv.populationsynthesis.rules.toRuleSet
  */
 abstract class PersonAgeSexFactory<Input>(
     val definitionDecoder: (Input) -> List<Pair<PersonAgeSexDefinition, Number>>,
-
 ) {
 
     fun buildRuleSet(input: Input): CoverageGroup<ISurveyHousehold<*, *>> {

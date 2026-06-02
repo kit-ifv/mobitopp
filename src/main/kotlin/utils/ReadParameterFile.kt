@@ -16,8 +16,9 @@ object ReadParameterFile {
         return map
     }
 
-    fun read(file: Path, charset: Charset = Charsets.UTF_8): Map<String, Double> =
-        read(file.readText(charset = charset))
+    fun read(file: Path, charset: Charset = Charsets.UTF_8): Map<String, Double> = read(
+        file.readText(charset = charset),
+    )
 }
 
 /**

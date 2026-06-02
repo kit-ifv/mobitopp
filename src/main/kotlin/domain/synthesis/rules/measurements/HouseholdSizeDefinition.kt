@@ -19,8 +19,10 @@ class HouseholdSizeDefinition(val targetSize: Int, val equalityOp: EqualityOp) :
     BooleanMeasurementDefinition<MinimalistHousehold<*, *>>() {
     override fun generateDescription(): String = "Household $targetSize $equalityOp"
 
-    override fun evaluation(element: MinimalistHousehold<*, *>): Boolean =
-        equalityOp.test(element.members.size, targetSize)
+    override fun evaluation(element: MinimalistHousehold<*, *>): Boolean = equalityOp.test(
+        element.members.size,
+        targetSize,
+    )
 
     enum class EqualityOp(val symbol: String) {
         EQUALS("==") {

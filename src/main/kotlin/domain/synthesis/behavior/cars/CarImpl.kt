@@ -15,7 +15,6 @@ data class CarImpl(
     override val engine: CarEngine,
     override val segment: CarSegment,
     override val seats: Int = segment.toSeats(),
-
 ) : Car {
 
     override val id: CarId = nextId

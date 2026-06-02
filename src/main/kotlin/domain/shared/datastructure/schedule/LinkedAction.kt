@@ -163,7 +163,6 @@ class LinkedActivity(
 class LinkedLeg(
     override val original: Leg,
     override var previous: LinkedAction? = null,
-
     override var next: LinkedAction? = null,
 ) : LinkedAction(),
     Leg by original {

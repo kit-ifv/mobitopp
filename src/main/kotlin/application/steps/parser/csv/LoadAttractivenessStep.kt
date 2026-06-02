@@ -41,7 +41,10 @@ fun <C, CFG> C.loadAttractivenessModelFromCsv(
     work: ActivityType = config.work,
     privateVisit: ActivityType = config.privateVisit,
     activityTypes: Set<ActivityType> = config.activityTypes.values(),
-) where C : HasMutableAttractivenessModel, CFG : ActivityTypesConfig, CFG : AttractivenessFileConfig, CFG : PurposesConfig =
+) where C : HasMutableAttractivenessModel,
+        CFG : ActivityTypesConfig,
+        CFG : AttractivenessFileConfig,
+        CFG : PurposesConfig =
     modelStep(
         "Load Attractiveness Csv",
         validation = listOf(validateAttractivenessColumns(path, activityTypes, work, privateVisit)),

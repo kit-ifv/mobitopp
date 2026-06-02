@@ -17,8 +17,12 @@ class ControllableAttractiveness(zones: Collection<MaximalZone>) : Attractivenes
             LegacyActivityType.entries,
         ).associateWith { Attractiveness.DEFAULT }.toMutableMap()
 
-    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
-        attractivenessMap[Pair(zone, activityType)] ?: 0.0.asAttractiveness()
+    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness = attractivenessMap[
+        Pair(
+            zone,
+            activityType,
+        ),
+    ] ?: 0.0.asAttractiveness()
 
     override val work: ActivityType = LegacyActivityType.WORK
     override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT

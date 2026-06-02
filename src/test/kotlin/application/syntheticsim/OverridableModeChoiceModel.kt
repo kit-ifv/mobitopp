@@ -23,12 +23,15 @@ class OverridableModeChoiceModel(val original: UtilityBasedChoiceModel<Mode, Mod
     context(_: ModeChoiceCharacteristics)
     override fun utility(alternative: Mode): Double = throw UnsupportedOperationException("Not yet implemented")
 
-    override fun probabilities(utilities: Map<Mode, Double>): Map<Mode, Double> =
-        throw UnsupportedOperationException("Not yet implemented")
+    override fun probabilities(utilities: Map<Mode, Double>): Map<Mode, Double> = throw UnsupportedOperationException(
+        "Not yet implemented",
+    )
 
     override fun addFilter(
         filter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
-    ): FilteredChoiceModel<Mode, ModeChoiceCharacteristics> = original.addFilter(filter)
+    ): FilteredChoiceModel<Mode, ModeChoiceCharacteristics> = original.addFilter(
+        filter,
+    )
 
     context(_: ModeChoiceCharacteristics, random: Random)
     override fun selectInjected(choices: Set<Mode>, injections: Map<Mode, (Double) -> Double>): Mode =

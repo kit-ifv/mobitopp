@@ -11,9 +11,9 @@ import kotlin.io.path.pathString
 /**
  * Renders a Plot from prepared plot data using a particular layout/style.
  *
- * @param G type of the group/category dimension
- * @param X type of the x-axis values
- * @param V type of the y-axis values used by the renderer
+ * @param G The type of the group/category dimension.
+ * @param X The type of the x-axis values.
+ * @param V The type of the y-axis values used by the renderer.
  */
 interface PlotRenderer<G, X, V> {
     /** Layout and labeling configuration for this renderer. */
@@ -21,8 +21,10 @@ interface PlotRenderer<G, X, V> {
 
     /**
      * Produce a Plot from the provided data and optional comparison data.
-     * @param data primary plot data
-     * @param comparisonData optional reference/expected data to overlay or style differently
+     *
+     * @param data Primary plot data.
+     * @param comparisonData Optional reference/expected data to overlay or style differently.
+     * @return A [Plot] object.
      */
     fun plot(data: PlotData<G, X, V>, comparisonData: PlotData<G, X, V>?): Plot
 }
@@ -34,13 +36,24 @@ interface PlotLayout {
     /** Human-readable plot title and also used for file name generation. */
     val name: String
 
-    /** How to label comparison series in legends or labels. */
+    /**
+     * How to label comparison series in legends or labels.
+     *
+     * @return A function that takes a value and returns its comparison label string.
+     */
     val comparisonLabel: (Any) -> String
         get() = { "*$it" }
 }
 
 /**
  * Plotter is a high-level wrapper that ties data with a concrete renderer and can write the plot to disk.
+ *
+ * @param G The type of the group/category dimension.
+ * @param X The type of the x-axis values.
+ * @param Y The type of the y-axis values.
+ * @property data Primary plot data.
+ * @property comparison Optional reference/expected data.
+ * @property renderer The renderer used to produce the plot.
  */
 data class Plotter<G, X, Y>(
     val data: PlotData<G, X, Y>,
@@ -53,8 +66,9 @@ data class Plotter<G, X, Y>(
         get() = renderer.style.name
 
     /**
-     * Render and save the plot as a PNG into resultDir. Also overlays the mobiTopp logo.
-     * @param resultDir destination directory; defaults to "results" relative to the project.
+     * Render and save the plot as a PNG into [resultDir]. Also overlays the mobiTopp logo.
+     *
+     * @param resultDir Destination directory; defaults to "results" relative to the project.
      */
     fun plot(resultDir: Path = Path("results")) {
         val plot = renderer.plot(data, comparison)

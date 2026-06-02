@@ -26,8 +26,11 @@ class DrtProviderAgent(
 
     override val stateMachine: StateMachine = stateMachineFactory.create(AbsoluteTime.START, this)
 
-    fun operatesAt(time: AbsoluteTime, origin: StandardLocation, destination: StandardLocation) =
-        algorithm.operatesAt(time, origin, destination)
+    fun operatesAt(time: AbsoluteTime, origin: StandardLocation, destination: StandardLocation) = algorithm.operatesAt(
+        time,
+        origin,
+        destination,
+    )
 
     fun requestRide(request: DrtRequest): DrtOffer? = algorithm.requestRide(request)
 }
@@ -126,12 +129,15 @@ class SimpleMatrixDrtAlgorithm(
     private fun hasCapacity() = numPickUps() + numDropOffs() < numVehicles
 
     override fun operatesAt(time: AbsoluteTime, origin: StandardLocation, destination: StandardLocation) =
-        serviceArea.any { (origin as HasZoneId) in it } &&
+        serviceArea.any {
+            (origin as HasZoneId) in it
+        } &&
             serviceArea.any { (destination as HasZoneId) in it } &&
             timeInOperatingHours(time)
 
-    private fun timeInOperatingHours(time: AbsoluteTime) =
-        operationHours.let { (start, end) -> time.hour in start..end }
+    private fun timeInOperatingHours(time: AbsoluteTime) = operationHours.let { (start, end) ->
+        time.hour in start..end
+    }
 
     override fun requestRide(request: DrtRequest): DrtOffer? = takeIf {
         hasCapacity()

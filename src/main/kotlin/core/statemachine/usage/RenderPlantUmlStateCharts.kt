@@ -81,8 +81,11 @@ private fun StateMachineUsage.toPlantUml() = """
     |@enduml
 """.trimMargin()
 
-private fun StateUsage.toPlantUml(agentCount: Int, hasSelfTransition: Boolean) =
-    toPlantUml(agentCount, hasSelfTransition, name.asPlantumlAlias())
+private fun StateUsage.toPlantUml(agentCount: Int, hasSelfTransition: Boolean) = toPlantUml(
+    agentCount,
+    hasSelfTransition,
+    name.asPlantumlAlias(),
+)
 
 private fun StateUsage.toPlantUml(agents: Int, hasSelfTransition: Boolean, stateAlias: String) = """
     |state "${name.asStateName()}" as $stateAlias

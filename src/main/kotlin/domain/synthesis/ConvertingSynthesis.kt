@@ -14,12 +14,16 @@ class ConvertingSynthesis<AREA, I, O>(
         v.map { converter(it) }
     }
 
-    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<O>> =
-        originalSynthesis.synthesize(targetAreas).mapValues { (_, v) ->
-            v.map { converter(it) }
-        }
+    override fun synthesize(targetAreas: List<AREA>): Map<AREA, List<O>> = originalSynthesis.synthesize(
+        targetAreas,
+    ).mapValues { (_, v) ->
+        v.map { converter(it) }
+    }
 }
 
 fun <AREA, I, O> CompletePopulationSynthesis<AREA, I>.withConverter(
     converter: (I) -> O,
-): ConvertingSynthesis<AREA, I, O> = ConvertingSynthesis(this, converter)
+): ConvertingSynthesis<AREA, I, O> = ConvertingSynthesis(
+    this,
+    converter,
+)

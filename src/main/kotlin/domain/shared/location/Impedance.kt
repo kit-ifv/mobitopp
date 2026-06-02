@@ -9,13 +9,17 @@ import kotlin.time.Duration
 
 interface Impedance {
 
-    fun cost(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time): Currency =
-        costMetric(mode, time).evaluate(from, to)
+    fun cost(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time): Currency = costMetric(
+        mode,
+        time,
+    ).evaluate(from, to)
 
     fun distance(from: HasZoneId, to: HasZoneId, mode: Mode): Distance = distanceMetric(mode).evaluate(from, to)
 
-    fun duration(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time): Duration =
-        durationMetric(mode, time).evaluate(from, to)
+    fun duration(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time): Duration = durationMetric(
+        mode,
+        time,
+    ).evaluate(from, to)
 
     fun costMetric(mode: Mode, time: Time): CostMetric
 

@@ -59,6 +59,7 @@ import application.steps.parser.csv.plannedActivityCsv
 import application.steps.parser.csv.zoneCsv
 import application.steps.parser.csv.zones
 import application.steps.parser.loadImpedance
+import application.steps.results.createHtmlReport
 import application.steps.results.writeTrips
 import core.modelsteps.Cloneable
 import core.modelsteps.Config
@@ -354,5 +355,7 @@ fun main(args: Array<String>) {
         simulate()
 
         writeTrips()
+
+        createHtmlReport()
     }
 }

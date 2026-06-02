@@ -208,11 +208,16 @@ open class DefaultCsvReader(
         ).asSequence()
     }
 
-    private fun parseSafely(index: Int, line: String): Row? =
-        errorHandling.handleReadRow(line) { l -> parseRow(index, l) }
+    private fun parseSafely(index: Int, line: String): Row? = errorHandling.handleReadRow(
+        line,
+    ) { l -> parseRow(index, l) }
 
-    private fun parseRow(index: Int, line: String) =
-        DefaultRow(name, index, columnsIndex, lineValues(line).toLazyList(columnsIndex.size))
+    private fun parseRow(index: Int, line: String) = DefaultRow(
+        name,
+        index,
+        columnsIndex,
+        lineValues(line).toLazyList(columnsIndex.size),
+    )
 
     private fun lineValues(line: String): Sequence<String> = when {
         line.isEmpty() -> emptySequence()

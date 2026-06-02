@@ -21,7 +21,10 @@ open class PersonAgeSexDefinition(open val acceptedAgeRange: IntRange, val accep
 }
 
 class MutablePersonAgeSexDefinition(override var acceptedAgeRange: IntRange, sex: Sex) :
-    PersonAgeSexDefinition(acceptedAgeRange, sex) {
+    PersonAgeSexDefinition(
+        acceptedAgeRange,
+        sex,
+    ) {
     override fun toString(): String =
         "MutablePersonAgeSexDefinition(acceptedAgeRange=$acceptedAgeRange, sex=$acceptedSex)"
 }

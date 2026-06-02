@@ -3,6 +3,7 @@ package domain.synthesis.parser
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.parsePoint
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
@@ -34,7 +35,7 @@ data class ZoneColumns(
 
 data class ZoneCsvConfig(
     var columns: ZoneColumns = ZoneColumns(),
-    var centroidParser: (String) -> Point = TODO(), // String::parseRoadPositionWGS,
+    var centroidParser: (String) -> Point = String::parsePoint,
     var reliefUnit: DistanceUnit = DistanceUnit.METERS,
     var regionTypeCodes: CodePlan<RegionType> = RegioStaR17,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,

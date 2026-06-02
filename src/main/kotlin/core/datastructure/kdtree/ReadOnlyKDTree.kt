@@ -151,8 +151,9 @@ private class KDTreeLeaf<T>(override val point: T, val converter: (T) -> DoubleA
 
     override fun <S> evaluate(element: S, metric: (S) -> KDPoint): List<WithMetric<KDElement<T>, Double>> = listOf()
 
-    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double =
-        converter(element).distanceTo(this.converter(point))
+    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double = converter(
+        element,
+    ).distanceTo(this.converter(point))
 
     override fun toString(): String = point.toString()
 }
@@ -172,8 +173,9 @@ private class KDTreeNode<T>(points: List<T>, comparatorBlock: ComparatorBlock<T>
         WithMetric(right, right.distance(element, metric)),
     )
 
-    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double =
-        bounds.closestDistance(converter(element))
+    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double = bounds.closestDistance(
+        converter(element),
+    )
 
     //
     override fun find(element: T): T = if (comparator.compare(converter(element)[index], pivot[index]) <= 0) {

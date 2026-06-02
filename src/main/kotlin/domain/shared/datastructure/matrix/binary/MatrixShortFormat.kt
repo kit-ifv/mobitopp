@@ -28,10 +28,12 @@ object MatrixShortFormat : StandardMatrixBinaryFormat {
         }
     }
 
-    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray =
-        readLoop(byteBuffer, elements) {
-            it.ushort.convertedDouble()
-        }
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray = readLoop(
+        byteBuffer,
+        elements,
+    ) {
+        it.ushort.convertedDouble()
+    }
 
     inline val ByteBuffer.ushort get(): Int {
         return short.toInt() and 0xFFFF

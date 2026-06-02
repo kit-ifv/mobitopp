@@ -12,8 +12,10 @@ object MatrixDoubleFormat : StandardMatrixBinaryFormat {
         }
     }
 
-    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray =
-        readLoop(byteBuffer, elements) {
-            it.double
-        }
+    override fun readContentFromBuffer(byteBuffer: ByteBuffer, elements: Int): DoubleArray = readLoop(
+        byteBuffer,
+        elements,
+    ) {
+        it.double
+    }
 }

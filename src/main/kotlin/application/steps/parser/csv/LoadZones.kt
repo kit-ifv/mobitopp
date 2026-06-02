@@ -75,12 +75,15 @@ fun <C : Context, CFG> C.zoneCsv(
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MaximalZone>? = binaryZoneFormat(),
 ): Resource<MaximalZone>
-    where CFG : SourceFilesConfig, CFG : UnitConfig, CFG : RegionCodesConfig =
-    CsvResource(path, parser, delimiter).let { csv ->
-        binaryCache?.let {
-            csv.cachedCsv(it)
-        } ?: csv
-    }
+    where CFG : SourceFilesConfig, CFG : UnitConfig, CFG : RegionCodesConfig = CsvResource(
+    path,
+    parser,
+    delimiter,
+).let { csv ->
+    binaryCache?.let {
+        csv.cachedCsv(it)
+    } ?: csv
+}
 
 /**
  * Creates a binary cache configuration for zones.

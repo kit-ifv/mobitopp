@@ -111,39 +111,38 @@ data class SharingProviderByStationCsvColumns(
     val zone: String = "zone",
 )
 
-fun createSharingProviderStationParser(
-    csvConfig: SharingProviderByStationCsvConfig,
-): CsvParser<MutableSharingProvider> = csvConfig.run {
-    val providers = mutableMapOf<String, MutableSharingProvider>()
+fun sharingProviderStationParser(csvConfig: SharingProviderByStationCsvConfig): CsvParser<MutableSharingProvider> =
+    csvConfig.run {
+        val providers = mutableMapOf<String, MutableSharingProvider>()
 
-    CsvParser.Companion { row ->
+        CsvParser.Companion { row ->
 
-        val providerName = row(columns.provider)
-        var newProvider = false
-        val provider = providers.computeIfAbsent(providerName) { n ->
-            newProvider = true
-            MutableSharingProvider(providerIdSource(row)) {
-                this.name = n
-                this.mode = sharingMode
-                this.operatingHours = csvConfig.operatingHours
+            val providerName = row(columns.provider)
+            var newProvider = false
+            val provider = providers.computeIfAbsent(providerName) { n ->
+                newProvider = true
+                MutableSharingProvider(providerIdSource(row)) {
+                    this.name = n
+                    this.mode = sharingMode
+                    this.operatingHours = csvConfig.operatingHours
+                }
             }
+
+            val uid = row(columns.uid)
+            val name = row(columns.name)
+            val initVehicles = row.int(columns.numVehicles)
+            val zone = getZone(ZoneId(row.long(columns.zone)))
+            val location = locationParser(row, zone)
+            val zonesByFoot = zonesByFoot(row, sharingMode, location, getZone)
+
+            MutableSharingStation(stationIdSource(row), owner = provider) {
+                this.uid = uid
+                this.name = name
+                this.location = location
+                this.initialVehicleCount = initVehicles
+                this.zonesByFoot.addAll(zonesByFoot)
+            }
+
+            provider.takeIf { newProvider }
         }
-
-        val uid = row(columns.uid)
-        val name = row(columns.name)
-        val initVehicles = row.int(columns.numVehicles)
-        val zone = getZone(ZoneId(row.long(columns.zone)))
-        val location = locationParser(row, zone)
-        val zonesByFoot = zonesByFoot(row, sharingMode, location, getZone)
-
-        MutableSharingStation(stationIdSource(row), owner = provider) {
-            this.uid = uid
-            this.name = name
-            this.location = location
-            this.initialVehicleCount = initVehicles
-            this.zonesByFoot.addAll(zonesByFoot)
-        }
-
-        provider.takeIf { newProvider }
     }
-}

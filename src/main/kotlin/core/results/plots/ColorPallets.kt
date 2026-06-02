@@ -39,6 +39,9 @@ val kitGreenShades = KIT_GREEN.lighterShades(5)
 val kitBlueShades = KIT_BLUE.lighterShades(5)
 val kitRedShades = KIT_RED.lighterShades(5)
 
+/**
+ * Provides random RGB colors from a predefined set of KIT colors.
+ */
 object RandomRGBProvider {
 
     private val random = Random(42L)
@@ -49,13 +52,35 @@ object RandomRGBProvider {
         KIT_STEELBLUE, KIT_CYAN,
     ).distinct().shuffled(random)
 
+    /**
+     * Returns the next random [RGB] color.
+     *
+     * @return A random [RGB] color.
+     */
     fun next(): RGB = colors.random(random)
 }
 
+/**
+ * Returns a random [RGB] color from the [RandomRGBProvider].
+ *
+ * @return A random [RGB] color.
+ */
 fun randomColor() = RandomRGBProvider.next()
 
+/**
+ * Returns [KIT_GREEN] if [value] is true, otherwise [KIT_BLUE].
+ *
+ * @param value The boolean value.
+ * @return A [RGB] color.
+ */
 fun boolColor(value: Boolean) = if (value) KIT_GREEN else KIT_BLUE
 
+/**
+ * Returns a predefined color for common transport mode strings.
+ *
+ * @param modeString The transport mode string (e.g., "bike", "car").
+ * @return A [RGB] color representing the mode.
+ */
 @Suppress("CyclomaticComplexMethod")
 fun modeStringColor(modeString: String): RGB = when (modeString.lowercase()) {
     "bike" -> kitBlueShades[0]
@@ -76,11 +101,22 @@ fun modeStringColor(modeString: String): RGB = when (modeString.lowercase()) {
 
 private const val MAX_COLOR_INT = 255
 
-private fun validateRgbValue(label: String, value: Int) =
-    require(value in (0..MAX_COLOR_INT)) { "RGB values must be between 0 and 255 but $label is $value!" }
+/**
+ * Validates that an RGB component value is between 0 and 255.
+ */
+private fun validateRgbValue(label: String, value: Int) = require(value in (0..MAX_COLOR_INT)) {
+    "RGB values must be between 0 and 255 but $label is $value!"
+}
 
 private const val CIRCLE_DEGREES = 360
 
+/**
+ * Represents a color in the RGB color space.
+ *
+ * @property r Red component (0-255).
+ * @property g Green component (0-255).
+ * @property b Blue component (0-255).
+ */
 data class RGB(val r: Int, val g: Int, val b: Int) {
 
     init {
@@ -89,9 +125,17 @@ data class RGB(val r: Int, val g: Int, val b: Int) {
         validateRgbValue("b", b)
     }
 
+    /**
+     * Converts this [RGB] color to a Kandy [StandardColor.RGB].
+     *
+     * @return A [StandardColor.RGB] object.
+     */
     fun toColor(): StandardColor.RGB = Color.rgb(r, g, b)
 }
 
+/**
+ * Converts this [RGB] color to HSL.
+ */
 @Suppress("MagicNumber")
 private fun RGB.toHsl(): HSL {
     val r = this.r / 255.0
@@ -120,6 +164,9 @@ private fun RGB.toHsl(): HSL {
     return HSL(h % CIRCLE_DEGREES, s, l)
 }
 
+/**
+ * Represents a color in the HSL color space.
+ */
 private data class HSL(val h: Double, val s: Double, val l: Double) {
 
     init {
@@ -128,6 +175,11 @@ private data class HSL(val h: Double, val s: Double, val l: Double) {
         require(l in 0.0..1.0) { "HSL lightness value should be in [0,1] but is $l!" }
     }
 
+    /**
+     * Converts this [HSL] color back to [RGB].
+     *
+     * @return An [RGB] object.
+     */
     @Suppress("MagicNumber")
     fun toRbg(): RGB {
         val c = (1 - abs(2 * this.l - 1)) * this.s
@@ -150,9 +202,17 @@ private data class HSL(val h: Double, val s: Double, val l: Double) {
         )
     }
 
+    /**
+     * Converts this [HSL] color to a Kandy [Color].
+     *
+     * @return A [Color] object.
+     */
     fun toColor(): Color = toRbg().toColor()
 }
 
+/**
+ * Converts a hex color to [RGB].
+ */
 @Suppress("MagicNumber")
 private fun HexColor.hexToRbg() = hexString.removePrefix("#").let {
     val r = it.substring(0, 2).toInt(16)
@@ -162,6 +222,13 @@ private fun HexColor.hexToRbg() = hexString.removePrefix("#").let {
     RGB(r, g, b)
 }
 
+/**
+ * Converts a Kandy [Color] to [RGB].
+ *
+ * @receiver The Kandy [Color] to convert.
+ * @return An [RGB] object.
+ * @throws IllegalStateException If the color type is not supported.
+ */
 fun Color.toRgb() = when (this) {
     is StandardColor.RGB -> RGB(r, g, b)
     is StandardColor.RGBA -> rgb.let { RGB(it.r, it.g, it.b) }
@@ -170,10 +237,27 @@ fun Color.toRgb() = when (this) {
     else -> error("Cannot rgb values from ${this::class.simpleName}: '$this'")
 }
 
+/**
+ * Converts a Kandy [Color] to [HSL].
+ */
 private fun Color.toHsl() = this.toRgb().toHsl()
 
+/**
+ * Scales the lightness of a [Color] by a factor.
+ *
+ * @receiver The [Color] to scale.
+ * @param factor The scaling factor (>= 0).
+ * @return A new [Color] with scaled lightness.
+ */
 fun Color.scaleLightness(factor: Double): Color = toRgb().scaleLightness(factor).toColor()
 
+/**
+ * Scales the lightness of an [RGB] color by a factor.
+ *
+ * @receiver The [RGB] color to scale.
+ * @param factor The scaling factor (>= 0).
+ * @return A new [RGB] color with scaled lightness.
+ */
 fun RGB.scaleLightness(factor: Double): RGB = require(factor >= 0.0) {
     "Scaling factor for color lightness should not be negative but is $factor!"
 }.let {
@@ -183,12 +267,40 @@ fun RGB.scaleLightness(factor: Double): RGB = require(factor >= 0.0) {
     }.toRbg()
 }
 
+/**
+ * Sets the lightness of a [Color].
+ *
+ * @receiver The [Color] to modify.
+ * @param lightness The new lightness value (0-1).
+ * @return A new [Color] with the specified lightness.
+ */
 fun Color.withLightness(lightness: UnitIntervalValue): Color = toRgb().withLightness(lightness).toColor()
 
+/**
+ * Sets the lightness of an [RGB] color.
+ *
+ * @receiver The [RGB] color to modify.
+ * @param lightness The new lightness value (0-1).
+ * @return A new [RGB] color with the specified lightness.
+ */
 fun RGB.withLightness(lightness: UnitIntervalValue): RGB = this.toHsl().copy(l = lightness.toDouble()).toRbg()
 
+/**
+ * Scales the saturation of a [Color] by a factor.
+ *
+ * @receiver The [Color] to scale.
+ * @param factor The scaling factor (>= 0).
+ * @return A new [Color] with scaled saturation.
+ */
 fun Color.scaleSaturation(factor: Double): Color = toRgb().scaleSaturation(factor).toColor()
 
+/**
+ * Scales the saturation of an [RGB] color by a factor.
+ *
+ * @receiver The [RGB] color to scale.
+ * @param factor The scaling factor (>= 0).
+ * @return A new [RGB] color with scaled saturation.
+ */
 fun RGB.scaleSaturation(factor: Double): RGB = require(factor >= 0.0) {
     "Scaling factor for color saturation should not be negative but is $factor!"
 }.let {
@@ -198,12 +310,40 @@ fun RGB.scaleSaturation(factor: Double): RGB = require(factor >= 0.0) {
     }.toRbg()
 }
 
+/**
+ * Sets the saturation of a [Color].
+ *
+ * @receiver The [Color] to modify.
+ * @param saturation The new saturation value (0-1).
+ * @return A new [Color] with the specified saturation.
+ */
 fun Color.withSaturation(saturation: UnitIntervalValue): Color = toRgb().withSaturation(saturation).toColor()
 
+/**
+ * Sets the saturation of an [RGB] color.
+ *
+ * @receiver The [RGB] color to modify.
+ * @param saturation The new saturation value (0-1).
+ * @return A new [RGB] color with the specified saturation.
+ */
 fun RGB.withSaturation(saturation: UnitIntervalValue): RGB = this.toHsl().copy(s = saturation.toDouble()).toRbg()
 
+/**
+ * Shifts the hue of a [Color] by a given amount.
+ *
+ * @receiver The [Color] to shift.
+ * @param by The amount to shift the hue in degrees.
+ * @return A new [Color] with shifted hue.
+ */
 fun Color.shiftHue(by: Double): Color = toRgb().shiftHue(by).toColor()
 
+/**
+ * Shifts the hue of an [RGB] color by a given amount.
+ *
+ * @receiver The [RGB] color to shift.
+ * @param by The amount to shift the hue in degrees.
+ * @return A new [RGB] color with shifted hue.
+ */
 fun RGB.shiftHue(by: Double): RGB = this.toHsl().let {
     val shiftedHue = ((it.h + by) % 360.0).let { hue ->
         if (hue < 0.0) {
@@ -215,8 +355,22 @@ fun RGB.shiftHue(by: Double): RGB = this.toHsl().let {
     it.copy(h = shiftedHue)
 }.toRbg()
 
+/**
+ * Sets the hue of a [Color].
+ *
+ * @receiver The [Color] to modify.
+ * @param hue The new hue value in degrees (0-360).
+ * @return A new [Color] with the specified hue.
+ */
 fun Color.withHue(hue: Double): Color = toRgb().withHue(hue).toColor()
 
+/**
+ * Sets the hue of an [RGB] color.
+ *
+ * @receiver The [RGB] color to modify.
+ * @param hue The new hue value in degrees (0-360).
+ * @return A new [RGB] color with the specified hue.
+ */
 fun RGB.withHue(hue: Double): RGB = this.toHsl().let {
     val newHue = (hue % 360.0).let { h ->
         if (h < 0.0) {
@@ -228,8 +382,22 @@ fun RGB.withHue(hue: Double): RGB = this.toHsl().let {
     it.copy(h = newHue).toRbg()
 }
 
+/**
+ * Generates [n] darker shades of a [Color].
+ *
+ * @receiver The base [Color].
+ * @param n The number of shades to generate.
+ * @return A list of [n] + 1 colors (including the base color).
+ */
 fun Color.darkerShades(n: Int): List<Color> = toRgb().darkerShades(n).map { it.toColor() }
 
+/**
+ * Generates [n] darker shades of an [RGB] color.
+ *
+ * @receiver The base [RGB] color.
+ * @param n The number of shades to generate.
+ * @return A list of [n] + 1 colors (including the base color).
+ */
 fun RGB.darkerShades(n: Int): List<RGB> {
     val step = 1.0 / n
 
@@ -240,8 +408,22 @@ fun RGB.darkerShades(n: Int): List<RGB> {
     }.toList()
 }
 
+/**
+ * Generates [n] lighter shades of a [Color].
+ *
+ * @receiver The base [Color].
+ * @param n The number of shades to generate.
+ * @return A list of [n] + 1 colors (including the base color).
+ */
 fun Color.lighterShades(n: Int): List<Color> = toRgb().lighterShades(n).map { it.toColor() }
 
+/**
+ * Generates [n] lighter shades of an [RGB] color.
+ *
+ * @receiver The base [RGB] color.
+ * @param n The number of shades to generate.
+ * @return A list of [n] + 1 colors (including the base color).
+ */
 fun RGB.lighterShades(n: Int): List<RGB> {
     val lightness = this.toHsl().l
     val step = (1 - lightness) / n
@@ -253,9 +435,26 @@ fun RGB.lighterShades(n: Int): List<RGB> {
     }.toList()
 }
 
-fun Color.hueScale(n: Int, range: Double = CIRCLE_DEGREES.toDouble()): List<Color> =
-    toRgb().hueScale(n, range).map { it.toColor() }
+/**
+ * Generates a color scale by shifting the hue of a [Color].
+ *
+ * @receiver The base [Color].
+ * @param n The number of colors in the scale.
+ * @param range The total hue range to cover in degrees.
+ * @return A list of [n] + 1 colors.
+ */
+fun Color.hueScale(n: Int, range: Double = CIRCLE_DEGREES.toDouble()): List<Color> = toRgb().hueScale(n, range).map {
+    it.toColor()
+}
 
+/**
+ * Generates a color scale by shifting the hue of an [RGB] color.
+ *
+ * @receiver The base [RGB] color.
+ * @param n The number of colors in the scale.
+ * @param range The total hue range to cover in degrees.
+ * @return A list of [n] + 1 colors.
+ */
 fun RGB.hueScale(n: Int, range: Double = CIRCLE_DEGREES.toDouble()): List<RGB> {
     val hue = this.toHsl().h
     val step = range / n
