@@ -26,6 +26,7 @@ import domain.synthesis.data.SharingProvider
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
+//TODO split into model steps to define mode avail, mode choice, destination choice individually
 /**
  * Loads and initializes the behavior models for person agents.
  *

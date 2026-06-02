@@ -131,26 +131,3 @@ fun <C : Context, CFG> C.zoneCsvParser(
             it.customizeCsvConfig()
         },
     )
-
-// fun cheatyDefaultCsvParser(
-//    errorHandling: ErrorHandling = ErrorHandling.WARNING,
-//    seed: Long = 1L
-// ): DefaultCsvParser<MutableZone> {
-//    val csvParser = CsvParser(errorHandling) { row ->
-//        MutableZone(
-//            id = ZoneId(row.long("id")),
-//            centroid = Location.BIELEFELD,
-//            seed = seed
-//        ) {
-//            visumId = row.long("id")
-//            name = row("zone_name")
-//            regionType = RegioStaR17.REGIOPOLE
-//            classification = ZoneClassification.STUDY_AREA
-//            parkingPlaces = 0
-//            isDestination = true
-//            relief = 0.meters
-//        }
-//    }
-//
-//    return csvParser
-// }

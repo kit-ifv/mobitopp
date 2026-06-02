@@ -129,35 +129,6 @@ val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
 val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 
-// val standardConfig = ShortTermConfig(
-//    visumNetwork = visum_network,
-//    fractionOfPopulation = 0.2,
-//
-//    zoneMatrixCreationMethod = VisumMatrixCreator,
-// //    simulationContext = ExampleProjectContext(
-// //        scenarioName = "MobitoppReengineeringMain",
-// //        dataFolder = dataFolder,
-// //        modes = MainModes,
-// //        simulationSeed = 42,
-// //        regionTypeCodes = RegioStaR17
-// //    ),
-//    errorHandling = ErrorHandling.WARNING,
-//    resultPath = Path("results"),
-//
-//    destinationChoiceModel = legacyDestinationChoiceBuilder.build(DestinationChoiceParameters()),
-//    modeChoiceModel = legacyModeChoiceBuilder.build(ModeChoiceParameters()),
-//
-//    sourceFiles = CoreCSVConfig(
-//        dataRepo = dataFolder,
-//        zoneRepo = Path("src/test/resources/testDemand/zone-repository/"),
-//        attractivitiesCSV = attractivities,
-//    ),
-// ).apply {
-//    matrixConfig = MatrixConfig(matrixRepo = Path("src/test/resources/test_matrix"))
-//    resultName = "mobitopp-integration.main.csv"
-//    choiceModelModes = legacyChoiceModelModes
-// }
-
 val exampleChoiceModelModes = legacyChoiceModelModes.copy(options = MainModes.values())
 
 class MyContext :
@@ -221,7 +192,7 @@ class MyConfig :
     ResultsConfig {
 
     override val seed: Long = 42L
-    override val fractionOfPopulation: UnitIntervalValue = 0.2.share()
+    override val fractionOfPopulation: UnitIntervalValue = 1.0.share()
     override val simulationStart: AbsoluteTime = AbsoluteTime.START
     override val simulationEnd: AbsoluteTime = simulationStart + 7.days
     override val timeStep: Duration = 1.minutes

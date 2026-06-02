@@ -31,10 +31,6 @@ import domain.synthesis.data.Person
 import domain.synthesis.data.PrivateCar
 import domain.synthesis.data.SharingProvider
 
-// TODO remove distinction between agents and data object entities, then build agents is no longer needed
-
-// TODO move to other file knowing about mobitopp when restructuring packages
-
 /**
  * Creates a [GaussianActivityDurationRandomizer] based on the simulation duration.
  *
@@ -72,7 +68,7 @@ fun gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
  * @param drtAlgorithm Optional function to create [DrtAlgorithm]s for [DrtProvider]s.
  */
 context(config: Config)
-fun <C> C.buildSimulationAgents( // TODO refactor to Context requirements and onw model steps for setup
+fun <C> C.buildSimulationAgents(
     personStateMachine: StateMachineFactory<PersonAgent>,
     durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
     drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
