@@ -12,7 +12,7 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.parsePoint
 import domain.shared.location.zone.MaximalZone
 import domain.synthesis.parser.ZoneColumns

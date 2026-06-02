@@ -1,6 +1,6 @@
 package domain.shared.location
 
-import domain.shared.location.attributes.HasRoadAccess
+import domain.shared.location.zone.attributes.HasRoadAccess
 import edu.kit.ifv.units.KCoordinate
 import edu.kit.ifv.units.UTMPosition
 import edu.kit.ifv.units.WGS84Coordinate
@@ -40,10 +40,6 @@ data class RoadAccessLocationImpl(override val position: Point, override val roa
 interface ZonedRoadAccessLocation :
     HasRoadAccess,
     LocationWithZoneId
-
-interface ZonedLocation : Location {
-    val zoneId: ZoneId
-}
 
 fun CoordinateSystem.axisUnits(): Set<String> = (0 until dimension).map { this.getAxis(it).unit.name }.toSet()
 

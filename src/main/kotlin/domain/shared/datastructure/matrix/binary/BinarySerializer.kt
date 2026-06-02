@@ -1,7 +1,7 @@
 package domain.shared.datastructure.matrix.binary
 
 import domain.shared.datastructure.matrix.StandardMatrix
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import utils.files.PathChecksum
 import java.io.BufferedOutputStream
 import java.io.DataInputStream

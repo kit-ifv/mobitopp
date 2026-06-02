@@ -8,12 +8,12 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.toPoint
-import domain.shared.location.toZoneId
+import domain.shared.location.zone.toZoneId
 import domain.shared.location.zone.MaximalZone
-import domain.shared.location.zone.MaximumZoneAttributes
+import domain.shared.location.zone.attributes.MaximumZoneAttributes
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarEngineStatistics

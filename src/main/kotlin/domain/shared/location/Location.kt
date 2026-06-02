@@ -1,7 +1,8 @@
 package domain.shared.location
 
-import domain.shared.location.attributes.HasRoadAccess
-import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.zone.attributes.HasRoadAccess
+import domain.shared.location.zone.attributes.HasZoneId
+import domain.shared.location.zone.ZoneId
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate

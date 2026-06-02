@@ -1,7 +1,7 @@
 package domain.shared.behavior
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
 import utils.ErrorHandling
 import utils.csv.CsvParser

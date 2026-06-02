@@ -1,6 +1,6 @@
 package domain.shared.datastructure.matrix.visum
 
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 
 interface VisumParser {
     fun getZoneIds(): Array<ZoneId>

@@ -6,7 +6,7 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.zone.attributes.HasZoneId
 import domain.synthesis.data.Employment
 import domain.synthesis.data.isAdult
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D

@@ -34,7 +34,7 @@ package application.config
 // import domain.shared.location.Impedance
 // import domain.shared.location.LegacyZone
 // import domain.shared.location.MutableLegacyZone
-// import domain.shared.location.ZoneId
+// import domain.shared.location.zone.ZoneId
 // import domain.simulation.agent.DrtProviderAgent
 // import domain.simulation.agent.PersonAgent
 // import domain.simulation.agent.SharingProviderAgent

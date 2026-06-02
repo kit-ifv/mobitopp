@@ -1,6 +1,6 @@
-package domain.shared.location.attributes
+package domain.shared.location.zone.attributes
 
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import utils.Identifiable
 
 interface HasZoneId : Identifiable<ZoneId> {

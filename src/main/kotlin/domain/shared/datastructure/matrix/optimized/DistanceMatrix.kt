@@ -1,8 +1,8 @@
 package domain.shared.datastructure.matrix.optimized
 
 import domain.shared.datastructure.matrix.ZoneIdMatrix
-import domain.shared.location.DistanceZoneMetric
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.DistanceZoneMetric
+import domain.shared.location.zone.ZoneId
 import edu.kit.ifv.units.Distance
 
 fun interface DoubleToDistance {

@@ -16,8 +16,8 @@ import core.modelsteps.steps.forAllStep
 import core.modelsteps.steps.loadBinary
 import core.modelsteps.steps.writeBinary
 import core.modelsteps.validation.validateFileReadAccess
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.ActivityId

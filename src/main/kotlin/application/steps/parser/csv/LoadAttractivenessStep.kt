@@ -13,7 +13,7 @@ import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.capitalizeWithUnderscores
 import domain.shared.enums.ActivityType
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import utils.csv.CsvReader
 import java.nio.file.Path
 import kotlin.io.path.name

@@ -3,7 +3,7 @@
 package domain.shared.datastructure.visum
 
 import domain.shared.datastructure.matrix.StandardMatrix
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths

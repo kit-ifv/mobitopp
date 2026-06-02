@@ -1,6 +1,7 @@
-package domain.shared.location
+package domain.shared.location.zone
 
-import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.LocationMetric
+import domain.shared.location.zone.attributes.HasZoneId
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 import kotlin.time.Duration

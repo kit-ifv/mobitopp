@@ -2,7 +2,7 @@ package domain.synthesis.data
 
 import Mutable
 import domain.shared.enums.Mode
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import utils.Identifiable
 
 @JvmInline

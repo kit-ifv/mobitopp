@@ -4,11 +4,10 @@ import application.steps.HasZoneRepo
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.updateBulkStep
 import core.modelsteps.scopes.updateEachStep
-import domain.shared.location.attributes.HasRegionType
-import domain.shared.location.zone.HasCentroid
+import domain.shared.location.zone.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasCentroid
 import domain.shared.location.zone.Zone
 import domain.synthesis.behavior.householdlocation.AssignAroundPoint
-import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.TrivialGroupStrategy
@@ -29,7 +28,7 @@ import edu.kit.ifv.units.meters
  * @receiver The simulation context [C].
  * @param C The context type. Must implement [HasZoneRepo] for [Zone].
  * @param repository The mutable repository of households to update. Provided via context.
- * @param model The model used to generate locations. Defaults to [AssignAroundZoneCentroid].
+ * @param model The model used to generate locations. Defaults to [AssignAroundPoint].
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>)
 fun <C, Z> C.assignHouseholdLocation(

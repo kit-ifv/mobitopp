@@ -6,9 +6,8 @@ import domain.shared.location.Impedance
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRegionType
-import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
@@ -58,14 +57,14 @@ fun parseCommaSeparatedZones(column: String): (Row, Mode, StandardLocation, GetZ
 
 fun filterZonesByFootInRadius(
     threshold: Distance,
-    zoneRepository: Repository<StandardZone, ZoneId>,
+    zoneRepository: Repository<Zone<*>, ZoneId>,
     impedance: Impedance,
 ): (
     Row,
     Mode,
     StandardLocation,
     GetZone,
-) -> List<StandardZone> =
+) -> List<Zone<*>> =
     { _, mode, stationLocation, getZone ->
         val zone = getZone(stationLocation.zoneId)
         zoneRepository.elements.filter {

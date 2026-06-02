@@ -1,16 +1,13 @@
 package domain.synthesis
 
-import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.DeprecatedZone
-import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRegionType
-import domain.shared.location.toZoneId
-import domain.shared.location.zone.HasVisumId
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
+import domain.shared.location.zone.toZoneId
+import domain.shared.location.zone.attributes.HasVisumId
 import domain.shared.location.zone.Zone
 import domain.synthesis.behavior.householdlocation.ZoneDistributedLocations
 import edu.kit.ifv.LandUseParser
@@ -19,9 +16,7 @@ import edu.kit.ifv.UrbanAtlasGenerator
 import edu.kit.ifv.VisumLocale
 import edu.kit.ifv.ZoneType
 import edu.kit.ifv.readPolyZones
-import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.Hemisphere
-import edu.kit.ifv.units.meters
 import utils.csv.DefaultCsvReader
 import kotlin.io.path.Path
 import kotlin.test.Test
@@ -112,20 +107,5 @@ class ZoneDistributedLocationsTest {
         }
     }
 }
-
-@Suppress("LongParameterList", "UnusedPrivateClass")
-private class TestZone(
-    override var parkingPlaces: Int = 1,
-    override val visumId: Long = 0L,
-    override val name: String = "TestZone",
-    override val regionType: RegionType = RegioStaR17.METROPOLE,
-    override val classification: ZoneClassification = ZoneClassification.STUDY_AREA,
-    override val isDestination: Boolean = true,
-    override val relief: Distance = 0.meters,
-) : DeprecatedZone(
-    id = ZoneId(visumId),
-    centroid = Location.wgs(9.0, 50.0),
-    seed = 0L,
-)
 
 private class TestHouseHold(val name: String = "TestHouseHold")

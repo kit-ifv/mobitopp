@@ -8,7 +8,7 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.LocatableGraph
 import domain.shared.enums.Mode
 import domain.shared.location.Impedance
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.simulation.agent.DrtProviderMessage
 import domain.simulation.agent.PersonMessage
 import domain.simulation.events.PersonBehavior

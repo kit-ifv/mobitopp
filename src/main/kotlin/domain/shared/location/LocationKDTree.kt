@@ -8,7 +8,6 @@ import edu.kit.ifv.units.toDistance
 
 /**
  * A KD-tree built by locations using the UTM Coordinate Representation.
- * TODO test that this datastructure works with very distant points in UTM
  */
 class LocationKDTree(locations: List<StandardLocation>) {
     private val tree = ReadOnlyKDTree(locations, { it.position.x }, { it.position.y })

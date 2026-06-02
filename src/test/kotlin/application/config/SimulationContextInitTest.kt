@@ -19,7 +19,7 @@ import core.modelsteps.resources.MapRepository
 import core.modelsteps.resources.MutableRepository
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit

@@ -3,9 +3,9 @@ package domain.synthesis.parser.binary
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
-import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share

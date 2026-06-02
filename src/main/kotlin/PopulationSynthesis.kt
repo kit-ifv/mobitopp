@@ -3,13 +3,15 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.attributes.HasZoneId
-import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasGeometricEmbedding
+import domain.shared.location.zone.Zone
 import domain.synthesis.SynthesisSteps
 import domain.synthesis.algorithms.TrivialSynthesis
 import domain.synthesis.assignAmountOfCars
@@ -39,7 +41,7 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistan
 import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
-import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
+import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import domain.synthesis.results.LegacyActivityOutput
@@ -55,6 +57,7 @@ import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toCurrency
+import org.locationtech.jts.geom.Geometry
 import utils.csv.DefaultCsvParser
 import utils.csv.Row
 import java.nio.file.Path
@@ -293,20 +296,13 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
     }
 }
 
-@Deprecated("This interface does not fill a purpose")
-fun interface GenerateArtificialPopulationDeprecated<T> {
-    fun generateArtificialPopulation(): Collection<T>
-
-    companion object {
-        fun fromFile(fileString: String) = fromFile(Path(fileString))
-        fun fromFile(file: Path) = GenerateArtificialPopulationDeprecated {
-            parseSurvey(file).toList()
-        }
-    }
-}
-
 private val attractivenessModelPath = Path("src/test/resources/synthesis/attractivities.csv")
 
+
+private class ExampleZoneAttributes(
+    override val geometry: Geometry,
+    override val regionType: RegionType
+): HasGeometricEmbedding, HasRegionType
 @Suppress(
     "LongMethod",
     "MagicNumber",
@@ -314,7 +310,7 @@ private val attractivenessModelPath = Path("src/test/resources/synthesis/attract
 fun examplePopulationSynthesis() {
     val populationSynthesis = PopulationSynthesis.configure(
         surveyPopulation = GenerateFromFlatInput.fromPath("src/test/resources/synthesis/SurveyPopulation.csv"),
-        zones = emptyList<StandardZone>(),
+        zones = emptyList<Zone<ExampleZoneAttributes>>(),
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
         attractivenessModel = attractivenessFromFile {
@@ -351,7 +347,7 @@ fun examplePopulationSynthesis() {
         }
 
         assignLocations {
-            AssignAroundZoneCentroid(100.meters)
+            AssignAroundPoint(100.meters)
         }
 
         assignEconomicStatus {
@@ -445,20 +441,11 @@ fun main() {
     examplePopulationSynthesis()
 }
 
-@Suppress("MagicNumber") // 10 is the number of locations to be generated, no thought is behind that number
-private fun Collection<StandardZone>.generateLocations(
-    attractivenessModel: AttractivenessModel,
-    activityType: ActivityType,
-    generationFunction: (StandardZone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
-): List<HasZoneId> = filter { attractivenessModel.isAttractive(it.id, activityType) }.flatMap {
-    it.generateLocations(generationFunction(it, attractivenessModel, activityType))
-}
-
 @Suppress("MagicNumber") // These magic numbers are ok
-private fun StandardZone.generateLocations(amount: Int): List<StandardLocation> {
+private fun <Z> Zone<Z>.generateLocations(amount: Int) : List<StandardLocation> where Z: HasGeometricEmbedding, Z: HasRegionType {
     return (0 until amount).map {
         BetterLocation(
-            position = randomPoint(),
+            position = attributes.randomPoint(),
             zone = this,
             roadAccess = RoadAccess.INVALID,
         )

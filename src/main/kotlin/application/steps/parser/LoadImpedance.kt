@@ -15,7 +15,7 @@ import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Impedance
-import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.zone.attributes.HasZoneId
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters

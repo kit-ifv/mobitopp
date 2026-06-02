@@ -19,8 +19,7 @@ import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.attributes.HasRegionType
-import domain.shared.location.zone.StandardZone
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProviderId
@@ -49,7 +48,7 @@ import java.nio.file.Path
 fun <C> C.sharingProviders(
     sealed: Boolean = false,
     scope: context(MutableRepository<MutableSharingProvider, SharingProviderId>) C.() -> Unit,
-) where C : HasZoneRepo<*, StandardZone>, C : HasSharingProviderRepo<MutableSharingProvider, *> =
+) where C : HasZoneRepo<*, Zone<*>>, C : HasSharingProviderRepo<MutableSharingProvider, *> =
     mutableRepositoryScope<C, MutableSharingProvider, SharingProviderId>(
         getter = { mutableSharingProviderRepository },
         sealed = sealed,
@@ -69,7 +68,7 @@ context(repository: MutableRepository<MutableSharingProvider, SharingProviderId>
 fun <C> C.loadSharingProviders(
     resource: Resource<MutableSharingProvider>,
     dependentRepositories: Set<Repository<*, *>> = setOf(zoneRepository),
-) where C : HasZoneRepo<*, StandardZone> = addResourceStep<C, MutableSharingProvider, SharingProviderId>(
+) where C : HasZoneRepo<*, Zone<*>> = addResourceStep<C, MutableSharingProvider, SharingProviderId>(
     name = "load sharing providers from ${resource.name}",
     resource = resource,
     dependentRepositories = dependentRepositories,
