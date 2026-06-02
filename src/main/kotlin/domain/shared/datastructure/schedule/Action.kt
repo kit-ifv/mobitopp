@@ -6,6 +6,7 @@ import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
 import utils.units.AbsoluteTime
 import utils.units.min
+import utils.units.sinceStart
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -82,6 +83,7 @@ fun Iterable<Action>.isConsistent(): Boolean = isWeaklyConsistent() && all { it.
 fun Iterable<Action>.isWeaklyConsistent(): Boolean = zipWithNext { first, second ->
     first.endLocation == second.startLocation && first.endTime <= second.startTime
 }.all { it }
+
 fun Iterable<Action>.hasTimeBoundViolations(): Boolean = any {
     it.startTime < it.earliestStartTime || it.endTime > it.latestEndTime
 }
@@ -185,7 +187,23 @@ interface Activity : StationaryAction {
             latestEndTime = latestEndTime,
             type = type,
         )
+
+        fun fromTimes(start: AbsoluteTime, end: AbsoluteTime, type: ActivityType): Activity {
+            require(
+                start <= end,
+            ) { "Cannot create activity where start time is larger than end time: [start=$start , end=$end]" }
+
+            return fromDuration(StandardLocation.LOCATIONUNKNOWN, start, end - start, type = type)
+        }
+
+        fun fromTimes(start: Duration, end: Duration, type: ActivityType): Activity = fromTimes(
+            start.sinceStart,
+            end.sinceStart,
+            type,
+        )
     }
+
+
 }
 
 /**
@@ -205,7 +223,7 @@ data class RawActivity(
     override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
     override var type: ActivityType = ActivityType.UNKNOWN,
 
-) : Activity {
+    ) : Activity {
 
     init {
         require(duration > Duration.ZERO) {
@@ -217,8 +235,8 @@ data class RawActivity(
     override fun equals(other: Any?): Boolean {
         if (other !is StationaryAction) return false
         return startTime == other.startTime &&
-            location == other.location &&
-            endTime == other.endTime
+                location == other.location &&
+                endTime == other.endTime
     }
 
     override fun hashCode(): Int {
@@ -233,8 +251,8 @@ data class RawActivity(
             if (earliestStartTime == AbsoluteTime.MINUS_INFINITY) "" else "earliestStartTime=$earliestStartTime"
         val latestEndTime = if (latestEndTime == AbsoluteTime.INFINITY) "" else "latestEndTime=$latestEndTime"
         return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneId}" +
-            " t= ${type.description.first()}" +
-            "(${type.code}) e=$earlyStartTime l=$latestEndTime "
+                " t= ${type.description.first()}" +
+                "(${type.code}) e=$earlyStartTime l=$latestEndTime "
     }
 }
 
@@ -337,14 +355,14 @@ data class RawLeg(
     override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
     override var transportType: Mode,
 
-) : Leg {
+    ) : Leg {
     override val duration: Duration get() = endTime - startTime
     override fun equals(other: Any?): Boolean {
         if (other !is MovingAction) return false
         return startTime == other.startTime &&
-            startLocation == other.startLocation &&
-            endLocation == other.endLocation &&
-            endTime == other.endTime
+                startLocation == other.startLocation &&
+                endLocation == other.endLocation &&
+                endTime == other.endTime
     }
 
     override fun hashCode(): Int {

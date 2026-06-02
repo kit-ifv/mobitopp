@@ -1,4 +1,4 @@
-package domain.synthesis.algorithms
+package integration
 
 import edu.kit.ifv.populationsynthesis.rules.Rule
 import edu.kit.ifv.populationsynthesis.rules.RuleSet

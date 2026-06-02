@@ -2,14 +2,6 @@ package domain.jackson
 
 import java.io.DataOutputStream
 
-interface Simplifiable<TO : BinaryWritable> {
-    fun simplify(): TO
-}
-
-interface BinaryWritable {
-    fun writeTo(outStream: DataOutputStream)
-}
-
 data class CarBinaryRecord(
     val id: Long,
     val ownerId: Long,

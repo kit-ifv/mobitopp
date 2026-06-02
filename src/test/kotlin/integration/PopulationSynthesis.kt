@@ -18,7 +18,7 @@ import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.AssignmentStep
 import domain.synthesis.HouseholdAssignmentStep
 import domain.synthesis.SynthesisSteps
-import domain.synthesis.algorithms.TrivialSynthesis
+import integration.TrivialSynthesis
 import domain.synthesis.assignAmountOfCars
 import domain.synthesis.assignEconomicStatus
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
@@ -309,6 +309,7 @@ fun examplePopulationSynthesis() {
         )
         assignActivities {
             ActiToppNGGenerator(legacyChoiceModelPurposes) {
+
                 ZoneRegionType.DEFAULT
             }
         }
