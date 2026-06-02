@@ -122,8 +122,8 @@ class SimulationContextInitTest {
             zones(sealed = false) {
                 loadZones(
                     zoneCsv(
-                    path = Path("src/test/resources/testDemand/zone-repository/zones.csv"),
-                )
+                        path = Path("src/test/resources/testDemand/zone-repository/zones.csv"),
+                    ),
                 )
             }
 

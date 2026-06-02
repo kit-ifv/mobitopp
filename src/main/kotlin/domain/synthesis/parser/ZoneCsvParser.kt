@@ -34,7 +34,7 @@ data class ZoneColumns(
 
 data class ZoneCsvConfig(
     var columns: ZoneColumns = ZoneColumns(),
-    var centroidParser: (String) -> Point =  TODO(), // String::parseRoadPositionWGS,
+    var centroidParser: (String) -> Point = TODO(), // String::parseRoadPositionWGS,
     var reliefUnit: DistanceUnit = DistanceUnit.METERS,
     var regionTypeCodes: CodePlan<RegionType> = RegioStaR17,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
@@ -46,8 +46,6 @@ fun createZoneCsvParser(csvConfig: ZoneCsvConfig): DefaultCsvParser<MaximalZone>
     val csvParser = CsvParser(errorHandling) { row ->
         val attributes = MaximumZoneAttributesImpl(
 
-
-
             visumId = row.long(columns.idColumn),
             name = row(columns.nameColumn),
             regionType = row.decode(columns.regionTypeColumn, regionTypeCodes),
@@ -55,13 +53,13 @@ fun createZoneCsvParser(csvConfig: ZoneCsvConfig): DefaultCsvParser<MaximalZone>
             parkingPlaces = row.int(columns.parkingPlacesColumn),
             isDestination = row.boolean(columns.isDestinationColumn),
             relief = row.double().distance(columns.reliefColumn, reliefUnit),
+            centroid = row(columns.centroidColumn, centroidParser),
         )
-
 
         MaximalZone(
             zoneId = ZoneId(row.long(columns.idColumn)),
             attributes = attributes,
-            centroid = row(columns.centroidColumn, centroidParser),
+
         )
     }
 
@@ -77,6 +75,6 @@ fun String.toZoneClassification() = when (this) { // TODO config option in csv c
 
     else -> throw UnsupportedOperationException(
         "String '$this' cannot be parsed as a ZoneClassification! " +
-                "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'",
+            "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'",
     )
 }

@@ -83,9 +83,7 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.location.Impedance
 import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.MaximalZone
-import domain.shared.location.zone.ZoneWithCentroid
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
@@ -292,14 +290,13 @@ fun main(args: Array<String>) {
 //            }
         val zoneByIndex: (ZoneId) -> MaximalZone = { zoneRepository.elements.elementAt(it.value.toInt()) }
 
-
         households {
             loadHouseholds(
                 householdCsv(
-                parser = householdCsvParser {
-                    getZone = zoneByIndex
-                },
-            )
+                    parser = householdCsvParser {
+                        getZone = zoneByIndex
+                    },
+                ),
             )
 
             filterFractionOfPopulation()

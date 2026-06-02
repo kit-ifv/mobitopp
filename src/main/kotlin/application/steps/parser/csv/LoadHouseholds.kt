@@ -18,9 +18,7 @@ import core.modelsteps.scopes.filterStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.parseRoadPositionWGS
-import domain.shared.location.zone.StandardZone
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
@@ -87,7 +85,7 @@ fun <C, CFG> C.householdCsv(
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableHousehold>? = binaryHouseholdFormat(),
 ): Resource<MutableHousehold>
-    where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
+    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
     CsvResource(
         path,
         parser,
@@ -109,7 +107,7 @@ fun <C, CFG> C.householdCsv(
  */
 context(config: CFG)
 fun <C, CFG> C.binaryHouseholdFormat(): BinaryCacheConfig<MutableHousehold>
-    where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SourceFilesConfig =
+    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig =
     BinaryCacheConfig<MutableHousehold>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryHouseholdReader(
@@ -175,9 +173,7 @@ fun <C : Context> C.filterHouseholds(valid: Collection<HouseholdId>) =
  */
 @Suppress("MagicNumber")
 context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: SimulationConfig)
-fun <C : Context> C.filterFractionOfPopulation(
-    fraction: UnitIntervalValue = config.fractionOfPopulation,
-) {
+fun <C : Context> C.filterFractionOfPopulation(fraction: UnitIntervalValue = config.fractionOfPopulation) {
     var counter = 0
     val acceptedIncrement = (1 / fraction.toDouble()).roundToInt()
     filterStep("filter ${(fraction.toDouble() * 100).toInt()}% of households") {

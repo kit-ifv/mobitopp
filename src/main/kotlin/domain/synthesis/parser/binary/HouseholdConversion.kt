@@ -2,7 +2,7 @@ package domain.synthesis.parser.binary
 
 import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRegionType
-import domain.shared.location.zone.ZoneWithCentroid
+import domain.shared.location.zone.Zone
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -23,7 +23,7 @@ import java.nio.ByteBuffer
  */
 @Suppress("MagicNumber")
 class BinaryHouseholdReader(
-    private val zoneConverter: (ZoneId) -> ZoneWithCentroid<HasRegionType>,
+    private val zoneConverter: (ZoneId) -> Zone<HasRegionType>,
     private val contextSimulationSeed: Long,
 ) : BinaryReader<MutableHousehold> {
 

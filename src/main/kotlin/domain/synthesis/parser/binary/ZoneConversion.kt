@@ -37,7 +37,6 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionT
     }
 
     override fun ByteBuffer.decode(stringLength: Int): MaximalZone {
-
         val zoneId = ZoneId(long)
         val position = decodeNakedLocation().position
         val visumId = long // advance the reader, the visumId field is no longer needed in the construction of a zone
@@ -58,12 +57,12 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionT
             relief = reliefInMeters.meters,
             regionType = regionType,
             parkingPlaces = parkingPlaces,
+            centroid = position,
         )
 
         return MaximalZone(
             zoneId = zoneId,
             attributes = attributes,
-            centroid = position
         )
 //        return MaximalZone(
 //            zoneId,

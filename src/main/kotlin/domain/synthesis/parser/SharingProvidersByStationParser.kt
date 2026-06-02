@@ -10,7 +10,6 @@ import domain.shared.location.ZoneId
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.StandardZone
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
 import domain.synthesis.data.SharingProviderId
@@ -39,8 +38,12 @@ object GlobalSharingStationIdCounter : (Row) -> SharingStationId {
 }
 
 // parsers for zones by foot
-fun onlySameZoneByFoot(): (Row, Mode, StandardLocation, GetZone) -> List<ZoneWithCentroid<HasRegionType>> = { _, _,
-                                                                                                              stationLocation, getZone ->
+fun onlySameZoneByFoot(): (Row, Mode, StandardLocation, GetZone) -> List<Zone<HasRegionType>> = {
+        _,
+        _,
+        stationLocation,
+        getZone,
+    ->
     listOf(getZone(stationLocation.zoneId))
 }
 
@@ -62,19 +65,23 @@ fun filterZonesByFootInRadius(
     Mode,
     StandardLocation,
     GetZone,
-) -> List<StandardZone> = { _, mode, stationLocation, getZone ->
-    val zone = getZone(stationLocation.zoneId)
-    zoneRepository.elements.filter {
-        impedance.distance(zone, it, mode) <= threshold
-    }.toList()
-}
+) -> List<StandardZone> =
+    { _, mode, stationLocation, getZone ->
+        val zone = getZone(stationLocation.zoneId)
+        zoneRepository.elements.filter {
+            impedance.distance(zone, it, mode) <= threshold
+        }.toList()
+    }
 
 // station location parser
-fun locationAtZoneCentroid(): (Row, ZoneWithCentroid<HasRegionType>) -> StandardLocation = { _, zone ->
+fun locationAtZoneCentroid(): (Row, Zone<HasRegionType>) -> StandardLocation = { _, zone ->
     zone.centroidLocation
 }
 
-fun parseLocationXY(xColumn: String = "x", yColumn: String = "y"): (Row, Zone<HasRegionType>) -> StandardLocation = { row, zone ->
+fun parseLocationXY(xColumn: String = "x", yColumn: String = "y"): (Row, Zone<HasRegionType>) -> StandardLocation = {
+        row,
+        zone,
+    ->
 
     StandardLocation(
         position = PointCreator.createWGS(row.double(xColumn), row.double(yColumn)),
@@ -83,14 +90,14 @@ fun parseLocationXY(xColumn: String = "x", yColumn: String = "y"): (Row, Zone<Ha
     )
 }
 
-typealias GetZone = (ZoneId) -> ZoneWithCentroid<HasRegionType>
+typealias GetZone = (ZoneId) -> Zone<HasRegionType>
 
 data class SharingProviderByStationCsvConfig(
     var columns: SharingProviderByStationCsvColumns = SharingProviderByStationCsvColumns(),
     var sharingMode: Mode,
     var getZone: GetZone,
-    var zonesByFoot: (Row, Mode, StandardLocation, GetZone) -> List<ZoneWithCentroid<HasRegionType>>,
-    var locationParser: (Row, ZoneWithCentroid<HasRegionType>) -> StandardLocation,
+    var zonesByFoot: (Row, Mode, StandardLocation, GetZone) -> List<Zone<HasRegionType>>,
+    var locationParser: (Row, Zone<HasRegionType>) -> StandardLocation,
     var providerIdSource: (Row) -> SharingProviderId,
     var stationIdSource: (Row) -> SharingStationId,
     var operatingHours: IntRange,

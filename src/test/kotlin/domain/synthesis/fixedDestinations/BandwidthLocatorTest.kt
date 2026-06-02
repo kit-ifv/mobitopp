@@ -29,7 +29,7 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
 class BandwidthLocatorTest : SynthesisTest() {
-    private val testZone = MaximalZone(ZoneId(1L), ZoneTestAttributesFake(), BIELEFELD.toPoint())
+    private val testZone = MaximalZone(ZoneId(1L), ZoneTestAttributesFake())
     private val myActivityType = LegacyActivityType.LEISURE_SIGHTSEEING
     private lateinit var attractivenessModel: ControllableAttractiveness
 

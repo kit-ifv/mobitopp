@@ -265,7 +265,7 @@ class ModelStepTest {
                 name = "DummyCsvStepWithUnsealedDependent",
                 dependentRepositories = setOf(unsealedDependentRepository),
                 validation = listOf {
-                    repository.addElements("add mock elements", expectedElements);
+                    repository.addElements("add mock elements", expectedElements)
                     true
                 },
             )

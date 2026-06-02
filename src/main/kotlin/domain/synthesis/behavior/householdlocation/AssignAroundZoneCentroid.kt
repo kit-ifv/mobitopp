@@ -7,7 +7,7 @@ import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.GeometricZone
 import domain.shared.location.zone.HasCentroid
 import domain.shared.location.zone.StandardZone
-import domain.shared.location.zone.ZoneWithCentroid
+import domain.shared.location.zone.Zone
 import edu.kit.ifv.units.Distance
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Point
@@ -24,10 +24,12 @@ class AssignRandomLocation<AREA : GeometricZone<HasRegionType>, H> : AssignHouse
     override fun generateLocation(zone: AREA, household: H): StandardLocation =
         BetterLocation(zone.randomPoint(), zone, RoadAccess.INVALID)
 }
+
 // TODO the name is confusing.
-class AssignAroundPoint<T, AREA : ZoneWithCentroid<T>, H>(distance: Distance,
-    private val pointExtractor: (ZoneWithCentroid<T>) -> Point = {it.centroid}) :
-    AssignHouseholdLocations<AREA, H> where T : HasRegionType {
+class AssignAroundPoint<Z, AREA : Zone<Z>, H>(
+    distance: Distance,
+    private val pointExtractor: (Zone<Z>) -> Point = { it.attributes.centroid },
+) : AssignHouseholdLocations<AREA, H> where Z : HasRegionType, Z: HasCentroid {
     private val scalingFactorWGS = distance.inMeters * 0.00001
     val random: Random = Random(42)
     override fun generateLocation(zone: AREA, household: H): StandardLocation {

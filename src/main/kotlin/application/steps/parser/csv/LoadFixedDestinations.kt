@@ -14,8 +14,6 @@ import core.modelsteps.steps.modelStep
 import domain.shared.enums.ActivityType
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.ZoneWithCentroid
-
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.HasHousehold
 import domain.synthesis.data.HasStandardLocation
@@ -58,7 +56,7 @@ context(
 fun <CTXT, CFG, P, H> CTXT.fixedDestinations(
     homeActivity: ActivityType,
     resource: Resource<ActivityLocation> = fixedDestinationCsv(),
-) where CTXT : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CTXT : HasPersonRepo<*, *>, // TODO unify
+) where CTXT : HasZoneRepo<*, Zone<HasRegionType>>, CTXT : HasPersonRepo<*, *>, // TODO unify
 // HasPersonRepo with P
         P : Identifiable<PersonId>, P : HasHousehold<H>,
         H : Identifiable<HouseholdId>, H : HasStandardLocation,
@@ -108,8 +106,8 @@ fun <C, CFG> C.fixedDestinationCsv(
     path: Path = config.sourceFiles.fixedDestinationCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<ActivityLocation>? = binaryFixedDestinationFormat(), // TODO move binary format to load level?
-): Resource<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG :
-SourceFilesConfig,
+): Resource<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, Zone<HasRegionType>>, CFG :
+                                    SourceFilesConfig,
                                     CFG : ActivityTypesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
@@ -154,7 +152,7 @@ fun <C, CFG> C.fixedDestinationCsvParser(
  */
 context(config: CFG)
 fun <C, CFG> C.binaryFixedDestinationFormat(): BinaryCacheConfig<ActivityLocation>
-    where C : HasZoneRepo<*, ZoneWithCentroid<HasRegionType>>, CFG : SourceFilesConfig, CFG : ActivityTypesConfig =
+    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : ActivityTypesConfig =
     BinaryCacheConfig<ActivityLocation>(
         cacheRootPath = config.cachePath,
         binaryReader = FixedDestinationReader(

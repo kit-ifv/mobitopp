@@ -409,7 +409,7 @@ fun <C : Context, E : Identifiable<I>, I> C.seal(
 ) = modelStep(
     name,
     validation + listOf {
-        repository.seal();
+        repository.seal()
         true
     }, // seal repo also in validation mode, for subsequent checks
 ) {

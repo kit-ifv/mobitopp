@@ -15,7 +15,6 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.location.ZoneId
 import domain.shared.location.parsePoint
 import domain.shared.location.zone.MaximalZone
-import domain.shared.location.zone.MutableMaximalZone
 import domain.synthesis.parser.ZoneColumns
 import domain.synthesis.parser.ZoneCsvConfig
 import domain.synthesis.parser.binary.BinaryZoneReader

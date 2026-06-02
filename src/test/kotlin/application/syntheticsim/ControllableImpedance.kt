@@ -17,7 +17,6 @@ import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import generateZones
 import org.junit.jupiter.api.Test
-import utils.Identifiable
 import utils.collections.cartesianProduct
 import utils.units.AbsoluteTime
 import utils.units.Time
@@ -302,6 +301,5 @@ class MapMetric<R>(private val standardValue: () -> R) : ZoneMetric<R> {
         fields[Pair(origin.id, destination.id)] = content
     }
 
-    override fun evaluate(origin: ZoneId, destination: ZoneId): R =
-        fields[Pair(origin, destination)] ?: standardValue()
+    override fun evaluate(origin: ZoneId, destination: ZoneId): R = fields[Pair(origin, destination)] ?: standardValue()
 }

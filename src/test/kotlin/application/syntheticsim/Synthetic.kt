@@ -1,7 +1,6 @@
 package application.syntheticsim
 
 import BIELEFELD
-import TestZone
 import core.statemachine.State
 import core.statemachine.builder.StateData
 import core.statemachine.usage.RecordingStateMachineFactory

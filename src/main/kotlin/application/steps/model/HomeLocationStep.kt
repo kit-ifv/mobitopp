@@ -7,7 +7,6 @@ import core.modelsteps.scopes.updateEachStep
 import domain.shared.location.attributes.HasRegionType
 import domain.shared.location.zone.HasCentroid
 import domain.shared.location.zone.Zone
-import domain.shared.location.zone.ZoneWithCentroid
 import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.behavior.householdlocation.AssignAroundZoneCentroid
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
@@ -34,8 +33,8 @@ import edu.kit.ifv.units.meters
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>)
 fun <C, Z> C.assignHouseholdLocation(
-    model: AssignHouseholdLocations<ZoneWithCentroid<Z>, Household> = AssignAroundPoint(100.meters),
-) where C : HasZoneRepo<*, ZoneWithCentroid<Z>>, Z: HasRegionType = updateEachStep(
+    model: AssignHouseholdLocations<Zone<Z>, Household> = AssignAroundPoint(100.meters),
+) where C : HasZoneRepo<*, Zone<Z>>, Z : HasRegionType, Z: HasCentroid = updateEachStep(
     name = "Assign Home Location to each Household",
     dependentRepositories = setOf(zoneRepository),
 ) { household ->
@@ -58,9 +57,9 @@ fun <C, Z> C.assignHouseholdLocation(
  */
 context(repository: MutableRepository<MutableHousehold, HouseholdId>)
 fun <C, Z> C.assignHouseholdLocationsInBulk(
-    model: GroupAssignHouseholdLocations<ZoneWithCentroid<Z>, MutableHousehold> =
+    model: GroupAssignHouseholdLocations<Zone<Z>, MutableHousehold> =
         TrivialGroupStrategy(AssignAroundPoint(100.meters)),
-) where C : HasZoneRepo<*, ZoneWithCentroid<Z>> , Z: HasRegionType = updateBulkStep(
+) where C : HasZoneRepo<*, Zone<Z>>, Z : HasRegionType, Z: HasCentroid = updateBulkStep(
     name = "Assign Home Location to Households grouped by zone",
     dependentRepositories = setOf(zoneRepository),
 ) { households ->
