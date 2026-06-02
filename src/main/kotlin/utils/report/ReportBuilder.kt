@@ -14,9 +14,10 @@ import kotlinx.html.style
 import kotlinx.html.svg
 import kotlinx.html.title
 import kotlinx.html.unsafe
+import utils.files.toValidFileName
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
+import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -156,20 +157,22 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      * Creates outputDir, if not already existing. Writes a [reportTitle].html file into that directory and prints it's
      * location onto the console.
      * The created report includes all events added up to this point.
+     * @param outputDir directory where the HTML report file should be stored
+     * @return the [Path] of the created HTML report file
      */
     @Suppress("CognitiveComplexMethod")
-    fun writeHtmlReport(outputDir: Path) {
+    fun writeHtmlReport(outputDir: Path): Path {
         val html = createHTML().html {
             head {
                 title(reportTitle)
                 style {
                     unsafe {
-                        +Path("src/integration.main/kotlin/utils/report/report.css").readText()
+                        +Path("src/main/kotlin/utils/report/report.css").readText()
                     }
                 }
                 script {
                     unsafe {
-                        +Path("src/integration.main/kotlin/utils/report/report.JS").readText()
+                        +Path("src/main/kotlin/utils/report/report.JS").readText()
                     }
                 }
             }
@@ -181,15 +184,16 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         }
 
         outputDir.createDirectories()
-        val outputFile = outputDir.resolve("$reportTitle.html")
+        val outputFile = outputDir.resolve("${reportTitle.toValidFileName()}.html")
         outputFile.writeText(html)
-        val absolutePath = "file://" + outputFile.absolutePathString()
+        val absolutePath = outputFile.absolute().normalize().toUri().toASCIIString()
         print("\n")
-        println(BOLD + BLUE + "RUN REPORT: " + absolutePath + RESET)
+        println(BOLD + BLUE + "OPEN REPORT: " + absolutePath + RESET)
         print("\n")
+        return outputFile
     }
 
-    private fun createBody(): String = createHTML().div("integration.main") {
+    private fun createBody(): String = createHTML().div("main") {
         h1("title") {
             style = "color: var(--highlight-color)"
             +reportTitle

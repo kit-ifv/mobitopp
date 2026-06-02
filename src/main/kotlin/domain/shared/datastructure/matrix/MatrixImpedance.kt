@@ -99,7 +99,7 @@ data class MatrixImpedance(
 }
 
 /**
- * Collects conversion functions for the 3 integration.main types of matrices found in the simulation.
+ * Collects conversion functions for the 3 main types of matrices found in the simulation.
  *
  * Defaults:
  * - time in minutes

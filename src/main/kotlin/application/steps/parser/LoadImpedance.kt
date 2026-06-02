@@ -153,12 +153,12 @@ class Teleportation : Impedance {
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
 
-@Deprecated("dummy impedance should no longer be used, try using Teleportation")
-val dummyImpedance = object : Impedance {
-    override fun duration(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time) = 5.minutes
-    override fun cost(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time) = 5.euros
-    override fun distance(from: HasZoneId, to: HasZoneId, mode: Mode) = 5.kilometers
-    override fun costMetric(mode: Mode, time: Time): CostMetric = error(SHOULD_NOT_BE_CALLED)
-    override fun distanceMetric(mode: Mode): DistanceMetric = error(SHOULD_NOT_BE_CALLED)
-    override fun durationMetric(mode: Mode, time: Time): DurationMetric = error(SHOULD_NOT_BE_CALLED)
-}
+//@Deprecated("dummy impedance should no longer be used, try using Teleportation")
+//val dummyImpedance = object : Impedance {
+//    override fun duration(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time) = 5.minutes
+//    override fun cost(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time) = 5.euros
+//    override fun distance(from: HasZoneId, to: HasZoneId, mode: Mode) = 5.kilometers
+//    override fun costMetric(mode: Mode, time: Time): CostMetric = error(SHOULD_NOT_BE_CALLED)
+//    override fun distanceMetric(mode: Mode): DistanceMetric = error(SHOULD_NOT_BE_CALLED)
+//    override fun durationMetric(mode: Mode, time: Time): DurationMetric = error(SHOULD_NOT_BE_CALLED)
+//}
