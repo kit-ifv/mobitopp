@@ -15,10 +15,7 @@ import domain.shared.location.zone.attributes.MaximumZoneAttributes
 import domain.shared.location.zone.toZoneId
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.MutableHousehold
-import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.MutablePrivateCar
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
 import domain.synthesis.data.SharingProvider
@@ -26,6 +23,7 @@ import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
 import domain.synthesis.data.car.CarId
 import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.car.PrivateCar
 import domain.synthesis.data.car.engine.CarEngineStatistics
 import domain.synthesis.data.car.engine.EngineType
@@ -33,9 +31,11 @@ import domain.synthesis.data.car.engine.buildEngine
 import domain.synthesis.data.household.EconomicStatus
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.person.ChargingInfluence
 import domain.synthesis.data.person.Employment
 import domain.synthesis.data.person.Graduation
+import domain.synthesis.data.person.MutablePerson
 import domain.synthesis.data.person.PersonId
 import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.Distance
