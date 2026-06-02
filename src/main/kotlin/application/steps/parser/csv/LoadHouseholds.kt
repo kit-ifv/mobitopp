@@ -85,7 +85,10 @@ fun <C, CFG> C.householdCsv(
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableHousehold>? = binaryHouseholdFormat(),
 ): Resource<MutableHousehold>
-    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
+        where C : HasZoneRepo<*, Zone<HasRegionType>>,
+              CFG : SourceFilesConfig,
+              CFG : UnitConfig,
+              CFG : HouseholdCodesConfig =
     CsvResource(
         path,
         parser,
@@ -107,7 +110,7 @@ fun <C, CFG> C.householdCsv(
  */
 context(config: CFG)
 fun <C, CFG> C.binaryHouseholdFormat(): BinaryCacheConfig<MutableHousehold>
-    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig =
+        where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig =
     BinaryCacheConfig<MutableHousehold>(
         cacheRootPath = config.cachePath,
         binaryReader = BinaryHouseholdReader(
@@ -132,7 +135,10 @@ context(config: CFG)
 fun <C, CFG> C.householdCsvParser(
     customizeCsvConfig: HouseholdCsvConfig.() -> Unit = {},
 ): CsvParser<MutableHousehold>
-    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
+        where C : HasZoneRepo<*, Zone<HasRegionType>>,
+              CFG : SourceFilesConfig,
+              CFG : UnitConfig,
+              CFG : HouseholdCodesConfig =
     createHouseholdCsvParser(
         HouseholdCsvConfig(
             columns = HouseholdColumns(),

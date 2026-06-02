@@ -12,6 +12,7 @@ import org.locationtech.jts.geom.Point
 import kotlin.random.Random
 
 // TODO the name is confusing.
+@Suppress("MagicNumber")
 class AssignAroundPoint<Z, AREA : Zone<Z>, H>(
     distance: Distance,
     val random: Random = Random(42),

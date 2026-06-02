@@ -107,7 +107,9 @@ open class SynthesisTest {
     protected fun Zone<HasRegionType>.spawnLocation(coordinate: WGS84Coordinate): StandardLocation =
         StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
 
-    protected class FakeCoord : Location<HasZoneId>, HasZoneId {
+    protected class FakeCoord :
+        Location<HasZoneId>,
+        HasZoneId {
         val idx = counter
 
         override fun toString(): String = "FakeLoc($idx)"

@@ -4,6 +4,7 @@ import domain.shared.behavior.Attractiveness
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
+import domain.shared.location.ZonedRoadAccessLocationDTO
 import domain.shared.location.toDTO
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.SynthesisPerson
@@ -13,7 +14,6 @@ import domain.synthesis.attributes.person.employment
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.cars.SynthesisCar
-import domain.synthesis.parser.binary.ZonedRoadAccessLocationDTO
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
@@ -156,7 +156,7 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
             location.position.x,
             location.position.y,
 
-            )
+        )
     }
 }
 
@@ -253,7 +253,9 @@ data class OpportunityOutput constructor(
     val activityType: ActivityType,
 ) {
     constructor(location: StandardLocation, attractiveness: Attractiveness, activityType: ActivityType) : this(
-        location.toDTO(), attractiveness, activityType
+        location.toDTO(),
+        attractiveness,
+        activityType,
     )
 }
 
@@ -271,7 +273,7 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
             location.position.x,
             location.position.y,
 
-            )
+        )
     }
 }
 
@@ -316,7 +318,7 @@ class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttrib
         "chargingInfluencesDestinationChoice",
         "mobilityProviderCustomership",
 
-        )
+    )
 
     @Suppress("MagicNumber")
     override fun convert(element: SynthesisPerson<C, T>): String {
@@ -337,7 +339,7 @@ class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttrib
                 "NEVER",
                 this.getSharingMemberships(),
 
-                )
+            )
         }
         return "$first;$second"
     }

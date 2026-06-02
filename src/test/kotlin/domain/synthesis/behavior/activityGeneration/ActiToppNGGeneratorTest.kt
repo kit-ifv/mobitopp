@@ -34,13 +34,13 @@ class BetterLocation constructor(
 
     regionType: RegionType,
 
-    sizebasedRegiostarClassification: SizebasedRegiostarClassification =
+    sizeClassification: SizebasedRegiostarClassification =
         regionType.toRegioStaR17().toSizebasedClassification(),
 
 ) : StandardLocation {
     override val attributes: StandardLocationAttributes = object : StandardLocationAttributes {
         override val regionType: RegionType = regionType
-        override val sizebasedRegiostarClassification: SizebasedRegiostarClassification = sizebasedRegiostarClassification
+        override val sizebasedRegiostarClassification: SizebasedRegiostarClassification = sizeClassification
         override val zoneId: ZoneId = zoneId
         override val roadAccess: RoadAccess = RoadAccess.INVALID
     }
@@ -56,7 +56,7 @@ class BetterLocation constructor(
             position = point,
             zoneId = ZoneId(-1),
             regionType = RegioStaR17.MEDIUM_CITY_METRO,
-            sizebasedRegiostarClassification = SizebasedRegiostarClassification.CITY,
+            sizeClassification = SizebasedRegiostarClassification.CITY,
         )
 
         fun wgs(x: Double, y: Double): BetterLocation = fromPoint(PointCreator.createWGS(x, y))

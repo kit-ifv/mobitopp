@@ -122,6 +122,7 @@ data class PlotDataBuilderWithGrouping<E, G>(override val entities: () -> List<E
 interface PlotDataGroupingProvider<E, G> {
     /** Function providing a list of entities. */
     val entities: () -> List<E>
+
     /** Function to extract the group identifier from an entity. */
     val groupBy: (E) -> G
 

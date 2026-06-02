@@ -3,6 +3,7 @@ package domain.synthesis.parser.binary
 import domain.jackson.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.ZonedRoadAccessLocationDTO
 import domain.shared.location.toDTO
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId

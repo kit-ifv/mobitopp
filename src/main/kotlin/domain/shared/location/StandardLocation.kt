@@ -4,13 +4,13 @@ import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.toSizebasedClassification
+import domain.shared.location.ZonedRoadAccessLocationDTO
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.attributes.HasRoadAccess
 import domain.shared.location.zone.attributes.HasSizebasedClassification
 import domain.shared.location.zone.attributes.HasZoneId
-import domain.synthesis.parser.binary.ZonedRoadAccessLocationDTO
 import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Point
@@ -52,7 +52,7 @@ interface StandardLocation :
                 override val regionType: RegionType = RegioStaR17.LARGE_CITY_METRO
             }
             override val centroidLocation: StandardLocation
-                get() = TODO("Not yet implemented")
+                get() = error("Accessing centroid on unknown location should not work")
         }
 
         operator fun invoke(position: Point, zone: Zone<HasRegionType>, roadAccess: RoadAccess): StandardLocation =

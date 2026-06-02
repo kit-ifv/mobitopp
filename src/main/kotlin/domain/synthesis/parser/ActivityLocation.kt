@@ -4,10 +4,10 @@ import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
+import domain.shared.location.ZonedRoadAccessLocationDTO
 import domain.shared.location.toDTO
 import domain.synthesis.data.PersonId
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
-import domain.synthesis.parser.binary.ZonedRoadAccessLocationDTO
 import java.io.DataOutputStream
 
 data class ActivityLocation(val personId: PersonId, val activityType: ActivityType, val location: StandardLocation) :
