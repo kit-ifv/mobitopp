@@ -3,12 +3,12 @@ package domain.synthesis.parser
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.parsePoint
+import domain.shared.location.PointAndRoadPositionParser
+import domain.shared.location.PointParser
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
 import edu.kit.ifv.units.DistanceUnit
-import org.locationtech.jts.geom.Point
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -35,7 +35,7 @@ data class ZoneColumns(
 
 data class ZoneCsvConfig(
     var columns: ZoneColumns = ZoneColumns(),
-    var centroidParser: (String) -> Point = String::parsePoint,
+    var centroidParser: PointParser = PointAndRoadPositionParser.parseWGS,
     var reliefUnit: DistanceUnit = DistanceUnit.METERS,
     var regionTypeCodes: CodePlan<RegionType> = RegioStaR17,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
@@ -54,7 +54,7 @@ fun createZoneCsvParser(csvConfig: ZoneCsvConfig): DefaultCsvParser<MaximalZone>
             parkingPlaces = row.int(columns.parkingPlacesColumn),
             isDestination = row.boolean(columns.isDestinationColumn),
             relief = row.double().distance(columns.reliefColumn, reliefUnit),
-            centroid = row(columns.centroidColumn, centroidParser),
+            centroid = row(columns.centroidColumn, centroidParser::parsePoint),
         )
 
         MaximalZone(

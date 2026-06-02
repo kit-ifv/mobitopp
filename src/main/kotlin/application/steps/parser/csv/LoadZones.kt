@@ -12,7 +12,7 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.shared.location.parsePoint
+import domain.shared.location.PointAndRoadPositionParser
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.synthesis.parser.ZoneColumns
@@ -125,7 +125,7 @@ fun <C : Context, CFG> C.zoneCsvParser(
     createZoneCsvParser(
         ZoneCsvConfig(
             columns = ZoneColumns(),
-            centroidParser = String::parsePoint,
+            centroidParser = PointAndRoadPositionParser.parseWGS,
             reliefUnit = config.distanceUnit,
             regionTypeCodes = config.regionTypeCodes,
             errorHandling = config.errorHandling,
