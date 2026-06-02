@@ -16,8 +16,8 @@ import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.filterIdsStep
 import core.modelsteps.scopes.filterStep
 import core.modelsteps.scopes.mutableRepositoryScope
+import domain.shared.location.PointAndRoadPositionParser
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.parseRoadPositionWGS
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -137,7 +137,7 @@ fun <C, CFG> C.householdCsvParser(
         HouseholdCsvConfig(
             columns = HouseholdColumns(),
             getZone = ::getZone,
-            roadPositionParser = String::parseRoadPositionWGS,
+            roadPositionParser = PointAndRoadPositionParser.parseWGS,
             incomeUnit = config.currencyUnit,
             economicStatusCodes = config.economicStatusCodes,
             filter = { true },

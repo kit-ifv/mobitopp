@@ -1,10 +1,9 @@
 package domain.synthesis.parser
 
+import domain.shared.location.PointAndRoadPositionParser
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.attributes.HasRoadAccess
-import domain.shared.location.parseRoadPositionWGS
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdId
@@ -24,7 +23,7 @@ import utils.csv.withFilter
 data class HouseholdCsvConfig(
     var columns: HouseholdColumns = HouseholdColumns(),
     var getZone: (ZoneId) -> Zone<HasRegionType>, // TODO maybe Row.() -> Zone instead to be more flexible
-    var roadPositionParser: (String) -> HasRoadAccess = String::parseRoadPositionWGS,
+    var roadPositionParser: PointAndRoadPositionParser = PointAndRoadPositionParser.parseWGS,
     var incomeUnit: CurrencyUnit,
     var economicStatusCodes: CodePlan<EconomicStatus>,
     var filter: HouseholdColumns.(Row) -> Boolean = { true },
@@ -47,11 +46,11 @@ fun createHouseholdCsvParser(householdCsvConfig: HouseholdCsvConfig) = household
             economicStatus = row.decode(columns.economicalStatusColumn, economicStatusCodes)
 
             // Robin: I converted this builder call to the location as found in [Household]
-            val temp = row(columns.locationColumn, roadPositionParser)
-            location = StandardLocation.Companion(
-                position = temp.position,
+            val (point, roadAccess) = row(columns.locationColumn, roadPositionParser::parse)
+            location = StandardLocation(
+                position = point,
                 zone = getZone(ZoneId(row.long(columns.zoneColumn))),
-                roadAccess = temp.roadAccess,
+                roadAccess = roadAccess,
             )
         }
     }
