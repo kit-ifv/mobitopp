@@ -1,14 +1,14 @@
 package domain.synthesis.parser.binary
 
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.car.CarId
 import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.car.PrivateCar
 import domain.synthesis.data.car.engine.CarEngineStatistics
 import domain.synthesis.data.car.engine.EngineType
 import domain.synthesis.data.car.engine.buildEngine
 import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.person.Person
 import domain.synthesis.data.person.PersonId
 import utils.binary.BinaryReader

@@ -19,9 +19,9 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.location.PointAndRoadPositionParser
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.parser.HouseholdColumns
 import domain.synthesis.parser.HouseholdCsvConfig
 import domain.synthesis.parser.binary.BinaryHouseholdReader

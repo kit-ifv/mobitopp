@@ -96,7 +96,7 @@ import domain.simulation.events.personStateMachine
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
-import domain.synthesis.data.MutablePrivateCar
+import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId

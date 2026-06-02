@@ -11,9 +11,9 @@ import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.TrivialGroupStrategy
-import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.household.MutableHousehold
 import edu.kit.ifv.units.meters
 
 // TODO generalize MutableHousehold to HasMutableStandardLocation etc.

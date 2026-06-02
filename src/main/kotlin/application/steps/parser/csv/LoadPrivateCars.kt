@@ -12,8 +12,8 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.car.CarId
+import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.car.engine.CarEngineStatistics
 import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.household.MutableHousehold
