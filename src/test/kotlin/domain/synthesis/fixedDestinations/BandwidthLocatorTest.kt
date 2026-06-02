@@ -2,7 +2,6 @@
 
 package domain.synthesis.fixedDestinations
 
-import BIELEFELD
 import ZoneTestAttributesFake
 import core.datastructure.kdtree.WithMetric
 import core.datastructure.kdtree.discardMetric
@@ -10,8 +9,7 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZoneId
-import domain.shared.location.toPoint
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator

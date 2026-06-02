@@ -1,7 +1,7 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Household

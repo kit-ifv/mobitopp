@@ -1,8 +1,8 @@
 package domain.shared.datastructure.matrix.optimized
 
 import domain.shared.datastructure.matrix.ZoneIdMatrix
-import domain.shared.location.DurationZoneMetric
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.DurationZoneMetric
+import domain.shared.location.zone.ZoneId
 import kotlin.time.Duration
 
 fun interface DoubleToDuration {

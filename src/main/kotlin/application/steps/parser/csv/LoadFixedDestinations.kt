@@ -12,7 +12,7 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.updateEachStep
 import core.modelsteps.steps.modelStep
 import domain.shared.enums.ActivityType
-import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.HasHousehold

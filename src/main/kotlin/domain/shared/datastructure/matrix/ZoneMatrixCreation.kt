@@ -2,7 +2,7 @@ package domain.shared.datastructure.matrix
 
 import core.datastructure.matrix.MatrixCreationInstruction
 import domain.shared.datastructure.matrix.yaml.YamlInfo
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import java.nio.file.Path
 
 /**

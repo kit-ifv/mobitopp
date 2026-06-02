@@ -1,7 +1,11 @@
 package domain.shared.location
 
 import domain.shared.enums.Mode
-import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.zone.CostZoneMetric
+import domain.shared.location.zone.DistanceZoneMetric
+import domain.shared.location.zone.DurationZoneMetric
+import domain.shared.location.zone.attributes.HasZoneId
+import domain.shared.location.zone.ZoneId
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 import utils.units.Time

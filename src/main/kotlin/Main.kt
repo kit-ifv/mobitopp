@@ -82,7 +82,7 @@ import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.location.Impedance
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent

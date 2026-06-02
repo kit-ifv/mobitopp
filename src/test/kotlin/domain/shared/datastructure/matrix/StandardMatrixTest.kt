@@ -4,7 +4,7 @@ import domain.shared.datastructure.matrix.binary.BinaryIntegerFormat
 import domain.shared.datastructure.matrix.binary.MatrixDoubleFormat
 import domain.shared.datastructure.matrix.binary.MatrixHalfFloatFormat
 import domain.shared.datastructure.matrix.binary.MatrixShortFormat
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import utils.files.PathChecksum

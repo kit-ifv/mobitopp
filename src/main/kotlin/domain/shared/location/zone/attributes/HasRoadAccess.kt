@@ -1,8 +1,8 @@
-package domain.shared.location.attributes
+package domain.shared.location.zone.attributes
 
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
 import domain.shared.location.ZonedRoadAccessLocationImpl
 

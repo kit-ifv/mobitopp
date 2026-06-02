@@ -4,7 +4,7 @@ import core.datastructure.matrix.DoubleMatrix
 import core.datastructure.matrix.IndexEncoder
 import core.datastructure.matrix.MappedDoubleMatrix
 import domain.shared.datastructure.matrix.visum.VisumMatrixParser
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import java.nio.file.Path
 
 class StandardMatrix private constructor(

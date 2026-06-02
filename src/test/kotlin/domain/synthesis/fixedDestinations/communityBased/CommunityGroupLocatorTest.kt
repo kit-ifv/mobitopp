@@ -4,7 +4,7 @@ package domain.synthesis.fixedDestinations.communityBased
 
 import TestZone
 import assertNotContains
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber

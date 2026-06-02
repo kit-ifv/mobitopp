@@ -5,7 +5,7 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.asAttractiveness
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
 import utils.collections.cartesianProduct
 

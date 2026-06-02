@@ -7,13 +7,13 @@ import domain.shared.datastructure.matrix.yaml.YamlInfo
 import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
-import domain.shared.location.CostZoneMetric
+import domain.shared.location.zone.CostZoneMetric
 import domain.shared.location.DistanceMetric
-import domain.shared.location.DistanceZoneMetric
+import domain.shared.location.zone.DistanceZoneMetric
 import domain.shared.location.DurationMetric
-import domain.shared.location.DurationZoneMetric
+import domain.shared.location.zone.DurationZoneMetric
 import domain.shared.location.Impedance
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.ZoneId
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.Distance

@@ -1,8 +1,8 @@
 package domain.shared.datastructure.matrix.optimized
 
 import domain.shared.datastructure.matrix.ZoneIdMatrix
-import domain.shared.location.CostZoneMetric
-import domain.shared.location.ZoneId
+import domain.shared.location.zone.CostZoneMetric
+import domain.shared.location.zone.ZoneId
 import edu.kit.ifv.units.Currency
 
 fun interface DoubleToCurrency {

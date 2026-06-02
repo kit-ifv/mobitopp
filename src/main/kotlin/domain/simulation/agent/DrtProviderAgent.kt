@@ -6,7 +6,7 @@ import core.statemachine.StateMachine
 import core.statemachine.StateMachineFactory
 import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
-import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.zone.attributes.HasZoneId
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.DrtProvider
 import edu.kit.ifv.units.Currency

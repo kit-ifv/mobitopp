@@ -4,8 +4,8 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import domain.shared.location.DistanceMetric
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasZoneId
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance

@@ -4,8 +4,8 @@ import TestZone
 import domain.shared.location.LocationWithZoneId
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZoneId
-import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.toPoint
 import domain.shared.location.zone.Zone
 import domain.synthesis.SynthesisHousehold

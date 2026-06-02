@@ -15,7 +15,7 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
-import domain.shared.location.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData

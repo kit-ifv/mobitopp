@@ -5,8 +5,8 @@ import domain.VisumZoneId
 import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.attributes.HasRegionType
-import domain.shared.location.zone.HasVisumId
+import domain.shared.location.zone.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasVisumId
 import domain.shared.location.zone.Zone
 import edu.kit.ifv.CoordinateGenerator
 import org.locationtech.jts.geom.Point
