@@ -15,14 +15,14 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.person.Employment
 import domain.synthesis.data.person.Graduation
-import domain.synthesis.data.MutableHousehold
-import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.person.MutablePerson
 import domain.synthesis.data.person.Person
 import domain.synthesis.data.person.PersonId
 import domain.synthesis.data.person.Sex
-import domain.synthesis.data.SharingProvider
 import domain.synthesis.parser.PersonColumns
 import domain.synthesis.parser.PersonCsvConfig
 import domain.synthesis.parser.binary.BinaryPersonReader

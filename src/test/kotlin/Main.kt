@@ -93,23 +93,23 @@ import domain.simulation.behavior.legacyModeChoice
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
-import domain.synthesis.data.car.CarId
-import domain.synthesis.data.car.CarSegment
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.MutableDrtProviderData
+import domain.synthesis.data.MutablePrivateCar
+import domain.synthesis.data.MutableSharingProvider
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.SharingProviderId
+import domain.synthesis.data.car.CarId
+import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.car.PrivateCar
 import domain.synthesis.data.household.EconomicStatus
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.MutableDrtProviderData
-import domain.synthesis.data.MutableHousehold
-import domain.synthesis.data.MutablePerson
-import domain.synthesis.data.MutablePrivateCar
-import domain.synthesis.data.MutableSharingProvider
+import domain.synthesis.data.household.MutableHousehold
+import domain.synthesis.data.person.MutablePerson
 import domain.synthesis.data.person.Person
 import domain.synthesis.data.person.PersonId
-import domain.synthesis.data.car.PrivateCar
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.SharingProviderId
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue
@@ -125,7 +125,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
-// TODO move from main to test
+// TODO move from .main to test
 val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
 val dataFolder = Path("src/test/resources/testDemand/demand-data/")
@@ -245,7 +245,7 @@ fun main(args: Array<String>) {
         MyContext()
     }.steps {
 //        loadVisumNetwork(
-//            shortTermConfig.visumNetwork ?: visum_network
+//            shortTermConfig.visumNetwork ?: .visum_network
 //        ) {
 //            connector = VisumLocale.ConnectorLocale(travelTimeCar = "T0_TSYS(CS)")
 //        }

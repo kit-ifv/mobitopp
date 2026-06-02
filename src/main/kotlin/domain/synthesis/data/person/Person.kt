@@ -4,13 +4,10 @@ import Mutable
 import domain.synthesis.attributes.person.HasMutableSchedule
 import domain.synthesis.attributes.person.HasPlannedActivities
 import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.PlannedActivity
 import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.household.MutableHousehold
 import kotlin.random.Random
-
-
-
 
 @Mutable
 abstract class Person(final override val id: PersonId, override val household: MutableHousehold, seed: Long) :
@@ -41,4 +38,3 @@ abstract class Person(final override val id: PersonId, override val household: M
 
     fun clearPlannedActivities() = this.plannedActivities.clear()
 }
-

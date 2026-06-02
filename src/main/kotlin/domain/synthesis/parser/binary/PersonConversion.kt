@@ -1,18 +1,18 @@
 package domain.synthesis.parser.binary
 
-import domain.synthesis.data.person.ChargingInfluence
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.SharingProviderId
+import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.household.MutableHousehold
+import domain.synthesis.data.person.ChargingInfluence
 import domain.synthesis.data.person.Employment
 import domain.synthesis.data.person.Graduation
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.MutableHousehold
-import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.person.MutablePerson
 import domain.synthesis.data.person.Person
 import domain.synthesis.data.person.PersonId
 import domain.synthesis.data.person.Sex
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.SharingProviderId
 import edu.kit.ifv.units.UnitIntervalValue
 import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader

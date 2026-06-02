@@ -13,4 +13,3 @@ fun interface GenerateActivitySchedule<in S : MinimumHouseholdAttributes, in T :
             generate(it)
         }
 }
-

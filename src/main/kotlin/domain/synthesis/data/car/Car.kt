@@ -15,6 +15,3 @@ interface Car : Identifiable<CarId> {
     val engine: CarEngine
     val seats: Int
 }
-
-
-

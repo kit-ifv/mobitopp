@@ -1,10 +1,10 @@
 package domain.synthesis.behavior.cars
 
 import domain.synthesis.data.car.Car
-import domain.synthesis.data.car.engine.CarEngine
-import domain.synthesis.data.car.engine.CarEngineStatistics
 import domain.synthesis.data.car.CarId
 import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.car.engine.CarEngine
+import domain.synthesis.data.car.engine.CarEngineStatistics
 import domain.synthesis.data.car.engine.EngineType
 import domain.synthesis.data.car.engine.buildEngine
 import kotlin.concurrent.atomics.AtomicLong

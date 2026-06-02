@@ -19,14 +19,14 @@ data class BikeSharingConfig(
 ) : BaseCSVFiles by coreCSVConfig {
 
     /**
-     * Creation method based on two directories. All files are expected to reside in either the dataFolder or the
+     * Creation method based on two directories. All files are expected to reside in either the .dataFolder or the
      * zoneFolder.
      *
      * __Default expected structure__ applied when only dataDirectory and zoneDirectory are given:
      *
      * `dataDirectory`: person.csv, household.csv, activity.csv, car.csv, fixedDestination.csv
      *
-     * `zoneDirectory`: attractivities.csv, bikesharing_stations.csv, zones.csv
+     * `zoneDirectory`: .attractivities.csv, bikesharing_stations.csv, zones.csv
      */
     constructor(
         dataRepo: Path,
@@ -118,13 +118,13 @@ data class BikeSharingConfig(
     }
 
     /**
-     * Returns new BikeSharingConfig with changed attractivities, bikeSharingStations and zones paths.
-     * @param attractivitiesCSV The path to attractivities.csv relative to the new zone repo, or an absolute path.
+     * Returns new BikeSharingConfig with changed .attractivities, bikeSharingStations and zones paths.
+     * @param attractivitiesCSV The path to .attractivities.csv relative to the new zone repo, or an absolute path.
      * @param bikeSharingStationsCSV The path to bikesharing_stations.csv relative to the new zone repo, or an
      * absolute path.
      * @param zonesCSV The path to zones.csv relative to the new zone repo, or an
      * absolute path.
-     * @return A new BikeSharingConfig with the attractivities, bikesharingstations, and zones based on the new zone repo.
+     * @return A new BikeSharingConfig with the .attractivities, bikesharingstations, and zones based on the new zone repo.
      */
     fun overwriteZoneRepo(
         zoneRepo: Path,

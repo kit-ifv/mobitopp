@@ -19,8 +19,8 @@ import domain.shared.datastructure.schedule.LinkedActivity
 import domain.synthesis.attributes.person.HasPlannedActivities
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.person.PersonId
 import domain.synthesis.data.PlannedActivity
+import domain.synthesis.data.person.PersonId
 import domain.synthesis.parser.ActivitiesColumns
 import domain.synthesis.parser.ActivityCsvConfig
 import domain.synthesis.parser.NoActivityStartShifter

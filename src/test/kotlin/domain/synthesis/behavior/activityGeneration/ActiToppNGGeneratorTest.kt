@@ -19,8 +19,8 @@ import domain.synthesis.attributes.household.MaximumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributesImpl
 import domain.synthesis.behavior.SmallestSurveyPerson
-import domain.synthesis.data.person.Employment
 import domain.synthesis.data.household.HouseholdType
+import domain.synthesis.data.person.Employment
 import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers

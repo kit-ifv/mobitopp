@@ -65,4 +65,3 @@ data class Event<M : Message>(
 
 /** Type alias for a collection of events. */
 typealias Events = Collection<Event<*>>
-

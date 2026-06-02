@@ -6,7 +6,7 @@ import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.updateEachStep
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.person.IPerson
-import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.person.MutablePerson
 import domain.synthesis.data.person.PersonId
 
 // TODO generalize MutablePerson to P: HasMutableDrtMemberships

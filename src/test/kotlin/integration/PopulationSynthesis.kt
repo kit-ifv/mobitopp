@@ -18,7 +18,6 @@ import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.AssignmentStep
 import domain.synthesis.HouseholdAssignmentStep
 import domain.synthesis.SynthesisSteps
-import integration.TrivialSynthesis
 import domain.synthesis.assignAmountOfCars
 import domain.synthesis.assignEconomicStatus
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
@@ -56,6 +55,7 @@ import domain.synthesis.results.OpportunityOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.meters
+import integration.TrivialSynthesis
 import org.locationtech.jts.geom.Geometry
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -309,7 +309,6 @@ fun examplePopulationSynthesis() {
         )
         assignActivities {
             ActiToppNGGenerator(legacyChoiceModelPurposes) {
-
                 ZoneRegionType.DEFAULT
             }
         }

@@ -13,6 +13,6 @@ import domain.synthesis.data.car.Car
  * skip the household id, which is the entire reason this interface restriction is placed. Maybe the Household Id could
  * be extracted from the context instead.
  */
-fun interface AssignMainUser<S : MinimumHouseholdAttributes,T : MinimumPersonAttributes> {
+fun interface AssignMainUser<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
     fun assign(household: SynthesisHousehold<S, T>, cars: List<Car>): List<SynthesisCar>
 }

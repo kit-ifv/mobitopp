@@ -8,18 +8,18 @@ import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.behavior.toSchedule
 import domain.simulation.events.PersonBehavior
-import domain.synthesis.data.car.CarId
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.DrtProviderId
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.person.Person
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.data.car.PrivateCar
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
+import domain.synthesis.data.car.CarId
+import domain.synthesis.data.car.PrivateCar
+import domain.synthesis.data.household.Household
+import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.person.Person
+import domain.synthesis.data.person.PersonId
 import utils.collections.addProgressBar
 
 class BuildAgents(

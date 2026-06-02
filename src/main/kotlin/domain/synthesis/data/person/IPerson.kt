@@ -58,7 +58,5 @@ val IPerson.sharingMembershipIds: Set<SharingProviderId>
 val IPerson.drtMembershipIds: Set<DrtProviderId>
     get() = drtMemberships.map { it.id }.toSet()
 
-
-
 val IPerson.isAdult: Boolean
     get() = (age >= ADULT_AGE_GER)

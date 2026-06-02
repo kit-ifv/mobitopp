@@ -18,8 +18,8 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.areatype.RegioStaR7
 import domain.simulation.agent.PersonAgent
-import domain.synthesis.data.person.Employment
 import domain.synthesis.data.household.Household
+import domain.synthesis.data.person.Employment
 import domain.synthesis.data.person.IPerson
 import domain.synthesis.data.person.sharingMembershipIds
 import java.nio.file.Path
