@@ -66,5 +66,3 @@ data class Event<M : Message>(
 /** Type alias for a collection of events. */
 typealias Events = Collection<Event<*>>
 
-// TODO maybe move to builder subpackage as it depends on StateData, a concept not known at this package level?
-
