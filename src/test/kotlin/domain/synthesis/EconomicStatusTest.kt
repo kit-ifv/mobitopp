@@ -1,6 +1,6 @@
 package domain.synthesis
 
-import domain.synthesis.data.EconomicStatus
+import domain.synthesis.data.household.EconomicStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

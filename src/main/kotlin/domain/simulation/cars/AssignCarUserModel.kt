@@ -1,10 +1,10 @@
 package domain.simulation.cars
 
-import domain.synthesis.data.Household
-import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.household.Household
+import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.MutablePrivateCar
-import domain.synthesis.data.Person
-import domain.synthesis.data.isAdult
+import domain.synthesis.data.person.Person
+import domain.synthesis.data.person.isAdult
 
 private typealias Persons = MutableSet<Person>
 private typealias UnAssignedPersons = Pair<Persons, Persons>

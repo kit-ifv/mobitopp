@@ -2,9 +2,9 @@ package domain.simulation.agent
 
 import Mutable
 import domain.shared.location.StandardLocation
-import domain.synthesis.data.Car
-import domain.synthesis.data.CarId
-import domain.synthesis.data.IPrivateCar
+import domain.synthesis.data.car.Car
+import domain.synthesis.data.car.CarId
+import domain.synthesis.data.car.IPrivateCar
 
 abstract class CarAgent : Car {
     // TODO Debate with Jelle whether CAR should hold information and state or be separated.

@@ -6,8 +6,8 @@ import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.employment
 import domain.synthesis.attributes.person.hasLicence
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.data.EconomicStatus
-import domain.synthesis.data.Employment
+import domain.synthesis.data.household.EconomicStatus
+import domain.synthesis.data.person.Employment
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.NestedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.nestedLogit

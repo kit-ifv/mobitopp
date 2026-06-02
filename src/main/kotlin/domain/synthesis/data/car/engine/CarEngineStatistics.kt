@@ -1,5 +1,6 @@
-package domain.synthesis.data
+package domain.synthesis.data.car.engine
 
+import domain.synthesis.data.car.CarSegment
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.Energy
 import edu.kit.ifv.units.Volume

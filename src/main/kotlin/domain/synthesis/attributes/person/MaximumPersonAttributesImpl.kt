@@ -1,7 +1,7 @@
 package domain.synthesis.attributes.person
 
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.Distance
 
 data class MaximumPersonAttributesImpl(

@@ -7,8 +7,8 @@ import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.attributes.HasZoneId
-import domain.synthesis.data.Employment
-import domain.synthesis.data.isAdult
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.isAdult
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit

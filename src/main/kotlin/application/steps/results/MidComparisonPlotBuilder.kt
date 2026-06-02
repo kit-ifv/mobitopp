@@ -12,10 +12,10 @@ import domain.shared.behavior.ChoiceModelModes
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
-import domain.synthesis.data.Employment
-import domain.synthesis.data.IHousehold
-import domain.synthesis.data.IPerson
-import domain.synthesis.data.PersonId
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.household.IHousehold
+import domain.synthesis.data.person.IPerson
+import domain.synthesis.data.person.PersonId
 import utils.collections.Bin
 import utils.collections.mapToBins
 import utils.units.AbsoluteTime

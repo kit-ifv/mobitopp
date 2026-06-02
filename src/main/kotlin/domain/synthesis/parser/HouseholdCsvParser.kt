@@ -5,8 +5,8 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.EconomicStatus
-import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.household.EconomicStatus
+import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import edu.kit.ifv.units.CurrencyUnit
 import utils.CodePlan

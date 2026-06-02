@@ -1,8 +1,8 @@
 package domain.synthesis
 
 import domain.synthesis.behavior.RawSurveyInfo
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.toCurrency

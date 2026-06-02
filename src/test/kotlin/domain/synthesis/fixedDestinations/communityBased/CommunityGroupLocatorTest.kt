@@ -10,7 +10,7 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBased
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import domain.synthesis.behavior.fixedDestinations.communityBased.TrivialDemands
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Sex
 import domain.synthesis.fixedDestinations.AsymmetricMockDistance
 import domain.synthesis.householdgeneration.SynthesisTest
 import org.junit.jupiter.api.assertThrows

@@ -6,7 +6,7 @@ import domain.synthesis.attributes.household.numberOfAdults
 import domain.synthesis.attributes.household.numberOfMinors
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.data.EconomicStatus
+import domain.synthesis.data.household.EconomicStatus
 import edu.kit.ifv.units.ClosedCurrencyRange
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.euros

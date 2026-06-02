@@ -6,7 +6,7 @@ import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.activityGeneration.PreliminaryActivitySchedule
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Sex
 
 /**
  * The mutable object that holds the infos of the person.

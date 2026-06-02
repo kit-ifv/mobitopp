@@ -1,14 +1,14 @@
 package domain.synthesis.parser
 
-import domain.synthesis.data.ChargingInfluence
+import domain.synthesis.data.person.ChargingInfluence
 import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Graduation
-import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Graduation
+import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
-import domain.synthesis.data.PersonId
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.PersonId
+import domain.synthesis.data.person.Sex
 import domain.synthesis.data.SharingProvider
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.euros

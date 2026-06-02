@@ -1,4 +1,4 @@
-package domain.synthesis.data
+package domain.synthesis.data.household
 
 import kotlinx.serialization.Serializable
 

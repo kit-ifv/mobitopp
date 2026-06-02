@@ -1,4 +1,4 @@
-package domain.synthesis.data
+package domain.synthesis.data.household
 
 import domain.jackson.BinaryWritable
 import domain.shared.location.ZonedRoadAccessLocationDTO

@@ -16,7 +16,7 @@ import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.BandwidthParameters
 import domain.synthesis.behavior.fixedDestinations.LocationAlternative
 import domain.synthesis.behavior.fixedDestinations.standardBandwidthModel
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction
 import edu.kit.ifv.units.kilometers

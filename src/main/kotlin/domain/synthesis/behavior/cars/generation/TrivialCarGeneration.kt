@@ -2,9 +2,9 @@ package domain.synthesis.behavior.cars.generation
 
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.cars.CarImpl
-import domain.synthesis.data.Car
-import domain.synthesis.data.CarSegment
-import domain.synthesis.data.EngineType
+import domain.synthesis.data.car.Car
+import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.car.engine.EngineType
 
 /**
  * Each household gets the same amount of cars, and the cars are all the same model

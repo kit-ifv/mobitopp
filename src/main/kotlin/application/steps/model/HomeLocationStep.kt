@@ -11,8 +11,8 @@ import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.TrivialGroupStrategy
-import domain.synthesis.data.Household
-import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.household.Household
+import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import edu.kit.ifv.units.meters
 

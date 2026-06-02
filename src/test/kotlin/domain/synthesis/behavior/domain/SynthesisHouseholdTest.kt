@@ -5,8 +5,8 @@ import domain.shared.location.StandardLocation
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.data.EconomicStatus
-import domain.synthesis.data.HouseholdType
+import domain.synthesis.data.household.EconomicStatus
+import domain.synthesis.data.household.HouseholdType
 import domain.synthesis.results.fastcsv.CsvIgnore
 import domain.synthesis.results.fastcsv.write
 import edu.kit.ifv.units.Currency

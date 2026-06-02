@@ -1,12 +1,12 @@
 package domain.synthesis.behavior.cars
 
-import domain.synthesis.data.Car
-import domain.synthesis.data.CarEngine
-import domain.synthesis.data.CarEngineStatistics
-import domain.synthesis.data.CarId
-import domain.synthesis.data.CarSegment
-import domain.synthesis.data.EngineType
-import domain.synthesis.data.buildEngine
+import domain.synthesis.data.car.Car
+import domain.synthesis.data.car.engine.CarEngine
+import domain.synthesis.data.car.engine.CarEngineStatistics
+import domain.synthesis.data.car.CarId
+import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.car.engine.EngineType
+import domain.synthesis.data.car.engine.buildEngine
 import kotlin.concurrent.atomics.AtomicLong
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch

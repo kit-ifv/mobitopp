@@ -4,9 +4,9 @@ import application.steps.HasPersonRepo
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.transformEachStep
 import domain.simulation.cars.AssignCarUserModel
-import domain.synthesis.data.CarId
+import domain.synthesis.data.car.CarId
 import domain.synthesis.data.MutablePrivateCar
-import domain.synthesis.data.Person
+import domain.synthesis.data.person.Person
 
 /**
  * Assigns main car users to private cars.

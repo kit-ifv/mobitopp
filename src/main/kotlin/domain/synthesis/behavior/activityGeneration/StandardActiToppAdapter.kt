@@ -4,15 +4,15 @@ import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.ZoneRegionType
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
 
 /**
  * Default implementation of [ActiToppAdapter].
  * Customization points:
- * [unknownSexResolution]: defines the fallback [edu.kit.ifv.mobitopp.actitoppNG.enums.Gender] for non-binary/unknown [domain.synthesis.data.Sex].
+ * [unknownSexResolution]: defines the fallback [edu.kit.ifv.mobitopp.actitoppNG.enums.Gender] for non-binary/unknown [Sex].
  * [converter]: maps project [domain.shared.enums.areatype.RegionType] to [domain.shared.enums.areatype.ZoneRegionType] before converting to actiTopp [edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType].
  * Mapping notes:
  * Employment: Some project values map to DEFINITELY_UNKNOWN when no direct actiTopp equivalent exists

@@ -3,9 +3,9 @@ package domain.synthesis.parser.binary
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.EconomicStatus
-import domain.synthesis.data.Household
-import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.household.EconomicStatus
+import domain.synthesis.data.household.Household
+import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import edu.kit.ifv.units.euros

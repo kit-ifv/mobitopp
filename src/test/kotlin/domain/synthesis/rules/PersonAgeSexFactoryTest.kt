@@ -6,8 +6,8 @@ import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
-import domain.synthesis.data.HouseholdType
-import domain.synthesis.data.Sex
+import domain.synthesis.data.household.HouseholdType
+import domain.synthesis.data.person.Sex
 import domain.synthesis.rules.measurements.PersonAgeSexDefinition
 import edu.kit.ifv.units.euros
 import org.junit.jupiter.api.assertThrows

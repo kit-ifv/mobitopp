@@ -11,8 +11,8 @@ import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.StandardLocation
 import domain.simulation.events.PersonBehavior
-import domain.synthesis.data.IPerson
-import domain.synthesis.data.PersonId
+import domain.synthesis.data.person.IPerson
+import domain.synthesis.data.person.PersonId
 import utils.random.StochasticActor
 import utils.units.AbsoluteTime
 import kotlin.random.Random

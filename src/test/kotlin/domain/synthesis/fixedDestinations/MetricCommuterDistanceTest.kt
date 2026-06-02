@@ -11,7 +11,7 @@ import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumbe
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MutableCommunityDemand
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit

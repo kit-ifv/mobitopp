@@ -1,7 +1,7 @@
 package domain.synthesis.rules
 
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.data.HouseholdType
+import domain.synthesis.data.household.HouseholdType
 import domain.synthesis.rules.measurements.HouseholdTypeDefinition
 import edu.kit.ifv.populationsynthesis.rules.Rule
 import edu.kit.ifv.populationsynthesis.rules.covered.CoverageGroup

@@ -1,16 +1,16 @@
 package domain.synthesis.parser.binary
 
-import domain.synthesis.data.CarEngineStatistics
-import domain.synthesis.data.CarId
-import domain.synthesis.data.CarSegment
-import domain.synthesis.data.EngineType
-import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.car.engine.CarEngineStatistics
+import domain.synthesis.data.car.CarId
+import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.car.engine.EngineType
+import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePrivateCar
-import domain.synthesis.data.Person
-import domain.synthesis.data.PersonId
-import domain.synthesis.data.PrivateCar
-import domain.synthesis.data.buildEngine
+import domain.synthesis.data.person.Person
+import domain.synthesis.data.person.PersonId
+import domain.synthesis.data.car.PrivateCar
+import domain.synthesis.data.car.engine.buildEngine
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter
 import java.nio.ByteBuffer

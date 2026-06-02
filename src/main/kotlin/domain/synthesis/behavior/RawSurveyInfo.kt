@@ -1,8 +1,8 @@
 package domain.synthesis.behavior
 
-import domain.synthesis.data.Employment
-import domain.synthesis.data.HouseholdType
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.household.HouseholdType
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 

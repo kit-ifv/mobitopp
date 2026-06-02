@@ -4,7 +4,7 @@ import domain.shared.enums.ActivityType
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.PersonId
+import domain.synthesis.data.person.PersonId
 import domain.synthesis.parser.ActivityLocation
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import utils.CodePlan

@@ -6,8 +6,8 @@ import domain.synthesis.attributes.person.employment
 import domain.synthesis.attributes.person.hasLicence
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit

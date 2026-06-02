@@ -4,8 +4,8 @@ package domain.simulation.behavior
 
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit

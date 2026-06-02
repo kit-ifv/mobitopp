@@ -2,8 +2,8 @@ package domain.synthesis.behavior.activityGeneration
 
 import domain.shared.enums.ActivityType
 import domain.shared.enums.areatype.RegionType
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
 

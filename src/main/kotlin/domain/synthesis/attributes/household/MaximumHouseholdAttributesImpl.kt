@@ -1,8 +1,8 @@
 package domain.synthesis.attributes.household
 
 import domain.shared.location.StandardLocation
-import domain.synthesis.data.EconomicStatus
-import domain.synthesis.data.HouseholdType
+import domain.synthesis.data.household.EconomicStatus
+import domain.synthesis.data.household.HouseholdType
 import edu.kit.ifv.units.Currency
 
 data class MaximumHouseholdAttributesImpl(

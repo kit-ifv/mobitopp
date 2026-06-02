@@ -6,7 +6,7 @@ import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZonedRoadAccessLocationDTO
 import domain.shared.location.toDTO
-import domain.synthesis.data.PersonId
+import domain.synthesis.data.person.PersonId
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import java.io.DataOutputStream
 

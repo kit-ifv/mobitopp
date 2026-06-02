@@ -4,7 +4,7 @@ import domain.shared.enums.ActivityType
 import domain.synthesis.data.ActivityBinaryRecord
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.PersonId
+import domain.synthesis.data.person.PersonId
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.Identifiable

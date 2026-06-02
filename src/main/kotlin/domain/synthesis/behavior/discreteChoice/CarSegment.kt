@@ -7,8 +7,8 @@ import domain.synthesis.attributes.person.HasBiologicalSex
 import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.MinimalistPerson
-import domain.synthesis.data.CarSegment
-import domain.synthesis.data.Sex
+import domain.synthesis.data.car.CarSegment
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit

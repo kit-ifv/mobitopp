@@ -26,9 +26,9 @@ import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.Household
-import domain.synthesis.data.Person
-import domain.synthesis.data.PrivateCar
+import domain.synthesis.data.household.Household
+import domain.synthesis.data.person.Person
+import domain.synthesis.data.car.PrivateCar
 import domain.synthesis.data.SharingProvider
 
 /**

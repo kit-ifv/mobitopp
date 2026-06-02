@@ -37,11 +37,11 @@ import domain.simulation.events.StartingTrip
 import domain.simulation.events.personStateMachine
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.Household
+import domain.synthesis.data.household.Household
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.Person
+import domain.synthesis.data.person.Person
 import domain.synthesis.data.PlannedActivity
 import generateHousehold
 import generatePersons

@@ -17,8 +17,8 @@ import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.data.HouseholdType
-import domain.synthesis.data.Sex
+import domain.synthesis.data.household.HouseholdType
+import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.euros

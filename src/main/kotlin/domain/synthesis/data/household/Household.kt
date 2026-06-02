@@ -1,6 +1,8 @@
-package domain.synthesis.data
+package domain.synthesis.data.household
 
 import Mutable
+import domain.synthesis.data.person.Person
+import domain.synthesis.data.car.PrivateCar
 import kotlin.random.Random
 
 @Mutable

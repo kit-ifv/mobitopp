@@ -2,17 +2,17 @@ package application.steps.parser
 
 import TEST_ZONE
 import domain.shared.enums.LegacyMode
-import domain.synthesis.data.ChargingInfluence
+import domain.synthesis.data.person.ChargingInfluence
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.DrtProviderId
-import domain.synthesis.data.EconomicStatus
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Graduation
+import domain.synthesis.data.household.EconomicStatus
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Graduation
 import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutablePerson
 import domain.synthesis.data.MutableSharingProvider
-import domain.synthesis.data.PersonId
-import domain.synthesis.data.Sex
+import domain.synthesis.data.person.PersonId
+import domain.synthesis.data.person.Sex
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.parser.binary.BinaryPersonReader
