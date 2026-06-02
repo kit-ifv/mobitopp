@@ -12,7 +12,7 @@ import kotlin.io.path.createDirectories
 fun AgentInteractions.renderAsPumlTimingDiagram(
     agent: Agent<*>,
     file: Path = Path(
-        "docs/timing/${agent::class.simpleName ?: agent.instanceName}.puml",
+        "results/timing/${agent::class.simpleName ?: agent.instanceName}.puml",
     ),
     maxDepth: Int = 1,
 ) {
@@ -22,12 +22,12 @@ fun AgentInteractions.renderAsPumlTimingDiagram(
     )
 }
 
-fun List<Action>.getAgents() = map {
+fun List<Action>.getAgents() = flatMap {
     when (it) {
         is Action.SendMessage -> listOf(it.from, it.to)
         is Action.ChangeState -> listOf(it.instance)
     }
-}.flatten().distinct()
+}.distinct()
 
 private const val BLUE = "blue"
 

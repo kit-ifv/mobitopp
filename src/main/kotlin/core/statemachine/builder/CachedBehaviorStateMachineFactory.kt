@@ -13,7 +13,7 @@ import utils.units.AbsoluteTime
  * This class is responsible for creating state machines and resolving state data to actual state instances.
  *
  * @param A The type of agent this factory creates state machines for
- * @property builders The list of state builders for all states in this state machine
+ * @param builders The list of state builders for all states in this state machine
  * @property initialize Function to initialize the start state data for an agent at a specific time
  * @property name The name of the state machine
  */
