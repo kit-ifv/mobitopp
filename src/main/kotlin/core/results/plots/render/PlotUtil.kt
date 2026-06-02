@@ -25,7 +25,12 @@ const val DEFAULT_ALPHA = 0.8
 private const val COLOR_LABEL = "color"
 
 /**
- * Helper to apply a categorical color scale to a fillColor mapping from a prepared ColorScale.
+ * Helper to apply a categorical color scale to a fillColor mapping from a prepared [ColorScale].
+ *
+ * @receiver An object that has a fill color attribute (typically a Kandy layer builder).
+ * @param colorColumn The name of the column containing the category keys.
+ * @param colorMap The prepared mapping from categories to colors.
+ * @param legendTitle The title for the legend of this color mapping.
  */
 fun WithFillColor.fillColorFromMap(colorColumn: String, colorMap: ColorScale, legendTitle: String = COLOR_LABEL) {
     fillColor(colorColumn) {
@@ -33,7 +38,13 @@ fun WithFillColor.fillColorFromMap(colorColumn: String, colorMap: ColorScale, le
     }
 }
 
-/** Apply the provided ColorScale to a non-positional color mapping and name its legend. */
+/**
+ * Apply the provided [ColorScale] to a non-positional color mapping and name its legend.
+ *
+ * @receiver The Kandy mapping parameters for a color aesthetic.
+ * @param colorMap The prepared mapping from categories to colors.
+ * @param legendTitle The title for the legend.
+ */
 fun LetsPlotNonPositionalMappingParametersContinuous<Any?, Color>.applyScale(
     colorMap: ColorScale,
     legendTitle: String = COLOR_LABEL,
@@ -49,7 +60,15 @@ fun LetsPlotNonPositionalMappingParametersContinuous<Any?, Color>.applyScale(
     )
 }
 
-/** Build a Boolean categorical scale mapping true/false to two values. */
+/**
+ * Build a Boolean categorical scale mapping true/false to two values.
+ *
+ * @receiver The Kandy mapping parameters for a non-positional aesthetic.
+ * @param RangeType The type of values in the aesthetic range.
+ * @param positive The value to use for `true`.
+ * @param negative The value to use for `false`.
+ * @return A categorical scale mapping Booleans to [RangeType].
+ */
 fun <RangeType> NonPositionalMappingParameters<*, *>.booleanScale(
     positive: RangeType,
     negative: RangeType,
@@ -58,7 +77,14 @@ fun <RangeType> NonPositionalMappingParameters<*, *>.booleanScale(
     false to negative,
 )
 
-/** Convenience for a Boolean color scale mapping to two Color values. */
+/**
+ * Convenience for a Boolean color scale mapping to two [Color] values.
+ *
+ * @receiver The Kandy mapping parameters for a color aesthetic.
+ * @param positive The color to use for `true`.
+ * @param negative The color to use for `false`.
+ * @return A categorical scale mapping Booleans to [Color].
+ */
 fun NonPositionalMappingParameters<*, *>.booleanColorScale(
     positive: Color = Color.Companion.RED,
     negative: Color = Color.Companion.BLACK,
@@ -66,6 +92,11 @@ fun NonPositionalMappingParameters<*, *>.booleanColorScale(
 
 /** Provides the mobiTopp logo lazily from classpath. */
 object LogoProvider {
+    /**
+     * The mobiTopp logo as a [BufferedImage].
+     *
+     * @throws IllegalStateException If the logo resource is not found.
+     */
     val logo: BufferedImage by lazy {
         val stream: InputStream = LogoProvider::class.java.getResourceAsStream("/logo/mobiTopp_logo.png")
             ?: error("Logo resource not found in classpath: /logo/mobiTopp_logo.png")
