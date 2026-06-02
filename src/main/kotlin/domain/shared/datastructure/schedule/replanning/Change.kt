@@ -1,6 +1,6 @@
 package domain.shared.datastructure.schedule.replanning
 
-import domain.shared.datastructure.schedule.StationaryAction
+import domain.shared.datastructure.schedule.action.StationaryAction
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
 

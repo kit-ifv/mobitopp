@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.activityGeneration
 
 import domain.shared.behavior.ChoiceModelPurposes
-import domain.shared.datastructure.schedule.RawActivity
+import domain.shared.datastructure.schedule.action.RawActivity
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.location.StandardLocation

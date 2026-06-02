@@ -1,6 +1,6 @@
 package application.config.subconfigs
 
-import domain.shared.config.Yaml
+import application.config.Yaml
 import kotlin.io.path.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories

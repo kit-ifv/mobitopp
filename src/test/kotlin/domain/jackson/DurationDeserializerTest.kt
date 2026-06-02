@@ -2,8 +2,8 @@
 
 package domain.jackson
 
+import application.config.Yaml
 import domain.jackson.durationParsing.DurationParser
-import domain.shared.config.Yaml
 import org.junit.jupiter.api.Test
 import utils.units.AbsoluteTime
 import kotlin.io.path.Path

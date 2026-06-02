@@ -1,4 +1,4 @@
-package domain.shared.config
+package application.config
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonGenerator
@@ -18,7 +18,7 @@ import domain.jackson.DestinationChoiceModule
 import domain.jackson.DurationModule
 import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
-import scala.jdk.javaapi.CollectionConverters.asJava
+import scala.jdk.javaapi.CollectionConverters
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.inputStream
@@ -26,7 +26,7 @@ import kotlin.reflect.jvm.jvmName
 
 /**
  * To register new json mappers/parser in a subproject create a directory `META-INF/services/`
- * in src/.main/resources/ of the subproject.
+ * in src/main/resources/ of the subproject.
  *
  * In there add a `package.name.myInterface/Class` so the serviceloader can look for implementations of myClass or
  * myInterface in that subproject. The file should contain the package-path to the implementation of that class/
@@ -153,7 +153,7 @@ object Yaml {
         private fun Any?.toMap(): Map<String, Any?> {
             if (this == null) return emptyMap()
             if (this::class.jvmName.contains("Map")) {
-                val java = asJava(this as scala.collection.Map<String, Any?>)
+                val java = CollectionConverters.asJava(this as scala.collection.Map<String, Any?>)
                 return java
             }
             return emptyMap()
@@ -181,6 +181,7 @@ object Yaml {
  * Handles the serialization of paths.
  */
 val PathModule: SimpleModule = SimpleModule("Path").addSerializer(Path::class.java, PathSerializer())
+
 private class PathSerializer : JsonSerializer<Path>() {
 
     override fun serialize(value: Path?, gen: JsonGenerator?, serializers: SerializerProvider?) {

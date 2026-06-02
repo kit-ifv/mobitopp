@@ -2,6 +2,8 @@
 
 package domain.shared.datastructure.schedule
 
+import domain.shared.datastructure.schedule.action.StationaryAction
+import domain.shared.datastructure.schedule.action.isConsistent
 import domain.shared.datastructure.schedule.replanning.HomeActivityEndTimeAnchorStrategy
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.legacyChoiceModelPurposes

@@ -1,5 +1,11 @@
 package domain.shared.datastructure.schedule
 
+import domain.shared.datastructure.schedule.action.Action
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.CurrentAction
+import domain.shared.datastructure.schedule.action.Leg
+import domain.shared.datastructure.schedule.action.LinkedAction
+import domain.shared.datastructure.schedule.action.LinkedActivity
 import domain.shared.datastructure.schedule.plans.PlanView
 import domain.shared.datastructure.schedule.plans.SeparablePlanModel
 import domain.shared.datastructure.schedule.plans.SingularDispatcher
@@ -8,32 +14,6 @@ import domain.shared.enums.MODEUNKOWN
 import domain.shared.location.StandardLocation
 import utils.units.AbsoluteTime
 import java.util.SortedSet
-
-/**
- * Current Action is a wrapper class that only allows modification of [LinkedAction] attributes which are in the future:
- * The [endLocation], [endTime] and [latestEndTime], while protecting alteration for all other attributes
- */
-class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAction {
-
-    val original: Action = linkedAction.original
-
-    val type: ActionType = linkedAction.actionType
-    override var endTime: AbsoluteTime
-        get() = linkedAction.endTime
-        set(value) {
-            linkedAction.endTime = value
-        }
-    override var endLocation: StandardLocation
-        get() = linkedAction.endLocation
-        set(value) {
-            linkedAction.endLocation = value
-        }
-    override var latestEndTime: AbsoluteTime
-        get() = linkedAction.latestEndTime
-        set(value) {
-            linkedAction.latestEndTime = value
-        }
-}
 
 /**
  * A [Schedule] maintains the state of a plan as defined in the model when being executed. It holds the attributes

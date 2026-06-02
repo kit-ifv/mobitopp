@@ -4,6 +4,9 @@ import FOURTH
 import OTHER
 import START
 import THIRD
+import domain.shared.datastructure.schedule.action.Action
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.Leg
 import domain.shared.datastructure.schedule.plans.ActionModel
 import domain.shared.datastructure.schedule.plans.BlockModel
 import domain.shared.datastructure.schedule.plans.Dispatcher
@@ -22,25 +25,25 @@ class DispatcherTest {
     private val activityGenerator: Sequence<Activity> = sequence {
         var timer = Duration.ZERO
         while (true) {
-            yield(Activity.Companion.fromDuration(START, timer.sinceStart, 1.hours))
+            yield(Activity.fromDuration(START, timer.sinceStart, 1.hours))
             timer += 2.hours
 
-            yield(Activity.Companion.fromDuration(OTHER, timer.sinceStart, 1.hours))
+            yield(Activity.fromDuration(OTHER, timer.sinceStart, 1.hours))
             timer += 2.hours
         }
     }
     private val legGenerator: Sequence<Leg> = sequence {
         var timer = 1.hours
         while (true) {
-            yield(Leg.Companion.fromDuration(timer.sinceStart, 30.minutes, START, THIRD))
+            yield(Leg.fromDuration(timer.sinceStart, 30.minutes, START, THIRD))
             timer += 30.minutes
-            yield(Leg.Companion.fromDuration(timer.sinceStart, 30.minutes, THIRD, OTHER))
+            yield(Leg.fromDuration(timer.sinceStart, 30.minutes, THIRD, OTHER))
             timer += 30.minutes
             timer += 1.hours
 
-            yield(Leg.Companion.fromDuration(timer.sinceStart, 30.minutes, OTHER, THIRD))
+            yield(Leg.fromDuration(timer.sinceStart, 30.minutes, OTHER, THIRD))
             timer += 30.minutes
-            yield(Leg.Companion.fromDuration(timer.sinceStart, 30.minutes, THIRD, START))
+            yield(Leg.fromDuration(timer.sinceStart, 30.minutes, THIRD, START))
             timer += 30.minutes
             timer += 1.hours
         }
@@ -111,8 +114,8 @@ class DispatcherTest {
             val set = sortedSetOf<Leg>()
             val first = originals.first()
             val last = originals.last()
-            set.add(Leg.Companion.fromDuration(first.startTime, first.duration, first.startLocation, FOURTH))
-            set.add(Leg.Companion.fromDuration(last.startTime, last.duration, FOURTH, last.endLocation))
+            set.add(Leg.fromDuration(first.startTime, first.duration, first.startLocation, FOURTH))
+            set.add(Leg.fromDuration(last.startTime, last.duration, FOURTH, last.endLocation))
         }
 
         assertContentEquals(blocks.actions(), actions.actions())

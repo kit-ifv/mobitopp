@@ -14,8 +14,8 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import core.modelsteps.scopes.updateEachStep
-import domain.shared.datastructure.schedule.Activity
-import domain.shared.datastructure.schedule.LinkedActivity
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.LinkedActivity
 import domain.synthesis.attributes.person.HasPlannedActivities
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity

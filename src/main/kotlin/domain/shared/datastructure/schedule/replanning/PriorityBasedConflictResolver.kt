@@ -1,9 +1,9 @@
 package domain.shared.datastructure.schedule.replanning
 
 import domain.shared.behavior.ChoiceModelPurposes
-import domain.shared.datastructure.schedule.Activity
-import domain.shared.datastructure.schedule.LinkedActivity
-import domain.shared.datastructure.schedule.StationaryAction
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.LinkedActivity
+import domain.shared.datastructure.schedule.action.StationaryAction
 import edu.kit.ifv.units.max
 import utils.units.AbsoluteTime
 import utils.units.min

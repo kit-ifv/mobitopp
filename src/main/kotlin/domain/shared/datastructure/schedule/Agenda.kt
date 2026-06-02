@@ -1,5 +1,8 @@
 package domain.shared.datastructure.schedule
 
+import domain.shared.datastructure.schedule.action.LinkedActivity
+import domain.shared.datastructure.schedule.blocks.ActivityBlock
+
 interface Representative<T> {
     val elements: List<T>
     val size get() = elements.size

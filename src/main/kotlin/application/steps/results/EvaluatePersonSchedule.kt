@@ -6,10 +6,10 @@ import application.steps.HasHouseholdRepo
 import application.steps.HasPersonAgentRepo
 import core.results.plots.RGB
 import core.results.plots.modeStringColor
-import domain.shared.datastructure.schedule.LinkedActivity
-import domain.shared.datastructure.schedule.LinkedLeg
-import domain.shared.datastructure.schedule.MovingAction
-import domain.shared.datastructure.schedule.StationaryAction
+import domain.shared.datastructure.schedule.action.LinkedActivity
+import domain.shared.datastructure.schedule.action.LinkedLeg
+import domain.shared.datastructure.schedule.action.MovingAction
+import domain.shared.datastructure.schedule.action.StationaryAction
 import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
 import domain.shared.location.Impedance

@@ -1,17 +1,11 @@
-package domain.shared.datastructure.schedule
+package domain.shared.datastructure.schedule.modifier
 
+import domain.shared.datastructure.schedule.Schedule
+import domain.shared.datastructure.schedule.action.ActionType
+import domain.shared.datastructure.schedule.action.Leg
 import domain.shared.enums.ActivityType
 import utils.units.AbsoluteTime
 import kotlin.time.Duration.Companion.minutes
-
-// This is future work for rescheduling
-fun interface ScheduleModifier {
-    fun applyTo(schedule: Schedule, currentTime: AbsoluteTime)
-}
-
-fun Schedule.applyAt(currentTime: AbsoluteTime, functor: ScheduleModifier) {
-    functor.applyTo(this, currentTime)
-}
 
 class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier {
 

@@ -1,5 +1,6 @@
 package domain.shared.datastructure.schedule
 
+import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.datastructure.schedule.plans.BlockModel
 import domain.shared.enums.LegacyActivityType
 import domain.shared.location.StandardLocation

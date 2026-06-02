@@ -3,6 +3,9 @@ package domain.shared.datastructure.schedule
 import OTHER
 import START
 import THIRD
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.Leg
+import domain.shared.datastructure.schedule.action.isConsistent
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import utils.units.sinceStart
 import kotlin.test.Test
@@ -13,8 +16,8 @@ import kotlin.time.Duration.Companion.minutes
 
 class TripTest {
 
-    private val firstActivity = Activity.Companion.fromDuration(START, 0.hours.sinceStart, 8.hours)
-    private val secondActivity = Activity.Companion.fromDuration(OTHER, 9.hours.sinceStart, 1.hours)
+    private val firstActivity = Activity.fromDuration(START, 0.hours.sinceStart, 8.hours)
+    private val secondActivity = Activity.fromDuration(OTHER, 9.hours.sinceStart, 1.hours)
 
     @Test
     fun runBuilder() {
@@ -28,8 +31,8 @@ class TripTest {
         assertContentEquals(
             trip,
             listOf(
-                Leg.Companion.fromDuration(firstActivity.endTime, 10.minutes, START, THIRD),
-                Leg.Companion.fromDuration(firstActivity.endTime + 20.minutes, 10.minutes, THIRD, OTHER),
+                Leg.fromDuration(firstActivity.endTime, 10.minutes, START, THIRD),
+                Leg.fromDuration(firstActivity.endTime + 20.minutes, 10.minutes, THIRD, OTHER),
             ),
         )
         assertTrue(trip.isConsistent())

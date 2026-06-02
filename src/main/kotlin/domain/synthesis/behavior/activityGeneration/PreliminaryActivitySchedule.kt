@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.activityGeneration
 
-import domain.shared.datastructure.schedule.Activity
+import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.enums.ActivityType
 import utils.Decodable
 import kotlin.time.Duration

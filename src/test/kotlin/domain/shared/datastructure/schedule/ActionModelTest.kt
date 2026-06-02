@@ -1,6 +1,8 @@
 package domain.shared.datastructure.schedule
 
 import START
+import domain.shared.datastructure.schedule.action.Action
+import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.datastructure.schedule.plans.ActionModel
 import domain.shared.datastructure.schedule.plans.PlanModel
 import domain.shared.datastructure.schedule.plans.shift
@@ -36,7 +38,7 @@ class ActionModelTest : PlanModelTest() {
         duration: Double,
         earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
         latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
-    ): Activity = Activity.Companion.fromDuration(
+    ): Activity = Activity.fromDuration(
         START,
         AbsoluteTime.START + start.toDuration(DurationUnit.HOURS),
         duration.toDuration(DurationUnit.HOURS),

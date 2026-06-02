@@ -1,8 +1,8 @@
 package domain.shared.datastructure.schedule.replanning
 
 import domain.shared.behavior.ChoiceModelPurposes
-import domain.shared.datastructure.schedule.LinkedActivity
 import domain.shared.datastructure.schedule.Schedule
+import domain.shared.datastructure.schedule.action.LinkedActivity
 import utils.collections.takeUntilSpliced
 import utils.units.AbsoluteTime
 
