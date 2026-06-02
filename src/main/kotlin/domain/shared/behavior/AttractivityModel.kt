@@ -1,8 +1,8 @@
 package domain.shared.behavior
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultMapCsvParser
@@ -26,7 +26,9 @@ interface AttractivenessModel {
 }
 
 fun AttractivenessModel.sumAttractiveness(zone: ZoneId, vararg activityTypes: ActivityType): Double =
-    activityTypes.sumOf { attractivenessFor(zone, it).value }
+    activityTypes.sumOf {
+        attractivenessFor(zone, it).value
+    }
 
 @Suppress("MagicNumber")
 fun AttractivenessModel.parkingPressure(target: MaximalZone): Double {
@@ -70,7 +72,9 @@ class AttractivenessFromCsv(
     private val warnedSet = mutableSetOf<ActivityType>()
 
     override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
-        attractivenessMap[zone]?.let { it[activityType] } ?: Attractiveness.DEFAULT.also {
+        attractivenessMap[zone]?.let {
+            it[activityType]
+        } ?: Attractiveness.DEFAULT.also {
             val activities = warned.getOrPut(zone) { mutableListOf() }
             if (activityType !in activities && activityType !in warnedSet) {
                 println(

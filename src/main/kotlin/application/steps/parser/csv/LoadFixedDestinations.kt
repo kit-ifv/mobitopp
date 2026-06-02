@@ -12,8 +12,8 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.updateEachStep
 import core.modelsteps.steps.modelStep
 import domain.shared.enums.ActivityType
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.HasHousehold
 import domain.synthesis.data.HasStandardLocation
@@ -105,7 +105,7 @@ fun <C, CFG> C.fixedDestinationCsv(
     parser: CsvParser<ActivityLocation> = fixedDestinationCsvParser(),
     path: Path = config.sourceFiles.fixedDestinationCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<ActivityLocation>? = binaryFixedDestinationFormat(), // TODO move binary format to load level?
+    binaryCache: BinaryCacheConfig<ActivityLocation>? = binaryFixedDestinationFormat(),
 ): Resource<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, Zone<HasRegionType>>, CFG :
                                     SourceFilesConfig,
                                     CFG : ActivityTypesConfig =
@@ -128,7 +128,10 @@ fun <C, CFG> C.fixedDestinationCsv(
 context(config: CFG)
 fun <C, CFG> C.fixedDestinationCsvParser(
     customizeCsvConfig: FixedDestinationCsvConfig.() -> Unit = {},
-): CsvParser<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : ActivityTypesConfig =
+): CsvParser<ActivityLocation>
+where C : HasPersonRepo<*, *>,
+      C : HasZoneRepo<*, Zone<HasRegionType>>,
+      CFG : ActivityTypesConfig =
     createFixedDestinationCsvParser(
         FixedDestinationCsvConfig(
             columns = FixedDestinationColumns(),

@@ -8,13 +8,13 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.toPoint
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.toPoint
-import domain.shared.location.zone.toZoneId
-import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.attributes.MaximumZoneAttributes
-import domain.shared.location.zone.Zone
+import domain.shared.location.zone.toZoneId
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
@@ -87,19 +87,17 @@ class ZoneTestAttributesFake(
     override val centroid: Point = BIELEFELD.toPoint(),
 ) : MaximumZoneAttributes
 
-fun Zone<HasRegionType>.generateSharingStation(
-    sharingProvider: MutableSharingProvider,
-    vehicles: Int,
-): SharingStation = MutableSharingStation(
-    SharingStationId(sharingProvider.numberOfVehicles.toLong()),
-    sharingProvider,
-) {
-    this.uid = "${this.id} Station"
-    this.name = "noName"
-    this.location = StandardLocation.fromWGS(BIELEFELD)
-    this.zonesByFoot.add(this@generateSharingStation)
-    this.initialVehicleCount = vehicles
-}
+fun Zone<HasRegionType>.generateSharingStation(sharingProvider: MutableSharingProvider, vehicles: Int): SharingStation =
+    MutableSharingStation(
+        SharingStationId(sharingProvider.numberOfVehicles.toLong()),
+        sharingProvider,
+    ) {
+        this.uid = "${this.id} Station"
+        this.name = "noName"
+        this.location = StandardLocation.fromWGS(BIELEFELD)
+        this.zonesByFoot.add(this@generateSharingStation)
+        this.initialVehicleCount = vehicles
+    }
 
 // fun generateZoneLocations(numElements: Int): List<StandardLocation> {
 //    return (0..<numElements).map {
@@ -108,11 +106,17 @@ fun Zone<HasRegionType>.generateSharingStation(
 //    }
 // }
 
-fun Zone<HasRegionType>.point(wgs84coord: WGS84Coordinate): StandardLocation =
-    StandardLocation(wgs84coord.toPoint(), zone = this, roadAccess = RoadAccess.INVALID)
+fun Zone<HasRegionType>.point(wgs84coord: WGS84Coordinate): StandardLocation = StandardLocation(
+    wgs84coord.toPoint(),
+    zone = this,
+    roadAccess = RoadAccess.INVALID,
+)
 
-fun Long.toRoadPositionInZone(zone: Zone<HasRegionType>): StandardLocation =
-    StandardLocation(BIELEFELD.toPoint(), zone, RoadAccess(this, 0.5.share()))
+fun Long.toRoadPositionInZone(zone: Zone<HasRegionType>): StandardLocation = StandardLocation(
+    BIELEFELD.toPoint(),
+    zone,
+    RoadAccess(this, 0.5.share()),
+)
 
 val testHousehold = TEST_ZONE.generateHousehold(1) {
     householdNumber = 1
@@ -138,7 +142,6 @@ class HouseholdSpawnLimits(
     val numCars: IntRange = 0..5,
     val numPersons: IntRange = 0..5,
     val economicStatus: Collection<EconomicStatus> = EconomicStatus.entries,
-
 )
 
 @Suppress("LongParameterList")
@@ -253,7 +256,9 @@ class ActivitySpawnLimits(
 
 fun Collection<Zone<HasRegionType>>.generateActivities(
     num: Int,
-    random: Random = Random(1),
+    random: Random = Random(
+        1,
+    ),
     spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits(),
 ): List<Activity> = (0..<num).map {
     RawActivity(
@@ -352,5 +357,6 @@ fun Zone<HasRegionType>.generateHouseholdBuilder(
 fun Zone<HasRegionType>.generateHousehold(
     id: Long,
     roadIndex: Long = -1L,
-    lambda: MutableHousehold.() -> Unit = {},
+    lambda: MutableHousehold.() -> Unit = {
+    },
 ): MutableHousehold = generateHouseholdBuilder(id, roadIndex, lambda)

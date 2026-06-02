@@ -15,18 +15,15 @@ import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Impedance
-import domain.shared.location.zone.attributes.HasZoneId
 import edu.kit.ifv.units.euros
-import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import utils.Decodable
 import utils.units.Time
 import java.nio.file.Path
 import kotlin.io.path.readText
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-private val IS_ERROR = false
+// private val IS_ERROR = false
 
 /**
  * Loads impedance matrices (travel time, costs, distances) from configured paths.
@@ -52,10 +49,11 @@ fun <C, CFG> C.loadImpedance(
         config.currencyUnit,
         config.durationUnit,
     ),
+    errorOnMissingMode: Boolean = false,
 )
     where C : HasModes, C : HasMutableImpedance, CFG : MatrixConfig, CFG : UnitConfig = modelStep(
     "load impedance matrices",
-    validation = listOf({ validateLoadImpedance(config) }),
+    validation = listOf({ validateLoadImpedance(config, errorOnMissingMode) }),
 ) {
     val impedance = MatrixImpedance.loadFromPaths(
         travelTimeYamlPath = travelTimeYaml,
@@ -69,39 +67,40 @@ fun <C, CFG> C.loadImpedance(
     this.impedance = impedance
 }
 
-private fun HasModes.validateLoadImpedance(config: MatrixConfig): Boolean = config.run {
-    val fileAccess: Boolean =
-        validateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:") &&
-            validateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:") &&
-            validateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
+private fun HasModes.validateLoadImpedance(config: MatrixConfig, errorOnMissingMode: Boolean = false): Boolean =
+    config.run {
+        val fileAccess: Boolean =
+            validateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:") &&
+                validateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:") &&
+                validateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
 
-    if (!fileAccess) {
-        return false
-    }
-
-    val costConfig = costMatrixConfig.readText()
-    val durationConfig = durationMatrixConfig.readText()
-
-    var isValid = checkConfigKeysAreKnownModes(costConfig, path = costMatrixConfig)
-    isValid = checkConfigKeysAreKnownModes(durationConfig, path = durationMatrixConfig) && isValid
-
-    modes.values().forEach { mode ->
-        val modeLabel = "$mode:"
-        val errorMessage = { path: Path ->
-            "Matrix config ${path.fileName} does not specify mode $mode"
+        if (!fileAccess) {
+            return false
         }
 
-        isValid = validateCondition({ errorMessage(costMatrixConfig) }, IS_ERROR) {
-            modeLabel in costConfig
-        } && isValid
+        val costConfig = costMatrixConfig.readText()
+        val durationConfig = durationMatrixConfig.readText()
 
-        isValid = validateCondition({ errorMessage(durationMatrixConfig) }, IS_ERROR) {
-            modeLabel in durationConfig
-        } && isValid
+        var isValid = checkConfigKeysAreKnownModes(costConfig, path = costMatrixConfig)
+        isValid = checkConfigKeysAreKnownModes(durationConfig, path = durationMatrixConfig) && isValid
+
+        modes.values().forEach { mode ->
+            val modeLabel = "$mode:"
+            val errorMessage = { path: Path ->
+                "Matrix config ${path.fileName} does not specify mode $mode"
+            }
+
+            isValid = validateCondition({ errorMessage(costMatrixConfig) }, errorOnMissingMode) {
+                modeLabel in costConfig
+            } && isValid
+
+            isValid = validateCondition({ errorMessage(durationMatrixConfig) }, errorOnMissingMode) {
+                modeLabel in durationConfig
+            } && isValid
+        }
+
+        isValid || !errorOnMissingMode
     }
-
-    isValid || !IS_ERROR
-}
 
 private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path): Boolean { // , modes: CodePlan<Mode>
     val unknownModeMessage = { label: String ->
@@ -114,7 +113,7 @@ private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path
     }.map {
         it.trim().removeSuffix(":")
     }.map {
-        validateCondition({ unknownModeMessage(it) }, IS_ERROR) {
+        validateCondition({ unknownModeMessage(it) }, true) {
             modes.decodeOrNull(it) != null
         }
     }.toList().all { it }
@@ -153,12 +152,12 @@ class Teleportation : Impedance {
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"
 
-//@Deprecated("dummy impedance should no longer be used, try using Teleportation")
-//val dummyImpedance = object : Impedance {
+// @Deprecated("dummy impedance should no longer be used, try using Teleportation")
+// val dummyImpedance = object : Impedance {
 //    override fun duration(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time) = 5.minutes
 //    override fun cost(from: HasZoneId, to: HasZoneId, mode: Mode, time: Time) = 5.euros
 //    override fun distance(from: HasZoneId, to: HasZoneId, mode: Mode) = 5.kilometers
 //    override fun costMetric(mode: Mode, time: Time): CostMetric = error(SHOULD_NOT_BE_CALLED)
 //    override fun distanceMetric(mode: Mode): DistanceMetric = error(SHOULD_NOT_BE_CALLED)
 //    override fun durationMetric(mode: Mode, time: Time): DurationMetric = error(SHOULD_NOT_BE_CALLED)
-//}
+// }

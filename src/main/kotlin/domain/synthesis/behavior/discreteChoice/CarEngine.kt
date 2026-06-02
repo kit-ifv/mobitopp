@@ -303,8 +303,10 @@ data class EngineAlternative(
 fun <X> EngineType.toAlternative(
     person: MaximumPersonAttributes,
     household: SynthesisHousehold<X, MaximumPersonAttributes>,
-): EngineAlternative where X : MinimumHouseholdAttributes, X : HasNumberOfCars =
-    EngineAlternative.fromHousehold(person, household)
+): EngineAlternative where X : MinimumHouseholdAttributes, X : HasNumberOfCars = EngineAlternative.fromHousehold(
+    person,
+    household,
+)
 
 val carEngineChoiceModel = DiscreteStructure<EngineType, EngineAlternative, EngineParameters> {
     option(EngineType.COMBUSTION) {

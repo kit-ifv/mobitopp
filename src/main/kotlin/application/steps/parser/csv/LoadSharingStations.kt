@@ -19,8 +19,8 @@ import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.parser.GetZone
@@ -29,8 +29,8 @@ import domain.synthesis.parser.GlobalSharingStationIdCounter
 import domain.synthesis.parser.SharingProviderByStationCsvColumns
 import domain.synthesis.parser.SharingProviderByStationCsvConfig
 import domain.synthesis.parser.allDay
-import domain.synthesis.parser.createSharingProviderStationParser
 import domain.synthesis.parser.onlySameZoneByFoot
+import domain.synthesis.parser.sharingProviderStationParser
 import edu.kit.ifv.units.Distance
 import utils.csv.CsvParser
 import utils.csv.Row
@@ -116,7 +116,7 @@ fun <C, CFG> C.sharingProviderStationParser(
     sharingMode: Mode,
     customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : Config =
-    createSharingProviderStationParser(
+    sharingProviderStationParser(
         SharingProviderByStationCsvConfig(
             columns = SharingProviderByStationCsvColumns(),
             sharingMode = sharingMode,
@@ -174,7 +174,11 @@ fun <C, CFG> C.bikeSharingProviderCsv(
     parser: CsvParser<MutableSharingProvider> = bikeSharingProviderStationParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableSharingProvider>? = null,
-): Resource<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
+): Resource<MutableSharingProvider>
+where C : HasZoneRepo<*, Zone<HasRegionType>>,
+      CFG : SharingSourceFilesConfig,
+      CFG : SourceFilesConfig,
+      CFG : SharingModesConfig =
     sharingProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -193,7 +197,10 @@ fun <C, CFG> C.bikeSharingProviderStationParser(
     sharingMode: Mode = config.bikeSharingMode,
     customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingModesConfig =
-    sharingProviderStationParser<C, CFG>(sharingMode, customizeCsvConfig)
+    sharingProviderStationParser<C, CFG>(
+        sharingMode,
+        customizeCsvConfig,
+    )
 
 /**
  * Convenience function to create a CSV resource for car-sharing station-based providers.
@@ -215,7 +222,11 @@ fun <C, CFG> C.carSharingStationProviderCsv(
     parser: CsvParser<MutableSharingProvider> = carSharingProviderStationParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableSharingProvider>? = null,
-): Resource<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
+): Resource<MutableSharingProvider>
+where C : HasZoneRepo<*, Zone<HasRegionType>>,
+      CFG : SharingSourceFilesConfig,
+      CFG : SourceFilesConfig,
+      CFG : SharingModesConfig =
     sharingProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -234,7 +245,10 @@ fun <C, CFG> C.carSharingProviderStationParser(
     sharingMode: Mode = config.carSharingStationMode,
     customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingModesConfig =
-    sharingProviderStationParser<C, CFG>(sharingMode, customizeCsvConfig)
+    sharingProviderStationParser<C, CFG>(
+        sharingMode,
+        customizeCsvConfig,
+    )
 
 /**
  * Convenience function to create a CSV resource for car-sharing floating providers.
@@ -245,7 +259,7 @@ fun <C, CFG> C.carSharingProviderStationParser(
  *            and [SharingModesConfig].
  * @param config The configuration. Provided via context.
  * @param path The path to the car-sharing floating area CSV file. Defaults to [config.carSharingFloatingArea].
- * @param parser The CSV parser. Defaults to [carSharingProviderFloatAreaParser].
+ * @param parser The CSV parser. Defaults to [carSharingFloatAreaParser].
  * @param delimiter The CSV delimiter. Defaults to [config.sourceFiles.defaultCsvDelimiter].
  * @param binaryCache Optional configuration for binary caching.
  * @return A [Resource] representing the car-sharing floating provider CSV.
@@ -256,7 +270,11 @@ fun <C, CFG> C.carSharingFloatingProviderCsv(
     parser: CsvParser<MutableSharingProvider> = carSharingProviderStationParser(),
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableSharingProvider>? = null,
-): Resource<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingSourceFilesConfig, CFG : SourceFilesConfig, CFG : SharingModesConfig =
+): Resource<MutableSharingProvider>
+where C : HasZoneRepo<*, Zone<HasRegionType>>,
+      CFG : SharingSourceFilesConfig,
+      CFG : SourceFilesConfig,
+      CFG : SharingModesConfig =
     sharingProviderCsv(path, parser, delimiter, binaryCache)
 
 /**
@@ -271,8 +289,11 @@ fun <C, CFG> C.carSharingFloatingProviderCsv(
  * @return A [CsvParser] for [MutableSharingProvider].
  */
 context(config: CFG)
-fun <C, CFG> C.carSharingProviderFloatAreaParser(
+fun <C, CFG> C.carSharingFloatAreaParser(
     sharingMode: Mode = config.carSharingFloatingMode,
     customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingModesConfig =
-    sharingProviderStationParser<C, CFG>(sharingMode, customizeCsvConfig)
+    sharingProviderStationParser<C, CFG>(
+        sharingMode,
+        customizeCsvConfig,
+    )

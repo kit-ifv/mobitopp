@@ -4,11 +4,11 @@ import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.toZoneId
 import domain.shared.location.zone.attributes.HasVisumId
-import domain.shared.location.zone.Zone
+import domain.shared.location.zone.toZoneId
 import domain.synthesis.behavior.householdlocation.ZoneDistributedLocations
 import edu.kit.ifv.LandUseParser
 import edu.kit.ifv.NetfileParser
@@ -58,13 +58,16 @@ class ZoneDistributedLocationsTest {
         utmZone = netfileParser.utmZone,
         utmHemisphere = netfileParser.utmHemisphere,
     )
+
     private val distributedLocations = ZoneDistributedLocations<NecessaryAttributes, TestHouseHold>(
         polyZones,
         distributor,
     )
+
     private data class NecessaryAttributes(override val visumId: Int, override val regionType: RegionType) :
         HasVisumId,
         HasRegionType
+
     private class AdvancedZone(override val zoneId: ZoneId, override val attributes: NecessaryAttributes) :
         Zone<NecessaryAttributes> {
         constructor(id: Number, visumId: Number) : this(
@@ -76,7 +79,7 @@ class ZoneDistributedLocationsTest {
         )
 
         override val centroidLocation: StandardLocation
-            get() = TODO("Not yet implemented")
+            get() = throw UnsupportedOperationException()
     }
 
     // TODO this test is no longer testing sensible things since the location rework

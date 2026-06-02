@@ -53,7 +53,9 @@ class StandardMatrix private constructor(
             return StandardMatrix(doubleMatrix, indexLookup, sourcePath)
         }
 
-        fun fromValues(values: Collection<Double>, zoneIds: Collection<ZoneId>): StandardMatrix =
-            fromValues(values.toDoubleArray(), zoneIds.toTypedArray())
+        fun fromValues(values: Collection<Double>, zoneIds: Collection<ZoneId>): StandardMatrix = fromValues(
+            values.toDoubleArray(),
+            zoneIds.toTypedArray(),
+        )
     }
 }

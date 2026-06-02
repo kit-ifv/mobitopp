@@ -77,7 +77,9 @@ private fun List<Action.ChangeState>.toTimeBlock(colors: Map<String, String>) = 
 """.trimMargin()
 
 private fun Pair<String, List<Action.ChangeState>>.toPlantUml(color: String) =
-    "${first.agentAlias()} is \"${second.joinToString("\\n") { it.newState }}\" $color"
+    "${first.agentAlias()} is \"${second.joinToString(
+        "\\n",
+    ) { it.newState }}\" $color"
 
 private fun List<Action>.getTime() = this.getOrNull(0)?.time ?: error("No time for empty action list")
 

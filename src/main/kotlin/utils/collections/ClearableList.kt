@@ -17,5 +17,6 @@ value class MutableClearableList<T>(val delegate: MutableList<T>) :
     }
 }
 
-fun <T> mutableClearableListOf(vararg elements: T): MutableClearableList<T> =
-    MutableClearableList(elements.toMutableList())
+fun <T> mutableClearableListOf(vararg elements: T): MutableClearableList<T> = MutableClearableList(
+    elements.toMutableList(),
+)

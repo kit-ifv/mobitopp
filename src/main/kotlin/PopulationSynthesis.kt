@@ -9,9 +9,9 @@ import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.attributes.HasGeometricEmbedding
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.attributes.HasGeometricEmbedding
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.SynthesisSteps
 import domain.synthesis.algorithms.TrivialSynthesis
 import domain.synthesis.assignAmountOfCars
@@ -164,7 +164,10 @@ class AssignmentStrategy<I, C, O>(val model: FixedChoiceModel<O, C>, private val
             modelStructure: EnumeratedDiscreteModelBuilder<O, C, P>,
             parameters: P,
             situation: (I) -> C,
-        ) = viaChoiceModel(modelStructure.build(parameters), situation)
+        ) = viaChoiceModel(
+            modelStructure.build(parameters),
+            situation,
+        )
     }
 }
 
@@ -298,11 +301,10 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
 
 private val attractivenessModelPath = Path("src/test/resources/synthesis/attractivities.csv")
 
+private class ExampleZoneAttributes(override val geometry: Geometry, override val regionType: RegionType) :
+    HasGeometricEmbedding,
+    HasRegionType
 
-private class ExampleZoneAttributes(
-    override val geometry: Geometry,
-    override val regionType: RegionType
-): HasGeometricEmbedding, HasRegionType
 @Suppress(
     "LongMethod",
     "MagicNumber",
@@ -442,7 +444,9 @@ fun main() {
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-private fun <Z> Zone<Z>.generateLocations(amount: Int) : List<StandardLocation> where Z: HasGeometricEmbedding, Z: HasRegionType {
+private fun <Z> Zone<Z>.generateLocations(
+    amount: Int,
+): List<StandardLocation> where Z : HasGeometricEmbedding, Z : HasRegionType {
     return (0 until amount).map {
         BetterLocation(
             position = attributes.randomPoint(),

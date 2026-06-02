@@ -40,8 +40,9 @@ fun Row.boolean(index: Int) = this.valueAt(index, String::toBoolean)
 fun <T : Encodable> Row.decode(column: String, codePlan: CodePlan<T>) =
     this.invoke(column) { s -> codePlan.decode(s.toInt()) }
 
-fun <T : Encodable> Row.decode(index: Int, codePlan: CodePlan<T>) =
-    this.valueAt(index) { s -> codePlan.decode(s.toInt()) }
+fun <T : Encodable> Row.decode(index: Int, codePlan: CodePlan<T>) = this.valueAt(
+    index,
+) { s -> codePlan.decode(s.toInt()) }
 fun <T : Encodable> Row.decodeOrNull(index: Int, codePlan: CodePlan<T>): T? = this.valueAt(index) { s ->
     codePlan.decodeOrNull(s.toInt())
 }
@@ -52,8 +53,9 @@ fun <T : Encodable> Row.decodeOrNull(column: String, codePlan: CodePlan<T>): T? 
     null
 }
 
-fun <T : Encodable> Row.decodeName(column: String, codePlan: CodePlan<T>) =
-    this.invoke(column) { s -> codePlan.decode(s) }
+fun <T : Encodable> Row.decodeName(column: String, codePlan: CodePlan<T>) = this.invoke(
+    column,
+) { s -> codePlan.decode(s) }
 
 fun <T : Encodable> Row.decodeName(index: Int, codePlan: CodePlan<T>) = this.valueAt(index) { s -> codePlan.decode(s) }
 

@@ -3,9 +3,9 @@ package domain.shared.location
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.toSizebasedClassification
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import org.locationtech.jts.geom.Point
 
 data class StandardLocationImpl constructor(

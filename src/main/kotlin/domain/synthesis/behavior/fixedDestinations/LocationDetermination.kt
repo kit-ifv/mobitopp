@@ -37,7 +37,9 @@ fun interface SimpleGroupLocator<T : MinimumPersonAttributes> : AdjustableGroupL
     override fun match(
         agents: Collection<SurveyPerson<T>>,
         potentialLocations: Collection<StandardLocation>,
-    ): List<StandardLocation> = match(agents)
+    ): List<StandardLocation> = match(
+        agents,
+    )
 }
 
 /**

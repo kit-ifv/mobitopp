@@ -37,5 +37,7 @@ fun HasMutableRoadNetwork.loadVisumNetwork(file: Path, localeLambda: VisumLocale
     )
 }
 
-private fun Context.validateLoadVisumNetwork(file: Path): Boolean =
-    validateFileReadAccess(file, fileDescription = "Visum Net File containing road network data")
+private fun Context.validateLoadVisumNetwork(file: Path): Boolean = validateFileReadAccess(
+    file,
+    fileDescription = "Visum Net File containing road network data",
+)

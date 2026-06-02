@@ -45,5 +45,7 @@ class GPSLegcayCoordinate(override val latitudeRadians: Double, override val lon
 }
 
 @Suppress("MagicNumber")
-fun Pair<Number, Number>.toCoordinate(): WGS84Coordinate =
-    WGS84Coordinate.decimalDegree(first.toDouble(), second.toDouble())
+fun Pair<Number, Number>.toCoordinate(): WGS84Coordinate = WGS84Coordinate.decimalDegree(
+    first.toDouble(),
+    second.toDouble(),
+)

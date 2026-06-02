@@ -6,9 +6,9 @@ import domain.shared.location.Impedance
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.Zone
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
 import domain.synthesis.data.SharingProviderId
@@ -64,13 +64,12 @@ fun filterZonesByFootInRadius(
     Mode,
     StandardLocation,
     GetZone,
-) -> List<Zone<*>> =
-    { _, mode, stationLocation, getZone ->
-        val zone = getZone(stationLocation.zoneId)
-        zoneRepository.elements.filter {
-            impedance.distance(zone, it, mode) <= threshold
-        }.toList()
-    }
+) -> List<Zone<*>> = { _, mode, stationLocation, getZone ->
+    val zone = getZone(stationLocation.zoneId)
+    zoneRepository.elements.filter {
+        impedance.distance(zone, it, mode) <= threshold
+    }.toList()
+}
 
 // station location parser
 fun locationAtZoneCentroid(): (Row, Zone<HasRegionType>) -> StandardLocation = { _, zone ->
@@ -112,39 +111,38 @@ data class SharingProviderByStationCsvColumns(
     val zone: String = "zone",
 )
 
-fun createSharingProviderStationParser(
-    csvConfig: SharingProviderByStationCsvConfig,
-): CsvParser<MutableSharingProvider> = csvConfig.run {
-    val providers = mutableMapOf<String, MutableSharingProvider>()
+fun sharingProviderStationParser(csvConfig: SharingProviderByStationCsvConfig): CsvParser<MutableSharingProvider> =
+    csvConfig.run {
+        val providers = mutableMapOf<String, MutableSharingProvider>()
 
-    CsvParser.Companion { row ->
+        CsvParser.Companion { row ->
 
-        val providerName = row(columns.provider)
-        var newProvider = false
-        val provider = providers.computeIfAbsent(providerName) { n ->
-            newProvider = true
-            MutableSharingProvider(providerIdSource(row)) {
-                this.name = n
-                this.mode = sharingMode
-                this.operatingHours = csvConfig.operatingHours
+            val providerName = row(columns.provider)
+            var newProvider = false
+            val provider = providers.computeIfAbsent(providerName) { n ->
+                newProvider = true
+                MutableSharingProvider(providerIdSource(row)) {
+                    this.name = n
+                    this.mode = sharingMode
+                    this.operatingHours = csvConfig.operatingHours
+                }
             }
+
+            val uid = row(columns.uid)
+            val name = row(columns.name)
+            val initVehicles = row.int(columns.numVehicles)
+            val zone = getZone(ZoneId(row.long(columns.zone)))
+            val location = locationParser(row, zone)
+            val zonesByFoot = zonesByFoot(row, sharingMode, location, getZone)
+
+            MutableSharingStation(stationIdSource(row), owner = provider) {
+                this.uid = uid
+                this.name = name
+                this.location = location
+                this.initialVehicleCount = initVehicles
+                this.zonesByFoot.addAll(zonesByFoot)
+            }
+
+            provider.takeIf { newProvider }
         }
-
-        val uid = row(columns.uid)
-        val name = row(columns.name)
-        val initVehicles = row.int(columns.numVehicles)
-        val zone = getZone(ZoneId(row.long(columns.zone)))
-        val location = locationParser(row, zone)
-        val zonesByFoot = zonesByFoot(row, sharingMode, location, getZone)
-
-        MutableSharingStation(stationIdSource(row), owner = provider) {
-            this.uid = uid
-            this.name = name
-            this.location = location
-            this.initialVehicleCount = initVehicles
-            this.zonesByFoot.addAll(zonesByFoot)
-        }
-
-        provider.takeIf { newProvider }
     }
-}

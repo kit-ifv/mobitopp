@@ -86,21 +86,24 @@ fun <C : Context> C.validateFileReadWriteAccess(path: Path, isError: Boolean = t
  * @param fileDescription A description of the file (optional).
  * @return True if readable, false otherwise.
  */
-fun <C : Context> C.validateFileReadAccess(path: Path, isError: Boolean = true, fileDescription: String = ""): Boolean =
-    validateNoException(
-        message = { "Validate read access of: ${path.absolutePathString()} ($fileDescription)" },
-        exceptionsAreErrors = isError,
-    ) {
-        require(path.exists()) {
-            "File does not exist: $path!"
-        }
+fun <C : Context> C.validateFileReadAccess(
+    path: Path,
+    isError: Boolean = true,
+    fileDescription: String = "",
+): Boolean = validateNoException(
+    message = { "Validate read access of: ${path.absolutePathString()} ($fileDescription)" },
+    exceptionsAreErrors = isError,
+) {
+    require(path.exists()) {
+        "File does not exist: $path!"
+    }
 
-        require(path.toFile().canRead()) {
-            "Cannot read from file $path! Make sure its a file and access rights are set correctly!"
-        }
+    require(path.toFile().canRead()) {
+        "Cannot read from file $path! Make sure its a file and access rights are set correctly!"
+    }
 
-        true
-    } ?: false
+    true
+} ?: false
 
 /**
  * Validates that the parent directory of [path] is writable, creating it if it doesn't exist.

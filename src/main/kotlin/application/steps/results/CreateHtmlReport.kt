@@ -5,7 +5,6 @@ import core.modelsteps.Context
 import core.modelsteps.steps.modelStep
 import java.nio.file.Path
 
-
 /**
  * [modelStep] to create a HTML file from the receiver [Context]'s report.
  *
@@ -16,5 +15,5 @@ import java.nio.file.Path
 context(config: ResultsConfig)
 fun Context.createHtmlReport(outputDir: Path = config.resultDir) = modelStep("create HTML report") {
     report.writeHtmlReport(outputDir)
-    //TODO add option to automatically open in browser?
+    // TODO add option to automatically open in browser?
 }

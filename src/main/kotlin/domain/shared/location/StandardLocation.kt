@@ -2,15 +2,14 @@ package domain.shared.location
 
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.attributes.HasSizebasedClassification
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasSizebasedClassification
 import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
-
 
 /**
  * The bog-standard location used in mobitopp. That means we know the zone,  and a RoadAccess.
@@ -31,11 +30,15 @@ interface StandardLocation :
                 override val regionType: RegionType = RegioStaR17.LARGE_CITY_METRO
             }
             override val centroidLocation: StandardLocation
-                get() = TODO("Not yet implemented")
+                get() = throw UnsupportedOperationException()
         }
 
         operator fun invoke(position: Point, zone: Zone<HasRegionType>, roadAccess: RoadAccess): StandardLocation =
-            StandardLocationImpl(position, zone, roadAccess)
+            StandardLocationImpl(
+                position,
+                zone,
+                roadAccess,
+            )
 
         val LOCATIONUNKNOWN = StandardLocation(
             invalidPoint,

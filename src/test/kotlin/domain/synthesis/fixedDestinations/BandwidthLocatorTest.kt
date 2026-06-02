@@ -9,8 +9,8 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.BandwidthParameters

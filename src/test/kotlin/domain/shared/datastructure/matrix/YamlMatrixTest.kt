@@ -219,11 +219,15 @@ class YamlMatrixTest {
         assertEquals(targetExpiration, expiration)
     }
 
-    private operator fun <T> CalendarWeekLookup<T>.get(week: Int, day: Int, hour: Number): WithExpiration<T> =
-        get((week.weeks + day.days + hour.toDouble().hours).sinceStart)
+    private operator fun <T> CalendarWeekLookup<T>.get(week: Int, day: Int, hour: Number): WithExpiration<T> = get(
+        (week.weeks + day.days + hour.toDouble().hours).sinceStart,
+    )
 
-    private operator fun <T> TimeLookupBuilder<T>.set(a: Number, b: Number, element: T) =
-        set(a.toDouble().hours, b.toDouble().hours, element)
+    private operator fun <T> TimeLookupBuilder<T>.set(a: Number, b: Number, element: T) = set(
+        a.toDouble().hours,
+        b.toDouble().hours,
+        element,
+    )
 }
 
 private fun <T> createStructure(lambda: MutableCalendarLookupBuilder<T>.() -> Unit): CalendarWeekLookup<T> {

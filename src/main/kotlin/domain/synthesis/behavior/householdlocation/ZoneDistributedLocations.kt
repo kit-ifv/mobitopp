@@ -5,9 +5,9 @@ import domain.VisumZoneId
 import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.attributes.HasVisumId
-import domain.shared.location.zone.Zone
 import edu.kit.ifv.CoordinateGenerator
 import org.locationtech.jts.geom.Point
 
@@ -55,8 +55,10 @@ class ZoneDistributedLocations<Z, T>(
 //        return householdsToLocate.zip(generatedLocations)
     }
 
-    private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): Point =
-        this.generateCoordinates(polyZone, 1).first()
+    private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): Point = this.generateCoordinates(
+        polyZone,
+        1,
+    ).first()
 
     private fun polyzoneNotFound(id: Number): Nothing {
         error("Polyzone with visumID $id not found")

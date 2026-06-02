@@ -48,7 +48,9 @@ class RecordingStateMachineFactory<A>(private val factory: StateMachineFactory<A
  * @return a [RecordingStateMachineFactory] wrapping this factory
  */
 fun <A> StateMachineFactory<A>.withRecording(): RecordingStateMachineFactory<A> where A : Agent<out Message> =
-    RecordingStateMachineFactory(this)
+    RecordingStateMachineFactory(
+        this,
+    )
 
 /**
  * Extension of [core.statemachine.TransitoryStateMachine] that records the history and usage of visited states.

@@ -125,7 +125,8 @@ open class SingleColumnParser<E>(
 class ErrorHandlingRow(
     private val row: Row,
     private val errorHandling: ErrorHandling,
-    private val onError: (Exception) -> Unit = {},
+    private val onError: (Exception) -> Unit = {
+    },
 ) : Row by row {
 
     @Suppress("TooGenericExceptionCaught")

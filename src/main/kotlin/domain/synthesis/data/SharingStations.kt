@@ -3,8 +3,8 @@ package domain.synthesis.data
 import Mutable
 import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.attributes.HasRegionType
 import kotlinx.serialization.Serializable
 import utils.Identifiable
 

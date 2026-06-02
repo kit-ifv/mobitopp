@@ -8,9 +8,9 @@ import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Impedance
 import domain.shared.location.LocationMetric
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.ZoneMetric
-import domain.shared.location.zone.Zone
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.euros
@@ -159,7 +159,9 @@ class ControllableImpedance(
         travelTimes: Pair<Number, Number>,
         travelDistances: Pair<Number, Number>,
         travelCost: Pair<Number, Number>,
-        random: Random = Random(1),
+        random: Random = Random(
+            1,
+        ),
     ) {
         val rng: (Pair<Number, Number>) -> Double = {
             random.nextDouble(it.first.toDouble(), it.second.toDouble())

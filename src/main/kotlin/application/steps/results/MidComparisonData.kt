@@ -33,8 +33,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-fun compareWithMid(csv: Path) =
-    CsvReader.of(csv, separator = ",").rows().toList().asResource("MID comparison data", csv.pathString)
+fun compareWithMid(csv: Path) = CsvReader.of(
+    csv,
+    separator = ",",
+).rows().toList().asResource("MID comparison data", csv.pathString)
 
 val Resource<Row>.persons get() = elements.map {
     MidPersonRow(it)

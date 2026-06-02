@@ -19,8 +19,9 @@ abstract class HouseholdTypeFactory<Input>(
         return FullCoverageGroup(ruleset)
     }
 
-    private fun optionalTypeRule(type: HouseholdType, input: Input): Rule<ISurveyHousehold<*, *>>? =
-        getTypeDefinition(type).makeOptionalRule(targetExtractor(input, type))
+    private fun optionalTypeRule(type: HouseholdType, input: Input): Rule<ISurveyHousehold<*, *>>? = getTypeDefinition(
+        type,
+    ).makeOptionalRule(targetExtractor(input, type))
 
     private fun getTypeDefinition(type: HouseholdType) = HouseholdTypeDefinition(type)
 }

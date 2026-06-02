@@ -12,9 +12,9 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.shared.location.zone.ZoneId
 import domain.shared.location.parsePoint
 import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import domain.synthesis.parser.ZoneColumns
 import domain.synthesis.parser.ZoneCsvConfig
 import domain.synthesis.parser.binary.BinaryZoneReader
@@ -75,12 +75,15 @@ fun <C : Context, CFG> C.zoneCsv(
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MaximalZone>? = binaryZoneFormat(),
 ): Resource<MaximalZone>
-    where CFG : SourceFilesConfig, CFG : UnitConfig, CFG : RegionCodesConfig =
-    CsvResource(path, parser, delimiter).let { csv ->
-        binaryCache?.let {
-            csv.cachedCsv(it)
-        } ?: csv
-    }
+    where CFG : SourceFilesConfig, CFG : UnitConfig, CFG : RegionCodesConfig = CsvResource(
+    path,
+    parser,
+    delimiter,
+).let { csv ->
+    binaryCache?.let {
+        csv.cachedCsv(it)
+    } ?: csv
+}
 
 /**
  * Creates a binary cache configuration for zones.

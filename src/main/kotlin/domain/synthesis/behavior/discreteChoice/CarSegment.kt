@@ -28,7 +28,6 @@ data class CarSegmentSituation<S, T>(
 }
 
 data class CarSegmentChoice(
-
     val commuterDistance: Distance,
     val householdSize: Int,
     val householdIncome: Currency,

@@ -75,7 +75,9 @@ fun <P> createActivityCsvParser(
 fun activityBinaryCsvParser(
     columns: ActivitiesColumns = ActivitiesColumns(),
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
-) = CsvParser(errorHandling) { row ->
+) = CsvParser(
+    errorHandling,
+) { row ->
     ActivityBinaryRecord(
         row.index.toLong(),
         row.long(columns.personColumn),

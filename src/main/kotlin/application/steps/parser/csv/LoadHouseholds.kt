@@ -16,9 +16,9 @@ import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.filterIdsStep
 import core.modelsteps.scopes.filterStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.parseRoadPositionWGS
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
@@ -85,7 +85,10 @@ fun <C, CFG> C.householdCsv(
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutableHousehold>? = binaryHouseholdFormat(),
 ): Resource<MutableHousehold>
-    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
+    where C : HasZoneRepo<*, Zone<HasRegionType>>,
+          CFG : SourceFilesConfig,
+          CFG : UnitConfig,
+          CFG : HouseholdCodesConfig =
     CsvResource(
         path,
         parser,
@@ -132,7 +135,10 @@ context(config: CFG)
 fun <C, CFG> C.householdCsvParser(
     customizeCsvConfig: HouseholdCsvConfig.() -> Unit = {},
 ): CsvParser<MutableHousehold>
-    where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : UnitConfig, CFG : HouseholdCodesConfig =
+    where C : HasZoneRepo<*, Zone<HasRegionType>>,
+          CFG : SourceFilesConfig,
+          CFG : UnitConfig,
+          CFG : HouseholdCodesConfig =
     createHouseholdCsvParser(
         HouseholdCsvConfig(
             columns = HouseholdColumns(),

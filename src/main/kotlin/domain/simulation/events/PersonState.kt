@@ -392,8 +392,9 @@ val personStateMachine: StateMachineFactory<PersonAgent> get() =
         }
     }
 
-private fun Representative<out LinkedAction>?.agendaBlockDescription(): String =
-    "${this?.let { it::class.simpleName } ?: "null"}: '$this'"
+private fun Representative<out LinkedAction>?.agendaBlockDescription(): String = "${this?.let {
+    it::class.simpleName
+} ?: "null"}: '$this'"
 
 fun StartingTripState.startingCarTrip(): PerformLegState {
     val car = person.getBestCar()

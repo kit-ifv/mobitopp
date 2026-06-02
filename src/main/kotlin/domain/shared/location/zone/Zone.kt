@@ -8,4 +8,3 @@ interface Zone<out T> : HasZoneId {
     val centroidLocation: StandardLocation
     operator fun contains(location: HasZoneId): Boolean = zoneId == location.zoneId
 }
-

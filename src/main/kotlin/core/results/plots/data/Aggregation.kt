@@ -45,7 +45,9 @@ open class LowerQuantileBy<Y, R>(private val quantile: UnitIntervalValue, privat
 }
 
 open class LowerQuantile<Y>(quantile: UnitIntervalValue) :
-    LowerQuantileBy<Y, Y>(quantile, { it }) where Y : Comparable<Y>
+    LowerQuantileBy<Y, Y>(quantile, {
+        it
+    }) where Y : Comparable<Y>
 
 class LowerMedianBy<Y, R>(sortBy: (Y) -> R) : LowerQuantileBy<Y, R>(0.5.share(), sortBy) where R : Comparable<R>
 

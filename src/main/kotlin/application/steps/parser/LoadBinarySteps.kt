@@ -16,10 +16,10 @@ import core.modelsteps.steps.forAllStep
 import core.modelsteps.steps.loadBinary
 import core.modelsteps.steps.writeBinary
 import core.modelsteps.validation.validateFileReadAccess
-import domain.shared.location.zone.ZoneId
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarId
 import domain.synthesis.data.DrtProvider

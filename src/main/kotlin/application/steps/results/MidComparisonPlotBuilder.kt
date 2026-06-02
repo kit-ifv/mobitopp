@@ -135,8 +135,9 @@ class MidComparisonPersonPlotBuilder<G>(
         return dataCount.compareTo { compCount }
     }
 
-    fun <T : Comparable<T>> overHousehold(householdAtt: IHousehold.() -> T, midAtt: MidPersonRow.() -> T) =
-        over({ household.householdAtt() }, midAtt)
+    fun <T : Comparable<T>> overHousehold(householdAtt: IHousehold.() -> T, midAtt: MidPersonRow.() -> T) = over({
+        household.householdAtt()
+    }, midAtt)
 }
 
 @Suppress("LongParameterList")

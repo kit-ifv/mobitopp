@@ -2,11 +2,11 @@ package domain.synthesis.parser
 
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
+import domain.shared.location.parseRoadPositionWGS
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.attributes.HasRoadAccess
-import domain.shared.location.parseRoadPositionWGS
-import domain.shared.location.zone.Zone
 import domain.synthesis.data.PersonId
 import utils.CodePlan
 import utils.ErrorHandling

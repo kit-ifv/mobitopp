@@ -1,7 +1,9 @@
 package utils.collections
 
 class EquivalenceClass<T>(
-    val equivalence: (T, T) -> Boolean = { a, b -> a == b },
+    val equivalence: (T, T) -> Boolean = { a, b ->
+        a == b
+    },
     val map: MutableMap<T, MutableSet<T>> = mutableMapOf(),
 ) : Map<T, Set<T>> by map {
 

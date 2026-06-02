@@ -82,11 +82,18 @@ abstract class PlanModelTest {
         }
     }
 
-    private fun invalidLeg(action: Action): Leg =
-        Leg.Companion.fromDuration(action.startTime, action.duration, action.startLocation, action.endLocation)
+    private fun invalidLeg(action: Action): Leg = Leg.Companion.fromDuration(
+        action.startTime,
+        action.duration,
+        action.startLocation,
+        action.endLocation,
+    )
 
-    private fun invalidActivity(action: Action): Activity =
-        Activity.Companion.fromDuration(action.startLocation, action.startTime, action.duration)
+    private fun invalidActivity(action: Action): Activity = Activity.Companion.fromDuration(
+        action.startLocation,
+        action.startTime,
+        action.duration,
+    )
 
     private fun Triple<Collection<Action>, Collection<Action>, Collection<Action>>.decode(): String =
         first.joinToString {

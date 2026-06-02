@@ -76,8 +76,9 @@ fun modeStringColor(modeString: String): RGB = when (modeString.lowercase()) {
 
 private const val MAX_COLOR_INT = 255
 
-private fun validateRgbValue(label: String, value: Int) =
-    require(value in (0..MAX_COLOR_INT)) { "RGB values must be between 0 and 255 but $label is $value!" }
+private fun validateRgbValue(label: String, value: Int) = require(value in (0..MAX_COLOR_INT)) {
+    "RGB values must be between 0 and 255 but $label is $value!"
+}
 
 private const val CIRCLE_DEGREES = 360
 
@@ -253,8 +254,9 @@ fun RGB.lighterShades(n: Int): List<RGB> {
     }.toList()
 }
 
-fun Color.hueScale(n: Int, range: Double = CIRCLE_DEGREES.toDouble()): List<Color> =
-    toRgb().hueScale(n, range).map { it.toColor() }
+fun Color.hueScale(n: Int, range: Double = CIRCLE_DEGREES.toDouble()): List<Color> = toRgb().hueScale(n, range).map {
+    it.toColor()
+}
 
 fun RGB.hueScale(n: Int, range: Double = CIRCLE_DEGREES.toDouble()): List<RGB> {
     val hue = this.toHsl().h

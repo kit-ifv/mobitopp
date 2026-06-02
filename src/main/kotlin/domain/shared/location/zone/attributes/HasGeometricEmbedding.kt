@@ -10,10 +10,10 @@ interface HasGeometricEmbedding : HasCentroid {
     val geometry: Geometry
     override val centroid: Point
         get() {
-        val point = geometry.centroid
-        point.srid = geometry.srid
-        return point
-    }
+            val point = geometry.centroid
+            point.srid = geometry.srid
+            return point
+        }
 
     operator fun contains(location: Point): Boolean = location in geometry
     fun contains(location: Location) = contains(location.position)

@@ -88,7 +88,9 @@ enum class ErrorHandling {
 data class ValidationMessage(val message: String, val stepIsInvalid: Boolean, val cause: Throwable?)
 
 fun <R> errorScope(errorHandling: ErrorHandling = ErrorHandling.WARNING, message: String, runnable: () -> R): R? =
-    errorHandling.handle(runnable) { e ->
+    errorHandling.handle(
+        runnable,
+    ) { e ->
         "$message:\n    ${e.message}"
     }
 

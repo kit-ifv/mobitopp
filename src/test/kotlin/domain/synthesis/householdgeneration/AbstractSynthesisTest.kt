@@ -4,10 +4,10 @@ import TestZone
 import domain.shared.location.LocationWithZoneId
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.zone.ZoneId
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.toPoint
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
@@ -103,8 +103,11 @@ open class SynthesisTest {
 
     private var counter: Double = .0
 
-    protected fun Zone<HasRegionType>.spawnLocation(coordinate: WGS84Coordinate): StandardLocation =
-        StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
+    protected fun Zone<HasRegionType>.spawnLocation(coordinate: WGS84Coordinate): StandardLocation = StandardLocation(
+        coordinate.toPoint(),
+        this,
+        RoadAccess.INVALID,
+    )
 
     protected class FakeCoord : LocationWithZoneId {
         val idx = counter
@@ -132,7 +135,6 @@ open class SynthesisTest {
         override val age: Int,
         override val sex: Sex,
         override val distanceWork: Distance = (-999).kilometers,
-
     ) : MinimumPersonAttributes,
         HasCommuteDistance
 
@@ -159,7 +161,10 @@ open class SynthesisTest {
             return smallestSurveyPerson
         }
 
-        fun createHousehold(): SurveyHousehold<MinimumHouseholdAttributes, T> =
-            SurveyHousehold(id, members, attributeSpawner())
+        fun createHousehold(): SurveyHousehold<MinimumHouseholdAttributes, T> = SurveyHousehold(
+            id,
+            members,
+            attributeSpawner(),
+        )
     }
 }

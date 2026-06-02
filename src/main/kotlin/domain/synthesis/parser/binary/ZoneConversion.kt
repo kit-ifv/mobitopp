@@ -3,9 +3,9 @@ package domain.synthesis.parser.binary
 import domain.jackson.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.zone.ZoneId
 import domain.shared.location.ZonedRoadAccessLocation
 import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
 import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation

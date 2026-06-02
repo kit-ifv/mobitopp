@@ -18,7 +18,9 @@ class PersonAgeSexFactoryTest {
 
     // Projects all definitions to the target of 42.
     private class CheatyDefiner(private val elements: Collection<PersonAgeSexDefinition>) :
-        PersonAgeSexFactory<Unit>({ elements.map { it to 42.0 } }) {
+        PersonAgeSexFactory<Unit>({
+            elements.map { it to 42.0 }
+        }) {
         constructor(vararg elements: Pair<IntRange, Sex>) : this(
             elements.map { PersonAgeSexDefinition(it.first, it.second) },
         )

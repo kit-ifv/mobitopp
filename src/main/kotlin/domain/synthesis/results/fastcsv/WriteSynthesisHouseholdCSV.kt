@@ -6,10 +6,11 @@ import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
 
-fun <S : MinimumHouseholdAttributes> Collection<SynthesisHousehold<S, *>>.write(path: Path) =
-    Files.newBufferedWriter(path).use { writer ->
-        this.write(writer)
-    }
+fun <S : MinimumHouseholdAttributes> Collection<SynthesisHousehold<S, *>>.write(path: Path) = Files.newBufferedWriter(
+    path,
+).use { writer ->
+    this.write(writer)
+}
 
 fun <S> Collection<SynthesisHousehold<S, *>>.write(writer: Writer) where S : MinimumHouseholdAttributes {
     this.writeCsvWithGenericAttributes(

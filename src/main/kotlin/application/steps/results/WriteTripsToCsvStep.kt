@@ -56,7 +56,9 @@ interface WriteLegToCSV {
 }
 
 class StandardCSVLegWriter(private val impedance: Impedance) : WriteLegToCSV {
-    override val header: String = "legId;personId;duration_sec;mode;activityType;tripStart_sec;tripEnd_sec;ZoneStart;ZoneEnd;previousActivityType;distance_km;cost_euro"
+    override val header: String =
+        "legId;personId;duration_sec;mode;activityType;tripStart_sec;tripEnd_sec;" +
+            "ZoneStart;ZoneEnd;previousActivityType;distance_km;cost_euro"
 
     override fun generateCSVLine(index: Int, leg: LinkedLeg, person: PersonAgent): String {
         val previous = leg.previous

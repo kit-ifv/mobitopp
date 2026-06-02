@@ -122,11 +122,12 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
         }
     }
 
-    private fun getStateMachineUsage(stateMachine: StateMachine): StateMachineUsageRecorder =
-        requireNotNull(usage[stateMachine.name]) {
-            "State machine ${stateMachine.name} should already be registered! \n" +
-                "only found: ${usage.keys}"
-        }
+    private fun getStateMachineUsage(stateMachine: StateMachine): StateMachineUsageRecorder = requireNotNull(
+        usage[stateMachine.name],
+    ) {
+        "State machine ${stateMachine.name} should already be registered! \n" +
+            "only found: ${usage.keys}"
+    }
 }
 
 /**

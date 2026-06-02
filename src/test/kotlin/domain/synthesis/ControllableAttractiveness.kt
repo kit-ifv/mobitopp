@@ -5,8 +5,8 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.asAttractiveness
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
-import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import utils.collections.cartesianProduct
 
 class ControllableAttractiveness(zones: Collection<MaximalZone>) : AttractivenessModel {
@@ -17,8 +17,12 @@ class ControllableAttractiveness(zones: Collection<MaximalZone>) : Attractivenes
             LegacyActivityType.entries,
         ).associateWith { Attractiveness.DEFAULT }.toMutableMap()
 
-    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
-        attractivenessMap[Pair(zone, activityType)] ?: 0.0.asAttractiveness()
+    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness = attractivenessMap[
+        Pair(
+            zone,
+            activityType,
+        ),
+    ] ?: 0.0.asAttractiveness()
 
     override val work: ActivityType = LegacyActivityType.WORK
     override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT

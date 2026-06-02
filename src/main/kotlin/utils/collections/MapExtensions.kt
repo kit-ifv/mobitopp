@@ -65,8 +65,18 @@ fun Int.toIndex(): Int = if (sign == -1) {
     this
 }
 
-inline fun <K, V> Iterable<K>.associateWithNotNull(valueSelector: (K) -> V?): Map<K, V> =
-    this.mapNotNull { key -> valueSelector(key)?.let { key to it } }.toMap()
+inline fun <K, V> Iterable<K>.associateWithNotNull(valueSelector: (K) -> V?): Map<K, V> = this.mapNotNull { key ->
+    valueSelector(
+        key,
+    )?.let {
+        key to it
+    }
+}.toMap()
 
-inline fun <K, V> Iterable<V>.associateByNotNull(keySelector: (V) -> K?): Map<K, V> =
-    this.mapNotNull { value -> keySelector(value)?.let { it to value } }.toMap()
+inline fun <K, V> Iterable<V>.associateByNotNull(keySelector: (V) -> K?): Map<K, V> = this.mapNotNull { value ->
+    keySelector(
+        value,
+    )?.let {
+        it to value
+    }
+}.toMap()
