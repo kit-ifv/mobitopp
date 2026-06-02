@@ -198,7 +198,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
             style = "color: var(--highlight-color)"
             +reportTitle
         }
-        if (quickOverview != null) unsafe { +quickOverview!!.getHtml() }
+        unsafe { +quickOverview.getHtml() }
         div("logs-card") {
             h3("logs heading") {
                 style = "color: var(--normal-color)"
