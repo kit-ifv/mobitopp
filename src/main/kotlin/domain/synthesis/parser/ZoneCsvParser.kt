@@ -3,8 +3,8 @@ package domain.synthesis.parser
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
 import edu.kit.ifv.units.DistanceUnit
 import org.locationtech.jts.geom.Point

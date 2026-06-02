@@ -5,16 +5,16 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.StandardLocationImpl
+import domain.shared.location.toPoint
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.toPoint
-import domain.shared.location.zone.toZoneId
-import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.attributes.MaximumZoneAttributes
-import domain.shared.location.zone.Zone
+import domain.shared.location.zone.toZoneId
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
@@ -69,7 +69,7 @@ class TestZone(override val zoneId: ZoneId, override val attributes: HasRegionTy
         AttributeImpl(regionType),
     )
 
-    override val centroidLocation: StandardLocation = BetterLocation(BIELEFELD.toPoint(), this, RoadAccess.INVALID)
+    override val centroidLocation: StandardLocation = StandardLocationImpl(BIELEFELD.toPoint(), this)
 }
 
 fun generateZones(numElements: Int): List<MaximalZone> = (0..<numElements).map {

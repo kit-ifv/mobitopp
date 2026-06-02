@@ -8,6 +8,7 @@ import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
+import domain.synthesis.parseSurvey
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 

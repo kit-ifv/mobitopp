@@ -1,14 +1,14 @@
 package domain.simulation.agent
 
 import Mutable
-import domain.shared.location.Location
+import domain.shared.location.StandardLocation
 import domain.synthesis.data.Car
 import domain.synthesis.data.CarId
 import domain.synthesis.data.IPrivateCar
 
 abstract class CarAgent : Car {
     // TODO Debate with Jelle whether CAR should hold information and state or be separated.
-    abstract var location: Location
+    abstract var location: StandardLocation
     var driver: PersonAgent? = null
     var passengers: MutableSet<PersonAgent> = mutableSetOf() // TODO person agent
     var keyHolder: PersonAgent? = null
@@ -38,7 +38,7 @@ abstract class PrivateCarAgent(final override val id: CarId, override val owner:
     abstract override val mainUser: PersonAgent?
 
     var state: CarState = CarState.PARKED
-    override var location: Location = owner.location
+    override var location: StandardLocation = owner.location
 
     enum class CarState {
         PARKED,

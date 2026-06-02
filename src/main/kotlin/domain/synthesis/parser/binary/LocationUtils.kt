@@ -1,14 +1,15 @@
 package domain.synthesis.parser.binary
 
 import domain.shared.location.Location
+import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.zone.ZoneId
-import domain.shared.location.ZonedRoadAccessLocation
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import edu.kit.ifv.units.WGS84Coordinate
 import edu.kit.ifv.units.share
+import org.locationtech.jts.geom.Point
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 
@@ -36,15 +37,15 @@ object LocationUtils {
         )
     }
 
-    fun ByteBuffer.decodeNakedLocation(): ZonedRoadAccessLocation {
+    fun ByteBuffer.decodeNakedLocation(): ZonedRoadAccessLocationDTO {
         val zoneId = ZoneId(long) // Reading zone ID
-        val coordinate = WGS84Coordinate.decimalDegree(
+        val coordinate = PointCreator.createWGS(
             double,
             double,
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
 
-        return Location.wgs(coordinate).withRoadAccess(roadAccess).withZone(zoneId)
+        return ZonedRoadAccessLocationDTO(zoneId, roadAccess, coordinate)
     }
 
     /**
@@ -59,7 +60,7 @@ object LocationUtils {
      *
      * @param location The `Location` object to write to the `DataOutputStream`.
      */
-    fun DataOutputStream.encodeLocation(location: ZonedRoadAccessLocation) {
+    fun DataOutputStream.encodeLocation(location: ZonedRoadAccessLocationDTO) {
         writeLong(location.zoneId.value)
         writeDouble(location.position.y)
         writeDouble(location.position.x)
@@ -71,3 +72,5 @@ object LocationUtils {
 //        encodeLocation(location.withRoadAccess(RoadAccess.INVALID))
 //    }
 }
+
+data class ZonedRoadAccessLocationDTO(val zoneId: ZoneId, val roadAccess: RoadAccess, val position: Point)

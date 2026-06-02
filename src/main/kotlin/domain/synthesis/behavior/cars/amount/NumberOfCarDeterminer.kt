@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.cars.amount
 
-import AssignmentStep
+import domain.synthesis.AssignmentStep
 import domain.synthesis.behavior.MinimalistHousehold
 import kotlin.random.Random
 

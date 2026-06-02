@@ -1,14 +1,8 @@
 package domain.shared.location
 
-import domain.shared.location.zone.attributes.HasRoadAccess
-import domain.shared.location.zone.attributes.HasZoneId
-import domain.shared.location.zone.ZoneId
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.WGS84Coordinate
-import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
-import org.locationtech.jts.geom.PrecisionModel
 
 interface Location<out L> {
     val position: Point
@@ -19,8 +13,7 @@ interface Location<out L> {
         fun of(point: Point): Location<*> = LocationImpl(point)
 
         @Suppress("MagicNumber")
-        fun utm(x: Double, y: Double): Location<*> =
-            of(GeometryFactory(PrecisionModel(), 25832).createPoint(Coordinate(x, y)))
+        fun utm(x: Double, y: Double): Location<*> = of(PointCreator.createUTM(x, y))
 
         fun utm(string: String): Location<*> {
             val (x, y) = string.split(",").take(2)

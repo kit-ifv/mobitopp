@@ -3,9 +3,9 @@ package domain.synthesis.parser.binary
 import domain.jackson.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.zone.ZoneId
-import domain.shared.location.ZonedRoadAccessLocation
+import domain.shared.location.toDTO
 import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
 import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
@@ -75,7 +75,7 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionT
 // TODO string really hampers the construction as the maxlength is unknown
 data class ZoneBinaryRecord(
     val id: Long,
-    val centroid: ZonedRoadAccessLocation,
+    val centroid: ZonedRoadAccessLocationDTO,
     val visumId: Long,
     val name: String,
     val regionTypeCode: Int,
@@ -113,7 +113,7 @@ class BinaryZoneWriter : BinaryWriter<MaximalZone> {
     fun DataOutputStream.encodeZone(zone: MaximalZone, maxNameLength: Int) {
         zone.run {
             writeLong(id.value)
-            encodeLocation(this.centroidLocation)
+            encodeLocation(this.centroidLocation.toDTO())
             writeLong(-1L)
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader

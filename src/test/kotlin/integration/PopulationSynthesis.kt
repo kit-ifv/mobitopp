@@ -1,3 +1,7 @@
+package integration
+
+import GenerateFromFlatInput
+import GenerateHouseholds
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
@@ -6,12 +10,13 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.BetterLocation
-import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.attributes.HasGeometricEmbedding
+import domain.shared.location.StandardLocationImpl
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.attributes.HasGeometricEmbedding
+import domain.shared.location.zone.attributes.HasRegionType
+import domain.synthesis.AssignmentStep
+import domain.synthesis.HouseholdAssignmentStep
 import domain.synthesis.SynthesisSteps
 import domain.synthesis.algorithms.TrivialSynthesis
 import domain.synthesis.assignAmountOfCars
@@ -22,7 +27,6 @@ import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.HouseholdFactory
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
 import domain.synthesis.behavior.cars.amount.standardAssignmentByRegionSize
@@ -42,8 +46,6 @@ import domain.synthesis.behavior.fixedDestinations.primarySchool
 import domain.synthesis.behavior.fixedDestinations.secondarySchool
 import domain.synthesis.behavior.fixedDestinations.work
 import domain.synthesis.behavior.householdlocation.AssignAroundPoint
-import domain.synthesis.data.Employment
-import domain.synthesis.data.Sex
 import domain.synthesis.results.LegacyActivityOutput
 import domain.synthesis.results.LegacyCarOutput
 import domain.synthesis.results.LegacyFixedDestinationOutput
@@ -53,99 +55,11 @@ import domain.synthesis.results.LegacyPersonOutput
 import domain.synthesis.results.OpportunityOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
-import edu.kit.ifv.units.CurrencyUnit
-import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
-import edu.kit.ifv.units.toCurrency
 import org.locationtech.jts.geom.Geometry
-import utils.csv.DefaultCsvParser
-import utils.csv.Row
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.random.Random
-
-fun String.toBooleanNumeric(): Boolean = when (this) {
-    "1" -> true
-
-    "0" -> false
-
-    "-1" -> false
-
-    // TODO thi
-    else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
-}
-
-data class SurveyColumns(
-    var id: String = "ID",
-    var year: String = "year",
-    var areatype: String = "areatype",
-    var size: String = "size",
-    var personnumber: String = "personnumber",
-    var sex: String = "sex",
-    var birthyear: String = "birthyear",
-    var employmenttype: String = "employmenttype",
-    var commuterticket: String = "commuterticket",
-    var hhincome: String = "hhincome",
-    var hhincomeClass: String = "hhincome_class",
-    var type: String = "type",
-    var cars: String = "cars",
-    var bicycle: String = "bicycle",
-    var licence: String = "licence",
-    var distanceWork: String = "distance_work",
-    var distanceEducation: String = "distance_education",
-)
-
-fun parseSurvey(path: Path, lambda: SurveyColumns.() -> Unit): List<RawSurveyInfo> {
-    val surveyColumns = SurveyColumns()
-    surveyColumns.apply(lambda)
-    return parseSurvey(path, surveyColumns).toList()
-}
-
-fun readRawSurveyInfo(row: Row, surveyColumns: SurveyColumns): RawSurveyInfo = RawSurveyInfo(
-    householdId = row(surveyColumns.id).toLong(),
-    year = row(surveyColumns.year).toInt(),
-    areaType = row(surveyColumns.areatype).toInt(),
-    householdSize = row(surveyColumns.size).toInt(),
-    personNumber = row(surveyColumns.personnumber).toInt(),
-    sex = row(surveyColumns.sex) { Sex.decode(it.toInt()) },
-    birthyear = row(surveyColumns.birthyear).toInt(),
-    employment = row(surveyColumns.employmenttype) { Employment.decode(it.toInt()) },
-    hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
-    householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
-    householdIncomeClass = row(surveyColumns.hhincomeClass).toInt(),
-    typeCode = row(surveyColumns.type).toInt(),
-    cars = row(surveyColumns.cars).toInt(),
-    hasBicycle = row(surveyColumns.bicycle).toBooleanNumeric(),
-    hasLicence = row(surveyColumns.licence).toBooleanNumeric(),
-    distanceWork = row(surveyColumns.distanceWork) { it.toDouble().kilometers },
-    distanceEducation = row(surveyColumns.distanceEducation) { it.toDouble().kilometers },
-)
-
-fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Sequence<RawSurveyInfo> {
-    val parser = DefaultCsvParser { row ->
-        readRawSurveyInfo(row, surveyColumns)
-    }
-
-    return parser.parse(path)
-}
-
-@Suppress("SpacingAroundColon") // Seems to be a detekt version thing
-fun interface AssignmentStep<in I, out O> {
-    context(random: Random)
-    fun assign(input: I): O
-}
-
-@Suppress("SpacingAroundColon")
-fun interface HouseholdAssignmentStep<in S, in T : MinimumPersonAttributes, out O> :
-    AssignmentStep<ISurveyHousehold<S, T>, List<O>> where S : MinimumHouseholdAttributes {
-    context(household: ISurveyHousehold<S, T>)
-    fun assignForPerson(person: SurveyPerson<T>): O
-
-    context(random: Random)
-    override fun assign(input: ISurveyHousehold<S, T>): List<O> = context(input) {
-        input.members.map { member -> assignForPerson(member) }
-    }
-}
 
 @Suppress("SpacingAroundColon") // Seems to be a detekt version thing
 class AssignmentStrategy<I, C, O>(val model: FixedChoiceModel<O, C>, private val situation: (I) -> C) :
@@ -211,7 +125,7 @@ fun <
         generatedLocations.map {
             OpportunityOutput(
                 it,
-                attractivenessModel.attractivenessFor(it.zoneId, activityType),
+                attractivenessModel.attractivenessFor(it.attributes.zoneId, activityType),
                 activityType,
             )
         },
@@ -298,11 +212,10 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
 
 private val attractivenessModelPath = Path("src/test/resources/synthesis/attractivities.csv")
 
+private class ExampleZoneAttributes(override val geometry: Geometry, override val regionType: RegionType) :
+    HasGeometricEmbedding,
+    HasRegionType
 
-private class ExampleZoneAttributes(
-    override val geometry: Geometry,
-    override val regionType: RegionType
-): HasGeometricEmbedding, HasRegionType
 @Suppress(
     "LongMethod",
     "MagicNumber",
@@ -416,7 +329,7 @@ fun examplePopulationSynthesis() {
 }
 
 fun <C, T> SynthesisSteps<*, C, T>.writeLegacyOutput()
-where C : MaximumHouseholdAttributes, T : MaximumPersonAttributes {
+        where C : MaximumHouseholdAttributes, T : MaximumPersonAttributes {
     LegacyHouseholdOutput<C>().writeCSVToFile(
         outputDirectory.resolve("household.csv"),
         households,
@@ -442,12 +355,13 @@ fun main() {
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-private fun <Z> Zone<Z>.generateLocations(amount: Int) : List<StandardLocation> where Z: HasGeometricEmbedding, Z: HasRegionType {
+private fun <Z> Zone<Z>.generateLocations(
+    amount: Int,
+): List<StandardLocation> where Z : HasGeometricEmbedding, Z : HasRegionType {
     return (0 until amount).map {
-        BetterLocation(
+        StandardLocationImpl(
             position = attributes.randomPoint(),
             zone = this,
-            roadAccess = RoadAccess.INVALID,
         )
     }
 //    return (0..<amount).map { LocationOld(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }

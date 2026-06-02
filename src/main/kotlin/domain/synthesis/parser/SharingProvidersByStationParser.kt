@@ -6,9 +6,9 @@ import domain.shared.location.Impedance
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.Zone
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
 import domain.synthesis.data.SharingProviderId
@@ -64,13 +64,12 @@ fun filterZonesByFootInRadius(
     Mode,
     StandardLocation,
     GetZone,
-) -> List<Zone<*>> =
-    { _, mode, stationLocation, getZone ->
-        val zone = getZone(stationLocation.zoneId)
-        zoneRepository.elements.filter {
-            impedance.distance(zone, it, mode) <= threshold
-        }.toList()
-    }
+) -> List<Zone<*>> = { _, mode, stationLocation, getZone ->
+    val zone = getZone(stationLocation.zoneId)
+    zoneRepository.elements.filter {
+        impedance.distance(zone, it, mode) <= threshold
+    }.toList()
+}
 
 // station location parser
 fun locationAtZoneCentroid(): (Row, Zone<HasRegionType>) -> StandardLocation = { _, zone ->

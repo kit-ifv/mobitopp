@@ -12,8 +12,8 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.legacyChoiceModelModes
-import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PrivateCarAgent

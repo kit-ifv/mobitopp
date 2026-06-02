@@ -4,11 +4,11 @@ import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.toZoneId
 import domain.shared.location.zone.attributes.HasVisumId
-import domain.shared.location.zone.Zone
+import domain.shared.location.zone.toZoneId
 import domain.synthesis.behavior.householdlocation.ZoneDistributedLocations
 import edu.kit.ifv.LandUseParser
 import edu.kit.ifv.NetfileParser
@@ -88,7 +88,7 @@ class ZoneDistributedLocationsTest {
         )
 
         assertNotNull(generated)
-        assertEquals(generated.roadAccess, RoadAccess.INVALID)
+        assertEquals(generated.attributes.roadAccess, RoadAccess.INVALID)
     }
 
     @Test
@@ -102,7 +102,7 @@ class ZoneDistributedLocationsTest {
 
         assert(generated.size == size)
         generated.forEach { pair ->
-            assertEquals(pair.second.roadAccess, RoadAccess.INVALID)
+            assertEquals(pair.second.attributes.roadAccess, RoadAccess.INVALID)
             assert(pair.first.name == "TestHouseHold")
         }
     }

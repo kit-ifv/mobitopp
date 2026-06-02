@@ -3,7 +3,8 @@ package domain.shared.datastructure
 import core.datastructure.kdtree.ReadOnlyKDTree
 import domain.LinkInfo
 import domain.VisumNode
-import domain.shared.location.StandardLocation
+import domain.shared.location.Location
+import domain.shared.location.attributes.HasRoadAccess
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UTMPosition
@@ -17,7 +18,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 fun interface VisumLinkIdLocator {
-    fun linkIdFor(location: StandardLocation): Long
+    fun linkIdFor(location: Location<*>): Long
 }
 
 /**
@@ -62,17 +63,13 @@ class LocatableGraph(private val graph: Graph<VisumNode, LinkInfo>) :
         )
     }
 
-    fun visumLinkId(location: StandardLocation): Long {
-        location.roadAccess.let {
-            return it.roadId
-        }
+    fun readVisumLinkId(location: Location<HasRoadAccess>): Long = location.attributes.roadAccess.roadId
 
-        return linkIdFor(location)
-    }
+    fun visumLinkId(location: Location<*>): Long = linkIdFor(location)
 
     // TODO currently the calculation returns the closest midpoint, which does not necessarily represent the closest edge
     //  but it is good enough for approximation.
-    override fun linkIdFor(location: StandardLocation): Long {
+    override fun linkIdFor(location: Location<*>): Long {
         // Use UTM as baseline, WGS is imprecise, depending on location.
         val utm = WGS84Coordinate.decimalDegree(
             location.position.y,

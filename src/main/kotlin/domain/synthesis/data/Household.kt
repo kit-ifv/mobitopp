@@ -4,8 +4,9 @@ import Mutable
 import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZonedRoadAccessLocation
+import domain.shared.location.toDTO
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
+import domain.synthesis.parser.binary.ZonedRoadAccessLocationDTO
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import kotlinx.serialization.Serializable
@@ -61,7 +62,7 @@ interface IHousehold :
         type,
         incomePerMonth.toDouble(CurrencyUnit.EUROS),
         economicStatus.code,
-        location,
+        location.toDTO(),
 
     )
 }
@@ -83,7 +84,7 @@ data class HouseholdBinaryRecord(
     val type: Int,
     val incomePerMonth: Double,
     val economicStatusCode: Int,
-    val location: ZonedRoadAccessLocation,
+    val location: ZonedRoadAccessLocationDTO,
 ) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {

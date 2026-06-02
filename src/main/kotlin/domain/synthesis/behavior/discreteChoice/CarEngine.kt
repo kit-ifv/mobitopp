@@ -286,7 +286,7 @@ data class EngineAlternative(
                 age = person.age,
                 householdNumberOfCars = household.attributes.amountOfCars,
                 householdSize = household.size,
-                regionType = household.attributes.location.sizebasedRegiostarClassification,
+                regionType = household.attributes.location.attributes.sizebasedRegiostarClassification,
                 isWorking = employment == Employment.FULLTIME,
                 isParttime = employment == Employment.PARTTIME,
                 isHomekeeper = employment == Employment.HOMEKEEPER,

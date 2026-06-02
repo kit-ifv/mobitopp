@@ -7,7 +7,7 @@ fun interface PointAndRoadPositionParser {
     fun parse(string: String): Pair<Point, RoadAccess>
 
     companion object {
-        val parseWGS =  PointAndRoadPositionParser { string ->
+        val parseWGS = PointAndRoadPositionParser { string ->
             val res = string.removeSurrounding(prefix = "(", suffix = ")").split(":", ",").map { it.trim() }
             require(res.size == 4) {
                 "Cannot parse '$this' as RoadPosition: expected format LONG:LAT,ROAD_ID,ROAD_POS"

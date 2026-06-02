@@ -1,8 +1,18 @@
 package domain.synthesis.behavior.activityGeneration
 
+import domain.shared.enums.areatype.RegioStaR17
+import domain.shared.enums.areatype.RegionType
+import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.ZoneRegionType
+import domain.shared.enums.areatype.toSizebasedClassification
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.BetterLocation
+import domain.shared.location.PointCreator
+import domain.shared.location.RoadAccess
+import domain.shared.location.StandardLocation
+import domain.shared.location.StandardLocationAttributes
+import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MaximumHouseholdAttributesImpl
@@ -14,8 +24,44 @@ import domain.synthesis.data.HouseholdType
 import domain.synthesis.data.Sex
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
+import org.locationtech.jts.geom.Point
 import kotlin.test.Test
 import kotlin.test.assertEquals
+
+class BetterLocation constructor(
+    override val position: Point,
+    zoneId: ZoneId,
+
+    regionType: RegionType,
+
+    sizebasedRegiostarClassification: SizebasedRegiostarClassification =
+        regionType.toRegioStaR17().toSizebasedClassification(),
+
+) : StandardLocation {
+    override val attributes: StandardLocationAttributes = object : StandardLocationAttributes {
+        override val regionType: RegionType = regionType
+        override val sizebasedRegiostarClassification: SizebasedRegiostarClassification = sizebasedRegiostarClassification
+        override val zoneId: ZoneId = zoneId
+        override val roadAccess: RoadAccess = RoadAccess.INVALID
+    }
+
+    constructor(position: Point, zone: Zone<HasRegionType>, roadAccess: RoadAccess) : this(
+        position,
+        zone.id,
+        zone.attributes.regionType,
+    )
+
+    companion object {
+        fun fromPoint(point: Point) = BetterLocation(
+            position = point,
+            zoneId = ZoneId(-1),
+            regionType = RegioStaR17.MEDIUM_CITY_METRO,
+            sizebasedRegiostarClassification = SizebasedRegiostarClassification.CITY,
+        )
+
+        fun wgs(x: Double, y: Double): BetterLocation = fromPoint(PointCreator.createWGS(x, y))
+    }
+}
 
 class ActiToppNGGeneratorTest {
 

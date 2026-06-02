@@ -8,9 +8,9 @@ import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Impedance
 import domain.shared.location.LocationMetric
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.ZoneMetric
-import domain.shared.location.zone.Zone
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.euros

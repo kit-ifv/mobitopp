@@ -4,7 +4,7 @@ import domain.shared.behavior.Attractiveness
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZonedRoadAccessLocation
+import domain.shared.location.toDTO
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.SynthesisPerson
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
@@ -13,6 +13,7 @@ import domain.synthesis.attributes.person.employment
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.cars.SynthesisCar
+import domain.synthesis.parser.binary.ZonedRoadAccessLocationDTO
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createDirectories
@@ -25,7 +26,7 @@ import kotlin.io.path.createDirectories
  * Converts the Location to the standard representation found in legacy mobitopp input files which is the format
  * (lat, lon: roadId, accessShare)
  */
-fun ZonedRoadAccessLocation.legacyStringRepresentation(): String =
+fun ZonedRoadAccessLocationDTO.legacyStringRepresentation(): String =
     "(${position.y}, ${position.x}: ${roadAccess.roadId}, ${roadAccess.position})"
 
 // End extension functions
@@ -151,11 +152,11 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
             -1, // Dummy value for dumb output: household ID from the survey data
             activityType.description,
             location.zoneId,
-            location.legacyStringRepresentation(),
+            location.toDTO().legacyStringRepresentation(),
             location.position.x,
             location.position.y,
 
-        )
+            )
     }
 }
 
@@ -233,7 +234,7 @@ class LegacyHouseholdOutput<T : MaximumHouseholdAttributes> : CSVOutput<Synthesi
             attributes.type.code, // The household type. Again taken from survey data.
             "uselessattribute", // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
             location.zoneId,
-            location.legacyStringRepresentation(),
+            location.toDTO().legacyStringRepresentation(),
             location.position.x,
             location.position.y,
             -1, // ActiTopp once cared about the number of children, but it is entirely irrelevant
@@ -247,10 +248,14 @@ class LegacyHouseholdOutput<T : MaximumHouseholdAttributes> : CSVOutput<Synthesi
 }
 
 data class OpportunityOutput constructor(
-    val location: ZonedRoadAccessLocation,
+    val location: ZonedRoadAccessLocationDTO,
     val attractiveness: Attractiveness,
     val activityType: ActivityType,
-)
+) {
+    constructor(location: StandardLocation, attractiveness: Attractiveness, activityType: ActivityType) : this(
+        location.toDTO(), attractiveness, activityType
+    )
+}
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
@@ -266,7 +271,7 @@ object LegacyOpportunitiesOutput : CSVOutput<OpportunityOutput> {
             location.position.x,
             location.position.y,
 
-        )
+            )
     }
 }
 
@@ -311,7 +316,7 @@ class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttrib
         "chargingInfluencesDestinationChoice",
         "mobilityProviderCustomership",
 
-    )
+        )
 
     @Suppress("MagicNumber")
     override fun convert(element: SynthesisPerson<C, T>): String {
@@ -332,7 +337,7 @@ class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttrib
                 "NEVER",
                 this.getSharingMemberships(),
 
-            )
+                )
         }
         return "$first;$second"
     }

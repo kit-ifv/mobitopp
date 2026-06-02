@@ -1,7 +1,5 @@
 package domain.synthesis
 
-import AssignmentStep
-import HouseholdAssignmentStep
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.synthesis.attributes.household.HasMutableEconomicStatus

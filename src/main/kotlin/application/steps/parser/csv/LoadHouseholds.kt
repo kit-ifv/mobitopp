@@ -17,8 +17,8 @@ import core.modelsteps.scopes.filterIdsStep
 import core.modelsteps.scopes.filterStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.location.PointAndRoadPositionParser
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold

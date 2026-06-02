@@ -4,32 +4,44 @@ import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.toSizebasedClassification
-import domain.shared.location.zone.attributes.HasRegionType
-import domain.shared.location.zone.attributes.HasSizebasedClassification
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasRoadAccess
+import domain.shared.location.zone.attributes.HasSizebasedClassification
+import domain.shared.location.zone.attributes.HasZoneId
+import domain.synthesis.parser.binary.ZonedRoadAccessLocationDTO
 import edu.kit.ifv.units.WGS84Coordinate
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.PrecisionModel
 
+interface StandardLocationAttributes :
+    HasRegionType,
+    HasSizebasedClassification,
+    HasZoneId,
+    HasRoadAccess
 
-interface StandardLocationAttributes: HasRegionType, HasSizebasedClassification
-
-
-class ZoneDerivedLocationAttributes<Z>(private val zone: Zone<Z>): StandardLocationAttributes where Z: HasRegionType {
+class ZoneDerivedLocationAttributes<Z>(private val zone: Zone<Z>, override val roadAccess: RoadAccess) :
+    StandardLocationAttributes where Z :
+          HasRegionType {
     override val regionType: RegionType get() = zone.attributes.regionType
-    override val sizebasedRegiostarClassification: SizebasedRegiostarClassification get() = zone.attributes
-        .regionType.toRegioStaR17().toSizebasedClassification()
+    override val sizebasedRegiostarClassification: SizebasedRegiostarClassification
+        get() = zone.attributes
+            .regionType.toRegioStaR17().toSizebasedClassification()
+    override val zoneId: ZoneId
+        get() = zone.zoneId
 }
 
 /**
  * The bog-standard location used in mobitopp. That means we know the zone,  and a RoadAccess.
  */
 
-interface StandardLocation : Location<StandardLocationAttributes > {
-    //ZonedRoadAccessLocation
-
+interface StandardLocation :
+    Location<StandardLocationAttributes>,
+    HasZoneId {
+    override val zoneId get() = attributes.zoneId
+    val regionType get() = attributes.regionType
     companion object {
         @Suppress("MagicNumber")
         private val invalidPoint = object : Point(Coordinate(0.0, .0), PrecisionModel(), 4326) {}
@@ -72,3 +84,9 @@ interface StandardLocation : Location<StandardLocationAttributes > {
         private val zoneLookup: MutableMap<ZoneId, Zone<HasRegionType>> = mutableMapOf()
     }
 }
+
+fun StandardLocation.toDTO(): ZonedRoadAccessLocationDTO = ZonedRoadAccessLocationDTO(
+    this.zoneId,
+    this.attributes.roadAccess,
+    this.position,
+)

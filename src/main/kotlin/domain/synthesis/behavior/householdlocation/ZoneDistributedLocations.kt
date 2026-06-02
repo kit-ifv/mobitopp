@@ -2,12 +2,12 @@ package domain.synthesis.behavior.householdlocation
 
 import domain.VisumPolyZone
 import domain.VisumZoneId
-import domain.shared.location.BetterLocation
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.StandardLocationImpl
+import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.attributes.HasVisumId
-import domain.shared.location.zone.Zone
 import edu.kit.ifv.CoordinateGenerator
 import org.locationtech.jts.geom.Point
 
@@ -32,7 +32,7 @@ class ZoneDistributedLocations<Z, T>(
         val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.attributes.visumId)]
             ?: polyzoneNotFound(zone.attributes.visumId)
         val coordinate = distributor.generateOneCoordinate(polyZone)
-        return BetterLocation(coordinate, zone, RoadAccess.Companion.INVALID)
+        return StandardLocationImpl(coordinate, zone)
     }
 
     /**

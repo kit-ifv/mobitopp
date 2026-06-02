@@ -1,13 +1,14 @@
 package domain.synthesis.householdgeneration
 
 import TestZone
-import domain.shared.location.LocationWithZoneId
+import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.zone.ZoneId
-import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.toPoint
 import domain.shared.location.zone.Zone
+import domain.shared.location.zone.ZoneId
+import domain.shared.location.zone.attributes.HasRegionType
+import domain.shared.location.zone.attributes.HasZoneId
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
@@ -106,14 +107,17 @@ open class SynthesisTest {
     protected fun Zone<HasRegionType>.spawnLocation(coordinate: WGS84Coordinate): StandardLocation =
         StandardLocation(coordinate.toPoint(), this, RoadAccess.INVALID)
 
-    protected class FakeCoord : LocationWithZoneId {
+    protected class FakeCoord : Location<HasZoneId>, HasZoneId {
         val idx = counter
 
         override fun toString(): String = "FakeLoc($idx)"
-
+        override val zoneId: ZoneId
+            get() = attributes.zoneId
         override val position: Point
             get() = error("The Fake Coord should never have to resolve its point")
-        override val zoneId: ZoneId = ZoneId(idx)
+        override val attributes: HasZoneId = object : HasZoneId {
+            override val zoneId: ZoneId = ZoneId(idx)
+        }
 
         companion object {
             var counter: Long = 0
