@@ -12,7 +12,7 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.synthesis.ControllableAttractiveness
-import domain.synthesis.behavior.fixeddestinations.LocationAlternative
+import domain.synthesis.behavior.fixeddestinations.bandwidth.LocationAlternative
 import domain.synthesis.behavior.fixeddestinations.bandwidth.BandwidthLocator
 import domain.synthesis.behavior.fixeddestinations.bandwidth.BandwidthParameters
 import domain.synthesis.behavior.fixeddestinations.bandwidth.standardBandwidthChoiceModel

@@ -3,6 +3,7 @@ package domain.synthesis.behavior.fixeddestinations.communitybased
 import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
+import domain.synthesis.behavior.fixeddestinations.SimpleGroupLocator
 
 import utils.collections.addProgressBar
 

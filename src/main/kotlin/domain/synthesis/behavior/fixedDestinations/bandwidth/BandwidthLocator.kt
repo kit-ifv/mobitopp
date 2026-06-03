@@ -8,7 +8,7 @@ import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.fixeddestinations.LocationAlternative
+import domain.synthesis.behavior.fixeddestinations.bandwidth.LocationAlternative
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
@@ -24,14 +24,14 @@ import kotlin.random.Random
  * are within the band around the home location of the agent, all locations are considered valid.
  *
  * As second step a discrete choice model is used to determine the utility of each location individually. The input
- * for the discrete choice model can be found in [domain.synthesis.behavior.fixeddestinations.LocationAlternative]
+ * for the discrete choice model can be found in [LocationAlternative]
  */
 class BandwidthLocator<T>(
     private val potentialLocations: List<StandardLocation>,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
     var parameters: BandwidthParameters = BandwidthParameters(),
-    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, domain.synthesis.behavior.fixeddestinations.LocationAlternative, BandwidthParameters> = standardBandwidthChoiceModel.build(parameters),
+    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> = standardBandwidthChoiceModel.build(parameters),
     private val randomSource: () -> Random = {Random(42)},
 ) : domain.synthesis.behavior.fixeddestinations.SimpleLocator<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
     private val locationTree = LocationKDTree(potentialLocations)

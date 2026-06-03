@@ -46,7 +46,12 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
 
     lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<S, T>>>
 
-    @Deprecated("Be mindfull when using this getter in a hot loop")
+    /**
+     * returns the current list of households within the population synthesis. Note that this is a view that
+     * constructs the household list from the assigned zones by flattening and has no backing field.
+     *
+     * If you require frequent access create a local variable for performance.
+     */
     val households: List<SynthesisHousehold<S, T>> get() = householdsByZone.flatMap { it.value }
 
     @Deprecated("Be mindfull when using this getter in a hot loop")
@@ -100,12 +105,17 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
     }
 
-    fun <STAR> refactoredPopsyn(
+    fun <STAR> synthesize(
         converter: (STAR) -> AREA,
         lambda: () -> CompletePopulationSynthesis<STAR, SynthesisHousehold<S, T>>,
     ) {
         val strategy = lambda()
         householdsByZone = strategy.synthesizeAll().mapKeys { converter(it.key) }
+    }
+
+    fun synthesize(lambda: () -> CompletePopulationSynthesis<AREA, SynthesisHousehold<S, T>>) {
+        val strategy = lambda()
+        householdsByZone = strategy.synthesizeAll()
     }
 
     fun assignLocations(lambda: () -> AssignHouseholdLocations<AREA, SynthesisHousehold<S, T>>) {
@@ -138,8 +148,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
 
     @Deprecated(
         "This implementation spawns a coroutine for each household, and only one strategy, thus not " +
-            "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
-            "risk group. Use assignActivitiesPartitioned instead. ",
+                "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
+                "risk group. Use assignActivities instead. ",
     )
     fun assignActivitiesUnconstrained(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val strategy = lambda()
@@ -222,8 +232,8 @@ fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignAmou
     lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>,
 )
         where
-              S : MinimumHouseholdAttributes,
-              S : HasMutableNumberOfCars {
+        S : MinimumHouseholdAttributes,
+        S : HasMutableNumberOfCars {
     val strategy = lambda()
     households.forEach {
         context(Random(it.id)) {

@@ -2,7 +2,7 @@ package domain.synthesis.behavior.fixeddestinations.bandwidth
 
 import core.datastructure.kdtree.WithMetric
 import domain.shared.location.StandardLocation
-import domain.synthesis.behavior.fixeddestinations.LocationAlternative
+import domain.synthesis.behavior.fixeddestinations.bandwidth.LocationAlternative
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
 import edu.kit.ifv.units.Distance
