@@ -115,4 +115,3 @@ open class TimeLookupBuilder<T>(private val modulus: Duration? = null) {
 
     override fun toString(): String = segments.toString()
 }
-

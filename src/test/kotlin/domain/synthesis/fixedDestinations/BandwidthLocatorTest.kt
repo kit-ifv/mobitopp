@@ -3,12 +3,10 @@
 package domain.synthesis.fixedDestinations
 
 import ZoneTestAttributesFake
-import utils.WithMetric
-import utils.discardMetric
 import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
-import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.synthesis.ControllableAttractiveness
@@ -21,6 +19,8 @@ import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction
 import edu.kit.ifv.units.kilometers
 import org.junit.jupiter.api.Test
+import utils.WithMetric
+import utils.discardMetric
 import kotlin.math.E
 import kotlin.test.BeforeTest
 import kotlin.test.assertContentEquals

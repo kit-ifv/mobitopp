@@ -10,7 +10,7 @@ import domain.shared.location.zone.attributes.HasRegionType
 
 class ZoneDerivedLocationAttributes<Z>(private val zone: Zone<Z>, override val roadAccess: RoadAccess) :
     StandardLocationAttributes where Z :
-                                     HasRegionType {
+          HasRegionType {
     override val regionType: RegionType get() = zone.attributes.regionType
     override val sizebasedRegiostarClassification: SizebasedRegiostarClassification
         get() = zone.attributes

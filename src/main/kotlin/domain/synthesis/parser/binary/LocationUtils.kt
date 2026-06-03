@@ -1,9 +1,9 @@
 package domain.synthesis.parser.binary
 
-import domain.shared.location.jts.PointCreator
-import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZonedRoadAccessLocationRecord
+import domain.shared.location.jts.PointCreator
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType

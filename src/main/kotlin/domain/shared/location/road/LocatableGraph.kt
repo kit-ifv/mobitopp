@@ -26,8 +26,6 @@ private class LocatedLinkInfo(v: Point, u: Point, val edge: LinkInfo) {
     }
 }
 
-
-
 /**
  * A locatable graph is a representation of the road network, where in addition to the usual graph utility, a location
  * can be assigned to the closest road edge.

@@ -15,4 +15,3 @@ fun interface ZoneMatrixCreation : MatrixCreationInstruction<ZoneId, YamlInfo> {
 
     fun createMatrix(path: Path) = createMatrix(YamlInfo("Unknown Parser", path))
 }
-

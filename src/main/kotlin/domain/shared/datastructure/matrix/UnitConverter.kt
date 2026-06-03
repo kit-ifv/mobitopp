@@ -26,7 +26,7 @@ data class UnitConverter(
     val distanceConverter: DoubleToDistance = DoubleToDistance { it.kilometers },
     val currencyConverter: DoubleToCurrency = DoubleToCurrency { it.euros },
 
-    ) {
+) {
 
     companion object {
         fun fromUnits(

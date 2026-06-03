@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.fixeddestinations
 
-import domain.shared.location.jts.LocationKDTree
 import domain.shared.location.StandardLocation
+import domain.shared.location.jts.LocationKDTree
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
 

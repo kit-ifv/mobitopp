@@ -2,8 +2,8 @@ package domain.synthesis.householdgeneration
 
 import TestZone
 import domain.shared.location.Location
-import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType

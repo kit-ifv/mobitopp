@@ -23,9 +23,9 @@ interface StandardLocation :
     val regionType get() = attributes.regionType
 
     fun toRecord(): ZonedRoadAccessLocationRecord = ZonedRoadAccessLocationRecord(
-    this.zoneId,
-    this.attributes.roadAccess,
-    this.position,
+        this.zoneId,
+        this.attributes.roadAccess,
+        this.position,
     )
 
     companion object {

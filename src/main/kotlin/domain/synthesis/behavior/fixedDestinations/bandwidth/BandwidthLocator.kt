@@ -1,15 +1,16 @@
 package domain.synthesis.behavior.fixeddestinations.bandwidth
 
-import utils.WithMetric
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
-import domain.shared.location.jts.LocationKDTree
 import domain.shared.location.StandardLocation
+import domain.shared.location.jts.LocationKDTree
 import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
+import domain.synthesis.behavior.fixeddestinations.SimpleLocator
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 import edu.kit.ifv.units.Distance
+import utils.WithMetric
 import kotlin.random.Random
 
 /**
@@ -25,14 +26,15 @@ class BandwidthLocator<T>(
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
     var parameters: BandwidthParameters = BandwidthParameters(),
-    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> = standardBandwidthChoiceModel.build(
-        parameters,
-    ),
+    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> =
+        standardBandwidthChoiceModel.build(
+            parameters,
+        ),
+    @Suppress("MagicNumber")
     private val randomSource: () -> Random = { Random(42) },
-) : domain.synthesis.behavior.fixeddestinations.SimpleLocator<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
+) : SimpleLocator<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
     private val locationTree = LocationKDTree(potentialLocations)
 
-    @Suppress("MagicNumber")
     private val random = randomSource()
 
     override fun locate(agent: SurveyPerson<T>): StandardLocation {

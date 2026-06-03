@@ -2,8 +2,8 @@ package domain.synthesis
 
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType

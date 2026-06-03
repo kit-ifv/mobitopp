@@ -70,4 +70,3 @@ open class TimeLookup<T>(private val timeIndices: Array<Duration>, val elements:
         return durationIntervals.zip(elements).joinToString { "${it.first}: ${it.second}" }
     }
 }
-

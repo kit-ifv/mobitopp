@@ -84,4 +84,3 @@ fun Iterable<Action>.hasTimeBoundViolations(): Boolean = any {
 }
 
 operator fun Iterable<Action>.contains(action: Action): Boolean = any { it.compareTo(action) == 0 }
-

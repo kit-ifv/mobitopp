@@ -1,9 +1,9 @@
 package domain.shared.location.zone
 
 import Mutable
-import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.StandardLocationImpl
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.zone.attributes.HasCentroid
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.attributes.MaximumZoneAttributes

@@ -53,4 +53,3 @@ abstract class LinkedAction : Action {
 
     override fun toString(): String = "[Linked] $original"
 }
-

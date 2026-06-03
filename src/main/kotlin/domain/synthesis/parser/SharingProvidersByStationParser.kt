@@ -3,9 +3,9 @@ package domain.synthesis.parser
 import core.modelsteps.resources.Repository
 import domain.shared.enums.Mode
 import domain.shared.location.Impedance
+import domain.shared.location.StandardLocation
 import domain.shared.location.jts.PointCreator
 import domain.shared.location.road.RoadAccess
-import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType

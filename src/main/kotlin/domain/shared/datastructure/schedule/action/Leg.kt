@@ -87,4 +87,3 @@ interface Leg : MovingAction {
         )
     }
 }
-

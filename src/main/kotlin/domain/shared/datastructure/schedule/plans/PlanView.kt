@@ -33,4 +33,3 @@ fun PlanView.addAll(vararg elements: Activity) {
 fun PlanView.addAll(vararg elements: Leg) {
     elements.forEach { add(it) }
 }
-

@@ -22,7 +22,7 @@ data class RawActivity(
     override var latestEndTime: AbsoluteTime = AbsoluteTime.Companion.INFINITY,
     override var type: ActivityType = ActivityType.Companion.UNKNOWN,
 
-    ) : Activity {
+) : Activity {
 
     init {
         require(duration > Duration.Companion.ZERO) {
@@ -47,7 +47,13 @@ data class RawActivity(
 
     override fun toString(): String {
         val earlyStartTime =
-            if (earliestStartTime == AbsoluteTime.Companion.MINUS_INFINITY) "" else "earliestStartTime=$earliestStartTime"
+            if (earliestStartTime ==
+                AbsoluteTime.Companion.MINUS_INFINITY
+            ) {
+                ""
+            } else {
+                "earliestStartTime=$earliestStartTime"
+            }
         val latestEndTime = if (latestEndTime == AbsoluteTime.Companion.INFINITY) "" else "latestEndTime=$latestEndTime"
         return "[startTime=$startTime, endTime=$endTime], location = ${location.zoneId}" +
             " t= ${type.description.first()}" +
