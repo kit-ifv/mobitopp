@@ -7,10 +7,10 @@ import domain.shared.location.DistanceMetric
 import domain.shared.location.PointCreator
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasZoneId
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
-import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance
-import domain.synthesis.behavior.fixedDestinations.communityBased.MutableCommunityDemand
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommunityNumber
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommuterDistance
+import domain.synthesis.behavior.fixeddestinations.communitybased.MetricCommuterDistance
+import domain.synthesis.behavior.fixeddestinations.communitybased.MutableCommunityDemand
 import domain.synthesis.data.person.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.units.Distance

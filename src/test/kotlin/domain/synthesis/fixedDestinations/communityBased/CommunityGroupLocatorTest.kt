@@ -6,10 +6,10 @@ import TestZone
 import assertNotContains
 import domain.shared.location.zone.ZoneId
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
-import domain.synthesis.behavior.fixedDestinations.communityBased.TrivialDemands
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommunityBasedGroupLocator
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommunityNumber
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommuterDemandsMatrix
+import domain.synthesis.behavior.fixeddestinations.communitybased.TrivialDemands
 import domain.synthesis.data.person.Sex
 import domain.synthesis.fixedDestinations.AsymmetricMockDistance
 import domain.synthesis.householdgeneration.SynthesisTest

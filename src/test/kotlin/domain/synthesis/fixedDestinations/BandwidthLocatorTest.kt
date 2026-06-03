@@ -12,10 +12,10 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.synthesis.ControllableAttractiveness
-import domain.synthesis.behavior.fixeddestinations.BandwidthLocator
-import domain.synthesis.behavior.fixedDestinations.BandwidthParameters
-import domain.synthesis.behavior.fixedDestinations.LocationAlternative
-import domain.synthesis.behavior.fixeddestinations.standardBandwidthChoiceModel
+import domain.synthesis.behavior.fixeddestinations.LocationAlternative
+import domain.synthesis.behavior.fixeddestinations.bandwidth.BandwidthLocator
+import domain.synthesis.behavior.fixeddestinations.bandwidth.BandwidthParameters
+import domain.synthesis.behavior.fixeddestinations.bandwidth.standardBandwidthChoiceModel
 import domain.synthesis.data.person.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction

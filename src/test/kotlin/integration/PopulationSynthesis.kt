@@ -36,11 +36,11 @@ import domain.synthesis.behavior.discreteChoice.TransitPassParameters
 import domain.synthesis.behavior.discreteChoice.YesTransitPass
 import domain.synthesis.behavior.discreteChoice.transitPassChoiceModel
 import domain.synthesis.behavior.economicstatus.OECDAssigner
-import domain.synthesis.behavior.fixeddestinations.BandwidthLocator
-import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
+import domain.synthesis.behavior.fixeddestinations.UseClosestLocation
+import domain.synthesis.behavior.fixeddestinations.bandwidth.BandwidthLocator
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommunityBasedGroupLocator
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommuterDemandsMatrix
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommuterDistance
 import domain.synthesis.behavior.fixeddestinations.primarySchool
 import domain.synthesis.behavior.fixeddestinations.secondarySchool
 import domain.synthesis.behavior.fixeddestinations.work

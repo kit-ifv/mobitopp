@@ -141,7 +141,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
             "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
             "risk group. Use assignActivitiesPartitioned instead. ",
     )
-    fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
+    fun assignActivitiesUnconstrained(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val strategy = lambda()
         val localHouseholdCopy = households
         val progressBar = standardProgressBar("Generate Activities", localHouseholdCopy.size)
@@ -166,7 +166,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
     /**
      * Assigns Activities partitioned over the households.
      */
-    fun assignActivitiesPartitioned(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
+    fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val workerCount = Runtime.getRuntime().availableProcessors()
         val localHouseholdCopy = households
         val progressBar = standardProgressBar("Generate Activities", (localHouseholdCopy.size / workerCount))

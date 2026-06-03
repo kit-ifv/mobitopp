@@ -16,7 +16,7 @@ import org.locationtech.jts.geom.Point
  * distribute coordinates inside [domain.VisumPolyZone]-areas according to a landuse-model.
  *
  * @param polyZones The zones used for generating locations.
- * @param distributor A [LanduseDistributedCoordinates]-[CoordinateGenerator] initialized with the land-use-model and
+ * @param distributor A [edu.kit.ifv.LanduseDistributedCoordinates]-[CoordinateGenerator] initialized with the land-use-model and
  * weights for the landuse-types that should be used to distribute the generated coordinates inside zones.
  */
 class ZoneDistributedLocations<Z, T>(
@@ -52,7 +52,6 @@ class ZoneDistributedLocations<Z, T>(
             }
         return householdsToLocate.zip(generatedLocations)
 
-//        return householdsToLocate.zip(generatedLocations)
     }
 
     private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): Point =
