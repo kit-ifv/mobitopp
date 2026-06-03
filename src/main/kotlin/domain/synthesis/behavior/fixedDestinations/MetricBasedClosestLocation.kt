@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.fixedDestinations
+package domain.synthesis.behavior.fixeddestinations
 
 import domain.shared.location.DistanceMetric
 import domain.shared.location.StandardLocation

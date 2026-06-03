@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.fixedDestinations.communityBased
+package domain.synthesis.behavior.fixeddestinations.communitybased
 
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.ZoneId
@@ -100,65 +100,3 @@ class CommuterDemandsMatrix(
     data class CommuterInfo(val origin: CommunityNumber, val destination: CommunityNumber, val amount: Int)
 }
 
-/**
- * A read only view of the commute demand for an unknown input community number. This class provides all methods that
- * do not alter the state of the underlying demand.
- */
-open class CommunityDemand(
-    protected val converter: (StandardLocation) -> CommunityNumber,
-    protected val demands: MutableMap<CommunityNumber, Double> = mutableMapOf(),
-    val communityID: CommunityNumber,
-) {
-    val total get() = demands.values.sum()
-    val keys get() = demands.keys
-    fun isEmpty() = demands.isEmpty()
-    fun isNotEmpty() = demands.isNotEmpty()
-    operator fun get(j: CommunityNumber): Double = demands[j] ?: 0.0
-
-    operator fun get(j: Number): Double = get(j.toCommunity())
-
-    operator fun contains(j: CommunityNumber): Boolean = j in demands.keys
-
-    operator fun contains(j: Number): Boolean = contains(j.toCommunity())
-
-    /**
-     * A demand to a certain community is saturated once the demand has dropped below a positive number
-     */
-    fun isSaturated(j: CommunityNumber): Boolean = get(j) <= 0.0
-
-    fun isSaturated(location: StandardLocation): Boolean = isSaturated(converter(location))
-    fun isSaturated(j: Number): Boolean = isSaturated(j.toCommunity())
-
-    override fun toString(): String = demands.toString()
-
-    protected fun Number.toCommunity(): CommunityNumber = CommunityNumber(this.toInt())
-}
-
-/**
- * The Mutable Community Demand allows the alteration of demand, and provides the decreaseDemand method as a convenience
- * method to decrease the demand once an agent has been assigned.
- */
-class MutableCommunityDemand(
-    converter: (StandardLocation) -> CommunityNumber,
-    demands: MutableMap<CommunityNumber, Double> = mutableMapOf(),
-    communityID: CommunityNumber,
-) : CommunityDemand(converter, demands, communityID) {
-
-    operator fun set(j: CommunityNumber, value: Double) {
-        demands[j] = value
-    }
-
-    operator fun set(j: Number, value: Double) = set(j.toCommunity(), value)
-
-    fun copy(): MutableCommunityDemand = MutableCommunityDemand(converter, demands.toMutableMap(), communityID)
-
-    /**
-     * Decrease the demand towards the target community number by 1. If the demand is not present, add it and set it to
-     * 0
-     */
-    fun decreaseDemandFor(j: CommunityNumber) {
-        demands[j] = (demands[j] ?: 1.0) - 1.0
-    }
-
-    fun decreaseDemandFor(location: StandardLocation) = decreaseDemandFor(converter(location))
-}

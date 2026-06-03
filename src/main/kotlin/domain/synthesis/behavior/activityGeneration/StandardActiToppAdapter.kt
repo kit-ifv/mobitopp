@@ -13,7 +13,8 @@ import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
  * Default implementation of [ActiToppAdapter].
  * Customization points:
  * [unknownSexResolution]: defines the fallback [edu.kit.ifv.mobitopp.actitoppNG.enums.Gender] for non-binary/unknown [Sex].
- * [converter]: maps project [domain.shared.enums.areatype.RegionType] to [domain.shared.enums.areatype.ZoneRegionType] before converting to actiTopp [edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType].
+ * [converter]: maps project [domain.shared.enums.areatype.RegionType] to [domain.shared.enums.areatype.ZoneRegionType]
+ * before converting to actiTopp [edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType].
  * Mapping notes:
  * Employment: Some project values map to DEFINITELY_UNKNOWN when no direct actiTopp equivalent exists
  * (e.g., EDUCATION, INFANT). Review if this is acceptable for your use case.

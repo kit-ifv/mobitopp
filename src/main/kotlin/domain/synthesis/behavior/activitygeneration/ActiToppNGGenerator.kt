@@ -67,6 +67,10 @@ typealias ActitoppActivityType = edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityT
  *  because very large values may destabilize generation.
  *  @property actiToppAdapter adapter used to translate between project-specific
  *  domain values and actiTopp values.
+ *  @property personIsAllowedToWork a function to set the actitopp field isAllowedToWork.
+ *  provide your own deduction logic to derive whether a person is allowed to work. See
+ *  the actiTopp documentation what the parameter does. The default implementation assumes
+ *  that any agent is allowed to work
  *  @see HouseholdPlanGeneration
  *  @see ActiToppAdapter
  *  @see ACTHousehold
@@ -82,6 +86,7 @@ class ActiToppNGGenerator<in S, in T>(
     },
     val maxCommute: Distance = 150.kilometers,
     private val actiToppAdapter: ActiToppAdapter,
+    private val personIsAllowedToWork: (SurveyPerson<T>) -> Boolean = { true },
 ) : GenerateHouseholdActivitySchedule<S, T>
     where S : MinimumHouseholdAttributes,
           S : HasNumberOfCars,
@@ -89,7 +94,9 @@ class ActiToppNGGenerator<in S, in T>(
           T : HasCommuteDistance,
           T : HasEducationDistance,
           T : HasEmployment {
-
+    /**
+     * Legacy constructor to allow the construction via a converter lambda expression rather than passing an adapter.
+     */
     constructor(purposes: ChoiceModelPurposes, converter: (RegionType) -> ZoneRegionType) : this(
         purposes,
         actiToppAdapter = StandardActiToppAdapter(purposes, converter = converter),
@@ -157,6 +164,6 @@ class ActiToppNGGenerator<in S, in T>(
         age = age,
         commuteDistanceWork = min(attributes.distanceWork.inKilometers, maxCommute.inKilometers),
         commuteDistanceEducation = min(attributes.distanceEducation.inKilometers, maxCommute.inKilometers),
-        isAllowedToWork = true, // TODO cross check with modellierer where this field comes from.
+        isAllowedToWork = personIsAllowedToWork(this),
     )
 }

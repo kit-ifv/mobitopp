@@ -3,24 +3,21 @@ package domain.synthesis.behavior.cars.amount
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.behavior.discreteChoice.CarOwnershipAttributes
-import domain.synthesis.behavior.discreteChoice.CarOwnershipFactors
-import domain.synthesis.behavior.discreteChoice.carChoiceUtility
-import domain.synthesis.behavior.discreteChoice.carOwnershipCityParameters
-import domain.synthesis.behavior.discreteChoice.carOwnershipRuralArea
-import domain.synthesis.behavior.discreteChoice.carOwnershipSmallCity
-import domain.synthesis.behavior.discreteChoice.carOwnershipUrbanAreaParameters
+import domain.synthesis.behavior.cars.choicemodels.CarOwnershipAttributes
+import domain.synthesis.behavior.cars.choicemodels.CarOwnershipFactors
+import domain.synthesis.behavior.cars.choicemodels.carAmountChoiceModel
+import domain.synthesis.behavior.cars.choicemodels.parameters.CarOwnershipParameters
 
 /**
  * A standard assignment strategy that uses predefined choice models and parameter sets for different region types.
  * This strategy leverages the `AssignBySizebasedClassification` with default parameters for various region types.
  */
-val standardAssignmentByRegionSize = AssignBySizebasedClassification.createUsingModel(carChoiceUtility) {
+val standardAssignmentByRegionSize = AssignBySizebasedClassification.createUsingModel(carAmountChoiceModel) {
     converter = { it.toCarOwnershipAttributes() }
-    cityParameters = carOwnershipCityParameters
-    smallTownParameters = carOwnershipSmallCity
-    urbanAreaParameters = carOwnershipUrbanAreaParameters
-    ruralAreaParameters = carOwnershipRuralArea
+    cityParameters = CarOwnershipParameters.carOwnershipCityParameters
+    smallTownParameters = CarOwnershipParameters.carOwnershipSmallCity
+    urbanAreaParameters = CarOwnershipParameters.carOwnershipUrbanAreaParameters
+    ruralAreaParameters = CarOwnershipParameters.carOwnershipRuralArea
 }
 
 fun MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>.toCarOwnershipAttributes() =

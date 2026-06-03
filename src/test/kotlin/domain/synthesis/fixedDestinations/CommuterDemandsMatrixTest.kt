@@ -7,8 +7,8 @@ import ZoneTestAttributesFake
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
-import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommunityNumber
+import domain.synthesis.behavior.fixeddestinations.communitybased.CommuterDemandsMatrix
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 import kotlin.test.assertEquals

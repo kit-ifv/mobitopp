@@ -25,7 +25,7 @@ class SynthesisPerson<S : MinimumHouseholdAttributes, T : MinimumPersonAttribute
 
     //    val homeLocation get() =
     var hasTransitPass = false
-    var plannedActivities: PreliminaryActivitySchedule = PreliminaryActivitySchedule.Companion.STAY_AT_HOME
+    var plannedActivities: PreliminaryActivitySchedule = PreliminaryActivitySchedule.STAY_AT_HOME
     val fixedDestinations: MutableMap<ActivityType, StandardLocation> = mutableMapOf()
 
     private val sharingMemberships: MutableMap<String, Boolean> = mutableMapOf()

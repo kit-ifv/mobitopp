@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.fixedDestinations
+package domain.synthesis.behavior.fixeddestinations
 
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
