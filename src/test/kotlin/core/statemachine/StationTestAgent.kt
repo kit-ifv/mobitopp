@@ -17,7 +17,7 @@ class StationAgent(override val name: String) :
     StateBasedAgent<StationMessage>,
     Station {
     override val stateMachine = stationStateMachine.create(
-        AbsoluteTime.Companion.START,
+        AbsoluteTime.START,
         this,
     ) // TODO move factory to constructor?
 
