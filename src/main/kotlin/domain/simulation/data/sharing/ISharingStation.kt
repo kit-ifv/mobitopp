@@ -1,4 +1,4 @@
-package domain.simulation.data
+package domain.simulation.data.sharing
 
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone

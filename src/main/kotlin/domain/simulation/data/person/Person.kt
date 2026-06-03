@@ -2,7 +2,7 @@ package domain.simulation.data.person
 
 import Mutable
 import domain.simulation.data.PlannedActivity
-import domain.simulation.data.SharingProvider
+import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.household.MutableHousehold
 import domain.synthesis.attributes.person.HasMutableSchedule

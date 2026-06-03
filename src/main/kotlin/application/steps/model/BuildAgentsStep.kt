@@ -25,7 +25,7 @@ import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
-import domain.simulation.data.SharingProvider
+import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.household.Household
@@ -55,7 +55,7 @@ fun gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
  *   - [HasZoneRepo] for [Zone]
  *   - [HasHouseholdRepo] for [domain.simulation.data.household.Household]
  *   - [HasCarRepo] for [PrivateCar]
- *   - [HasSharingProviderRepo] for [domain.simulation.data.SharingProvider]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
  *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
  *   - [HasPersonAgentRepo] for [PersonAgent]
  *   - [HasSharingProviderAgentRepo] for [SharingProviderAgent]

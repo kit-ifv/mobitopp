@@ -16,7 +16,7 @@ import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.ActivityId
 import domain.simulation.data.ActivityLocation
-import domain.simulation.data.HasStandardLocation
+import domain.simulation.data.sharing.HasStandardLocation
 import domain.simulation.data.MutablePlannedActivity
 import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.person.HasHousehold
@@ -36,7 +36,7 @@ import java.nio.file.Path
  * @param CTXT The context type. Must implement [HasZoneRepo] for [Zone] and [HasPersonRepo].
  * @param CFG The configuration type. Must implement [ActivityTypesConfig] and [SourceFilesConfig].
  * @param P The person type. Must implement [Identifiable] for [domain.simulation.data.person.PersonId] and [domain.simulation.data.person.HasHousehold].
- * @param H The household type. Must implement [Identifiable] for [HouseholdId] and [domain.simulation.data.HasStandardLocation].
+ * @param H The household type. Must implement [Identifiable] for [HouseholdId] and [HasStandardLocation].
  * @param repository The mutable repository of persons. Provided via context.
  * @param activityRepo The mutable repository of planned activities to update. Provided via context.
  * @param config The configuration. Provided via context.

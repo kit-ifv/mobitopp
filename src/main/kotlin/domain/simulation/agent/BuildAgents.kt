@@ -8,10 +8,10 @@ import domain.shared.datastructure.schedule.plans.SingularDispatcher
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.behavior.toSchedule
-import domain.simulation.data.SharingProvider
-import domain.simulation.data.SharingProviderId
-import domain.simulation.data.SharingStation
-import domain.simulation.data.SharingStationId
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.sharing.SharingProviderId
+import domain.simulation.data.sharing.SharingStation
+import domain.simulation.data.sharing.SharingStationId
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.drt.DrtProviderId

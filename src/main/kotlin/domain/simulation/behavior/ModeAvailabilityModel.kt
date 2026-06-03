@@ -14,7 +14,7 @@ import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.agent.getBestCarOrNull
 import domain.simulation.agent.lastTransportMode
-import domain.simulation.data.SharingProviderId
+import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.data.person.IPerson
 import domain.simulation.data.person.drtMembershipIds
 import domain.simulation.data.person.sharingMembershipIds

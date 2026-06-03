@@ -2,10 +2,10 @@ package domain.simulation.agent
 
 import Mutable
 import domain.shared.enums.Mode
-import domain.simulation.data.ISharingProvider
-import domain.simulation.data.ISharingStation
-import domain.simulation.data.SharingProviderId
-import domain.simulation.data.SharingStationId
+import domain.simulation.data.sharing.ISharingProvider
+import domain.simulation.data.sharing.ISharingStation
+import domain.simulation.data.sharing.SharingProviderId
+import domain.simulation.data.sharing.SharingStationId
 import kotlinx.serialization.Serializable
 import utils.Identifiable
 import java.util.*

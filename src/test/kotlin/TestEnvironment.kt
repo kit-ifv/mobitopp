@@ -25,11 +25,11 @@ import domain.shared.location.zone.attributes.MaximumZoneAttributes
 import domain.shared.location.zone.toZoneId
 import domain.simulation.data.ActivityId
 import domain.simulation.data.MutablePlannedActivity
-import domain.simulation.data.MutableSharingProvider
-import domain.simulation.data.MutableSharingStation
-import domain.simulation.data.SharingProvider
-import domain.simulation.data.SharingStation
-import domain.simulation.data.SharingStationId
+import domain.simulation.data.sharing.MutableSharingProvider
+import domain.simulation.data.sharing.MutableSharingStation
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.sharing.SharingStation
+import domain.simulation.data.sharing.SharingStationId
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.drt.DrtProvider

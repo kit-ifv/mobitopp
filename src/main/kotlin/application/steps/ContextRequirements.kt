@@ -12,7 +12,7 @@ import domain.shared.location.Impedance
 import domain.shared.location.zone.ZoneId
 import domain.simulation.agent.DrtProviderMessage
 import domain.simulation.agent.PersonMessage
-import domain.simulation.data.SharingProviderId
+import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.person.PersonId
 import domain.simulation.events.PersonBehavior

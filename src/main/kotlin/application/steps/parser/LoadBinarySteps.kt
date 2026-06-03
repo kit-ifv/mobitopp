@@ -25,7 +25,7 @@ import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.ActivityId
 import domain.simulation.data.MutablePlannedActivity
-import domain.simulation.data.SharingProvider
+import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.drt.DrtProvider

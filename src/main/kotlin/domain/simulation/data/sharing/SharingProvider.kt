@@ -1,4 +1,4 @@
-package domain.simulation.data
+package domain.simulation.data.sharing
 
 import Mutable
 

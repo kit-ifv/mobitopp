@@ -17,7 +17,7 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.person.Employment
 import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
-import domain.simulation.data.SharingProvider
+import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.PersonId
