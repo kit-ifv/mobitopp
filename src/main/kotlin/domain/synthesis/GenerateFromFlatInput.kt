@@ -1,3 +1,5 @@
+package domain.synthesis
+
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.attributes.household.MaximumHouseholdAttributesImpl
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
@@ -8,7 +10,7 @@ import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.RawSurveyInfo
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
-import domain.synthesis.parseSurvey
+import domain.synthesis.rules.RawSurveyParser
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -53,7 +55,7 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
     private val idExtractor: (X) -> Long,
     private val householdDataExtractor: (List<X>) -> S,
     private val personDataExtractor: (X) -> T,
-) : GenerateHouseholds<S, T> {
+) : GenerateSurveyHouseholds<S, T> {
     private val idCounter = AtomicInteger(0)
     private fun getNextId() = idCounter.getAndIncrement()
 
@@ -111,7 +113,7 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                 },
             )
 
-        fun fromPath(path: Path) = standard(parseSurvey(path).toList())
+        fun fromPath(path: Path) = standard(RawSurveyParser.parseSurvey(path).toList())
         fun fromPath(fileString: String) = fromPath(Path.of(fileString))
     }
 }

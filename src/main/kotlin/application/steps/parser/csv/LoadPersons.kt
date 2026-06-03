@@ -14,7 +14,7 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.person.Employment

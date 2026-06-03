@@ -20,7 +20,7 @@ import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
 import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
-import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel

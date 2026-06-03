@@ -1,6 +1,5 @@
-package integration
+package domain.synthesis
 
-import domain.synthesis.AssignmentStep
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import kotlin.random.Random

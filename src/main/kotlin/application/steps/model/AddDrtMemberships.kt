@@ -4,7 +4,7 @@ import application.steps.HasDrtProviderRepo
 import core.modelsteps.Config
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.updateEachStep
-import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.person.IPerson
 import domain.synthesis.data.person.MutablePerson
 import domain.synthesis.data.person.PersonId

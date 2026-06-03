@@ -1,10 +1,8 @@
-package integration
+package domain.synthesis
 
-import GenerateHouseholds
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
-import domain.synthesis.SynthesisSteps
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
@@ -32,7 +30,7 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
 
     companion object {
         class SynthesisConfiguration<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
-            surveyPopulationGenerator: GenerateHouseholds<S, T>,
+            surveyPopulationGenerator: GenerateSurveyHouseholds<S, T>,
         ) {
             var surveyPopulation = surveyPopulationGenerator.generateSurveyHouseholds()
             lateinit var outputDirectory: Path
@@ -59,7 +57,7 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
         }
 
         fun <AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> configure(
-            surveyPopulation: GenerateHouseholds<S, T>,
+            surveyPopulation: GenerateSurveyHouseholds<S, T>,
             zones: List<AREA>,
             lambda: SynthesisConfiguration<AREA, S, T>.() -> Unit,
         ): PopulationSynthesis<AREA, S, T> {
@@ -74,4 +72,3 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
         }
     }
 }
-

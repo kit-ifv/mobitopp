@@ -3,8 +3,8 @@ package domain.synthesis
 import TEST_ZONE
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.RegioStaR17
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.car.CarSegment

@@ -21,7 +21,7 @@ import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.car.CarId

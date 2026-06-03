@@ -93,8 +93,8 @@ import domain.simulation.behavior.legacyModeChoice
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.drtProviderStateMachine
 import domain.simulation.events.personStateMachine
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProvider

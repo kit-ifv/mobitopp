@@ -2,7 +2,7 @@ package domain.synthesis.parser
 
 import domain.shared.enums.Mode
 import domain.shared.location.zone.ZoneId
-import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
 import utils.ErrorHandling
 import utils.csv.CsvParser

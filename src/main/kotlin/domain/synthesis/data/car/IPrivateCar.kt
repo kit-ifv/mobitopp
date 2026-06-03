@@ -1,7 +1,7 @@
 package domain.synthesis.data.car
 
-import domain.jackson.CarBinaryRecord
-import domain.jackson.Simplifiable
+import domain.synthesis.data.car.CarBinaryRecord
+import utils.binary.Simplifiable
 import domain.synthesis.data.household.IHousehold
 import domain.synthesis.data.person.IPerson
 

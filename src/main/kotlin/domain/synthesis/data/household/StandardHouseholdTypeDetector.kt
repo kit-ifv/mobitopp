@@ -1,7 +1,6 @@
-package domain.synthesis
+package domain.synthesis.data.household
 
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.data.household.HouseholdType
 
 class StandardHouseholdTypeDetector : HouseholdTypeDetector {
     @Suppress("ReturnCount", "MagicNumber")

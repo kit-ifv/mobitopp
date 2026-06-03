@@ -11,6 +11,8 @@ import domain.shared.location.StandardLocationImpl
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasGeometricEmbedding
 import domain.shared.location.zone.attributes.HasRegionType
+import domain.synthesis.GenerateFromFlatInput
+import domain.synthesis.PopulationSynthesis
 import domain.synthesis.SynthesisSteps
 import domain.synthesis.assignAmountOfCars
 import domain.synthesis.assignEconomicStatus
@@ -122,7 +124,7 @@ fun examplePopulationSynthesis() {
         }
 
         assignEconomicStatus {
-            OECDAssigner.Companion.default()
+            OECDAssigner.default()
         }
 
         assignAmountOfCars {
@@ -134,8 +136,6 @@ fun examplePopulationSynthesis() {
                 parameters = YesTransitPass,
                 model = transitPassChoiceModel,
             )
-//            transitPassDiscreteChoiceModel.select( {TicketSituation(it,household, person )}, parameters)
-//            choiceModel = transitPassDiscreteChoiceModel
         }
 
         assignFixedDestinations {
@@ -161,7 +161,7 @@ fun examplePopulationSynthesis() {
             }
         }
 
-        assignCars(
+        spawnCars(
             generationStrategy = SamplingCarGeneration(),
             assignStrategy = UnfilteredSeniority(),
         )

@@ -138,7 +138,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
     }
 
-    fun assignCars(generationStrategy: GenerateCars<S, T>, assignStrategy: AssignMainUser<S, T>) {
+    fun spawnCars(generationStrategy: GenerateCars<S, T>, assignStrategy: AssignMainUser<S, T>) {
         households.addProgressBar("Generate Cars").forEach {
             val cars = generationStrategy.generate(it)
             it.cars += assignStrategy.assign(it, cars)

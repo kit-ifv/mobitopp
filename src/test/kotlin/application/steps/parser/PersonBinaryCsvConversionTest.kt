@@ -2,8 +2,8 @@ package application.steps.parser
 
 import TEST_ZONE
 import domain.shared.enums.LegacyMode
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProvider

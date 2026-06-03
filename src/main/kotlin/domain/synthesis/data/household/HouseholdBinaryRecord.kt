@@ -1,6 +1,6 @@
 package domain.synthesis.data.household
 
-import domain.jackson.BinaryWritable
+import utils.binary.BinaryWritable
 import domain.shared.location.ZonedRoadAccessLocationDTO
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import java.io.DataOutputStream

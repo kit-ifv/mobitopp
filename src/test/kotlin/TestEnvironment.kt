@@ -14,7 +14,7 @@ import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.attributes.MaximumZoneAttributes
 import domain.shared.location.zone.toZoneId
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.DrtProvider
+import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation

@@ -1,8 +1,8 @@
 package domain.synthesis.data.person
 
-import domain.jackson.Simplifiable
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderId
+import utils.binary.Simplifiable
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.ISharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.household.IHousehold

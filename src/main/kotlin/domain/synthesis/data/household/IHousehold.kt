@@ -1,6 +1,6 @@
 package domain.synthesis.data.household
 
-import domain.jackson.Simplifiable
+import utils.binary.Simplifiable
 import domain.shared.location.StandardLocation
 import domain.shared.location.toDTO
 import domain.synthesis.data.HasStandardLocation
