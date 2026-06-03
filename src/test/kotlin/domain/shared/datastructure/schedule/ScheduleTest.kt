@@ -3,6 +3,11 @@ package domain.shared.datastructure.schedule
 import OTHER
 import START
 import THIRD
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.Leg
+import domain.shared.datastructure.schedule.action.hasTimeBoundViolations
+import domain.shared.datastructure.schedule.modifier.SkipToNextHomeActivity
+import domain.shared.datastructure.schedule.modifier.applyAt
 import domain.shared.datastructure.schedule.plans.BlockModel
 import domain.shared.datastructure.schedule.plans.addAll
 import domain.shared.enums.LegacyActivityType
@@ -17,17 +22,17 @@ class ScheduleTest {
     private lateinit var schedule: Schedule
 
     private val a1 =
-        Activity.Companion.fromDuration(
+        Activity.fromDuration(
             START,
             0.hours.sinceStart,
             8.hours,
             earliestStartTime = 0.hours.sinceStart,
             latestEndTime = 10.hours.sinceStart,
         )
-    private val l1 = Leg.Companion.fromDuration(8.hours.sinceStart, 30.minutes, START, OTHER)
+    private val l1 = Leg.fromDuration(8.hours.sinceStart, 30.minutes, START, OTHER)
 
     private val a2 =
-        Activity.Companion.fromDuration(
+        Activity.fromDuration(
             OTHER,
             10.hours.sinceStart,
             8.hours,
@@ -35,18 +40,18 @@ class ScheduleTest {
             latestEndTime = 20.hours.sinceStart,
         )
 
-    private val l2 = Leg.Companion.fromDuration(18.5.hours.sinceStart, 1.5.hours, OTHER, THIRD)
-    private val a3 = Activity.Companion.fromDuration(
+    private val l2 = Leg.fromDuration(18.5.hours.sinceStart, 1.5.hours, OTHER, THIRD)
+    private val a3 = Activity.fromDuration(
         THIRD,
         21.hours.sinceStart,
         1.hours,
         earliestStartTime = 8.hours.sinceStart,
         latestEndTime = 24.hours.sinceStart,
     ) // This is the activity that should end up late
-    private val l3 = Leg.Companion.fromDuration(22.hours.sinceStart, 1.5.hours, THIRD, START)
+    private val l3 = Leg.fromDuration(22.hours.sinceStart, 1.5.hours, THIRD, START)
 
     private val a4 =
-        Activity.Companion.fromDuration(
+        Activity.fromDuration(
             START,
             23.5.hours.sinceStart,
             8.hours,

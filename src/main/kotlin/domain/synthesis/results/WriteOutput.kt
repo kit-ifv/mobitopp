@@ -1,7 +1,7 @@
 package domain.synthesis.results
 
 import domain.shared.behavior.Attractiveness
-import domain.shared.datastructure.schedule.Activity
+import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZonedRoadAccessLocationDTO

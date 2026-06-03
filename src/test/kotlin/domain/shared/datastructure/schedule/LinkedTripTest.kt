@@ -3,6 +3,10 @@ package domain.shared.datastructure.schedule
 import FOURTH
 import OTHER
 import START
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.Leg
+import domain.shared.datastructure.schedule.blocks.ActivityBlock
+import domain.shared.datastructure.schedule.blocks.LinkedTrip
 import org.junit.jupiter.api.assertThrows
 import utils.units.sinceStart
 import kotlin.test.BeforeTest
@@ -11,13 +15,13 @@ import kotlin.test.assertFalse
 import kotlin.time.Duration.Companion.hours
 
 class LinkedTripTest {
-    private val leg1: Leg = Leg.Companion.fromDuration(1.hours.sinceStart, 1.hours, START, FOURTH)
-    private val leg2: Leg = Leg.Companion.fromDuration(2.hours.sinceStart, 1.hours, FOURTH, OTHER)
-    private val leg3: Leg = Leg.Companion.fromDuration(3.hours.sinceStart, 1.hours, FOURTH, OTHER)
-    private val activityBeforeLegs: Activity = Activity.Companion.fromDuration(START, 0.hours.sinceStart, 1.hours)
-    private val activityOverlapsLeg1: Activity = Activity.Companion.fromDuration(START, 0.hours.sinceStart, 1.1.hours)
-    private val activityOverlapsLeg3: Activity = Activity.Companion.fromDuration(START, 3.9.hours.sinceStart, 1.hours)
-    private val activityAfterLegs: Activity = Activity.Companion.fromDuration(START, 4.1.hours.sinceStart, 1.hours)
+    private val leg1: Leg = Leg.fromDuration(1.hours.sinceStart, 1.hours, START, FOURTH)
+    private val leg2: Leg = Leg.fromDuration(2.hours.sinceStart, 1.hours, FOURTH, OTHER)
+    private val leg3: Leg = Leg.fromDuration(3.hours.sinceStart, 1.hours, FOURTH, OTHER)
+    private val activityBeforeLegs: Activity = Activity.fromDuration(START, 0.hours.sinceStart, 1.hours)
+    private val activityOverlapsLeg1: Activity = Activity.fromDuration(START, 0.hours.sinceStart, 1.1.hours)
+    private val activityOverlapsLeg3: Activity = Activity.fromDuration(START, 3.9.hours.sinceStart, 1.hours)
+    private val activityAfterLegs: Activity = Activity.fromDuration(START, 4.1.hours.sinceStart, 1.hours)
 
     private val allMissingActivities =
         listOf(activityAfterLegs, activityBeforeLegs, activityOverlapsLeg1, activityOverlapsLeg3)

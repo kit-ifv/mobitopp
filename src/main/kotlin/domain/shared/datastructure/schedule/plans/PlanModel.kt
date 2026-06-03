@@ -1,13 +1,13 @@
 package domain.shared.datastructure.schedule.plans
 
-import domain.shared.datastructure.schedule.Action
-import domain.shared.datastructure.schedule.ActionBlock
-import domain.shared.datastructure.schedule.Activity
-import domain.shared.datastructure.schedule.Leg
-import domain.shared.datastructure.schedule.LinkedAction
-import domain.shared.datastructure.schedule.LinkedActivity
-import domain.shared.datastructure.schedule.LinkedLeg
-import domain.shared.datastructure.schedule.isConsistent
+import domain.shared.datastructure.schedule.action.Action
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.Leg
+import domain.shared.datastructure.schedule.action.LinkedAction
+import domain.shared.datastructure.schedule.action.LinkedActivity
+import domain.shared.datastructure.schedule.action.LinkedLeg
+import domain.shared.datastructure.schedule.action.isConsistent
+import domain.shared.datastructure.schedule.blocks.ActionBlock
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
 

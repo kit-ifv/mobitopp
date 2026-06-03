@@ -4,9 +4,9 @@ import Mutable
 import core.statemachine.Message
 import core.statemachine.StateBasedAgent
 import core.statemachine.StateMachineFactory
-import domain.shared.datastructure.schedule.Action
-import domain.shared.datastructure.schedule.MovingAction
 import domain.shared.datastructure.schedule.Schedule
+import domain.shared.datastructure.schedule.action.Action
+import domain.shared.datastructure.schedule.action.MovingAction
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.StandardLocation

@@ -1,6 +1,6 @@
 package domain.shared.datastructure.schedule.replanning
 
-import domain.shared.datastructure.schedule.StationaryAction
+import domain.shared.datastructure.schedule.action.StationaryAction
 import domain.shared.location.zone.attributes.HasZoneId
 import utils.units.AbsoluteTime
 

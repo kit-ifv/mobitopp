@@ -9,11 +9,11 @@ import core.statemachine.builder.stateMachine
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.schedule.Agenda
-import domain.shared.datastructure.schedule.Leg
 import domain.shared.datastructure.schedule.LinkTrip
-import domain.shared.datastructure.schedule.LinkedAction
 import domain.shared.datastructure.schedule.Representative
-import domain.shared.datastructure.schedule.StationaryAction
+import domain.shared.datastructure.schedule.action.Leg
+import domain.shared.datastructure.schedule.action.LinkedAction
+import domain.shared.datastructure.schedule.action.StationaryAction
 import domain.shared.datastructure.schedule.alternateByImpedance
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode

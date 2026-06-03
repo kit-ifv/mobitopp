@@ -1,5 +1,12 @@
 package domain.shared.datastructure.schedule
 
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.Leg
+import domain.shared.datastructure.schedule.action.LinkedLeg
+import domain.shared.datastructure.schedule.action.MovingAction
+import domain.shared.datastructure.schedule.action.StationaryAction
+import domain.shared.datastructure.schedule.action.isConsistent
+import domain.shared.datastructure.schedule.blocks.LinkedTrip
 import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import domain.shared.enums.MODEUNKOWN

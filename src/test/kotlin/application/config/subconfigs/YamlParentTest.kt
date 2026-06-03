@@ -1,6 +1,6 @@
 package application.config.subconfigs
 
-import domain.shared.config.Yaml
+import application.config.Yaml
 import org.junit.jupiter.api.assertThrows
 import kotlin.io.path.Path
 import kotlin.test.Test

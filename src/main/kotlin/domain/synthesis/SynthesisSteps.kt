@@ -1,7 +1,7 @@
 package domain.synthesis
 
 import domain.shared.behavior.AttractivenessModel
-import domain.shared.datastructure.schedule.Activity
+import domain.shared.datastructure.schedule.action.Activity
 import domain.synthesis.attributes.household.HasMutableEconomicStatus
 import domain.synthesis.attributes.household.HasMutableNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes

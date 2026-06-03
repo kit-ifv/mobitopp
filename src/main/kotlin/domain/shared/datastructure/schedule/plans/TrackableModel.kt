@@ -1,8 +1,8 @@
 package domain.shared.datastructure.schedule.plans
 
-import domain.shared.datastructure.schedule.LinkedAction
-import domain.shared.datastructure.schedule.MovingAction
-import domain.shared.datastructure.schedule.StationaryAction
+import domain.shared.datastructure.schedule.action.LinkedAction
+import domain.shared.datastructure.schedule.action.MovingAction
+import domain.shared.datastructure.schedule.action.StationaryAction
 
 class TrackableModel(private val separablePlanModel: SeparablePlanModel) : SeparablePlanModel by separablePlanModel {
 

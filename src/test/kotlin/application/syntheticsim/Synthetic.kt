@@ -7,7 +7,7 @@ import core.statemachine.usage.RecordingStateMachineFactory
 import domain.shared.behavior.Attractiveness
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.asAttractiveness
-import domain.shared.datastructure.schedule.Activity
+import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode

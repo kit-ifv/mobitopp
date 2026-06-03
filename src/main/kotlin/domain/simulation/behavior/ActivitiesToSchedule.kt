@@ -1,13 +1,13 @@
 package domain.simulation.behavior
 
-import domain.shared.datastructure.schedule.Activity
-import domain.shared.datastructure.schedule.ActivityBlock
 import domain.shared.datastructure.schedule.LinkTrip
-import domain.shared.datastructure.schedule.LinkedActivity
-import domain.shared.datastructure.schedule.LinkedLeg
-import domain.shared.datastructure.schedule.LinkedTrip
 import domain.shared.datastructure.schedule.Schedule
-import domain.shared.datastructure.schedule.isConsistent
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.LinkedActivity
+import domain.shared.datastructure.schedule.action.LinkedLeg
+import domain.shared.datastructure.schedule.action.isConsistent
+import domain.shared.datastructure.schedule.blocks.ActivityBlock
+import domain.shared.datastructure.schedule.blocks.LinkedTrip
 import domain.shared.datastructure.schedule.plans.BlockModel
 import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.enums.MODEUNKOWN

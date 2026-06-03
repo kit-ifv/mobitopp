@@ -7,8 +7,8 @@ import core.modelsteps.Check
 import core.modelsteps.Context
 import core.modelsteps.steps.repositoryDependentStep
 import core.modelsteps.validation.validateFileWriteAccess
-import domain.shared.datastructure.schedule.Activity
-import domain.shared.datastructure.schedule.LinkedLeg
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.LinkedLeg
 import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
 import domain.simulation.behavior.euros

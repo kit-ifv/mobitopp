@@ -1,6 +1,6 @@
 package domain.simulation.behavior
 
-import domain.shared.datastructure.schedule.StationaryAction
+import domain.shared.datastructure.schedule.action.StationaryAction
 import domain.shared.enums.Mode
 import domain.simulation.agent.PersonAgent
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter

@@ -1,6 +1,6 @@
 package domain.simulation.behavior
 
-import domain.shared.datastructure.schedule.Activity
+import domain.shared.datastructure.schedule.action.Activity
 import domain.simulation.agent.PersonAgent
 import utils.random.getGaussian
 import kotlin.random.Random

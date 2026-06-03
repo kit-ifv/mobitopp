@@ -21,8 +21,6 @@ import domain.jackson.MatrixConfigModule
 import domain.jackson.ModeChoiceModule
 import domain.jackson.isSameOrSubtypeOf
 import domain.jackson.javaType
-import domain.shared.config.PathModule
-import domain.shared.config.Yaml
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import kotlin.io.path.Path

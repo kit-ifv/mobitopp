@@ -1,4 +1,4 @@
-package domain.shared.datastructure.schedule
+package domain.shared.datastructure.schedule.action
 
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation

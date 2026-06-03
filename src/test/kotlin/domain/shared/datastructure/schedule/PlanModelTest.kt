@@ -6,6 +6,9 @@ import FOURTH
 import OTHER
 import START
 import THIRD
+import domain.shared.datastructure.schedule.action.Action
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.Leg
 import domain.shared.datastructure.schedule.plans.PlanModel
 import domain.shared.datastructure.schedule.plans.isConsistent
 import org.junit.jupiter.api.DynamicTest
@@ -24,14 +27,14 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 
 abstract class PlanModelTest {
-    protected val activity1: Activity = Activity.Companion.fromDuration(START, 0.hours.sinceStart, 7.hours)
-    protected val leg1: Leg = Leg.Companion.fromDuration(7.hours.sinceStart, 0.5.hours, START, FOURTH)
-    protected val leg1b: Leg = Leg.Companion.fromDuration(7.5.hours.sinceStart, 0.5.hours, FOURTH, OTHER)
-    protected val activity2: Activity = Activity.Companion.fromDuration(OTHER, 8.hours.sinceStart, 4.hours)
-    protected val activity2b: Activity = Activity.Companion.fromDuration(OTHER, 12.hours.sinceStart, 4.hours)
-    protected val leg2: Leg = Leg.Companion.fromDuration(16.hours.sinceStart, 0.5.hours, OTHER, FOURTH)
-    protected val leg2b: Leg = Leg.Companion.fromDuration(16.5.hours.sinceStart, 3.5.hours, FOURTH, THIRD)
-    protected val activity3: Activity = Activity.Companion.fromDuration(THIRD, 20.hours.sinceStart, 10.hours)
+    protected val activity1: Activity = Activity.fromDuration(START, 0.hours.sinceStart, 7.hours)
+    protected val leg1: Leg = Leg.fromDuration(7.hours.sinceStart, 0.5.hours, START, FOURTH)
+    protected val leg1b: Leg = Leg.fromDuration(7.5.hours.sinceStart, 0.5.hours, FOURTH, OTHER)
+    protected val activity2: Activity = Activity.fromDuration(OTHER, 8.hours.sinceStart, 4.hours)
+    protected val activity2b: Activity = Activity.fromDuration(OTHER, 12.hours.sinceStart, 4.hours)
+    protected val leg2: Leg = Leg.fromDuration(16.hours.sinceStart, 0.5.hours, OTHER, FOURTH)
+    protected val leg2b: Leg = Leg.fromDuration(16.5.hours.sinceStart, 3.5.hours, FOURTH, THIRD)
+    protected val activity3: Activity = Activity.fromDuration(THIRD, 20.hours.sinceStart, 10.hours)
 
     abstract var model: PlanModel
 
@@ -82,14 +85,14 @@ abstract class PlanModelTest {
         }
     }
 
-    private fun invalidLeg(action: Action): Leg = Leg.Companion.fromDuration(
+    private fun invalidLeg(action: Action): Leg = Leg.fromDuration(
         action.startTime,
         action.duration,
         action.startLocation,
         action.endLocation,
     )
 
-    private fun invalidActivity(action: Action): Activity = Activity.Companion.fromDuration(
+    private fun invalidActivity(action: Action): Activity = Activity.fromDuration(
         action.startLocation,
         action.startTime,
         action.duration,

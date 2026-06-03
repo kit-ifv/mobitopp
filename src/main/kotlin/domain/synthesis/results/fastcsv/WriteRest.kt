@@ -1,6 +1,6 @@
 package domain.synthesis.results.fastcsv
 
-import domain.shared.datastructure.schedule.Activity
+import domain.shared.datastructure.schedule.action.Activity
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.SynthesisPerson
 import domain.synthesis.results.FixedDestinationElements

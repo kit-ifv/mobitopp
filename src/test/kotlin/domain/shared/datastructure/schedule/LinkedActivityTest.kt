@@ -4,6 +4,11 @@ import FOURTH
 import OTHER
 import START
 import THIRD
+import domain.shared.datastructure.schedule.action.Activity
+import domain.shared.datastructure.schedule.action.Leg
+import domain.shared.datastructure.schedule.action.LinkedActivity
+import domain.shared.datastructure.schedule.action.LinkedLeg
+import domain.shared.datastructure.schedule.action.isWeaklyConsistent
 import domain.shared.location.StandardLocation
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
@@ -27,12 +32,12 @@ class LinkedActivityTest {
 
     @BeforeTest
     fun setup() {
-        firstLeg = LinkedLeg(Leg.Companion.fromDuration(0.hours.sinceStart, 1.hours, START, THIRD))
-        secondLeg = LinkedLeg(Leg.Companion.fromDuration(1.hours.sinceStart, 1.hours, THIRD, OTHER))
+        firstLeg = LinkedLeg(Leg.fromDuration(0.hours.sinceStart, 1.hours, START, THIRD))
+        secondLeg = LinkedLeg(Leg.fromDuration(1.hours.sinceStart, 1.hours, THIRD, OTHER))
         thirdActivity =
-            LinkedActivity(Activity.Companion.fromDuration(OTHER, 3.hours.sinceStart, 1.hours))
-        fourthActivity = LinkedActivity(Activity.Companion.fromDuration(OTHER, 5.hours.sinceStart, 1.hours))
-        fifthLeg = LinkedLeg(Leg.Companion.fromDuration(7.hours.sinceStart, 1.hours, OTHER, START))
+            LinkedActivity(Activity.fromDuration(OTHER, 3.hours.sinceStart, 1.hours))
+        fourthActivity = LinkedActivity(Activity.fromDuration(OTHER, 5.hours.sinceStart, 1.hours))
+        fifthLeg = LinkedLeg(Leg.fromDuration(7.hours.sinceStart, 1.hours, OTHER, START))
 
         firstLeg.next = secondLeg
         secondLeg.previous = firstLeg

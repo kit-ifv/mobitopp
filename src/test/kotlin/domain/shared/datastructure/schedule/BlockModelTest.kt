@@ -2,6 +2,8 @@ package domain.shared.datastructure.schedule
 
 import OTHER
 import START
+import domain.shared.datastructure.schedule.action.Action
+import domain.shared.datastructure.schedule.action.Leg
 import domain.shared.datastructure.schedule.plans.BlockModel
 import domain.shared.datastructure.schedule.plans.PlanModel
 import utils.collections.isStrictlySorted
@@ -27,7 +29,7 @@ class BlockModelTest : PlanModelTest() {
     @Test
     fun noInconsistencies() {
         model.add(activity1)
-        model.add(Leg.Companion.fromDuration(activity1.endTime - 1.minutes, duration = 1.hours, START, OTHER))
+        model.add(Leg.fromDuration(activity1.endTime - 1.minutes, duration = 1.hours, START, OTHER))
         assertContentEquals(model.actions(), setOf<Action>(activity1))
         model.add(activity2)
         model.add(activity3)
