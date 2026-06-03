@@ -1,17 +1,15 @@
 package core.datastructure.kdtree
 
+import utils.WithMetric
 import java.util.PriorityQueue
 import kotlin.math.pow
 import kotlin.math.sqrt
-
-data class WithMetric<T, M : Comparable<M>>(val item: T, val metric: M)
-
-fun <T> Collection<WithMetric<T, *>>.discardMetric(): List<T> = map { it.item }
 
 /**
  * An implementation of a K-D Tree providing a search function for arbitrary elements. The dimensions of the tree are
  * calculated automatically by the provided translations in the public constructor.
  */
+@Deprecated("Can be replaced with K-D Tree from JTS")
 class ReadOnlyKDTree<T : Any>(points: List<T>, firstAttribute: (T) -> Double, vararg attributes: (T) -> Double) {
     val dimension = attributes.size + 1 // Optional attributes plus the first attribute
     private val root: KDElement<T>

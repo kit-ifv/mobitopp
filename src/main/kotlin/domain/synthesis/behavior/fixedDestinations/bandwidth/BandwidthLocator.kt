@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.fixeddestinations.bandwidth
 
-import core.datastructure.kdtree.WithMetric
+import utils.WithMetric
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
 import domain.shared.location.LocationKDTree
@@ -8,7 +8,6 @@ import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.behavior.fixeddestinations.bandwidth.LocationAlternative
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 import edu.kit.ifv.units.Distance
 import kotlin.random.Random

@@ -1,7 +1,7 @@
 package domain.shared.location
 
 import core.datastructure.kdtree.ReadOnlyKDTree
-import core.datastructure.kdtree.WithMetric
+import utils.WithMetric
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.toDistance

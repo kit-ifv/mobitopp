@@ -3,8 +3,8 @@
 package domain.synthesis.fixedDestinations
 
 import ZoneTestAttributesFake
-import core.datastructure.kdtree.WithMetric
-import core.datastructure.kdtree.discardMetric
+import utils.WithMetric
+import utils.discardMetric
 import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
