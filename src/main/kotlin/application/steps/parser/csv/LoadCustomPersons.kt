@@ -11,7 +11,7 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.synthesis.data.person.PersonId
+import domain.simulation.data.person.PersonId
 import utils.Identifiable
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter
@@ -47,11 +47,11 @@ import kotlin.reflect.KClass
  * @param scope The configuration scope.
  */
 @Suppress("UnusedParameter")
-fun <C, P : Identifiable<PersonId>, M : P> C.customPersons(
+fun <C, P : Identifiable<domain.simulation.data.person.PersonId>, M : P> C.customPersons(
     personClass: KClass<M>,
     sealed: Boolean = false,
-    scope: context(MutableRepository<M, PersonId>) C.() -> Unit,
-) where C : HasPersonRepo<M, P>, C : Context = mutableRepositoryScope<C, M, PersonId>(
+    scope: context(MutableRepository<M, domain.simulation.data.person.PersonId>) C.() -> Unit,
+) where C : HasPersonRepo<M, P>, C : Context = mutableRepositoryScope<C, M, domain.simulation.data.person.PersonId>(
     getter = { mutablePersonRepository },
     sealed,
     scope,
@@ -68,8 +68,8 @@ fun <C, P : Identifiable<PersonId>, M : P> C.customPersons(
  * @param resource The resource (e.g., CSV or binary file) to load persons from.
  * @param dependentRepositories Repositories that this loading step depends on.
  */
-context(repository: MutableRepository<M, PersonId>)
-fun <C : HasPersonRepo<M, P>, P : Identifiable<PersonId>, M : P> C.loadCustomPersons(
+context(repository: MutableRepository<M, domain.simulation.data.person.PersonId>)
+fun <C : HasPersonRepo<M, P>, P : Identifiable<domain.simulation.data.person.PersonId>, M : P> C.loadCustomPersons(
     resource: Resource<M>,
     dependentRepositories: Set<Repository<*, *>> = emptySet(),
 ) = addResourceStep(
@@ -90,7 +90,7 @@ fun <C : HasPersonRepo<M, P>, P : Identifiable<PersonId>, M : P> C.loadCustomPer
  * @return A [Resource] representing the custom person CSV.
  */
 context(config: SourceFilesConfig)
-fun <P : Identifiable<PersonId>> customPersonCsv(
+fun <P : Identifiable<domain.simulation.data.person.PersonId>> customPersonCsv(
     parser: CsvParser<P>,
     path: Path = config.sourceFiles.personCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,

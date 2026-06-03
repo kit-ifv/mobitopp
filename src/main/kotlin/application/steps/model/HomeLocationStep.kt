@@ -11,8 +11,8 @@ import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.TrivialGroupStrategy
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.household.HouseholdId
+import domain.simulation.data.household.Household
+import domain.simulation.data.household.HouseholdId
 import domain.synthesis.data.household.MutableHousehold
 import edu.kit.ifv.units.meters
 
@@ -30,9 +30,9 @@ import edu.kit.ifv.units.meters
  * @param repository The mutable repository of households to update. Provided via context.
  * @param model The model used to generate locations. Defaults to [AssignAroundPoint].
  */
-context(repository: MutableRepository<MutableHousehold, HouseholdId>)
+context(repository: MutableRepository<MutableHousehold, domain.simulation.data.household.HouseholdId>)
 fun <C, Z> C.assignHouseholdLocation(
-    model: AssignHouseholdLocations<Zone<Z>, Household> = AssignAroundPoint(100.meters),
+    model: AssignHouseholdLocations<Zone<Z>, domain.simulation.data.household.Household> = AssignAroundPoint(100.meters),
 ) where C : HasZoneRepo<*, Zone<Z>>, Z : HasRegionType, Z : HasCentroid = updateEachStep(
     name = "Assign Home Location to each Household",
     dependentRepositories = setOf(zoneRepository),
@@ -54,7 +54,7 @@ fun <C, Z> C.assignHouseholdLocation(
  * @param repository The mutable repository of households to update. Provided via context.
  * @param model The model used to generate locations in bulk. Defaults to [TrivialGroupStrategy].
  */
-context(repository: MutableRepository<MutableHousehold, HouseholdId>)
+context(repository: MutableRepository<MutableHousehold, domain.simulation.data.household.HouseholdId>)
 fun <C, Z> C.assignHouseholdLocationsInBulk(
     model: GroupAssignHouseholdLocations<Zone<Z>, MutableHousehold> =
         TrivialGroupStrategy(AssignAroundPoint(100.meters)),

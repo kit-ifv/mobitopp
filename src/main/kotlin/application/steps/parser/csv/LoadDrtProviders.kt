@@ -17,13 +17,13 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.DrtProviderId
+import domain.simulation.data.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
-import domain.synthesis.parser.DrtProviderByAreaCsvColumns
-import domain.synthesis.parser.DrtProviderByAreaCsvConfig
-import domain.synthesis.parser.GlobalDrtProviderIdCounter
-import domain.synthesis.parser.allDay
-import domain.synthesis.parser.createDrtProvidersByAreaParser
+import domain.simulation.parser.DrtProviderByAreaCsvColumns
+import domain.simulation.parser.DrtProviderByAreaCsvConfig
+import domain.simulation.parser.GlobalDrtProviderIdCounter
+import domain.simulation.parser.allDay
+import domain.simulation.parser.createDrtProvidersByAreaParser
 import utils.csv.CsvParser
 import java.nio.file.Path
 
@@ -38,9 +38,9 @@ import java.nio.file.Path
  */
 fun <C> C.drtProviders(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableDrtProviderData, DrtProviderId>) C.() -> Unit,
+    scope: context(MutableRepository<MutableDrtProviderData, domain.simulation.data.DrtProviderId>) C.() -> Unit,
 ) where C : HasZoneRepo<*, Zone<*>>, C : HasDrtProviderRepo<MutableDrtProviderData, *> =
-    mutableRepositoryScope<C, MutableDrtProviderData, DrtProviderId>(
+    mutableRepositoryScope<C, MutableDrtProviderData, domain.simulation.data.DrtProviderId>(
         getter = { mutableDrtProviderRepository },
         sealed = sealed,
         scope,
@@ -55,11 +55,11 @@ fun <C> C.drtProviders(
  * @param resource The resource (e.g., CSV) to load DRT providers from.
  * @param dependentRepositories Repositories that this loading step depends on. Defaults to [zoneRepository].
  */
-context(repository: MutableRepository<MutableDrtProviderData, DrtProviderId>)
+context(repository: MutableRepository<MutableDrtProviderData, domain.simulation.data.DrtProviderId>)
 fun <C> C.loadDrtProviders(
     resource: Resource<MutableDrtProviderData>,
     dependentRepositories: Set<Repository<*, *>> = setOf(zoneRepository),
-) where C : HasZoneRepo<*, Zone<*>> = addResourceStep<C, MutableDrtProviderData, DrtProviderId>(
+) where C : HasZoneRepo<*, Zone<*>> = addResourceStep<C, MutableDrtProviderData, domain.simulation.data.DrtProviderId>(
     name = "load drt providers from ${resource.name}",
     resource = resource,
     dependentRepositories = dependentRepositories,
@@ -99,21 +99,21 @@ fun <C, CFG> C.drtProviderCsv(
  * @param CFG The configuration type. Must implement [Config].
  * @param config The configuration. Provided via context.
  * @param drtMode The mode for the DRT service.
- * @param customizeCsvConfig Lambda to customize the [DrtProviderByAreaCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.DrtProviderByAreaCsvConfig].
  * @return A [CsvParser] for [MutableDrtProviderData].
  */
 context(config: CFG)
 fun <C, CFG> C.drtProviderServiceAreaParser(
     drtMode: Mode,
-    customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.DrtProviderByAreaCsvConfig.() -> Unit = {},
 ): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : Config =
-    createDrtProvidersByAreaParser(
-        DrtProviderByAreaCsvConfig(
-            columns = DrtProviderByAreaCsvColumns(),
+    _root_ide_package_.domain.simulation.parser.createDrtProvidersByAreaParser(
+        _root_ide_package_.domain.simulation.parser.DrtProviderByAreaCsvConfig(
+            columns = _root_ide_package_.domain.simulation.parser.DrtProviderByAreaCsvColumns(),
             drtMode = drtMode,
             getZone = ::getZone,
-            operatingHours = allDay,
-            providerIdSource = GlobalDrtProviderIdCounter,
+            operatingHours = _root_ide_package_.domain.simulation.parser.allDay,
+            providerIdSource = _root_ide_package_.domain.simulation.parser.GlobalDrtProviderIdCounter,
             errorHandling = config.errorHandling,
             seed = config.seed,
         ).also {
@@ -156,13 +156,13 @@ where C : HasZoneRepo<*, Zone<HasRegionType>>,
  * @param CFG The configuration type. Must implement [DrtModesConfig].
  * @param config The configuration. Provided via context.
  * @param sharingMode The mode for the ride-pooling service. Defaults to [config.ridePoolingMode].
- * @param customizeCsvConfig Lambda to customize the [DrtProviderByAreaCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.DrtProviderByAreaCsvConfig].
  * @return A [CsvParser] for [MutableDrtProviderData].
  */
 context(config: CFG)
 fun <C, CFG> C.poolingProviderServiceAreaParser(
     sharingMode: Mode = config.ridePoolingMode,
-    customizeCsvConfig: DrtProviderByAreaCsvConfig.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.DrtProviderByAreaCsvConfig.() -> Unit = {},
 ): CsvParser<MutableDrtProviderData> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : DrtModesConfig =
     drtProviderServiceAreaParser<C, CFG>(
         sharingMode,

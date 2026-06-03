@@ -21,8 +21,8 @@ import domain.simulation.events.GenerateModeCharacteristics
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.SharingProvider
+import domain.simulation.data.DrtProvider
+import domain.simulation.data.SharingProvider
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
@@ -38,8 +38,8 @@ import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
  * @param C The context type. Must implement:
  *   - [HasMutablePersonBehavior]
  *   - [HasZoneRepo] for [Zone]
- *   - [HasSharingProviderRepo] for [SharingProvider]
- *   - [HasDrtProviderRepo] for [DrtProvider]
+ *   - [HasSharingProviderRepo] for [domain.simulation.data.SharingProvider]
+ *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
  *   - [HasImpedance]
  *   - [HasAttractivenessModel]
  * @param destinationChoiceModel The underlying utility-based model for destination choice.
@@ -61,8 +61,8 @@ fun <C> C.loadBehaviorModels(
     replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
 ) where C : HasMutablePersonBehavior,
         C : HasZoneRepo<*, MaximalZone>,
-        C : HasSharingProviderRepo<*, SharingProvider>,
-        C : HasDrtProviderRepo<*, DrtProvider>,
+        C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>,
+        C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider>,
         C : HasImpedance,
         C : HasAttractivenessModel =
     repositoryDependentStep(

@@ -14,18 +14,18 @@ import core.modelsteps.steps.modelStep
 import domain.shared.enums.ActivityType
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.ActivityId
-import domain.synthesis.data.ActivityLocation
-import domain.synthesis.data.HasStandardLocation
+import domain.simulation.data.ActivityId
+import domain.simulation.data.ActivityLocation
+import domain.simulation.data.HasStandardLocation
 import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.person.HasHousehold
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.parser.FixedDestinationColumns
-import domain.synthesis.parser.FixedDestinationCsvConfig
-import domain.synthesis.parser.binary.FixedDestinationReader
-import domain.synthesis.parser.binary.FixedDestinationWriter
-import domain.synthesis.parser.createFixedDestinationCsvParser
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.person.HasHousehold
+import domain.simulation.data.person.PersonId
+import domain.simulation.parser.FixedDestinationColumns
+import domain.simulation.parser.FixedDestinationCsvConfig
+import domain.simulation.parser.binary.FixedDestinationReader
+import domain.simulation.parser.binary.FixedDestinationWriter
+import domain.simulation.parser.createFixedDestinationCsvParser
 import utils.Identifiable
 import utils.csv.CsvParser
 import java.nio.file.Path
@@ -40,8 +40,8 @@ import java.nio.file.Path
  * @receiver The simulation context [CTXT].
  * @param CTXT The context type. Must implement [HasZoneRepo] for [Zone] and [HasPersonRepo].
  * @param CFG The configuration type. Must implement [ActivityTypesConfig] and [SourceFilesConfig].
- * @param P The person type. Must implement [Identifiable] for [PersonId] and [HasHousehold].
- * @param H The household type. Must implement [Identifiable] for [HouseholdId] and [HasStandardLocation].
+ * @param P The person type. Must implement [Identifiable] for [domain.simulation.data.person.PersonId] and [domain.simulation.data.person.HasHousehold].
+ * @param H The household type. Must implement [Identifiable] for [domain.simulation.data.household.HouseholdId] and [domain.simulation.data.HasStandardLocation].
  * @param repository The mutable repository of persons. Provided via context.
  * @param activityRepo The mutable repository of planned activities to update. Provided via context.
  * @param config The configuration. Provided via context.
@@ -49,19 +49,19 @@ import java.nio.file.Path
  * @param resource The resource containing fixed destination data. Defaults to [fixedDestinationCsv].
  */
 context(
-    repository: MutableRepository<P, PersonId>,
-    activityRepo: MutableRepository<MutablePlannedActivity, ActivityId>,
+    repository: MutableRepository<P, domain.simulation.data.person.PersonId>,
+    activityRepo: MutableRepository<MutablePlannedActivity, domain.simulation.data.ActivityId>,
     config: CFG
 )
 fun <CTXT, CFG, P, H> CTXT.fixedDestinations(
     homeActivity: ActivityType,
-    resource: Resource<ActivityLocation> = fixedDestinationCsv(),
+    resource: Resource<domain.simulation.data.ActivityLocation> = fixedDestinationCsv(),
 ) where CTXT : HasZoneRepo<*, Zone<HasRegionType>>, CTXT : HasPersonRepo<*, *>, // TODO unify
 // HasPersonRepo with P
-        P : Identifiable<PersonId>, P : HasHousehold<H>,
-        H : Identifiable<HouseholdId>, H : HasStandardLocation,
+        P : Identifiable<domain.simulation.data.person.PersonId>, P : domain.simulation.data.person.HasHousehold<H>,
+        H : Identifiable<domain.simulation.data.household.HouseholdId>, H : domain.simulation.data.HasStandardLocation,
         CFG : ActivityTypesConfig, CFG : SourceFilesConfig {
-    val fixedLocationsById: MutableMap<PersonId, Map<ActivityType, ActivityLocation>> = mutableMapOf()
+    val fixedLocationsById: MutableMap<domain.simulation.data.person.PersonId, Map<ActivityType, domain.simulation.data.ActivityLocation>> = mutableMapOf()
     modelStep("load fixed destination csv") {
         fixedLocationsById.putAll(
             resource.elements.groupBy {
@@ -72,7 +72,7 @@ fun <CTXT, CFG, P, H> CTXT.fixedDestinations(
         )
     }
 
-    updateEachStep<CTXT, MutablePlannedActivity, ActivityId>(
+    updateEachStep<CTXT, MutablePlannedActivity, domain.simulation.data.ActivityId>(
         name = "apply fixed destinations to planned activities",
     ) { activity ->
 
@@ -102,13 +102,13 @@ fun <CTXT, CFG, P, H> CTXT.fixedDestinations(
  */
 context(config: CFG)
 fun <C, CFG> C.fixedDestinationCsv(
-    parser: CsvParser<ActivityLocation> = fixedDestinationCsvParser(),
+    parser: CsvParser<domain.simulation.data.ActivityLocation> = fixedDestinationCsvParser(),
     path: Path = config.sourceFiles.fixedDestinationCSV,
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
-    binaryCache: BinaryCacheConfig<ActivityLocation>? = binaryFixedDestinationFormat(),
-): Resource<ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, Zone<HasRegionType>>, CFG :
+    binaryCache: BinaryCacheConfig<domain.simulation.data.ActivityLocation>? = binaryFixedDestinationFormat(),
+): Resource<domain.simulation.data.ActivityLocation> where C : HasPersonRepo<*, *>, C : HasZoneRepo<*, Zone<HasRegionType>>, CFG :
                                     SourceFilesConfig,
-                                    CFG : ActivityTypesConfig =
+                                                           CFG : ActivityTypesConfig =
     CsvResource(path, parser, delimiter).let { csv ->
         binaryCache?.let {
             csv.cachedCsv(it)
@@ -122,19 +122,19 @@ fun <C, CFG> C.fixedDestinationCsv(
  * @param C The context type. Must implement [HasPersonRepo] and [HasZoneRepo] for [Zone].
  * @param CFG The configuration type. Must implement [ActivityTypesConfig].
  * @param config The configuration. Provided via context.
- * @param customizeCsvConfig Lambda to customize the [FixedDestinationCsvConfig].
- * @return A [CsvParser] for [ActivityLocation].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.FixedDestinationCsvConfig].
+ * @return A [CsvParser] for [domain.simulation.data.ActivityLocation].
  */
 context(config: CFG)
 fun <C, CFG> C.fixedDestinationCsvParser(
-    customizeCsvConfig: FixedDestinationCsvConfig.() -> Unit = {},
-): CsvParser<ActivityLocation>
+    customizeCsvConfig: domain.simulation.parser.FixedDestinationCsvConfig.() -> Unit = {},
+): CsvParser<domain.simulation.data.ActivityLocation>
 where C : HasPersonRepo<*, *>,
       C : HasZoneRepo<*, Zone<HasRegionType>>,
       CFG : ActivityTypesConfig =
-    createFixedDestinationCsvParser(
-        FixedDestinationCsvConfig(
-            columns = FixedDestinationColumns(),
+    _root_ide_package_.domain.simulation.parser.createFixedDestinationCsvParser(
+        _root_ide_package_.domain.simulation.parser.FixedDestinationCsvConfig(
+            columns = _root_ide_package_.domain.simulation.parser.FixedDestinationColumns(),
             personsExists = personRepository::contains,
             activityTypes = config.activityTypes,
             zoneConverter = ::getZone,
@@ -154,14 +154,14 @@ where C : HasPersonRepo<*, *>,
  * @return A [BinaryCacheConfig] instance.
  */
 context(config: CFG)
-fun <C, CFG> C.binaryFixedDestinationFormat(): BinaryCacheConfig<ActivityLocation>
+fun <C, CFG> C.binaryFixedDestinationFormat(): BinaryCacheConfig<domain.simulation.data.ActivityLocation>
     where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : ActivityTypesConfig =
-    BinaryCacheConfig<ActivityLocation>(
+    BinaryCacheConfig<domain.simulation.data.ActivityLocation>(
         cacheRootPath = config.cachePath,
-        binaryReader = FixedDestinationReader(
+        binaryReader = _root_ide_package_.domain.simulation.parser.binary.FixedDestinationReader(
             activityTypeConverter = config.activityTypes,
             zoneConverter = zoneRepository::getValue,
         ),
 
-        binaryWriter = FixedDestinationWriter(),
+        binaryWriter = _root_ide_package_.domain.simulation.parser.binary.FixedDestinationWriter(),
     )

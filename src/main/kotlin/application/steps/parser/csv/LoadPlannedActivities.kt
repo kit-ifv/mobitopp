@@ -18,15 +18,15 @@ import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.datastructure.schedule.action.LinkedActivity
 import domain.simulation.behavior.NoActivityStartShifter
 import domain.synthesis.attributes.person.HasPlannedActivities
-import domain.synthesis.data.ActivityId
+import domain.simulation.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.PlannedActivity
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.parser.ActivitiesColumns
-import domain.synthesis.parser.ActivityCsvConfig
-import domain.synthesis.parser.binary.BinaryActivityReader
-import domain.synthesis.parser.binary.BinaryActivityWriter
-import domain.synthesis.parser.createActivityCsvParser
+import domain.simulation.data.PlannedActivity
+import domain.simulation.data.person.PersonId
+import domain.simulation.parser.ActivitiesColumns
+import domain.simulation.parser.ActivityCsvConfig
+import domain.simulation.parser.binary.BinaryActivityReader
+import domain.simulation.parser.binary.BinaryActivityWriter
+import domain.simulation.parser.createActivityCsvParser
 import utils.Identifiable
 import utils.csv.CsvParser
 import utils.random.StochasticActor
@@ -42,28 +42,28 @@ import kotlin.time.Duration.Companion.minutes
  *
  * @receiver The simulation context [CTXT].
  * @param CTXT The context type. Must implement [Context].
- * @param P The person type. Must implement [domain.synthesis.attributes.person.HasPlannedActivities] for [PlannedActivity]
- *          and [Identifiable] for [PersonId].
+ * @param P The person type. Must implement [domain.synthesis.attributes.person.HasPlannedActivities] for [domain.simulation.data.PlannedActivity]
+ *          and [Identifiable] for [domain.simulation.data.person.PersonId].
  * @param repository The mutable repository of persons to update. Provided via context.
  * @param scope The configuration scope for populating planned activities.
  */
-context(repository: MutableRepository<P, PersonId>)
+context(repository: MutableRepository<P, domain.simulation.data.person.PersonId>)
 fun <CTXT, P> CTXT.plannedActivities(
-    scope: context(MutableRepository<MutablePlannedActivity, ActivityId>) CTXT.() -> Unit,
-) where CTXT : Context, P : HasPlannedActivities<PlannedActivity>, P : Identifiable<PersonId> {
-    val plannedActivities = MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
+    scope: context(MutableRepository<MutablePlannedActivity, domain.simulation.data.ActivityId>) CTXT.() -> Unit,
+) where CTXT : Context, P : HasPlannedActivities<domain.simulation.data.PlannedActivity>, P : Identifiable<domain.simulation.data.person.PersonId> {
+    val plannedActivities = MapRepository<MutablePlannedActivity, domain.simulation.data.ActivityId>("planned activities")
 
-    mutableRepositoryScope<CTXT, MutablePlannedActivity, ActivityId>(
+    mutableRepositoryScope<CTXT, MutablePlannedActivity, domain.simulation.data.ActivityId>(
         { plannedActivities },
         sealed = true,
     ) {
         scope()
     }
 
-    val activitiesById: Map<PersonId, List<PlannedActivity>> =
+    val activitiesById: Map<domain.simulation.data.person.PersonId, List<domain.simulation.data.PlannedActivity>> =
         plannedActivities.elements.groupBy { it.person }
 
-    updateEachStep<CTXT, P, PersonId>(
+    updateEachStep<CTXT, P, domain.simulation.data.person.PersonId>(
         name = "assign planned activites to persons",
         dependentRepositories = setOf(plannedActivities),
     ) {
@@ -112,9 +112,9 @@ val oneMinuteGapFix: (Activity, LinkedActivity) -> Unit = { prev, broken ->
  * @param repository The mutable repository of planned activities to populate. Provided via context.
  * @param resource The resource (e.g., CSV) to load activities from.
  */
-context(repository: MutableRepository<MutablePlannedActivity, ActivityId>)
+context(repository: MutableRepository<MutablePlannedActivity, domain.simulation.data.ActivityId>)
 fun <C> C.loadActivities(resource: Resource<MutablePlannedActivity>) where C : Context =
-    addResourceStep<C, MutablePlannedActivity, ActivityId>(
+    addResourceStep<C, MutablePlannedActivity, domain.simulation.data.ActivityId>(
         name = "load planned activities from ${resource.name}",
         resource = resource,
     )
@@ -126,7 +126,7 @@ fun <C> C.loadActivities(resource: Resource<MutablePlannedActivity>) where C : C
  * @param C The context type. Must implement [Context] and [HasPersonRepo] for [P].
  * @param CFG The configuration type. Must implement [SourceFilesConfig], [UnitConfig],
  *            and [ActivityTypesConfig].
- * @param P The person type. Must implement [StochasticActor] and [Identifiable] for [PersonId].
+ * @param P The person type. Must implement [StochasticActor] and [Identifiable] for [domain.simulation.data.person.PersonId].
  * @param config The configuration. Provided via context.
  * @param parser The CSV parser for planned activities. Defaults to [plannedActivityCsvParser].
  * @param path The path to the activity CSV file. Defaults to [config.sourceFiles.activityCSV].
@@ -147,7 +147,7 @@ fun <C, CFG, P> C.plannedActivityCsv(
           CFG : ActivityTypesConfig,
           C : HasPersonRepo<*, P>,
           P : StochasticActor,
-          P : Identifiable<PersonId> =
+          P : Identifiable<domain.simulation.data.person.PersonId> =
     CsvResource(
         path,
         parser,
@@ -164,24 +164,24 @@ fun <C, CFG, P> C.plannedActivityCsv(
  * @receiver The simulation context [C].
  * @param C The context type. Must implement [Context] and [HasPersonRepo] for [P].
  * @param CFG The configuration type. Must implement [ActivityTypesConfig] and [UnitConfig].
- * @param P The person type. Must implement [StochasticActor] and [Identifiable] for [PersonId].
+ * @param P The person type. Must implement [StochasticActor] and [Identifiable] for [domain.simulation.data.person.PersonId].
  * @param config The configuration. Provided via context.
- * @param customizeCsvConfig Lambda to customize the [ActivityCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.ActivityCsvConfig].
  * @return A [CsvParser] for [MutablePlannedActivity].
  */
 context(config: CFG)
 fun <C, CFG, P> C.plannedActivityCsvParser(
-    customizeCsvConfig: ActivityCsvConfig<P>.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.ActivityCsvConfig<P>.() -> Unit = {},
 ): CsvParser<MutablePlannedActivity>
     where C : Context,
           CFG : ActivityTypesConfig,
           CFG : UnitConfig,
           C : HasPersonRepo<*, P>,
           P : StochasticActor,
-          P : Identifiable<PersonId> =
-    createActivityCsvParser(
-        ActivityCsvConfig(
-            columns = ActivitiesColumns(),
+          P : Identifiable<domain.simulation.data.person.PersonId> =
+    _root_ide_package_.domain.simulation.parser.createActivityCsvParser(
+        _root_ide_package_.domain.simulation.parser.ActivityCsvConfig(
+            columns = _root_ide_package_.domain.simulation.parser.ActivitiesColumns(),
             personExists = personRepository::contains,
             personProvider = personRepository::getValue,
             durationUnit = config.durationUnit,
@@ -208,10 +208,10 @@ fun <C, CFG> C.binaryPlannedActivityFormat(): BinaryCacheConfig<MutablePlannedAc
     where C : Context, CFG : SourceFilesConfig, CFG : ActivityTypesConfig =
     BinaryCacheConfig<MutablePlannedActivity>(
         cacheRootPath = config.cachePath,
-        binaryReader = BinaryActivityReader(
+        binaryReader = _root_ide_package_.domain.simulation.parser.binary.BinaryActivityReader(
             codeActivity = config.activityTypes,
 //            personConverter = converter,
             contextSimulationSeed = config.seed,
         ),
-        binaryWriter = BinaryActivityWriter(),
+        binaryWriter = _root_ide_package_.domain.simulation.parser.binary.BinaryActivityWriter(),
     )
