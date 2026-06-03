@@ -3,7 +3,6 @@ package domain.synthesis.parser.binary
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.ZonedRoadAccessLocationRecord
-import domain.shared.location.toRecord
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl

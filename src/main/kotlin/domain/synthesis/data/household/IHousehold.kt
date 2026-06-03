@@ -1,7 +1,6 @@
 package domain.synthesis.data.household
 
 import domain.shared.location.StandardLocation
-import domain.shared.location.toRecord
 import domain.synthesis.data.HasStandardLocation
 import domain.synthesis.data.car.IPrivateCar
 import domain.synthesis.data.person.IPerson

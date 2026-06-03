@@ -1,6 +1,5 @@
 package domain.synthesis.results.legacy
 
-import domain.shared.location.toRecord
 import domain.synthesis.results.CSVOutput
 import domain.synthesis.results.FixedDestinationElements
 

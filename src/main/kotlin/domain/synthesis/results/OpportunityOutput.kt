@@ -4,7 +4,6 @@ import domain.shared.behavior.Attractiveness
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZonedRoadAccessLocationRecord
-import domain.shared.location.toRecord
 
 data class OpportunityOutput constructor(
     val location: ZonedRoadAccessLocationRecord,

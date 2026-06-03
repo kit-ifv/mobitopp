@@ -1,6 +1,5 @@
 package domain.synthesis.results.legacy
 
-import domain.shared.location.toRecord
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import domain.synthesis.results.CSVOutput
