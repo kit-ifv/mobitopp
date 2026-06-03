@@ -1,4 +1,4 @@
-package domain.simulation.data.car
+package domain.shared.car
 
 import domain.jackson.CarBinaryRecord
 import domain.jackson.Simplifiable

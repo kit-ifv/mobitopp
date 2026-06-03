@@ -1,8 +1,8 @@
 package domain.synthesis.behavior.cars.generation
 
-import domain.simulation.data.car.Car
-import domain.simulation.data.car.CarSegment
-import domain.simulation.data.car.engine.EngineType
+import domain.shared.car.Car
+import domain.shared.car.CarSegment
+import domain.shared.car.engine.EngineType
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.cars.CarImpl
 

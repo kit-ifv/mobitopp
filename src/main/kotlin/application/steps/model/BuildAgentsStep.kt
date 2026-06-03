@@ -54,7 +54,7 @@ fun gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
  *   - [HasPersonRepo] for [domain.simulation.data.person.Person]
  *   - [HasZoneRepo] for [Zone]
  *   - [HasHouseholdRepo] for [domain.simulation.data.household.Household]
- *   - [HasCarRepo] for [domain.simulation.data.car.PrivateCar]
+ *   - [HasCarRepo] for [PrivateCar]
  *   - [HasSharingProviderRepo] for [domain.simulation.data.SharingProvider]
  *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
  *   - [HasPersonAgentRepo] for [PersonAgent]

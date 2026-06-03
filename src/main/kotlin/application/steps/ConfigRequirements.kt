@@ -2,6 +2,7 @@ package application.steps
 
 import application.config.subconfigs.BaseCSVFiles
 import core.modelsteps.Config
+import domain.shared.car.CarSegment
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
@@ -75,7 +76,7 @@ interface HouseholdCodesConfig : Config {
 }
 
 interface CarCodesConfig : Config {
-    val carSegmentCodes: CodePlan<domain.simulation.data.car.CarSegment>
+    val carSegmentCodes: CodePlan<CarSegment>
 }
 
 interface ActivityTypesConfig : Config {

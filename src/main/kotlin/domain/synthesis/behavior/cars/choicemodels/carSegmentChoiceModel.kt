@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.shared.car.CarSegment
 import domain.shared.enums.person.Sex
-import domain.simulation.data.car.CarSegment
 import domain.synthesis.behavior.cars.choicemodels.parameters.CarSegmentParameters
 import domain.synthesis.behavior.cars.choicemodels.parameters.SimplifiedParameters
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times

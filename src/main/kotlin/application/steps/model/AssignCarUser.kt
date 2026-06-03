@@ -3,8 +3,8 @@ package application.steps.model
 import application.steps.HasPersonRepo
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.transformEachStep
+import domain.shared.car.CarId
 import domain.simulation.cars.AssignCarUserModel
-import domain.simulation.data.car.CarId
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.person.Person
 

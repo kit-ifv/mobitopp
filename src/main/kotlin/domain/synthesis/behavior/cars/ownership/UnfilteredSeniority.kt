@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.cars.ownership
 
-import domain.simulation.data.car.Car
+import domain.shared.car.Car
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes

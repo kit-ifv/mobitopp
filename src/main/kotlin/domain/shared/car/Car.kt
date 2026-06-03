@@ -1,6 +1,6 @@
-package domain.simulation.data.car
+package domain.shared.car
 
-import domain.simulation.data.car.engine.CarEngine
+import domain.shared.car.engine.CarEngine
 import utils.Identifiable
 
 /**

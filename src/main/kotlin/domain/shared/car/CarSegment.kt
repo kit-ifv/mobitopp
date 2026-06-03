@@ -1,4 +1,4 @@
-package domain.simulation.data.car
+package domain.shared.car
 
 import utils.Encodable
 import utils.EnumDecodable

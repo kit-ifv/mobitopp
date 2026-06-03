@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.cars.choicemodels
 
-import domain.simulation.data.car.engine.EngineType
+import domain.shared.car.engine.EngineType
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes

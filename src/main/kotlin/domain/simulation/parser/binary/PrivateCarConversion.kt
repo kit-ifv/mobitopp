@@ -1,12 +1,12 @@
 package domain.simulation.parser.binary
 
-import domain.simulation.data.car.CarId
-import domain.simulation.data.car.CarSegment
+import domain.shared.car.CarId
+import domain.shared.car.CarSegment
+import domain.shared.car.engine.CarEngineStatistics
+import domain.shared.car.engine.EngineType
+import domain.shared.car.engine.buildEngine
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
-import domain.simulation.data.car.engine.CarEngineStatistics
-import domain.simulation.data.car.engine.EngineType
-import domain.simulation.data.car.engine.buildEngine
 import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.Person

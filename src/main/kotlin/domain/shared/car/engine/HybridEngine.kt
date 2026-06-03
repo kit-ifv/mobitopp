@@ -1,4 +1,4 @@
-package domain.simulation.data.car.engine
+package domain.shared.car.engine
 
 import edu.kit.ifv.units.Distance
 

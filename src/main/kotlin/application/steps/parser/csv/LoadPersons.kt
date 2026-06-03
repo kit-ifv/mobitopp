@@ -17,9 +17,16 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.person.Employment
 import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
+import domain.simulation.data.DrtProvider
+import domain.simulation.data.SharingProvider
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.PersonId
+import domain.simulation.parser.PersonColumns
+import domain.simulation.parser.PersonCsvConfig
+import domain.simulation.parser.binary.BinaryPersonReader
+import domain.simulation.parser.binary.BinaryPersonWriter
+import domain.simulation.parser.createPersonCsvParser
 import utils.csv.CsvParser
 import java.nio.file.Path
 
@@ -126,18 +133,18 @@ fun <C, CFG> C.personCsv(
 context(config: CFG)
 fun <C, CFG> C.binaryPersonFormat(): BinaryCacheConfig<MutablePerson>
     where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-          C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>, C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider>,
+          C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
           CFG : SourceFilesConfig =
     BinaryCacheConfig<MutablePerson>(
         cacheRootPath = config.cachePath,
-        binaryReader = _root_ide_package_.domain.simulation.parser.binary.BinaryPersonReader(
+        binaryReader = BinaryPersonReader(
             converter = this::getMutableHousehold,
             sharingConverter = this::getSharingProvider,
             drtConverter = this::getDrtProvider,
             contextSimulationSeed = config.seed,
         ),
 
-        binaryWriter = _root_ide_package_.domain.simulation.parser.binary.BinaryPersonWriter(),
+        binaryWriter = BinaryPersonWriter(),
     )
 
 /**
@@ -147,23 +154,23 @@ fun <C, CFG> C.binaryPersonFormat(): BinaryCacheConfig<MutablePerson>
  * @param C The context type. Must implement:
  *   - [HasPersonRepo] for [MutablePerson]
  *   - [HasHouseholdRepo] for [MutableHousehold]
- *   - [HasSharingProviderRepo] for [domain.simulation.data.SharingProvider]
- *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
  * @param CFG The configuration type. Must implement [UnitConfig].
  * @param config The configuration. Provided via context.
- * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.PersonCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [PersonCsvConfig].
  * @return A [CsvParser] for [MutablePerson].
  */
 context(config: CFG)
 fun <C, CFG> C.personCsvParser(
-    customizeCsvConfig: domain.simulation.parser.PersonCsvConfig.() -> Unit = {},
+    customizeCsvConfig: PersonCsvConfig.() -> Unit = {},
 ): CsvParser<MutablePerson>
     where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-          C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>, C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider>,
+          C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
           CFG : UnitConfig =
-    _root_ide_package_.domain.simulation.parser.createPersonCsvParser(
-        _root_ide_package_.domain.simulation.parser.PersonCsvConfig(
-            columns = _root_ide_package_.domain.simulation.parser.PersonColumns(),
+    createPersonCsvParser(
+        PersonCsvConfig(
+            columns = PersonColumns(),
             employmentCodes = Employment,
             graduationCodes = Graduation,
             sexCodes = Sex,

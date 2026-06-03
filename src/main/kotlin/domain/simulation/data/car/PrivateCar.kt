@@ -1,6 +1,8 @@
 package domain.simulation.data.car
 
 import Mutable
+import domain.shared.car.CarId
+import domain.shared.car.IPrivateCar
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.Person
 

@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.shared.car.CarSegment
 import domain.shared.enums.person.Sex
-import domain.simulation.data.car.CarSegment
 import domain.synthesis.attributes.household.HasIncome
 import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes

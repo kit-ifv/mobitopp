@@ -28,6 +28,7 @@ class BandwidthLocator<T>(
     var parameters: BandwidthParameters = BandwidthParameters(),
     var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> =
         standardBandwidthChoiceModel.build(parameters),
+    @Suppress("MagicNumber")
     private val randomSource: () -> Random = { Random(42) },
 ) : SimpleLocator<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
     private val locationTree = LocationKDTree(potentialLocations)

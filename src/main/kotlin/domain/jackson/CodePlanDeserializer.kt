@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import domain.shared.car.CarSegment
+import domain.shared.car.engine.EngineType
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
@@ -19,8 +21,6 @@ import domain.shared.enums.household.EconomicStatus
 import domain.shared.enums.person.Employment
 import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
-import domain.simulation.data.car.CarSegment
-import domain.simulation.data.car.engine.EngineType
 import utils.CodePlan
 import utils.Encodable
 import utils.collections.invertMap

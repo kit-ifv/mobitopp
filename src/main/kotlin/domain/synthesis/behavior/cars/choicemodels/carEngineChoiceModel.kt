@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.shared.car.engine.EngineType
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
-import domain.simulation.data.car.engine.EngineType
 import domain.synthesis.behavior.cars.choicemodels.parameters.EngineParameters
 import domain.synthesis.behavior.cars.choicemodels.parameters.EngineSpecificParameters
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times

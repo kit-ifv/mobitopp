@@ -12,9 +12,9 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.simulation.data.car.CarId
+import domain.shared.car.CarId
+import domain.shared.car.engine.CarEngineStatistics
 import domain.simulation.data.car.MutablePrivateCar
-import domain.simulation.data.car.engine.CarEngineStatistics
 import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson

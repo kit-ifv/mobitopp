@@ -16,6 +16,7 @@ import core.modelsteps.steps.forAllStep
 import core.modelsteps.steps.loadBinary
 import core.modelsteps.steps.writeBinary
 import core.modelsteps.validation.validateFileReadAccess
+import domain.shared.car.CarId
 import domain.shared.location.parser.BinaryZoneReader
 import domain.shared.location.parser.BinaryZoneWriter
 import domain.shared.location.zone.MaximalZone
@@ -26,7 +27,6 @@ import domain.simulation.data.ActivityId
 import domain.simulation.data.DrtProvider
 import domain.simulation.data.MutablePlannedActivity
 import domain.simulation.data.SharingProvider
-import domain.simulation.data.car.CarId
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.household.Household

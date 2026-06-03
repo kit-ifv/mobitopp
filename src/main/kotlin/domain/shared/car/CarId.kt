@@ -1,4 +1,4 @@
-package domain.simulation.data.car
+package domain.shared.car
 
 import kotlinx.serialization.Serializable
 
