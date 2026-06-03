@@ -11,7 +11,6 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.simulation.data.person.PersonId
 import utils.Identifiable
 import utils.binary.BinaryReader
 import utils.binary.BinaryWriter

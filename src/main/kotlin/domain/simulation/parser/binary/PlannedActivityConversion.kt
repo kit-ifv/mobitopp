@@ -1,10 +1,10 @@
 package domain.simulation.parser.binary
 
 import domain.shared.enums.ActivityType
-import domain.synthesis.data.ActivityId
-import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.PlannedActivity
-import domain.synthesis.data.person.PersonId
+import domain.simulation.data.ActivityId
+import domain.simulation.data.MutablePlannedActivity
+import domain.simulation.data.PlannedActivity
+import domain.simulation.data.person.PersonId
 import utils.CodePlan
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter
@@ -36,7 +36,7 @@ class BinaryActivityReader(
         val startTime = long.toDuration(DurationUnit.MINUTES).sinceStart
         val duration = int.toDuration(DurationUnit.MINUTES)
         val activityType = codeActivity.decode(int)
-        return person?.let {
+        return person.let {
             MutablePlannedActivity(id, person, contextSimulationSeed).apply {
                 this.observedTripDuration = observedTripDuration
                 this.startTime = startTime
@@ -50,18 +50,4 @@ class BinaryActivityReader(
 /**
  * Writes a planned activity to a binary file.
  */
-class BinaryActivityWriter : DefaultBinaryWriter<PlannedActivity>() {
-
-//    override fun operateStream(outStream: DataOutputStream, elements: Collection<PlannedActivity>) {
-//        elements.forEach { outStream.encodeActivity(it) } // Write activities
-//    }
-//
-//    private fun DataOutputStream.encodeActivity(act: PlannedActivity) {
-//        writeLong(act.id.value)
-//        writeLong(act.person.id.value)
-//        writeInt(act.observedTripDuration.toInt(DurationUnit.MINUTES))
-//        writeLong(act.startTime.minutesSinceStart)
-//        writeInt(act.duration.toInt(DurationUnit.MINUTES))
-//        writeInt(act.activityType.code)
-//    }
-}
+class BinaryActivityWriter : DefaultBinaryWriter<PlannedActivity>()

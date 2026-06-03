@@ -1,5 +1,6 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.shared.enums.household.EconomicStatus
 import domain.synthesis.attributes.household.HasEconomicStatus
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.employment
@@ -7,7 +8,6 @@ import domain.synthesis.attributes.person.hasLicence
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.cars.ownership.DefaultEmploymentSorter
 import domain.synthesis.behavior.cars.ownership.EmploymentSorter
-import domain.synthesis.data.household.EconomicStatus
 import kotlin.random.Random
 
 /**

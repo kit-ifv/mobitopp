@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.economicstatus
 
+import domain.shared.enums.household.EconomicStatus
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.data.household.EconomicStatus
 
 /**
  * Assign an economic status to a household

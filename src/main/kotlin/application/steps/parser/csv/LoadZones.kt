@@ -13,13 +13,13 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.location.PointAndRoadPositionParser
-import domain.shared.location.zone.MaximalZone
-import domain.shared.location.zone.ZoneId
-import domain.shared.location.parser.ZoneColumns
-import domain.shared.location.parser.ZoneCsvConfig
 import domain.shared.location.parser.BinaryZoneReader
 import domain.shared.location.parser.BinaryZoneWriter
+import domain.shared.location.parser.ZoneColumns
+import domain.shared.location.parser.ZoneCsvConfig
 import domain.shared.location.parser.createZoneCsvParser
+import domain.shared.location.zone.MaximalZone
+import domain.shared.location.zone.ZoneId
 import utils.csv.CsvParser
 import java.nio.file.Path
 

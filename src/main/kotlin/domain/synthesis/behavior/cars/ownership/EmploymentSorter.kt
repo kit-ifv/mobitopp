@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.cars.ownership
 
-import domain.synthesis.data.person.Employment
+import domain.shared.enums.person.Employment
 
 /**
  * This interface provides an interaction point to define different behaviours to determine whether a person is considered

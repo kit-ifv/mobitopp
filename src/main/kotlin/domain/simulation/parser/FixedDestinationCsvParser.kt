@@ -6,8 +6,8 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.ActivityLocation
-import domain.synthesis.data.person.PersonId
+import domain.simulation.data.ActivityLocation
+import domain.simulation.data.person.PersonId
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser

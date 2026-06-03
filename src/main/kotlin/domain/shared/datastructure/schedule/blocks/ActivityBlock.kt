@@ -9,9 +9,7 @@ import domain.shared.datastructure.schedule.action.LinkedActivity
 import domain.shared.datastructure.schedule.action.MovingAction
 import domain.shared.datastructure.schedule.action.StationaryAction
 import domain.shared.datastructure.schedule.plans.IDispatcher
-import java.util.NavigableSet
-import java.util.SortedSet
-import java.util.TreeSet
+import java.util.*
 
 /** An [ActivityBlock] is an instantiation of an [ActionBlock] holding a set of [domain.shared.datastructure.schedule.action.Activity]. It also holds a reference
  * to the preceding and succeeding [LinkedTrip], if they exist.

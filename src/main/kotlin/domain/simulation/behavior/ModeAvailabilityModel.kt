@@ -14,11 +14,11 @@ import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.agent.getBestCarOrNull
 import domain.simulation.agent.lastTransportMode
-import domain.synthesis.data.DrtProviderId
-import domain.synthesis.data.SharingProviderId
-import domain.synthesis.data.person.IPerson
-import domain.synthesis.data.person.drtMembershipIds
-import domain.synthesis.data.person.sharingMembershipIds
+import domain.simulation.data.DrtProviderId
+import domain.simulation.data.SharingProviderId
+import domain.simulation.data.person.IPerson
+import domain.simulation.data.person.drtMembershipIds
+import domain.simulation.data.person.sharingMembershipIds
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import utils.units.AbsoluteTime
 import kotlin.random.Random

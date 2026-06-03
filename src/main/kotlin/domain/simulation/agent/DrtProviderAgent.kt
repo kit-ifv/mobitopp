@@ -8,7 +8,7 @@ import domain.shared.location.Impedance
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasZoneId
-import domain.synthesis.data.DrtProvider
+import domain.simulation.data.DrtProvider
 import edu.kit.ifv.units.Currency
 import utils.units.AbsoluteTime
 import utils.units.max

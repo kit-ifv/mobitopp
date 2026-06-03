@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.cars.ownership
 
-import domain.synthesis.data.person.Employment
+import domain.shared.enums.person.Employment
 
 /**
  * The standard instantiation for an [EmploymentSorter]. Note that there is a keyword "object" instead of "class".

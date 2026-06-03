@@ -1,7 +1,6 @@
 package domain.simulation.data.car
 
-import domain.synthesis.data.car.CarId
-import domain.synthesis.data.car.engine.CarEngine
+import domain.simulation.data.car.engine.CarEngine
 import utils.Identifiable
 
 /**

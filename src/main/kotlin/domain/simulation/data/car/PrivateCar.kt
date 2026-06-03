@@ -1,8 +1,8 @@
 package domain.simulation.data.car
 
 import Mutable
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.Person
+import domain.simulation.data.household.MutableHousehold
+import domain.simulation.data.person.Person
 
 /**
  * A vehicle that is assigned to a specific household or user

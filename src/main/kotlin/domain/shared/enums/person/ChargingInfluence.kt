@@ -1,4 +1,4 @@
-package domain.simulation.data.person
+package domain.shared.enums.person
 
 import utils.Encodable
 import utils.EnumDecodable

@@ -2,13 +2,13 @@ package domain.simulation.agent
 
 import Mutable
 import domain.shared.enums.Mode
-import domain.synthesis.data.ISharingProvider
-import domain.synthesis.data.ISharingStation
-import domain.synthesis.data.SharingProviderId
-import domain.synthesis.data.SharingStationId
+import domain.simulation.data.ISharingProvider
+import domain.simulation.data.ISharingStation
+import domain.simulation.data.SharingProviderId
+import domain.simulation.data.SharingStationId
 import kotlinx.serialization.Serializable
 import utils.Identifiable
-import java.util.Collections
+import java.util.*
 
 @Mutable
 abstract class SharingProviderAgent(

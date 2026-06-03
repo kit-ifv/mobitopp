@@ -1,7 +1,7 @@
 package domain.synthesis.attributes.person
 
+import domain.shared.enums.person.Employment
 import domain.synthesis.behavior.MinimalistPerson
-import domain.synthesis.data.person.Employment
 
 val MinimalistPerson<HasLicence>.hasLicence get() = attributes.hasLicence
 val MinimalistPerson<HasEmployment>.employment get() = attributes.employment

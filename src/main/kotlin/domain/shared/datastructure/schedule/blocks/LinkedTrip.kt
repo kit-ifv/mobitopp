@@ -10,9 +10,7 @@ import domain.shared.datastructure.schedule.action.MovingAction
 import domain.shared.datastructure.schedule.action.StationaryAction
 import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.location.StandardLocation
-import java.util.NavigableSet
-import java.util.SortedSet
-import java.util.TreeSet
+import java.util.*
 
 class LinkedTrip(start: Collection<LinkedLeg>, override var previous: ActivityBlock, override var next: ActivityBlock) :
     ActionBlock<LinkedLeg>(),

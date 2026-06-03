@@ -1,7 +1,7 @@
 package domain.shared.datastructure.matrix.yaml
 
 import java.time.DayOfWeek
-import java.util.Locale
+import java.util.*
 
 enum class DayIdentifier {
     Monday,

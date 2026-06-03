@@ -1,12 +1,12 @@
 package domain.synthesis.behavior.cars.choicemodels
 
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Sex
 import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.Distance
 
 data class EngineAlternative(

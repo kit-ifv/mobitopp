@@ -14,20 +14,12 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.simulation.data.DrtProvider
-import domain.simulation.data.SharingProvider
-import domain.synthesis.data.household.MutableHousehold
-import domain.simulation.data.person.Employment
-import domain.simulation.data.person.Graduation
-import domain.synthesis.data.person.MutablePerson
-import domain.simulation.data.person.Person
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Graduation
+import domain.shared.enums.person.Sex
+import domain.simulation.data.household.MutableHousehold
+import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.PersonId
-import domain.simulation.data.person.Sex
-import domain.simulation.parser.PersonColumns
-import domain.simulation.parser.PersonCsvConfig
-import domain.simulation.parser.binary.BinaryPersonReader
-import domain.simulation.parser.binary.BinaryPersonWriter
-import domain.simulation.parser.createPersonCsvParser
 import utils.csv.CsvParser
 import java.nio.file.Path
 
@@ -45,11 +37,12 @@ import java.nio.file.Path
 fun <C> C.persons(
     sealed: Boolean = false,
     scope: context(MutableRepository<MutablePerson, domain.simulation.data.person.PersonId>) C.() -> Unit,
-) where C : HasPersonRepo<MutablePerson, domain.simulation.data.person.Person> = mutableRepositoryScope<C, MutablePerson, domain.simulation.data.person.PersonId>(
-    getter = { mutablePersonRepository },
-    sealed = sealed,
-    scope,
-)
+) where C : HasPersonRepo<MutablePerson, domain.simulation.data.person.Person> =
+    mutableRepositoryScope<C, MutablePerson, domain.simulation.data.person.PersonId>(
+        getter = { mutablePersonRepository },
+        sealed = sealed,
+        scope,
+    )
 
 /**
  * Loads persons from a resource.
@@ -74,8 +67,9 @@ fun <C> C.loadPersons(
         drtProviderRepository,
     ),
 ) where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-        C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>, C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider> =
-    addResourceStep<C, MutablePerson, domain.simulation.data.person.PersonId>(
+        C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>,
+        C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider> =
+    addResourceStep<C, MutablePerson, PersonId>(
         name = "load persons from ${resource.name}",
         resource = resource,
         dependentRepositories = dependentRepositories,
@@ -106,7 +100,8 @@ fun <C, CFG> C.personCsv(
     binaryCache: BinaryCacheConfig<MutablePerson>? = binaryPersonFormat(),
 ): Resource<MutablePerson>
     where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-          C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>, C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider>,
+          C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>,
+          C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider>,
           CFG : UnitConfig, CFG : SourceFilesConfig =
     // TODO config as required upper bound type in context
     CsvResource(path, parser, delimiter).let { csv ->
@@ -169,9 +164,9 @@ fun <C, CFG> C.personCsvParser(
     _root_ide_package_.domain.simulation.parser.createPersonCsvParser(
         _root_ide_package_.domain.simulation.parser.PersonCsvConfig(
             columns = _root_ide_package_.domain.simulation.parser.PersonColumns(),
-            employmentCodes = _root_ide_package_.domain.simulation.data.person.Employment,
-            graduationCodes = _root_ide_package_.domain.simulation.data.person.Graduation,
-            sexCodes = _root_ide_package_.domain.simulation.data.person.Sex,
+            employmentCodes = Employment,
+            graduationCodes = Graduation,
+            sexCodes = Sex,
             sharingProvidersByName = {
                 sharingProviderRepository.elements.toList().associateBy { it.name }
             }, // TODO check if lazy still necessary

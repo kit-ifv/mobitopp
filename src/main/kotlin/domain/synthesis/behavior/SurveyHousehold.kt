@@ -1,8 +1,8 @@
 package domain.synthesis.behavior
 
+import domain.shared.enums.household.EconomicStatus
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.data.household.EconomicStatus
 
 class SurveyHousehold<out HouseholdInfo : MinimumHouseholdAttributes, out PersonInfo : MinimumPersonAttributes>(
     override val surveyHouseholdId: Long,

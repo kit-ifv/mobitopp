@@ -1,6 +1,6 @@
 package domain.simulation.data.person
 
-import domain.synthesis.data.household.HouseholdId
+import domain.simulation.data.household.HouseholdId
 import utils.Identifiable
 
 interface HasHousehold<H : Identifiable<HouseholdId>> {

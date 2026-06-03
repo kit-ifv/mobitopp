@@ -21,16 +21,8 @@ import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.MutableSharingProvider
+import domain.simulation.data.MutableSharingProvider
 import domain.simulation.data.SharingProviderId
-import domain.simulation.parser.GetZone
-import domain.simulation.parser.GlobalSharingProviderIdCounter
-import domain.simulation.parser.GlobalSharingStationIdCounter
-import domain.simulation.parser.SharingProviderByStationCsvColumns
-import domain.simulation.parser.SharingProviderByStationCsvConfig
-import domain.simulation.parser.allDay
-import domain.simulation.parser.onlySameZoneByFoot
-import domain.simulation.parser.sharingProviderStationParser
 import edu.kit.ifv.units.Distance
 import utils.csv.CsvParser
 import utils.csv.Row
@@ -47,9 +39,9 @@ import java.nio.file.Path
  */
 fun <C> C.sharingProviders(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableSharingProvider, domain.simulation.data.SharingProviderId>) C.() -> Unit,
+    scope: context(MutableRepository<MutableSharingProvider, SharingProviderId>) C.() -> Unit,
 ) where C : HasZoneRepo<*, Zone<*>>, C : HasSharingProviderRepo<MutableSharingProvider, *> =
-    mutableRepositoryScope<C, MutableSharingProvider, domain.simulation.data.SharingProviderId>(
+    mutableRepositoryScope<C, MutableSharingProvider, SharingProviderId>(
         getter = { mutableSharingProviderRepository },
         sealed = sealed,
         scope,
@@ -64,11 +56,11 @@ fun <C> C.sharingProviders(
  * @param resource The resource (e.g., CSV) to load sharing providers from.
  * @param dependentRepositories Repositories that this loading step depends on. Defaults to [zoneRepository].
  */
-context(repository: MutableRepository<MutableSharingProvider, domain.simulation.data.SharingProviderId>)
+context(repository: MutableRepository<MutableSharingProvider, SharingProviderId>)
 fun <C> C.loadSharingProviders(
     resource: Resource<MutableSharingProvider>,
     dependentRepositories: Set<Repository<*, *>> = setOf(zoneRepository),
-) where C : HasZoneRepo<*, Zone<*>> = addResourceStep<C, MutableSharingProvider, domain.simulation.data.SharingProviderId>(
+) where C : HasZoneRepo<*, Zone<*>> = addResourceStep<C, MutableSharingProvider, SharingProviderId>(
     name = "load sharing providers from ${resource.name}",
     resource = resource,
     dependentRepositories = dependentRepositories,

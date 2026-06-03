@@ -1,11 +1,15 @@
 package domain.simulation.data.person
 
 import domain.jackson.Simplifiable
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderId
-import domain.synthesis.data.ISharingProvider
-import domain.synthesis.data.SharingProviderId
-import domain.synthesis.data.household.IHousehold
+import domain.shared.enums.person.ChargingInfluence
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Graduation
+import domain.shared.enums.person.Sex
+import domain.simulation.data.DrtProvider
+import domain.simulation.data.DrtProviderId
+import domain.simulation.data.ISharingProvider
+import domain.simulation.data.SharingProviderId
+import domain.simulation.data.household.IHousehold
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.UnitIntervalValue

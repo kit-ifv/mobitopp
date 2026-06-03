@@ -15,16 +15,16 @@ import domain.shared.enums.MainModes
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.synthesis.data.car.CarSegment
-import domain.synthesis.data.car.engine.EngineType
-import domain.synthesis.data.household.EconomicStatus
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Graduation
-import domain.synthesis.data.person.Sex
+import domain.shared.enums.household.EconomicStatus
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Graduation
+import domain.shared.enums.person.Sex
+import domain.simulation.data.car.CarSegment
+import domain.simulation.data.car.engine.EngineType
 import utils.CodePlan
 import utils.Encodable
 import utils.collections.invertMap
-import java.util.ServiceLoader
+import java.util.*
 
 class CoreCodePlanModule : SimpleModule("CoreCodePlanModule") {
     init {

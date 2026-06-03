@@ -1,11 +1,11 @@
 package domain.synthesis.behavior.cars.generation
 
+import domain.simulation.data.car.Car
+import domain.simulation.data.car.CarSegment
+import domain.simulation.data.car.engine.EngineType
 import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.cars.CarImpl
-import domain.synthesis.data.car.Car
-import domain.synthesis.data.car.CarSegment
-import domain.synthesis.data.car.engine.EngineType
 
 object InfoBasedCarGeneration : GenerateCars<HasNumberOfCars, Any?> {
     override fun generate(householdBuilder: MinimalistHousehold<HasNumberOfCars, *>): List<Car> =

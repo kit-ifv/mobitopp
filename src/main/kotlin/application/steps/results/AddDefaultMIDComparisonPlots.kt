@@ -17,9 +17,9 @@ import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.areatype.RegioStaR7
+import domain.shared.enums.person.Employment
 import domain.simulation.agent.PersonAgent
 import domain.simulation.data.household.Household
-import domain.simulation.data.person.Employment
 import domain.simulation.data.person.IPerson
 import domain.simulation.data.person.sharingMembershipIds
 import java.nio.file.Path
@@ -34,11 +34,14 @@ fun <C> C.addDefaultMIDComparisonPlots(
     choiceModelPurposes: ChoiceModelPurposes,
     defaultPurpose: ActivityType,
     choiceModelModes: ChoiceModelModes,
-) where C : Context, C : HasImpedance, C : HasPersonAgentRepo<*, PersonAgent>, C : HasHouseholdRepo<*, domain.simulation.data.household.Household> {
+) where C : Context,
+        C : HasImpedance,
+        C : HasPersonAgentRepo<*, PersonAgent>,
+        C : HasHouseholdRepo<*, Household> {
     fun <G> midPlotForPerson(
-        personFilter: (domain.simulation.data.person.IPerson) -> Boolean = { true },
+        personFilter: (IPerson) -> Boolean = { true },
         rowFilter: (MidPersonRow) -> Boolean = { true },
-        personGroup: (domain.simulation.data.person.IPerson) -> G,
+        personGroup: (IPerson) -> G,
         midGroup: (MidPersonRow) -> G,
         normalize: Boolean = true,
     ) = midComparisonPlotForPerson(

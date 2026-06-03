@@ -3,10 +3,10 @@ package domain.simulation.parser
 import domain.shared.enums.ActivityType
 import domain.simulation.behavior.ActivityStartShifter
 import domain.simulation.behavior.QuarterHourShifter
-import domain.synthesis.data.ActivityBinaryRecord
-import domain.synthesis.data.ActivityId
-import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.person.PersonId
+import domain.simulation.data.ActivityBinaryRecord
+import domain.simulation.data.ActivityId
+import domain.simulation.data.MutablePlannedActivity
+import domain.simulation.data.person.PersonId
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.Identifiable

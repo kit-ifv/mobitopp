@@ -18,12 +18,7 @@ import domain.shared.enums.Mode
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.DrtProviderId
-import domain.synthesis.data.MutableDrtProviderData
-import domain.simulation.parser.DrtProviderByAreaCsvColumns
-import domain.simulation.parser.DrtProviderByAreaCsvConfig
-import domain.simulation.parser.GlobalDrtProviderIdCounter
-import domain.simulation.parser.allDay
-import domain.simulation.parser.createDrtProvidersByAreaParser
+import domain.simulation.data.MutableDrtProviderData
 import utils.csv.CsvParser
 import java.nio.file.Path
 
@@ -40,7 +35,7 @@ fun <C> C.drtProviders(
     sealed: Boolean = false,
     scope: context(MutableRepository<MutableDrtProviderData, domain.simulation.data.DrtProviderId>) C.() -> Unit,
 ) where C : HasZoneRepo<*, Zone<*>>, C : HasDrtProviderRepo<MutableDrtProviderData, *> =
-    mutableRepositoryScope<C, MutableDrtProviderData, domain.simulation.data.DrtProviderId>(
+    mutableRepositoryScope<C, MutableDrtProviderData, DrtProviderId>(
         getter = { mutableDrtProviderRepository },
         sealed = sealed,
         scope,
@@ -55,11 +50,11 @@ fun <C> C.drtProviders(
  * @param resource The resource (e.g., CSV) to load DRT providers from.
  * @param dependentRepositories Repositories that this loading step depends on. Defaults to [zoneRepository].
  */
-context(repository: MutableRepository<MutableDrtProviderData, domain.simulation.data.DrtProviderId>)
+context(repository: MutableRepository<MutableDrtProviderData, DrtProviderId>)
 fun <C> C.loadDrtProviders(
     resource: Resource<MutableDrtProviderData>,
     dependentRepositories: Set<Repository<*, *>> = setOf(zoneRepository),
-) where C : HasZoneRepo<*, Zone<*>> = addResourceStep<C, MutableDrtProviderData, domain.simulation.data.DrtProviderId>(
+) where C : HasZoneRepo<*, Zone<*>> = addResourceStep<C, MutableDrtProviderData, DrtProviderId>(
     name = "load drt providers from ${resource.name}",
     resource = resource,
     dependentRepositories = dependentRepositories,

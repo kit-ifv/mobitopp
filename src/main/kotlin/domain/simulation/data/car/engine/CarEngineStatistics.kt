@@ -1,6 +1,6 @@
 package domain.simulation.data.car.engine
 
-import domain.synthesis.data.car.CarSegment
+import domain.simulation.data.car.CarSegment
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.Energy
 import edu.kit.ifv.units.Volume

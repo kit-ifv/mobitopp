@@ -1,5 +1,7 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.shared.enums.person.Sex
+import domain.simulation.data.car.CarSegment
 import domain.synthesis.attributes.household.HasIncome
 import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
@@ -7,8 +9,6 @@ import domain.synthesis.attributes.person.HasBiologicalSex
 import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.MinimalistPerson
-import domain.synthesis.data.car.CarSegment
-import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 

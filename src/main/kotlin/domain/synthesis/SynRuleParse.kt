@@ -1,16 +1,14 @@
 package domain.synthesis
 
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Sex
 import domain.synthesis.behavior.RawSurveyInfo
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.toCurrency
 import utils.csv.DefaultCsvParser
 import utils.csv.Row
 import java.nio.file.Path
-import kotlin.text.toDouble
-import kotlin.text.toInt
 
 fun String.toBooleanNumeric(): Boolean = when (this) {
     "1" -> true

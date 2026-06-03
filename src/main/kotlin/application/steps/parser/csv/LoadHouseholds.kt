@@ -21,12 +21,7 @@ import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.household.Household
 import domain.simulation.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
-import domain.simulation.parser.HouseholdColumns
-import domain.simulation.parser.HouseholdCsvConfig
-import domain.simulation.parser.binary.BinaryHouseholdReader
-import domain.simulation.parser.binary.BinaryHouseholdWriter
-import domain.simulation.parser.createHouseholdCsvParser
+import domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.units.UnitIntervalValue
 import utils.csv.CsvParser
 import java.nio.file.Path
@@ -42,8 +37,8 @@ import kotlin.math.roundToInt
  */
 fun <C> C.households(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutableHousehold, domain.simulation.data.household.HouseholdId>) C.() -> Unit,
-) where C : HasHouseholdRepo<MutableHousehold, domain.simulation.data.household.Household> = mutableRepositoryScope(
+    scope: context(MutableRepository<MutableHousehold, HouseholdId>) C.() -> Unit,
+) where C : HasHouseholdRepo<MutableHousehold, Household> = mutableRepositoryScope(
     getter = { mutableHouseholdRepository },
     sealed = sealed,
     scope = scope,
@@ -57,9 +52,9 @@ fun <C> C.households(
  * @param repository The mutable repository of households to populate. Provided via context.
  * @param resource The resource (e.g., CSV) to load households from.
  */
-context(repository: MutableRepository<MutableHousehold, domain.simulation.data.household.HouseholdId>)
+context(repository: MutableRepository<MutableHousehold, HouseholdId>)
 fun <C : Context> C.loadHouseholds(resource: Resource<MutableHousehold>) =
-    addResourceStep<C, MutableHousehold, domain.simulation.data.household.HouseholdId>(
+    addResourceStep<C, MutableHousehold, HouseholdId>(
         name = "load households from ${resource.name}",
         resource = resource,
     )
@@ -162,8 +157,8 @@ fun <C, CFG> C.householdCsvParser(
  * @param repository The mutable repository of households to filter. Provided via context.
  * @param valid The collection of household IDs to keep.
  */
-context(repository: MutableRepository<MutableHousehold, domain.simulation.data.household.HouseholdId>)
-fun <C : Context> C.filterHouseholds(valid: Collection<domain.simulation.data.household.HouseholdId>) =
+context(repository: MutableRepository<MutableHousehold, HouseholdId>)
+fun <C : Context> C.filterHouseholds(valid: Collection<HouseholdId>) =
     filterIdsStep("filter households by list of valid ids") {
         it in valid
     }
@@ -178,7 +173,10 @@ fun <C : Context> C.filterHouseholds(valid: Collection<domain.simulation.data.ho
  * @param fraction The fraction of households to keep. Defaults to [config.fractionOfPopulation].
  */
 @Suppress("MagicNumber")
-context(repository: MutableRepository<MutableHousehold, domain.simulation.data.household.HouseholdId>, config: SimulationConfig)
+context(
+    repository: MutableRepository<MutableHousehold, HouseholdId>,
+    config: SimulationConfig
+)
 fun <C : Context> C.filterFractionOfPopulation(fraction: UnitIntervalValue = config.fractionOfPopulation) {
     var counter = 0
     val acceptedIncrement = (1 / fraction.toDouble()).roundToInt()

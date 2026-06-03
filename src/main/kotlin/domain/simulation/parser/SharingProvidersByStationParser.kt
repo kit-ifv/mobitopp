@@ -9,10 +9,10 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.MutableSharingProvider
-import domain.synthesis.data.MutableSharingStation
-import domain.synthesis.data.SharingProviderId
-import domain.synthesis.data.SharingStationId
+import domain.simulation.data.MutableSharingProvider
+import domain.simulation.data.MutableSharingStation
+import domain.simulation.data.SharingProviderId
+import domain.simulation.data.SharingStationId
 import edu.kit.ifv.units.Distance
 import utils.ErrorHandling
 import utils.csv.CsvParser

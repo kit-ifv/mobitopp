@@ -1,7 +1,7 @@
 package domain.synthesis.attributes.household
 
+import domain.shared.enums.household.HouseholdType
 import domain.shared.location.StandardLocation
-import domain.synthesis.data.household.HouseholdType
 import edu.kit.ifv.units.Currency
 
 interface MinimumHouseholdAttributes :

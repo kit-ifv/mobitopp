@@ -1,13 +1,13 @@
 package domain.simulation.parser
 
+import domain.shared.enums.household.EconomicStatus
 import domain.shared.location.PointAndRoadPositionParser
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.household.EconomicStatus
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling

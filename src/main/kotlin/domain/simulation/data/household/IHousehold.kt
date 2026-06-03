@@ -1,11 +1,12 @@
 package domain.simulation.data.household
 
 import domain.jackson.Simplifiable
+import domain.shared.enums.household.EconomicStatus
 import domain.shared.location.StandardLocation
 import domain.shared.location.toDTO
-import domain.synthesis.data.HasStandardLocation
-import domain.synthesis.data.car.IPrivateCar
-import domain.synthesis.data.person.IPerson
+import domain.simulation.data.HasStandardLocation
+import domain.simulation.data.car.IPrivateCar
+import domain.simulation.data.person.IPerson
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import utils.Identifiable

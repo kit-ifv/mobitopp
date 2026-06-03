@@ -1,6 +1,6 @@
 package utils.random
 
-import java.util.SortedMap
+import java.util.*
 import kotlin.random.Random
 
 /**

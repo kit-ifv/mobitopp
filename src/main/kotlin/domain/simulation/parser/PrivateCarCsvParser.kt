@@ -1,14 +1,14 @@
 package domain.simulation.parser
 
-import domain.synthesis.data.car.CarId
-import domain.synthesis.data.car.CarSegment
-import domain.synthesis.data.car.MutablePrivateCar
-import domain.synthesis.data.car.engine.CarEngineStatistics
-import domain.synthesis.data.car.engine.EngineType
-import domain.synthesis.data.car.engine.buildEngine
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.Person
+import domain.simulation.data.car.CarId
+import domain.simulation.data.car.CarSegment
+import domain.simulation.data.car.MutablePrivateCar
+import domain.simulation.data.car.engine.CarEngineStatistics
+import domain.simulation.data.car.engine.EngineType
+import domain.simulation.data.car.engine.buildEngine
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.household.MutableHousehold
+import domain.simulation.data.person.Person
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -59,7 +59,6 @@ fun createPrivateCarCsvParser(csvConfig: PrivateCarCsvConfig): CsvParser<Mutable
             segment = row.decodeName(columns.segmentColumnIndex, carSegmentCodes)
             val engineType = row(columns.engineTypeColumn, EngineType.Companion::parseEngineType)
             engine = carEngineStatistics.buildEngine(segment, engineType)
-//            location = owner.location
         }
     }.withFilter { row -> filter(row) }
 }

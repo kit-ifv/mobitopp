@@ -1,8 +1,8 @@
 package domain.simulation.data.household
 
 import Mutable
-import domain.synthesis.data.car.PrivateCar
-import domain.synthesis.data.person.Person
+import domain.simulation.data.car.PrivateCar
+import domain.simulation.data.person.Person
 import kotlin.random.Random
 
 @Mutable

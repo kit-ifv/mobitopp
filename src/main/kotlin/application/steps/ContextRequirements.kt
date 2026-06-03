@@ -11,12 +11,12 @@ import domain.shared.location.Impedance
 import domain.shared.location.zone.ZoneId
 import domain.simulation.agent.DrtProviderMessage
 import domain.simulation.agent.PersonMessage
-import domain.simulation.events.PersonBehavior
 import domain.simulation.data.DrtProviderId
 import domain.simulation.data.SharingProviderId
 import domain.simulation.data.car.CarId
 import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.person.PersonId
+import domain.simulation.events.PersonBehavior
 import utils.CodePlan
 import utils.Identifiable
 
@@ -24,35 +24,41 @@ private const val ERROR_OUTPUT_SIZE = 5 // TODO use in context requirements?
 
 private fun reportList(elements: List<*>) = "Top $ERROR_OUTPUT_SIZE elements: ${elements.take(ERROR_OUTPUT_SIZE)}"
 
-interface HasHouseholdRepo<M : H, out H : Identifiable<domain.simulation.data.household.HouseholdId>> : Context {
-    val householdRepository: Repository<H, domain.simulation.data.household.HouseholdId>
+interface HasHouseholdRepo<M : H, out H : Identifiable<HouseholdId>> : Context {
+    val householdRepository: Repository<H, HouseholdId>
         get() = mutableHouseholdRepository
 
-    fun getHousehold(householdId: domain.simulation.data.household.HouseholdId) = requireNotNull(householdRepository[householdId]) {
+    fun getHousehold(householdId: HouseholdId) = requireNotNull(
+        householdRepository[householdId],
+    ) {
         "Household referenced by id $householdId could not be found in ${householdRepository.name}: " +
             reportList(householdRepository.elements.map { it.id }.toList())
     }
 
-    val mutableHouseholdRepository: MutableRepository<M, domain.simulation.data.household.HouseholdId>
+    val mutableHouseholdRepository: MutableRepository<M, HouseholdId>
 
-    fun getMutableHousehold(householdId: domain.simulation.data.household.HouseholdId) = requireNotNull(mutableHouseholdRepository[householdId]) {
+    fun getMutableHousehold(householdId: HouseholdId) = requireNotNull(
+        mutableHouseholdRepository[householdId],
+    ) {
         "Mutable household referenced by id $householdId could not be found in ${mutableHouseholdRepository.name}: " +
             reportList(mutableHouseholdRepository.elements.map { it.id }.toList())
     }
 }
 
-interface HasSharingProviderRepo<M : S, out S : Identifiable<domain.simulation.data.SharingProviderId>> : Context {
-    val sharingProviderRepository: Repository<S, domain.simulation.data.SharingProviderId>
+interface HasSharingProviderRepo<M : S, out S : Identifiable<SharingProviderId>> : Context {
+    val sharingProviderRepository: Repository<S, SharingProviderId>
         get() = mutableSharingProviderRepository
 
-    fun getSharingProvider(providerId: domain.simulation.data.SharingProviderId) = requireNotNull(sharingProviderRepository[providerId]) {
+    fun getSharingProvider(providerId: SharingProviderId) = requireNotNull(
+        sharingProviderRepository[providerId],
+    ) {
         "Sharing provider referenced by id $providerId could not be found in ${sharingProviderRepository.name}: " +
             reportList(sharingProviderRepository.elements.map { it.id }.toList())
     }
 
-    val mutableSharingProviderRepository: MutableRepository<M, domain.simulation.data.SharingProviderId>
+    val mutableSharingProviderRepository: MutableRepository<M, SharingProviderId>
 
-    fun getMutableSharingProvider(providerId: domain.simulation.data.SharingProviderId) = requireNotNull(
+    fun getMutableSharingProvider(providerId: SharingProviderId) = requireNotNull(
         mutableSharingProviderRepository[providerId],
     ) {
         "Mutable sharing provider referenced by id $providerId " +
@@ -61,36 +67,42 @@ interface HasSharingProviderRepo<M : S, out S : Identifiable<domain.simulation.d
     }
 }
 
-interface HasDrtProviderRepo<M : D, out D : Identifiable<domain.simulation.data.DrtProviderId>> : Context {
-    val drtProviderRepository: Repository<D, domain.simulation.data.DrtProviderId>
+interface HasDrtProviderRepo<M : D, out D : Identifiable<DrtProviderId>> : Context {
+    val drtProviderRepository: Repository<D, DrtProviderId>
         get() = mutableDrtProviderRepository
 
-    fun getDrtProvider(providerId: domain.simulation.data.DrtProviderId) = requireNotNull(drtProviderRepository[providerId]) {
+    fun getDrtProvider(providerId: DrtProviderId) = requireNotNull(
+        drtProviderRepository[providerId],
+    ) {
         "Drt provider referenced by id $providerId could not be found in ${drtProviderRepository.name}: " +
             reportList(drtProviderRepository.elements.map { it.id }.toList())
     }
 
-    val mutableDrtProviderRepository: MutableRepository<M, domain.simulation.data.DrtProviderId>
+    val mutableDrtProviderRepository: MutableRepository<M, DrtProviderId>
 
-    fun getMutableDrtProvider(providerId: domain.simulation.data.DrtProviderId) = requireNotNull(mutableDrtProviderRepository[providerId]) {
+    fun getMutableDrtProvider(providerId: DrtProviderId) = requireNotNull(
+        mutableDrtProviderRepository[providerId],
+    ) {
         "Mutable Drt provider referenced by id $providerId " +
             "could not be found in ${mutableDrtProviderRepository.name}: " +
             reportList(mutableDrtProviderRepository.elements.map { it.id }.toList())
     }
 }
 
-interface HasPersonRepo<M : P, out P : Identifiable<domain.simulation.data.person.PersonId>> : Context {
-    val personRepository: Repository<P, domain.simulation.data.person.PersonId>
+interface HasPersonRepo<M : P, out P : Identifiable<PersonId>> : Context {
+    val personRepository: Repository<P, PersonId>
         get() = mutablePersonRepository
 
-    fun getPerson(personId: domain.simulation.data.person.PersonId) = requireNotNull(personRepository[personId]) {
+    fun getPerson(personId: PersonId) = requireNotNull(personRepository[personId]) {
         "Person referenced by id $personId could not be found in ${personRepository.name}: " +
             reportList(personRepository.elements.map { it.id }.toList())
     }
 
-    val mutablePersonRepository: MutableRepository<M, domain.simulation.data.person.PersonId>
+    val mutablePersonRepository: MutableRepository<M, PersonId>
 
-    fun getMutablePerson(personId: domain.simulation.data.person.PersonId) = requireNotNull(mutablePersonRepository[personId]) {
+    fun getMutablePerson(personId: PersonId) = requireNotNull(
+        mutablePersonRepository[personId],
+    ) {
         "Mutable person referenced by id $personId could not be found in ${mutablePersonRepository.name}: " +
             reportList(mutablePersonRepository.elements.map { it.id }.toList())
     }
@@ -113,46 +125,50 @@ interface HasZoneRepo<M : Z, out Z : Identifiable<ZoneId>> : Context {
     }
 }
 
-interface HasCarRepo<M : C, out C : Identifiable<domain.simulation.data.car.CarId>> : Context {
-    val carRepository: Repository<C, domain.simulation.data.car.CarId>
+interface HasCarRepo<M : C, out C : Identifiable<CarId>> : Context {
+    val carRepository: Repository<C, CarId>
         get() = mutableCarRepository
 
-    fun getCar(carId: domain.simulation.data.car.CarId) = requireNotNull(carRepository[carId]) {
+    fun getCar(carId: CarId) = requireNotNull(carRepository[carId]) {
         "Car referenced by id $carId could not be found in ${carRepository.name}: " +
             reportList(carRepository.elements.map { it.id }.toList())
     }
 
-    val mutableCarRepository: MutableRepository<M, domain.simulation.data.car.CarId>
+    val mutableCarRepository: MutableRepository<M, CarId>
 
-    fun getMutableCar(carId: domain.simulation.data.car.CarId) = requireNotNull(mutableCarRepository[carId]) {
+    fun getMutableCar(carId: CarId) = requireNotNull(mutableCarRepository[carId]) {
         "Mutable car referenced by id $carId could not be found in ${mutableCarRepository.name}: " +
             reportList(mutableCarRepository.elements.map { it.id }.toList())
     }
 }
 
-interface HasPersonAgentRepo<M : P, out P> : Context where P : Identifiable<domain.simulation.data.person.PersonId>, P : Agent<PersonMessage> {
-    val personAgentRepository: Repository<P, domain.simulation.data.person.PersonId>
+interface HasPersonAgentRepo<M : P, out P> : Context where P : Identifiable<PersonId>, P : Agent<PersonMessage> {
+    val personAgentRepository: Repository<P, PersonId>
         get() = mutablePersonAgentRepository
 
-    fun getPersonAgent(personId: domain.simulation.data.person.PersonId) = requireNotNull(personAgentRepository[personId]) {
+    fun getPersonAgent(personId: PersonId) = requireNotNull(
+        personAgentRepository[personId],
+    ) {
         "Person agent referenced by id $personId could not be found in ${personAgentRepository.name}: " +
             reportList(personAgentRepository.elements.map { it.id }.toList())
     }
 
-    val mutablePersonAgentRepository: MutableRepository<M, domain.simulation.data.person.PersonId>
+    val mutablePersonAgentRepository: MutableRepository<M, PersonId>
 
-    fun getMutablePersonAgent(personId: domain.simulation.data.person.PersonId) = requireNotNull(mutablePersonAgentRepository[personId]) {
+    fun getMutablePersonAgent(personId: PersonId) = requireNotNull(
+        mutablePersonAgentRepository[personId],
+    ) {
         "Mutable person agent referenced by id $personId could not be found in ${mutablePersonAgentRepository.name}: " +
             reportList(mutablePersonAgentRepository.elements.map { it.id }.toList())
     }
 }
 
 // TODO SharingProividerAgent does not implement Agent interface
-interface HasSharingProviderAgentRepo<M : S, out S> : Context where S : Identifiable<domain.simulation.data.SharingProviderId> {
-    val sharingProviderAgentRepository: Repository<S, domain.simulation.data.SharingProviderId>
+interface HasSharingProviderAgentRepo<M : S, out S> : Context where S : Identifiable<SharingProviderId> {
+    val sharingProviderAgentRepository: Repository<S, SharingProviderId>
         get() = mutableSharingProviderAgentRepository
 
-    fun getSharingProviderAgent(providerId: domain.simulation.data.SharingProviderId) = requireNotNull(
+    fun getSharingProviderAgent(providerId: SharingProviderId) = requireNotNull(
         sharingProviderAgentRepository[providerId],
     ) {
         "Sharing provider agent referenced  by id $providerId " +
@@ -160,9 +176,9 @@ interface HasSharingProviderAgentRepo<M : S, out S> : Context where S : Identifi
             reportList(sharingProviderAgentRepository.elements.map { it.id }.toList())
     }
 
-    val mutableSharingProviderAgentRepository: MutableRepository<M, domain.simulation.data.SharingProviderId>
+    val mutableSharingProviderAgentRepository: MutableRepository<M, SharingProviderId>
 
-    fun getMutableSharingProviderAgent(providerId: domain.simulation.data.SharingProviderId) = requireNotNull(
+    fun getMutableSharingProviderAgent(providerId: SharingProviderId) = requireNotNull(
         sharingProviderAgentRepository[providerId],
     ) {
         "Mutable sharing provider agent referenced  by id $providerId " +
@@ -172,18 +188,22 @@ interface HasSharingProviderAgentRepo<M : S, out S> : Context where S : Identifi
 }
 
 interface HasDrtProviderAgentRepo<M : D, out D> :
-    Context where D : Identifiable<domain.simulation.data.DrtProviderId>, D : Agent<DrtProviderMessage> {
-    val drtProviderAgentRepository: Repository<D, domain.simulation.data.DrtProviderId>
+    Context where D : Identifiable<DrtProviderId>, D : Agent<DrtProviderMessage> {
+    val drtProviderAgentRepository: Repository<D, DrtProviderId>
         get() = mutableDrtProviderAgentRepository
 
-    fun getDrtProviderAgent(providerId: domain.simulation.data.DrtProviderId) = requireNotNull(drtProviderAgentRepository[providerId]) {
+    fun getDrtProviderAgent(providerId: DrtProviderId) = requireNotNull(
+        drtProviderAgentRepository[providerId],
+    ) {
         "Drt provider agent referenced  by id $providerId could not be found in ${drtProviderAgentRepository.name}: " +
             reportList(drtProviderAgentRepository.elements.map { it.id }.toList())
     }
 
-    val mutableDrtProviderAgentRepository: MutableRepository<M, domain.simulation.data.DrtProviderId>
+    val mutableDrtProviderAgentRepository: MutableRepository<M, DrtProviderId>
 
-    fun getMutableDrtProviderAgent(providerId: domain.simulation.data.DrtProviderId) = requireNotNull(drtProviderAgentRepository[providerId]) {
+    fun getMutableDrtProviderAgent(providerId: DrtProviderId) = requireNotNull(
+        drtProviderAgentRepository[providerId],
+    ) {
         "Mutable drt provider agent referenced  by id $providerId " +
             "could not be found in ${drtProviderAgentRepository.name}: " +
             reportList(drtProviderAgentRepository.elements.map { it.id }.toList())

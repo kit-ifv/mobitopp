@@ -4,12 +4,12 @@ import domain.jackson.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.ZonedRoadAccessLocationDTO
+import domain.shared.location.parser.LocationUtils.decodeNakedLocation
+import domain.shared.location.parser.LocationUtils.encodeLocation
 import domain.shared.location.toDTO
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
-import domain.shared.location.parser.LocationUtils.decodeNakedLocation
-import domain.shared.location.parser.LocationUtils.encodeLocation
 import edu.kit.ifv.units.meters
 import utils.Decodable
 import utils.binary.BinaryReader

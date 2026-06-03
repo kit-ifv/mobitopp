@@ -5,7 +5,7 @@ import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
-import domain.synthesis.data.person.PersonId
+import domain.simulation.data.person.PersonId
 import kotlinx.serialization.Serializable
 import utils.Identifiable
 import utils.random.StochasticActor
@@ -32,11 +32,8 @@ value class ActivityId(val value: Long) : Comparable<ActivityId> {
 }
 
 @Mutable
-abstract class PlannedActivity(
-    override val id: ActivityId,
-    val person: PersonId, // MutablePerson,
-    seed: Long,
-) : StochasticActor,
+abstract class PlannedActivity(override val id: ActivityId, val person: PersonId, seed: Long) :
+    StochasticActor,
     Identifiable<ActivityId>,
     Simplifiable<ActivityBinaryRecord> {
 
@@ -53,7 +50,7 @@ abstract class PlannedActivity(
 
     override fun simplify(): ActivityBinaryRecord = ActivityBinaryRecord(
         id.value,
-        person.value, // person.id.value,
+        person.value,
         observedTripDuration.toInt(DurationUnit.MINUTES),
         startTime.minutesSinceStart,
         duration.toInt(DurationUnit.MINUTES),

@@ -3,6 +3,8 @@ package domain.synthesis
 import TEST_ZONE
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.RegioStaR17
+import domain.shared.location.parser.BinaryZoneReader
+import domain.shared.location.parser.BinaryZoneWriter
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.DrtProviderId
 import domain.synthesis.data.SharingProvider
@@ -23,8 +25,6 @@ import domain.synthesis.parser.binary.BinaryHouseholdReader
 import domain.synthesis.parser.binary.BinaryHouseholdWriter
 import domain.synthesis.parser.binary.BinaryPersonReader
 import domain.synthesis.parser.binary.BinaryPersonWriter
-import domain.shared.location.parser.BinaryZoneReader
-import domain.shared.location.parser.BinaryZoneWriter
 import edu.kit.ifv.units.euros
 import generateHousehold
 import generatePerson

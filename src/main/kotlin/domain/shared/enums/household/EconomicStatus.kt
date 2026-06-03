@@ -1,4 +1,4 @@
-package domain.simulation.data.household
+package domain.shared.enums.household
 
 import utils.Encodable
 import utils.EnumDecodable

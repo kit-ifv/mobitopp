@@ -1,12 +1,12 @@
 package domain.simulation.parser.binary
 
 import domain.shared.enums.ActivityType
+import domain.shared.location.parser.LocationUtils.decodeLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.ActivityLocation
-import domain.synthesis.data.person.PersonId
-import domain.shared.location.parser.LocationUtils.decodeLocation
+import domain.simulation.data.ActivityLocation
+import domain.simulation.data.person.PersonId
 import utils.CodePlan
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter
@@ -27,22 +27,4 @@ class FixedDestinationReader(
     }
 }
 
-class FixedDestinationWriter : DefaultBinaryWriter<ActivityLocation>() {
-//    override fun operateStream(outStream: DataOutputStream, elements: Collection<ActivityLocation>) {
-//        val size = elements.size
-//        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
-//        outStream.writeInt(0) // string length, not needed but required by format
-//        elements.forEach { outStream.encodeElement(it) }
-//    }
-//
-//    private fun DataOutputStream.encodeElement(act: ActivityLocation) {
-//        act.run {
-//            writeLong(person.id.value) //  8 Bytes
-//            writeInt(activityType.code) // 12 Bytes
-// //            writeLong(location.zone?.id?.value ?: -1) // 20 Bytes
-//            encodeLocation(location) // 60 Bytes
-//
-//            // TODO maybe add lateral distance if needed.
-//        }
-//    }
-}
+class FixedDestinationWriter : DefaultBinaryWriter<ActivityLocation>()

@@ -7,7 +7,7 @@ import domain.shared.location.Impedance
 import domain.shared.location.zone.Zone
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.simulation.data.DrtProviderId
-import domain.synthesis.data.MutableDrtProviderData
+import domain.simulation.data.MutableDrtProviderData
 import domain.simulation.parser.GlobalDrtProviderIdCounter
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -26,9 +26,9 @@ import kotlin.time.Duration.Companion.minutes
  *                   Defaults to [domain.simulation.parser.GlobalDrtProviderIdCounter].
  * @param scope A lambda to configure the newly created [MutableDrtProviderData].
  */
-context(repository: MutableRepository<MutableDrtProviderData, domain.simulation.data.DrtProviderId>)
+context(repository: MutableRepository<MutableDrtProviderData, DrtProviderId>)
 fun <C : Context> C.newDrtProvider(
-    idProvider: () -> domain.simulation.data.DrtProviderId = _root_ide_package_.domain.simulation.parser.GlobalDrtProviderIdCounter,
+    idProvider: () -> DrtProviderId = GlobalDrtProviderIdCounter,
     scope: MutableDrtProviderData.() -> Unit,
 ) = mutatingStep(
     "add single new drt provider",

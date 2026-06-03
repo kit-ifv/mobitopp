@@ -1,19 +1,19 @@
 package domain.synthesis.behavior.economicstatus
 
 import de.siegmar.fastcsv.reader.CsvReader
+import domain.shared.enums.household.EconomicStatus
 import domain.synthesis.attributes.household.HasIncome
 import domain.synthesis.attributes.household.numberOfAdults
 import domain.synthesis.attributes.household.numberOfMinors
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
-import domain.synthesis.data.household.EconomicStatus
 import edu.kit.ifv.units.ClosedCurrencyRange
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.euros
 import processor.builder.splitOnce
 import java.io.InputStream
 import java.nio.file.Path
-import java.util.TreeMap
+import java.util.*
 import kotlin.io.path.inputStream
 
 /**

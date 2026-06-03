@@ -1,6 +1,6 @@
 package domain.synthesis.attributes.person
 
-import domain.synthesis.data.person.Employment
+import domain.shared.enums.person.Employment
 
 /**
  * If the survey data has information about the employment status of the survey person, this interface should be added

@@ -1,7 +1,7 @@
 package domain.synthesis.attributes.person
 
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Sex
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Sex
 import edu.kit.ifv.units.Distance
 
 /**

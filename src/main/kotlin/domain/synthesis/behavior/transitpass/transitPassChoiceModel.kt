@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.transitpass
 
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Sex
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit

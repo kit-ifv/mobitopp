@@ -1,9 +1,9 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.shared.enums.person.Sex
+import domain.simulation.data.car.CarSegment
 import domain.synthesis.behavior.cars.choicemodels.parameters.CarSegmentParameters
 import domain.synthesis.behavior.cars.choicemodels.parameters.SimplifiedParameters
-import domain.synthesis.data.car.CarSegment
-import domain.synthesis.data.person.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit

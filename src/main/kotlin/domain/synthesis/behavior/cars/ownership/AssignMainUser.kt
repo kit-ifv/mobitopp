@@ -1,10 +1,10 @@
 package domain.synthesis.behavior.cars.ownership
 
+import domain.simulation.data.car.Car
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.cars.SynthesisCar
-import domain.synthesis.data.car.Car
 
 /**
  * Assigns the main user, operates on the synthesis household rather than the survey household because the car requires

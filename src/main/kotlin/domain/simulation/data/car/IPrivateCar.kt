@@ -2,8 +2,8 @@ package domain.simulation.data.car
 
 import domain.jackson.CarBinaryRecord
 import domain.jackson.Simplifiable
-import domain.synthesis.data.household.IHousehold
-import domain.synthesis.data.person.IPerson
+import domain.simulation.data.household.IHousehold
+import domain.simulation.data.person.IPerson
 
 interface IPrivateCar :
     Car,

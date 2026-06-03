@@ -1,8 +1,8 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.shared.enums.household.EconomicStatus
 import domain.synthesis.behavior.cars.choicemodels.parameters.CarOwnershipParameters
 import domain.synthesis.behavior.cars.choicemodels.parameters.CarParameters
-import domain.synthesis.data.household.EconomicStatus
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.NestedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.nestedLogit
@@ -172,12 +172,13 @@ private fun EconomicStatus.poor(): Boolean = this == EconomicStatus.LOW || this 
 private inline val EconomicStatus.rich get(): Boolean = this == EconomicStatus.HIGH || this == EconomicStatus.VERY_HIGH
 
 /**
- * Here we can see one benefit of being able to translate the large [domain.synthesis.behavior.discreteChoice.CarOwnershipParameters] to something different,
- * like a [domain.synthesis.behavior.discreteChoice.CarParameters] object. We can define a standard utility function which takes in a [domain.synthesis.behavior.discreteChoice.CarParameters] object and
+ * Here we can see one benefit of being able to translate the large [CarOwnershipParameters] to something different,
+ * like a [CarParameters] object.
+ * We can define a standard utility function which takes in a [CarParameters] object and
  * the translation process automatically fills the utility function with the corresponding parameters. In this example
- * we will receive [domain.synthesis.behavior.discreteChoice.CarOwnershipParameters.oneCar] for the utility function of one car [domain.synthesis.behavior.discreteChoice.CarOwnershipParameters.twoCar] for
- * two cars and so on. Since the utility function is exactly identical for all calculations we can save repeatedly needing
- * to write the same utility function.
+ * we will receive [CarOwnershipParameters.oneCar] for the utility function of one car [CarOwnershipParameters.twoCar]
+ * for two cars and so on. Since the utility function is exactly identical for all calculations we can save repeatedly
+ * needing to write the same utility function.
  * @property standardFunction This is the standard utility function for car ownership as found in the Rastatt model of
  * mobitopp. Used later in the discrete choice model definition.
  */

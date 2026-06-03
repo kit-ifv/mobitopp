@@ -1,13 +1,13 @@
 package domain.simulation.parser.binary
 
+import domain.shared.enums.household.EconomicStatus
+import domain.shared.location.parser.LocationUtils.decodeLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.household.EconomicStatus
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
-import domain.shared.location.parser.LocationUtils.decodeLocation
+import domain.simulation.data.household.Household
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter
@@ -54,24 +54,4 @@ class BinaryHouseholdReader(
 /**
  * Writes a collection of households into a binary file.
  */
-class BinaryHouseholdWriter : DefaultBinaryWriter<Household>() {
-//    override fun operateStream(outStream: DataOutputStream, elements: Collection<Household>) {
-//        outStream.writeInt(elements.size) // Write Size as Int at the beginning of the file
-//        outStream.writeInt(0) // Format requires string size to be specified.
-//
-//        elements.forEach { outStream.encodeHousehold(it) } // write all elements
-//    }
-//
-//    private fun DataOutputStream.encodeHousehold(element: Household) {
-//        writeLong(element.id.value)
-//        element.run {
-//            writeLong(householdNumber)
-//            writeInt(surveyYear)
-//            writeInt(domCode)
-//            writeInt(type)
-//            writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS))
-//            writeInt(economicStatus.code)
-//            encodeLocation(location)
-//        }
-//    }
-}
+class BinaryHouseholdWriter : DefaultBinaryWriter<Household>()

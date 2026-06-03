@@ -3,8 +3,7 @@ package core.events
 import core.statemachine.Event
 import utils.collections.append
 import utils.units.Time
-import java.util.NavigableMap
-import java.util.TreeMap
+import java.util.*
 
 interface EventQueue {
     fun add(event: Event<*>)

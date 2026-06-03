@@ -13,11 +13,11 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.simulation.data.car.CarId
-import domain.synthesis.data.car.MutablePrivateCar
+import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.engine.CarEngineStatistics
 import domain.simulation.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.MutablePerson
+import domain.simulation.data.household.MutableHousehold
+import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.Person
 import domain.simulation.data.person.PersonId
 import domain.simulation.parser.CarColumns
@@ -39,8 +39,8 @@ import java.nio.file.Path
  */
 fun <C> C.cars(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutablePrivateCar, domain.simulation.data.car.CarId>) C.() -> Unit,
-) where C : HasCarRepo<MutablePrivateCar, *> = mutableRepositoryScope<C, MutablePrivateCar, domain.simulation.data.car.CarId>(
+    scope: context(MutableRepository<MutablePrivateCar, CarId>) C.() -> Unit,
+) where C : HasCarRepo<MutablePrivateCar, *> = mutableRepositoryScope<C, MutablePrivateCar, CarId>(
     getter = { mutableCarRepository },
     sealed = sealed,
     scope,
@@ -55,11 +55,11 @@ fun <C> C.cars(
  * @param repository The mutable repository of private cars to populate. Provided via context.
  * @param resource The resource (e.g., CSV) to load cars from.
  */
-context(repository: MutableRepository<MutablePrivateCar, domain.simulation.data.car.CarId>)
+context(repository: MutableRepository<MutablePrivateCar, CarId>)
 fun <C> C.loadCars(
     resource: Resource<MutablePrivateCar>,
 ) where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *> =
-    addResourceStep<C, MutablePrivateCar, domain.simulation.data.car.CarId>(
+    addResourceStep<C, MutablePrivateCar, CarId>(
         name = "load cars from ${resource.name}",
         resource = resource,
     )
@@ -85,7 +85,7 @@ fun <C, CFG> C.carCsv(
     delimiter: String = config.sourceFiles.defaultCsvDelimiter,
     binaryCache: BinaryCacheConfig<MutablePrivateCar>? = binaryPrivateCarFormat(),
 ): Resource<MutablePrivateCar>
-    where C : HasPersonRepo<*, domain.simulation.data.person.Person>,
+    where C : HasPersonRepo<*, Person>,
           C : HasHouseholdRepo<MutableHousehold, *>,
           CFG : SourceFilesConfig,
           CFG : CarCodesConfig =
@@ -108,28 +108,28 @@ fun <C, CFG> C.carCsv(
  */
 context(config: CFG)
 fun <C, CFG> C.privateCarCsvParser(
-    customizeCsvConfig: domain.simulation.parser.PrivateCarCsvConfig.() -> Unit = {},
+    customizeCsvConfig: PrivateCarCsvConfig.() -> Unit = {},
 ): CsvParser<MutablePrivateCar>
-    where C : HasPersonRepo<*, domain.simulation.data.person.Person>, C : HasHouseholdRepo<MutableHousehold, *>, CFG : CarCodesConfig =
-    _root_ide_package_.domain.simulation.parser.createPrivateCarCsvParser(
-        _root_ide_package_.domain.simulation.parser.PrivateCarCsvConfig(
-            columns = _root_ide_package_.domain.simulation.parser.CarColumns(),
+    where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>, CFG : CarCodesConfig =
+    createPrivateCarCsvParser(
+        PrivateCarCsvConfig(
+            columns = CarColumns(),
             householdExists = mutableHouseholdRepository::contains,
             getOwnerHousehold = { row, col ->
                 mutableHouseholdRepository.getValue(
-                    _root_ide_package_.domain.simulation.data.household.HouseholdId(
-                        row.long(col)
-                    )
+                    HouseholdId(
+                        row.long(col),
+                    ),
                 )
             },
             getMainUser = { row, col ->
                 personRepository.getValue(
-                    _root_ide_package_.domain.simulation.data.person.PersonId(
-                        row.long(col)
-                    )
+                    PersonId(
+                        row.long(col),
+                    ),
                 )
             },
-            carEngineStatistics = _root_ide_package_.domain.simulation.data.car.engine.CarEngineStatistics(),
+            carEngineStatistics = CarEngineStatistics(),
             carSegmentCodes = config.carSegmentCodes,
             errorHandling = config.errorHandling,
         ).also {
@@ -149,15 +149,15 @@ fun <C, CFG> C.privateCarCsvParser(
  */
 context(config: CFG)
 fun <C, CFG> C.binaryPrivateCarFormat(): BinaryCacheConfig<MutablePrivateCar>
-    where C : HasPersonRepo<*, domain.simulation.data.person.Person>, C : HasHouseholdRepo<MutableHousehold, *>,
+    where C : HasPersonRepo<*, Person>, C : HasHouseholdRepo<MutableHousehold, *>,
           CFG : SourceFilesConfig =
     BinaryCacheConfig<MutablePrivateCar>(
         cacheRootPath = config.cachePath,
-        binaryReader = _root_ide_package_.domain.simulation.parser.binary.BinaryCarReader(
+        binaryReader = BinaryCarReader(
             householdConverter = this.mutableHouseholdRepository::get,
             personConverter = this.personRepository::get,
-            carEngineStatistics = _root_ide_package_.domain.simulation.data.car.engine.CarEngineStatistics(),
+            carEngineStatistics = CarEngineStatistics(),
         ),
 
-        binaryWriter = _root_ide_package_.domain.simulation.parser.binary.BinaryCarWriter(),
+        binaryWriter = BinaryCarWriter(),
     )

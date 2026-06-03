@@ -1,5 +1,4 @@
 package domain.synthesis
-import domain.synthesis.AssignmentStep
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
