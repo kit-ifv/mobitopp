@@ -24,11 +24,11 @@ import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.ActivityId
-import domain.simulation.data.DrtProvider
 import domain.simulation.data.MutablePlannedActivity
 import domain.simulation.data.SharingProvider
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
+import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.household.Household
 import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
@@ -43,29 +43,6 @@ import domain.simulation.parser.binary.BinaryHouseholdReader
 import domain.simulation.parser.binary.BinaryHouseholdWriter
 import domain.simulation.parser.binary.BinaryPersonReader
 import domain.simulation.parser.binary.BinaryPersonWriter
-import domain.synthesis.data.ActivityId
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.car.CarId
-import domain.synthesis.data.car.MutablePrivateCar
-import domain.synthesis.data.car.PrivateCar
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.MutablePerson
-import domain.synthesis.data.person.Person
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.parser.binary.BinaryActivityReader
-import domain.synthesis.parser.binary.BinaryActivityWriter
-import domain.synthesis.parser.binary.BinaryCarReader
-import domain.synthesis.parser.binary.BinaryCarWriter
-import domain.synthesis.parser.binary.BinaryHouseholdReader
-import domain.synthesis.parser.binary.BinaryHouseholdWriter
-import domain.synthesis.parser.binary.BinaryPersonReader
-import domain.synthesis.parser.binary.BinaryPersonWriter
-import domain.synthesis.parser.binary.BinaryZoneReader
-import domain.synthesis.parser.binary.BinaryZoneWriter
 import java.nio.file.Path
 
 /**
@@ -74,8 +51,8 @@ import java.nio.file.Path
  * @receiver The simulation context [C].
  * @param C The context type. Must implement:
  *   - [HasHouseholdRepo] for [MutableHousehold]
- *   - [HasSharingProviderRepo] for [domain.simulation.data.SharingProvider]
- *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
  * @param repository The mutable repository of persons to populate. Provided via context.
  * @param config The short-term configuration. Provided via context. Must implement [ShortTermConfig].
  * @param path The path to the binary file.

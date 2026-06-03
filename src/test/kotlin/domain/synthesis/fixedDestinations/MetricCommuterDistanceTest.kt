@@ -3,6 +3,7 @@
 package domain.synthesis.fixedDestinations
 
 import TestZone
+import domain.shared.enums.person.Sex
 import domain.shared.location.DistanceMetric
 import domain.shared.location.PointCreator
 import domain.shared.location.zone.ZoneId
@@ -11,7 +12,6 @@ import domain.synthesis.behavior.fixeddestinations.communitybased.CommunityNumbe
 import domain.synthesis.behavior.fixeddestinations.communitybased.CommuterDistance
 import domain.synthesis.behavior.fixeddestinations.communitybased.MetricCommuterDistance
 import domain.synthesis.behavior.fixeddestinations.communitybased.MutableCommunityDemand
-import domain.synthesis.data.person.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit

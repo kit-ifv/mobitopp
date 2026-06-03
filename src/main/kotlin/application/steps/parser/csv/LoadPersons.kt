@@ -17,7 +17,6 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.person.Employment
 import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
-import domain.simulation.data.DrtProvider
 import domain.simulation.data.SharingProvider
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
@@ -27,20 +26,7 @@ import domain.simulation.parser.PersonCsvConfig
 import domain.simulation.parser.binary.BinaryPersonReader
 import domain.simulation.parser.binary.BinaryPersonWriter
 import domain.simulation.parser.createPersonCsvParser
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Graduation
-import domain.synthesis.data.person.MutablePerson
-import domain.synthesis.data.person.Person
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.data.person.Sex
-import domain.synthesis.parser.PersonColumns
-import domain.synthesis.parser.PersonCsvConfig
-import domain.synthesis.parser.binary.BinaryPersonReader
-import domain.synthesis.parser.binary.BinaryPersonWriter
-import domain.synthesis.parser.createPersonCsvParser
+import domain.simulation.data.drt.DrtProvider
 import utils.csv.CsvParser
 import java.nio.file.Path
 
@@ -57,9 +43,9 @@ import java.nio.file.Path
  */
 fun <C> C.persons(
     sealed: Boolean = false,
-    scope: context(MutableRepository<MutablePerson, domain.simulation.data.person.PersonId>) C.() -> Unit,
+    scope: context(MutableRepository<MutablePerson, PersonId>) C.() -> Unit,
 ) where C : HasPersonRepo<MutablePerson, domain.simulation.data.person.Person> =
-    mutableRepositoryScope<C, MutablePerson, domain.simulation.data.person.PersonId>(
+    mutableRepositoryScope<C, MutablePerson, PersonId>(
         getter = { mutablePersonRepository },
         sealed = sealed,
         scope,
@@ -72,14 +58,14 @@ fun <C> C.persons(
  * @param C The context type. Must implement:
  *   - [HasPersonRepo] for [MutablePerson]
  *   - [HasHouseholdRepo] for [MutableHousehold]
- *   - [HasSharingProviderRepo] for [domain.simulation.data.SharingProvider]
- *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
  * @param repository The mutable repository of persons to populate. Provided via context.
  * @param resource The resource (e.g., CSV) to load persons from.
  * @param dependentRepositories Repositories that this loading step depends on.
  *                              Defaults to household, sharing provider, and DRT provider repositories.
  */
-context(repository: MutableRepository<MutablePerson, domain.simulation.data.person.PersonId>)
+context(repository: MutableRepository<MutablePerson, PersonId>)
 fun <C> C.loadPersons(
     resource: Resource<MutablePerson>,
     dependentRepositories: Set<Repository<*, *>> = setOf(
@@ -88,8 +74,8 @@ fun <C> C.loadPersons(
         drtProviderRepository,
     ),
 ) where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-        C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>,
-        C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider> =
+        C : HasSharingProviderRepo<*, SharingProvider>,
+        C : HasDrtProviderRepo<*, DrtProvider> =
     addResourceStep<C, MutablePerson, PersonId>(
         name = "load persons from ${resource.name}",
         resource = resource,
@@ -103,8 +89,8 @@ fun <C> C.loadPersons(
  * @param C The context type. Must implement:
  *   - [HasPersonRepo] for [MutablePerson]
  *   - [HasHouseholdRepo] for [MutableHousehold]
- *   - [HasSharingProviderRepo] for [domain.simulation.data.SharingProvider]
- *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
  * @param CFG The configuration type. Must implement [UnitConfig] and [SourceFilesConfig].
  * @param config The configuration. Provided via context.
  * @param parser The CSV parser for persons. Defaults to [personCsvParser].
@@ -121,8 +107,8 @@ fun <C, CFG> C.personCsv(
     binaryCache: BinaryCacheConfig<MutablePerson>? = binaryPersonFormat(),
 ): Resource<MutablePerson>
     where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-          C : HasSharingProviderRepo<*, domain.simulation.data.SharingProvider>,
-          C : HasDrtProviderRepo<*, domain.simulation.data.DrtProvider>,
+          C : HasSharingProviderRepo<*, SharingProvider>,
+          C : HasDrtProviderRepo<*, DrtProvider>,
           CFG : UnitConfig, CFG : SourceFilesConfig =
     // TODO config as required upper bound type in context
     CsvResource(path, parser, delimiter).let { csv ->
@@ -138,8 +124,8 @@ fun <C, CFG> C.personCsv(
  * @param C The context type. Must implement:
  *   - [HasPersonRepo] for [MutablePerson]
  *   - [HasHouseholdRepo] for [MutableHousehold]
- *   - [HasSharingProviderRepo] for [domain.simulation.data.SharingProvider]
- *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
+ *   - [HasSharingProviderRepo] for [SharingProvider]
+ *   - [HasDrtProviderRepo] for [DrtProvider]
  * @param CFG The configuration type. Must implement [SourceFilesConfig].
  * @param config The configuration. Provided via context.
  * @return A [BinaryCacheConfig] instance.

@@ -6,6 +6,7 @@ import ZoneTestAttributesFake
 import core.datastructure.kdtree.WithMetric
 import core.datastructure.kdtree.discardMetric
 import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.person.Sex
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
@@ -16,7 +17,6 @@ import domain.synthesis.behavior.fixeddestinations.bandwidth.BandwidthLocator
 import domain.synthesis.behavior.fixeddestinations.bandwidth.BandwidthParameters
 import domain.synthesis.behavior.fixeddestinations.bandwidth.LocationAlternative
 import domain.synthesis.behavior.fixeddestinations.bandwidth.standardBandwidthChoiceModel
-import domain.synthesis.data.person.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction
 import edu.kit.ifv.units.kilometers

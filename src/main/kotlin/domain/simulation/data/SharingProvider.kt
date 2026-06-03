@@ -1,4 +1,6 @@
-package domain.synthesis.data
+package domain.simulation.data
+
+import Mutable
 
 @Mutable
 abstract class SharingProvider(

@@ -23,6 +23,13 @@ import domain.simulation.agent.toAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
+import domain.simulation.data.ActivityId
+import domain.simulation.data.MutablePlannedActivity
+import domain.simulation.data.PlannedActivity
+import domain.simulation.data.household.Household
+import domain.simulation.data.household.MutableHousehold
+import domain.simulation.data.person.MutablePerson
+import domain.simulation.data.person.Person
 import domain.simulation.events.EndActivityMessage
 import domain.simulation.events.EndLegMessage
 import domain.simulation.events.FinishedPerson
@@ -36,13 +43,6 @@ import domain.simulation.events.StartPerson
 import domain.simulation.events.StartingTrip
 import domain.simulation.events.personStateMachine
 import domain.synthesis.ControllableAttractiveness
-import domain.synthesis.data.ActivityId
-import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.PlannedActivity
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.MutablePerson
-import domain.synthesis.data.person.Person
 import generateHousehold
 import generatePersons
 import generateZones

@@ -1,12 +1,12 @@
 package domain.synthesis
 
+import domain.shared.enums.household.EconomicStatus
+import domain.shared.enums.household.HouseholdType
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.economicstatus.OECDAssigner
-import domain.synthesis.data.household.EconomicStatus
-import domain.synthesis.data.household.HouseholdType
 import edu.kit.ifv.units.euros
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

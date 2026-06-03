@@ -1,25 +1,19 @@
 package domain.simulation.data.person
 
-import domain.jackson.Simplifiable
 import domain.shared.enums.person.ChargingInfluence
 import domain.shared.enums.person.Employment
 import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
-import domain.simulation.data.DrtProvider
-import domain.simulation.data.DrtProviderId
 import domain.simulation.data.ISharingProvider
 import domain.simulation.data.SharingProviderId
+import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.household.IHousehold
-import utils.binary.Simplifiable
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.drt.DrtProviderId
-import domain.synthesis.data.ISharingProvider
-import domain.synthesis.data.SharingProviderId
-import domain.synthesis.data.household.IHousehold
+import domain.simulation.data.drt.DrtProviderId
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.UnitIntervalValue
 import utils.Identifiable
+import utils.binary.Simplifiable
 import utils.random.StochasticActor
 
 @Suppress("ComplexInterface")

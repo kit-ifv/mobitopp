@@ -1,13 +1,11 @@
 package domain.simulation.data
 
 import Mutable
-import utils.binary.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.simulation.data.person.PersonId
-import kotlinx.serialization.Serializable
-import domain.synthesis.data.person.PersonId
 import utils.Identifiable
+import utils.binary.Simplifiable
 import utils.random.StochasticActor
 import utils.units.AbsoluteTime
 import kotlin.random.Random

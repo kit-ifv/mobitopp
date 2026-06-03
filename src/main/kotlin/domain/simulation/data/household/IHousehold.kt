@@ -1,9 +1,7 @@
 package domain.simulation.data.household
 
-import domain.jackson.Simplifiable
 import domain.shared.car.IPrivateCar
 import domain.shared.enums.household.EconomicStatus
-import utils.binary.Simplifiable
 import domain.shared.location.StandardLocation
 import domain.shared.location.toDTO
 import domain.simulation.data.HasStandardLocation
@@ -11,6 +9,7 @@ import domain.simulation.data.person.IPerson
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import utils.Identifiable
+import utils.binary.Simplifiable
 import utils.random.StochasticActor
 
 interface IHousehold :

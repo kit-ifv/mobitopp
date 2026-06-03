@@ -1,4 +1,4 @@
-package domain.synthesis.data
+package domain.simulation.data
 
 import kotlinx.serialization.Serializable
 

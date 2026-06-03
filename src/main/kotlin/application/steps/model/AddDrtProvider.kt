@@ -6,12 +6,9 @@ import core.modelsteps.scopes.mutatingStep
 import domain.shared.location.Impedance
 import domain.shared.location.zone.Zone
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm
-import domain.simulation.data.DrtProviderId
-import domain.simulation.data.MutableDrtProviderData
 import domain.simulation.parser.GlobalDrtProviderIdCounter
-import domain.synthesis.data.drt.DrtProviderId
-import domain.synthesis.data.MutableDrtProviderData
-import domain.synthesis.parser.GlobalDrtProviderIdCounter
+import domain.simulation.data.drt.DrtProviderId
+import domain.simulation.data.drt.MutableDrtProviderData
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -25,8 +22,8 @@ import kotlin.time.Duration.Companion.minutes
  * @param C The context type. Must implement [Context].
  * @param repository The mutable repository of DRT providers to which the new provider will be added.
  *                   Provided via context.
- * @param idProvider A function that provides the [domain.simulation.data.DrtProviderId] for the new provider.
- *                   Defaults to [domain.simulation.parser.GlobalDrtProviderIdCounter].
+ * @param idProvider A function that provides the [DrtProviderId] for the new provider.
+ *                   Defaults to [GlobalDrtProviderIdCounter].
  * @param scope A lambda to configure the newly created [MutableDrtProviderData].
  */
 context(repository: MutableRepository<MutableDrtProviderData, DrtProviderId>)

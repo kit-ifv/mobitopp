@@ -1,4 +1,4 @@
-package domain.synthesis.data
+package domain.simulation.data
 
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone

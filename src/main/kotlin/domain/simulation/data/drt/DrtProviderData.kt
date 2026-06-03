@@ -1,4 +1,4 @@
-package domain.synthesis.data.drt
+package domain.simulation.data.drt
 
 import Mutable
 import domain.shared.location.zone.ZoneId

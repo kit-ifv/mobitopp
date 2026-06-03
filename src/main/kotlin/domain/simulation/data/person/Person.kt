@@ -1,16 +1,12 @@
 package domain.simulation.data.person
 
 import Mutable
-import domain.simulation.data.DrtProvider
 import domain.simulation.data.PlannedActivity
 import domain.simulation.data.SharingProvider
+import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.household.MutableHousehold
 import domain.synthesis.attributes.person.HasMutableSchedule
 import domain.synthesis.attributes.person.HasPlannedActivities
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.PlannedActivity
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.household.MutableHousehold
 import kotlin.random.Random
 
 @Mutable

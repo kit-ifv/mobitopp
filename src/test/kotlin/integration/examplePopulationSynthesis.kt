@@ -1,6 +1,5 @@
 package integration
 
-import GenerateFromFlatInput
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
