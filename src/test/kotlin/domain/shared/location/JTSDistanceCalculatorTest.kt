@@ -2,6 +2,7 @@
 
 package domain.shared.location
 
+import domain.shared.location.jts.JTSDistanceCalculator
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters

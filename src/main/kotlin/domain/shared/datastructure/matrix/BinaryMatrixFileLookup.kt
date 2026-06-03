@@ -86,6 +86,7 @@ class BinaryMatrixFileLookup(
  * @return If `rootCachePath` is not null, a BinaryMatrixFileLookup with both params is returned
  * else `defaultCreation` is returned.
  */
+@Deprecated("Is this used anymore?")
 fun optionalCachedMatrixCreator(rootCachePath: Path?, defaultCreation: ZoneMatrixCreation): ZoneMatrixCreation =
     if (rootCachePath != null) {
         BinaryMatrixFileLookup(rootCachePath, defaultCreation = defaultCreation)

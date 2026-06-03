@@ -6,10 +6,10 @@ import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.areatype.toSizebasedClassification
 import domain.shared.enums.legacyChoiceModelPurposes
-import domain.shared.location.PointCreator
-import domain.shared.location.RoadAccess
+import domain.shared.location.jts.PointCreator
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.StandardLocationAttributes
+import domain.shared.location.attributes.StandardLocationAttributes
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType

@@ -13,7 +13,7 @@ import java.util.NavigableSet
 import java.util.SortedSet
 import java.util.TreeSet
 
-/** An [ActivityBlock] is an instantiation of an [ActionBlock] holding a set of [domain.shared.datastructure.schedule.action.Activity]. It also holds a reference
+/** An [ActivityBlock] is an instantiation of an [ActionBlock] holding a set of [Activity]. It also holds a reference
  * to the preceding and succeeding [LinkedTrip], if they exist.
  */
 class ActivityBlock(

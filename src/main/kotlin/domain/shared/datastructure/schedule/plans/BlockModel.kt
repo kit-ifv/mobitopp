@@ -14,42 +14,6 @@ import utils.collections.addByOrder
 import utils.collections.exactlyOneOrNull
 import java.util.SortedSet
 
-class InternalIterator(activityBlock: ActivityBlock) : Iterator<ActionBlock<*>> {
-    private var current: ActionBlock<*>? = null
-    private var next: ActionBlock<*>? = activityBlock
-
-    /**
-     * Returns `true` if the iteration has more elements.
-     */
-    override fun hasNext(): Boolean = current?.let { next != null } ?: true
-
-    /**
-     * Returns the next element in the iteration.
-     */
-    override fun next(): ActionBlock<*> {
-        current = next
-        next = current?.next
-        return current ?: throw NoSuchElementException()
-    }
-
-    fun reset(target: ActivityBlock) {
-        current = null
-        next = target
-    }
-}
-
-class InternalIterable(val activityBlock: () -> ActivityBlock) : Iterable<ActionBlock<*>> {
-    private val internalIterator = InternalIterator(activityBlock())
-
-    /**
-     * Returns an iterator over the elements of this object.
-     */
-    override fun iterator(): Iterator<ActionBlock<*>> {
-        internalIterator.reset(activityBlock())
-        return internalIterator
-    }
-}
-
 class BlockModel(
     override val dispatcher: IDispatcher,
     private val legBlockList: MutableList<LinkTrip> = mutableListOf(),

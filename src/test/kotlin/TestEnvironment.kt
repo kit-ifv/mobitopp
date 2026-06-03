@@ -3,8 +3,8 @@ import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.PointCreator
-import domain.shared.location.RoadAccess
+import domain.shared.location.jts.PointCreator
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.StandardLocationImpl
 import domain.shared.location.zone.MaximalZone

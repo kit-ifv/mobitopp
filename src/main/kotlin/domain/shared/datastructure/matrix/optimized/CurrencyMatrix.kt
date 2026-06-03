@@ -5,10 +5,6 @@ import domain.shared.location.zone.CostZoneMetric
 import domain.shared.location.zone.ZoneId
 import edu.kit.ifv.units.Currency
 
-fun interface DoubleToCurrency {
-    fun from(x: Double): Currency
-}
-
 class CurrencyMatrix(private val translatedMatrix: ZoneIdMatrix, private val converter: DoubleToCurrency) :
     CostZoneMetric {
     operator fun get(row: ZoneId, column: ZoneId): Currency = converter.from(translatedMatrix[row, column])

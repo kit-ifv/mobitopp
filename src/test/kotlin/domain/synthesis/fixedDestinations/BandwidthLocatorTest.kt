@@ -7,7 +7,7 @@ import utils.WithMetric
 import utils.discardMetric
 import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
-import domain.shared.location.RoadAccess
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId

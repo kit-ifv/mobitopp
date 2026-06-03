@@ -12,7 +12,6 @@ import kotlin.time.Duration
  */
 fun interface LocationMetric<R> {
 
-//    fun evaluate(origin: ZoneId, destination: ZoneId): R
     fun evaluate(origin: HasZoneId, destination: HasZoneId): R
 }
 

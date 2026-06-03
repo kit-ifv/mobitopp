@@ -17,6 +17,9 @@ val standardMapper: ObjectMapper = CsvMapper().registerKotlinModule().registerMo
 
 val standardSchema = CsvSchema.emptySchema().withHeader()
 
+/**
+ * Automatic CSV parser based on the class fields of T using reflection.
+ */
 inline fun <reified T> standardCSVParse(
     input: InputStream,
     separator: Char = ';',

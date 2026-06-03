@@ -16,6 +16,3 @@ object KeyBasedMatrixCreation : ZoneMatrixCreation {
     }
 }
 
-object VisumMatrixCreator : StandardMatrixCreation {
-    override fun createMatrix(config: YamlInfo): StandardMatrix = StandardMatrix.parseAsVisumMatrix(config.path)
-}

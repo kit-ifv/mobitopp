@@ -7,7 +7,10 @@ import domain.shared.enums.ActivityType
 import utils.units.AbsoluteTime
 import kotlin.time.Duration.Companion.minutes
 
-class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier {
+class SkipToNextHomeActivity(
+    private val home: ActivityType,
+    private val legEndTimeRecalculator: (AbsoluteTime) -> AbsoluteTime = { it + 10.minutes },
+) : ScheduleModifier {
 
     override fun applyTo(schedule: Schedule, currentTime: AbsoluteTime) {
         val nextHomeActivity =
@@ -22,7 +25,7 @@ class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier 
         schedule.present?.let {
             if (it.actionType == ActionType.LEG) {
                 it.endLocation = nextHomeActivity.location
-                it.endTime = complexCalPlsImplement(currentTime)
+                it.endTime = legEndTimeRecalculator(currentTime)
 
                 nextHomeActivity.shiftStartTo(it.endTime)
                 return
@@ -49,8 +52,4 @@ class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier 
             )
         }
     }
-
-    // I currently have no info on how to calculate the duration from an unknown location to the destination, also I
-    // have no information about the mode.
-    private fun complexCalPlsImplement(currentTime: AbsoluteTime): AbsoluteTime = currentTime + 10.minutes
 }

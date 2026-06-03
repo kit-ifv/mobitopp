@@ -1,4 +1,4 @@
-package domain.shared.datastructure
+package domain.shared.location.road
 
 import core.datastructure.kdtree.ReadOnlyKDTree
 import domain.LinkInfo
@@ -6,20 +6,10 @@ import domain.VisumNode
 import domain.shared.location.Location
 import domain.shared.location.attributes.HasRoadAccess
 import edu.kit.ifv.JTSConverter
-import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.DistanceUnit
-import edu.kit.ifv.units.UTMPosition
-import edu.kit.ifv.units.toDistance
 import org.jgrapht.Graph
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Point
 import kotlin.math.abs
-import kotlin.math.pow
-import kotlin.math.sqrt
-
-fun interface VisumLinkIdLocator {
-    fun linkIdFor(location: Location<*>): Long
-}
 
 /**
  * This class augments the [LinkInfo] class of the road network by calculating and storing the midpoint [midUTM] of
@@ -28,17 +18,15 @@ fun interface VisumLinkIdLocator {
 private class LocatedLinkInfo(v: Point, u: Point, val edge: LinkInfo) {
 
     val midUTM = v.midPoint(u)
+
+    fun Point.midPoint(other: Point): Point {
+        val x = (x + other.x) / 2.0
+        val y = (y + other.y) / 2.0
+        return factory.createPoint(Coordinate(x, y))
+    }
 }
 
-fun Point.midPoint(other: Point): Point {
-    val x = (x + other.x) / 2.0
-    val y = (y + other.y) / 2.0
-    return factory.createPoint(Coordinate(x, y))
-}
 
-fun UTMPosition.distance(other: UTMPosition): Distance = sqrt(
-    (e - other.e).pow(2) + (n - other.n).pow(2),
-).toDistance(DistanceUnit.METERS)
 
 /**
  * A locatable graph is a representation of the road network, where in addition to the usual graph utility, a location
@@ -71,12 +59,6 @@ class LocatableGraph(private val graph: Graph<VisumNode, LinkInfo>, private val 
     // TODO currently the calculation returns the closest midpoint, which does not necessarily represent the closest edge
     //  but it is good enough for approximation.
     override fun linkIdFor(location: Location<*>): Long {
-        // Use UTM as baseline, WGS is imprecise, depending on location.
-//        val utm = WGS84Coordinate.decimalDegree(
-//            location.position.y,
-//            location.position.x,
-//        ).toUTM()
-//
         val utm = JTSConverter.convertPoint(location.position, srid)
         val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.x, it.y) }
         return edge.edge.id?.toLong() ?: Long.MIN_VALUE

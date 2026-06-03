@@ -1,5 +1,8 @@
 package domain.shared.location
 
+import domain.shared.location.attributes.StandardLocationAttributes
+import domain.shared.location.attributes.ZoneDerivedLocationAttributes
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import org.locationtech.jts.geom.Point

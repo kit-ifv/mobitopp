@@ -1,10 +1,11 @@
-package domain.shared.location
+package domain.shared.location.jts
 
 import edu.kit.ifv.JTSConverter
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.toDistance
+import org.geotools.api.referencing.cs.CoordinateSystem
 import org.geotools.referencing.GeodeticCalculator
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.operation.distance.DistanceOp
@@ -51,4 +52,7 @@ object JTSDistanceCalculator {
 
         return geodeticCalculator.orthodromicDistance.meters
     }
+
+    private fun CoordinateSystem.axisUnits(): Set<String> =
+        (0 until dimension).map { this.getAxis(it).unit.name }.toSet()
 }

@@ -4,7 +4,7 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import domain.shared.location.DistanceMetric
-import domain.shared.location.PointCreator
+import domain.shared.location.jts.PointCreator
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasZoneId
 import domain.synthesis.behavior.fixeddestinations.communitybased.CommunityNumber

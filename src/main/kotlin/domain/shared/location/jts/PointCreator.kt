@@ -1,4 +1,4 @@
-package domain.shared.location
+package domain.shared.location.jts
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory

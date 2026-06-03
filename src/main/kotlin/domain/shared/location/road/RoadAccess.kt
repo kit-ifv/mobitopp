@@ -1,4 +1,4 @@
-package domain.shared.location
+package domain.shared.location.road
 
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.UnitIntervalValue

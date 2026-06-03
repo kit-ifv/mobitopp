@@ -4,7 +4,7 @@ import application.steps.HasMutableRoadNetwork
 import core.modelsteps.Context
 import core.modelsteps.steps.modelStep
 import core.modelsteps.validation.validateFileReadAccess
-import domain.shared.datastructure.LocatableGraph
+import domain.shared.location.road.LocatableGraph
 import edu.kit.ifv.NetfileParser
 import edu.kit.ifv.VisumLocale
 import edu.kit.ifv.units.Hemisphere

@@ -2,26 +2,10 @@ package domain.shared.datastructure.schedule.plans
 
 import domain.shared.datastructure.schedule.action.Action
 import domain.shared.datastructure.schedule.action.Activity
-import domain.shared.datastructure.schedule.action.Leg
 import domain.shared.datastructure.schedule.action.LinkedAction
-import domain.shared.datastructure.schedule.action.LinkedActivity
-import domain.shared.datastructure.schedule.action.LinkedLeg
 import domain.shared.datastructure.schedule.action.isConsistent
-import domain.shared.datastructure.schedule.blocks.ActionBlock
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
-
-interface LegTracker {
-    fun add(leg: Leg)
-    fun remove(leg: Leg)
-    fun replaceLegs(target: Set<Leg>, to: Set<Leg>)
-}
-
-interface ActivityTracker {
-    fun add(activity: Activity): LinkedActivity?
-    fun remove(activity: Activity)
-    fun replaceActivities(target: Set<Activity>, to: Set<Activity>)
-}
 
 /**
  * A plan model should maintain the state of the Action plan by allowing legs and activities to
@@ -54,17 +38,6 @@ interface PlanModel :
     fun dropUntil(activity: Activity)
 }
 fun PlanModel.isConsistent() = actions().isConsistent()
-interface SeparablePlanModel : PlanModel {
-
-    fun activities(): Collection<LinkedActivity>
-
-    fun lastActivity(): LinkedActivity
-    fun legs(): Collection<LinkedLeg>
-
-    fun view(): BlockModel.TripView
-
-    fun nextBlock(): ActionBlock<*>?
-}
 fun Collection<Action>.requiredOffsets(startTime: AbsoluteTime): List<Duration> {
     var totalShift = startTime
     val requiredShifts = map {

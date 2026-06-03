@@ -5,7 +5,7 @@ import core.modelsteps.resources.MutableRepository
 import core.modelsteps.resources.Repository
 import core.statemachine.Agent
 import domain.shared.behavior.AttractivenessModel
-import domain.shared.datastructure.LocatableGraph
+import domain.shared.location.road.LocatableGraph
 import domain.shared.enums.Mode
 import domain.shared.location.Impedance
 import domain.shared.location.zone.ZoneId

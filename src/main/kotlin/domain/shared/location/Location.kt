@@ -1,5 +1,7 @@
 package domain.shared.location
 
+import domain.shared.location.jts.JTSDistanceCalculator
+import domain.shared.location.jts.PointCreator
 import edu.kit.ifv.units.Distance
 import org.locationtech.jts.geom.Point
 

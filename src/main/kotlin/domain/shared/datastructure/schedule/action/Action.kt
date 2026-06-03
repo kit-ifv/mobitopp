@@ -1,8 +1,6 @@
 package domain.shared.datastructure.schedule.action
 
 import domain.shared.datastructure.schedule.ActionVisitor
-import domain.shared.enums.ActivityType
-import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
@@ -87,40 +85,3 @@ fun Iterable<Action>.hasTimeBoundViolations(): Boolean = any {
 
 operator fun Iterable<Action>.contains(action: Action): Boolean = any { it.compareTo(action) == 0 }
 
-/**
- * A [StationaryAction] is an [Action] that takes place at one and only one Location. The [startLocation] and [endLocation]
- * can therefore be delegated to the central [location] property. This is a read-only view and does not allow alteration
- * of the properties. You should use this interface when you want to disallow modifications.
- */
-sealed interface StationaryAction : Action {
-    val location: StandardLocation
-    val type: ActivityType
-    override val actionType: ActionType
-        get() = ActionType.ACTIVITY
-    override val startLocation: StandardLocation
-        get() = location
-    override val endLocation: StandardLocation
-        get() = location
-}
-
-/**
- * A [MovingAction] is an [Action] that starts at the [startLocation] and ends at the [endLocation]. Start and end may
- * be the same (For example a leisure circular walk may be such an action) This is a read-only view and does not allow
- * modification of the properties.
- */
-
-sealed interface MovingAction : Action {
-    override val startTime: AbsoluteTime
-    override val endTime: AbsoluteTime
-    override val startLocation: StandardLocation
-    override val endLocation: StandardLocation
-    override val actionType: ActionType
-        get() = ActionType.LEG
-
-    val transportType: Mode // TODO can we rename this property to mode?
-}
-
-enum class ActionType {
-    ACTIVITY,
-    LEG,
-}

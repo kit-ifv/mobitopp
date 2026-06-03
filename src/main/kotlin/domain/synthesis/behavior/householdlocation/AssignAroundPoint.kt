@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.householdlocation
 
-import domain.shared.location.RoadAccess
+import domain.shared.location.road.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.StandardLocationImpl
 import domain.shared.location.zone.Zone
