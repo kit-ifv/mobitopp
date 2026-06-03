@@ -20,7 +20,6 @@ import utils.csv.double
 import utils.csv.int
 import utils.csv.long
 
-// Zone parser independent of context
 data class ZoneColumns(
     val idColumn: String = "id",
     val nameColumn: String = "name",

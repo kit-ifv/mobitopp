@@ -31,14 +31,12 @@ data class CarColumns( // TODO drop support for old format
 }
 
 data class PrivateCarCsvConfig(
-//    var path: Path,
     var columns: CarColumns = CarColumns(),
     var householdExists: (HouseholdId) -> Boolean,
     var getOwnerHousehold: (Row, String) -> MutableHousehold,
     var getMainUser: (Row, String) -> Person?,
     var carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
     var carSegmentCodes: CodePlan<CarSegment>,
-//    var delimiter: String = SEMICOLON,
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
     var filter: PrivateCarCsvConfig.(Row) -> Boolean = ownerExistsFilter, // TODO allow edit filter for other entities
 )

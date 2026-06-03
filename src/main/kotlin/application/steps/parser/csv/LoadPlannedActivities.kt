@@ -16,6 +16,7 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import core.modelsteps.scopes.updateEachStep
 import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.datastructure.schedule.action.LinkedActivity
+import domain.simulation.behavior.NoActivityStartShifter
 import domain.synthesis.attributes.person.HasPlannedActivities
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
@@ -23,7 +24,6 @@ import domain.synthesis.data.PlannedActivity
 import domain.synthesis.data.person.PersonId
 import domain.synthesis.parser.ActivitiesColumns
 import domain.synthesis.parser.ActivityCsvConfig
-import domain.synthesis.parser.NoActivityStartShifter
 import domain.synthesis.parser.binary.BinaryActivityReader
 import domain.synthesis.parser.binary.BinaryActivityWriter
 import domain.synthesis.parser.createActivityCsvParser

@@ -1,4 +1,4 @@
-package domain.synthesis.parser
+package domain.synthesis.data
 
 import domain.jackson.BinaryWritable
 import domain.jackson.Simplifiable

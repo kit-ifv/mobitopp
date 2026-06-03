@@ -1,6 +1,8 @@
 package domain.synthesis.parser
 
 import domain.shared.enums.ActivityType
+import domain.simulation.behavior.ActivityStartShifter
+import domain.simulation.behavior.QuarterHourShifter
 import domain.synthesis.data.ActivityBinaryRecord
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.MutablePlannedActivity
@@ -27,14 +29,11 @@ data class ActivitiesColumns(
 )
 
 data class ActivityCsvConfig<P>(
-//    var path: Path,
-//    var delimiter: String = SEMICOLON,
     var columns: ActivitiesColumns = ActivitiesColumns(),
     var personExists: (PersonId) -> Boolean,
     var personProvider: (PersonId) -> P,
     var durationUnit: DurationUnit,
     var activityTypes: CodePlan<ActivityType>,
-//    var filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
     var shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
     var errorHandling: ErrorHandling = ErrorHandling.WARNING,
     val seed: Long,
@@ -42,13 +41,6 @@ data class ActivityCsvConfig<P>(
 
 fun <P> createActivityCsvParser(
     csvConfig: ActivityCsvConfig<P>,
-//    errorHandling: ErrorHandling,
-//    columns: ActivitiesColumns,
-// //    shiftActivityStart: ActivityStartShifter,
-//    durationUnit: DurationUnit,
-// //    personProvider: (PersonId) -> MutablePerson,
-//    seed: Long,
-//    activityTypes: CodePlan<ActivityType>
 ): CsvParser<MutablePlannedActivity> where P : Identifiable<PersonId>, P : StochasticActor = csvConfig.run {
     CsvParser<MutablePlannedActivity>(errorHandling) { row ->
         val person = personProvider(PersonId(row.long(columns.personColumn)))
@@ -58,9 +50,7 @@ fun <P> createActivityCsvParser(
             person = person.id,
             seed = seed,
         ) {
-            val shift = shiftActivityStart(
-                this,
-            ) // TODO this is broken! cache should use person instead of activity for reuse
+            val shift = shiftActivityStart(person)
 
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
             startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit) + shift
@@ -85,6 +75,5 @@ fun activityBinaryCsvParser(
         row.long(columns.startColumn),
         duration = row.int(columns.durationColumn),
         activityCode = row.int(columns.activityTypeColumn),
-
     )
 }

@@ -29,6 +29,6 @@ open class CommuterDistance<T> : AssignAgentsInCommunity<T> where T : HasCommute
     open fun differenceToCommuteDistance(agent: SurveyPerson<T>, location: StandardLocation): Distance = abs(
 
         agent.homeLocation.distance(location) -
-                agent.attributes.distanceWork,
+            agent.attributes.distanceWork,
     )
 }

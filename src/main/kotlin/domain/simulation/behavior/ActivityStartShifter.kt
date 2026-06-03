@@ -1,4 +1,4 @@
-package domain.synthesis.parser
+package domain.simulation.behavior
 
 import utils.random.StochasticActor
 import kotlin.time.Duration

@@ -42,14 +42,6 @@ abstract class PlannedActivity(
 
     final override val random: Random by lazy { Random(id.value + seed) }
 
-//    init {
-//        this.addAsActivity()
-//    }
-//
-//    private fun addAsActivity() {
-//        this.person.plannedActivities.add(this)
-//    }
-
     abstract val activityType: ActivityType
     abstract val observedTripDuration: Duration
     abstract val startTime: AbsoluteTime

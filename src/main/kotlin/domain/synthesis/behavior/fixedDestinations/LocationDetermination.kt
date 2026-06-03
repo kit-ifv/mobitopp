@@ -8,4 +8,3 @@ data class AssignedLocation<T : MinimumPersonAttributes>(
     val targetPerson: SynthesisPerson<*, T>,
     val assignedLocation: StandardLocation,
 )
-

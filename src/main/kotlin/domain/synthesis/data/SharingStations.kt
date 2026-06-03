@@ -29,7 +29,7 @@ value class SharingProviderId(val value: Long) : Comparable<SharingProviderId> {
 
 interface ISharingProvider : Identifiable<SharingProviderId> {
     val name: String
-    val mode: Mode // TODO assign proper mode
+    val mode: Mode
     val stations: Set<ISharingStation>
     val operatingHours: IntRange // TODO refine for multiple intervals
 
@@ -38,10 +38,7 @@ interface ISharingProvider : Identifiable<SharingProviderId> {
 }
 
 @Mutable
-abstract class SharingProvider(
-    final override val id: SharingProviderId,
-    // todo should name and mode also be immutable?
-) : ISharingProvider {
+abstract class SharingProvider(final override val id: SharingProviderId) : ISharingProvider {
     abstract override val stations: Set<SharingStation>
 
     override val numberOfVehicles: Int

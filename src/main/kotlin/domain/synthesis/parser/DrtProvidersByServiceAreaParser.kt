@@ -10,10 +10,9 @@ import utils.csv.Row
 import utils.csv.int
 import utils.csv.long
 
-// id providers
 object GlobalDrtProviderIdCounter : (Row) -> DrtProviderId, () -> DrtProviderId {
     private var counter = 0L
-    override operator fun invoke(row: Row) = invoke() // TODO take any
+    override operator fun invoke(row: Row) = invoke() // TODO accept param of type any
     override fun invoke(): DrtProviderId = DrtProviderId(counter++)
 }
 
