@@ -1,7 +1,5 @@
 package domain.synthesis.behavior.cars.choicemodels.parameters
 
-import domain.synthesis.behavior.cars.choicemodels.parameters.SimplifiedParameters
-
 @Suppress(
     "MagicNumber",
     "ConstructorParameterNaming",

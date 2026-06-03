@@ -1,11 +1,13 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.synthesis.attributes.household.HasIncome
 import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasBiologicalSex
 import domain.synthesis.attributes.person.HasCommuteDistance
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.MinimalistPerson
+import domain.synthesis.data.car.CarSegment
 import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
@@ -38,3 +40,16 @@ data class CarSegmentChoice(
             )
     }
 }
+
+fun <S, T> CarSegment.toAlternative(
+    person: MinimalistPerson<T>,
+    household: MinimalistHousehold<S, T>,
+): CarSegmentChoice where S : HasNumberOfCars, S : HasIncome, T : HasBiologicalSex, T : HasCommuteDistance =
+    CarSegmentChoice(
+        person.attributes.distanceWork,
+        household.size,
+        household.attributes.income,
+        household.attributes.amountOfCars,
+        person.attributes.sex,
+        false, // TODO extract the infomration that the person is commuting
+    )

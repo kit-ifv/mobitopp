@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.fixedDestinations.communityBased
+package domain.synthesis.behavior.fixeddestinations.communitybased
 
 import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.person.HasCommuteDistance
@@ -29,6 +29,6 @@ open class CommuterDistance<T> : AssignAgentsInCommunity<T> where T : HasCommute
     open fun differenceToCommuteDistance(agent: SurveyPerson<T>, location: StandardLocation): Distance = abs(
 
         agent.homeLocation.distance(location) -
-                agent.attributes.distanceWork,
+            agent.attributes.distanceWork,
     )
 }

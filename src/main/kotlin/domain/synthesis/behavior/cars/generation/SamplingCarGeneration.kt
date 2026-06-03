@@ -7,13 +7,14 @@ import domain.synthesis.attributes.household.licenceHolders
 import domain.synthesis.attributes.household.numberOfDrivingLicences
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.behavior.MinimalistHousehold
+import domain.synthesis.behavior.MinimalistPerson
 import domain.synthesis.behavior.cars.CarImpl
-import domain.synthesis.behavior.discreteChoice.CarSegmentChoice
-import domain.synthesis.behavior.discreteChoice.CarSegmentParameters
-import domain.synthesis.behavior.discreteChoice.EngineAlternative
-import domain.synthesis.behavior.discreteChoice.EngineParameters
-import domain.synthesis.behavior.discreteChoice.carEngineChoiceModel
-import domain.synthesis.behavior.discreteChoice.carSegmentChoiceModel
+import domain.synthesis.behavior.cars.choicemodels.CarSegmentChoice
+import domain.synthesis.behavior.cars.choicemodels.EngineAlternative
+import domain.synthesis.behavior.cars.choicemodels.carEngineChoiceModel
+import domain.synthesis.behavior.cars.choicemodels.carSegmentChoiceModel
+import domain.synthesis.behavior.cars.choicemodels.parameters.CarSegmentParameters
+import domain.synthesis.behavior.cars.choicemodels.parameters.EngineParameters
 import domain.synthesis.data.car.Car
 import utils.collections.selectExact
 import kotlin.random.Random
@@ -22,13 +23,18 @@ import kotlin.random.Random
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
 
-class SamplingCarGeneration<S> :
+class SamplingCarGeneration<S>(
+    segmentParameters: CarSegmentParameters = CarSegmentParameters(),
+    engineParameters: EngineParameters = EngineParameters(),
+    private val randomGenerator: (MinimalistPerson<MaximumPersonAttributes>) -> Random = {
+        Random(it.attributes.hashCode())
+    }
+) :
     GenerateCars<S, MaximumPersonAttributes>
-    where S : MinimumHouseholdAttributes, S : HasNumberOfCars {
-    private val segmentModel = carSegmentChoiceModel.build(CarSegmentParameters())
+        where S : MinimumHouseholdAttributes, S : HasNumberOfCars {
 
-    // TODO make parameters customizable!
-    private val engineModel = carEngineChoiceModel.build(EngineParameters())
+    private val segmentModel = carSegmentChoiceModel.build(segmentParameters)
+    private val engineModel = carEngineChoiceModel.build(engineParameters)
 
     override fun generate(householdBuilder: MinimalistHousehold<S, MaximumPersonAttributes>): List<Car> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
@@ -38,7 +44,8 @@ class SamplingCarGeneration<S> :
         val generationTargets = potentialCarUsers.selectExact(householdBuilder.attributes.amountOfCars)
         return generationTargets.map { person ->
 
-            val random = Random(person.attributes.hashCode()) // TODO cross check where the random comes from.
+            val random = randomGenerator(person)
+            // random comes from.
             val segment = context(CarSegmentChoice.create(person, householdBuilder), random) {
                 segmentModel.select()
             }

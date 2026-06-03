@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.fixedDestinations.communityBased
+package domain.synthesis.behavior.fixeddestinations.communitybased
 
 import domain.shared.location.DistanceMetric
 import domain.shared.location.StandardLocation

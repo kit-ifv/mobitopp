@@ -36,14 +36,14 @@ import domain.synthesis.behavior.discreteChoice.TransitPassParameters
 import domain.synthesis.behavior.discreteChoice.YesTransitPass
 import domain.synthesis.behavior.discreteChoice.transitPassChoiceModel
 import domain.synthesis.behavior.economicstatus.OECDAssigner
-import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
+import domain.synthesis.behavior.fixeddestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.UseClosestLocation
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
-import domain.synthesis.behavior.fixedDestinations.primarySchool
-import domain.synthesis.behavior.fixedDestinations.secondarySchool
-import domain.synthesis.behavior.fixedDestinations.work
+import domain.synthesis.behavior.fixeddestinations.primarySchool
+import domain.synthesis.behavior.fixeddestinations.secondarySchool
+import domain.synthesis.behavior.fixeddestinations.work
 import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.results.LegacyActivityOutput
 import domain.synthesis.results.LegacyCarOutput
@@ -55,7 +55,6 @@ import domain.synthesis.results.OpportunityOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.meters
-import integration.TrivialSynthesis
 import org.locationtech.jts.geom.Geometry
 import java.nio.file.Path
 import kotlin.io.path.Path

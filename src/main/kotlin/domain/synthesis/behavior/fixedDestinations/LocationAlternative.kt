@@ -1,11 +1,11 @@
-package domain.synthesis.behavior.fixedDestinations
+package domain.synthesis.behavior.fixeddestinations
 
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 
 /**
- * Contains all relevant information for the discrete choice within the [BandwidthLocator] to select a proper target.
+ * Contains all relevant information for the discrete choice within the [domain.synthesis.behavior.fixeddestinations.BandwidthLocator] to select a proper target.
  */
 @Suppress("MagicNumber") // The small attractiveness as default seems to cause issues.
 data class LocationAlternative(val attractivenessModel: AttractivenessModel, val activityType: ActivityType) {

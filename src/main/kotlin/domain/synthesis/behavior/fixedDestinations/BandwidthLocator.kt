@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.fixedDestinations
+package domain.synthesis.behavior.fixeddestinations
 
 import core.datastructure.kdtree.WithMetric
 import domain.shared.behavior.AttractivenessModel
@@ -17,18 +17,6 @@ import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.random.Random
 
-val standardBandwidthModel = RuleBasedStructure<
-    WithMetric<StandardLocation, Distance>,
-    LocationAlternative,
-    BandwidthParameters,
-    > {
-    ruleForAll { option, characteristics ->
-        val (loc, distance) = option
-        ln(characteristics.attractiveness(loc).value) /
-            (bDistance * distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
-    }
-}.openMultinomialLogit("DefaultBandwidthLocationSelector")
-
 /**
  * The bandwidth locator first determines which potential locations are valid targets by filtering the locations which
  * are within the commute distance of the agent +/- the poleRadius defined in the [BandwidthParameters]. If no locations
@@ -41,14 +29,14 @@ class BandwidthLocator<T>(
     private val potentialLocations: List<StandardLocation>,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
-    var parameters: BandwidthParameters = BandwidthParameters(), // TODO why variable?
-    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> =
-        standardBandwidthModel.build(parameters),
+    var parameters: BandwidthParameters = BandwidthParameters(),
+    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> = standardBandwidthChoiceModel.build(parameters),
+    private val randomSource: () -> Random = {Random(42)},
 ) : SimpleLocator<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
     private val locationTree = LocationKDTree(potentialLocations)
 
     @Suppress("MagicNumber")
-    private val random = Random(42L) // TODO what is random source of opportunities?
+    private val random = randomSource()
 
     override fun locate(agent: SurveyPerson<T>): StandardLocation {
         var validTargets =

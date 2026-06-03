@@ -1,4 +1,4 @@
-package domain.synthesis.behavior.fixedDestinations
+package domain.synthesis.behavior.fixeddestinations
 
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.kilometers

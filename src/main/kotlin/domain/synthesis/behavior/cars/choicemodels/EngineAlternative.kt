@@ -27,7 +27,7 @@ data class EngineAlternative(
     val isUnemployed: Boolean,
     val isRetired: Boolean,
 
-    ) {
+) {
 
     companion object {
         fun <X> fromHousehold(

@@ -12,7 +12,7 @@ import domain.synthesis.behavior.cars.SynthesisCar
 import domain.synthesis.behavior.cars.generation.GenerateCars
 import domain.synthesis.behavior.cars.ownership.AssignMainUser
 import domain.synthesis.behavior.economicstatus.DetermineEconomicStatus
-import domain.synthesis.behavior.fixedDestinations.AssignFixedDestinationBuilder
+import domain.synthesis.behavior.fixeddestinations.AssignFixedDestinationBuilder
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
 import domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
 import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder

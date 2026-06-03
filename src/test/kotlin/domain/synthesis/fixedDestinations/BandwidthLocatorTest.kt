@@ -12,10 +12,10 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.synthesis.ControllableAttractiveness
-import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
+import domain.synthesis.behavior.fixeddestinations.BandwidthLocator
 import domain.synthesis.behavior.fixedDestinations.BandwidthParameters
 import domain.synthesis.behavior.fixedDestinations.LocationAlternative
-import domain.synthesis.behavior.fixedDestinations.standardBandwidthModel
+import domain.synthesis.behavior.fixeddestinations.standardBandwidthChoiceModel
 import domain.synthesis.data.person.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
 import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction
@@ -79,7 +79,7 @@ class BandwidthLocatorTest : SynthesisTest() {
             aDistance = 1.0,
         )
         // To avoid randomness, we overwrite the selection function to pick the maximum utility instead.
-        val model = standardBandwidthModel.build(parameters).copy(
+        val model = standardBandwidthChoiceModel.build(parameters).copy(
             selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key },
         )
         val locator = BandwidthLocator<Attrs>(
@@ -101,7 +101,7 @@ class BandwidthLocatorTest : SynthesisTest() {
             bDistance = 1.0,
             aDistance = 1.0,
         )
-        val model2 = standardBandwidthModel.build(otherParameters).copy(
+        val model2 = standardBandwidthChoiceModel.build(otherParameters).copy(
             selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key },
         )
 
@@ -119,7 +119,7 @@ class BandwidthLocatorTest : SynthesisTest() {
             bDistance = 1.0,
             aDistance = 1.0,
         )
-        val model = standardBandwidthModel.build(parameters)
+        val model = standardBandwidthChoiceModel.build(parameters)
         val sit1 = WithMetric(
             testZone.spawnFakeLoc(),
             1.kilometers,
@@ -137,7 +137,7 @@ class BandwidthLocatorTest : SynthesisTest() {
             bDistance = 1.5,
             aDistance = 2.0,
         )
-        val model2 = standardBandwidthModel.build(otherParameters)
+        val model2 = standardBandwidthChoiceModel.build(otherParameters)
         context(LocationAlternative(attractivenessModel, myActivityType)) {
             assertEquals(1.0 / 1.5, model2.utility(sit1))
             assertEquals(1.0 / 6.0, model2.utility(sit2))
