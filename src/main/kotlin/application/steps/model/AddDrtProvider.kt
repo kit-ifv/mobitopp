@@ -9,6 +9,9 @@ import domain.simulation.agent.SimpleMatrixDrtAlgorithm
 import domain.simulation.data.DrtProviderId
 import domain.simulation.data.MutableDrtProviderData
 import domain.simulation.parser.GlobalDrtProviderIdCounter
+import domain.synthesis.data.drt.DrtProviderId
+import domain.synthesis.data.MutableDrtProviderData
+import domain.synthesis.parser.GlobalDrtProviderIdCounter
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 

@@ -43,6 +43,29 @@ import domain.simulation.parser.binary.BinaryHouseholdReader
 import domain.simulation.parser.binary.BinaryHouseholdWriter
 import domain.simulation.parser.binary.BinaryPersonReader
 import domain.simulation.parser.binary.BinaryPersonWriter
+import domain.synthesis.data.ActivityId
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.MutablePlannedActivity
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.car.CarId
+import domain.synthesis.data.car.MutablePrivateCar
+import domain.synthesis.data.car.PrivateCar
+import domain.synthesis.data.household.Household
+import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.household.MutableHousehold
+import domain.synthesis.data.person.MutablePerson
+import domain.synthesis.data.person.Person
+import domain.synthesis.data.person.PersonId
+import domain.synthesis.parser.binary.BinaryActivityReader
+import domain.synthesis.parser.binary.BinaryActivityWriter
+import domain.synthesis.parser.binary.BinaryCarReader
+import domain.synthesis.parser.binary.BinaryCarWriter
+import domain.synthesis.parser.binary.BinaryHouseholdReader
+import domain.synthesis.parser.binary.BinaryHouseholdWriter
+import domain.synthesis.parser.binary.BinaryPersonReader
+import domain.synthesis.parser.binary.BinaryPersonWriter
+import domain.synthesis.parser.binary.BinaryZoneReader
+import domain.synthesis.parser.binary.BinaryZoneWriter
 import java.nio.file.Path
 
 /**

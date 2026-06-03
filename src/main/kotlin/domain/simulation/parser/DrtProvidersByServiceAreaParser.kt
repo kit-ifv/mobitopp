@@ -2,6 +2,8 @@ package domain.simulation.parser
 
 import domain.shared.enums.Mode
 import domain.shared.location.zone.ZoneId
+import domain.synthesis.data.drt.DrtProviderId
+import domain.synthesis.data.MutableDrtProviderData
 import domain.simulation.data.DrtProviderId
 import domain.simulation.data.MutableDrtProviderData
 import utils.ErrorHandling

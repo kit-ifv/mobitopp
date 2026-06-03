@@ -3,6 +3,7 @@ package domain.simulation.data.household
 import domain.jackson.Simplifiable
 import domain.shared.car.IPrivateCar
 import domain.shared.enums.household.EconomicStatus
+import utils.binary.Simplifiable
 import domain.shared.location.StandardLocation
 import domain.shared.location.toDTO
 import domain.simulation.data.HasStandardLocation

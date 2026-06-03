@@ -1,5 +1,6 @@
-package domain.jackson
+package domain.synthesis.data.car
 
+import utils.binary.BinaryWritable
 import java.io.DataOutputStream
 
 data class CarBinaryRecord(

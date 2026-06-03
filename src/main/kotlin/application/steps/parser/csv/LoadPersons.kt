@@ -27,6 +27,20 @@ import domain.simulation.parser.PersonCsvConfig
 import domain.simulation.parser.binary.BinaryPersonReader
 import domain.simulation.parser.binary.BinaryPersonWriter
 import domain.simulation.parser.createPersonCsvParser
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.household.MutableHousehold
+import domain.synthesis.data.person.Employment
+import domain.synthesis.data.person.Graduation
+import domain.synthesis.data.person.MutablePerson
+import domain.synthesis.data.person.Person
+import domain.synthesis.data.person.PersonId
+import domain.synthesis.data.person.Sex
+import domain.synthesis.parser.PersonColumns
+import domain.synthesis.parser.PersonCsvConfig
+import domain.synthesis.parser.binary.BinaryPersonReader
+import domain.synthesis.parser.binary.BinaryPersonWriter
+import domain.synthesis.parser.createPersonCsvParser
 import utils.csv.CsvParser
 import java.nio.file.Path
 

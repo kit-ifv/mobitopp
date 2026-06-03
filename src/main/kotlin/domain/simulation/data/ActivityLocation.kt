@@ -1,7 +1,7 @@
 package domain.simulation.data
 
-import domain.jackson.BinaryWritable
-import domain.jackson.Simplifiable
+import utils.binary.BinaryWritable
+import utils.binary.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZonedRoadAccessLocationDTO

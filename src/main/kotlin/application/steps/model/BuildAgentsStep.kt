@@ -30,6 +30,11 @@ import domain.simulation.data.SharingProvider
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.household.Household
 import domain.simulation.data.person.Person
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.car.PrivateCar
+import domain.synthesis.data.household.Household
+import domain.synthesis.data.person.Person
 
 /**
  * Creates a [GaussianActivityDurationRandomizer] based on the simulation duration.

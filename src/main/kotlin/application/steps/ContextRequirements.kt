@@ -17,6 +17,11 @@ import domain.simulation.data.SharingProviderId
 import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.person.PersonId
 import domain.simulation.events.PersonBehavior
+import domain.synthesis.data.drt.DrtProviderId
+import domain.synthesis.data.SharingProviderId
+import domain.synthesis.data.car.CarId
+import domain.synthesis.data.household.HouseholdId
+import domain.synthesis.data.person.PersonId
 import utils.CodePlan
 import utils.Identifiable
 

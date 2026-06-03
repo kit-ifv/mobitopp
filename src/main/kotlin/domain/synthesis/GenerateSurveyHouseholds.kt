@@ -1,3 +1,5 @@
+package domain.synthesis
+
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
@@ -9,6 +11,6 @@ import domain.synthesis.behavior.ISurveyHousehold
  *
  * We provide a Csv extractor, but you can let your imagination run wild.
  */
-fun interface GenerateHouseholds<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
+fun interface GenerateSurveyHouseholds<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
     fun generateSurveyHouseholds(): Collection<ISurveyHousehold<S, T>>
 }

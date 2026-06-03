@@ -1,6 +1,6 @@
 package domain.shared.location.parser
 
-import domain.jackson.BinaryWritable
+import utils.binary.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.ZonedRoadAccessLocationDTO

@@ -1,6 +1,6 @@
 package domain.simulation.data.person
 
-import domain.jackson.BinaryWritable
+import utils.binary.BinaryWritable
 import java.io.DataOutputStream
 
 data class PersonBinaryRecord(

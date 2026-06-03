@@ -7,6 +7,8 @@ import domain.shared.location.parser.BinaryZoneReader
 import domain.shared.location.parser.BinaryZoneWriter
 import domain.synthesis.data.DrtProvider
 import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.car.CarSegment

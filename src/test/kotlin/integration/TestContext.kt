@@ -54,8 +54,8 @@ import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.events.PersonBehavior
-import domain.synthesis.data.DrtProvider
-import domain.synthesis.data.DrtProviderId
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProvider

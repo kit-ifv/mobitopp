@@ -1,4 +1,4 @@
-package domain.jackson
+package utils.binary
 
 import java.io.DataOutputStream
 
