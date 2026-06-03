@@ -148,8 +148,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
 
     @Deprecated(
         "This implementation spawns a coroutine for each household, and only one strategy, thus not " +
-                "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
-                "risk group. Use assignActivities instead. ",
+            "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
+            "risk group. Use assignActivities instead. ",
     )
     fun assignActivitiesUnconstrained(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val strategy = lambda()
@@ -232,8 +232,8 @@ fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignAmou
     lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>,
 )
         where
-        S : MinimumHouseholdAttributes,
-        S : HasMutableNumberOfCars {
+              S : MinimumHouseholdAttributes,
+              S : HasMutableNumberOfCars {
     val strategy = lambda()
     households.forEach {
         context(Random(it.id)) {

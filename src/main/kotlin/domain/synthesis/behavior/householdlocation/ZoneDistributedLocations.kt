@@ -51,7 +51,6 @@ class ZoneDistributedLocations<Z, T>(
                 )
             }
         return householdsToLocate.zip(generatedLocations)
-
     }
 
     private fun CoordinateGenerator.generateOneCoordinate(polyZone: VisumPolyZone): Point =

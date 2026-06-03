@@ -10,12 +10,7 @@ import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.fixeddestinations.bandwidth.LocationAlternative
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
-import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
-import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
 import edu.kit.ifv.units.Distance
-import edu.kit.ifv.units.DistanceUnit
-import kotlin.math.ln
-import kotlin.math.pow
 import kotlin.random.Random
 
 /**
@@ -31,8 +26,10 @@ class BandwidthLocator<T>(
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
     var parameters: BandwidthParameters = BandwidthParameters(),
-    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> = standardBandwidthChoiceModel.build(parameters),
-    private val randomSource: () -> Random = {Random(42)},
+    var model: DiscreteChoiceModel<WithMetric<StandardLocation, Distance>, LocationAlternative, BandwidthParameters> = standardBandwidthChoiceModel.build(
+        parameters,
+    ),
+    private val randomSource: () -> Random = { Random(42) },
 ) : domain.synthesis.behavior.fixeddestinations.SimpleLocator<T> where T : HasCommuteDistance, T : MinimumPersonAttributes {
     private val locationTree = LocationKDTree(potentialLocations)
 

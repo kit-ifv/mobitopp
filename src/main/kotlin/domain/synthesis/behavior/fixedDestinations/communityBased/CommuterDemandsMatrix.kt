@@ -99,4 +99,3 @@ class CommuterDemandsMatrix(
 
     data class CommuterInfo(val origin: CommunityNumber, val destination: CommunityNumber, val amount: Int)
 }
-

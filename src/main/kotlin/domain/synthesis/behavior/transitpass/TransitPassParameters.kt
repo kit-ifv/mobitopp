@@ -96,4 +96,3 @@ data class TicketCharacteristics(
     val numChildsAgeFiveOrLess = household.members.count { it.age in 0..5 }
     val numAgeInSixToSeventeen = household.members.count { it.age in 6..17 }
 }
-
