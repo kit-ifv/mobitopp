@@ -81,11 +81,11 @@ data class CoreCSVConfig(
     }
 
     /**
-     * Returns new CSVConfig with changed attractivities and zones paths.
-     * @param attractivitiesCSV The path to attractivities.csv relative to the new zone repo, or an absolute path.
+     * Returns new CSVConfig with changed .attractivities and zones paths.
+     * @param attractivitiesCSV The path to .attractivities.csv relative to the new zone repo, or an absolute path.
      * @param zonesCSV The path to zones.csv relative to the new zone repo, or an
      * absolute path.
-     * @return A new CSVConfig with the attractivities and zones based on the new zone repo.
+     * @return A new CSVConfig with the .attractivities and zones based on the new zone repo.
      */
     fun overwriteZoneRepo(
         zoneRepo: Path,

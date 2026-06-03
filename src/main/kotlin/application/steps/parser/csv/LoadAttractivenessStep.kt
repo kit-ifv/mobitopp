@@ -32,7 +32,7 @@ import kotlin.io.path.name
  * @param path The path to the attractiveness CSV file. Defaults to [config.attractivenessFile].
  * @param work The [ActivityType] representing work. Defaults to [config.work].
  * @param privateVisit The [ActivityType] representing private visits. Defaults to [config.privateVisit].
- * @param activityTypes The set of all activity types to load attractivities for.
+ * @param activityTypes The set of all activity types to load .attractivities for.
  *                      Defaults to [config.activityTypes.values()].
  */
 context(config: CFG)
@@ -72,7 +72,7 @@ private fun <C> validateAttractivenessColumns(
 
         validateCondition(
             message = {
-                "Expected attractivities file (${path.name}) to contains column '$expectedColumn'! " +
+                "Expected .attractivities file (${path.name}) to contains column '$expectedColumn'! " +
                     "Found columns: $columns"
             },
             isError = false,

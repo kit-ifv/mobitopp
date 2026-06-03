@@ -55,6 +55,7 @@ import domain.synthesis.results.OpportunityOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.units.meters
+import integration.TrivialSynthesis
 import org.locationtech.jts.geom.Geometry
 import java.nio.file.Path
 import kotlin.io.path.Path
