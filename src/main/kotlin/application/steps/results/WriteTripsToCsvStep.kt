@@ -13,7 +13,7 @@ import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
 import domain.simulation.behavior.euros
 import domain.simulation.behavior.kilometers
-import domain.synthesis.results.toCSV
+import domain.synthesis.results.legacy.toCSV
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter
 

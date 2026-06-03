@@ -13,7 +13,6 @@ import domain.shared.location.zone.attributes.HasGeometricEmbedding
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.GenerateFromFlatInput
 import domain.synthesis.PopulationSynthesis
-import domain.synthesis.SynthesisSteps
 import domain.synthesis.assignAmountOfCars
 import domain.synthesis.assignEconomicStatus
 import domain.synthesis.attributes.household.MaximumHouseholdAttributes
@@ -38,13 +37,8 @@ import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.behavior.transitpass.AssignByDiscreteChoice
 import domain.synthesis.behavior.transitpass.YesTransitPass
 import domain.synthesis.behavior.transitpass.transitPassChoiceModel
-import domain.synthesis.results.LegacyActivityOutput
-import domain.synthesis.results.LegacyCarOutput
-import domain.synthesis.results.LegacyFixedDestinationOutput
-import domain.synthesis.results.LegacyHouseholdOutput
-import domain.synthesis.results.LegacyOpportunitiesOutput
-import domain.synthesis.results.LegacyPersonOutput
 import domain.synthesis.results.OpportunityOutput
+import domain.synthesis.results.legacy.writeLegacyOutput
 import edu.kit.ifv.units.meters
 import org.locationtech.jts.geom.Geometry
 import kotlin.io.path.Path
@@ -184,28 +178,6 @@ fun examplePopulationSynthesis() {
         writeLegacyOutput()
         println("Finished")
     }
-}
-
-fun <C, T> SynthesisSteps<*, C, T>.writeLegacyOutput()
-        where C : MaximumHouseholdAttributes, T : MaximumPersonAttributes {
-    LegacyHouseholdOutput<C>().writeCSVToFile(
-        outputDirectory.resolve("household.csv"),
-        households,
-    )
-    LegacyPersonOutput<C, T>().writeCSVToFile(outputDirectory.resolve("person.csv"), people)
-    LegacyFixedDestinationOutput.writeCSVToFile(
-        outputDirectory.resolve("fixeddestination.csv"),
-        fixedDestinations,
-    )
-    LegacyActivityOutput.writeCSVToFile(
-        outputDirectory.resolve("activity.csv"),
-        activities.map { it.key to it.value },
-    )
-    LegacyCarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
-    LegacyOpportunitiesOutput.writeCSVToFile(
-        outputDirectory.resolve("opportunities.csv"),
-        opportunities,
-    )
 }
 
 fun main() {

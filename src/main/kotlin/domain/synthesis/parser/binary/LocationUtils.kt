@@ -3,7 +3,7 @@ package domain.synthesis.parser.binary
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
-import domain.shared.location.ZonedRoadAccessLocationDTO
+import domain.shared.location.ZonedRoadAccessLocationRecord
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
@@ -35,7 +35,7 @@ object LocationUtils {
         )
     }
 
-    fun ByteBuffer.decodeNakedLocation(): ZonedRoadAccessLocationDTO {
+    fun ByteBuffer.decodeNakedLocation(): ZonedRoadAccessLocationRecord {
         val zoneId = ZoneId(long) // Reading zone ID
         val coordinate = PointCreator.createWGS(
             double,
@@ -43,7 +43,7 @@ object LocationUtils {
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(long, double.share()) // Reading roadId and position
 
-        return ZonedRoadAccessLocationDTO(zoneId, roadAccess, coordinate)
+        return ZonedRoadAccessLocationRecord(zoneId, roadAccess, coordinate)
     }
 
     /**
@@ -58,7 +58,7 @@ object LocationUtils {
      *
      * @param location The `Location` object to write to the `DataOutputStream`.
      */
-    fun DataOutputStream.encodeLocation(location: ZonedRoadAccessLocationDTO) {
+    fun DataOutputStream.encodeLocation(location: ZonedRoadAccessLocationRecord) {
         writeLong(location.zoneId.value)
         writeDouble(location.position.x)
         writeDouble(location.position.y)

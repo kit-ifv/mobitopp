@@ -14,4 +14,3 @@ interface DrtProvider : Identifiable<DrtProviderId> {
     val serviceArea: List<ZoneId>
     val operatingHours: IntRange // TODO more detailed hours
 }
-

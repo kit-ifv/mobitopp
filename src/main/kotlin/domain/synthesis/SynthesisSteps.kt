@@ -19,11 +19,12 @@ import domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import domain.synthesis.results.FixedDestinationElements
 import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.fastcsv.OutputWriters
-import domain.synthesis.results.fastcsv.write
-import domain.synthesis.results.fastcsv.writeActivities
-import domain.synthesis.results.fastcsv.writeCars
-import domain.synthesis.results.fastcsv.writeFixedDestinations
-import domain.synthesis.results.fastcsv.writeOpportunities
+import domain.synthesis.results.fastcsv.writers.writeActivities
+import domain.synthesis.results.fastcsv.writers.writeCars
+import domain.synthesis.results.fastcsv.writers.writeFixedDestinations
+import domain.synthesis.results.fastcsv.writers.writeHouseholds
+import domain.synthesis.results.fastcsv.writers.writeOpportunities
+import domain.synthesis.results.fastcsv.writers.writePersons
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
@@ -148,8 +149,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
 
     @Deprecated(
         "This implementation spawns a coroutine for each household, and only one strategy, thus not " +
-                "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
-                "risk group. Use assignActivities instead. ",
+            "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
+            "risk group. Use assignActivities instead. ",
     )
     fun assignActivitiesUnconstrained(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val strategy = lambda()
@@ -211,8 +212,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
     fun writeStandardOutputCSV(path: Path) = writeStandardOutputCSV(OutputWriters.useDirectoryForCSV(path))
     fun writeStandardOutputCSV(targets: OutputWriters) {
         targets.run {
-            householdWriter?.let { households.write(it) }
-            personWriter?.let { people.write(it) }
+            householdWriter?.let { households.writeHouseholds(it) }
+            personWriter?.let { people.writePersons(it) }
             carWriter?.let { households.writeCars(it) }
             activityWriter?.let { activities.writeActivities(it) }
             fixedDestinationWriter?.let { fixedDestinations.writeFixedDestinations(it) }
@@ -232,8 +233,8 @@ fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignAmou
     lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>,
 )
         where
-        S : MinimumHouseholdAttributes,
-        S : HasMutableNumberOfCars {
+              S : MinimumHouseholdAttributes,
+              S : HasMutableNumberOfCars {
     val strategy = lambda()
     households.forEach {
         context(Random(it.id)) {

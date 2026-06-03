@@ -1,5 +1,6 @@
 package utils
 
+@Deprecated("This is a really weird wrapper around map, do we need that?")
 interface Cache<K, V> {
     val size: Int
 
@@ -14,6 +15,7 @@ interface Cache<K, V> {
     fun clear()
 }
 
+@Deprecated("The only place where this is implemented is in the tests.")
 class PerpetualCache<K, V> : Cache<K, V> {
     private val cache = HashMap<K, V>()
 

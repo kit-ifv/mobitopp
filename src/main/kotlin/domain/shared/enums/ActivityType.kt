@@ -1,6 +1,6 @@
 package domain.shared.enums
 
-import utils.Encodable
+import utils.codes.Encodable
 
 /**
  * An activity type describes which kind of activity is executed by a person.

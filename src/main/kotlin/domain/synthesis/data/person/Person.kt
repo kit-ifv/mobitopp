@@ -3,9 +3,9 @@ package domain.synthesis.data.person
 import Mutable
 import domain.synthesis.attributes.person.HasMutableSchedule
 import domain.synthesis.attributes.person.HasPlannedActivities
-import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.PlannedActivity
 import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.household.MutableHousehold
 import kotlin.random.Random
 
@@ -19,8 +19,6 @@ abstract class Person(final override val id: PersonId, override val household: M
 
     abstract override val sharingMemberships: List<SharingProvider>
     abstract override val drtMemberships: List<DrtProvider>
-
-
 
     init {
         addAsMember()

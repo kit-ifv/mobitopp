@@ -1,7 +1,7 @@
 package domain.shared.enums
 
 import domain.shared.behavior.ChoiceModelPurposes
-import utils.Decodable
+import utils.codes.Decodable
 
 /**
  * The default activity encoding from legacy mobiTopp

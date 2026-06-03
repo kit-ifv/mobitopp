@@ -1,14 +1,14 @@
 package domain.synthesis.data.household
 
-import utils.binary.Simplifiable
 import domain.shared.location.StandardLocation
-import domain.shared.location.toDTO
+import domain.shared.location.toRecord
 import domain.synthesis.data.HasStandardLocation
 import domain.synthesis.data.car.IPrivateCar
 import domain.synthesis.data.person.IPerson
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import utils.Identifiable
+import utils.binary.Simplifiable
 import utils.random.StochasticActor
 
 interface IHousehold :
@@ -34,7 +34,7 @@ interface IHousehold :
         type,
         incomePerMonth.toDouble(CurrencyUnit.EUROS),
         economicStatus.code,
-        location.toDTO(),
+        location.toRecord(),
 
     )
 }

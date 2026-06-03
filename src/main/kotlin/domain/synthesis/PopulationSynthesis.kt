@@ -27,7 +27,6 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
         ).apply(lambda)
     }
 
-
     companion object {
         class SynthesisConfiguration<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
             surveyPopulationGenerator: GenerateSurveyHouseholds<S, T>,
@@ -38,7 +37,7 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
 
             inner class AttractivenessModelParser {
 
-                lateinit var path : Path //= attractivenessModelPath
+                lateinit var path: Path // = attractivenessModelPath
 
                 lateinit var purposes: ChoiceModelPurposes
                 fun build(): AttractivenessModel = AttractivenessFromCsv(

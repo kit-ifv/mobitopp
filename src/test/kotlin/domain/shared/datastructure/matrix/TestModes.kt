@@ -1,7 +1,7 @@
 package domain.shared.datastructure.matrix
 
-import utils.Decodable
-import utils.Encodable
+import utils.codes.Decodable
+import utils.codes.Encodable
 
 internal enum class TestModes(override val code: Int, override val description: String) : Encodable {
     BIKESHARING(0, "bikesharing"),

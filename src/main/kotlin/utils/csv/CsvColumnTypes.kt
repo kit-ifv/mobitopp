@@ -12,7 +12,7 @@ import edu.kit.ifv.units.share
 import edu.kit.ifv.units.toCurrency
 import edu.kit.ifv.units.toDistance
 import utils.CodePlan
-import utils.Encodable
+import utils.codes.Encodable
 
 fun Row.byte(column: String) = this.invoke(column, String::toByte)
 fun Row.byte(index: Int) = this.valueAt(index, String::toByte)

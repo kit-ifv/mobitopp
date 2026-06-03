@@ -1,9 +1,9 @@
 package domain.synthesis.parser.binary
 
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.person.ChargingInfluence

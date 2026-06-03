@@ -1,6 +1,6 @@
 package core.datastructure.calendarLookup
 
-import utils.smallerIndex
+import utils.numbers.smallerIndex
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days

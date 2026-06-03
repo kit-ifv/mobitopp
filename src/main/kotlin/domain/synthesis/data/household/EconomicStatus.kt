@@ -1,7 +1,7 @@
 package domain.synthesis.data.household
 
-import utils.Encodable
-import utils.EnumDecodable
+import utils.codes.Encodable
+import utils.codes.EnumDecodable
 
 /**
  * The economic status as taken from the original mobiTopp codebase

@@ -2,7 +2,7 @@ package domain.shared.enums
 
 import domain.shared.behavior.ChoiceModelModes
 import utils.CodePlan
-import utils.EnumDecodable
+import utils.codes.EnumDecodable
 
 /**
  * The default mode encoding from legacy MobiTopp

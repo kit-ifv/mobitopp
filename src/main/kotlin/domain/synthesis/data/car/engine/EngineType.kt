@@ -1,7 +1,7 @@
 package domain.synthesis.data.car.engine
 
-import utils.Encodable
-import utils.EnumDecodable
+import utils.codes.Encodable
+import utils.codes.EnumDecodable
 private const val CONV = "conventional"
 private const val BEV = "bev"
 private const val EREV = "erev"

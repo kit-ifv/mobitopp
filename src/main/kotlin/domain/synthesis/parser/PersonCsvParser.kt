@@ -1,7 +1,7 @@
 package domain.synthesis.parser
 
-import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.household.MutableHousehold
 import domain.synthesis.data.person.ChargingInfluence

@@ -1,7 +1,7 @@
 package domain.synthesis.data.person
 
-import utils.Encodable
-import utils.EnumDecodable
+import utils.codes.Encodable
+import utils.codes.EnumDecodable
 
 enum class ChargingInfluence(override val code: Int) : Encodable {
     ALWAYS(0),

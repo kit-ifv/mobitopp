@@ -22,7 +22,7 @@ import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.toCurrency
 import edu.kit.ifv.units.toDistance
-import utils.Decodable
+import utils.codes.Decodable
 import utils.units.Time
 import java.nio.file.Path
 import kotlin.time.Duration

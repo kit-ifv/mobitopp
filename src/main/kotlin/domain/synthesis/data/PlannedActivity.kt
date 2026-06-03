@@ -1,11 +1,11 @@
 package domain.synthesis.data
 
 import Mutable
-import utils.binary.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.synthesis.data.person.PersonId
 import utils.Identifiable
+import utils.binary.Simplifiable
 import utils.random.StochasticActor
 import utils.units.AbsoluteTime
 import kotlin.random.Random
@@ -51,4 +51,3 @@ abstract class PlannedActivity(
     override fun toString(): String =
         "${activityType.description.first()}(${activityType.code}) start=$startTime duration=$duration"
 }
-

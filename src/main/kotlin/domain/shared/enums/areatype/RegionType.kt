@@ -1,6 +1,6 @@
 package domain.shared.enums.areatype
 
-import utils.Encodable
+import utils.codes.Encodable
 
 /**
  * Area types can distinguish areas of different purpose: e.g. residential vs. industrial.

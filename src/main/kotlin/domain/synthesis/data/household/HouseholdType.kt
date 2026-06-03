@@ -1,7 +1,7 @@
 package domain.synthesis.data.household
 
-import utils.Decodable
-import utils.Encodable
+import utils.codes.Decodable
+import utils.codes.Encodable
 
 enum class HouseholdType(override val code: Int) : Encodable {
 

@@ -22,7 +22,7 @@ import domain.synthesis.data.person.Employment
 import domain.synthesis.data.person.Graduation
 import domain.synthesis.data.person.Sex
 import utils.CodePlan
-import utils.Encodable
+import utils.codes.Encodable
 import utils.collections.invertMap
 import java.util.ServiceLoader
 

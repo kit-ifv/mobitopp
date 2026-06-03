@@ -11,13 +11,13 @@ import kotlin.math.ln
 import kotlin.math.pow
 
 val standardBandwidthChoiceModel = RuleBasedStructure<
-        WithMetric<StandardLocation, Distance>,
-        LocationAlternative,
-        BandwidthParameters,
-        > {
+    WithMetric<StandardLocation, Distance>,
+    LocationAlternative,
+    BandwidthParameters,
+    > {
     ruleForAll { option, characteristics ->
         val (loc, distance) = option
         ln(characteristics.attractiveness(loc).value) /
-                (bDistance * distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
+            (bDistance * distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
     }
 }.openMultinomialLogit("DefaultBandwidthLocationSelector")

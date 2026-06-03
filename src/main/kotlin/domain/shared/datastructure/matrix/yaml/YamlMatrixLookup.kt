@@ -2,9 +2,9 @@ package domain.shared.datastructure.matrix.yaml
 
 import domain.shared.datastructure.matrix.CachedMatrixLookup
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
-import utils.Decodable
-import utils.Encodable
 import utils.ExpiringLookup
+import utils.codes.Decodable
+import utils.codes.Encodable
 import java.nio.file.Path
 
 fun interface YamlMatrixLookup<M> : ExpiringLookup<M, YamlInfo> {

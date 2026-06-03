@@ -17,7 +17,7 @@ import domain.shared.location.DurationMetric
 import domain.shared.location.Impedance
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.meters
-import utils.Decodable
+import utils.codes.Decodable
 import utils.units.Time
 import java.nio.file.Path
 import kotlin.io.path.readText

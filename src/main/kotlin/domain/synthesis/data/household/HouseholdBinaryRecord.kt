@@ -1,8 +1,8 @@
 package domain.synthesis.data.household
 
-import utils.binary.BinaryWritable
-import domain.shared.location.ZonedRoadAccessLocationDTO
+import domain.shared.location.ZonedRoadAccessLocationRecord
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
+import utils.binary.BinaryWritable
 import java.io.DataOutputStream
 
 data class HouseholdBinaryRecord(
@@ -13,7 +13,7 @@ data class HouseholdBinaryRecord(
     val type: Int,
     val incomePerMonth: Double,
     val economicStatusCode: Int,
-    val location: ZonedRoadAccessLocationDTO,
+    val location: ZonedRoadAccessLocationRecord,
 ) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {

@@ -68,11 +68,8 @@ object RawSurveyParser {
     )
     private fun String.toBooleanNumeric(): Boolean = when (this) {
         "1" -> true
-
         "0" -> false
-
         "-1" -> false
         else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
     }
-
 }

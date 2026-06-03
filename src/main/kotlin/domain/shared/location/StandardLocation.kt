@@ -76,7 +76,7 @@ interface StandardLocation :
     }
 }
 
-fun StandardLocation.toDTO(): ZonedRoadAccessLocationDTO = ZonedRoadAccessLocationDTO(
+fun StandardLocation.toRecord(): ZonedRoadAccessLocationRecord = ZonedRoadAccessLocationRecord(
     this.zoneId,
     this.attributes.roadAccess,
     this.position,

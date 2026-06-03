@@ -1,9 +1,9 @@
 package domain.synthesis.data.car
 
 import domain.synthesis.data.car.CarBinaryRecord
-import utils.binary.Simplifiable
 import domain.synthesis.data.household.IHousehold
 import domain.synthesis.data.person.IPerson
+import utils.binary.Simplifiable
 
 interface IPrivateCar :
     Car,

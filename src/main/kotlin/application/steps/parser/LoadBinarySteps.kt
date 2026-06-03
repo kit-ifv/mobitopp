@@ -21,12 +21,12 @@ import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.car.CarId
 import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.car.PrivateCar
+import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.household.MutableHousehold

@@ -1,5 +1,7 @@
 package domain.synthesis.data
 
+import Mutable
+
 @Mutable
 abstract class SharingProvider(
     final override val id: SharingProviderId,

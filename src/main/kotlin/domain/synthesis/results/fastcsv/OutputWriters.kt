@@ -15,7 +15,8 @@ data class OutputWriters(
 ) {
     companion object {
         /**
-         * Produces the directory and sets the writers to
+         * Produces the directory and sets the writers to the standard format. note that opportunities are not
+         * logged and left to be null - because we dont really know why the old code wrote them in the first place
          */
         fun useDirectoryForCSV(path: Path): OutputWriters {
             path.createDirectories() // Ensure the path exists
@@ -24,6 +25,8 @@ data class OutputWriters(
             outputWriters.householdWriter = Files.newBufferedWriter(path.resolve("households.csv"))
             outputWriters.personWriter = Files.newBufferedWriter(path.resolve("person.csv"))
             outputWriters.activityWriter = Files.newBufferedWriter(path.resolve("activities.csv"))
+            outputWriters.fixedDestinationWriter = Files.newBufferedWriter(path.resolve("fixeddestinations.csv"))
+            outputWriters.carWriter = Files.newBufferedWriter(path.resolve("cars.csv"))
 
             return outputWriters
         }

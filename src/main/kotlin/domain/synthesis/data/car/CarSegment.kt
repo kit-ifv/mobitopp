@@ -1,7 +1,7 @@
 package domain.synthesis.data.car
 
-import utils.Encodable
-import utils.EnumDecodable
+import utils.codes.Encodable
+import utils.codes.EnumDecodable
 
 /**
  * Car segments are a classification seen in https://en.wikipedia.org/wiki/Euro_Car_Segment. If the need arises

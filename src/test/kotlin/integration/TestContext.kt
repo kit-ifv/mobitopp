@@ -54,9 +54,6 @@ import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.events.PersonBehavior
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.drt.DrtProviderId
-import domain.synthesis.data.MutableDrtProviderData
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
@@ -64,6 +61,9 @@ import domain.synthesis.data.car.CarId
 import domain.synthesis.data.car.CarSegment
 import domain.synthesis.data.car.MutablePrivateCar
 import domain.synthesis.data.car.PrivateCar
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
+import domain.synthesis.data.drt.MutableDrtProviderData
 import domain.synthesis.data.household.EconomicStatus
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId

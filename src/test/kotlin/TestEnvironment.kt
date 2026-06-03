@@ -14,7 +14,6 @@ import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.attributes.MaximumZoneAttributes
 import domain.shared.location.zone.toZoneId
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
@@ -28,6 +27,7 @@ import domain.synthesis.data.car.PrivateCar
 import domain.synthesis.data.car.engine.CarEngineStatistics
 import domain.synthesis.data.car.engine.EngineType
 import domain.synthesis.data.car.engine.buildEngine
+import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.household.EconomicStatus
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId

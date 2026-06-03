@@ -21,8 +21,8 @@ import domain.simulation.events.GenerateModeCharacteristics
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
-import domain.synthesis.data.drt.DrtProvider
 import domain.synthesis.data.SharingProvider
+import domain.synthesis.data.drt.DrtProvider
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 

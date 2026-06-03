@@ -1,7 +1,7 @@
 package domain.synthesis.data.person
 
-import utils.Encodable
-import utils.EnumDecodable
+import utils.codes.Encodable
+import utils.codes.EnumDecodable
 
 /**
  * An enum for the sex of a person. As this class is only applicable to a person the enum resides in the same source

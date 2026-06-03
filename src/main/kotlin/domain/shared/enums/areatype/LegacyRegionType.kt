@@ -1,6 +1,6 @@
 package domain.shared.enums.areatype
 
-import utils.EnumDecodable
+import utils.codes.EnumDecodable
 
 private const val CONVERSION_ERROR_ZONE_AREA = """The ZoneAreaType DEFAULT cannot be translated to RegioStar17.
 In old mobitopp this area type existed to express an unknown type, which cannot be translated to a concrete RegioStar17

@@ -1,6 +1,6 @@
 package domain.shared.enums
 
-import utils.Encodable
+import utils.codes.Encodable
 
 /**
  * A mode describes the type of transportation a person uses to travel.

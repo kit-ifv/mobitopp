@@ -1,7 +1,7 @@
 package domain.shared.enums.areatype
 
-import utils.Encodable
-import utils.EnumDecodable
+import utils.codes.Encodable
+import utils.codes.EnumDecodable
 
 private const val METROPOLE_STR = "Metropole"
 private const val LARGE_CITY_STR = "Großstadt einer Metropolitanen Stadtregion"

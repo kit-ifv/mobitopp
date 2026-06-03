@@ -1,15 +1,4 @@
-package utils
-
-import kotlin.reflect.KClass
-
-/**
- * An object is encodable if it can provide an integer based on the attributes present. In the future this could be
- * abstracted to a template type in case that the encoding might return a different type (such as Strings)
- */
-interface Encodable {
-    val code: Int
-    val description: String
-}
+package utils.codes
 
 /**
  * Similarly to an encoding a decoding interface allows to construct the underlying type by the provided integer code.
@@ -41,16 +30,4 @@ interface Decodable<out T : Encodable> {
             }
 
     fun values(): Set<T>
-}
-
-typealias CodePlan<R> = Decodable<R>
-
-abstract class EnumDecodable<T>(private val clazz: KClass<T>) : Decodable<T> where T : Encodable, T : Enum<T> {
-    private val constants: Array<T> = clazz.java.enumConstants
-        ?: error("No enum constants for ${clazz.simpleName}")
-    private val byCode: Map<Int, T> = constants.associateBy { it.code }
-    private val internalSet = constants.toSet()
-    override fun values(): Set<T> = internalSet
-
-    override fun decode(i: Int): T = byCode.getValue(i)
 }

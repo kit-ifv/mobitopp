@@ -3,14 +3,14 @@ package domain.synthesis
 import TEST_ZONE
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.RegioStaR17
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.car.CarSegment
 import domain.synthesis.data.car.engine.CarEngineStatistics
 import domain.synthesis.data.car.engine.EngineType
 import domain.synthesis.data.car.engine.buildEngine
+import domain.synthesis.data.drt.DrtProvider
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.household.EconomicStatus
 import domain.synthesis.data.person.Employment
 import domain.synthesis.data.person.Graduation

@@ -28,10 +28,9 @@ class SamplingCarGeneration<S>(
     engineParameters: EngineParameters = EngineParameters(),
     private val randomGenerator: (MinimalistPerson<MaximumPersonAttributes>) -> Random = {
         Random(it.attributes.hashCode())
-    }
-) :
-    GenerateCars<S, MaximumPersonAttributes>
-        where S : MinimumHouseholdAttributes, S : HasNumberOfCars {
+    },
+) : GenerateCars<S, MaximumPersonAttributes>
+    where S : MinimumHouseholdAttributes, S : HasNumberOfCars {
 
     private val segmentModel = carSegmentChoiceModel.build(segmentParameters)
     private val engineModel = carEngineChoiceModel.build(engineParameters)

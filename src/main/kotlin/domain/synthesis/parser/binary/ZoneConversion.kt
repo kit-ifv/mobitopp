@@ -1,22 +1,22 @@
 package domain.synthesis.parser.binary
 
-import utils.binary.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.shared.location.ZonedRoadAccessLocationDTO
-import domain.shared.location.toDTO
+import domain.shared.location.ZonedRoadAccessLocationRecord
+import domain.shared.location.toRecord
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
 import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import edu.kit.ifv.units.meters
-import utils.Decodable
 import utils.binary.BinaryReader
+import utils.binary.BinaryWritable
 import utils.binary.BinaryWriter
 import utils.binary.readAsByteBuffer
 import utils.binary.readString
 import utils.binary.writeString
+import utils.codes.Decodable
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.file.Path
@@ -76,7 +76,7 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionT
 // TODO string really hampers the construction as the maxlength is unknown
 data class ZoneBinaryRecord(
     val id: Long,
-    val centroid: ZonedRoadAccessLocationDTO,
+    val centroid: ZonedRoadAccessLocationRecord,
     val visumId: Long,
     val name: String,
     val regionTypeCode: Int,
@@ -114,7 +114,7 @@ class BinaryZoneWriter : BinaryWriter<MaximalZone> {
     fun DataOutputStream.encodeZone(zone: MaximalZone, maxNameLength: Int) {
         zone.run {
             writeLong(id.value)
-            encodeLocation(this.centroidLocation.toDTO())
+            encodeLocation(this.centroidLocation.toRecord())
             writeLong(-1L)
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader

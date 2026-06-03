@@ -1,7 +1,7 @@
 package domain.shared.enums
 
-import utils.Encodable
-import utils.EnumDecodable
+import utils.codes.Encodable
+import utils.codes.EnumDecodable
 
 /**
  * The ZoneClassification distinguishes different parts of the simulated area:

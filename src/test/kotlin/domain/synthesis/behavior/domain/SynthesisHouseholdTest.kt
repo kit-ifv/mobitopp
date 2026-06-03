@@ -8,7 +8,7 @@ import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.data.household.EconomicStatus
 import domain.synthesis.data.household.HouseholdType
 import domain.synthesis.results.fastcsv.CsvIgnore
-import domain.synthesis.results.fastcsv.write
+import domain.synthesis.results.fastcsv.writers.writeHouseholds
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.euros
 import java.io.StringWriter
@@ -42,7 +42,7 @@ class SynthesisHouseholdTest {
         )
 
         val stringWriter = StringWriter()
-        listOf(hh).write(stringWriter)
+        listOf(hh).writeHouseholds(stringWriter)
 
         val expected: String = stringWriter.toString()
         assertContains(expected, "id;economicStatus;income;type;zoneID")

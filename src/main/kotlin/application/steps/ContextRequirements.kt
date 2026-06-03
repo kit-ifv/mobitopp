@@ -12,9 +12,9 @@ import domain.shared.location.zone.ZoneId
 import domain.simulation.agent.DrtProviderMessage
 import domain.simulation.agent.PersonMessage
 import domain.simulation.events.PersonBehavior
-import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.car.CarId
+import domain.synthesis.data.drt.DrtProviderId
 import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.person.PersonId
 import utils.CodePlan
