@@ -1,4 +1,4 @@
-package domain.synthesis.parser
+package domain.shared.location.parser
 
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17

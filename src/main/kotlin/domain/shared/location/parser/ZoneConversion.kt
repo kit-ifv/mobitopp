@@ -1,4 +1,4 @@
-package domain.synthesis.parser.binary
+package domain.shared.location.parser
 
 import domain.jackson.BinaryWritable
 import domain.shared.enums.ZoneClassification
@@ -8,8 +8,8 @@ import domain.shared.location.toDTO
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
-import domain.synthesis.parser.binary.LocationUtils.decodeNakedLocation
-import domain.synthesis.parser.binary.LocationUtils.encodeLocation
+import domain.shared.location.parser.LocationUtils.decodeNakedLocation
+import domain.shared.location.parser.LocationUtils.encodeLocation
 import edu.kit.ifv.units.meters
 import utils.Decodable
 import utils.binary.BinaryReader

@@ -15,11 +15,11 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.location.PointAndRoadPositionParser
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.ZoneId
-import domain.synthesis.parser.ZoneColumns
-import domain.synthesis.parser.ZoneCsvConfig
-import domain.synthesis.parser.binary.BinaryZoneReader
-import domain.synthesis.parser.binary.BinaryZoneWriter
-import domain.synthesis.parser.createZoneCsvParser
+import domain.shared.location.parser.ZoneColumns
+import domain.shared.location.parser.ZoneCsvConfig
+import domain.shared.location.parser.BinaryZoneReader
+import domain.shared.location.parser.BinaryZoneWriter
+import domain.shared.location.parser.createZoneCsvParser
 import utils.csv.CsvParser
 import java.nio.file.Path
 

@@ -2,7 +2,7 @@ package domain.synthesis.data.household
 
 import domain.jackson.BinaryWritable
 import domain.shared.location.ZonedRoadAccessLocationDTO
-import domain.synthesis.parser.binary.LocationUtils.encodeLocation
+import domain.shared.location.parser.LocationUtils.encodeLocation
 import java.io.DataOutputStream
 
 data class HouseholdBinaryRecord(

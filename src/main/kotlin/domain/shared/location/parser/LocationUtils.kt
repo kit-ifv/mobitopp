@@ -1,4 +1,4 @@
-package domain.synthesis.parser.binary
+package domain.shared.location.parser
 
 import domain.shared.location.PointCreator
 import domain.shared.location.RoadAccess

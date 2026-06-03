@@ -41,8 +41,8 @@ import domain.synthesis.parser.binary.BinaryHouseholdReader
 import domain.synthesis.parser.binary.BinaryHouseholdWriter
 import domain.synthesis.parser.binary.BinaryPersonReader
 import domain.synthesis.parser.binary.BinaryPersonWriter
-import domain.synthesis.parser.binary.BinaryZoneReader
-import domain.synthesis.parser.binary.BinaryZoneWriter
+import domain.shared.location.parser.BinaryZoneReader
+import domain.shared.location.parser.BinaryZoneWriter
 import java.nio.file.Path
 
 /**

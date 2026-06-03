@@ -7,7 +7,7 @@ import domain.shared.location.StandardLocation
 import domain.shared.location.ZonedRoadAccessLocationDTO
 import domain.shared.location.toDTO
 import domain.synthesis.data.person.PersonId
-import domain.synthesis.parser.binary.LocationUtils.encodeLocation
+import domain.shared.location.parser.LocationUtils.encodeLocation
 import java.io.DataOutputStream
 
 data class ActivityLocation(val personId: PersonId, val activityType: ActivityType, val location: StandardLocation) :

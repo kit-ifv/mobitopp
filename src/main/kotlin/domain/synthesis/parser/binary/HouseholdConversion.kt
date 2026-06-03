@@ -7,7 +7,7 @@ import domain.synthesis.data.household.EconomicStatus
 import domain.synthesis.data.household.Household
 import domain.synthesis.data.household.HouseholdId
 import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.parser.binary.LocationUtils.decodeLocation
+import domain.shared.location.parser.LocationUtils.decodeLocation
 import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter
