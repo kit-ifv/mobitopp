@@ -55,8 +55,8 @@ class BuilderProcessor(
         if (packageName.isNotEmpty()) {
             file += "package $packageName\n"
         }
-        file += "import edu.kit.ifv.Builder\n"
-        file += "import edu.kit.ifv.ID\n"
+        file += "import edu.kit.ifv.utils.Builder\n"
+        file += "import edu.kit.ifv.utils.ID\n"
         // TODO only add reflection if too many default parameters in one of the builders in the package
         file += "import kotlin.reflect.full.primaryConstructor\n"
 
