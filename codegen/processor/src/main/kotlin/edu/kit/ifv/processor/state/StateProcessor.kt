@@ -1,8 +1,8 @@
-package processor.state
+package edu.kit.ifv.processor.state
 
-import GroupingProcessor
-import MessageCalled
-import StateCalled
+import edu.kit.ifv.GroupingProcessor
+import edu.kit.ifv.MessageCalled
+import edu.kit.ifv.StateCalled
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -30,8 +30,8 @@ import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
-import util.parameter
-import util.toClassName
+import edu.kit.ifv.util.parameter
+import edu.kit.ifv.util.toClassName
 import kotlin.reflect.KClass
 
 data class AnnotationData(val name: String, val scopes: List<ClassName>)

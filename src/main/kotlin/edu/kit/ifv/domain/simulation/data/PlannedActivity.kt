@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.data
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.data.activity.ActivityBinaryRecord
 import edu.kit.ifv.domain.shared.data.activity.ActivityId
 import edu.kit.ifv.domain.shared.data.person.PersonId

@@ -1,6 +1,6 @@
 package edu.kit.ifv.core.statemachine
-import MessageCalled
-import StateCalled
+import edu.kit.ifv.MessageCalled
+import edu.kit.ifv.StateCalled
 import edu.kit.ifv.core.statemachine.builder.BaseStateData
 import edu.kit.ifv.core.statemachine.builder.on
 import edu.kit.ifv.core.statemachine.builder.stateMachine

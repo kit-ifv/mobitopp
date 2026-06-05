@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.data.person
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.simulation.data.PlannedActivity
 import edu.kit.ifv.domain.simulation.data.drt.DrtProvider

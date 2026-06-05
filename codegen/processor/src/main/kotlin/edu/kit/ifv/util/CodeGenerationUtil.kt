@@ -1,4 +1,4 @@
-package util
+package edu.kit.ifv.util
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies

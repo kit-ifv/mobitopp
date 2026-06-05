@@ -1,22 +1,22 @@
-package processor.builder
+package edu.kit.ifv.processor.builder
 
-import Buildable
+import edu.kit.ifv.Buildable
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import utils.Parameter
-import utils.TextBuilder
-import utils.allProperties
-import utils.builderNameWithResolvedGenerics
-import utils.builderWithGenerics
-import utils.defaultableParameters
-import utils.invoke
-import utils.mimic
-import utils.name
-import utils.nameWithGenerics
-import utils.nonDefaultableParameters
-import utils.parameters
-import utils.resolvedGenerics
-import utils.simpleGenerics
+import edu.kit.ifv.utils.Parameter
+import edu.kit.ifv.utils.TextBuilder
+import edu.kit.ifv.utils.allProperties
+import edu.kit.ifv.utils.builderNameWithResolvedGenerics
+import edu.kit.ifv.utils.builderWithGenerics
+import edu.kit.ifv.utils.defaultableParameters
+import edu.kit.ifv.utils.invoke
+import edu.kit.ifv.utils.mimic
+import edu.kit.ifv.utils.name
+import edu.kit.ifv.utils.nameWithGenerics
+import edu.kit.ifv.utils.nonDefaultableParameters
+import edu.kit.ifv.utils.parameters
+import edu.kit.ifv.utils.resolvedGenerics
+import edu.kit.ifv.utils.simpleGenerics
 
 /**
  * This file contains the code to generate a builder class for an [Buildable]-Annotated target class. There may be

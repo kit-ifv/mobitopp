@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.agent
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.car.Car
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.location.StandardLocation

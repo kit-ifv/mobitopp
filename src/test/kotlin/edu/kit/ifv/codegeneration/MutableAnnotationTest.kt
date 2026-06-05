@@ -1,5 +1,5 @@
 package edu.kit.ifv.codegeneration
-import Mutable
+import edu.kit.ifv.Mutable
 
 @Mutable
 abstract class TestA {

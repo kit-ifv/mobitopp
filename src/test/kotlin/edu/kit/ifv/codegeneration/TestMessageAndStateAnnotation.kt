@@ -1,8 +1,8 @@
 @file:Suppress("FunctionNameMaxLength")
 
 package edu.kit.ifv.codegeneration
-import MessageCalled
-import StateCalled
+import edu.kit.ifv.MessageCalled
+import edu.kit.ifv.StateCalled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 import kotlin.test.assertEquals

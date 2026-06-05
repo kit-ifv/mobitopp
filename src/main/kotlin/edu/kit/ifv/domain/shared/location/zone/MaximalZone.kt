@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.shared.location.zone
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.StandardLocationImpl
 import edu.kit.ifv.domain.shared.location.road.RoadAccess

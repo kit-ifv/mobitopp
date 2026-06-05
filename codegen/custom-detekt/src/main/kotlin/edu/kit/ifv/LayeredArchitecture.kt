@@ -1,3 +1,5 @@
+package edu.kit.ifv
+
 import dev.detekt.api.Config
 import dev.detekt.api.Entity
 import dev.detekt.api.Finding
@@ -6,7 +8,7 @@ import dev.detekt.api.RuleName
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtImportDirective
 
-internal const val LAYERED_ARCHITECTURE = "LayeredArchitecture"
+internal const val LAYERED_ARCHITECTURE = "edu.kit.ifv.LayeredArchitecture"
 
 class LayeredArchitecture(config: Config): Rule(
     config,

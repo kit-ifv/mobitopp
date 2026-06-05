@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.data.household
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.simulation.data.car.PrivateCar
 import edu.kit.ifv.domain.simulation.data.person.Person

@@ -1,4 +1,4 @@
-package util
+package edu.kit.ifv.util
 
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getDeclaredFunctions

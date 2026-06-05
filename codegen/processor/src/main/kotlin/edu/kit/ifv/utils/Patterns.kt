@@ -1,4 +1,4 @@
-package utils
+package edu.kit.ifv.utils
 
 interface Builder<out E> {
     fun build(): E

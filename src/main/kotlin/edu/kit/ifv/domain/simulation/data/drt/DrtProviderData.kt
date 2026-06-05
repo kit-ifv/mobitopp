@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.data.drt
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 
 @Mutable

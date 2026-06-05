@@ -1,5 +1,5 @@
 package edu.kit.ifv.codegeneration
-import Buildable
+import edu.kit.ifv.Buildable
 import edu.kit.ifv.fakepackage.FakeClass
 import kotlin.io.path.Path
 import kotlin.io.path.exists

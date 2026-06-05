@@ -1,7 +1,7 @@
-package processor.mutable
+package edu.kit.ifv.processor.mutable
 
-import Mutable
-import SuccessiveAnnotationProcessor
+import edu.kit.ifv.Mutable
+import edu.kit.ifv.SuccessiveAnnotationProcessor
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -27,12 +27,12 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
-import util.getEmptyInitializer
-import util.isCollectionType
-import util.isInlineClass
-import util.isMutableCollectionType
-import util.resolveGenerics
-import util.toMutableCollectionType
+import edu.kit.ifv.util.getEmptyInitializer
+import edu.kit.ifv.util.isCollectionType
+import edu.kit.ifv.util.isInlineClass
+import edu.kit.ifv.util.isMutableCollectionType
+import edu.kit.ifv.util.resolveGenerics
+import edu.kit.ifv.util.toMutableCollectionType
 import kotlin.reflect.KClass
 
 class MutableProcessor(

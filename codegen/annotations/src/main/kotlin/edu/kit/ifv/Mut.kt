@@ -1,3 +1,5 @@
+package edu.kit.ifv
+
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Mutable(

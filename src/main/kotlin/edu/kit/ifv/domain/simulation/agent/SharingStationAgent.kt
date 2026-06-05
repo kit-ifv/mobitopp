@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.agent
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.simulation.data.sharing.ISharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.ISharingStation

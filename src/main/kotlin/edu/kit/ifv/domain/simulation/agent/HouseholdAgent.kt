@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.agent
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.simulation.data.household.IHousehold
 import edu.kit.ifv.utils.random.StochasticActor

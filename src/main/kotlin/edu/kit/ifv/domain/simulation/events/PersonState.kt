@@ -1,6 +1,6 @@
 package edu.kit.ifv.domain.simulation.events
-import MessageCalled
-import StateCalled
+import edu.kit.ifv.MessageCalled
+import edu.kit.ifv.StateCalled
 import edu.kit.ifv.core.statemachine.Send
 import edu.kit.ifv.core.statemachine.StateMachineFactory
 import edu.kit.ifv.core.statemachine.builder.BaseStateData

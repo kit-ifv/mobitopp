@@ -1,3 +1,5 @@
+package edu.kit.ifv
+
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -6,11 +8,11 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.validate
-import processor.builder.BuilderProcessor
-import processor.mutable.MutableProcessor
-import processor.state.TestMessageProcessor
-import processor.state.TestStateProcessor
-import utils.groupByIgnoringNullKey
+import edu.kit.ifv.processor.builder.BuilderProcessor
+import edu.kit.ifv.processor.mutable.MutableProcessor
+import edu.kit.ifv.processor.state.TestMessageProcessor
+import edu.kit.ifv.processor.state.TestStateProcessor
+import edu.kit.ifv.utils.groupByIgnoringNullKey
 import kotlin.reflect.KClass
 
 private var roundCounter: Int = 0
@@ -23,7 +25,7 @@ class ProcessorDispatcher(
 ) : SymbolProcessor {
 
     init {
-        logger.info("Processor options: $options")
+        logger.info("edu.kit.ifv.Processor options: $options")
         logger.info("Api version: ${environment.apiVersion}")
         logger.info("Kotlin version: ${environment.kotlinVersion}")
         logger.info("Compiler version: ${environment.compilerVersion}")

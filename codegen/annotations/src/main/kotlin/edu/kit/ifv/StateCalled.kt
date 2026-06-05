@@ -1,3 +1,5 @@
+package edu.kit.ifv
+
 import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS)

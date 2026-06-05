@@ -1,7 +1,6 @@
 package edu.kit.ifv.domain.simulation.data.car
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.domain.shared.car.CarId
-import edu.kit.ifv.domain.simulation.data.car.IPrivateCar
 import edu.kit.ifv.domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.domain.simulation.data.person.Person
 

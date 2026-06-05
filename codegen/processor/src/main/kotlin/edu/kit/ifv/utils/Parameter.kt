@@ -1,12 +1,12 @@
-package utils
-import Buildable
+package edu.kit.ifv.utils
+import edu.kit.ifv.Buildable
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
-import processor.builder.splitDefaults
+import edu.kit.ifv.processor.builder.splitDefaults
 
 /**
  * An adapter class, altering a [KSValueParameter] or [KSPropertyDeclaration] to a unified type.

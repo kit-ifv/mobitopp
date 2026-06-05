@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.data.sharing
-import Mutable
+import edu.kit.ifv.Mutable
 
 @Mutable
 abstract class SharingProvider(

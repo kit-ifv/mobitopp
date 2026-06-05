@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.simulation.agent
-import Mutable
+import edu.kit.ifv.Mutable
 import edu.kit.ifv.core.statemachine.Message
 import edu.kit.ifv.core.statemachine.StateBasedAgent
 import edu.kit.ifv.core.statemachine.StateMachineFactory

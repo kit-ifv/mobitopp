@@ -1,4 +1,4 @@
-package utils
+package edu.kit.ifv.utils
 
 import kotlin.reflect.KClass
 

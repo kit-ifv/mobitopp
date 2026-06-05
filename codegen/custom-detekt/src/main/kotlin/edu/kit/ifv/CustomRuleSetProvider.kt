@@ -1,4 +1,5 @@
-import dev.detekt.api.Config
+package edu.kit.ifv
+
 import dev.detekt.api.RuleSet
 import dev.detekt.api.RuleSetId
 import dev.detekt.api.RuleSetProvider

@@ -1,4 +1,4 @@
-package utils
+package edu.kit.ifv.utils
 
 fun <T, K> Iterable<T>.groupByIgnoringNullKey(selector: (T) -> K?): Map<K, List<T>> {
     return this.mapNotNull { item ->

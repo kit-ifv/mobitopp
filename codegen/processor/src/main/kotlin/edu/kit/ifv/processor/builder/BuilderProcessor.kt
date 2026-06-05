@@ -1,6 +1,6 @@
-package processor.builder
-import Buildable
-import GroupingAnnotationProcessor
+package edu.kit.ifv.processor.builder
+import edu.kit.ifv.Buildable
+import edu.kit.ifv.GroupingAnnotationProcessor
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -13,9 +13,9 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSName
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
-import utils.builderWithGenerics
-import utils.invoke
-import utils.nameWithGenerics
+import edu.kit.ifv.utils.builderWithGenerics
+import edu.kit.ifv.utils.invoke
+import edu.kit.ifv.utils.nameWithGenerics
 import java.io.OutputStream
 import kotlin.reflect.KClass
 
@@ -55,8 +55,8 @@ class BuilderProcessor(
         if (packageName.isNotEmpty()) {
             file += "package $packageName\n"
         }
-        file += "import utils.Builder\n"
-        file += "import utils.ID\n"
+        file += "import edu.kit.ifv.Builder\n"
+        file += "import edu.kit.ifv.ID\n"
         // TODO only add reflection if too many default parameters in one of the builders in the package
         file += "import kotlin.reflect.full.primaryConstructor\n"
 
@@ -87,8 +87,8 @@ class BuilderProcessor(
 //            if (packageName.isNotEmpty()) {
 //                file += "package $packageName\n"
 //            }
-//            file += "import utils.Builder\n"
-//            file += "import utils.ID\n"
+//            file += "import edu.kit.ifv.Builder\n"
+//            file += "import edu.kit.ifv.ID\n"
 //            // TODO only add reflection if too many default parameters in one of the builders in the package
 //            file += "import kotlin.reflect.full.primaryConstructor\n"
 //
