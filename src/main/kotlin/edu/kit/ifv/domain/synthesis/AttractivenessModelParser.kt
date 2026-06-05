@@ -18,8 +18,11 @@ class AttractivenessModelParser {
     )
 
     companion object {
-        fun parse(path: Path): AttractivenessModel {
-            val parser = AttractivenessModelParser().apply { this.path = path }
+        fun parse(path: Path, purposes: ChoiceModelPurposes): AttractivenessModel {
+            val parser = AttractivenessModelParser().apply {
+                this.path = path
+                this.purposes = purposes
+            }
 
             return parser.build()
         }

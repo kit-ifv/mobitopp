@@ -30,10 +30,10 @@ class LegacyHouseholdOutput<T : MaximumHouseholdAttributes> : CSVOutput<Synthesi
         toCSV(
             id,
             1970, // Dummy value: Originally the year from Survey Info. Now useless.
-            "dummyval", // Dummy value: Originally the ID in the Survey Info.
+            Int.MIN_VALUE, // Dummy value: Originally the ID in the Survey Info.
             -1, // Ok, here I am lost, I have absolutely no idea what "domcode" is supposed to be.
             attributes.type.code, // The household type. Again taken from survey data.
-            "uselessattribute", // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
+            location.zoneId.value, // location.zone?.legacyId ?: "NULL", // I HATE OLD MOBITOPP
             location.zoneId,
             location.toRecord().legacyStringRepresentation(),
             location.position.x,

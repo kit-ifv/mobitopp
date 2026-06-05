@@ -21,7 +21,7 @@ data class OutputWriters(
             path.createDirectories() // Ensure the path exists
             val outputWriters = OutputWriters()
 
-            outputWriters.householdWriter = Files.newBufferedWriter(path.resolve("households.csv"))
+            outputWriters.householdWriter = Files.newBufferedWriter(path.resolve("household.csv"))
             outputWriters.personWriter = Files.newBufferedWriter(path.resolve("person.csv"))
             outputWriters.activityWriter = Files.newBufferedWriter(path.resolve("activities.csv"))
             outputWriters.fixedDestinationWriter = Files.newBufferedWriter(path.resolve("fixeddestinations.csv"))

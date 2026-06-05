@@ -78,7 +78,7 @@ private class ExampleZoneAttributes(override val geometry: Geometry, override va
     "MagicNumber",
 ) // I agree that the method is long, but right now I don't know how to simplify without breaking the read flow
 fun examplePopulationSynthesis() {
-    val attractivenessModel = AttractivenessModelParser.parse(attractivenessModelPath)
+    val attractivenessModel = AttractivenessModelParser.parse(attractivenessModelPath, legacyChoiceModelPurposes)
 
     val populationSynthesis = PopulationSynthesis.configure(
         surveyPopulation = GenerateFromFlatInput.fromPath("src/test/resources/synthesis/SurveyPopulation.csv"),

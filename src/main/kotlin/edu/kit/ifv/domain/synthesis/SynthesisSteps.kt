@@ -327,11 +327,7 @@ fun <S, T : MinimumPersonAttributes> SynthesisSteps<*, S, T>.assignAmountOfCars(
  * @param supplier supplies the household-aware assignment strategy.
  */
 fun <S : MinimumHouseholdAttributes, T> SynthesisSteps<*, S, T>.assignTransitCardOwnership(
-    supplier: () -> HouseholdAssignmentStep<
-        S,
-        T,
-        Boolean,
-        >,
+    supplier: () -> HouseholdAssignmentStep<S, T, Boolean>,
 ) where T : HasMutableTransitPass,
         T : MinimumPersonAttributes {
     val strategy = supplier()
