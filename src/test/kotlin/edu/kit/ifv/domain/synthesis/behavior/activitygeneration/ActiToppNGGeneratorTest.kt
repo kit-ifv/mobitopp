@@ -97,6 +97,7 @@ class ActiToppNGGeneratorTest {
                 personNumber = -11111,
                 hasBicycle = true,
                 hasLicence = true,
+                hasTransitPass = true,
             ),
         )
         hh.addMember(person, MaximumPersonAttributes::copy)

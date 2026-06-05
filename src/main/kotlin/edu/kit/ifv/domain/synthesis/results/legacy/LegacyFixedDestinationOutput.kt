@@ -22,7 +22,7 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
         toCSV(
             person.personId,
             -1, // Dummy value for dummy output: This is the number in the household.
-            person.householdID, // person.household.id,
+            person.householdId, // person.household.id,
             1970, // Dummy value for dumb output household year taken from survey data.
             -1, // Dummy value for dumb output: household ID from the survey data
             activityType.description,

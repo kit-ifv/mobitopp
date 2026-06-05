@@ -1,18 +1,25 @@
 package edu.kit.ifv.domain.synthesis
-import edu.kit.ifv.domain.shared.behavior.AttractivenessFromCsv
-import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
-import edu.kit.ifv.domain.shared.behavior.ChoiceModelPurposes
 import edu.kit.ifv.domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import edu.kit.ifv.domain.synthesis.attributes.person.MinimumPersonAttributes
 import edu.kit.ifv.domain.synthesis.behavior.ISurveyHousehold
 import edu.kit.ifv.domain.synthesis.results.OpportunityOutput
 import java.nio.file.Path
-
+/**
+ * Configures and executes a population synthesis.
+ *
+ * The class stores the immutable inputs required to create [SynthesisSteps]:
+ * [zones], [surveyHouseholds], and the configured output directory.
+ *
+ * @param AREA area type used by the synthesis steps.
+ * @param S household attribute type.
+ * @param T person attribute type.
+ * @property zones available synthesis areas.
+ * @property surveyHouseholds survey households used by the synthesis.
+ */
 class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
     private val outputDirectory: Path,
     val zones: List<AREA>,
     val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
-    val attractivenessModel: AttractivenessModel,
 ) {
 
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
@@ -20,40 +27,43 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
         SynthesisSteps(
             zones,
             surveyHouseholds,
-            attractivenessModel,
             outputDirectory,
-            opportunities,
         ).apply(lambda)
     }
 
     companion object {
+
+        /**
+         * Mutable configuration used by [configure].
+         *
+         * The survey population is initialized from [surveyPopulationGenerator] and may be
+         * replaced before [configure] creates the [PopulationSynthesis]. [outputDirectory]
+         * must be initialized by the configuration block.
+         *
+         * @param AREA area type used by the synthesis.
+         * @param S household attribute type.
+         * @param T person attribute type.
+         * @param surveyPopulationGenerator generator used to create the initial survey population.
+         */
         class SynthesisConfiguration<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
             surveyPopulationGenerator: GenerateSurveyHouseholds<S, T>,
         ) {
             var surveyPopulation = surveyPopulationGenerator.generateSurveyHouseholds()
             lateinit var outputDirectory: Path
-            lateinit var attractivenessModel: AttractivenessModel
-
-            inner class AttractivenessModelParser {
-
-                lateinit var path: Path // = attractivenessModelPath
-
-                lateinit var purposes: ChoiceModelPurposes
-                fun build(): AttractivenessModel = AttractivenessFromCsv(
-                    path = path,
-                    work = purposes.work,
-                    privateVisit = purposes.privateVisit,
-                    activityTypes = purposes.allActivityTypes,
-                )
-            }
-
-            fun attractivenessFromFile(lambda: AttractivenessModelParser.() -> Unit): AttractivenessModel {
-                val attractivenessModel = AttractivenessModelParser()
-                attractivenessModel.lambda()
-                return attractivenessModel.build()
-            }
         }
 
+        /**
+         * Creates a [PopulationSynthesis] from a generated survey population, [zones], and
+         * a mutable configuration block.
+         *
+         * @param AREA area type used by the synthesis.
+         * @param S household attribute type.
+         * @param T person attribute type.
+         * @param surveyPopulation generator used to create the initial survey population.
+         * @param zones available synthesis areas.
+         * @param lambda configuration block applied before creating the synthesis.
+         * @return a configured [PopulationSynthesis].
+         */
         fun <AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> configure(
             surveyPopulation: GenerateSurveyHouseholds<S, T>,
             zones: List<AREA>,
@@ -65,7 +75,6 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
                 config.outputDirectory,
                 zones,
                 config.surveyPopulation,
-                config.attractivenessModel,
             )
         }
     }

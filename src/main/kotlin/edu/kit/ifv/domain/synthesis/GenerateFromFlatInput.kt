@@ -108,6 +108,7 @@ class GenerateFromFlatInput<X, S : MinimumHouseholdAttributes, T : MinimumPerson
                         personNumber = it.personNumber,
                         hasBicycle = it.hasBicycle,
                         hasLicence = it.hasLicence,
+                        hasTransitPass = it.hasCommuterTicket,
                     )
                 },
             )

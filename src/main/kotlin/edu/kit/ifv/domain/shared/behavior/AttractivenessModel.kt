@@ -1,4 +1,5 @@
 package edu.kit.ifv.domain.shared.behavior
+
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
@@ -30,4 +31,3 @@ fun AttractivenessModel.parkingPressure(target: MaximalZone): Double {
     }
     return attractiveness / target.parkingPlaces
 }
-

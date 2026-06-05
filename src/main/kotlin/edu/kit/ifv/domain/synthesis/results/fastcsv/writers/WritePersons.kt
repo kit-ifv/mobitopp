@@ -28,7 +28,7 @@ fun <T : MinimumPersonAttributes> Collection<SynthesisPerson<*, T>>.writePersons
         outputPrefix = {
             buildList {
                 add(it.personId.toString())
-                add(it.householdID.toString())
+                add(it.householdId.toString())
             }
         },
     )

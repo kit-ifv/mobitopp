@@ -21,6 +21,7 @@ interface MaximumPersonAttributes :
     HasEducationDistance,
     HasLicence,
     HasMutableEmployment,
+    HasMutableTransitPass,
     MinimumPersonAttributes {
     override val age: Int
     override val sex: Sex
@@ -29,7 +30,7 @@ interface MaximumPersonAttributes :
     override var employment: Employment
     override val hasBicycle: Boolean
     override val hasLicence: Boolean
-
+    override var hasTransitPass: Boolean
     fun copy(): MaximumPersonAttributes = MaximumPersonAttributesImpl(
         age = this.age,
         sex = this.sex,
@@ -40,5 +41,6 @@ interface MaximumPersonAttributes :
         personNumber = -1,
         hasBicycle = this.hasBicycle,
         hasLicence = this.hasLicence,
+        hasTransitPass = this.hasTransitPass,
     )
 }

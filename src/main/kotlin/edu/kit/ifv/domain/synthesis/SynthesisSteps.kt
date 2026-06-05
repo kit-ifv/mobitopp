@@ -1,9 +1,10 @@
 package edu.kit.ifv.domain.synthesis
-import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.Activity
 import edu.kit.ifv.domain.synthesis.attributes.household.HasMutableEconomicStatus
 import edu.kit.ifv.domain.synthesis.attributes.household.HasMutableNumberOfCars
 import edu.kit.ifv.domain.synthesis.attributes.household.MinimumHouseholdAttributes
+import edu.kit.ifv.domain.synthesis.attributes.person.HasMutableTransitPass
 import edu.kit.ifv.domain.synthesis.attributes.person.MinimumPersonAttributes
 import edu.kit.ifv.domain.synthesis.behavior.ISurveyHousehold
 import edu.kit.ifv.domain.synthesis.behavior.activitygeneration.GenerateHouseholdActivitySchedule
@@ -13,16 +14,13 @@ import edu.kit.ifv.domain.synthesis.behavior.cars.ownership.AssignMainUser
 import edu.kit.ifv.domain.synthesis.behavior.economicstatus.DetermineEconomicStatus
 import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.AssignFixedDestinationBuilder
 import edu.kit.ifv.domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
-import edu.kit.ifv.domain.synthesis.behavior.householdlocation.GroupAssignHouseholdLocations
 import edu.kit.ifv.domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import edu.kit.ifv.domain.synthesis.results.FixedDestinationElements
-import edu.kit.ifv.domain.synthesis.results.OpportunityOutput
 import edu.kit.ifv.domain.synthesis.results.fastcsv.OutputWriters
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeActivities
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeCars
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeFixedDestinations
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeHouseholds
-import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeOpportunities
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writePersons
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
 import edu.kit.ifv.utils.collections.addProgressBar
@@ -36,12 +34,30 @@ import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
 import kotlin.random.Random
 
+/**
+ * A collection of steps that are performed during synthesis. This class captures all the fields that we currently
+ * assume to be guaranteed present, either as input or during some point of the step execution.
+ * Currently we assume that: A) A immutable collection of Areas (named Zones since 99% of projects use Traffic analysis
+ * zones).
+ * B) An immutable collection of survey households (There may be changes in the future, as there are scenarios where
+ * such a household pool is unneccessary)
+ *
+ * C) An output directory
+ *
+ * THen we have fields that are going to mutate during the execution of the steps.
+ * 1) HouseholdsByZone, even though slightly misnomed because AREA can be arbitrary we can safely assume that households
+ * at some point end up in an assignment where they are assigned to an area.
+ *
+ * 2) households as reactive field over the keys of householdsbyzone
+ * 3) persons as a reactive field over the members of the households.
+ * 4) cars associated to a household (but only through their internal id not by a mapping held in this class)
+ * 5) Fixed destinations that some people have, like a fixed work or education location.
+ * 6) Persons get a collection of generated activities, usually a week.
+ */
 class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
     val zones: List<AREA>,
     val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
-    val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
-    val opportunities: List<OpportunityOutput>,
 ) {
 
     lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<S, T>>>
@@ -54,7 +70,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
      */
     val households: List<SynthesisHousehold<S, T>> get() = householdsByZone.flatMap { it.value }
 
-    @Deprecated("Be mindfull when using this getter in a hot loop")
+    @Deprecated("Be mindful when using this getter in a hot loop")
     val people get() = households.flatMap { it.members }
     val activities: MutableMap<SynthesisPerson<*, *>, Collection<Activity>> = mutableMapOf()
     var cars = listOf<SynthesisCar>()
@@ -65,9 +81,9 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
      * strategy is created in the [AssignFixedDestinationBuilder] class, which provides some convenience methods for
      * frequently assigned fixed destinations.
      */
-    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<AREA, S, T>.() -> Unit) {
-        val fixedDestinationBuilder = AssignFixedDestinationBuilder<AREA, S, T>(attractivenessModel)
-        fixedDestinationBuilder.apply(lambda)
+    fun assignFixedDestinations(supplier: AssignFixedDestinationBuilder<AREA, S, T>.() -> Unit) {
+        val fixedDestinationBuilder = AssignFixedDestinationBuilder<AREA, S, T>()
+        fixedDestinationBuilder.apply(supplier)
 
         val allFixedDestinations = fixedDestinationBuilder.steps.flatMap { it.generateFixedDestinations(households) }
         allFixedDestinations.addProgressBar(
@@ -76,8 +92,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         fixedDestinations = allFixedDestinations
     }
 
-    fun assignSharingMemberships(lambda: SharingMembershipsBuilder<S, T>.() -> Unit) {
-        val builder = SharingMembershipsBuilder<S, T>().apply(lambda)
+    fun assignSharingMemberships(supplier: SharingMembershipsBuilder<S, T>.() -> Unit) {
+        val builder = SharingMembershipsBuilder<S, T>().apply(supplier)
         val steps = builder.build()
         households.addProgressBar("assign sharing memberships").forEach { hh ->
             hh.members.forEach {
@@ -94,32 +110,46 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
     }
 
-    // TODO refactor, use or discard this method
-    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in AREA, SynthesisHousehold<S, T>>) {
-        val strategy = lambda()
-
-        householdsByZone.entries.forEach { (zone, households) ->
-            strategy.generateLocations(zone, households).forEach {
-                it.first.attributes.location = it.second
-            }
-        }
-    }
-
+    /**
+     * Runs population synthesis with a key conversion from [STAR] to [AREA].
+     *
+     * Use this overload when the synthesis strategy returns household assignments keyed
+     * by a different area representation than this configuration uses.
+     *
+     * @param STAR area key type produced by the population synthesis.
+     * @param converter converts synthesis keys to [AREA] keys.
+     * @param supplier supplies the population synthesis strategy.
+     */
     fun <STAR> synthesize(
         converter: (STAR) -> AREA,
-        lambda: () -> CompletePopulationSynthesis<STAR, SynthesisHousehold<S, T>>,
+        supplier: () -> CompletePopulationSynthesis<STAR, SynthesisHousehold<S, T>>,
     ) {
-        val strategy = lambda()
+        val strategy = supplier()
         householdsByZone = strategy.synthesizeAll().mapKeys { converter(it.key) }
     }
 
-    fun synthesize(lambda: () -> CompletePopulationSynthesis<AREA, SynthesisHousehold<S, T>>) {
-        val strategy = lambda()
+    /**
+     * Runs population synthesis when the synthesis strategy already uses [AREA] keys.
+     *
+     * The synthesized household assignments are stored in [householdsByZone].
+     *
+     * @param supplier supplies the population synthesis strategy.
+     */
+    fun synthesize(supplier: () -> CompletePopulationSynthesis<AREA, SynthesisHousehold<S, T>>) {
+        val strategy = supplier()
         householdsByZone = strategy.synthesizeAll()
     }
 
-    fun assignLocations(lambda: () -> AssignHouseholdLocations<AREA, SynthesisHousehold<S, T>>) {
-        val strategy = lambda()
+    /**
+     * Assigns a location to each synthesized household.
+     *
+     * The supplied strategy is called for every household in every entry of
+     * [householdsByZone].
+     *
+     * @param supplier supplies the household-location assignment strategy.
+     */
+    fun assignLocations(supplier: () -> AssignHouseholdLocations<AREA, SynthesisHousehold<S, T>>) {
+        val strategy = supplier()
         householdsByZone.entries.forEach { (zone, households) ->
             households.forEach {
                 it.attributes.location = strategy.generateLocation(zone, it)
@@ -127,17 +157,15 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
     }
 
-    fun assignTransitCardOwnership(lambda: () -> HouseholdAssignmentStep<S, T, Boolean>) {
-        val strategy = lambda()
-        households.addProgressBar("assign Transit Card").forEach { hh ->
-            hh.members.forEach {
-                context(hh, Random(it.personId)) {
-                    it.hasTransitPass = strategy.assignForPerson(it)
-                }
-            }
-        }
-    }
-
+    /**
+     * Generates cars for each household and assigns their main users.
+     *
+     * Generated and assigned cars are added to each household's `cars` collection. The
+     * flattened result is stored in [cars].
+     *
+     * @param generationStrategy strategy used to generate cars for a household.
+     * @param assignStrategy strategy used to assign generated cars to main users.
+     */
     fun spawnCars(generationStrategy: GenerateCars<S, T>, assignStrategy: AssignMainUser<S, T>) {
         households.addProgressBar("Generate Cars").forEach {
             val cars = generationStrategy.generate(it)
@@ -151,8 +179,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
             "being thread safe if the strategy is not thread safe. The current actitopp implementation matches that " +
             "risk group. Use assignActivities instead. ",
     )
-    fun assignActivitiesUnconstrained(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
-        val strategy = lambda()
+    fun assignActivitiesUnconstrained(supplier: () -> GenerateHouseholdActivitySchedule<S, T>) {
+        val strategy = supplier()
         val localHouseholdCopy = households
         val progressBar = standardProgressBar("Generate Activities", localHouseholdCopy.size)
         runBlocking {
@@ -174,18 +202,29 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
     }
 
     /**
-     * Assigns Activities partitioned over the households.
+     * Assigns activity schedules to household members using worker-local generation
+     * strategies.
+     *
+     * The method creates one coroutine per available processor. Each coroutine receives
+     * its own strategy instance from [supplier] and processes every `workerCount`-th
+     * household. This avoids sharing the strategy instance between workers.
+     *
+     * Assigned schedules are written to each person's `plannedActivities` field and then
+     * collected into [activities].
+     *
+     * @param supplier supplies a new activity-generation strategy for a worker.
      */
-    fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<S, T>) {
+    fun assignActivities(supplier: () -> GenerateHouseholdActivitySchedule<S, T>) {
         val workerCount = Runtime.getRuntime().availableProcessors()
-        val localHouseholdCopy = households
+        val localHouseholdCopy = households // Keep a local copy, because otherwise each thread access would go
+        // through the getter function
         val progressBar = standardProgressBar("Generate Activities", (localHouseholdCopy.size / workerCount))
         runBlocking {
             (0 until workerCount).map { workerId ->
 
                 async(Default) {
                     var localIndex = workerId
-                    val threadLocalStrategy = lambda()
+                    val threadLocalStrategy = supplier()
                     while (localIndex < localHouseholdCopy.size) {
                         val household = localHouseholdCopy[localIndex]
                         val generation = threadLocalStrategy.generate(household)
@@ -208,7 +247,20 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
     }
 
+    /**
+     * Writes the standard CSV output files into [path].
+     *
+     * @param path directory used by [OutputWriters.useDirectoryForCSV].
+     */
     fun writeStandardOutputCSV(path: Path) = writeStandardOutputCSV(OutputWriters.useDirectoryForCSV(path))
+
+    /**
+     * Writes available synthesis results to the configured output writers.
+     *
+     * A result is written only when the corresponding writer in [targets] is present.
+     *
+     * @param targets output writer configuration.
+     */
     fun writeStandardOutputCSV(targets: OutputWriters) {
         targets.run {
             householdWriter?.let { households.writeHouseholds(it) }
@@ -216,28 +268,78 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
             carWriter?.let { households.writeCars(it) }
             activityWriter?.let { activities.writeActivities(it) }
             fixedDestinationWriter?.let { fixedDestinations.writeFixedDestinations(it) }
-            opportunitiesWriter?.let { opportunities.writeOpportunities(it) }
         }
     }
 }
 
-fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignEconomicStatus(
-    lambda: () -> DetermineEconomicStatus<S, T>,
+/**
+ * Assigns an economic status to each household.
+ *
+ * This is an extension because economic status is only available when the household
+ * attributes implement [HasMutableEconomicStatus].
+ *
+ * @param S household attribute type.
+ * @param T person attribute type.
+ * @param supplier supplies the economic-status strategy.
+ */
+fun <S, T : MinimumPersonAttributes> SynthesisSteps<*, S, T>.assignEconomicStatus(
+    supplier: () -> DetermineEconomicStatus<S, T>,
 ) where S : MinimumHouseholdAttributes, S : HasMutableEconomicStatus {
-    val strategy = lambda()
+    val strategy = supplier()
     households.forEach { it.attributes.economicStatus = strategy.determineStatus(it) }
 }
 
-fun <AREA, S, T : MinimumPersonAttributes> SynthesisSteps<AREA, S, T>.assignAmountOfCars(
-    lambda: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>,
+/**
+ * Assigns the number of cars to each household.
+ *
+ * This is an extension because the number-of-cars field is only available when the
+ * household attributes implement [HasMutableNumberOfCars]. The random context is
+ * seeded with the household `id`.
+ *
+ * @param S household attribute type.
+ * @param T person attribute type.
+ * @param supplier supplies the assignment strategy.
+ */
+fun <S, T : MinimumPersonAttributes> SynthesisSteps<*, S, T>.assignAmountOfCars(
+    supplier: () -> AssignmentStep<SynthesisHousehold<S, T>, Int>,
 )
         where
               S : MinimumHouseholdAttributes,
               S : HasMutableNumberOfCars {
-    val strategy = lambda()
+    val strategy = supplier()
     households.forEach {
         context(Random(it.id)) {
             it.attributes.amountOfCars = strategy.assign(it)
+        }
+    }
+}
+
+/**
+ * Assigns transit-pass ownership to each synthesized person.
+ *
+ * This is an extension because transit-pass ownership is only available when the
+ * person attributes implement [HasMutableTransitPass]. The assignment strategy is
+ * evaluated in a household context and a random context seeded with the person's
+ * `personId`.
+ *
+ * @param S household attribute type.
+ * @param T person attribute type.
+ * @param supplier supplies the household-aware assignment strategy.
+ */
+fun <S : MinimumHouseholdAttributes, T> SynthesisSteps<*, S, T>.assignTransitCardOwnership(
+    supplier: () -> HouseholdAssignmentStep<
+        S,
+        T,
+        Boolean,
+        >,
+) where T : HasMutableTransitPass,
+        T : MinimumPersonAttributes {
+    val strategy = supplier()
+    households.addProgressBar("assign Transit Card").forEach { hh ->
+        hh.members.forEach {
+            context(hh, Random(it.personId)) {
+                it.attributes.hasTransitPass = strategy.assignForPerson(it)
+            }
         }
     }
 }

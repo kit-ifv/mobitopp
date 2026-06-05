@@ -4,8 +4,6 @@ import edu.kit.ifv.utils.files.decompressedBufferedReader
 import java.io.BufferedReader
 import java.nio.file.Path
 
-
-
 /**
  * The `MatrixParser` class is responsible for parsing a matrix from a file and converting it into a `Matrix` object.
  *

@@ -13,4 +13,5 @@ data class MaximumPersonAttributesImpl(
     val personNumber: Int,
     override val hasBicycle: Boolean,
     override val hasLicence: Boolean,
+    override var hasTransitPass: Boolean,
 ) : MaximumPersonAttributes

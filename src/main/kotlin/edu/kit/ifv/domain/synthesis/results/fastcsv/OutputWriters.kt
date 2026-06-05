@@ -10,7 +10,7 @@ data class OutputWriters(
     var carWriter: Writer? = null,
     var activityWriter: Writer? = null,
     var fixedDestinationWriter: Writer? = null,
-    var opportunitiesWriter: Writer? = null,
+//    var opportunitiesWriter: Writer? = null,
 ) {
     companion object {
         /**

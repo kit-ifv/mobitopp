@@ -19,10 +19,8 @@ import kotlin.time.toDuration
  *
  */
 @Suppress("MagicNumber")
-class BinaryActivityReader(
-    private val codeActivity: CodePlan<ActivityType>,
-    private val contextSimulationSeed: Long,
-) : BinaryReader<MutablePlannedActivity> {
+class BinaryActivityReader(private val codeActivity: CodePlan<ActivityType>, private val contextSimulationSeed: Long) :
+    BinaryReader<MutablePlannedActivity> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutablePlannedActivity? {
         val id = ActivityId(long)

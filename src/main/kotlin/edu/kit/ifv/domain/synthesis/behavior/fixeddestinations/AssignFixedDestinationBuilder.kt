@@ -1,5 +1,4 @@
 package edu.kit.ifv.domain.synthesis.behavior.fixeddestinations
-import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.synthesis.SynthesisHousehold
 import edu.kit.ifv.domain.synthesis.attributes.household.MinimumHouseholdAttributes
@@ -15,9 +14,7 @@ import edu.kit.ifv.domain.synthesis.results.FixedDestinationElements
 /**
  * This class provides the syntax to build the fixed destinations of agents.
  */
-class AssignFixedDestinationBuilder<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>(
-    val attractivenessModel: AttractivenessModel,
-) {
+class AssignFixedDestinationBuilder<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> {
 
     /**
      * Represents a step in the assignment process, where individuals (agents) are matched with destinations

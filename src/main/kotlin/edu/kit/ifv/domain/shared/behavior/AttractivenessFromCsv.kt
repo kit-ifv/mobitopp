@@ -32,7 +32,7 @@ class AttractivenessFromCsv(
                 // TODO error level as config param
                 filteredActivityTypes = filteredActivityTypes ?: activityTypes.filterExistingColumns(row)
                 ZoneId(row.long(zoneColumn)) to
-                        activityMapOf(row, filteredActivityTypes)
+                    activityMapOf(row, filteredActivityTypes)
             },
         )
 
@@ -62,7 +62,8 @@ private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) = activity
     row.commaDouble(act.columnString).asAttractiveness()
 }
 
-private fun String.capitalizeWithUnderscores() = this.split("_").joinToString("_") { part ->
+@Deprecated("This function should either be in util or not used by loadattractiveness step")
+internal fun String.capitalizeWithUnderscores() = this.split("_").joinToString("_") { part ->
     part.lowercase().replaceFirstChar { it.uppercase() }
 }
 

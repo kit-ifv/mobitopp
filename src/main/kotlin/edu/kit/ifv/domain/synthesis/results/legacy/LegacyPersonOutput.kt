@@ -32,12 +32,12 @@ class LegacyPersonOutput<C : MaximumHouseholdAttributes, T : MaximumPersonAttrib
         val second = element.run {
             toCSV(
                 -1, // Dummy value. person Number is not a useful attribute
-                householdID,
+                householdId,
 
                 employment,
                 household.hasCars(),
                 "TODO is this field sth useful?", // household.amountOfCars <= household.numberOfDrivingLicences,
-                hasTransitPass,
+                attributes.hasTransitPass,
                 attributes.hasLicence,
                 surveyDummy,
                 surveyDummy,

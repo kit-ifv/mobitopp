@@ -10,10 +10,12 @@ import edu.kit.ifv.domain.shared.location.StandardLocationImpl
 import edu.kit.ifv.domain.shared.location.zone.Zone
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasGeometricEmbedding
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasRegionType
+import edu.kit.ifv.domain.synthesis.AttractivenessModelParser
 import edu.kit.ifv.domain.synthesis.GenerateFromFlatInput
 import edu.kit.ifv.domain.synthesis.PopulationSynthesis
 import edu.kit.ifv.domain.synthesis.assignAmountOfCars
 import edu.kit.ifv.domain.synthesis.assignEconomicStatus
+import edu.kit.ifv.domain.synthesis.assignTransitCardOwnership
 import edu.kit.ifv.domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import edu.kit.ifv.domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import edu.kit.ifv.domain.synthesis.attributes.person.MaximumPersonAttributes
@@ -48,6 +50,7 @@ fun <
     T : MinimumPersonAttributes,
     > PopulationSynthesis<AREA, S, T>.generateLocations(
     activityType: ActivityType,
+    attractivenessModel: AttractivenessModel,
     generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<StandardLocation>,
 ): List<StandardLocation> {
     // TODO reenable generation and put more thought into how the locations are generated.
@@ -75,23 +78,22 @@ private class ExampleZoneAttributes(override val geometry: Geometry, override va
     "MagicNumber",
 ) // I agree that the method is long, but right now I don't know how to simplify without breaking the read flow
 fun examplePopulationSynthesis() {
+    val attractivenessModel = AttractivenessModelParser.parse(attractivenessModelPath)
+
     val populationSynthesis = PopulationSynthesis.configure(
         surveyPopulation = GenerateFromFlatInput.fromPath("src/test/resources/synthesis/SurveyPopulation.csv"),
         zones = emptyList<Zone<ExampleZoneAttributes>>(),
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
-        attractivenessModel = attractivenessFromFile {
-            path = attractivenessModelPath
-        }
     }
 
     val primarySchools: List<StandardLocation> =
-        populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY) { zone, _, _ ->
+        populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, attractivenessModel) { zone, _, _ ->
             zone.generateLocations(amount = 1)
         }
 
     val works: List<StandardLocation> =
-        populationSynthesis.generateLocations(LegacyActivityType.WORK) { zone, _, _ ->
+        populationSynthesis.generateLocations(LegacyActivityType.WORK, attractivenessModel) { zone, _, _ ->
             zone.generateLocations(amount = 1)
         }
     require(primarySchools.isNotEmpty()) {

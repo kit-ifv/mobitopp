@@ -19,8 +19,8 @@ fun <C, T> SynthesisSteps<*, C, T>.writeLegacyOutput()
         activities.map { it.key to it.value },
     )
     LegacyCarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
-    LegacyOpportunitiesOutput.writeCSVToFile(
-        outputDirectory.resolve("opportunities.csv"),
-        opportunities,
-    )
+//    LegacyOpportunitiesOutput.writeCSVToFile(
+//        outputDirectory.resolve("opportunities.csv"),
+//        opportunities,
+//    )
 }

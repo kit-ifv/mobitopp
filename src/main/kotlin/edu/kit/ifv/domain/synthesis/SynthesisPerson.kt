@@ -20,13 +20,11 @@ class SynthesisPerson<S : MinimumHouseholdAttributes, T : MinimumPersonAttribute
     override val homeLocation: StandardLocation
         get() = household.attributes.location
 
-    val householdID get() = household.id
-
-    //    val homeLocation get() =
-    var hasTransitPass = false
+    val householdId get() = household.id
     var plannedActivities: PreliminaryActivitySchedule = PreliminaryActivitySchedule.STAY_AT_HOME
     val fixedDestinations: MutableMap<ActivityType, StandardLocation> = mutableMapOf()
 
+    // TODO sharing membership is not autoamtically given and should be moved to the attributes of the person.
     private val sharingMemberships: MutableMap<String, Boolean> = mutableMapOf()
 
     fun getSharingMemberships(): Map<String, Boolean> = sharingMemberships

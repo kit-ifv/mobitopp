@@ -15,7 +15,7 @@ object LegacyCarOutput : CSVOutput<SynthesisCar> {
     @Suppress("MagicNumber")
     override fun convert(element: SynthesisCar): String = element.run {
         toCSV(
-            mainUser?.householdID ?: "Null",
+            mainUser?.householdId ?: "Null",
             mainUser?.personId ?: "-1",
             mainUser?.personId ?: "-1",
             this.engine.type.asText,
