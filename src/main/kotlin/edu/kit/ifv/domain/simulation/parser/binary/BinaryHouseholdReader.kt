@@ -1,19 +1,18 @@
 package edu.kit.ifv.domain.simulation.parser.binary
+
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.location.parser.LocationUtils.decodeLocation
 import edu.kit.ifv.domain.shared.location.zone.Zone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasRegionType
-import edu.kit.ifv.domain.simulation.data.household.Household
 import edu.kit.ifv.domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.utils.binary.BinaryReader
-import edu.kit.ifv.utils.binary.DefaultBinaryWriter
 import java.nio.ByteBuffer
 
 /**
- * Reads a [MutableHousehold] from a binary file. Similar to other readers, it first reads at position 0 the size,
+ * Reads a [edu.kit.ifv.domain.simulation.data.household.MutableHousehold] from a binary file. Similar to other readers, it first reads at position 0 the size,
  * then the constructor arguments and third the attributes of the constructed objects.
  *
  * @property zoneConverter Required to find the proper Zone from the ZoneId in the Binary file
@@ -33,7 +32,7 @@ class BinaryHouseholdReader(
         val domCode = int
         val type = int
         val incomePerMonth = double.euros
-        val economicStatus = EconomicStatus.decode(int)
+        val economicStatus = EconomicStatus.Companion.decode(int)
         val location = decodeLocation(converter = zoneConverter)
         return MutableHousehold(
             id,
@@ -49,8 +48,3 @@ class BinaryHouseholdReader(
         }
     }
 }
-
-/**
- * Writes a collection of households into a binary file.
- */
-class BinaryHouseholdWriter : DefaultBinaryWriter<Household>()

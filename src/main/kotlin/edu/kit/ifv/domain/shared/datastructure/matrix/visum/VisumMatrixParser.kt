@@ -4,14 +4,7 @@ import edu.kit.ifv.utils.files.decompressedBufferedReader
 import java.io.BufferedReader
 import java.nio.file.Path
 
-// Detekt complained, so I extracted the number line pattern into its own variable
-const val NUMBER_LINE_PATTERN = "[\\d|\\s.-]+"
 
-// Another complaint by detekt
-const val OBJ = "* Obj"
-private val AS_DOUBLE: (String) -> Double = { it.toDouble() }
-private val AS_ZONE_ID: (String) -> ZoneId = { ZoneId(it.toLong()) }
-private fun String.splitByWhitespace(): List<String> = this.trim().split(Regex("\\s+"))
 
 /**
  * The `MatrixParser` class is responsible for parsing a matrix from a file and converting it into a `Matrix` object.
@@ -138,4 +131,12 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
     override fun getZoneIds(): Array<ZoneId> = mutableList.toTypedArray()
 
     override fun getArray(): DoubleArray = values.flatten().toDoubleArray()
+
+    companion object {
+        private const val NUMBER_LINE_PATTERN = "[\\d|\\s.-]+"
+        private const val OBJ = "* Obj"
+        private val AS_DOUBLE: (String) -> Double = { it.toDouble() }
+        private val AS_ZONE_ID: (String) -> ZoneId = { ZoneId(it.toLong()) }
+        private fun String.splitByWhitespace(): List<String> = this.trim().split(Regex("\\s+"))
+    }
 }

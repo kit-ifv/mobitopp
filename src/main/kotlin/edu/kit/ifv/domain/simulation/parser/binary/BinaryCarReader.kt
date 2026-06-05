@@ -1,4 +1,5 @@
 package edu.kit.ifv.domain.simulation.parser.binary
+
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.car.CarSegment
 import edu.kit.ifv.domain.shared.car.engine.CarEngineStatistics
@@ -7,11 +8,9 @@ import edu.kit.ifv.domain.shared.car.engine.buildEngine
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.simulation.data.car.MutablePrivateCar
-import edu.kit.ifv.domain.simulation.data.car.PrivateCar
 import edu.kit.ifv.domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.domain.simulation.data.person.Person
 import edu.kit.ifv.utils.binary.BinaryReader
-import edu.kit.ifv.utils.binary.DefaultBinaryWriter
 import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
@@ -26,8 +25,8 @@ class BinaryCarReader(
         val household = householdConverter(HouseholdId(long))
         val seats = int
         val personId = PersonId(long)
-        val segment = CarSegment.decode(int)
-        val engineType = EngineType.decode(int)
+        val segment = CarSegment.Companion.decode(int)
+        val engineType = EngineType.Companion.decode(int)
 
         return household?.let {
             MutablePrivateCar(id, it).apply {
@@ -39,5 +38,3 @@ class BinaryCarReader(
         }
     }
 }
-
-class BinaryCarWriter : DefaultBinaryWriter<PrivateCar>()
