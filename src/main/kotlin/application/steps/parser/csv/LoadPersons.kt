@@ -14,20 +14,19 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Graduation
-import domain.synthesis.data.person.MutablePerson
-import domain.synthesis.data.person.Person
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.data.person.Sex
-import domain.synthesis.parser.PersonColumns
-import domain.synthesis.parser.PersonCsvConfig
-import domain.synthesis.parser.binary.BinaryPersonReader
-import domain.synthesis.parser.binary.BinaryPersonWriter
-import domain.synthesis.parser.createPersonCsvParser
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Graduation
+import domain.shared.enums.person.Sex
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.household.MutableHousehold
+import domain.simulation.data.person.MutablePerson
+import domain.simulation.data.person.PersonId
+import domain.simulation.parser.PersonColumns
+import domain.simulation.parser.PersonCsvConfig
+import domain.simulation.parser.binary.BinaryPersonReader
+import domain.simulation.parser.binary.BinaryPersonWriter
+import domain.simulation.parser.createPersonCsvParser
+import domain.simulation.data.drt.DrtProvider
 import utils.csv.CsvParser
 import java.nio.file.Path
 
@@ -45,11 +44,12 @@ import java.nio.file.Path
 fun <C> C.persons(
     sealed: Boolean = false,
     scope: context(MutableRepository<MutablePerson, PersonId>) C.() -> Unit,
-) where C : HasPersonRepo<MutablePerson, Person> = mutableRepositoryScope<C, MutablePerson, PersonId>(
-    getter = { mutablePersonRepository },
-    sealed = sealed,
-    scope,
-)
+) where C : HasPersonRepo<MutablePerson, domain.simulation.data.person.Person> =
+    mutableRepositoryScope<C, MutablePerson, PersonId>(
+        getter = { mutablePersonRepository },
+        sealed = sealed,
+        scope,
+    )
 
 /**
  * Loads persons from a resource.
@@ -74,7 +74,8 @@ fun <C> C.loadPersons(
         drtProviderRepository,
     ),
 ) where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-        C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider> =
+        C : HasSharingProviderRepo<*, SharingProvider>,
+        C : HasDrtProviderRepo<*, DrtProvider> =
     addResourceStep<C, MutablePerson, PersonId>(
         name = "load persons from ${resource.name}",
         resource = resource,
@@ -106,7 +107,8 @@ fun <C, CFG> C.personCsv(
     binaryCache: BinaryCacheConfig<MutablePerson>? = binaryPersonFormat(),
 ): Resource<MutablePerson>
     where C : HasPersonRepo<MutablePerson, *>, C : HasHouseholdRepo<MutableHousehold, *>,
-          C : HasSharingProviderRepo<*, SharingProvider>, C : HasDrtProviderRepo<*, DrtProvider>,
+          C : HasSharingProviderRepo<*, SharingProvider>,
+          C : HasDrtProviderRepo<*, DrtProvider>,
           CFG : UnitConfig, CFG : SourceFilesConfig =
     // TODO config as required upper bound type in context
     CsvResource(path, parser, delimiter).let { csv ->

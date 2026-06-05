@@ -1,10 +1,10 @@
 package domain.synthesis.rules.measurements
 
+import domain.shared.enums.person.Sex
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
-import domain.synthesis.data.person.Sex
 import edu.kit.ifv.populationsynthesis.rules.measurement.BooleanMeasurementDefinition
 import edu.kit.ifv.populationsynthesis.rules.measurement.NamedMeasurement
 import edu.kit.ifv.populationsynthesis.rules.measurement.NumericMeasurementDefinition

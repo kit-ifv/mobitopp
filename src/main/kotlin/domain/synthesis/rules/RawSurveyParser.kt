@@ -1,8 +1,8 @@
 package domain.synthesis.rules
 
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Sex
 import domain.synthesis.behavior.RawSurveyInfo
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.toCurrency
@@ -34,9 +34,9 @@ object RawSurveyParser {
         areaType = row(surveyColumns.areatype).toInt(),
         householdSize = row(surveyColumns.size).toInt(),
         personNumber = row(surveyColumns.personnumber).toInt(),
-        sex = row(surveyColumns.sex) { Sex.Companion.decode(it.toInt()) },
+        sex = row(surveyColumns.sex) { Sex.decode(it.toInt()) },
         birthyear = row(surveyColumns.birthyear).toInt(),
-        employment = row(surveyColumns.employmenttype) { Employment.Companion.decode(it.toInt()) },
+        employment = row(surveyColumns.employmenttype) { Employment.decode(it.toInt()) },
         hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
         householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
         householdIncomeClass = row(surveyColumns.hhincomeClass).toInt(),

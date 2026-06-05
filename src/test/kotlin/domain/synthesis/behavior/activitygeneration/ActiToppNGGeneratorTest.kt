@@ -5,7 +5,10 @@ import domain.shared.enums.areatype.RegionType
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.areatype.toSizebasedClassification
+import domain.shared.enums.household.HouseholdType
 import domain.shared.enums.legacyChoiceModelPurposes
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Sex
 import domain.shared.location.StandardLocation
 import domain.shared.location.attributes.StandardLocationAttributes
 import domain.shared.location.jts.PointCreator
@@ -19,9 +22,6 @@ import domain.synthesis.attributes.household.MaximumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MaximumPersonAttributes
 import domain.synthesis.attributes.person.MaximumPersonAttributesImpl
 import domain.synthesis.behavior.SmallestSurveyPerson
-import domain.synthesis.data.household.HouseholdType
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Sex
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import org.locationtech.jts.geom.Point

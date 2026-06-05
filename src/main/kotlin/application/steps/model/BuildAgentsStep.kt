@@ -25,11 +25,11 @@ import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.GaussianActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.car.PrivateCar
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.person.Person
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.car.PrivateCar
+import domain.simulation.data.drt.DrtProvider
+import domain.simulation.data.household.Household
+import domain.simulation.data.person.Person
 
 /**
  * Creates a [GaussianActivityDurationRandomizer] based on the simulation duration.
@@ -51,12 +51,12 @@ fun gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
  *
  * @receiver The simulation context [C].
  * @param C The context type. Must implement:
- *   - [HasPersonRepo] for [Person]
+ *   - [HasPersonRepo] for [domain.simulation.data.person.Person]
  *   - [HasZoneRepo] for [Zone]
- *   - [HasHouseholdRepo] for [Household]
+ *   - [HasHouseholdRepo] for [domain.simulation.data.household.Household]
  *   - [HasCarRepo] for [PrivateCar]
  *   - [HasSharingProviderRepo] for [SharingProvider]
- *   - [HasDrtProviderRepo] for [DrtProvider]
+ *   - [HasDrtProviderRepo] for [domain.simulation.data.DrtProvider]
  *   - [HasPersonAgentRepo] for [PersonAgent]
  *   - [HasSharingProviderAgentRepo] for [SharingProviderAgent]
  *   - [HasDrtProviderAgentRepo] for [DrtProviderAgent]
@@ -65,7 +65,7 @@ fun gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
  * @param personStateMachine Factory to create state machines for [PersonAgent]s.
  * @param durationRandomizer Randomizer for activity durations. Defaults to [NoDurationRandomizer].
  * @param drtStateMachine Optional factory to create state machines for [DrtProviderAgent]s.
- * @param drtAlgorithm Optional function to create [DrtAlgorithm]s for [DrtProvider]s.
+ * @param drtAlgorithm Optional function to create [DrtAlgorithm]s for [domain.simulation.data.DrtProvider]s.
  */
 context(config: Config)
 fun <C> C.buildSimulationAgents(

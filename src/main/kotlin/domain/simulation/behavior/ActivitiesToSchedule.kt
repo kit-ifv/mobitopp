@@ -12,7 +12,7 @@ import domain.shared.datastructure.schedule.plans.BlockModel
 import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.location.StandardLocation
-import domain.synthesis.data.PlannedActivity
+import domain.simulation.data.PlannedActivity
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes

@@ -1,8 +1,8 @@
 package domain.synthesis.behavior
 
-import domain.synthesis.data.household.HouseholdType
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Sex
+import domain.shared.enums.household.HouseholdType
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Sex
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 

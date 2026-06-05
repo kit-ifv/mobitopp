@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import domain.shared.car.CarSegment
+import domain.shared.car.engine.EngineType
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.LegacyMode
@@ -15,16 +17,14 @@ import domain.shared.enums.MainModes
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
-import domain.synthesis.data.car.CarSegment
-import domain.synthesis.data.car.engine.EngineType
-import domain.synthesis.data.household.EconomicStatus
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.Graduation
-import domain.synthesis.data.person.Sex
+import domain.shared.enums.household.EconomicStatus
+import domain.shared.enums.person.Employment
+import domain.shared.enums.person.Graduation
+import domain.shared.enums.person.Sex
 import utils.CodePlan
 import utils.codes.Encodable
 import utils.collections.invertMap
-import java.util.ServiceLoader
+import java.util.*
 
 class CoreCodePlanModule : SimpleModule("CoreCodePlanModule") {
     init {

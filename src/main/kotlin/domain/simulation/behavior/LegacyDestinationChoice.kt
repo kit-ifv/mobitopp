@@ -5,10 +5,10 @@ package domain.simulation.behavior
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
+import domain.shared.enums.person.Employment
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.attributes.HasZoneId
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.isAdult
+import domain.simulation.data.person.isAdult
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit

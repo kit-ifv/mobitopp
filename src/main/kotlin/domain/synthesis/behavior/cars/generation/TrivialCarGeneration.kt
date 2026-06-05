@@ -1,10 +1,10 @@
 package domain.synthesis.behavior.cars.generation
 
+import domain.shared.car.Car
+import domain.shared.car.CarSegment
+import domain.shared.car.engine.EngineType
 import domain.synthesis.behavior.MinimalistHousehold
 import domain.synthesis.behavior.cars.CarImpl
-import domain.synthesis.data.car.Car
-import domain.synthesis.data.car.CarSegment
-import domain.synthesis.data.car.engine.EngineType
 
 /**
  * Each household gets the same amount of cars, and the cars are all the same model

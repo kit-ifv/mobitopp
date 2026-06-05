@@ -2,12 +2,12 @@ package application.steps
 
 import application.config.subconfigs.BaseCSVFiles
 import core.modelsteps.Config
+import domain.shared.car.CarSegment
 import domain.shared.datastructure.matrix.ZoneMatrixCreation
 import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegionType
-import domain.synthesis.data.car.CarSegment
-import domain.synthesis.data.household.EconomicStatus
+import domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue

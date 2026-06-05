@@ -19,8 +19,7 @@ import utils.collections.orderedPermutations
 import utils.collections.permutations
 import utils.collections.subsets
 import utils.units.sinceStart
-import java.util.SortedSet
-import java.util.TreeSet
+import java.util.*
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

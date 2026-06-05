@@ -1,6 +1,6 @@
 package domain.synthesis.attributes.person
 
-import domain.synthesis.data.person.Sex
+import domain.shared.enums.person.Sex
 
 interface HasBiologicalSex {
     val sex: Sex

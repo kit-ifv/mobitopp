@@ -17,11 +17,11 @@ import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.areatype.RegioStaR7
+import domain.shared.enums.person.Employment
 import domain.simulation.agent.PersonAgent
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.IPerson
-import domain.synthesis.data.person.sharingMembershipIds
+import domain.simulation.data.household.Household
+import domain.simulation.data.person.IPerson
+import domain.simulation.data.person.sharingMembershipIds
 import java.nio.file.Path
 import java.time.DayOfWeek
 
@@ -34,7 +34,10 @@ fun <C> C.addDefaultMIDComparisonPlots(
     choiceModelPurposes: ChoiceModelPurposes,
     defaultPurpose: ActivityType,
     choiceModelModes: ChoiceModelModes,
-) where C : Context, C : HasImpedance, C : HasPersonAgentRepo<*, PersonAgent>, C : HasHouseholdRepo<*, Household> {
+) where C : Context,
+        C : HasImpedance,
+        C : HasPersonAgentRepo<*, PersonAgent>,
+        C : HasHouseholdRepo<*, Household> {
     fun <G> midPlotForPerson(
         personFilter: (IPerson) -> Boolean = { true },
         rowFilter: (MidPersonRow) -> Boolean = { true },

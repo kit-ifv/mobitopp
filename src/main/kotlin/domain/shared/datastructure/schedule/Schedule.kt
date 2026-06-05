@@ -13,7 +13,7 @@ import domain.shared.datastructure.schedule.plans.TrackableModel
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.location.StandardLocation
 import utils.units.AbsoluteTime
-import java.util.SortedSet
+import java.util.*
 
 /**
  * A [Schedule] maintains the state of a plan as defined in the model when being executed. It holds the attributes

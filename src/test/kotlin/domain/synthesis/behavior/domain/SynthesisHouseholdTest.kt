@@ -1,12 +1,12 @@
 package domain.synthesis.behavior.domain
 
 import assertNotContains
+import domain.shared.enums.household.EconomicStatus
+import domain.shared.enums.household.HouseholdType
 import domain.shared.location.StandardLocation
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.data.household.EconomicStatus
-import domain.synthesis.data.household.HouseholdType
 import domain.synthesis.results.fastcsv.CsvIgnore
 import domain.synthesis.results.fastcsv.writers.writeHouseholds
 import edu.kit.ifv.units.Currency

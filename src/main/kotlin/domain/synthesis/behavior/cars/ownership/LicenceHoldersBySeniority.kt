@@ -1,12 +1,12 @@
 package domain.synthesis.behavior.cars.ownership
 
+import domain.shared.car.Car
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.HasLicence
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.attributes.person.hasLicence
 import domain.synthesis.behavior.cars.SynthesisCar
-import domain.synthesis.data.car.Car
 
 class LicenceHoldersBySeniority<S : MinimumHouseholdAttributes, T> :
     AssignMainUser<S, T>

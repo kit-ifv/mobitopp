@@ -16,13 +16,13 @@ import domain.shared.location.zone.Zone
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.ModeChoiceCharacteristics
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.drt.DrtProvider
 import domain.simulation.events.GenerateDestinationCharacteristics
 import domain.simulation.events.GenerateModeCharacteristics
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.drt.DrtProvider
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 

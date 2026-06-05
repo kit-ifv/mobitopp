@@ -4,7 +4,6 @@ package core.statemachine.usage
 
 import utils.numbers.round
 import java.nio.file.Path
-import kotlin.collections.mapIndexed
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.time.Duration

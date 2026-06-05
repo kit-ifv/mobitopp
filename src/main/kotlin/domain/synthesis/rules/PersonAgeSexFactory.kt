@@ -1,7 +1,7 @@
 package domain.synthesis.rules
 
+import domain.shared.enums.person.Sex
 import domain.synthesis.behavior.ISurveyHousehold
-import domain.synthesis.data.person.Sex
 import domain.synthesis.rules.measurements.MutablePersonAgeSexDefinition
 import domain.synthesis.rules.measurements.PersonAgeSexDefinition
 import edu.kit.ifv.populationsynthesis.rules.RuleSet

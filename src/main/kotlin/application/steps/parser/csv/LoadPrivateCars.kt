@@ -12,19 +12,19 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
-import domain.synthesis.data.car.CarId
-import domain.synthesis.data.car.MutablePrivateCar
-import domain.synthesis.data.car.engine.CarEngineStatistics
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.MutablePerson
-import domain.synthesis.data.person.Person
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.parser.CarColumns
-import domain.synthesis.parser.PrivateCarCsvConfig
-import domain.synthesis.parser.binary.BinaryCarReader
-import domain.synthesis.parser.binary.BinaryCarWriter
-import domain.synthesis.parser.createPrivateCarCsvParser
+import domain.shared.car.CarId
+import domain.shared.car.engine.CarEngineStatistics
+import domain.simulation.data.car.MutablePrivateCar
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.household.MutableHousehold
+import domain.simulation.data.person.MutablePerson
+import domain.simulation.data.person.Person
+import domain.simulation.data.person.PersonId
+import domain.simulation.parser.CarColumns
+import domain.simulation.parser.PrivateCarCsvConfig
+import domain.simulation.parser.binary.BinaryCarReader
+import domain.simulation.parser.binary.BinaryCarWriter
+import domain.simulation.parser.createPrivateCarCsvParser
 import utils.csv.CsvParser
 import utils.csv.long
 import java.nio.file.Path
@@ -68,7 +68,7 @@ fun <C> C.loadCars(
  * Creates a CSV resource for private cars.
  *
  * @receiver The simulation context [C].
- * @param C The context type. Must implement [HasPersonRepo] for [Person] and [HasHouseholdRepo]
+ * @param C The context type. Must implement [HasPersonRepo] for [domain.simulation.data.person.Person] and [HasHouseholdRepo]
  *          for [MutableHousehold].
  * @param CFG The configuration type. Must implement [SourceFilesConfig] and [CarCodesConfig].
  * @param config The configuration. Provided via context.
@@ -99,11 +99,11 @@ fun <C, CFG> C.carCsv(
  * Creates a CSV parser for private cars.
  *
  * @receiver The simulation context [C].
- * @param C The context type. Must implement [HasPersonRepo] for [Person] and [HasHouseholdRepo]
+ * @param C The context type. Must implement [HasPersonRepo] for [domain.simulation.data.person.Person] and [HasHouseholdRepo]
  *          for [MutableHousehold].
  * @param CFG The configuration type. Must implement [CarCodesConfig].
  * @param config The configuration. Provided via context.
- * @param customizeCsvConfig Lambda to customize the [PrivateCarCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.PrivateCarCsvConfig].
  * @return A [CsvParser] for [MutablePrivateCar].
  */
 context(config: CFG)
@@ -115,8 +115,20 @@ fun <C, CFG> C.privateCarCsvParser(
         PrivateCarCsvConfig(
             columns = CarColumns(),
             householdExists = mutableHouseholdRepository::contains,
-            getOwnerHousehold = { row, col -> mutableHouseholdRepository.getValue(HouseholdId(row.long(col))) },
-            getMainUser = { row, col -> personRepository.getValue(PersonId(row.long(col))) },
+            getOwnerHousehold = { row, col ->
+                mutableHouseholdRepository.getValue(
+                    HouseholdId(
+                        row.long(col),
+                    ),
+                )
+            },
+            getMainUser = { row, col ->
+                personRepository.getValue(
+                    PersonId(
+                        row.long(col),
+                    ),
+                )
+            },
             carEngineStatistics = CarEngineStatistics(),
             carSegmentCodes = config.carSegmentCodes,
             errorHandling = config.errorHandling,
@@ -129,7 +141,7 @@ fun <C, CFG> C.privateCarCsvParser(
  * Creates a binary cache configuration for private cars.
  *
  * @receiver The simulation context [C].
- * @param C The context type. Must implement [HasPersonRepo] for [Person] and [HasHouseholdRepo]
+ * @param C The context type. Must implement [HasPersonRepo] for [domain.simulation.data.person.Person] and [HasHouseholdRepo]
  *          for [MutableHousehold].
  * @param CFG The configuration type. Must implement [SourceFilesConfig].
  * @param config The configuration. Provided via context.

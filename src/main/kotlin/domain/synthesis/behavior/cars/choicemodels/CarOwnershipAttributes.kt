@@ -1,5 +1,7 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.synthesis.behavior.cars.ownership.EmploymentSorter
+
 /**
  * The class [CarOwnershipAttributes] is an example to show the attributes that are required to form a meaningful decision
  * in the [carAmountChoiceModel] discrete choice model. In old mobitopp the attributes would have been a helper function written
@@ -23,18 +25,16 @@ package domain.synthesis.behavior.cars.choicemodels
  * @property amountOfYouth This helper attribute returns the number of agents in the household that are of age [10, 17]
  * @property amountOfWorkers This helper attribute returns the number of agents in the household that are considered
  * "Working" by the [domain.synthesis.behavior.cars.ownership.EmploymentSorter].
- * The default logic is that agents with [domain.synthesis.data.person.Employment.FULLTIME]
- * and [domain.synthesis.data.person.Employment.PARTTIME] are * considered "working".
- * You can override this behaviour by passing a different [domain.synthesis.behavior.cars.ownership.EmploymentSorter]
- * to the [CarOwnershipFactors] creation.
+ * The default logic is that agents with [Employment.FULLTIME] and [Employment.PARTTIME] are considered "working".
+ * You can override this behaviour by passing a different [EmploymentSorter] to the [CarOwnershipFactors] creation.
  * @property amountOfLicences This helper attribute returns the number of agents in the household that have a driving licence
  * @property isWg determines whether the selected household is a flat, as in at least 3 or more students and only students,
- * based on the [domain.synthesis.behavior.cars.ownership.EmploymentSorter] logic to determine what employment type qualifies as student
- * (Default is [domain.synthesis.data.person.Employment.STUDENT_TERTIARY])
+ * based on the [EmploymentSorter] logic to determine what employment type qualifies as student
+ * (Default is [Employment.STUDENT_TERTIARY])
  * @property isOnlyRetired This helper attribute returns whether all agents in the household are retired,
- * based on the [domain.synthesis.behavior.cars.ownership.EmploymentSorter] to determine retirement.
+ * based on the [EmploymentSorter] to determine retirement.
  *  @property isOnlyUnemployed This helper attribute returns whether all agents in the household are unemployed,
- *  based on the [domain.synthesis.behavior.cars.ownership.EmploymentSorter] to determine unemployment.
+ *  based on the [EmploymentSorter] to determine unemployment.
  */
 class CarOwnershipAttributes(infos: CarOwnershipFactors) {
     val randomNumber = 0.0

@@ -1,5 +1,6 @@
 package domain.synthesis.behavior.cars.generation
 
+import domain.shared.car.Car
 import domain.synthesis.attributes.household.HasNumberOfCars
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.adults
@@ -15,7 +16,6 @@ import domain.synthesis.behavior.cars.choicemodels.carEngineChoiceModel
 import domain.synthesis.behavior.cars.choicemodels.carSegmentChoiceModel
 import domain.synthesis.behavior.cars.choicemodels.parameters.CarSegmentParameters
 import domain.synthesis.behavior.cars.choicemodels.parameters.EngineParameters
-import domain.synthesis.data.car.Car
 import utils.collections.selectExact
 import kotlin.random.Random
 

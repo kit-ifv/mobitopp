@@ -14,18 +14,13 @@ import core.modelsteps.steps.modelStep
 import domain.shared.enums.ActivityType
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.ActivityId
-import domain.synthesis.data.HasStandardLocation
-import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.person.HasHousehold
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.parser.ActivityLocation
-import domain.synthesis.parser.FixedDestinationColumns
-import domain.synthesis.parser.FixedDestinationCsvConfig
-import domain.synthesis.parser.binary.FixedDestinationReader
-import domain.synthesis.parser.binary.FixedDestinationWriter
-import domain.synthesis.parser.createFixedDestinationCsvParser
+import domain.simulation.data.ActivityId
+import domain.simulation.data.ActivityLocation
+import domain.simulation.data.sharing.HasStandardLocation
+import domain.simulation.data.MutablePlannedActivity
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.person.HasHousehold
+import domain.simulation.data.person.PersonId
 import utils.Identifiable
 import utils.csv.CsvParser
 import java.nio.file.Path
@@ -40,7 +35,7 @@ import java.nio.file.Path
  * @receiver The simulation context [CTXT].
  * @param CTXT The context type. Must implement [HasZoneRepo] for [Zone] and [HasPersonRepo].
  * @param CFG The configuration type. Must implement [ActivityTypesConfig] and [SourceFilesConfig].
- * @param P The person type. Must implement [Identifiable] for [PersonId] and [HasHousehold].
+ * @param P The person type. Must implement [Identifiable] for [domain.simulation.data.person.PersonId] and [domain.simulation.data.person.HasHousehold].
  * @param H The household type. Must implement [Identifiable] for [HouseholdId] and [HasStandardLocation].
  * @param repository The mutable repository of persons. Provided via context.
  * @param activityRepo The mutable repository of planned activities to update. Provided via context.
@@ -61,7 +56,8 @@ fun <CTXT, CFG, P, H> CTXT.fixedDestinations(
         P : Identifiable<PersonId>, P : HasHousehold<H>,
         H : Identifiable<HouseholdId>, H : HasStandardLocation,
         CFG : ActivityTypesConfig, CFG : SourceFilesConfig {
-    val fixedLocationsById: MutableMap<PersonId, Map<ActivityType, ActivityLocation>> = mutableMapOf()
+    val fixedLocationsById:
+        MutableMap<PersonId, Map<ActivityType, ActivityLocation>> = mutableMapOf()
     modelStep("load fixed destination csv") {
         fixedLocationsById.putAll(
             resource.elements.groupBy {
@@ -122,19 +118,19 @@ fun <C, CFG> C.fixedDestinationCsv(
  * @param C The context type. Must implement [HasPersonRepo] and [HasZoneRepo] for [Zone].
  * @param CFG The configuration type. Must implement [ActivityTypesConfig].
  * @param config The configuration. Provided via context.
- * @param customizeCsvConfig Lambda to customize the [FixedDestinationCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.FixedDestinationCsvConfig].
  * @return A [CsvParser] for [ActivityLocation].
  */
 context(config: CFG)
 fun <C, CFG> C.fixedDestinationCsvParser(
-    customizeCsvConfig: FixedDestinationCsvConfig.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.FixedDestinationCsvConfig.() -> Unit = {},
 ): CsvParser<ActivityLocation>
 where C : HasPersonRepo<*, *>,
       C : HasZoneRepo<*, Zone<HasRegionType>>,
       CFG : ActivityTypesConfig =
-    createFixedDestinationCsvParser(
-        FixedDestinationCsvConfig(
-            columns = FixedDestinationColumns(),
+    _root_ide_package_.domain.simulation.parser.createFixedDestinationCsvParser(
+        _root_ide_package_.domain.simulation.parser.FixedDestinationCsvConfig(
+            columns = _root_ide_package_.domain.simulation.parser.FixedDestinationColumns(),
             personsExists = personRepository::contains,
             activityTypes = config.activityTypes,
             zoneConverter = ::getZone,
@@ -158,10 +154,10 @@ fun <C, CFG> C.binaryFixedDestinationFormat(): BinaryCacheConfig<ActivityLocatio
     where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig, CFG : ActivityTypesConfig =
     BinaryCacheConfig<ActivityLocation>(
         cacheRootPath = config.cachePath,
-        binaryReader = FixedDestinationReader(
+        binaryReader = _root_ide_package_.domain.simulation.parser.binary.FixedDestinationReader(
             activityTypeConverter = config.activityTypes,
             zoneConverter = zoneRepository::getValue,
         ),
 
-        binaryWriter = FixedDestinationWriter(),
+        binaryWriter = _root_ide_package_.domain.simulation.parser.binary.FixedDestinationWriter(),
     )

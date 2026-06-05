@@ -1,6 +1,6 @@
 package domain.synthesis.attributes.household
 
-import domain.synthesis.data.household.HouseholdType
+import domain.shared.enums.household.HouseholdType
 
 interface HasHouseholdType {
     val type: HouseholdType

@@ -1,13 +1,13 @@
 package domain.synthesis.rules
 
+import domain.shared.enums.household.HouseholdType
+import domain.shared.enums.person.Sex
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.household.MinimumHouseholdAttributesImpl
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.ISurveyHousehold
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
-import domain.synthesis.data.household.HouseholdType
-import domain.synthesis.data.person.Sex
 import domain.synthesis.rules.measurements.PersonAgeSexDefinition
 import edu.kit.ifv.units.euros
 import org.junit.jupiter.api.assertThrows

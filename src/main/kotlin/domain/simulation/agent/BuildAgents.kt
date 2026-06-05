@@ -3,23 +3,23 @@
 package domain.simulation.agent
 
 import core.statemachine.StateMachineFactory
+import domain.shared.car.CarId
 import domain.shared.datastructure.schedule.plans.SingularDispatcher
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.behavior.toSchedule
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.sharing.SharingProviderId
+import domain.simulation.data.sharing.SharingStation
+import domain.simulation.data.sharing.SharingStationId
+import domain.simulation.data.car.PrivateCar
+import domain.simulation.data.drt.DrtProvider
+import domain.simulation.data.drt.DrtProviderId
+import domain.simulation.data.household.Household
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.person.Person
+import domain.simulation.data.person.PersonId
 import domain.simulation.events.PersonBehavior
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.SharingProviderId
-import domain.synthesis.data.SharingStation
-import domain.synthesis.data.SharingStationId
-import domain.synthesis.data.car.CarId
-import domain.synthesis.data.car.PrivateCar
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.drt.DrtProviderId
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.person.Person
-import domain.synthesis.data.person.PersonId
 import utils.collections.addProgressBar
 
 class BuildAgents(

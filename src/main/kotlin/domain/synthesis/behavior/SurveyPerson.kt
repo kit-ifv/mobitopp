@@ -1,8 +1,8 @@
 package domain.synthesis.behavior
 
+import domain.shared.enums.person.Sex
 import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.data.person.Sex
 
 interface SurveyPerson<out T> : MinimalistPerson<T> where T : MinimumPersonAttributes {
     val personId: Int

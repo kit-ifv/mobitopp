@@ -1,10 +1,10 @@
 package domain.synthesis.behavior.cars.ownership
 
+import domain.shared.car.Car
 import domain.synthesis.SynthesisHousehold
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.cars.SynthesisCar
-import domain.synthesis.data.car.Car
 
 class UnfilteredSeniority<S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> : AssignMainUser<S, T> {
     override fun assign(household: SynthesisHousehold<S, T>, cars: List<Car>): List<SynthesisCar> {

@@ -17,13 +17,13 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.drt.DrtProviderId
-import domain.synthesis.data.drt.MutableDrtProviderData
-import domain.synthesis.parser.DrtProviderByAreaCsvColumns
-import domain.synthesis.parser.DrtProviderByAreaCsvConfig
-import domain.synthesis.parser.GlobalDrtProviderIdCounter
-import domain.synthesis.parser.allDay
-import domain.synthesis.parser.createDrtProvidersByAreaParser
+import domain.simulation.data.drt.MutableDrtProviderData
+import domain.simulation.data.drt.DrtProviderId
+import domain.simulation.parser.DrtProviderByAreaCsvColumns
+import domain.simulation.parser.DrtProviderByAreaCsvConfig
+import domain.simulation.parser.GlobalDrtProviderIdCounter
+import domain.simulation.parser.allDay
+import domain.simulation.parser.createDrtProvidersByAreaParser
 import utils.csv.CsvParser
 import java.nio.file.Path
 

@@ -1,8 +1,8 @@
 package domain.synthesis.behavior
 
+import domain.shared.enums.household.HouseholdType
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
-import domain.synthesis.data.household.HouseholdType
 import edu.kit.ifv.units.Currency
 
 interface ISurveyHousehold<

@@ -19,14 +19,9 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.location.PointAndRoadPositionParser
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.parser.HouseholdColumns
-import domain.synthesis.parser.HouseholdCsvConfig
-import domain.synthesis.parser.binary.BinaryHouseholdReader
-import domain.synthesis.parser.binary.BinaryHouseholdWriter
-import domain.synthesis.parser.createHouseholdCsvParser
+import domain.simulation.data.household.Household
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.units.UnitIntervalValue
 import utils.csv.CsvParser
 import java.nio.file.Path
@@ -113,11 +108,11 @@ fun <C, CFG> C.binaryHouseholdFormat(): BinaryCacheConfig<MutableHousehold>
         where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SourceFilesConfig =
     BinaryCacheConfig<MutableHousehold>(
         cacheRootPath = config.cachePath,
-        binaryReader = BinaryHouseholdReader(
+        binaryReader = _root_ide_package_.domain.simulation.parser.binary.BinaryHouseholdReader(
             zoneConverter = ::getZone,
             contextSimulationSeed = config.seed,
         ),
-        binaryWriter = BinaryHouseholdWriter(),
+        binaryWriter = _root_ide_package_.domain.simulation.parser.binary.BinaryHouseholdWriter(),
     )
 
 /**
@@ -128,20 +123,20 @@ fun <C, CFG> C.binaryHouseholdFormat(): BinaryCacheConfig<MutableHousehold>
  * @param CFG The configuration type. Must implement [SourceFilesConfig], [UnitConfig],
  *            and [HouseholdCodesConfig].
  * @param config The configuration. Provided via context.
- * @param customizeCsvConfig Lambda to customize the [HouseholdCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.HouseholdCsvConfig].
  * @return A [CsvParser] for [MutableHousehold].
  */
 context(config: CFG)
 fun <C, CFG> C.householdCsvParser(
-    customizeCsvConfig: HouseholdCsvConfig.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.HouseholdCsvConfig.() -> Unit = {},
 ): CsvParser<MutableHousehold>
         where C : HasZoneRepo<*, Zone<HasRegionType>>,
               CFG : SourceFilesConfig,
               CFG : UnitConfig,
               CFG : HouseholdCodesConfig =
-    createHouseholdCsvParser(
-        HouseholdCsvConfig(
-            columns = HouseholdColumns(),
+    _root_ide_package_.domain.simulation.parser.createHouseholdCsvParser(
+        _root_ide_package_.domain.simulation.parser.HouseholdCsvConfig(
+            columns = _root_ide_package_.domain.simulation.parser.HouseholdColumns(),
             getZone = ::getZone,
             roadPositionParser = PointAndRoadPositionParser.parseWGS,
             incomeUnit = config.currencyUnit,
@@ -178,7 +173,10 @@ fun <C : Context> C.filterHouseholds(valid: Collection<HouseholdId>) =
  * @param fraction The fraction of households to keep. Defaults to [config.fractionOfPopulation].
  */
 @Suppress("MagicNumber")
-context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: SimulationConfig)
+context(
+    repository: MutableRepository<MutableHousehold, HouseholdId>,
+    config: SimulationConfig
+)
 fun <C : Context> C.filterFractionOfPopulation(fraction: UnitIntervalValue = config.fractionOfPopulation) {
     var counter = 0
     val acceptedIncrement = (1 / fraction.toDouble()).roundToInt()

@@ -14,7 +14,7 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
 import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
-import domain.synthesis.data.household.Household
+import domain.simulation.data.household.Household
 import edu.kit.ifv.units.kilometers
 import kotlin.time.Duration.Companion.minutes
 

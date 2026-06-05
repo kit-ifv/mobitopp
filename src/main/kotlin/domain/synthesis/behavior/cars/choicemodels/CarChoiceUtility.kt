@@ -1,8 +1,8 @@
 package domain.synthesis.behavior.cars.choicemodels
 
+import domain.shared.enums.household.EconomicStatus
 import domain.synthesis.behavior.cars.choicemodels.parameters.CarOwnershipParameters
 import domain.synthesis.behavior.cars.choicemodels.parameters.CarParameters
-import domain.synthesis.data.household.EconomicStatus
 import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.NestedStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.nestedLogit

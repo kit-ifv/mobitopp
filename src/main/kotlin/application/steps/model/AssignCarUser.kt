@@ -3,10 +3,10 @@ package application.steps.model
 import application.steps.HasPersonRepo
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.transformEachStep
+import domain.shared.car.CarId
 import domain.simulation.cars.AssignCarUserModel
-import domain.synthesis.data.car.CarId
-import domain.synthesis.data.car.MutablePrivateCar
-import domain.synthesis.data.person.Person
+import domain.simulation.data.car.MutablePrivateCar
+import domain.simulation.data.person.Person
 
 /**
  * Assigns .main car users to private cars.
@@ -15,7 +15,7 @@ import domain.synthesis.data.person.Person
  * to assign a person as the .main user of the car.
  *
  * @receiver The simulation context [C].
- * @param C The context type. Must implement [HasPersonRepo] for [Person].
+ * @param C The context type. Must implement [HasPersonRepo] for [domain.simulation.data.person.Person].
  * @param repository The mutable repository of private cars to update. Provided via context.
  * @param model The model used to determine and assign the .main user. Defaults to [AssignCarUserModel].
  */

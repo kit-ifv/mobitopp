@@ -16,33 +16,33 @@ import core.modelsteps.steps.forAllStep
 import core.modelsteps.steps.loadBinary
 import core.modelsteps.steps.writeBinary
 import core.modelsteps.validation.validateFileReadAccess
+import domain.shared.car.CarId
+import domain.shared.location.parser.BinaryZoneReader
+import domain.shared.location.parser.BinaryZoneWriter
 import domain.shared.location.zone.MaximalZone
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.ActivityId
-import domain.synthesis.data.MutablePlannedActivity
-import domain.synthesis.data.SharingProvider
-import domain.synthesis.data.car.CarId
-import domain.synthesis.data.car.MutablePrivateCar
-import domain.synthesis.data.car.PrivateCar
-import domain.synthesis.data.drt.DrtProvider
-import domain.synthesis.data.household.Household
-import domain.synthesis.data.household.HouseholdId
-import domain.synthesis.data.household.MutableHousehold
-import domain.synthesis.data.person.MutablePerson
-import domain.synthesis.data.person.Person
-import domain.synthesis.data.person.PersonId
-import domain.synthesis.parser.binary.BinaryActivityReader
-import domain.synthesis.parser.binary.BinaryActivityWriter
-import domain.synthesis.parser.binary.BinaryCarReader
-import domain.synthesis.parser.binary.BinaryCarWriter
-import domain.synthesis.parser.binary.BinaryHouseholdReader
-import domain.synthesis.parser.binary.BinaryHouseholdWriter
-import domain.synthesis.parser.binary.BinaryPersonReader
-import domain.synthesis.parser.binary.BinaryPersonWriter
-import domain.synthesis.parser.binary.BinaryZoneReader
-import domain.synthesis.parser.binary.BinaryZoneWriter
+import domain.simulation.data.ActivityId
+import domain.simulation.data.MutablePlannedActivity
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.car.MutablePrivateCar
+import domain.simulation.data.car.PrivateCar
+import domain.simulation.data.drt.DrtProvider
+import domain.simulation.data.household.Household
+import domain.simulation.data.household.HouseholdId
+import domain.simulation.data.household.MutableHousehold
+import domain.simulation.data.person.MutablePerson
+import domain.simulation.data.person.Person
+import domain.simulation.data.person.PersonId
+import domain.simulation.parser.binary.BinaryActivityReader
+import domain.simulation.parser.binary.BinaryActivityWriter
+import domain.simulation.parser.binary.BinaryCarReader
+import domain.simulation.parser.binary.BinaryCarWriter
+import domain.simulation.parser.binary.BinaryHouseholdReader
+import domain.simulation.parser.binary.BinaryHouseholdWriter
+import domain.simulation.parser.binary.BinaryPersonReader
+import domain.simulation.parser.binary.BinaryPersonWriter
 import java.nio.file.Path
 
 /**
@@ -57,7 +57,10 @@ import java.nio.file.Path
  * @param config The short-term configuration. Provided via context. Must implement [ShortTermConfig].
  * @param path The path to the binary file.
  */
-context(repository: MutableRepository<MutablePerson, PersonId>, config: ShortTermConfig<*>)
+context(
+    repository: MutableRepository<MutablePerson, PersonId>,
+    config: ShortTermConfig<*>
+)
 fun <C> C.loadPersonsFromBinary(
     path: Path,
 )
@@ -88,7 +91,10 @@ fun <C> C.loadPersonsFromBinary(
  * @param config The short-term configuration. Provided via context. Must implement [ShortTermConfig].
  * @param path The path to the binary file.
  */
-context(repository: MutableRepository<MutableHousehold, HouseholdId>, config: ShortTermConfig<*>)
+context(
+    repository: MutableRepository<MutableHousehold, HouseholdId>,
+    config: ShortTermConfig<*>
+)
 fun <C> C.loadHouseholdFromBinary(path: Path)
     where C : HasZoneRepo<*, Zone<HasRegionType>> {
     val converter = BinaryHouseholdReader(
@@ -131,7 +137,7 @@ fun <CFG> Context.loadZonesFromBinary(path: Path)
  * @receiver The simulation context [C].
  * @param C The context type. Must implement:
  *   - [HasHouseholdRepo] for [MutableHousehold]
- *   - [HasPersonRepo] for [Person]
+ *   - [HasPersonRepo] for [domain.simulation.data.person.Person]
  * @param repository The mutable repository of private cars to populate. Provided via context.
  * @param path The path to the binary file.
  */
@@ -228,7 +234,10 @@ fun HasPersonRepo<*, Person>.writeActivitiesBinary(path: Path) = forAllStep(
     emptySet(),
     validation = listOf { validateFileReadAccess(path, true, "binary cache file ${path.fileName}") },
 ) { elements ->
-    BinaryActivityWriter().toBinary(path, elements.flatMap { it.plannedActivities })
+    BinaryActivityWriter().toBinary(
+        path,
+        elements.flatMap { it.plannedActivities },
+    )
 }
 
 /**

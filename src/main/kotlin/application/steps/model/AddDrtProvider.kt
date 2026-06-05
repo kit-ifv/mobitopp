@@ -6,9 +6,9 @@ import core.modelsteps.scopes.mutatingStep
 import domain.shared.location.Impedance
 import domain.shared.location.zone.Zone
 import domain.simulation.agent.SimpleMatrixDrtAlgorithm
-import domain.synthesis.data.drt.DrtProviderId
-import domain.synthesis.data.drt.MutableDrtProviderData
-import domain.synthesis.parser.GlobalDrtProviderIdCounter
+import domain.simulation.parser.GlobalDrtProviderIdCounter
+import domain.simulation.data.drt.DrtProviderId
+import domain.simulation.data.drt.MutableDrtProviderData
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 

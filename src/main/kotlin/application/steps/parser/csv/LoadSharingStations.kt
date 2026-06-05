@@ -21,16 +21,8 @@ import domain.shared.enums.Mode
 import domain.shared.location.StandardLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.synthesis.data.MutableSharingProvider
-import domain.synthesis.data.SharingProviderId
-import domain.synthesis.parser.GetZone
-import domain.synthesis.parser.GlobalSharingProviderIdCounter
-import domain.synthesis.parser.GlobalSharingStationIdCounter
-import domain.synthesis.parser.SharingProviderByStationCsvColumns
-import domain.synthesis.parser.SharingProviderByStationCsvConfig
-import domain.synthesis.parser.allDay
-import domain.synthesis.parser.onlySameZoneByFoot
-import domain.synthesis.parser.sharingProviderStationParser
+import domain.simulation.data.sharing.MutableSharingProvider
+import domain.simulation.data.sharing.SharingProviderId
 import edu.kit.ifv.units.Distance
 import utils.csv.CsvParser
 import utils.csv.Row
@@ -108,24 +100,24 @@ fun <C, CFG> C.sharingProviderCsv(
  * @param CFG The configuration type. Must implement [Config].
  * @param config The configuration. Provided via context.
  * @param sharingMode The mode for the sharing service.
- * @param customizeCsvConfig Lambda to customize the [SharingProviderByStationCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.SharingProviderByStationCsvConfig].
  * @return A [CsvParser] for [MutableSharingProvider].
  */
 context(config: CFG)
 fun <C, CFG> C.sharingProviderStationParser(
     sharingMode: Mode,
-    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.SharingProviderByStationCsvConfig.() -> Unit = {},
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : Config =
-    sharingProviderStationParser(
-        SharingProviderByStationCsvConfig(
-            columns = SharingProviderByStationCsvColumns(),
+    _root_ide_package_.domain.simulation.parser.sharingProviderStationParser(
+        _root_ide_package_.domain.simulation.parser.SharingProviderByStationCsvConfig(
+            columns = _root_ide_package_.domain.simulation.parser.SharingProviderByStationCsvColumns(),
             sharingMode = sharingMode,
             getZone = ::getZone,
-            zonesByFoot = onlySameZoneByFoot(),
+            zonesByFoot = _root_ide_package_.domain.simulation.parser.onlySameZoneByFoot(),
             locationParser = { _, z -> z.centroidLocation },
-            operatingHours = allDay,
-            providerIdSource = GlobalSharingProviderIdCounter,
-            stationIdSource = GlobalSharingStationIdCounter,
+            operatingHours = _root_ide_package_.domain.simulation.parser.allDay,
+            providerIdSource = _root_ide_package_.domain.simulation.parser.GlobalSharingProviderIdCounter,
+            stationIdSource = _root_ide_package_.domain.simulation.parser.GlobalSharingStationIdCounter,
             errorHandling = config.errorHandling,
             seed = config.seed,
         ).also {
@@ -143,7 +135,7 @@ fun <C, CFG> C.sharingProviderStationParser(
  */
 fun <C> C.zonesByFootInRadius(
     threshold: Distance,
-): (Row, Mode, StandardLocation, GetZone) -> List<Zone<*>>
+): (Row, Mode, StandardLocation, domain.simulation.parser.GetZone) -> List<Zone<*>>
     where C : HasZoneRepo<*, Zone<*>>, C : HasImpedance =
     { _, mode, stationLocation, getZone ->
         val zone = getZone(stationLocation.zoneId)
@@ -189,13 +181,13 @@ where C : HasZoneRepo<*, Zone<HasRegionType>>,
  * @param CFG The configuration type. Must implement [SharingModesConfig].
  * @param config The configuration. Provided via context.
  * @param sharingMode The mode for the bike-sharing service. Defaults to [config.bikeSharingMode].
- * @param customizeCsvConfig Lambda to customize the [SharingProviderByStationCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.SharingProviderByStationCsvConfig].
  * @return A [CsvParser] for [MutableSharingProvider].
  */
 context(config: CFG)
 fun <C, CFG> C.bikeSharingProviderStationParser(
     sharingMode: Mode = config.bikeSharingMode,
-    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.SharingProviderByStationCsvConfig.() -> Unit = {},
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingModesConfig =
     sharingProviderStationParser<C, CFG>(
         sharingMode,
@@ -237,13 +229,13 @@ where C : HasZoneRepo<*, Zone<HasRegionType>>,
  * @param CFG The configuration type. Must implement [SharingModesConfig].
  * @param config The configuration. Provided via context.
  * @param sharingMode The mode for the car-sharing service. Defaults to [config.carSharingStationMode].
- * @param customizeCsvConfig Lambda to customize the [SharingProviderByStationCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.SharingProviderByStationCsvConfig].
  * @return A [CsvParser] for [MutableSharingProvider].
  */
 context(config: CFG)
 fun <C, CFG> C.carSharingProviderStationParser(
     sharingMode: Mode = config.carSharingStationMode,
-    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.SharingProviderByStationCsvConfig.() -> Unit = {},
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingModesConfig =
     sharingProviderStationParser<C, CFG>(
         sharingMode,
@@ -285,13 +277,13 @@ where C : HasZoneRepo<*, Zone<HasRegionType>>,
  * @param CFG The configuration type. Must implement [SharingModesConfig].
  * @param config The configuration. Provided via context.
  * @param sharingMode The mode for the car-sharing service. Defaults to [config.carSharingFloatingMode].
- * @param customizeCsvConfig Lambda to customize the [SharingProviderByStationCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.SharingProviderByStationCsvConfig].
  * @return A [CsvParser] for [MutableSharingProvider].
  */
 context(config: CFG)
 fun <C, CFG> C.carSharingFloatAreaParser(
     sharingMode: Mode = config.carSharingFloatingMode,
-    customizeCsvConfig: SharingProviderByStationCsvConfig.() -> Unit = {},
+    customizeCsvConfig: domain.simulation.parser.SharingProviderByStationCsvConfig.() -> Unit = {},
 ): CsvParser<MutableSharingProvider> where C : HasZoneRepo<*, Zone<HasRegionType>>, CFG : SharingModesConfig =
     sharingProviderStationParser<C, CFG>(
         sharingMode,

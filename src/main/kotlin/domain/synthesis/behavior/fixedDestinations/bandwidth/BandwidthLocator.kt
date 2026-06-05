@@ -9,8 +9,12 @@ import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.fixeddestinations.SimpleLocator
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.openMultinomialLogit
 import edu.kit.ifv.units.Distance
-import utils.WithMetric
+import edu.kit.ifv.units.DistanceUnit
+import kotlin.math.ln
+import kotlin.math.pow
 import kotlin.random.Random
 
 /**

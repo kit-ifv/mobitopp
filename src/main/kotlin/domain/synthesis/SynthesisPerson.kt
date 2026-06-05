@@ -1,12 +1,12 @@
 package domain.synthesis
 
 import domain.shared.enums.ActivityType
+import domain.shared.enums.person.Sex
 import domain.shared.location.StandardLocation
 import domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import domain.synthesis.attributes.person.MinimumPersonAttributes
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.activitygeneration.PreliminaryActivitySchedule
-import domain.synthesis.data.person.Sex
 
 /**
  * The mutable object that holds the infos of the person.

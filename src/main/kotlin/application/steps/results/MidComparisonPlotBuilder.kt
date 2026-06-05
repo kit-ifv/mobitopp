@@ -10,12 +10,12 @@ import core.results.plots.normalizeByGroup
 import core.results.plots.normalizeByX
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.behavior.ChoiceModelPurposes
+import domain.shared.enums.person.Employment
 import domain.shared.location.Impedance
 import domain.simulation.agent.PersonAgent
-import domain.synthesis.data.household.IHousehold
-import domain.synthesis.data.person.Employment
-import domain.synthesis.data.person.IPerson
-import domain.synthesis.data.person.PersonId
+import domain.simulation.data.household.IHousehold
+import domain.simulation.data.person.IPerson
+import domain.simulation.data.person.PersonId
 import utils.collections.Bin
 import utils.collections.mapToBins
 import utils.units.AbsoluteTime
