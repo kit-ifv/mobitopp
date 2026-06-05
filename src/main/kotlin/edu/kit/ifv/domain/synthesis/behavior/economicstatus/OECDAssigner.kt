@@ -6,10 +6,10 @@ import edu.kit.ifv.domain.synthesis.attributes.household.numberOfAdults
 import edu.kit.ifv.domain.synthesis.attributes.household.numberOfMinors
 import edu.kit.ifv.domain.synthesis.attributes.person.MinimumPersonAttributes
 import edu.kit.ifv.domain.synthesis.behavior.MinimalistHousehold
+import edu.kit.ifv.processor.builder.splitOnce
 import edu.kit.ifv.units.ClosedCurrencyRange
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.euros
-import edu.kit.ifv.processor.builder.splitOnce
 import java.io.InputStream
 import java.nio.file.Path
 import java.util.*

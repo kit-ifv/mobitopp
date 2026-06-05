@@ -72,7 +72,7 @@ interface Processor<A, D> where A: Annotation {
 
     val annotationType: KClass<A>
     val annotationName: String
-        get() = annotationType.simpleName!!
+        get() = annotationType.qualifiedName!!
 
     fun castAnnotations(symbol: KSAnnotated): List<D> = symbol.annotations.mapNotNull { castAnnotations(it) }.toList()
     fun castAnnotations(annotation: KSAnnotation): D? =

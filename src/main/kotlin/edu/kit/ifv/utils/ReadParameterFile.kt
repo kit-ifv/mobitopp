@@ -1,6 +1,6 @@
 package edu.kit.ifv.utils
-import net.objecthunter.exp4j.ExpressionBuilder
 import edu.kit.ifv.processor.builder.splitOnce
+import net.objecthunter.exp4j.ExpressionBuilder
 import java.nio.charset.Charset
 import java.nio.file.Path
 import kotlin.io.path.readText
