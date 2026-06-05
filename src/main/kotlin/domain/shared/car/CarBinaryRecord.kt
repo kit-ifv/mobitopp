@@ -1,4 +1,4 @@
-package domain.synthesis.data.car
+package domain.shared.car
 
 import utils.binary.BinaryWritable
 import java.io.DataOutputStream

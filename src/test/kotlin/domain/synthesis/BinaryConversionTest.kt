@@ -13,10 +13,10 @@ import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
 import domain.shared.location.parser.BinaryZoneReader
 import domain.shared.location.parser.BinaryZoneWriter
-import domain.simulation.data.sharing.SharingProvider
-import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.drt.DrtProviderId
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.parser.binary.BinaryActivityReader
 import domain.simulation.parser.binary.BinaryActivityWriter
 import domain.simulation.parser.binary.BinaryCarReader

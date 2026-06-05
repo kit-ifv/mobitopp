@@ -1,14 +1,12 @@
 package domain.simulation.data
 
-import utils.binary.BinaryWritable
-import utils.binary.Simplifiable
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
-
+import domain.shared.location.ZonedRoadAccessLocationRecord
 import domain.shared.location.parser.LocationUtils.encodeLocation
-
 import domain.simulation.data.person.PersonId
-
+import utils.binary.BinaryWritable
+import utils.binary.Simplifiable
 import java.io.DataOutputStream
 
 data class ActivityLocation(val personId: PersonId, val activityType: ActivityType, val location: StandardLocation) :

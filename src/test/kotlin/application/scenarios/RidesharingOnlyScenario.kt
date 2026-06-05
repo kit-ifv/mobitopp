@@ -14,12 +14,12 @@ import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.currentlyAffectedProviders
+import domain.simulation.data.sharing.MutableSharingProvider
+import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
 import domain.simulation.events.personStateMachine
-import domain.simulation.data.sharing.MutableSharingProvider
-import domain.simulation.data.sharing.SharingProviderId
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import generateActivitySchedule

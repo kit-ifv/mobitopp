@@ -17,16 +17,16 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.person.Employment
 import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
-import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.PersonId
+import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.parser.PersonColumns
 import domain.simulation.parser.PersonCsvConfig
 import domain.simulation.parser.binary.BinaryPersonReader
 import domain.simulation.parser.binary.BinaryPersonWriter
 import domain.simulation.parser.createPersonCsvParser
-import domain.simulation.data.drt.DrtProvider
 import utils.csv.CsvParser
 import java.nio.file.Path
 

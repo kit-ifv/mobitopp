@@ -56,9 +56,6 @@ import domain.shared.location.zone.ZoneId
 import domain.simulation.agent.DrtProviderAgent
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
-import domain.simulation.data.sharing.MutableSharingProvider
-import domain.simulation.data.sharing.SharingProvider
-import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.drt.DrtProvider
@@ -70,6 +67,9 @@ import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.Person
 import domain.simulation.data.person.PersonId
+import domain.simulation.data.sharing.MutableSharingProvider
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.events.PersonBehavior
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit

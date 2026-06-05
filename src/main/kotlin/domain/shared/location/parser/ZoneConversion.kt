@@ -1,9 +1,8 @@
 package domain.shared.location.parser
 
-import utils.binary.BinaryWritable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-
+import domain.shared.location.ZonedRoadAccessLocationRecord
 import domain.shared.location.parser.LocationUtils.decodeNakedLocation
 import domain.shared.location.parser.LocationUtils.encodeLocation
 import domain.shared.location.zone.MaximalZone
@@ -11,7 +10,7 @@ import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
 import edu.kit.ifv.units.meters
 import utils.binary.BinaryReader
-
+import utils.binary.BinaryWritable
 import utils.binary.BinaryWriter
 import utils.binary.readAsByteBuffer
 import utils.binary.readString
@@ -85,7 +84,7 @@ data class ZoneBinaryRecord(
     val isDestination: Boolean,
     val relief: Double,
 
-) : BinaryWritable {
+    ) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)

@@ -3,8 +3,8 @@ package domain.simulation.data.household
 import domain.shared.car.IPrivateCar
 import domain.shared.enums.household.EconomicStatus
 import domain.shared.location.StandardLocation
-import domain.simulation.data.sharing.HasStandardLocation
 import domain.simulation.data.person.IPerson
+import domain.simulation.data.sharing.HasStandardLocation
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import utils.Identifiable

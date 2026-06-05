@@ -16,8 +16,8 @@ import domain.shared.location.zone.Zone
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.ModeChoiceCharacteristics
-import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.data.drt.DrtProvider
+import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.events.GenerateDestinationCharacteristics
 import domain.simulation.events.GenerateModeCharacteristics
 import domain.simulation.events.PersonBehavior

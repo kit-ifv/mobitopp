@@ -13,8 +13,6 @@ import domain.shared.enums.person.ChargingInfluence
 import domain.shared.enums.person.Employment
 import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
-import domain.shared.location.PointCreator
-import domain.shared.location.RoadAccess
 import domain.shared.location.StandardLocation
 import domain.shared.location.StandardLocationImpl
 import domain.shared.location.jts.PointCreator
@@ -27,11 +25,6 @@ import domain.shared.location.zone.attributes.MaximumZoneAttributes
 import domain.shared.location.zone.toZoneId
 import domain.simulation.data.ActivityId
 import domain.simulation.data.MutablePlannedActivity
-import domain.simulation.data.sharing.MutableSharingProvider
-import domain.simulation.data.sharing.MutableSharingStation
-import domain.simulation.data.sharing.SharingProvider
-import domain.simulation.data.sharing.SharingStation
-import domain.simulation.data.sharing.SharingStationId
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.drt.DrtProvider
@@ -40,6 +33,11 @@ import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.PersonId
+import domain.simulation.data.sharing.MutableSharingProvider
+import domain.simulation.data.sharing.MutableSharingStation
+import domain.simulation.data.sharing.SharingProvider
+import domain.simulation.data.sharing.SharingStation
+import domain.simulation.data.sharing.SharingStationId
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.meters

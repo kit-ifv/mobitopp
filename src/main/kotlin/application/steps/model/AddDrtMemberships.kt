@@ -4,9 +4,9 @@ import application.steps.HasDrtProviderRepo
 import core.modelsteps.Config
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.updateEachStep
-import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.person.IPerson
+import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.PersonId
 
 // TODO generalize MutablePerson to P: HasMutableDrtMemberships

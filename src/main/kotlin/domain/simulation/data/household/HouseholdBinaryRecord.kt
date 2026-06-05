@@ -1,8 +1,8 @@
 package domain.simulation.data.household
 
-import utils.binary.BinaryWritable
 import domain.shared.location.ZonedRoadAccessLocationRecord
 import domain.shared.location.parser.LocationUtils.encodeLocation
+import utils.binary.BinaryWritable
 import java.io.DataOutputStream
 
 data class HouseholdBinaryRecord(

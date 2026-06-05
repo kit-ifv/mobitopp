@@ -16,11 +16,11 @@ import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.ActivityId
 import domain.simulation.data.ActivityLocation
-import domain.simulation.data.sharing.HasStandardLocation
 import domain.simulation.data.MutablePlannedActivity
 import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.person.HasHousehold
 import domain.simulation.data.person.PersonId
+import domain.simulation.data.sharing.HasStandardLocation
 import utils.Identifiable
 import utils.csv.CsvParser
 import java.nio.file.Path

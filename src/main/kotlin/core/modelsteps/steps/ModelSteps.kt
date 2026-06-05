@@ -29,7 +29,6 @@ fun <C : Context> C.modelStep(name: String, validation: Validation<C> = emptyLis
     currentStep = name
 
     detectReportDiffAndLogOverview {
-
         if (execMode.isValidate) {
             val captor = ConsoleCaptor()
 

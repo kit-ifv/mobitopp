@@ -17,8 +17,8 @@ import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.enums.Mode
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.simulation.data.drt.MutableDrtProviderData
 import domain.simulation.data.drt.DrtProviderId
+import domain.simulation.data.drt.MutableDrtProviderData
 import domain.simulation.parser.DrtProviderByAreaCsvColumns
 import domain.simulation.parser.DrtProviderByAreaCsvConfig
 import domain.simulation.parser.GlobalDrtProviderIdCounter

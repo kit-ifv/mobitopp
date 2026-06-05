@@ -1,4 +1,4 @@
-package domain.synthesis.data.household
+package domain.simulation.data.household
 
 import domain.shared.enums.household.HouseholdType
 import domain.synthesis.behavior.ISurveyHousehold
