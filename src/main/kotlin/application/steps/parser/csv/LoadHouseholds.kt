@@ -16,11 +16,11 @@ import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.filterIdsStep
 import core.modelsteps.scopes.filterStep
 import core.modelsteps.scopes.mutableRepositoryScope
+import domain.shared.data.household.HouseholdId
 import domain.shared.location.PointAndRoadPositionParser
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.household.Household
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.units.UnitIntervalValue
 import utils.csv.CsvParser

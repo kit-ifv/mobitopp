@@ -11,15 +11,15 @@ import core.modelsteps.resources.Resource
 import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.updateEachStep
 import core.modelsteps.steps.modelStep
+import domain.shared.data.activity.ActivityId
+import domain.shared.data.household.HouseholdId
+import domain.shared.data.person.PersonId
 import domain.shared.enums.ActivityType
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasRegionType
-import domain.simulation.data.ActivityId
 import domain.simulation.data.ActivityLocation
 import domain.simulation.data.MutablePlannedActivity
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.person.HasHousehold
-import domain.simulation.data.person.PersonId
 import domain.simulation.data.sharing.HasStandardLocation
 import utils.Identifiable
 import utils.csv.CsvParser
@@ -35,7 +35,7 @@ import java.nio.file.Path
  * @receiver The simulation context [CTXT].
  * @param CTXT The context type. Must implement [HasZoneRepo] for [Zone] and [HasPersonRepo].
  * @param CFG The configuration type. Must implement [ActivityTypesConfig] and [SourceFilesConfig].
- * @param P The person type. Must implement [Identifiable] for [domain.simulation.data.person.PersonId] and [domain.simulation.data.person.HasHousehold].
+ * @param P The person type. Must implement [Identifiable] for [PersonId] and [domain.simulation.data.person.HasHousehold].
  * @param H The household type. Must implement [Identifiable] for [HouseholdId] and [HasStandardLocation].
  * @param repository The mutable repository of persons. Provided via context.
  * @param activityRepo The mutable repository of planned activities to update. Provided via context.

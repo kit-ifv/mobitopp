@@ -1,6 +1,7 @@
 package application.steps.parser
 
 import TEST_ZONE
+import domain.shared.data.person.PersonId
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.household.EconomicStatus
 import domain.shared.enums.person.ChargingInfluence
@@ -11,7 +12,6 @@ import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.drt.DrtProviderId
 import domain.simulation.data.drt.MutableDrtProviderData
 import domain.simulation.data.person.MutablePerson
-import domain.simulation.data.person.PersonId
 import domain.simulation.data.sharing.MutableSharingProvider
 import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.data.sharing.SharingProviderId

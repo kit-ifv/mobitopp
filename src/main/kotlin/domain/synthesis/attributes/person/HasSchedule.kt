@@ -1,7 +1,7 @@
 package domain.synthesis.attributes.person
 
+import domain.shared.data.activity.ActivityId
 import domain.shared.datastructure.schedule.Schedule
-import domain.simulation.data.ActivityId
 import utils.Identifiable
 
 interface HasSchedule {

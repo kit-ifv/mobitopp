@@ -4,6 +4,8 @@ package domain.simulation.agent
 
 import core.statemachine.StateMachineFactory
 import domain.shared.car.CarId
+import domain.shared.data.household.HouseholdId
+import domain.shared.data.person.PersonId
 import domain.shared.datastructure.schedule.plans.SingularDispatcher
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
@@ -12,9 +14,7 @@ import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.drt.DrtProviderId
 import domain.simulation.data.household.Household
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.person.Person
-import domain.simulation.data.person.PersonId
 import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.data.sharing.SharingStation

@@ -14,12 +14,12 @@ import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import domain.shared.car.CarId
 import domain.shared.car.engine.CarEngineStatistics
+import domain.shared.data.household.HouseholdId
+import domain.shared.data.person.PersonId
 import domain.simulation.data.car.MutablePrivateCar
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.Person
-import domain.simulation.data.person.PersonId
 import domain.simulation.parser.CarColumns
 import domain.simulation.parser.PrivateCarCsvConfig
 import domain.simulation.parser.binary.BinaryCarReader

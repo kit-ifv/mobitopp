@@ -7,6 +7,7 @@ import core.statemachine.usage.RecordingStateMachineFactory
 import domain.shared.behavior.Attractiveness
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.asAttractiveness
+import domain.shared.data.activity.ActivityId
 import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
@@ -23,7 +24,6 @@ import domain.simulation.agent.toAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
-import domain.simulation.data.ActivityId
 import domain.simulation.data.MutablePlannedActivity
 import domain.simulation.data.PlannedActivity
 import domain.simulation.data.household.Household

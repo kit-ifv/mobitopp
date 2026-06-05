@@ -1,8 +1,8 @@
 package domain.simulation.cars
 
+import domain.shared.data.household.HouseholdId
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.household.Household
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.person.Person
 import domain.simulation.data.person.isAdult
 

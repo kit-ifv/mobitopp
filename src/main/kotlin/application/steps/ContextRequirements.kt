@@ -6,6 +6,8 @@ import core.modelsteps.resources.Repository
 import core.statemachine.Agent
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.car.CarId
+import domain.shared.data.household.HouseholdId
+import domain.shared.data.person.PersonId
 import domain.shared.enums.Mode
 import domain.shared.location.Impedance
 import domain.shared.location.road.LocatableGraph
@@ -13,8 +15,6 @@ import domain.shared.location.zone.ZoneId
 import domain.simulation.agent.DrtProviderMessage
 import domain.simulation.agent.PersonMessage
 import domain.simulation.data.drt.DrtProviderId
-import domain.simulation.data.household.HouseholdId
-import domain.simulation.data.person.PersonId
 import domain.simulation.data.sharing.SharingProviderId
 import domain.simulation.events.PersonBehavior
 import utils.CodePlan

@@ -1,12 +1,12 @@
 package domain.simulation.parser.binary
 
+import domain.shared.data.household.HouseholdId
 import domain.shared.enums.household.EconomicStatus
 import domain.shared.location.parser.LocationUtils.decodeLocation
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.household.Household
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.units.euros
 import utils.binary.BinaryReader

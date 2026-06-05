@@ -1,10 +1,10 @@
 package domain.simulation.parser.binary
 
+import domain.shared.data.activity.ActivityId
+import domain.shared.data.person.PersonId
 import domain.shared.enums.ActivityType
-import domain.simulation.data.ActivityId
 import domain.simulation.data.MutablePlannedActivity
 import domain.simulation.data.PlannedActivity
-import domain.simulation.data.person.PersonId
 import utils.CodePlan
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter

@@ -4,6 +4,7 @@ import Mutable
 import core.statemachine.Message
 import core.statemachine.StateBasedAgent
 import core.statemachine.StateMachineFactory
+import domain.shared.data.person.PersonId
 import domain.shared.datastructure.schedule.Schedule
 import domain.shared.datastructure.schedule.action.Action
 import domain.shared.datastructure.schedule.action.MovingAction
@@ -11,7 +12,6 @@ import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.StandardLocation
 import domain.simulation.data.person.IPerson
-import domain.simulation.data.person.PersonId
 import domain.simulation.events.PersonBehavior
 import utils.random.StochasticActor
 import utils.units.AbsoluteTime

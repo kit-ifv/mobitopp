@@ -84,7 +84,7 @@ data class ZoneBinaryRecord(
     val isDestination: Boolean,
     val relief: Double,
 
-    ) : BinaryWritable {
+) : BinaryWritable {
     override fun writeTo(outStream: DataOutputStream) {
         outStream.run {
             writeLong(id)

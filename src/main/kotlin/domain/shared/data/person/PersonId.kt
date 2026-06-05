@@ -1,4 +1,4 @@
-package domain.simulation.data.person
+package domain.shared.data.person
 
 import kotlinx.serialization.Serializable
 

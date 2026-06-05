@@ -14,13 +14,13 @@ import core.modelsteps.resources.cachedCsv
 import core.modelsteps.scopes.addResourceStep
 import core.modelsteps.scopes.mutableRepositoryScope
 import core.modelsteps.scopes.updateEachStep
+import domain.shared.data.activity.ActivityId
+import domain.shared.data.person.PersonId
 import domain.shared.datastructure.schedule.action.Activity
 import domain.shared.datastructure.schedule.action.LinkedActivity
 import domain.simulation.behavior.NoActivityStartShifter
-import domain.simulation.data.ActivityId
 import domain.simulation.data.MutablePlannedActivity
 import domain.simulation.data.PlannedActivity
-import domain.simulation.data.person.PersonId
 import domain.simulation.parser.ActivitiesColumns
 import domain.simulation.parser.ActivityCsvConfig
 import domain.simulation.parser.createActivityCsvParser
@@ -41,7 +41,7 @@ import kotlin.time.Duration.Companion.minutes
  * @receiver The simulation context [CTXT].
  * @param CTXT The context type. Must implement [Context].
  * @param P The person type. Must implement [domain.synthesis.attributes.person.HasPlannedActivities] for [domain.simulation.data.PlannedActivity]
- *          and [Identifiable] for [domain.simulation.data.person.PersonId].
+ *          and [Identifiable] for [domain.shared.data.person.PersonId].
  * @param repository The mutable repository of persons to update. Provided via context.
  * @param scope The configuration scope for populating planned activities.
  */
@@ -126,7 +126,7 @@ fun <C> C.loadActivities(resource: Resource<MutablePlannedActivity>) where C : C
  * @param C The context type. Must implement [Context] and [HasPersonRepo] for [P].
  * @param CFG The configuration type. Must implement [SourceFilesConfig], [UnitConfig],
  *            and [ActivityTypesConfig].
- * @param P The person type. Must implement [StochasticActor] and [Identifiable] for [domain.simulation.data.person.PersonId].
+ * @param P The person type. Must implement [StochasticActor] and [Identifiable] for [PersonId].
  * @param config The configuration. Provided via context.
  * @param parser The CSV parser for planned activities. Defaults to [plannedActivityCsvParser].
  * @param path The path to the activity CSV file. Defaults to [config.sourceFiles.activityCSV].
@@ -164,7 +164,7 @@ fun <C, CFG, P> C.plannedActivityCsv(
  * @receiver The simulation context [C].
  * @param C The context type. Must implement [Context] and [HasPersonRepo] for [P].
  * @param CFG The configuration type. Must implement [ActivityTypesConfig] and [UnitConfig].
- * @param P The person type. Must implement [StochasticActor] and [Identifiable] for [domain.simulation.data.person.PersonId].
+ * @param P The person type. Must implement [StochasticActor] and [Identifiable] for [PersonId].
  * @param config The configuration. Provided via context.
  * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.ActivityCsvConfig].
  * @return A [CsvParser] for [MutablePlannedActivity].

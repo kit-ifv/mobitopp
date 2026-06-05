@@ -1,4 +1,4 @@
-package domain.simulation.data.person
+package domain.shared.data.person
 
 import utils.binary.BinaryWritable
 import java.io.DataOutputStream

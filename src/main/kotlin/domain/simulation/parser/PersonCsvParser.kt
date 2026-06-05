@@ -1,14 +1,14 @@
 package domain.simulation.parser
 
+import domain.shared.data.household.HouseholdId
+import domain.shared.data.person.PersonId
 import domain.shared.enums.person.ChargingInfluence
 import domain.shared.enums.person.Employment
 import domain.shared.enums.person.Graduation
 import domain.shared.enums.person.Sex
 import domain.simulation.data.drt.DrtProvider
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
-import domain.simulation.data.person.PersonId
 import domain.simulation.data.sharing.SharingProvider
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.euros

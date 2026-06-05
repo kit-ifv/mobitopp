@@ -1,9 +1,11 @@
 package domain.simulation.data
 
 import Mutable
+import domain.shared.data.activity.ActivityBinaryRecord
+import domain.shared.data.activity.ActivityId
+import domain.shared.data.person.PersonId
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
-import domain.simulation.data.person.PersonId
 import utils.Identifiable
 import utils.binary.Simplifiable
 import utils.random.StochasticActor

@@ -1,6 +1,7 @@
 package domain.simulation.data.person
 
 import Mutable
+import domain.shared.data.person.PersonId
 import domain.simulation.data.PlannedActivity
 import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.household.MutableHousehold

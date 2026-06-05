@@ -5,12 +5,12 @@ import domain.shared.car.CarSegment
 import domain.shared.car.engine.CarEngineStatistics
 import domain.shared.car.engine.EngineType
 import domain.shared.car.engine.buildEngine
+import domain.shared.data.household.HouseholdId
+import domain.shared.data.person.PersonId
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.Person
-import domain.simulation.data.person.PersonId
 import utils.binary.BinaryReader
 import utils.binary.DefaultBinaryWriter
 import java.nio.ByteBuffer

@@ -1,4 +1,4 @@
-package domain.simulation.data.household
+package domain.shared.data.household
 
 import kotlinx.serialization.Serializable
 

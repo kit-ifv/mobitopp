@@ -1,10 +1,10 @@
 package domain.simulation.data
 
+import domain.shared.data.person.PersonId
 import domain.shared.enums.ActivityType
 import domain.shared.location.StandardLocation
 import domain.shared.location.ZonedRoadAccessLocationRecord
 import domain.shared.location.parser.LocationUtils.encodeLocation
-import domain.simulation.data.person.PersonId
 import utils.binary.BinaryWritable
 import utils.binary.Simplifiable
 import java.io.DataOutputStream

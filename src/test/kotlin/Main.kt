@@ -72,6 +72,8 @@ import core.modelsteps.steps.modelStep
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.car.CarId
 import domain.shared.car.CarSegment
+import domain.shared.data.household.HouseholdId
+import domain.shared.data.person.PersonId
 import domain.shared.datastructure.matrix.ConstantZoneIdMatrix
 import domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import domain.shared.datastructure.matrix.MatrixImpedance
@@ -99,11 +101,9 @@ import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.drt.DrtProviderId
 import domain.simulation.data.drt.MutableDrtProviderData
 import domain.simulation.data.household.Household
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
 import domain.simulation.data.person.Person
-import domain.simulation.data.person.PersonId
 import domain.simulation.data.sharing.MutableSharingProvider
 import domain.simulation.data.sharing.SharingProvider
 import domain.simulation.data.sharing.SharingProviderId

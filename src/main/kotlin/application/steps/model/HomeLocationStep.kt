@@ -4,11 +4,11 @@ import application.steps.HasZoneRepo
 import core.modelsteps.resources.MutableRepository
 import core.modelsteps.scopes.updateBulkStep
 import core.modelsteps.scopes.updateEachStep
+import domain.shared.data.household.HouseholdId
 import domain.shared.location.zone.Zone
 import domain.shared.location.zone.attributes.HasCentroid
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.simulation.data.household.Household
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.synthesis.behavior.householdlocation.AssignAroundPoint
 import domain.synthesis.behavior.householdlocation.AssignHouseholdLocations

@@ -3,7 +3,7 @@
 package domain.synthesis.fixedDestinations
 
 import ZoneTestAttributesFake
-import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.ActivityType
 import domain.shared.enums.person.Sex
 import domain.shared.location.Location
 import domain.shared.location.StandardLocation
@@ -28,7 +28,10 @@ import kotlin.test.assertEquals
 
 class BandwidthLocatorTest : SynthesisTest() {
     private val testZone = MaximalZone(ZoneId(1L), ZoneTestAttributesFake())
-    private val myActivityType = LegacyActivityType.LEISURE_SIGHTSEEING
+    private val myActivityType = object : ActivityType {
+        override val description: String = "A test Activity"
+        override val code: Int = 42
+    }
     private lateinit var attractivenessModel: ControllableAttractiveness
 
     private fun MaximalZone.spawnUTM(eOffset: Number, nOffset: Number): StandardLocation = StandardLocation(
@@ -40,7 +43,7 @@ class BandwidthLocatorTest : SynthesisTest() {
     @BeforeTest
     fun setup() {
         attractivenessModel = ControllableAttractiveness()
-        attractivenessModel[testZone.id, myActivityType] = E
+        attractivenessModel[testZone.zoneId, myActivityType] = E
     }
 
     @Test

@@ -1,6 +1,8 @@
 package domain.simulation.data.household
 
 import domain.shared.car.IPrivateCar
+import domain.shared.data.household.HouseholdBinaryRecord
+import domain.shared.data.household.HouseholdId
 import domain.shared.enums.household.EconomicStatus
 import domain.shared.location.StandardLocation
 import domain.simulation.data.person.IPerson

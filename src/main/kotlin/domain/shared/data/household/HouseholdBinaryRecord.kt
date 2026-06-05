@@ -1,4 +1,4 @@
-package domain.simulation.data.household
+package domain.shared.data.household
 
 import domain.shared.location.ZonedRoadAccessLocationRecord
 import domain.shared.location.parser.LocationUtils.encodeLocation

@@ -3,6 +3,9 @@ import domain.shared.car.CarSegment
 import domain.shared.car.engine.CarEngineStatistics
 import domain.shared.car.engine.EngineType
 import domain.shared.car.engine.buildEngine
+import domain.shared.data.activity.ActivityId
+import domain.shared.data.household.HouseholdId
+import domain.shared.data.person.PersonId
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.ZoneClassification
@@ -23,16 +26,13 @@ import domain.shared.location.zone.ZoneId
 import domain.shared.location.zone.attributes.HasRegionType
 import domain.shared.location.zone.attributes.MaximumZoneAttributes
 import domain.shared.location.zone.toZoneId
-import domain.simulation.data.ActivityId
 import domain.simulation.data.MutablePlannedActivity
 import domain.simulation.data.car.MutablePrivateCar
 import domain.simulation.data.car.PrivateCar
 import domain.simulation.data.drt.DrtProvider
 import domain.simulation.data.household.Household
-import domain.simulation.data.household.HouseholdId
 import domain.simulation.data.household.MutableHousehold
 import domain.simulation.data.person.MutablePerson
-import domain.simulation.data.person.PersonId
 import domain.simulation.data.sharing.MutableSharingProvider
 import domain.simulation.data.sharing.MutableSharingStation
 import domain.simulation.data.sharing.SharingProvider

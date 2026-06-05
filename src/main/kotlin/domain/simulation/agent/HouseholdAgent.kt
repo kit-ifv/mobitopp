@@ -1,7 +1,7 @@
 package domain.simulation.agent
 
 import Mutable
-import domain.simulation.data.household.HouseholdId
+import domain.shared.data.household.HouseholdId
 import domain.simulation.data.household.IHousehold
 import utils.random.StochasticActor
 import kotlin.random.Random
