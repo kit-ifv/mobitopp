@@ -26,7 +26,7 @@ object LegacyFixedDestinationOutput : CSVOutput<FixedDestinationElements> {
             1970, // Dummy value for dumb output household year taken from survey data.
             -1, // Dummy value for dumb output: household ID from the survey data
             activityType.description,
-            location.zoneId,
+            location.zoneId.value,
             location.toRecord().legacyStringRepresentation(),
             location.position.x,
             location.position.y,

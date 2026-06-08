@@ -284,12 +284,13 @@ val personStateMachine: StateMachineFactory<PersonAgent> get() =
                         drtOffer,
                     )
 
-                    context(modeSituation, person.random) {
+                    val modeResult = context(modeSituation, person.random) {
                         val mcAvail = choices.filter {
                             modeAvailability.resourceAvailability(it)
                         }
                         modeChoice.select(mcAvail.toSet())
                     }
+                    modeResult
                 }
 
                 trip.alternateByImpedance(impedance, replanner = behavior.replanningStrategy) {
@@ -420,6 +421,10 @@ fun StartingTripState.startingCarTrip(): PerformLegState {
 
 fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
     val maybeBikesharing = bikeSharingConnections.findConnection(person, destination)
+
+    if(maybeBikesharing == null) {
+        println("NOOO")
+    }
 
     val (startStation, endStation) = requireNotNull(maybeBikesharing) {
         "How did you manage to select bikesharing if no connection available?\n" +

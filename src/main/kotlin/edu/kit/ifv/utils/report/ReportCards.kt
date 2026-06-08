@@ -168,7 +168,7 @@ private fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String = cr
                     span {
                         style = "position: absolute; top: -75px;left: -12.5px;"
                         unsafe {
-                            +Path("src/main/kotlin/utils/report/assets/Connector.svg").readText()
+                            +readResource("edu/kit/ifv/utils/report/assets/Connector.svg")
                         }
                     }
                 }
@@ -191,21 +191,21 @@ private fun statusIcon(status: CardStatus): String = createHTML().span {
         CardStatus.SUCCESS -> {
             style = "color: var(--success-color)"
             unsafe {
-                +Path("src/main/kotlin/utils/report/assets/Success_V3.svg").readText()
+                +readResource("edu/kit/ifv/utils/report/assets/Success_V3.svg")
             }
         }
 
         CardStatus.WARNING -> {
             style = "color: var(--warning-color)"
             unsafe {
-                +Path("src/main/kotlin/utils/report/assets/Warning_V3.svg").readText()
+                +readResource("edu/kit/ifv/utils/report/assets/Warning_V3.svg")
             }
         }
 
         CardStatus.FAILURE -> {
             style = "color: var(--error-color);"
             unsafe {
-                +Path("src/main/kotlin/utils/report/assets/Failure_V3.svg").readText()
+                +readResource("edu/kit/ifv/utils/report/assets/Failure_V3.svg")
             }
         }
     }
@@ -224,4 +224,10 @@ private val dotSVG = createHTML().svg(classes = "dot") {
         <ellipse cx="20" cy="20" rx="20" ry="20" stroke="none" pointer-events="all"/>
         """.trimIndent()
     }
+}
+
+private fun readResource(path: String): String {
+    return requireNotNull(ReportBuilder::class.java.classLoader.getResource(path)) {
+        "Resource not found: $path"
+    }.readText()
 }

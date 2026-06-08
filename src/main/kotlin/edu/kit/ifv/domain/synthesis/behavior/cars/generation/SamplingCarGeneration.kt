@@ -1,6 +1,7 @@
 package edu.kit.ifv.domain.synthesis.behavior.cars.generation
 import edu.kit.ifv.domain.shared.car.Car
 import edu.kit.ifv.domain.synthesis.attributes.household.HasNumberOfCars
+import edu.kit.ifv.domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import edu.kit.ifv.domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import edu.kit.ifv.domain.synthesis.attributes.household.adults
 import edu.kit.ifv.domain.synthesis.attributes.household.licenceHolders
@@ -22,19 +23,17 @@ import kotlin.random.Random
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
 
-class SamplingCarGeneration<S>(
+class SamplingCarGeneration<S, T: MaximumPersonAttributes>(
     segmentParameters: CarSegmentParameters = CarSegmentParameters(),
     engineParameters: EngineParameters = EngineParameters(),
-    private val randomGenerator: (MinimalistPerson<MaximumPersonAttributes>) -> Random = {
-        Random(it.attributes.hashCode())
-    },
-) : GenerateCars<S, MaximumPersonAttributes>
+    private val randomGenerator: (MinimalistPerson<T>) -> Random,
+) : GenerateCars<S, T>
     where S : MinimumHouseholdAttributes, S : HasNumberOfCars {
 
     private val segmentModel = carSegmentChoiceModel.build(segmentParameters)
     private val engineModel = carEngineChoiceModel.build(engineParameters)
 
-    override fun generate(householdBuilder: MinimalistHousehold<S, MaximumPersonAttributes>): List<Car> {
+    override fun generate(householdBuilder: MinimalistHousehold<S, T>): List<Car> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
         val potentialCarUsers = householdBuilder.run {
             if (numberOfDrivingLicences == 0) adults else licenceHolders

@@ -46,13 +46,12 @@ class AssignBySizebasedClassification<A, P>(
     private val models = SizebasedRegiostarClassification.entries.associateWith {
         model.build(it.toParameters())
     }
-
+    context(random: Random)
     override fun determineNumberOfCars(
         householdBuilder: MinimalistHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>,
     ): Int {
         val region = householdBuilder.attributes.location.attributes.sizebasedRegiostarClassification
-        // TODO check where the randomness for this dcm should come from
-        return context(converter(householdBuilder), Random(householdBuilder.hashCode())) {
+        return context(converter(householdBuilder)) {
             models[region]!!.select()
         }
     }

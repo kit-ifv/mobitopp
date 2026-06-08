@@ -25,7 +25,6 @@ import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writePersons
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
 import edu.kit.ifv.utils.collections.addProgressBar
 import edu.kit.ifv.utils.collections.standardProgressBar
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.async
 import kotlinx.coroutines.joinAll
@@ -58,6 +57,10 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
     val zones: List<AREA>,
     val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
     val outputDirectory: Path,
+    var randomProvider: SynthesisRandomProvider<S, T> = SeededProvider(42L) { x, y->
+
+        Random(x + y.hashCode())
+    },
 ) {
 
     lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<S, T>>>
@@ -97,7 +100,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         val steps = builder.build()
         households.addProgressBar("assign sharing memberships").forEach { hh ->
             hh.members.forEach {
-                context(Random(it.personId)) {
+                context(randomProvider.provideFor(it)) {
                     val membership = steps.mapValues { (_, step) ->
 
                         step.assign(it)
@@ -185,7 +188,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         val progressBar = standardProgressBar("Generate Activities", localHouseholdCopy.size)
         runBlocking {
             localHouseholdCopy.map { household ->
-                launch(Dispatchers.Default) {
+                launch(Default) {
                     val plans = strategy.generate(household)
                     household.members.zip(plans).forEach { (person, activities) ->
                         person.plannedActivities = activities
@@ -308,7 +311,7 @@ fun <S, T : MinimumPersonAttributes> SynthesisSteps<*, S, T>.assignAmountOfCars(
               S : HasMutableNumberOfCars {
     val strategy = supplier()
     households.forEach {
-        context(Random(it.id)) {
+        context(randomProvider.provideFor(it)) {
             it.attributes.amountOfCars = strategy.assign(it)
         }
     }
@@ -333,7 +336,7 @@ fun <S : MinimumHouseholdAttributes, T> SynthesisSteps<*, S, T>.assignTransitCar
     val strategy = supplier()
     households.addProgressBar("assign Transit Card").forEach { hh ->
         hh.members.forEach {
-            context(hh, Random(it.personId)) {
+            context(hh, randomProvider.provideFor(it)) {
                 it.attributes.hasTransitPass = strategy.assignForPerson(it)
             }
         }

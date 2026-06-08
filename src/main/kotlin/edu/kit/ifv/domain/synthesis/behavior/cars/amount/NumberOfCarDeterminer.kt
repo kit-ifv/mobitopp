@@ -5,7 +5,7 @@ import kotlin.random.Random
 
 @Suppress("SpacingAroundColon") // Seems to be a detekt version thing
 fun interface NumberOfCarDeterminer<in S, in T> : AssignmentStep<MinimalistHousehold<S, T>, Int> {
-
+    context(random: Random)
     fun determineNumberOfCars(householdBuilder: MinimalistHousehold<S, T>): Int
 
     context(random: Random)

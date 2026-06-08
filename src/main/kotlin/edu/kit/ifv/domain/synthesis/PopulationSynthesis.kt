@@ -21,13 +21,13 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
     val zones: List<AREA>,
     val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
 ) {
-
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
-    fun execute(lambda: SynthesisSteps<AREA, S, T>.() -> Unit) {
+    fun execute(randomProvider: SeededProvider<S, T>, lambda: SynthesisSteps<AREA, S, T>.() -> Unit) {
         SynthesisSteps(
             zones,
             surveyHouseholds,
             outputDirectory,
+            randomProvider
         ).apply(lambda)
     }
 

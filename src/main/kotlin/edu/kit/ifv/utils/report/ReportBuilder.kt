@@ -18,7 +18,6 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.createDirectories
-import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
 /**
@@ -166,12 +165,12 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                 title(reportTitle)
                 style {
                     unsafe {
-                        +Path("src/main/kotlin/utils/report/report.css").readText()
+                        +readResource("edu/kit/ifv/utils/report/report.css")
                     }
                 }
                 script {
                     unsafe {
-                        +Path("src/main/kotlin/utils/report/report.JS").readText()
+                        +readResource("edu/kit/ifv/utils/report/report.js")
                     }
                 }
             }
@@ -191,7 +190,11 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         print("\n")
         return outputFile
     }
-
+    private fun readResource(path: String): String {
+        return requireNotNull(ReportBuilder::class.java.classLoader.getResource(path)) {
+            "Resource not found: $path"
+        }.readText()
+    }
     private fun createBody(): String = createHTML().div("main") {
         h1("title") {
             style = "color: var(--highlight-color)"

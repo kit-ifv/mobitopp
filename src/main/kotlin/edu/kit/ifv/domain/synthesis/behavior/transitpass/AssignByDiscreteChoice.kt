@@ -19,9 +19,9 @@ class AssignByDiscreteChoice(
             transitPassChoiceModel,
     ) : this(model.build(parameters))
 
-    context(household: ISurveyHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>)
+    context(household: ISurveyHousehold<MaximumHouseholdAttributes, MaximumPersonAttributes>, random: Random)
     override fun assignForPerson(person: SurveyPerson<MaximumPersonAttributes>): Boolean =
-        context(TicketCharacteristics(household, person), Random(person.personId)) {
+        context(TicketCharacteristics(household, person)) {
             model.select()
         }
 }
