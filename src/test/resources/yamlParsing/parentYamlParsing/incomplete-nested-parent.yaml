@@ -1,0 +1,4 @@
+sub:
+  name: Incomplete Parent
+  numberField: 1000
+  # missing doubleField, extra and extraExtraField...

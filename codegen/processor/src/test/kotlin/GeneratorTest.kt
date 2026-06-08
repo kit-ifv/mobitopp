@@ -3,6 +3,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspWithCompilation
 import com.tschuchort.compiletesting.symbolProcessorProviders
+import edu.kit.ifv.ProcessorProvider
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.assertEquals
 
