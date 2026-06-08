@@ -127,7 +127,7 @@ fun <C, CFG> C.binaryHouseholdFormat(): BinaryCacheConfig<MutableHousehold>
  * @param CFG The configuration type. Must implement [SourceFilesConfig], [UnitConfig],
  *            and [HouseholdCodesConfig].
  * @param config The configuration. Provided via context.
- * @param customizeCsvConfig Lambda to customize the [domain.simulation.parser.HouseholdCsvConfig].
+ * @param customizeCsvConfig Lambda to customize the [HouseholdCsvConfig].
  * @return A [CsvParser] for [MutableHousehold].
  */
 context(config: CFG)

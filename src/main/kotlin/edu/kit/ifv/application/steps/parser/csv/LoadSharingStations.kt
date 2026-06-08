@@ -142,8 +142,8 @@ fun <C, CFG> C.sharingProviderStationParser(
  */
 fun <C> C.zonesByFootInRadius(
     threshold: Distance,
-): (Row, Mode, StandardLocation, GetZone) -> List<Zone<*>>
-    where C : HasZoneRepo<*, Zone<*>>, C : HasImpedance =
+): (Row, Mode, StandardLocation, GetZone) -> List<Zone<HasRegionType>>
+    where C : HasZoneRepo<*, Zone<HasRegionType>>, C : HasImpedance =
     { _, mode, stationLocation, getZone ->
         val zone = getZone(stationLocation.zoneId)
         zoneRepository.elements.filter {
