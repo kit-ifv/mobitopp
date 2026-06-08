@@ -422,7 +422,7 @@ fun StartingTripState.startingCarTrip(): PerformLegState {
 fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
     val maybeBikesharing = bikeSharingConnections.findConnection(person, destination)
 
-    if(maybeBikesharing == null) {
+    if (maybeBikesharing == null) {
         println("NOOO")
     }
 

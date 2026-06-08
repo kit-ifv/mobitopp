@@ -38,17 +38,14 @@ class SeededProvider<in S : MinimumHouseholdAttributes, in T : MinimumPersonAttr
         Random(seed + household.surveyHouseholdId)
     },
     private val personRandomSpawner: (Long, MinimalistPerson<T>) -> Random,
-    ) :
-    SynthesisRandomProvider<S, T> {
+) : SynthesisRandomProvider<S, T> {
     private val householdMap: MutableMap<ISurveyHousehold<S, T>, Random> = mutableMapOf()
     private val personMap: MutableMap<MinimalistPerson<T>, Random> = mutableMapOf()
-    override fun provideFor(household: ISurveyHousehold<S, T>): Random {
-        return householdMap.getOrPut(household) {
-            householdRandomSpawner(seed, household)
-        }
+    override fun provideFor(household: ISurveyHousehold<S, T>): Random = householdMap.getOrPut(household) {
+        householdRandomSpawner(seed, household)
     }
 
-    override fun provideFor(person: MinimalistPerson<T>): Random {
-        return personMap.getOrPut(person) { personRandomSpawner(seed, person) }
+    override fun provideFor(person: MinimalistPerson<T>): Random = personMap.getOrPut(person) {
+        personRandomSpawner(seed, person)
     }
 }

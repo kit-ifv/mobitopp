@@ -46,7 +46,7 @@ inline fun <reified T : Any> writeCsv(path: Path, rows: List<T>) {
 
     val schema: CsvSchema = mapper
         .schemaFor(T::class.java)
-        .withHeader()          // first row = column names
+        .withHeader() // first row = column names
         .withColumnReordering(true) // keeps stable order (best effort)
 
     Files.newBufferedWriter(path).use { writer ->

@@ -1,7 +1,6 @@
 package edu.kit.ifv.domain.synthesis.behavior.cars.generation
 import edu.kit.ifv.domain.shared.car.Car
 import edu.kit.ifv.domain.synthesis.attributes.household.HasNumberOfCars
-import edu.kit.ifv.domain.synthesis.attributes.household.MaximumHouseholdAttributes
 import edu.kit.ifv.domain.synthesis.attributes.household.MinimumHouseholdAttributes
 import edu.kit.ifv.domain.synthesis.attributes.household.adults
 import edu.kit.ifv.domain.synthesis.attributes.household.licenceHolders
@@ -23,7 +22,7 @@ import kotlin.random.Random
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
 
-class SamplingCarGeneration<S, T: MaximumPersonAttributes>(
+class SamplingCarGeneration<S, T : MaximumPersonAttributes>(
     segmentParameters: CarSegmentParameters = CarSegmentParameters(),
     engineParameters: EngineParameters = EngineParameters(),
     private val randomGenerator: (MinimalistPerson<T>) -> Random,

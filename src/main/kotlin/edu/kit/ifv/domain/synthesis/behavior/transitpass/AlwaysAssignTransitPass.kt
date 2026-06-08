@@ -9,5 +9,5 @@ import kotlin.random.Random
 object AlwaysAssignTransitPass : AssignTransitCardOwnership<MinimumHouseholdAttributes, MinimumPersonAttributes> {
 
     context(household: ISurveyHousehold<MinimumHouseholdAttributes, MinimumPersonAttributes>, random: Random)
-    override fun assignForPerson(person: SurveyPerson< MinimumPersonAttributes>): Boolean = true
+    override fun assignForPerson(person: SurveyPerson<MinimumPersonAttributes>): Boolean = true
 }

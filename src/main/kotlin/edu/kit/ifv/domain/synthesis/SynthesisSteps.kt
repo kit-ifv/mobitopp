@@ -57,8 +57,8 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
     val zones: List<AREA>,
     val surveyHouseholds: Collection<ISurveyHousehold<S, T>>,
     val outputDirectory: Path,
-    var randomProvider: SynthesisRandomProvider<S, T> = SeededProvider(42L) { x, y->
-
+    @Suppress("MagicNumber")
+    var randomProvider: SynthesisRandomProvider<S, T> = SeededProvider(42L) { x, y ->
         Random(x + y.hashCode())
     },
 ) {

@@ -190,11 +190,10 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         print("\n")
         return outputFile
     }
-    private fun readResource(path: String): String {
-        return requireNotNull(ReportBuilder::class.java.classLoader.getResource(path)) {
+    private fun readResource(path: String): String =
+        requireNotNull(ReportBuilder::class.java.classLoader.getResource(path)) {
             "Resource not found: $path"
         }.readText()
-    }
     private fun createBody(): String = createHTML().div("main") {
         h1("title") {
             style = "color: var(--highlight-color)"

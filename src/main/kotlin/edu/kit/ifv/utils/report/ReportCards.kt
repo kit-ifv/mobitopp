@@ -11,7 +11,6 @@ import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import kotlinx.html.svg
 import kotlinx.html.unsafe
-import kotlin.io.path.Path
 import kotlin.io.path.readText
 import kotlin.random.Random
 
@@ -226,8 +225,7 @@ private val dotSVG = createHTML().svg(classes = "dot") {
     }
 }
 
-private fun readResource(path: String): String {
-    return requireNotNull(ReportBuilder::class.java.classLoader.getResource(path)) {
+private fun readResource(path: String): String =
+    requireNotNull(ReportBuilder::class.java.classLoader.getResource(path)) {
         "Resource not found: $path"
     }.readText()
-}

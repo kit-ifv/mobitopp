@@ -27,7 +27,7 @@ class PopulationSynthesis<AREA, S : MinimumHouseholdAttributes, T : MinimumPerso
             zones,
             surveyHouseholds,
             outputDirectory,
-            randomProvider
+            randomProvider,
         ).apply(lambda)
     }
 

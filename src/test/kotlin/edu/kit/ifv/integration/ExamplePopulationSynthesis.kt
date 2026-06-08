@@ -13,6 +13,7 @@ import edu.kit.ifv.domain.shared.location.zone.attributes.HasRegionType
 import edu.kit.ifv.domain.synthesis.AttractivenessModelParser
 import edu.kit.ifv.domain.synthesis.GenerateFromFlatInput
 import edu.kit.ifv.domain.synthesis.PopulationSynthesis
+import edu.kit.ifv.domain.synthesis.SeededProvider
 import edu.kit.ifv.domain.synthesis.assignAmountOfCars
 import edu.kit.ifv.domain.synthesis.assignEconomicStatus
 import edu.kit.ifv.domain.synthesis.assignTransitCardOwnership
@@ -43,6 +44,7 @@ import edu.kit.ifv.domain.synthesis.results.legacy.writeLegacyOutput
 import edu.kit.ifv.units.meters
 import org.locationtech.jts.geom.Geometry
 import kotlin.io.path.Path
+import kotlin.random.Random
 
 fun <
     AREA,
@@ -99,7 +101,11 @@ fun examplePopulationSynthesis() {
     require(primarySchools.isNotEmpty()) {
         "Somehow no primary schools are generated"
     }
-    populationSynthesis.execute {
+    populationSynthesis.execute(
+        randomProvider = SeededProvider(42L, personRandomSpawner = { l, pers ->
+            Random(l + pers.hashCode())
+        }),
+    ) {
         synthesize {
             TrivialSynthesis(
                 surveyHouseholds.map {
@@ -157,7 +163,7 @@ fun examplePopulationSynthesis() {
         }
 
         spawnCars(
-            generationStrategy = SamplingCarGeneration(),
+            generationStrategy = SamplingCarGeneration(randomGenerator = { Random(it.hashCode()) }),
             assignStrategy = UnfilteredSeniority(),
         )
         assignActivities {
