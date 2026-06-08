@@ -1,0 +1,39 @@
+package edu.kit.ifv.domain.shared.datastructure.schedule
+import OTHER
+import START
+import THIRD
+import edu.kit.ifv.domain.shared.datastructure.schedule.action.Activity
+import edu.kit.ifv.domain.shared.datastructure.schedule.action.Leg
+import edu.kit.ifv.domain.shared.datastructure.schedule.action.isConsistent
+import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
+import edu.kit.ifv.utils.units.sinceStart
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+
+class TripTest {
+
+    private val firstActivity = Activity.fromDuration(START, 0.hours.sinceStart, 8.hours)
+    private val secondActivity = Activity.fromDuration(OTHER, 9.hours.sinceStart, 1.hours)
+
+    @Test
+    fun runBuilder() {
+        val builder = TripBuilder(firstActivity, secondActivity, emptyList(), ReplanningStrategy.SHIFT)
+        builder.apply {
+            +Step(THIRD, 10.minutes)
+            +Pause(10.minutes)
+            +Step(OTHER, 10.minutes)
+        }
+        val trip = builder.output()
+        assertContentEquals(
+            trip,
+            listOf(
+                Leg.fromDuration(firstActivity.endTime, 10.minutes, START, THIRD),
+                Leg.fromDuration(firstActivity.endTime + 20.minutes, 10.minutes, THIRD, OTHER),
+            ),
+        )
+        assertTrue(trip.isConsistent())
+    }
+}

@@ -1,84 +1,76 @@
-# The .gitlab-ci.yml makes use of some variables stored in repositories config:
-#
-#  MAJOR: the current releases major version number
-#   - automatically incremented after each major-release-job
-#
-#  MINOR: the current releases minor version number
-#   - automatically incremented after each minor-release-job
-#   - reset to 0 after each major-release-job
-#
-# BUILD_NUMBER: the current releases build number, suffix of the version string
-#  - automatically incremented after each deploy-job
-#  - reset to 0 after each major-release-job and minor-release-job
-#
-# CI_JOB_TOKEN: token to update version and build numbers in GitLab variables, must be activated in CI/CD settings
-# GITLAB_API_URL: url pointing to the variables endpoint, to update version and build number variables
-#  - e.g. https://gitlab.example.server.com/api/v4/projects/$CI_PROJECT_ID/variables
-#
-# LOCAL_REPO_URL: repository url for hosting local (non-public) artifacts: deploy-job
-# LOCAL_REPO_USERNAME: username for publishing to local (non-public) artifact repository: deploy-job
-# LOCAL_REPO_PASSWORD: password for publishing to local (non-public) artifact repository: deploy-job
-#
-# PUBLIC_REPO_URL: repository url for hosting public artifacts: major-release-job, minor-release-job
-# PUBLIC_REPO_USERNAME: username for publishing to public artifact repository: major-release-job, minor-release-job
-# PUBLIC_REPO_PASSWORD: password for publishing to public artifact repository: major-release-job, minor-release-job
-#
-# PREVIOUS_HAMBURG_STATUS status of ALIKE-DEV build with the last release of reengineering
-# PREVIOUS_RESTATT_STATUS status of mobitopp-REstatt build with the last release of reengineering
-# PREVIOUS_KIRA_STATUS status of KIRA build with the last release of reengineering
-
 variables:
   MOBITOPP_COMMIT_HASH: $CI_COMMIT_SHA
+
+default:
+  image: gradle:jdk25
 
 stages: # List of stages for jobs, and their order of execution
   - build
   - test
-  - deploy
-
-include:
-  # trigger downstream projects and create version number
-  - local: gitlab-pipeline/downstream_based_version_number.yml
+  - publish
+#Removed for syncing public publication processes.
+#include:
+#  # trigger downstream projects and create version number
+#  - local: gitlab-pipeline/downstream_based_version_number.yml
 
 build-job:
   stage: build
-  image: amazoncorretto:21
   script:
-    - ./gradlew compileJava detekt test koverXmlReport koverLog
+    - ./gradlew compileKotlin
   artifacts:
     expire_in: 1 week
+    when: always
+    paths:
+      - build/
+
+test-job:
+  stage: test
+  needs: [ build-job ]
+  script:
+    - ./gradlew test koverXmlReport koverLog
+  artifacts:
     when: always
     reports:
       junit: build/test-results/test/**/TEST-*.xml
       coverage_report:
         coverage_format: cobertura
         path: build/reports/kover/report.xml
+
     paths:
       - build/reports/kover/*
-      - build/
   coverage: "/application line coverage: ([0-9]+\\.?[0-9]*)%/"
 
+code-style:
+  stage: test
+  needs: [ build-job ]
+  script:
+    - ./gradlew detektGenerateConfig
+    - ./gradlew detekt
+
 deploy-job:
-  stage: deploy
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-  needs: [ version-number, build-job ]
-  image: amazoncorretto:21
+  stage: publish
+  only:
+    - main
+    - master
+  needs: [ "test-job" ]
   resource_group: production #only one deploy job at a time
   script:
-    - echo "Publish local release $RELEASE_VERSION"
+    - echo "Publish local release $BUILD_VERSION"
     - |
-      ./gradlew publish -PbuildVersion=$RELEASE_VERSION \
+      ./gradlew publish -PbuildVersion=$BUILD_VERSION \
       -PdoPublish=true \
       -PisRelease=false \
       -PlocalUrl=$LOCAL_REPO_URL \
       -PlocalRepoUser=$LOCAL_REPO_USERNAME \
       -PlocalRepoPassword=$LOCAL_REPO_PASSWORD
-
+    - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
+    - echo "Update BUILD_NUMBER to $NEW_BUILD_NUMBER"
+    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
 git-version-tag:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-  stage: deploy
-  needs: [ deploy-job, version-number ]
+  stage: publish
+  needs: [ deploy-job ]
   image:
     name: alpine/git:v2.49.1 #need git
     entrypoint: ["/bin/sh", "-c"]
@@ -89,47 +81,32 @@ git-version-tag:
     - git push origin "v$RELEASE_VERSION"
 
 
-# Keep for first public release of reengineered mobitopp
-#minor-release-job:
-#  stage: deploy
-#  rules:
-#    - if: $CI_COMMIT_BRANCH == "main"
-#  when: manual
-#  image: amazoncorretto:21
-#  resource_group: production #only one deploy job at a time
-#  script:
-#    - echo "Publish public minor release $BUILD_VERSION"
-#    - |
-#      ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
-#      -PdoPublish=true \
-#      -PisRelease=true \
-#      -PpublicUrl=$PUBLIC_REPO_URL \
-#      -PpublicRepoUser=$PUBLIC_REPO_USERNAME \
-#      -PpublicRepoPassword=$PUBLIC_REPO_PASSWORD
-#    - export NEW_MINOR=$((MINOR + 1))
-#    - echo "Update MINOR to $NEW_MINOR, set BUILD_NUMBER to 0"
-#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/MINOR" --form "value=$NEW_MINOR"
-#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=0"
-#
-#
-#major-release-job:
-#  stage: deploy
-#  rules:
-#    - if: $CI_COMMIT_BRANCH == "main"
-#  when: manual
-#  image: amazoncorretto:21
-#  resource_group: production #only one deploy job at a time
-#  script:
-#    - echo "Publish public major release $BUILD_VERSION"
-#    - |
-#      ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
-#      -PdoPublish=true \
-#      -PisRelease=true \
-#      -PpublicUrl=$PUBLIC_REPO_URL \
-#      -PpublicRepoUser=$PUBLIC_REPO_USERNAME \
-#      -PpublicRepoPassword=$PUBLIC_REPO_PASSWORD
-#    - export NEW_MAJOR=$((MAJOR + 1))
-#    - echo "Update MAJOR to $NEW_MAJOR, set MINOR to 0, set BUILD_NUMBER to 0"
-#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/MAJOR" --form "value=$NEW_MAJOR"
-#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/MINOR" --form "value=0"
-#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=0"
+publish-job:
+  allow_failure: false
+  when: manual
+  stage: publish
+  only:
+    - main
+    - master
+  needs: [ "test-job" ]
+  resource_group: production #only one deploy job at a time
+  script:
+    - export NEW_BUILD_VERSION=$MAJOR.$MINOR.0
+    - echo "Publish public release $NEW_BUILD_VERSION"^
+    - mkdir -p "$CI_PROJECT_DIR/.ci-secrets"
+    - printf '%s' "$GPG_SECRING" | base64 -d > "$CI_PROJECT_DIR/.ci-secrets/secring.gpg"
+    - echo "New Build Version $NEW_BUILD_VERSION"
+    - chmod 600 "$CI_PROJECT_DIR/.ci-secrets/secring.gpg"
+    - |
+      ./gradlew publishToSonatype closeSonatypeStagingRepository -PbuildVersion=$NEW_BUILD_VERSION \
+      -PdoPublish=true \
+      -PisRelease=true \
+      -PsonatypeUsername=$PUBLIC_REPO_USERNAME \
+      -PsonatypePassword=$PUBLIC_REPO_PASSWORD \
+      -Psigning.keyId=$GPG_ID \
+      -Psigning.password=$GPG_PASSWORD \
+      -Psigning.secretKeyRingFile="$CI_PROJECT_DIR/.ci-secrets/secring.gpg"
+    - export NEW_MINOR=$((MINOR + 1))
+    - echo "Update MINOR to $NEW_MINOR, set BUILD_NUMBER to 0"
+    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/MINOR" --form "value=$NEW_MINOR"
+    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=0"
