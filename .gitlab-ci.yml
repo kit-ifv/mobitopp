@@ -2,7 +2,7 @@ variables:
   MOBITOPP_COMMIT_HASH: $CI_COMMIT_SHA
 
 default:
-  image: amazoncorretto:25
+  image: gradle:jdk25
 
 stages: # List of stages for jobs, and their order of execution
   - build
