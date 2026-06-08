@@ -178,6 +178,19 @@ if (checkProperty("doPublish")) {
 }
 
 
+if (checkProperty("doPublish") && checkProperty("isRelease")) {
+    nexusPublishing {
+        repositories {
+            // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+            sonatype {
+                nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+                snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+            }
+        }
+    }
+}
+
+
 /**
  * Configures this project and each of its sub-projects.
  *
@@ -189,7 +202,6 @@ allprojects {
      */
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
-//    apply(plugin = "io.github.gradle-nexus.publish-plugin:2.0.0")
     project.group = "edu.kit.ifv.mobitopp"
 
 
@@ -279,15 +291,15 @@ allprojects {
                             sign(publishing.publications)
                         }
 
-                        nexusPublishing {
-                            repositories {
-                                // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
-                                sonatype {
-                                    nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-                                    snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
-                                }
-                            }
-                        }
+//                        nexusPublishing {
+//                            repositories {
+//                                // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+//                                sonatype {
+//                                    nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+//                                    snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+//                                }
+//                            }
+//                        }
 
                     } else {
                         println("Activate: publish local build!")
