@@ -113,15 +113,15 @@ class BinaryZoneWriter : BinaryWriter<MaximalZone> {
         zone.run {
             writeLong(id.value)
             encodeLocation(this.centroidLocation.toRecord())
-            writeLong(-1L)
+            writeLong(attributes.visumId)
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader
             writeString(fakeName, maxNameLength)
             writeInt(attributes.regionType.code)
-            writeInt(-1) // classification
-            writeInt(-1) // parking places
-            writeBoolean(true) // isDestination
-            writeDouble(0.0) // relief
+            writeInt(attributes.classification.code) // classification
+            writeInt(attributes.parkingPlaces) // parking places
+            writeBoolean(attributes.isDestination) // isDestination
+            writeDouble(attributes.relief.inKilometers) // relief
         }
     }
 }
