@@ -8,7 +8,7 @@ plugins {
     application
     id("maven-publish")
     id("signing")
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0" apply false
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
 allprojects {
