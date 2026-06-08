@@ -189,7 +189,7 @@ allprojects {
      */
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
-//    apply(plugin = "io.github.gradle-nexus.publish-plugin:2.0.0")
+    apply(plugin = "io.github.gradle-nexus.publish-plugin:2.0.0")
     project.group = "edu.kit.ifv.mobitopp"
 
 
