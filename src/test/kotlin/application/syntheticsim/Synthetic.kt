@@ -180,9 +180,6 @@ val testAttractivenessModel = object : AttractivenessModel {
             ZoneId(2L) -> 1.0 // Zone 2 should be barely attractive at all
             else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
         }.asAttractiveness()
-
-    override val work: ActivityType = LegacyActivityType.WORK
-    override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT
 }
 
 class OneHouseholdTwoPersons : Scenario(generateZones(3)) {

@@ -49,8 +49,6 @@ fun <C, CFG> C.loadAttractivenessModelFromCsv(
     ) {
         attractiveness = AttractivenessFromCsv(
             path = path,
-            work = work,
-            privateVisit = privateVisit,
             activityTypes = activityTypes
         )
     }
@@ -85,8 +83,6 @@ private fun <C> validateAttractivenessColumns(
             zone: ZoneId,
             activityType: ActivityType
         ): Attractiveness = Attractiveness.DEFAULT
-        override val work: ActivityType = work
-        override val privateVisit: ActivityType = privateVisit
     }
 
     true

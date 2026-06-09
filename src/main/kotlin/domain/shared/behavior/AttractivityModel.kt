@@ -19,11 +19,6 @@ interface AttractivenessModel {
     fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness
     fun isAttractive(zone: ZoneId, activityType: ActivityType): Boolean =
         attractivenessFor(zone, activityType).value > .0
-
-    // TODO Extract work/private visit, as they are only required to compute parkdruck/parkingpressure
-    // Create new interface ParkingPressureModel and an implementation that wraps attractiveness model and knows about work/private visit
-    val work: ActivityType
-    val privateVisit: ActivityType
 }
 
 fun AttractivenessModel.sumAttractiveness(zone: ZoneId, vararg activityTypes: ActivityType): Double =
@@ -34,9 +29,8 @@ class AttractivenessFromCsv(
     private val path: Path,
     delimiter: String = ";",
     zoneColumn: String = "zoneId",
-    override val work: ActivityType,
-    override val privateVisit: ActivityType,
     private val activityTypes: Set<ActivityType>,
+    errorHandling: ErrorHandling = ErrorHandling.THROW,
 ) : AttractivenessModel {
 
     private val attractivenessMap: Map<ZoneId, Map<ActivityType, Attractiveness>>
@@ -45,7 +39,7 @@ class AttractivenessFromCsv(
         var filteredActivityTypes: Set<ActivityType>? = null
 
         val parser = DefaultMapCsvParser(
-            CsvParser(errorHandling = ErrorHandling.THROW) { row -> // TODO error level as config param
+            CsvParser(errorHandling = errorHandling) { row ->
                 filteredActivityTypes = filteredActivityTypes ?: activityTypes.filterExistingColumns(row)
                 ZoneId(row.long(zoneColumn)) to
                     activityMapOf(row, filteredActivityTypes)
