@@ -154,28 +154,38 @@ tasks.withType<JavaCompile> {
 tasks.withType<JavaExec>().configureEach {
     maxHeapSize = "60G"
     jvmArgs = listOf(
-        "-XX:+HeapDumpOnOutOfMemoryError",        // Enable heap dump on OutOfMemoryError
-        "-XX:HeapDumpPath=./heapdumps",           // Specify the directory for heap dumps
-        "-Xmx60G"                                 // Example: Set max heap size to 60G
+        "-Xmx60G"
     )
 }
-// Add the schema definitions to the publish process, but only the core project needs to do so.
-if (checkProperty("doPublish")) {
-    publishing {
-        publications {
-            create("schema", type = MavenPublication::class) {
-                project.group = "edu.kit.ifv.mobitopp"
-                artifactId = "schemas"
-                version = requireProperty("buildVersion")
-
-                artifact("src/main/resources/shortterm-config-schema.json") {
-                    classifier = ""
-                    extension = "json"
-                }
-            }
-        }
-    }
-}
+// I Disabled the entire schema publishing: Currently it fails due to having no pom config,
+//// Apparently using any publish process from src/main makes gradle unhappy. The solution to add a copy of the
+//// file to build/* and publish that.
+//val prepareSchemaPublication by tasks.registering(Sync::class) {
+//    from(layout.projectDirectory.file("src/main/resources/shortterm-config-schema.json"))
+//    into(layout.buildDirectory.dir("schema-publication"))
+//}
+//val schemaFile = prepareSchemaPublication.map {
+//    it.destinationDir.resolve("shortterm-config-schema.json")
+//}
+//
+//
+//// Add the schema definitions to the publish process, but only the core project needs to do so.
+//if (checkProperty("doPublish")) {
+//    publishing {
+//        publications {
+//            create("schema", type = MavenPublication::class) {
+//                project.group = "edu.kit.ifv.mobitopp"
+//                artifactId = "schemas"
+//                version = requireProperty("buildVersion")
+//
+//                artifact(schemaFile) {
+//                    builtBy(prepareSchemaPublication)
+//                    extension = "json"
+//                }
+//            }
+//        }
+//    }
+//}
 
 
 /**
@@ -309,7 +319,6 @@ allprojects {
     }
 
 }
-
 fun requireProperty(property: String, orElse: String? = null): String =
     requireNotNull(project.findProperty(property) as? String ?: orElse) {
         "Could not find property '$property'. Please check the gradle command args. It should contain:\n" +
