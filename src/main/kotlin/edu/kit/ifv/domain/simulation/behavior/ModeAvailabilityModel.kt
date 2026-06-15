@@ -21,6 +21,7 @@ import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import edu.kit.ifv.utils.units.AbsoluteTime
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.hours
 
 interface DestinationChoiceCharacteristics {
     val person: PersonAgent
@@ -66,7 +67,13 @@ data class DestinationChoiceCharacteristicsImpl(
 }
 
 data class DestinationAlternative(val original: DestinationChoiceCharacteristics, val choice: StandardLocation) :
-    DestinationChoiceCharacteristics by original
+    DestinationChoiceCharacteristics by original {
+    val nextFixedActivity = person.schedule.activities().find { it.location != StandardLocation.LOCATIONUNKNOWN }
+
+    val nextFixedDestination: StandardLocation = nextFixedActivity?.location ?: person.household.location
+
+    val nextFixedActivityEnd: AbsoluteTime = nextFixedActivity?.endTime ?: time.plus(7.hours)
+    }
 
 /**
  * Provide an interface, that way projects can actually implement additional conditions onto the characteristics.
