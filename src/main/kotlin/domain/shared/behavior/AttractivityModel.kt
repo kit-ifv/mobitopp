@@ -1,17 +1,10 @@
 package domain.shared.behavior
 
 import domain.shared.enums.ActivityType
-import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import utils.ErrorHandling
-import utils.csv.CsvParser
-import utils.csv.DefaultMapCsvParser
-import utils.csv.Row
-import utils.csv.commaDouble
-import utils.csv.long
+import utils.csv.*
 import java.nio.file.Path
-import java.time.temporal.TemporalQueries.zoneId
-import kotlin.math.abs
 
 // TODO Debate with Jelle, There is a more generalized version of attractiveness, which takes in a location, rather than
 //  a zoneID

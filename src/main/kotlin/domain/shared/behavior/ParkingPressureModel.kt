@@ -12,7 +12,7 @@ interface ParkingPressureModel {
 class ParkingPressureByAttractiveness(
     private val work: ActivityType,
     private val privateVisit: ActivityType,
-    private val zoneProvider: (ZoneId) -> Zone, // TODO: HasNumberOfParkingPlaces
+    private val zoneProvider: (ZoneId) -> Zone, // TODO: Replace with HasNumberOfParkingPlaces Interface
     private val attractivenessModel: AttractivenessModel
 ): ParkingPressureModel {
 
