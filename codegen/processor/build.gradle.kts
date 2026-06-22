@@ -24,20 +24,3 @@ dependencies {
     implementation(libs.kotlinpoetksp) //2.0.0
     implementation(kotlin("reflect"))
 }
-
-//publishing {
-//    publications {
-//        register("mavenData", MavenPublication::class) {
-//            from(components["kotlin"])
-//        }
-//        repositories {
-//            maven {
-//                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
-//                credentials {
-//                    username = project.findProperty("nexusUsername") as String?
-//                    password = project.findProperty("nexusPassword") as String?
-//                }
-//            }
-//        }
-//    }
-//}

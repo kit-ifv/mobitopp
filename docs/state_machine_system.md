@@ -379,7 +379,7 @@ the data can be rendered as PlantUML diagrams:
      Transitions from non-transitory states are also labeled with the average time spent in the previous state 
      before the transition occurred:
    
-     ![image](example_statemachine.png)
+     ![image](images/example_statemachine.png)
     </details>
 
 - **Timing diagram:** `AgentInteractions` can be filtered for a specific agent and rendered as timing diagrams. 
@@ -398,7 +398,7 @@ the data can be rendered as PlantUML diagrams:
     ">" marking the receive time.
     Messages between agents are shown as arrows between the rows.
     
-    ![image](example_timing_diagram.png)
+    ![image](images/example_timing_diagram.png)
   </details>
 
 
@@ -418,7 +418,7 @@ the data can be rendered as PlantUML diagrams:
     At receive time of the delayed message the receiver has an addition dotted self-arrow with a "recv" label prefix.
     To identify which delayed send and receive belong together, they are marked with an index "[7]".
     
-    ![image](example_sequence_diagram.png)
+    ![image](images/example_sequence_diagram.png)
   </details>
   
 
