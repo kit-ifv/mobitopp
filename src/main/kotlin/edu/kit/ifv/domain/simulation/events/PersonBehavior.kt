@@ -67,16 +67,16 @@ val StandardModeImplementation =
 
 data class PersonBehavior constructor(
     val destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
-    val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
-    val modes: ChoiceModelModes,
-    val impedance: Impedance,
-    val attractivityModel: AttractivenessModel,
-    val availabilityModel: ModeAvailabilityModel,
-    val bikeSharingConnectionSelector: BikeSharingConnectionSelector,
-    val drtAvailabilitySelector: DrtAvailabilitySelector,
-    val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
-    val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
-    val replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
+//     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+//     val modes: ChoiceModelModes,
+//     val impedance: Impedance,
+//     val attractivityModel: AttractivenessModel,
+//    val availabilityModel: ModeAvailabilityModel,
+//    val bikeSharingConnectionSelector: BikeSharingConnectionSelector,
+//    val drtAvailabilitySelector: DrtAvailabilitySelector,
+//    val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
+//    val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
+//    val replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
 ) {
     companion object {
         @Suppress("LongParameterList")

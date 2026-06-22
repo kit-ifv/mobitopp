@@ -1,11 +1,11 @@
 package edu.kit.ifv.domain.simulation.events
 import edu.kit.ifv.MessageCalled
 import edu.kit.ifv.StateCalled
+import edu.kit.ifv.application.steps.*
 import edu.kit.ifv.core.statemachine.Send
 import edu.kit.ifv.core.statemachine.StateMachineFactory
 import edu.kit.ifv.core.statemachine.builder.BaseStateData
 import edu.kit.ifv.core.statemachine.builder.stateMachine
-import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.datastructure.schedule.Agenda
 import edu.kit.ifv.domain.shared.datastructure.schedule.LinkTrip
@@ -14,23 +14,16 @@ import edu.kit.ifv.domain.shared.datastructure.schedule.action.Leg
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.LinkedAction
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.StationaryAction
 import edu.kit.ifv.domain.shared.datastructure.schedule.alternateByImpedance
+import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import edu.kit.ifv.domain.shared.enums.MODEUNKOWN
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.agent.DrtOffer
-import edu.kit.ifv.domain.simulation.agent.DrtRide
-import edu.kit.ifv.domain.simulation.agent.PersonAgent
-import edu.kit.ifv.domain.simulation.agent.PersonMessage
-import edu.kit.ifv.domain.simulation.agent.PrivateCarAgent
-import edu.kit.ifv.domain.simulation.agent.getBestCar
+import edu.kit.ifv.domain.simulation.agent.*
 import edu.kit.ifv.domain.simulation.behavior.BikeSharingConnectionSelector
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.DrtAvailabilitySelector
 import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
-import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.flatten
-import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.utils.concurrent.synchronizeAll
 import edu.kit.ifv.utils.units.AbsoluteTime
 
@@ -49,30 +42,17 @@ PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean
     val behavior: PersonBehavior
         get() = person.behavior
 
-    val impedance: Impedance
-        get() = behavior.impedance
+//    val modeAvailability: ModeAvailabilityModel
+//        get() = behavior.availabilityModel
 
-    val modeAvailability: ModeAvailabilityModel
-        get() = behavior.availabilityModel
+    // TODO modes only necessary here until dispattch: mode > nested state machine can be defined outside of PersonStates
 
-    val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
-        get() = behavior.modeChoice
 
-    val destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
-        get() = behavior.destinationChoice
-
-    // TODO modes only necessary here until dispatch: mode > nested state machine can be defined outside of PersonStates
-    val modes: ChoiceModelModes
-        get() = behavior.modes
-
-    val attractivity: AttractivenessModel
-        get() = behavior.attractivityModel
-
-    val bikeSharingConnections: BikeSharingConnectionSelector
-        get() = behavior.bikeSharingConnectionSelector
-
-    val operatingDrtProviders: DrtAvailabilitySelector
-        get() = behavior.drtAvailabilitySelector
+//    val bikeSharingConnections: BikeSharingConnectionSelector
+//        get() = behavior.bikeSharingConnectionSelector
+//
+//    val operatingDrtProviders: DrtAvailabilitySelector
+//        get() = behavior.drtAvailabilitySelector
 
     val self: PersonAgent
         get() = agent
@@ -220,8 +200,11 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // State: walking to dest
 // - send self: finish drt trip
 
-val personStateMachine: StateMachineFactory<PersonAgent> get() =
-    stateMachine<PersonAgent>("PersonsStateMachine") {
+fun <C> C.personStateMachine() : StateMachineFactory<PersonAgent>
+where  C : HasImpedance, C : HasAttractivenessModel, C: HasDestinationChoiceModel, C : HasModeChoiceModel,
+       C : HasChoiceModelModes, C : HasModeAvailabilityModel, C : HasSpawnModeCharacteristics, C : HasSpawnDestinationCharacteristics,
+       C : HasReplanningStrategy, C : HasBikeSharingConnectionSelector, C: HasDrtAvailabilitySelector
+    = stateMachine<PersonAgent>("PersonsStateMachine") {
 
         start(StartPerson, ::startPerson) { send ->
             val target = person.schedule.activities().first()
@@ -256,56 +239,58 @@ val personStateMachine: StateMachineFactory<PersonAgent> get() =
             }
 
             if (trip.elements.last().endLocation == StandardLocation.LOCATIONUNKNOWN) {
-                val situation = behavior.spawnDestinationCharacteristics(person, time, behavior, trip)
+                val situation = spawnDestinationCharacteristics(person, time, behavior, trip)
                 context(situation, person.random) {
-                    trip.elements.last().endLocation = behavior.destinationChoice.select()
+                    trip.elements.last().endLocation = destinationChoiceModel.select()
                 }
                 trip.elements.forEach { it.transportType = MODEUNKOWN }
             }
         }.next { send ->
+            context(modes, drtAvailabilitySelector) {
+                // mode choice
 
-            // mode choice
+                // TODO add version of ModeAvailabilityFilter with fixed global choice set
+                val (choices, sharedResources) = context(person, time, destination) {
+                    modes.options.map { modeAvailability.providerAvailability(it) }
+                }.flatten()
 
-            // TODO add version of ModeAvailabilityFilter with fixed global choice set
-            val (choices, sharedResources) = context(person, time, destination) {
-                modes.options.map { modeAvailability.providerAvailability(it) }
-            }.flatten()
+                synchronizeAll(sharedResources.distinct().toSet()) {
+                    val (mode, drtRide) = modeChoiceDrtWrapper(choices, send) { choiceSet, drtOffer ->
+                        val modeSituation = spawnModeCharacteristics(
+                            person,
+                            time,
+                            behavior,
+                            origin,
+                            destination,
+                            choiceSet,
+                            drtOffer,
+                        )
 
-            synchronizeAll(sharedResources.distinct().toSet()) {
-
-                val (mode, drtRide) = modeChoiceDrtWrapper(choices, send) { choiceSet, drtOffer ->
-                    val modeSituation = behavior.spawnModeCharacteristics(
-                        person,
-                        time,
-                        behavior,
-                        origin,
-                        destination,
-                        choiceSet,
-                        drtOffer,
-                    )
-
-                    val modeResult = context(modeSituation, person.random) {
-                        val mcAvail = choices.filter {
-                            modeAvailability.resourceAvailability(it)
+                        val modeResult = context(modeSituation, person.random) {
+                            val mcAvail = choices.filter {
+                                modeAvailability.resourceAvailability(it)
+                            }
+                            modeChoice.select(mcAvail.toSet())
                         }
-                        modeChoice.select(mcAvail.toSet())
+                        modeResult
                     }
-                    modeResult
-                }
 
-                trip.alternateByImpedance(impedance, replanner = behavior.replanningStrategy) {
-                    taking(mode to destination)
-                }
+                    trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
+                        taking(mode to destination)
+                    }
 
-                person.inTransit = true
+                    person.inTransit = true
 
-                // TODO after leg action is temporary hack until nested state machine is possible
-                val noAction = AfterLegAction { a, t -> Unit }
-                when (mode) {
-                    modes.car -> startingCarTrip()
-                    modes.bikeSharing -> startingBikeSharingTrip()
-                    modes.ridePooling -> startingRidePoolingTrip(drtRide!!)
-                    else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
+                    // TODO after leg action is temporary hack until nested state machine is possible
+                    val noAction = AfterLegAction { a, t -> Unit }
+                    context(impedance, replanningStrategy, bikeSharingConnectionSelector, modeAvailability) {
+                        when (mode) {
+                            modes.car -> startingCarTrip()
+                            modes.bikeSharing -> startingBikeSharingTrip()
+                            modes.ridePooling -> startingRidePoolingTrip(drtRide!!)
+                            else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
+                        }
+                    }
                 }
             }
         }
@@ -419,6 +404,13 @@ fun StartingTripState.startingCarTrip(): PerformLegState {
     return performLeg(leg = trip.elements[0], afterLegAction = checkEndOfCarTrip)
 }
 
+context(
+    bikeSharingConnections: BikeSharingConnectionSelector,
+    impedance: Impedance,
+    replanningStrategy: ReplanningStrategy,
+    modes: ChoiceModelModes,
+    modeAvailability: ModeAvailabilityModel
+)
 fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
     val maybeBikesharing = bikeSharingConnections.findConnection(person, destination)
 
@@ -428,11 +420,11 @@ fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
 
     val (startStation, endStation) = requireNotNull(maybeBikesharing) {
         "How did you manage to select bikesharing if no connection available?\n" +
-            " - check availability model: ${modeAvailability::class.simpleName}\n" +
+            " - check availability model: ${modeAvailability::class.simpleName}\n" + // TODO: Is there really a need of modeAvailability here ??
             " - check connection model: ${bikeSharingConnections::class.simpleName}"
     }
 
-    trip.alternateByImpedance(impedance, replanner = behavior.replanningStrategy) {
+    trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
         taking(modes.pedestrian to startStation.location)
         taking(modes.bikeSharing to endStation.location)
         taking(modes.pedestrian to destination)
@@ -453,8 +445,9 @@ fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
     return performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
 }
 
+context(impedance: Impedance, replanningStrategy: ReplanningStrategy, modes: ChoiceModelModes)
 fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPickupState {
-    trip.alternateByImpedance(impedance, replanner = behavior.replanningStrategy) {
+    trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
         taking(modes.pedestrian to drtRide.offer.pickupAt)
         taking(modes.ridePooling to drtRide.offer.dropOffAt)
         taking(modes.pedestrian to destination)
@@ -463,6 +456,7 @@ fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPicku
     return waitingForPickup(drtRide = drtRide)
 }
 
+context(drtAvailabilitySelector: DrtAvailabilitySelector, modes: ChoiceModelModes)
 internal fun StartingTripState.modeChoiceDrtWrapper(
     choices: List<Mode>,
     send: Send,
@@ -470,7 +464,7 @@ internal fun StartingTripState.modeChoiceDrtWrapper(
 ): Pair<Mode, DrtRide?> {
     val drtOffers = takeIf { modes.ridePooling in choices }?.let {
         context(person, time, destination) {
-            behavior.drtAvailabilitySelector.findDrtOffers()
+            drtAvailabilitySelector.findDrtOffers()
         }
     } ?: emptyList()
 
