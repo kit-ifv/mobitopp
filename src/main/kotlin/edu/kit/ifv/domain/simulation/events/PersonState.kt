@@ -39,14 +39,13 @@ PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean
     val block: Representative<out LinkedAction>?
         get() = person.schedule.nextBlock()
 
-    val behavior: PersonBehavior
-        get() = person.behavior
+//    val behavior: PersonBehavior
+//        get() = person.behavior
 
 //    val modeAvailability: ModeAvailabilityModel
 //        get() = behavior.availabilityModel
 
     // TODO modes only necessary here until dispattch: mode > nested state machine can be defined outside of PersonStates
-
 
 //    val bikeSharingConnections: BikeSharingConnectionSelector
 //        get() = behavior.bikeSharingConnectionSelector
@@ -200,12 +199,11 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // State: walking to dest
 // - send self: finish drt trip
 
-fun <C> C.personStateMachine() : StateMachineFactory<PersonAgent>
-where  C : HasImpedance, C : HasAttractivenessModel, C: HasDestinationChoiceModel, C : HasModeChoiceModel,
-       C : HasChoiceModelModes, C : HasModeAvailabilityModel, C : HasSpawnModeCharacteristics, C : HasSpawnDestinationCharacteristics,
-       C : HasReplanningStrategy, C : HasBikeSharingConnectionSelector, C: HasDrtAvailabilitySelector
-    = stateMachine<PersonAgent>("PersonsStateMachine") {
-
+fun <C> C.personStateMachine(): StateMachineFactory<PersonAgent>
+where C : HasImpedance, C : HasAttractivenessModel, C : HasDestinationChoiceModel, C : HasModeChoiceModel,
+      C : HasChoiceModelModes, C : HasModeAvailabilityModel, C : HasSpawnModeCharacteristics, C : HasSpawnDestinationCharacteristics,
+      C : HasReplanningStrategy, C : HasBikeSharingConnectionSelector, C : HasDrtAvailabilitySelector =
+    stateMachine<PersonAgent>("PersonsStateMachine") {
         start(StartPerson, ::startPerson) { send ->
             val target = person.schedule.activities().first()
             target.location = person.household.location
@@ -239,7 +237,7 @@ where  C : HasImpedance, C : HasAttractivenessModel, C: HasDestinationChoiceMode
             }
 
             if (trip.elements.last().endLocation == StandardLocation.LOCATIONUNKNOWN) {
-                val situation = spawnDestinationCharacteristics(person, time, behavior, trip)
+                val situation = spawnDestinationCharacteristics(person, time, trip)
                 context(situation, person.random) {
                     trip.elements.last().endLocation = destinationChoiceModel.select()
                 }
@@ -259,7 +257,6 @@ where  C : HasImpedance, C : HasAttractivenessModel, C: HasDestinationChoiceMode
                         val modeSituation = spawnModeCharacteristics(
                             person,
                             time,
-                            behavior,
                             origin,
                             destination,
                             choiceSet,

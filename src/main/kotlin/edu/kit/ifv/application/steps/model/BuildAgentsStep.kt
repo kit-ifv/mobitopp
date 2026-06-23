@@ -4,7 +4,6 @@ import edu.kit.ifv.application.steps.HasDrtProviderAgentRepo
 import edu.kit.ifv.application.steps.HasDrtProviderRepo
 import edu.kit.ifv.application.steps.HasHouseholdRepo
 import edu.kit.ifv.application.steps.HasPersonAgentRepo
-import edu.kit.ifv.application.steps.HasPersonBehavior
 import edu.kit.ifv.application.steps.HasPersonRepo
 import edu.kit.ifv.application.steps.HasSharingProviderAgentRepo
 import edu.kit.ifv.application.steps.HasSharingProviderRepo
@@ -81,13 +80,12 @@ fun <C> C.buildSimulationAgents(
           C : HasDrtProviderRepo<*, DrtProvider>,
           C : HasPersonAgentRepo<PersonAgent, *>,
           C : HasSharingProviderAgentRepo<SharingProviderAgent, *>,
-          C : HasDrtProviderAgentRepo<DrtProviderAgent, *>,
-          C : HasPersonBehavior {
+          C : HasDrtProviderAgentRepo<DrtProviderAgent, *>
+{
     val builder by lazy {
         BuildAgents(
             seed = config.seed,
             personStateMachine,
-            personBehavior,
             drtStateMachine,
             drtAlgorithm,
             durationRandomizer,

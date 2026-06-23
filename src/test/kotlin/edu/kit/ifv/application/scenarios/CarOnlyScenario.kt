@@ -57,6 +57,7 @@ class CarOnlyScenario {
         )
 
         val car = legacyModes.car
+
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
@@ -80,8 +81,7 @@ class CarOnlyScenario {
 
         val agents = BuildAgents(
             seed = 1L,
-            personStateMachine.withRecording(),
-            syntheticBehavior,
+            personStateMachine.withRecording()
         ).buildPersonAgents(households)
 
         RecordingStateMachine.recordInteractions()

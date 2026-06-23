@@ -22,6 +22,7 @@ import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import edu.kit.ifv.utils.units.AbsoluteTime
 import kotlin.random.Random
 
+// TODO: Generic Context hinzufügen um impedance, ... zu ersetzten.
 interface DestinationChoiceCharacteristics {
     val person: PersonAgent
     val time: AbsoluteTime

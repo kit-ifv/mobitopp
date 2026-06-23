@@ -11,7 +11,6 @@ import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Location
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.simulation.data.person.IPerson
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
 import edu.kit.ifv.utils.random.StochasticActor
 import edu.kit.ifv.utils.units.AbsoluteTime
 import kotlin.random.Random
@@ -38,8 +37,6 @@ abstract class PersonAgent(
     abstract override val drtMemberships: List<DrtProviderAgent>
 
     abstract val schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
-
-    abstract val behavior: PersonBehavior
 
     var inTransit: Boolean = false
     var location: StandardLocation = household.location

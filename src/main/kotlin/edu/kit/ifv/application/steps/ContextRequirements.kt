@@ -25,7 +25,6 @@ import edu.kit.ifv.domain.simulation.data.drt.DrtProviderId
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
 import edu.kit.ifv.domain.simulation.events.GenerateDestinationCharacteristics
 import edu.kit.ifv.domain.simulation.events.GenerateModeCharacteristics
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.utils.CodePlan
 import edu.kit.ifv.utils.Identifiable
@@ -246,10 +245,6 @@ interface HasMutableAttractivenessModel : HasAttractivenessModel {
     override var attractiveness: AttractivenessModel
 }
 
-interface HasPersonBehavior : Context {
-    val personBehavior: PersonBehavior
-}
-
 interface HasDestinationChoiceModel : Context {
     val destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
 }
@@ -284,10 +279,4 @@ interface HasSpawnModeCharacteristics : Context {
 
 interface HasReplanningStrategy : Context {
     val replanningStrategy: ReplanningStrategy // = ReplanningStrategy.SHIFT
-}
-
-interface HasMutablePersonBehavior :
-    Context,
-    HasPersonBehavior {
-    override var personBehavior: PersonBehavior
 }

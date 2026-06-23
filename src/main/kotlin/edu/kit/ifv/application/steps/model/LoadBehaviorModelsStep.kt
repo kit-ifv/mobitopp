@@ -1,10 +1,5 @@
 package edu.kit.ifv.application.steps.model
-import edu.kit.ifv.application.steps.HasAttractivenessModel
-import edu.kit.ifv.application.steps.HasDrtProviderRepo
-import edu.kit.ifv.application.steps.HasImpedance
-import edu.kit.ifv.application.steps.HasMutablePersonBehavior
-import edu.kit.ifv.application.steps.HasSharingProviderRepo
-import edu.kit.ifv.application.steps.HasZoneRepo
+import edu.kit.ifv.application.steps.*
 import edu.kit.ifv.core.modelsteps.steps.repositoryDependentStep
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
@@ -19,7 +14,6 @@ import edu.kit.ifv.domain.simulation.data.drt.DrtProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
 import edu.kit.ifv.domain.simulation.events.GenerateDestinationCharacteristics
 import edu.kit.ifv.domain.simulation.events.GenerateModeCharacteristics
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
 import edu.kit.ifv.domain.simulation.events.StandardDestinationImplementation
 import edu.kit.ifv.domain.simulation.events.StandardModeImplementation
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
@@ -29,7 +23,7 @@ import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 /**
  * Loads and initializes the behavior models for person agents.
  *
- * This step sets up the [PersonBehavior] which includes destination choice, mode choice,
+ * This step sets up the ... which includes destination choice, mode choice,
  * availability models, and replanning strategies. It integrates various sub-models and
  * repositories to create a comprehensive behavior model for simulation agents.
  *
@@ -58,11 +52,11 @@ fun <C> C.loadBehaviorModels(
     spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics = StandardDestinationImplementation,
     spawnModeChoiceCharacteristics: NewModeCharacteristics = StandardModeImplementation,
     replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT,
-) where C : HasMutablePersonBehavior,
-        C : HasZoneRepo<*, MaximalZone>,
+) where C : HasZoneRepo<*, MaximalZone>,
         C : HasSharingProviderRepo<*, SharingProvider>,
         C : HasDrtProviderRepo<*, DrtProvider>,
         C : HasImpedance,
+        C : HasModeAvailabilityModel,
         C : HasAttractivenessModel =
     repositoryDependentStep(
         "load behavior models",
@@ -99,19 +93,19 @@ fun <C> C.loadBehaviorModels(
             }.toSet(),
         )
 
-        personBehavior = PersonBehavior(
-            destinationChoice,
-            modeChoice,
-            modes,
-            impedance,
-            attractiveness,
-            availability,
-            availability,
-            availability,
-            spawnDestinationChoiceCharacteristics,
-            spawnModeChoiceCharacteristics,
-            replanningStrategy,
-        )
+//        personBehavior = PersonBehavior(
+//            destinationChoice,
+//            modeChoice,
+//            modes,
+//            impedance,
+//            attractiveness,
+//            availability,
+//            availability,
+//            availability,
+//            spawnDestinationChoiceCharacteristics,
+//            spawnModeChoiceCharacteristics,
+//            replanningStrategy,
+//        )
     }
 
 typealias NewDestinationCharacteristics = GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>
