@@ -1,13 +1,17 @@
-package application.steps.parser
+package edu.kit.ifv.application.steps.parser
 
-import application.steps.HasAttractivenessModel
-import application.steps.HasParkingPressureModel
-import application.steps.HasZoneRepo
-import application.steps.PurposesConfig
-import core.modelsteps.steps.modelStep
-import domain.shared.behavior.ParkingPressureByAttractiveness
-import domain.shared.location.MutableZone
-import domain.shared.location.Zone
+import edu.kit.ifv.application.steps.HasAttractivenessModel
+import edu.kit.ifv.application.steps.HasParkingPressureModel
+import edu.kit.ifv.application.steps.HasZoneRepo
+import edu.kit.ifv.application.steps.PurposesConfig
+import edu.kit.ifv.core.modelsteps.steps.modelStep
+import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ParkingPressureByAttractiveness
+import edu.kit.ifv.domain.shared.enums.ActivityType
+import edu.kit.ifv.domain.shared.location.zone.Zone
+import edu.kit.ifv.domain.shared.location.zone.ZoneId
+import edu.kit.ifv.domain.shared.location.zone.attributes.HasNumberParkingPlaces
+import edu.kit.ifv.domain.shared.location.zone.attributes.HasZoneId
 
 /**
  * Loads and initializes the parking pressure model with an attractiveness model.
@@ -18,17 +22,28 @@ import domain.shared.location.Zone
  *   - [HasParkingPressureModel]
  *   - [HasAttractivenessModel]
 */
-context(config: CFG)
 @Suppress("LongParameterList")
-fun <C, CFG> C.loadParkingPressureModel()
-        where C : HasZoneRepo<MutableZone, Zone>, C : HasAttractivenessModel, C : HasParkingPressureModel, CFG : PurposesConfig
-        = modelStep("load parking pressure model") {
-    val model = ParkingPressureByAttractiveness(
-        work = config.work,
-        privateVisit = config.privateVisit,
-        zoneProvider = ::getZone,
-        attractivenessModel = attractiveness
-    )
+context(config: CFG)
+fun <C, CFG, Z> C.loadParkingPressureModel(
+    work: ActivityType = config.work,
+    privateVisit: ActivityType = config.privateVisit,
+    zoneProvider: (ZoneId) -> Zone<HasNumberParkingPlaces> = ::getZone,
+    attractivenessModel: AttractivenessModel = attractiveness,
+)
+        where C : HasZoneRepo<*, Z>,
+              C : HasAttractivenessModel,
+              C : HasParkingPressureModel,
+              Z : HasZoneId,
+              Z : Zone<HasNumberParkingPlaces>,
+              CFG : PurposesConfig =
 
-    this.parkingPressure = model
-}
+    modelStep("load parking pressure model") {
+        val model = ParkingPressureByAttractiveness(
+            work = work,
+            privateVisit = privateVisit,
+            zoneProvider = zoneProvider,
+            attractivenessModel = attractivenessModel,
+        )
+
+        this.parkingPressure = model
+    }

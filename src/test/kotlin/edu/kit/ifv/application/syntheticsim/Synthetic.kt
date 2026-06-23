@@ -170,13 +170,12 @@ val testAttractivenessModel = object : AttractivenessModel {
         // Home zone attractiveness should be 0
         ZoneId(1L) -> 999999.9
 
-    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
-        when (zone) {
-            ZoneId(0L) -> 0.0 // Home zone attractiveness should be 0
-            ZoneId(1L) -> 999999.9 // Zone 1 should be the most attractive zone ever
-            ZoneId(2L) -> 1.0 // Zone 2 should be barely attractive at all
-            else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
-        }.asAttractiveness()
+        // Zone 1 should be the most attractive zone ever
+        ZoneId(2L) -> 1.0
+
+        // Zone 2 should be barely attractive at all
+        else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
+    }.asAttractiveness()
 }
 
 class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
