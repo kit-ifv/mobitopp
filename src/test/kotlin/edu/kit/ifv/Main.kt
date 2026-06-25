@@ -88,6 +88,7 @@ import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.IndexAddressableImpedance
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
@@ -149,7 +150,7 @@ class MyContext :
     HasMutablePersonBehavior {
     override val scenarioName: String = "regression test short term scenario"
     override val modes: CodePlan<Mode> = LegacyMode
-    override lateinit var impedance: Impedance
+    override lateinit var impedance: IndexAddressableImpedance
     override lateinit var attractiveness: AttractivenessModel
     override lateinit var personBehavior: PersonBehavior
     override val execMode: ExecutionMode = ExecutionMode()

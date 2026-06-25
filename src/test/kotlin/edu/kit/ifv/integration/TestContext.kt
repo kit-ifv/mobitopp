@@ -52,6 +52,7 @@ import edu.kit.ifv.domain.shared.enums.areatype.RegioStaR17
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.IndexAddressableImpedance
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
@@ -105,7 +106,7 @@ class TestContext(
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
 
-    override lateinit var impedance: Impedance
+    override lateinit var impedance: IndexAddressableImpedance
     override lateinit var attractiveness: AttractivenessModel
     override lateinit var personBehavior: PersonBehavior
 

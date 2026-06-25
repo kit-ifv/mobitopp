@@ -6,6 +6,7 @@ import edu.kit.ifv.domain.shared.location.CostMetric
 import edu.kit.ifv.domain.shared.location.DistanceMetric
 import edu.kit.ifv.domain.shared.location.DurationMetric
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.IndexAddressableImpedance
 import edu.kit.ifv.domain.shared.location.zone.CostZoneMetric
 import edu.kit.ifv.domain.shared.location.zone.DistanceZoneMetric
 import edu.kit.ifv.domain.shared.location.zone.DurationZoneMetric
@@ -34,7 +35,7 @@ data class MatrixImpedance(
     private val travelCosts: ZoneMatrixLookup<Mode>,
     private val travelDistance: ZoneIdMatrix,
     private val unitConverters: UnitConverter,
-) : Impedance {
+) : IndexAddressableImpedance {
     private val currencyConverter = unitConverters.currencyConverter
     private val timeConverter = unitConverters.timeConverter
     private val distanceConverter = unitConverters.distanceConverter
@@ -49,6 +50,32 @@ data class MatrixImpedance(
 
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = DurationZoneMetric { o, d ->
         timeConverter.from(travelTimes[mode, time][o, d])
+    }
+
+    override fun costIndexed(
+        fromIndex: Int,
+        toIndex: Int,
+        mode: Mode,
+        time: Time,
+    ): Double {
+        return travelCosts[mode, time].getIndexed(fromIndex, toIndex)
+    }
+
+    override fun distanceIndexed(
+        fromIndex: Int,
+        toIndex: Int,
+        mode: Mode,
+    ): Double {
+        return travelDistance.getIndexed(fromIndex, toIndex)
+    }
+
+    override fun durationIndexed(
+        fromIndex: Int,
+        toIndex: Int,
+        mode: Mode,
+        time: Time,
+    ): Double {
+        return travelTimes[mode, time].getIndexed(fromIndex, toIndex)
     }
 
     companion object {

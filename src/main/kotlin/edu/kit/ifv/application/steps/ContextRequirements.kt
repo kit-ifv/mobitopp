@@ -9,6 +9,7 @@ import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.IndexAddressableImpedance
 import edu.kit.ifv.domain.shared.location.road.LocatableGraph
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderMessage
@@ -210,13 +211,13 @@ interface HasDrtProviderAgentRepo<M : D, out D> :
 }
 
 interface HasImpedance : Context {
-    val impedance: Impedance
+    val impedance: IndexAddressableImpedance
 }
 
 interface HasMutableImpedance :
     Context,
     HasImpedance {
-    override var impedance: Impedance
+    override var impedance: IndexAddressableImpedance
 }
 
 interface HasModes : Context { // TODO modes are very common, maybe move to base context?

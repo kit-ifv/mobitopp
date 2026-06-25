@@ -5,6 +5,7 @@ import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.IndexAddressableImpedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.simulation.agent.DrtOffer
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent

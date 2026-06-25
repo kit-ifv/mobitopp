@@ -30,9 +30,9 @@ class OverridableDestinationChoiceModel(
             "Not yet implemented",
         )
 
-    override fun addFilter(
-        filter: ChoiceFilter<StandardLocation, DestinationChoiceCharacteristics>,
-    ): FilteredChoiceModel<StandardLocation, DestinationChoiceCharacteristics> = original.addFilter(filter)
+//    override fun addFilter(
+//        filter: ChoiceFilter<StandardLocation, DestinationChoiceCharacteristics>,
+//    ): FilteredChoiceModel<StandardLocation, DestinationChoiceCharacteristics> = original.addFilter(filter)
 
     context(_: DestinationChoiceCharacteristics, random: Random)
     override fun selectInjected(

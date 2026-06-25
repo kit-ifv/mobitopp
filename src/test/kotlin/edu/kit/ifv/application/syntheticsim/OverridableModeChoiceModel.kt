@@ -26,11 +26,11 @@ class OverridableModeChoiceModel(val original: UtilityBasedChoiceModel<Mode, Mod
         "Not yet implemented",
     )
 
-    override fun addFilter(
-        filter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
-    ): FilteredChoiceModel<Mode, ModeChoiceCharacteristics> = original.addFilter(
-        filter,
-    )
+//    override fun addFilter(
+//        filter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
+//    ): FilteredChoiceModel<Mode, ModeChoiceCharacteristics> = original.addFilter(
+//        filter,
+//    )
 
     context(_: ModeChoiceCharacteristics, random: Random)
     override fun selectInjected(choices: Set<Mode>, injections: Map<Mode, (Double) -> Double>): Mode =

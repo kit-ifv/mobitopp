@@ -128,7 +128,7 @@ private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path
 fun HasMutableImpedance.loadTeleportation() = modelStep(
     "create Teleportation impedance for Transport",
 ) {
-    this.impedance = Teleportation()
+    this.impedance = TODO() // Teleportation()
 }
 
 class Teleportation : Impedance {

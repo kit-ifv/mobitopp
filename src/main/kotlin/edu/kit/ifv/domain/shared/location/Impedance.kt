@@ -26,3 +26,9 @@ interface Impedance {
 
     fun durationMetric(mode: Mode, time: Time): DurationMetric
 }
+
+interface IndexAddressableImpedance: Impedance {
+    fun costIndexed(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): Double
+    fun distanceIndexed(fromIndex: Int, toIndex: Int, mode: Mode): Double
+    fun durationIndexed(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): Double
+}

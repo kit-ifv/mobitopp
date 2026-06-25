@@ -6,4 +6,5 @@ import edu.kit.ifv.domain.shared.location.zone.ZoneId
  */
 class ConstantZoneIdMatrix(val value: Double) : ZoneIdMatrix {
     override fun get(row: ZoneId, column: ZoneId): Double = value
+    override fun getIndexed(rowIndex: Int, columnIndex: Int): Double = value
 }

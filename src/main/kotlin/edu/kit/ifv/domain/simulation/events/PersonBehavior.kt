@@ -4,7 +4,7 @@ import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.datastructure.schedule.LinkTrip
 import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import edu.kit.ifv.domain.shared.enums.Mode
-import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.IndexAddressableImpedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.simulation.agent.PersonAgent
 import edu.kit.ifv.domain.simulation.behavior.BikeSharingConnectionSelector
@@ -69,7 +69,7 @@ data class PersonBehavior constructor(
     val destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     val modes: ChoiceModelModes,
-    val impedance: Impedance,
+    val impedance: IndexAddressableImpedance,
     val attractivityModel: AttractivenessModel,
     val availabilityModel: ModeAvailabilityModel,
     val bikeSharingConnectionSelector: BikeSharingConnectionSelector,
@@ -81,7 +81,7 @@ data class PersonBehavior constructor(
     companion object {
         @Suppress("LongParameterList")
         fun from(
-            impedance: Impedance,
+            impedance: IndexAddressableImpedance,
             destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
             modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
             choiceModelModes: ChoiceModelModes,

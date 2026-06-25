@@ -6,6 +6,7 @@ import edu.kit.ifv.domain.shared.location.CostMetric
 import edu.kit.ifv.domain.shared.location.DistanceMetric
 import edu.kit.ifv.domain.shared.location.DurationMetric
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.IndexAddressableImpedance
 import edu.kit.ifv.domain.shared.location.LocationMetric
 import edu.kit.ifv.domain.shared.location.zone.Zone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
@@ -38,7 +39,7 @@ class ControllableImpedance(
     var standardCost: Currency = 1.euros,
     var standardTime: Duration = 10.minutes,
     var standardDistance: Distance = 1.kilometers,
-) : Impedance {
+) : IndexAddressableImpedance {
 
     private val currencyMap: MutableMap<Mode, RangeMap<Time, Currency>> =
         mutableMapOf()
@@ -173,6 +174,32 @@ class ControllableImpedance(
                 setTime(mode, origin, destination, rng(travelTimes).minutes)
             }
         }
+    }
+
+    override fun costIndexed(
+        fromIndex: Int,
+        toIndex: Int,
+        mode: Mode,
+        time: Time,
+    ): Double {
+        TODO("Not yet implemented")
+    }
+
+    override fun distanceIndexed(
+        fromIndex: Int,
+        toIndex: Int,
+        mode: Mode,
+    ): Double {
+        TODO("Not yet implemented")
+    }
+
+    override fun durationIndexed(
+        fromIndex: Int,
+        toIndex: Int,
+        mode: Mode,
+        time: Time,
+    ): Double {
+        TODO("Not yet implemented")
     }
 }
 
