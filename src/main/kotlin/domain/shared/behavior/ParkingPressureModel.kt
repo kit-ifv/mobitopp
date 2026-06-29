@@ -5,10 +5,22 @@ import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import kotlin.math.abs
 
+/**
+ * Interface to provide a calculation function for parking pressure in a model.
+ */
 interface ParkingPressureModel {
+
+    /**
+     * Calculates the parking pressure for a specific [ZoneId] as [Double].
+     * @param zoneId id of zone to calculate for
+     * @return the calculated parking pressure
+     */
     fun calculate(zoneId: ZoneId): Double
 }
 
+/**
+ * A [ParkingPressureModel] which calculates with an [AttractivenessModel].
+ */
 class ParkingPressureByAttractiveness(
     private val work: ActivityType,
     private val privateVisit: ActivityType,
