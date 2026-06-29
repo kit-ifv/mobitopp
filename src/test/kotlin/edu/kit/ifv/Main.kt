@@ -127,7 +127,7 @@ class MyContext :
         MapRepository("DrtProviderAgents")
     override lateinit var modeAvailability: AvailabilityModelWithSharing
     override val choiceModelModes: ChoiceModelModes = exampleChoiceModelModes
-    override val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics> = legacyModeChoice
+    override val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics> = context(impedance) { legacyModeChoice } // TODO: Load later
     override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
     override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =
         StandardModeImplementation
@@ -302,9 +302,7 @@ fun main(args: Array<String>) {
 
         loadAvailabilityModel()
 
-        loadDestinationChoiceModel(
-            legacyDestinationChoice
-        )
+        loadDestinationChoiceModel()
 
         buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines
             personStateMachine(),

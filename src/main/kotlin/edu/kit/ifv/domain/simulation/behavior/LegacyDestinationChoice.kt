@@ -1,10 +1,12 @@
 @file:Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
 
 package edu.kit.ifv.domain.simulation.behavior
+import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.person.Employment
+import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasZoneId
 import edu.kit.ifv.domain.simulation.behavior.with
@@ -141,15 +143,20 @@ val DestinationChoiceCharacteristics.carsPerAdult: Double get() = householdCars 
 // Trip properties
 val DestinationChoiceCharacteristics.purpose: ActivityType
     get() = person.schedule.activities().first().type
+
+context(attractivenessModel: AttractivenessModel)
 val DestinationAlternative.attractivity: Double
     get() =
-        attractivityModel.attractivenessFor(
+        attractivenessModel.attractivenessFor(
             choice.zoneId,
             purpose,
         ).value
+
+context(impedance: Impedance)
 val DestinationAlternative.distance: Distance get() = impedance.distance(origin, choice, LegacyMode.CAR)
 val DestinationAlternative.isIntrazonal: Double get() = (origin.zoneId == choice.zoneId).D
 
+context(impedance: Impedance)
 val DestinationAlternative.travelTimePed: Duration
     get() = impedance.duration(
         origin,
@@ -157,7 +164,10 @@ val DestinationAlternative.travelTimePed: Duration
         LegacyMode.PEDESTRIAN,
         time,
     )
+
+context(impedance: Impedance)
 val DestinationAlternative.travelTimeBike: Duration get() = impedance.duration(origin, choice, LegacyMode.BIKE, time)
+context(impedance: Impedance)
 val DestinationAlternative.travelTimePut: Duration
     get() = impedance.duration(
         origin,
@@ -165,7 +175,9 @@ val DestinationAlternative.travelTimePut: Duration
         LegacyMode.PUBLICTRANSPORT,
         time,
     )
+context(impedance: Impedance)
 val DestinationAlternative.travelTimeCar: Duration get() = impedance.duration(origin, choice, LegacyMode.CAR, time)
+context(impedance: Impedance)
 val DestinationAlternative.travelCostPut: Currency
     get() = impedance.cost(
         origin,
@@ -173,6 +185,8 @@ val DestinationAlternative.travelCostPut: Currency
         LegacyMode.PUBLICTRANSPORT,
         time,
     )
+context(impedance: Impedance)
+
 val DestinationAlternative.travelCostCar: Currency get() = impedance.cost(origin, choice, LegacyMode.CAR, time)
 
 // Next fixed destination properties
@@ -183,6 +197,7 @@ val DestinationChoiceCharacteristics.nextFixedDestination: HasZoneId
 val DestinationChoiceCharacteristics.nextFixedActivityEnd get() = nextFixedActivity?.endTime ?: time.plus(7.hours)
 
 // TODO get next fixed!
+context(impedance: Impedance)
 val DestinationAlternative.travelTimeFixedPed: Duration
     get() = impedance.duration(
         choice,
@@ -190,6 +205,7 @@ val DestinationAlternative.travelTimeFixedPed: Duration
         LegacyMode.PEDESTRIAN,
         nextFixedActivityEnd,
     )
+context(impedance: Impedance)
 val DestinationAlternative.travelTimeFixedBike: Duration
     get() = impedance.duration(
         choice,
@@ -197,6 +213,7 @@ val DestinationAlternative.travelTimeFixedBike: Duration
         LegacyMode.BIKE,
         nextFixedActivityEnd,
     )
+context(impedance: Impedance)
 val DestinationAlternative.travelTimeFixedPut: Duration
     get() = impedance.duration(
         choice,
@@ -204,6 +221,8 @@ val DestinationAlternative.travelTimeFixedPut: Duration
         LegacyMode.PUBLICTRANSPORT,
         nextFixedActivityEnd,
     )
+context(impedance: Impedance)
+
 val DestinationAlternative.travelTimeFixedCar: Duration
     get() = impedance.duration(
         choice,
@@ -211,6 +230,7 @@ val DestinationAlternative.travelTimeFixedCar: Duration
         LegacyMode.CAR,
         nextFixedActivityEnd,
     )
+context(impedance: Impedance)
 val DestinationAlternative.travelCostFixedPut: Currency
     get() = impedance.cost(
         choice,
@@ -218,6 +238,7 @@ val DestinationAlternative.travelCostFixedPut: Currency
         LegacyMode.PUBLICTRANSPORT,
         nextFixedActivityEnd,
     )
+context(impedance: Impedance)
 val DestinationAlternative.travelCostFixedBikesharing: Currency
     get() = impedance.cost(
         choice,
@@ -225,6 +246,7 @@ val DestinationAlternative.travelCostFixedBikesharing: Currency
         LegacyMode.BIKESHARING,
         nextFixedActivityEnd,
     )
+context(impedance: Impedance)
 val DestinationAlternative.travelCostFixedCar: Currency
     get() = impedance.cost(
         choice,
@@ -234,13 +256,20 @@ val DestinationAlternative.travelCostFixedCar: Currency
     )
 
 // availability properties
-fun DestinationAlternative.isAvailable(mode: Mode) = modeAvailabilityFilter.filter(mode)
+context(modeAvailability: ModeAvailabilityModel)
+fun DestinationAlternative.isAvailable(mode: Mode) = modeAvailability.asProviderAvailabilityFilter().filter(mode)
 
+context(modeAvailability: ModeAvailabilityModel)
 val DestinationAlternative.isPedAvailable get() = isAvailable(LegacyMode.PEDESTRIAN)
+context(modeAvailability: ModeAvailabilityModel)
 val DestinationAlternative.isBikeAvailable get() = isAvailable(LegacyMode.BIKE)
+context(modeAvailability: ModeAvailabilityModel)
 val DestinationAlternative.isCarAvailable get() = isAvailable(LegacyMode.CAR)
+context(modeAvailability: ModeAvailabilityModel)
 val DestinationAlternative.isPassengerAvailable get() = isAvailable(LegacyMode.PASSENGER)
+context(modeAvailability: ModeAvailabilityModel)
 val DestinationAlternative.isPutAvailable get() = isAvailable(LegacyMode.PUBLICTRANSPORT)
+context(modeAvailability: ModeAvailabilityModel)
 val DestinationAlternative.isBikesharingAvailable get() = isAvailable(LegacyMode.BIKESHARING)
 
 val studentTypes = listOf(
@@ -260,8 +289,10 @@ inline operator fun Boolean.plus(number: Number) = this.D + number.toDouble()
 
 @Deprecated("Dont use")
 @Suppress("MagicNumber")
-val legacyDestinationChoiceBuilder =
-    RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics<C>, DestinationChoiceParameters> {
+context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
+val legacyDestinationChoiceBuilder
+    get() =
+    RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
         ruleForAll { destination, tripchoice ->
             val it = tripchoice.with(destination)
 
@@ -428,6 +459,8 @@ val legacyDestinationChoiceBuilder =
         }
     }.openMultinomialLogit("LegacyDestinationChoiceModel")
 
-val legacyDestinationChoice = legacyDestinationChoiceBuilder.build(
+context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
+val legacyDestinationChoice
+get() = legacyDestinationChoiceBuilder.build(
     parameters = DestinationChoiceParameters(),
 )

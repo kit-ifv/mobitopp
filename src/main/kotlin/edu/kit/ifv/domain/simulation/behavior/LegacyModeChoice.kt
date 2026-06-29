@@ -5,6 +5,7 @@ import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.enums.person.Sex
+import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
@@ -107,11 +108,15 @@ val ModeChoiceCharacteristics.isAgeIn50To59: Double get() = (age in 50..59).D
 val ModeChoiceCharacteristics.isAgeIn60To69: Double get() = (age in 60..69).D
 val ModeChoiceCharacteristics.isAgeIn70Plus: Double get() = (age in 70..100).D
 val ModeChoiceCharacteristics.isEcoStatusHigh: Double get() = (ecoStatus in 4..5).D
+context(impedance: Impedance)
 fun ModeChoiceCharacteristics.travelTime(mode: Mode): Duration = impedance.duration(origin, destination, mode, time)
+context(impedance: Impedance)
 fun ModeChoiceCharacteristics.travelCost(mode: Mode): Currency = impedance.cost(origin, destination, mode, time)
 
 @Suppress("MagicNumber")
-val legacyModeChoiceBuilder = DiscreteStructure<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> {
+context(impedance: Impedance)
+val legacyModeChoiceBuilder
+get() = DiscreteStructure<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> {
     option(LegacyMode.PEDESTRIAN) { mode, characteristics ->
         asc_ped +
             age_0_17_on_asc_ped * characteristics.isAgeIn0To17 +
@@ -212,6 +217,8 @@ val legacyModeChoiceBuilder = DiscreteStructure<Mode, ModeChoiceCharacteristics,
     name = "LegacyModeChoiceModel",
 )
 
-val legacyModeChoice = legacyModeChoiceBuilder.build(
+context(impedance: Impedance)
+val legacyModeChoice
+get() = legacyModeChoiceBuilder.build(
     parameters = ModeChoiceParameters(),
 )
