@@ -16,10 +16,8 @@ import edu.kit.ifv.domain.shared.location.road.LocatableGraph
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderMessage
 import edu.kit.ifv.domain.simulation.agent.PersonMessage
-import edu.kit.ifv.domain.simulation.behavior.BikeSharingConnectionSelector
+import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.DrtAvailabilitySelector
-import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.data.drt.DrtProviderId
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
@@ -249,24 +247,24 @@ interface HasDestinationChoiceModel : Context {
     val destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
 }
 
+interface HasMutableDestinationChoiceModel : Context {
+    var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
+}
+
 interface HasModeChoiceModel : Context {
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
 }
 
 interface HasChoiceModelModes : Context {
-    val modes: ChoiceModelModes
+    val choiceModelModes: ChoiceModelModes
 }
 
-interface HasModeAvailabilityModel : Context {
-    val modeAvailability: ModeAvailabilityModel
+interface HasMutableModeAvailabilityModel : Context {
+    var modeAvailability: AvailabilityModelWithSharing
 }
 
-interface HasBikeSharingConnectionSelector : Context {
-    val bikeSharingConnectionSelector: BikeSharingConnectionSelector
-}
-
-interface HasDrtAvailabilitySelector : Context {
-    val drtAvailabilitySelector: DrtAvailabilitySelector
+interface HasModeAvailabilityModel {
+    val modeAvailability: AvailabilityModelWithSharing
 }
 
 interface HasSpawnDestinationCharacteristics : Context {

@@ -16,6 +16,7 @@ import edu.kit.ifv.core.modelsteps.resources.MapRepository
 import edu.kit.ifv.core.modelsteps.resources.MutableRepository
 import edu.kit.ifv.core.modelsteps.steps.modelStep
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.car.CarSegment
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
@@ -24,17 +25,23 @@ import edu.kit.ifv.domain.shared.datastructure.matrix.ConstantZoneIdMatrix
 import edu.kit.ifv.domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import edu.kit.ifv.domain.shared.datastructure.matrix.MatrixImpedance
 import edu.kit.ifv.domain.shared.datastructure.matrix.ZoneMatrixCreation
+import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import edu.kit.ifv.domain.shared.enums.*
 import edu.kit.ifv.domain.shared.enums.areatype.RegioStaR17
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
 import edu.kit.ifv.domain.simulation.agent.PersonAgent
 import edu.kit.ifv.domain.simulation.agent.SharingProviderAgent
+import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
+import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoice
+import edu.kit.ifv.domain.simulation.behavior.legacyModeChoice
 import edu.kit.ifv.domain.simulation.data.car.MutablePrivateCar
 import edu.kit.ifv.domain.simulation.data.car.PrivateCar
 import edu.kit.ifv.domain.simulation.data.drt.DrtProvider
@@ -47,8 +54,13 @@ import edu.kit.ifv.domain.simulation.data.person.Person
 import edu.kit.ifv.domain.simulation.data.sharing.MutableSharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
+import edu.kit.ifv.domain.simulation.events.GenerateDestinationCharacteristics
+import edu.kit.ifv.domain.simulation.events.GenerateModeCharacteristics
+import edu.kit.ifv.domain.simulation.events.StandardDestinationImplementation
+import edu.kit.ifv.domain.simulation.events.StandardModeImplementation
 import edu.kit.ifv.domain.simulation.events.drtProviderStateMachine
 import edu.kit.ifv.domain.simulation.events.personStateMachine
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue
@@ -64,7 +76,6 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
-// TODO move from main to test
 val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
 val dataFolder = Path("src/test/resources/testDemand/demand-data/")
@@ -84,6 +95,13 @@ class MyContext :
     HasSharingProviderAgentRepo<SharingProviderAgent, SharingProviderAgent>,
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
+    HasMutableModeAvailabilityModel,
+    HasChoiceModelModes,
+    HasModeChoiceModel,
+    HasReplanningStrategy,
+    HasSpawnModeCharacteristics,
+    HasSpawnDestinationCharacteristics,
+    HasMutableDestinationChoiceModel,
     HasModes // TODO discuss whether modes are context or config
 
 {
@@ -107,6 +125,15 @@ class MyContext :
         MapRepository("SharingProviderAgents")
     override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> =
         MapRepository("DrtProviderAgents")
+    override lateinit var modeAvailability: AvailabilityModelWithSharing
+    override val choiceModelModes: ChoiceModelModes = exampleChoiceModelModes
+    override val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics> = legacyModeChoice
+    override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
+    override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =
+        StandardModeImplementation
+    override val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics> =
+        StandardDestinationImplementation
+    override val replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT
 
     override fun clone(): MyContext = MyContext() // TODO doppelt zu context factory
 
@@ -273,13 +300,14 @@ fun main(args: Array<String>) {
             assignMainCarUsers()
         }
 
-        loadBehaviorModels(
-            legacyDestinationChoice,
-            exampleChoiceModelModes,
+        loadAvailabilityModel()
+
+        loadDestinationChoiceModel(
+            legacyDestinationChoice
         )
 
         buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines
-            personStateMachine, // TODO: Laden lassen
+            personStateMachine(),
             drtStateMachine = drtProviderStateMachine,
             drtAlgorithm = { _ ->
                 simpleDrtAlgorithm(

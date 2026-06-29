@@ -7,6 +7,7 @@ import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasZoneId
+import edu.kit.ifv.domain.simulation.behavior.with
 import edu.kit.ifv.domain.simulation.data.person.isAdult
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure
@@ -260,7 +261,7 @@ inline operator fun Boolean.plus(number: Number) = this.D + number.toDouble()
 @Deprecated("Dont use")
 @Suppress("MagicNumber")
 val legacyDestinationChoiceBuilder =
-    RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
+    RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics<C>, DestinationChoiceParameters> {
         ruleForAll { destination, tripchoice ->
             val it = tripchoice.with(destination)
 

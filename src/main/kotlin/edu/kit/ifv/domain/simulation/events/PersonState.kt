@@ -20,9 +20,9 @@ import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.simulation.agent.*
+import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.BikeSharingConnectionSelector
 import edu.kit.ifv.domain.simulation.behavior.DrtAvailabilitySelector
-import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.flatten
 import edu.kit.ifv.utils.concurrent.synchronizeAll
 import edu.kit.ifv.utils.units.AbsoluteTime
@@ -39,20 +39,7 @@ PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean
     val block: Representative<out LinkedAction>?
         get() = person.schedule.nextBlock()
 
-//    val behavior: PersonBehavior
-//        get() = person.behavior
-
-//    val modeAvailability: ModeAvailabilityModel
-//        get() = behavior.availabilityModel
-
     // TODO modes only necessary here until dispattch: mode > nested state machine can be defined outside of PersonStates
-
-//    val bikeSharingConnections: BikeSharingConnectionSelector
-//        get() = behavior.bikeSharingConnectionSelector
-//
-//    val operatingDrtProviders: DrtAvailabilitySelector
-//        get() = behavior.drtAvailabilitySelector
-
     val self: PersonAgent
         get() = agent
 
@@ -200,9 +187,9 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // - send self: finish drt trip
 
 fun <C> C.personStateMachine(): StateMachineFactory<PersonAgent>
-where C : HasImpedance, C : HasAttractivenessModel, C : HasDestinationChoiceModel, C : HasModeChoiceModel,
-      C : HasChoiceModelModes, C : HasModeAvailabilityModel, C : HasSpawnModeCharacteristics, C : HasSpawnDestinationCharacteristics,
-      C : HasReplanningStrategy, C : HasBikeSharingConnectionSelector, C : HasDrtAvailabilitySelector =
+where C : HasImpedance, C : HasAttractivenessModel, C : HasMutableDestinationChoiceModel, C : HasModeChoiceModel,
+      C : HasChoiceModelModes, C : HasMutableModeAvailabilityModel, C : HasSpawnModeCharacteristics, C : HasSpawnDestinationCharacteristics,
+      C : HasReplanningStrategy =
     stateMachine<PersonAgent>("PersonsStateMachine") {
         start(StartPerson, ::startPerson) { send ->
             val target = person.schedule.activities().first()
@@ -244,12 +231,12 @@ where C : HasImpedance, C : HasAttractivenessModel, C : HasDestinationChoiceMode
                 trip.elements.forEach { it.transportType = MODEUNKOWN }
             }
         }.next { send ->
-            context(modes, drtAvailabilitySelector) {
+            context(choiceModelModes, modeAvailability) {
                 // mode choice
 
                 // TODO add version of ModeAvailabilityFilter with fixed global choice set
                 val (choices, sharedResources) = context(person, time, destination) {
-                    modes.options.map { modeAvailability.providerAvailability(it) }
+                    choiceModelModes.options.map { modeAvailability.providerAvailability(it) }
                 }.flatten()
 
                 synchronizeAll(sharedResources.distinct().toSet()) {
@@ -265,7 +252,9 @@ where C : HasImpedance, C : HasAttractivenessModel, C : HasDestinationChoiceMode
 
                         val modeResult = context(modeSituation, person.random) {
                             val mcAvail = choices.filter {
-                                modeAvailability.resourceAvailability(it)
+                                context(impedance) {
+                                    modeAvailability.resourceAvailability(it)
+                                }
                             }
                             modeChoice.select(mcAvail.toSet())
                         }
@@ -280,11 +269,11 @@ where C : HasImpedance, C : HasAttractivenessModel, C : HasDestinationChoiceMode
 
                     // TODO after leg action is temporary hack until nested state machine is possible
                     val noAction = AfterLegAction { a, t -> Unit }
-                    context(impedance, replanningStrategy, bikeSharingConnectionSelector, modeAvailability) {
+                    context(impedance, replanningStrategy, modeAvailability) {
                         when (mode) {
-                            modes.car -> startingCarTrip()
-                            modes.bikeSharing -> startingBikeSharingTrip()
-                            modes.ridePooling -> startingRidePoolingTrip(drtRide!!)
+                            choiceModelModes.car -> startingCarTrip()
+                            choiceModelModes.bikeSharing -> startingBikeSharingTrip()
+                            choiceModelModes.ridePooling -> startingRidePoolingTrip(drtRide!!)
                             else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
                         }
                     }
@@ -406,10 +395,10 @@ context(
     impedance: Impedance,
     replanningStrategy: ReplanningStrategy,
     modes: ChoiceModelModes,
-    modeAvailability: ModeAvailabilityModel
+    modeAvailability: AvailabilityModelWithSharing
 )
 fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
-    val maybeBikesharing = bikeSharingConnections.findConnection(person, destination)
+    val maybeBikesharing = modeAvailability.findConnection(person, destination)
 
     if (maybeBikesharing == null) {
         println("NOOO")
