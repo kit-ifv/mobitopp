@@ -1,7 +1,7 @@
 
-import utils.INDENT
-import utils.inline
-import utils.invoke
+import edu.kit.ifv.utils.INDENT
+import edu.kit.ifv.utils.inline
+import edu.kit.ifv.utils.invoke
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

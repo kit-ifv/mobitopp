@@ -1,49 +1,48 @@
 [versions]
-kotlin = "2.2.0"
-ksp = "2.2.0-2.0.2"
-kotlinpoet = "2.2.0"
+kotlin = "2.3.0"
+ksp = "2.3.9"
+kotlinpoet = "2.3.0"
 kotlin-compile-testing-ksp = "1.6.0"
-detekt = "1.23.8"
-junit = "5.13.2"
-kover = "0.9.1"
-kandy = "0.8.3"
-shadowjar = "8.1.1"
+detekt = "2.0.0-alpha.3"
+junit = "6.1.0"
+kover = "0.9.8"
+kandy = "0.8.0"
+shadowjar = "9.4.1"
 # kotlinx libs
-kotlinx-coroutines = "1.10.2"
-kotlinx-serialization = "1.9.0"
+kotlinx-coroutines = "1.11.0"
+kotlinx-serialization = "1.11.0"
 kotlinx-html = "0.12.0"
-kotlin-statistics = "0.8.3"
+kotlin-statistics = "0.8.4"
 # other libs
-jackson = "2.21.2"
+jackson = "2.21.3"
 commons-compress = "1.28.0"
-xz = "1.10"
-progressbar = "0.10.1"
+xz = "1.12"
+progressbar = "0.10.2"
 exp4j = "0.4.8"
-fast-utils = "8.5.16"
-fast-csv = "4.1.0"
+fast-utils = "8.5.18"
+fast-csv = "4.3.0"
 # ifv units
-ifv-units= "1.0.2"
-ifv-visum-netparser = "0.11.6"
-ifv-actitopp-NG = "0.10.5"
-ifv-discrete-choice = "0.1.2"
-ifv-synthesis-algorithms = "0.0.13"
+ifv-units= "1.0.0"
+ifv-visum-netparser = "1.0.0"
+ifv-actitopp-NG = "1.0.0"
+ifv-discrete-choice = "1.1.0"
+ifv-synthesis-algorithms = "1.0.0"
 #scala
 scala-lang = "3.8.3"
-
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
-shadowjar = { id = "com.github.johnrengelman.shadow", version.ref = "shadowjar"}
+shadowjar = { id = "com.gradleup.shadow", version.ref = "shadowjar"}
 
 
 [libraries]
 # ifv libs
 ifv-units = { module = "edu.kit.ifv.mobitopp:kotlin-units", version.ref = "ifv-units" }
-ifv-visum-netparser = { module = "edu.kit.ifv.mobitopp:visumnetfileparser", version.ref = "ifv-visum-netparser" }
+ifv-visum-netparser = { module = "edu.kit.ifv.mobitopp:mobiToppIO", version.ref = "ifv-visum-netparser" }
 ifv-actitoppNG = { module = "edu.kit.ifv.mobitopp:actitoppNG", version.ref = "ifv-actitopp-NG" }
 ifv-synthesisAlgorithms = { module = "edu.kit.ifv.mobitopp:synthesisalgorithms", version.ref = "ifv-synthesis-algorithms" }
 ifv-discrete-choice = {module = "edu.kit.ifv.mobitopp:discrete-choice", version.ref = "ifv-discrete-choice"}
@@ -63,10 +62,10 @@ kandy-util = { module = "org.jetbrains.kotlinx:kandy-util", version.ref = "kandy
 kandy-api = { module = "org.jetbrains.kotlinx:kandy-api", version.ref = "kandy" }
 
 # detekt libs
-detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
-detekt-cli = { module = "io.gitlab.arturbosch.detekt:detekt-cli", version.ref = "detekt" }
-detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
-detekt-rules = { module = "io.gitlab.arturbosch.detekt:detekt-rules", version.ref = "detekt" }
+detekt-formatting = { module = "dev.detekt:detekt-rules-ktlint-wrapper", version.ref = "detekt" }
+detekt-cli = { module = "dev.detekt:detekt-cli", version.ref = "detekt" }
+detekt-api = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
+detekt-rules = { module = "dev.detekt:detekt-rules", version.ref = "detekt" }
 
 
 # kotlinx libs
@@ -74,7 +73,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlin-statistics = { module = "org.jetbrains.kotlinx:kotlin-statistics-jvm", version.ref = "kotlin-statistics" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
-kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinx-serialization" }
+#kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinx-serialization" }
 kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinx-html" }
 
 # other libs
