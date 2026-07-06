@@ -1,6 +1,5 @@
 package edu.kit.ifv.application.scenarios
 import edu.kit.ifv.application.syntheticsim.ControllableImpedance
-import edu.kit.ifv.application.syntheticsim.testAttractivenessModel
 import edu.kit.ifv.core.events.ParallelSimulator
 import edu.kit.ifv.core.modelsteps.resources.asResource
 import edu.kit.ifv.core.statemachine.usage.RecordingStateMachine
@@ -15,9 +14,6 @@ import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.currentlyAffectedProviders
 import edu.kit.ifv.domain.simulation.data.sharing.MutableSharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
-import edu.kit.ifv.domain.simulation.events.StandardDestinationImplementation
-import edu.kit.ifv.domain.simulation.events.StandardModeImplementation
 import edu.kit.ifv.domain.simulation.events.personStateMachine
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
@@ -65,56 +61,48 @@ class RidesharingOnlyScenario {
             legacyChoiceModelModes,
             mapOf(bikeSharing to setOf(provider.id)),
             mapOf(),
-            impedance,
         )
-
-        val syntheticBehavior = PersonBehavior(
-            destinationChoice = RandomChoiceModel(
-                "random destination",
-                zones.map { it.centroidLocation }.toSet(),
-            ),
-            modeChoice = FixedOrderChoiceModel(
-                "prefer ridesharing",
-                setOf(bikeSharing, pedestrian),
-                availability.asResourceAvailabilityFilter(),
-            ),
-            modes = legacyChoiceModelModes,
-            impedance = impedance,
-            attractivityModel = testAttractivenessModel,
-            availabilityModel = availability,
-            bikeSharingConnectionSelector = availability,
-            drtAvailabilitySelector = availability,
-            spawnDestinationCharacteristics = StandardDestinationImplementation,
-            spawnModeCharacteristics = StandardModeImplementation,
-        )
-
-        val builder = BuildAgents(
-            seed = 1L,
-            personStateMachine.withRecording(),
-            syntheticBehavior,
-        )
-        val agents = builder.buildPersonAgents(households)
-
-        agents.forEach { person ->
-            val dest = zones.first { it.id != person.location.zoneId }
-            val sharedResources =
-                context(person, AbsoluteTime.START, dest.centroidLocation) {
-                    availability.currentlyAffectedProviders(legacyChoiceModelModes.options)
-                }
-            assertTrue(
-                sharedResources.any { it is SharingStationAgent },
-                "No sharing station available for person $person, from: ${person.location}, to: $dest",
+        context(impedance) {
+            val context = ScenarioContext(
+                scenarioName = "RidesharingOnlyScenario",
+                destinationChoiceModel = RandomChoiceModel(
+                    "random destination",
+                    zones.map { it.centroidLocation }.toSet(),
+                ),
+                modeChoice = FixedOrderChoiceModel(
+                    "prefer ridesharing",
+                    setOf(bikeSharing, pedestrian),
+                    availability.asResourceAvailabilityFilter(),
+                ),
+                modeAvailability = availability,
             )
+            val builder = BuildAgents(
+                seed = 1L,
+                context.personStateMachine().withRecording(),
+            )
+            val agents = builder.buildPersonAgents(households)
+
+            agents.forEach { person ->
+                val dest = zones.first { it.id != person.location.zoneId }
+                val sharedResources =
+                    context(person, AbsoluteTime.START, dest.centroidLocation) {
+                        availability.currentlyAffectedProviders(legacyChoiceModelModes.options)
+                    }
+                assertTrue(
+                    sharedResources.any { it is SharingStationAgent },
+                    "No sharing station available for person $person, from: ${person.location}, to: $dest",
+                )
+            }
+
+            val sim = ParallelSimulator(timeStep = 1.minutes) // TODO test again with parallel sim
+            val resource = agents.asResource("EO", "none")
+            val testAgents = resource.elements.toList()
+            sim.addAgents(testAgents)
+            sim.run(0.days.sinceStart, 7.days.sinceStart)
+
+            RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
+            RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(agents.toList()[0])
+            RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(agents.toList()[0])
         }
-
-        val sim = ParallelSimulator(timeStep = 1.minutes) // TODO test again with parallel sim
-        val resource = agents.asResource("EO", "none")
-        val testAgents = resource.elements.toList()
-        sim.addAgents(testAgents)
-        sim.run(0.days.sinceStart, 7.days.sinceStart)
-
-        RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
-        RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(agents.toList()[0])
-        RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(agents.toList()[0])
     }
 }

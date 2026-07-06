@@ -31,19 +31,18 @@ interface DestinationChoiceCharacteristics {
         operator fun invoke(
             person: PersonAgent,
             time: AbsoluteTime,
-            origin: StandardLocation
-        ) : DestinationChoiceCharacteristics = DestinationChoiceCharacteristicsImpl(
+            origin: StandardLocation,
+        ): DestinationChoiceCharacteristics = DestinationChoiceCharacteristicsImpl(
             person,
             time,
-            origin
+            origin,
         )
     }
 }
 
-fun DestinationChoiceCharacteristics.with(choice: StandardLocation)
-        = DestinationAlternative(this, choice)
+fun DestinationChoiceCharacteristics.with(choice: StandardLocation) = DestinationAlternative(this, choice)
 
-data class DestinationChoiceCharacteristicsImpl (
+data class DestinationChoiceCharacteristicsImpl(
     override val person: PersonAgent,
     override val time: AbsoluteTime,
     override val origin: StandardLocation,
@@ -53,12 +52,8 @@ data class DestinationChoiceCharacteristicsImpl (
         get() = person.random
 }
 
-
-
-data class DestinationAlternative(
-    val original: DestinationChoiceCharacteristics,
-    val choice: StandardLocation
-) : DestinationChoiceCharacteristics by original
+data class DestinationAlternative(val original: DestinationChoiceCharacteristics, val choice: StandardLocation) :
+    DestinationChoiceCharacteristics by original
 
 /**
  * Provide an interface, that way projects can actually implement additional conditions onto the characteristics.
@@ -170,7 +165,11 @@ interface ModeAvailabilityModel {
     }
 
     fun asProviderAvailabilityFilter() = ChoiceFilter<Mode, DestinationAlternative> { alternative ->
-        context(contextOf<DestinationAlternative>().person, contextOf<DestinationAlternative>().time, contextOf<DestinationAlternative>().choice) {
+        context(
+            contextOf<DestinationAlternative>().person,
+            contextOf<DestinationAlternative>().time,
+            contextOf<DestinationAlternative>().choice,
+        ) {
             providerAvailability(alternative).isAvailable
         }
     }

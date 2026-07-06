@@ -80,8 +80,7 @@ fun <C> C.buildSimulationAgents(
           C : HasDrtProviderRepo<*, DrtProvider>,
           C : HasPersonAgentRepo<PersonAgent, *>,
           C : HasSharingProviderAgentRepo<SharingProviderAgent, *>,
-          C : HasDrtProviderAgentRepo<DrtProviderAgent, *>
-{
+          C : HasDrtProviderAgentRepo<DrtProviderAgent, *> {
     val builder by lazy {
         BuildAgents(
             seed = config.seed,

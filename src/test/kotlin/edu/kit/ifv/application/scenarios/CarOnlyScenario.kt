@@ -1,7 +1,6 @@
 package edu.kit.ifv.application.scenarios
 import HouseholdSpawnLimits
 import edu.kit.ifv.application.syntheticsim.ControllableImpedance
-import edu.kit.ifv.application.syntheticsim.testAttractivenessModel
 import edu.kit.ifv.core.events.ParallelSimulator
 import edu.kit.ifv.core.modelsteps.resources.asResource
 import edu.kit.ifv.core.statemachine.usage.RecordingStateMachine
@@ -10,12 +9,12 @@ import edu.kit.ifv.core.statemachine.usage.renderAsPumlStateCharts
 import edu.kit.ifv.core.statemachine.usage.renderAsPumlTimingDiagram
 import edu.kit.ifv.core.statemachine.usage.withRecording
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
+import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.simulation.agent.BuildAgents
 import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
-import edu.kit.ifv.domain.simulation.events.StandardDestinationImplementation
-import edu.kit.ifv.domain.simulation.events.StandardModeImplementation
+import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.events.personStateMachine
+import edu.kit.ifv.integration.TestContext
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import edu.kit.ifv.utils.units.sinceStart
@@ -32,6 +31,7 @@ class CarOnlyScenario {
     @RepeatedTest(value = 10, name = RepeatedTest.LONG_DISPLAY_NAME)
     fun runSyntheticTest() {
         val random = Random(1)
+        val context = TestContext()
 
         val legacyModes = legacyChoiceModelModes
         val zones = generateZones(2)
@@ -53,47 +53,44 @@ class CarOnlyScenario {
             legacyModes,
             mapOf(),
             mapOf(),
-            impedance,
         )
 
         val car = legacyModes.car
 
-        val syntheticBehavior = PersonBehavior(
-            destinationChoice = RandomChoiceModel(
+        context(impedance) {
+            val destinationChoice = RandomChoiceModel<StandardLocation, DestinationChoiceCharacteristics>(
                 "random destination",
                 zones.map { it.centroidLocation }.toSet(),
-            ),
-            impedance = impedance,
-            modeChoice = FixedOrderChoiceModel(
+            )
+            val modeChoice = FixedOrderChoiceModel(
                 "prefer car",
                 setOf(car, legacyModes.pedestrian),
                 availability.asResourceAvailabilityFilter(),
-            ),
-            modes = legacyChoiceModelModes,
-            attractivityModel = testAttractivenessModel,
-            availabilityModel = availability,
-            bikeSharingConnectionSelector = availability,
-            drtAvailabilitySelector = availability,
-            spawnDestinationCharacteristics = StandardDestinationImplementation,
-            spawnModeCharacteristics = StandardModeImplementation,
+            )
 
-        )
+            val context = ScenarioContext(
+                scenarioName = "carOnlyScenario",
+                destinationChoiceModel = destinationChoice,
+                modeChoice = modeChoice,
+                modeAvailability = availability,
+            )
 
-        val agents = BuildAgents(
-            seed = 1L,
-            personStateMachine.withRecording()
-        ).buildPersonAgents(households)
+            val agents = BuildAgents(
+                seed = 1L,
+                context.personStateMachine().withRecording(),
+            ).buildPersonAgents(households)
 
-        RecordingStateMachine.recordInteractions()
+            RecordingStateMachine.recordInteractions()
 
-        val sim = ParallelSimulator(timeStep = 1.minutes)
-        val resource = agents.asResource("EO", "none")
-        val testAgents = resource.elements.toList()
-        sim.addAgents(testAgents)
-        sim.run(0.days.sinceStart, 7.days.sinceStart)
+            val sim = ParallelSimulator(timeStep = 1.minutes)
+            val resource = agents.asResource("EO", "none")
+            val testAgents = resource.elements.toList()
+            sim.addAgents(testAgents)
+            sim.run(0.days.sinceStart, 7.days.sinceStart)
 
-        RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
-        RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(testAgents[0])
-        RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(testAgents[0])
+            RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
+            RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(testAgents[0])
+            RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(testAgents[0])
+        }
     }
 }

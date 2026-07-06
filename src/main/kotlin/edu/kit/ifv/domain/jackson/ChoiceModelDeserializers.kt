@@ -1,10 +1,13 @@
 package edu.kit.ifv.domain.jackson
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.type.TypeFactory
+import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.Mode
+import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceParameters
+import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceParameters
 import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoiceBuilder
@@ -28,7 +31,20 @@ fun getDestinationChoiceModelType(): JavaType = TypeFactory.defaultInstance().co
 
 val DestinationChoiceModule = GenericKeyValueBuilder(
     getDestinationChoiceModelType(),
-    mapOf("legacyDestinationChoiceModel" to legacyDestinationChoiceBuilder.build(DestinationChoiceParameters())),
+    mapOf(
+        "legacyDestinationChoiceModel" to
+            {
+                    impedance: Impedance,
+                    attractivenessModel: AttractivenessModel,
+                    availabilityModel: ModeAvailabilityModel,
+                ->
+                context(
+                    impedance,
+                    attractivenessModel,
+                    availabilityModel,
+                ) { legacyDestinationChoiceBuilder.build(DestinationChoiceParameters()) }
+            },
+    ),
     loadFromSubmodules = true,
 ).getModule()
 
@@ -47,6 +63,12 @@ fun getModeChoiceModelType(): JavaType = TypeFactory.defaultInstance().construct
 
 val ModeChoiceModule = GenericKeyValueBuilder(
     getModeChoiceModelType(),
-    mapOf("legacyModeChoiceModel" to legacyModeChoiceBuilder.build(ModeChoiceParameters())),
+    mapOf(
+        "legacyModeChoiceModel" to { impedance: Impedance ->
+            context(impedance) {
+                legacyModeChoiceBuilder.build(ModeChoiceParameters())
+            }
+        },
+    ),
     loadFromSubmodules = true,
 ).getModule()

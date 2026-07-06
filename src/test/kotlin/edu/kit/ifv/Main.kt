@@ -4,14 +4,77 @@ package edu.kit.ifv
 
 import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.CoreCSVConfig
-import edu.kit.ifv.application.steps.*
-import edu.kit.ifv.application.steps.model.*
-import edu.kit.ifv.application.steps.parser.csv.*
+import edu.kit.ifv.application.steps.ActivityTypesConfig
+import edu.kit.ifv.application.steps.AttractivenessFileConfig
+import edu.kit.ifv.application.steps.CarCodesConfig
+import edu.kit.ifv.application.steps.DrtModesConfig
+import edu.kit.ifv.application.steps.DrtSourceFilesConfig
+import edu.kit.ifv.application.steps.HasCarRepo
+import edu.kit.ifv.application.steps.HasChoiceModelModes
+import edu.kit.ifv.application.steps.HasDrtProviderAgentRepo
+import edu.kit.ifv.application.steps.HasDrtProviderRepo
+import edu.kit.ifv.application.steps.HasHouseholdRepo
+import edu.kit.ifv.application.steps.HasModeChoiceModel
+import edu.kit.ifv.application.steps.HasModes
+import edu.kit.ifv.application.steps.HasMutableAttractivenessModel
+import edu.kit.ifv.application.steps.HasMutableDestinationChoiceModel
+import edu.kit.ifv.application.steps.HasMutableImpedance
+import edu.kit.ifv.application.steps.HasMutableModeAvailabilityModel
+import edu.kit.ifv.application.steps.HasPersonAgentRepo
+import edu.kit.ifv.application.steps.HasPersonRepo
+import edu.kit.ifv.application.steps.HasReplanningStrategy
+import edu.kit.ifv.application.steps.HasSharingProviderAgentRepo
+import edu.kit.ifv.application.steps.HasSharingProviderRepo
+import edu.kit.ifv.application.steps.HasSpawnDestinationCharacteristics
+import edu.kit.ifv.application.steps.HasSpawnModeCharacteristics
+import edu.kit.ifv.application.steps.HasZoneRepo
+import edu.kit.ifv.application.steps.HouseholdCodesConfig
+import edu.kit.ifv.application.steps.MatrixConfig
+import edu.kit.ifv.application.steps.PurposesConfig
+import edu.kit.ifv.application.steps.RegionCodesConfig
+import edu.kit.ifv.application.steps.ResultsConfig
+import edu.kit.ifv.application.steps.SharingModesConfig
+import edu.kit.ifv.application.steps.SharingSourceFilesConfig
+import edu.kit.ifv.application.steps.SimulationConfig
+import edu.kit.ifv.application.steps.SourceFilesConfig
+import edu.kit.ifv.application.steps.UnitConfig
+import edu.kit.ifv.application.steps.model.assignHouseholdLocation
+import edu.kit.ifv.application.steps.model.assignMainCarUsers
+import edu.kit.ifv.application.steps.model.buildSimulationAgents
+import edu.kit.ifv.application.steps.model.gaussianDurationRandomizer
+import edu.kit.ifv.application.steps.model.loadAvailabilityModel
+import edu.kit.ifv.application.steps.model.loadDestinationChoiceModel
+import edu.kit.ifv.application.steps.model.simpleDrtAlgorithm
+import edu.kit.ifv.application.steps.model.simulate
+import edu.kit.ifv.application.steps.parser.csv.carCsv
+import edu.kit.ifv.application.steps.parser.csv.cars
+import edu.kit.ifv.application.steps.parser.csv.filterFractionOfPopulation
+import edu.kit.ifv.application.steps.parser.csv.fixedDestinationCsv
+import edu.kit.ifv.application.steps.parser.csv.fixedDestinationCsvParser
+import edu.kit.ifv.application.steps.parser.csv.fixedDestinations
+import edu.kit.ifv.application.steps.parser.csv.householdCsv
+import edu.kit.ifv.application.steps.parser.csv.householdCsvParser
+import edu.kit.ifv.application.steps.parser.csv.households
+import edu.kit.ifv.application.steps.parser.csv.loadActivities
+import edu.kit.ifv.application.steps.parser.csv.loadAttractivenessModelFromCsv
+import edu.kit.ifv.application.steps.parser.csv.loadCars
+import edu.kit.ifv.application.steps.parser.csv.loadHouseholds
+import edu.kit.ifv.application.steps.parser.csv.loadPersons
+import edu.kit.ifv.application.steps.parser.csv.loadZones
+import edu.kit.ifv.application.steps.parser.csv.personCsv
+import edu.kit.ifv.application.steps.parser.csv.persons
+import edu.kit.ifv.application.steps.parser.csv.plannedActivities
+import edu.kit.ifv.application.steps.parser.csv.plannedActivityCsv
+import edu.kit.ifv.application.steps.parser.csv.zoneCsv
+import edu.kit.ifv.application.steps.parser.csv.zones
 import edu.kit.ifv.application.steps.parser.loadImpedance
 import edu.kit.ifv.application.steps.results.createHtmlReport
 import edu.kit.ifv.application.steps.results.writeTrips
-import edu.kit.ifv.core.modelsteps.*
 import edu.kit.ifv.core.modelsteps.Cloneable
+import edu.kit.ifv.core.modelsteps.Config
+import edu.kit.ifv.core.modelsteps.ExecutionMode
+import edu.kit.ifv.core.modelsteps.Simulation
+import edu.kit.ifv.core.modelsteps.initReport
 import edu.kit.ifv.core.modelsteps.resources.MapRepository
 import edu.kit.ifv.core.modelsteps.resources.MutableRepository
 import edu.kit.ifv.core.modelsteps.steps.modelStep
@@ -26,10 +89,15 @@ import edu.kit.ifv.domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import edu.kit.ifv.domain.shared.datastructure.matrix.MatrixImpedance
 import edu.kit.ifv.domain.shared.datastructure.matrix.ZoneMatrixCreation
 import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
-import edu.kit.ifv.domain.shared.enums.*
+import edu.kit.ifv.domain.shared.enums.ActivityType
+import edu.kit.ifv.domain.shared.enums.LegacyActivityType
+import edu.kit.ifv.domain.shared.enums.LegacyMode
+import edu.kit.ifv.domain.shared.enums.MainModes
+import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.areatype.RegioStaR17
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
+import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
@@ -40,7 +108,6 @@ import edu.kit.ifv.domain.simulation.agent.SharingProviderAgent
 import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoice
 import edu.kit.ifv.domain.simulation.behavior.legacyModeChoice
 import edu.kit.ifv.domain.simulation.data.car.MutablePrivateCar
 import edu.kit.ifv.domain.simulation.data.car.PrivateCar
@@ -82,6 +149,7 @@ val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 
 val exampleChoiceModelModes = legacyChoiceModelModes.copy(options = MainModes.values())
 
+// TODO discuss whether modes are context or config
 class MyContext :
     HasZoneRepo<MaximalZone, MaximalZone>,
     HasHouseholdRepo<MutableHousehold, Household>,
@@ -102,9 +170,7 @@ class MyContext :
     HasSpawnModeCharacteristics,
     HasSpawnDestinationCharacteristics,
     HasMutableDestinationChoiceModel,
-    HasModes // TODO discuss whether modes are context or config
-
-{
+    HasModes {
     override val scenarioName: String = "regression test short term scenario"
     override val modes: CodePlan<Mode> = LegacyMode
     override lateinit var impedance: Impedance
@@ -127,7 +193,9 @@ class MyContext :
         MapRepository("DrtProviderAgents")
     override lateinit var modeAvailability: AvailabilityModelWithSharing
     override val choiceModelModes: ChoiceModelModes = exampleChoiceModelModes
-    override val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics> = context(impedance) { legacyModeChoice } // TODO: Load later
+    override val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics> = context(impedance) {
+        legacyModeChoice
+    } // TODO: Load later
     override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
     override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =
         StandardModeImplementation

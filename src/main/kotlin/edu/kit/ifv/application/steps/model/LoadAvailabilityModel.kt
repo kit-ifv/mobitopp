@@ -9,12 +9,10 @@ import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.data.drt.DrtProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
 
-fun <C> C.loadAvailabilityModel(
-) where C : HasSharingProviderRepo<*, SharingProvider>,
-        C : HasDrtProviderRepo<*, DrtProvider>,
-        C : HasChoiceModelModes,
-        C : HasMutableModeAvailabilityModel
-        =
+fun <C> C.loadAvailabilityModel() where C : HasSharingProviderRepo<*, SharingProvider>,
+                                        C : HasDrtProviderRepo<*, DrtProvider>,
+                                        C : HasChoiceModelModes,
+                                        C : HasMutableModeAvailabilityModel =
     repositoryDependentStep(
         "load availability model",
         dependentRepositories = setOf(sharingProviderRepository, drtProviderRepository),

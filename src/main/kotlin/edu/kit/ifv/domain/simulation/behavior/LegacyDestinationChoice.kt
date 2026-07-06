@@ -292,175 +292,176 @@ inline operator fun Boolean.plus(number: Number) = this.D + number.toDouble()
 context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
 val legacyDestinationChoiceBuilder
     get() =
-    RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
-        ruleForAll { destination, tripchoice ->
-            val it = tripchoice.with(destination)
-
-            (
-                ( // b_attr
-                    b_attr +
-                        shift_age_1_on_logsum_attr * (it.age in 0..17).D +
-                        shift_age_56_on_logsum_attr * (it.age in 50..69).D +
-                        shift_age_78_on_logsum_attr * (it.age in 70..120).D +
-                        shift_educ_on_logsum_attr * (it.employment in studentTypes).D +
-                        shift_home_on_logsum_attr * (it.employment in noWorkTypes).D +
-                        shift_zk_on_logsum_attr * it.hasCommuterTicket +
-                        shift_carav_on_logsum_attr * (it.carsPerAdult >= 1).D +
-                        shift_high_inc_on_logsum_attr * (it.householdEconomicalStatus in 4..5).D +
-                        shift_b_0_1_on_logsum_attr * (it.distance.kilometers in 0.0..1.0).D +
-                        shift_b_1_2_on_logsum_attr * (1.0 < it.distance.kilometers && it.distance.kilometers <= 2.0).D +
-                        shift_intrazonal_on_attr * it.isIntrazonal
-                    )
-                ) * ln(min(max_attractivity, it.attractivity)) +
-
-                b_0_1 * (it.distance.kilometers in 0.0..1.0).D +
-                b_1_2 * (1.0 < it.distance.kilometers && it.distance.kilometers <= 2.0).D +
-                b_intrazonal * it.isIntrazonal +
+        RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
+            ruleForAll { destination, tripchoice ->
+                val it = tripchoice.with(destination)
 
                 (
-                    ( // b_logsum_pt
-                        b_logsum_pt_active +
-                            shift_purp_on_logsum_pt +
-                            shift_age_1_on_logsum_pt * (it.age in 0..17) +
-                            shift_age_56_on_logsum_pt * (it.age in 50..69) +
-                            shift_age_78_on_logsum_pt * (it.age in 70..120) +
-                            shift_educ_on_logsum_pt * (it.employment in studentTypes).D +
-                            shift_home_on_logsum_pt * (it.employment in noWorkTypes).D +
-                            shift_zk_on_logsum_pt * it.hasCommuterTicket +
-                            shift_carav_on_logsum_pt * (it.carsPerAdult >= 1).D +
-                            shift_nocar_on_logsum_pt * (it.householdCars == 0).D +
-                            shift_high_inc_on_logsum_pt * (it.householdEconomicalStatus in 4..5).D
-                        ) * ( // LOGSUM_DEST_PT
-                        ln(
-                            exp( // utility_put
-                                asc_put +
-                                    b_tt_put * min(999.0, it.travelTimePut.minutes) +
-                                    b_cost * min(999.0, it.travelCostPut.euros),
-                                // + b_tt_acc_put * ( 1000 >
-                                // ACCESS_TIME_PUBLICTRANSPORT & 1000 > EGRESS_TIME_PUBLICTRANSPORT ) ?
-                                // ( ACCESS_TIME_PUBLICTRANSPORT + EGRESS_TIME_PUBLICTRANSPORT ) : ( 999 )
-                                // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT > (-50))
-                                // ?(LOGSUM_ACC_PUT):(-50))
-                                // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT > (-50))
-                                // ?(LOGSUM_EGR_PUT):(-50))
-                            ) +
-                                exp( // utility_ped
-                                    asc_ped +
-                                        b_tt_ped * min(999.0, it.travelTimePed.minutes),
+                    ( // b_attr
+                        b_attr +
+                            shift_age_1_on_logsum_attr * (it.age in 0..17).D +
+                            shift_age_56_on_logsum_attr * (it.age in 50..69).D +
+                            shift_age_78_on_logsum_attr * (it.age in 70..120).D +
+                            shift_educ_on_logsum_attr * (it.employment in studentTypes).D +
+                            shift_home_on_logsum_attr * (it.employment in noWorkTypes).D +
+                            shift_zk_on_logsum_attr * it.hasCommuterTicket +
+                            shift_carav_on_logsum_attr * (it.carsPerAdult >= 1).D +
+                            shift_high_inc_on_logsum_attr * (it.householdEconomicalStatus in 4..5).D +
+                            shift_b_0_1_on_logsum_attr * (it.distance.kilometers in 0.0..1.0).D +
+                            shift_b_1_2_on_logsum_attr *
+                            (1.0 < it.distance.kilometers && it.distance.kilometers <= 2.0).D +
+                            shift_intrazonal_on_attr * it.isIntrazonal
+                        )
+                    ) * ln(min(max_attractivity, it.attractivity)) +
+
+                    b_0_1 * (it.distance.kilometers in 0.0..1.0).D +
+                    b_1_2 * (1.0 < it.distance.kilometers && it.distance.kilometers <= 2.0).D +
+                    b_intrazonal * it.isIntrazonal +
+
+                    (
+                        ( // b_logsum_pt
+                            b_logsum_pt_active +
+                                shift_purp_on_logsum_pt +
+                                shift_age_1_on_logsum_pt * (it.age in 0..17) +
+                                shift_age_56_on_logsum_pt * (it.age in 50..69) +
+                                shift_age_78_on_logsum_pt * (it.age in 70..120) +
+                                shift_educ_on_logsum_pt * (it.employment in studentTypes).D +
+                                shift_home_on_logsum_pt * (it.employment in noWorkTypes).D +
+                                shift_zk_on_logsum_pt * it.hasCommuterTicket +
+                                shift_carav_on_logsum_pt * (it.carsPerAdult >= 1).D +
+                                shift_nocar_on_logsum_pt * (it.householdCars == 0).D +
+                                shift_high_inc_on_logsum_pt * (it.householdEconomicalStatus in 4..5).D
+                            ) * ( // LOGSUM_DEST_PT
+                            ln(
+                                exp( // utility_put
+                                    asc_put +
+                                        b_tt_put * min(999.0, it.travelTimePut.minutes) +
+                                        b_cost * min(999.0, it.travelCostPut.euros),
+                                    // + b_tt_acc_put * ( 1000 >
+                                    // ACCESS_TIME_PUBLICTRANSPORT & 1000 > EGRESS_TIME_PUBLICTRANSPORT ) ?
+                                    // ( ACCESS_TIME_PUBLICTRANSPORT + EGRESS_TIME_PUBLICTRANSPORT ) : ( 999 )
+                                    // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT > (-50))
+                                    // ?(LOGSUM_ACC_PUT):(-50))
+                                    // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT > (-50))
+                                    // ?(LOGSUM_EGR_PUT):(-50))
                                 ) +
-                                exp( // utility_bike
-                                    asc_bike +
-                                        b_tt_bike * min(999.0, it.travelTimeBike.minutes),
-                                ),
-                        ) + (!it.isPedAvailable && !it.isBikeAvailable && !it.isPutAvailable).D * (-50)
-                        )
-                    ) +
+                                    exp( // utility_ped
+                                        asc_ped +
+                                            b_tt_ped * min(999.0, it.travelTimePed.minutes),
+                                    ) +
+                                    exp( // utility_bike
+                                        asc_bike +
+                                            b_tt_bike * min(999.0, it.travelTimeBike.minutes),
+                                    ),
+                            ) + (!it.isPedAvailable && !it.isBikeAvailable && !it.isPutAvailable).D * (-50)
+                            )
+                        ) +
 
-                (
-                    ( // b_logsum_drive
-                        b_logsum_drive +
-                            shift_age_1_on_logsum_drive * (it.age in 0..17).D +
-                            shift_age_56_on_logsum_drive * (it.age in 50..69).D +
-                            shift_age_78_on_logsum_drive * (it.age in 70..120).D +
-                            shift_educ_on_logsum_drive * (it.employment in studentTypes).D +
-                            shift_arb_on_logsum_drive * (it.employment in noWorkTypes).D +
-                            shift_zk_on_logsum_drive * it.hasCommuterTicket +
-                            shift_carav_on_logsum_drive * (it.carsPerAdult >= 1).D +
-                            shift_nocar_on_logsum_drive * (it.householdCars == 0).D +
-                            shift_high_inc_on_logsum_drive * (it.householdEconomicalStatus in 4..5).D
+                    (
+                        ( // b_logsum_drive
+                            b_logsum_drive +
+                                shift_age_1_on_logsum_drive * (it.age in 0..17).D +
+                                shift_age_56_on_logsum_drive * (it.age in 50..69).D +
+                                shift_age_78_on_logsum_drive * (it.age in 70..120).D +
+                                shift_educ_on_logsum_drive * (it.employment in studentTypes).D +
+                                shift_arb_on_logsum_drive * (it.employment in noWorkTypes).D +
+                                shift_zk_on_logsum_drive * it.hasCommuterTicket +
+                                shift_carav_on_logsum_drive * (it.carsPerAdult >= 1).D +
+                                shift_nocar_on_logsum_drive * (it.householdCars == 0).D +
+                                shift_high_inc_on_logsum_drive * (it.householdEconomicalStatus in 4..5).D
 
-                        ) * ( // LOGSUM_DEST_DRIVE
-                        ln(
-                            it.isCarAvailable.D * exp( // utility_car_d
-                                asc_car_d +
-                                    b_tt_car_d * min(999.0, it.travelTimeCar.minutes) +
-                                    b_cost * min(999.0, it.travelCostCar.euros),
-                            ) +
-                                exp( // utility_car_p
-                                    asc_car_p +
-                                        b_tt_car_p * min(999.0, it.travelTimeCar.minutes + 3),
-                                ),
-                        ) + (!it.isCarAvailable && !it.isPassengerAvailable) * (-50)
-                        )
+                            ) * ( // LOGSUM_DEST_DRIVE
+                            ln(
+                                it.isCarAvailable.D * exp( // utility_car_d
+                                    asc_car_d +
+                                        b_tt_car_d * min(999.0, it.travelTimeCar.minutes) +
+                                        b_cost * min(999.0, it.travelCostCar.euros),
+                                ) +
+                                    exp( // utility_car_p
+                                        asc_car_p +
+                                            b_tt_car_p * min(999.0, it.travelTimeCar.minutes + 3),
+                                    ),
+                            ) + (!it.isCarAvailable && !it.isPassengerAvailable) * (-50)
+                            )
 
-                    ) +
+                        ) +
 
-                (
-                    ( // b_logsum_pt_fix
-                        b_logsum_pt_active +
-                            shift_purp_on_logsum_pt_fix +
-                            shift_age_1_on_logsum_pt_fix * (it.age in 0..17).D +
-                            shift_age_56_on_logsum_pt_fix * (it.age in 50..69).D +
-                            shift_age_78_on_logsum_pt_fix * (it.age in 70..120).D +
-                            shift_educ_on_logsum_pt_fix * (it.employment in studentTypes).D +
-                            shift_home_on_logsum_pt_fix * (it.employment in noWorkTypes).D +
-                            shift_zk_on_logsum_pt_fix * it.hasCommuterTicket +
-                            shift_carav_on_logsum_pt_fix * (it.carsPerAdult >= 1).D +
-                            shift_nocar_on_logsum_pt_fix * (it.householdCars == 0).D +
-                            shift_high_inc_on_logsum_pt_fix * (it.householdEconomicalStatus in 4..5).D
-                        ) * ( // LOGSUM_FIX_DEST_PT
-                        ln(
-                            exp( // utility_put
-                                asc_put +
-                                    b_tt_put * min(999.0, it.travelTimeFixedPut.minutes) +
-                                    b_cost * min(999.0, it.travelCostFixedPut.euros),
-                                // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT_FIX > (-50))?(LOGSUM_ACC_PUT_FIX):(-50))
-                                // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT_FIX > (-50))?(LOGSUM_EGR_PUT_FIX):(-50))
-                            ) +
-
-                                exp( // utility_ped
-                                    asc_ped +
-                                        b_tt_ped * min(999.0, it.travelTimeFixedPed.minutes),
+                    (
+                        ( // b_logsum_pt_fix
+                            b_logsum_pt_active +
+                                shift_purp_on_logsum_pt_fix +
+                                shift_age_1_on_logsum_pt_fix * (it.age in 0..17).D +
+                                shift_age_56_on_logsum_pt_fix * (it.age in 50..69).D +
+                                shift_age_78_on_logsum_pt_fix * (it.age in 70..120).D +
+                                shift_educ_on_logsum_pt_fix * (it.employment in studentTypes).D +
+                                shift_home_on_logsum_pt_fix * (it.employment in noWorkTypes).D +
+                                shift_zk_on_logsum_pt_fix * it.hasCommuterTicket +
+                                shift_carav_on_logsum_pt_fix * (it.carsPerAdult >= 1).D +
+                                shift_nocar_on_logsum_pt_fix * (it.householdCars == 0).D +
+                                shift_high_inc_on_logsum_pt_fix * (it.householdEconomicalStatus in 4..5).D
+                            ) * ( // LOGSUM_FIX_DEST_PT
+                            ln(
+                                exp( // utility_put
+                                    asc_put +
+                                        b_tt_put * min(999.0, it.travelTimeFixedPut.minutes) +
+                                        b_cost * min(999.0, it.travelCostFixedPut.euros),
+                                    // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT_FIX > (-50))?(LOGSUM_ACC_PUT_FIX):(-50))
+                                    // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT_FIX > (-50))?(LOGSUM_EGR_PUT_FIX):(-50))
                                 ) +
 
-                                exp( // utility_bike
-                                    asc_bike +
-                                        b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes),
+                                    exp( // utility_ped
+                                        asc_ped +
+                                            b_tt_ped * min(999.0, it.travelTimeFixedPed.minutes),
+                                    ) +
+
+                                    exp( // utility_bike
+                                        asc_bike +
+                                            b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes),
+                                    ) +
+
+                                    it.isBikesharingAvailable.D * exp( // utility_bike
+                                        asc_bs +
+                                            b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes) +
+                                            b_cost * min(999.0, it.travelCostFixedBikesharing.euros),
+                                    ),
+                            ) + (!it.isPedAvailable && !it.isBikeAvailable && !it.isPutAvailable).D * (-50)
+
+                            )
+                        ) +
+
+                    (
+                        ( // b_logsum_drive_fix
+                            b_logsum_drive_fix +
+                                shift_age_1_on_logsum_drive_fix * (it.age in 0..17).D +
+                                shift_age_56_on_logsum_drive_fix * (it.age in 50..69).D +
+                                shift_age_78_on_logsum_drive_fix * (it.age in 70..120).D +
+                                shift_educ_on_logsum_drive_fix * (it.employment in studentTypes).D +
+                                shift_home_on_logsum_drive_fix * (it.employment in noWorkTypes).D +
+                                shift_zk_on_logsum_drive_fix * it.hasCommuterTicket +
+                                shift_carav_on_logsum_drive_fix * (it.carsPerAdult >= 1).D +
+                                shift_nocar_on_logsum_drive_fix * (it.householdCars == 0).D +
+                                shift_high_inc_on_logsum_drive_fix * (it.householdEconomicalStatus in 4..5).D
+
+                            ) * ( // LOGSUM_FIX_DEST_DRIVE
+                            ln(
+                                it.isCarAvailable * exp( // utility_car_d
+                                    asc_car_d +
+                                        b_tt_car_d * min(999.0, it.travelTimeFixedCar.minutes) +
+                                        b_cost * min(999.0, it.travelCostFixedCar.euros),
                                 ) +
 
-                                it.isBikesharingAvailable.D * exp( // utility_bike
-                                    asc_bs +
-                                        b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes) +
-                                        b_cost * min(999.0, it.travelCostFixedBikesharing.euros),
-                                ),
-                        ) + (!it.isPedAvailable && !it.isBikeAvailable && !it.isPutAvailable).D * (-50)
-
+                                    exp( // utility_car_p
+                                        asc_car_p +
+                                            b_tt_car_p * min(999.0, it.travelTimeFixedCar.minutes + 3),
+                                    ),
+                            ) + (!it.isCarAvailable && !it.isPassengerAvailable).D * (-50)
+                            )
                         )
-                    ) +
-
-                (
-                    ( // b_logsum_drive_fix
-                        b_logsum_drive_fix +
-                            shift_age_1_on_logsum_drive_fix * (it.age in 0..17).D +
-                            shift_age_56_on_logsum_drive_fix * (it.age in 50..69).D +
-                            shift_age_78_on_logsum_drive_fix * (it.age in 70..120).D +
-                            shift_educ_on_logsum_drive_fix * (it.employment in studentTypes).D +
-                            shift_home_on_logsum_drive_fix * (it.employment in noWorkTypes).D +
-                            shift_zk_on_logsum_drive_fix * it.hasCommuterTicket +
-                            shift_carav_on_logsum_drive_fix * (it.carsPerAdult >= 1).D +
-                            shift_nocar_on_logsum_drive_fix * (it.householdCars == 0).D +
-                            shift_high_inc_on_logsum_drive_fix * (it.householdEconomicalStatus in 4..5).D
-
-                        ) * ( // LOGSUM_FIX_DEST_DRIVE
-                        ln(
-                            it.isCarAvailable * exp( // utility_car_d
-                                asc_car_d +
-                                    b_tt_car_d * min(999.0, it.travelTimeFixedCar.minutes) +
-                                    b_cost * min(999.0, it.travelCostFixedCar.euros),
-                            ) +
-
-                                exp( // utility_car_p
-                                    asc_car_p +
-                                        b_tt_car_p * min(999.0, it.travelTimeFixedCar.minutes + 3),
-                                ),
-                        ) + (!it.isCarAvailable && !it.isPassengerAvailable).D * (-50)
-                        )
-                    )
-        }
-    }.openMultinomialLogit("LegacyDestinationChoiceModel")
+            }
+        }.openMultinomialLogit("LegacyDestinationChoiceModel")
 
 context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
 val legacyDestinationChoice
-get() = legacyDestinationChoiceBuilder.build(
-    parameters = DestinationChoiceParameters(),
-)
+    get() = legacyDestinationChoiceBuilder.build(
+        parameters = DestinationChoiceParameters(),
+    )

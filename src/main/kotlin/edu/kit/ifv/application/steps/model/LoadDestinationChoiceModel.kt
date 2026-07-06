@@ -14,9 +14,11 @@ import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoice
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 
 fun <C> C.loadDestinationChoiceModel(
-    discreteChoiceModel: DiscreteChoiceModel<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters>
-    = context(impedance, attractiveness, modeAvailability) { legacyDestinationChoice }
-) where C : HasZoneRepo<*, MaximalZone>, C : HasMutableDestinationChoiceModel, C : HasImpedance, C : HasAttractivenessModel, C : HasMutableModeAvailabilityModel =
+    discreteChoiceModel:
+    DiscreteChoiceModel<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> =
+        context(impedance, attractiveness, modeAvailability) { legacyDestinationChoice },
+) where C : HasZoneRepo<*, MaximalZone>, C : HasMutableDestinationChoiceModel,
+        C : HasImpedance, C : HasAttractivenessModel, C : HasMutableModeAvailabilityModel =
     repositoryDependentStep(
         "load destination choice model",
         dependentRepositories = setOf(zoneRepository),
