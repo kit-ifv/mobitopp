@@ -31,7 +31,6 @@ class CarOnlyScenario {
     @RepeatedTest(value = 10, name = RepeatedTest.LONG_DISPLAY_NAME)
     fun runSyntheticTest() {
         val random = Random(1)
-        val context = TestContext()
 
         val legacyModes = legacyChoiceModelModes
         val zones = generateZones(2)
