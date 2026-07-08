@@ -28,7 +28,7 @@ interface DestinationChoiceCharacteristics {
     val person: PersonAgent
     val time: AbsoluteTime
     val origin: StandardLocation
-    val impedance: Impedance
+    val impedance: IndexAddressableImpedance
     val attractivityModel: AttractivenessModel
     val modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>
 
@@ -38,7 +38,7 @@ interface DestinationChoiceCharacteristics {
             person: PersonAgent,
             time: AbsoluteTime,
             origin: StandardLocation,
-            impedance: Impedance,
+            impedance: IndexAddressableImpedance,
             attractivityModel: AttractivenessModel,
             modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>,
         ): DestinationChoiceCharacteristics = DestinationChoiceCharacteristicsImpl(
@@ -58,7 +58,7 @@ data class DestinationChoiceCharacteristicsImpl(
     override val person: PersonAgent,
     override val time: AbsoluteTime,
     override val origin: StandardLocation,
-    override val impedance: Impedance,
+    override val impedance: IndexAddressableImpedance,
     override val attractivityModel: AttractivenessModel,
     override val modeAvailabilityFilter: ChoiceFilter<Mode, DestinationAlternative>,
 ) : DestinationChoiceCharacteristics {

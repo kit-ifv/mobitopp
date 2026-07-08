@@ -32,3 +32,8 @@ interface IndexAddressableImpedance: Impedance {
     fun distanceIndexed(fromIndex: Int, toIndex: Int, mode: Mode): Double
     fun durationIndexed(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): Double
 }
+
+interface KernelImpedance {
+    fun costArray(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): DoubleArray
+    fun distanceArray(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): DoubleArray
+}

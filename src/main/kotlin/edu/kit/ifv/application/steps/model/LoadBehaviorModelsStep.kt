@@ -1,4 +1,5 @@
 package edu.kit.ifv.application.steps.model
+
 import edu.kit.ifv.application.steps.HasAttractivenessModel
 import edu.kit.ifv.application.steps.HasDrtProviderRepo
 import edu.kit.ifv.application.steps.HasImpedance
@@ -7,6 +8,7 @@ import edu.kit.ifv.application.steps.HasSharingProviderRepo
 import edu.kit.ifv.application.steps.HasZoneRepo
 import edu.kit.ifv.core.modelsteps.steps.repositoryDependentStep
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
+import edu.kit.ifv.domain.shared.datastructure.matrix.LargeBuddy
 import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.StandardLocation
@@ -92,12 +94,18 @@ fun <C> C.loadBehaviorModels(
 
         val modeChoice = modeChoiceModel // .addFilter(availability.asResourceAvailabilityFilter())
 
+        val availableLocations: Set<StandardLocation> = zoneRepository.elements.filter { it.isDestination }.map {
+            it.centroidLocation
+        }.toSet()
         val destinationChoice = destinationChoiceModel.fixed(
 
-            zoneRepository.elements.filter { it.isDestination }.map {
-                it.centroidLocation
-            }.toSet(),
+            availableLocations,
         )
+        val zoneIds = zoneRepository.elements.toList().map {it.zoneId.value.toInt()}.sorted().withIndex()
+        val mapping = zoneIds.associate { it.value to it.index }
+        val max = zoneIds.last().value
+        val lookupArray = (0..max).map { mapping[it] ?: -1 }.toIntArray()
+        LargeBuddy.set(lookupArray)
 
         personBehavior = PersonBehavior(
             destinationChoice,

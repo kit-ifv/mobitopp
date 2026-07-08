@@ -17,6 +17,7 @@ import edu.kit.ifv.utils.codes.Decodable
 import edu.kit.ifv.utils.units.Time
 import java.nio.file.Path
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Provides [Impedance] backed by zone-based OD matrices.
@@ -49,7 +50,9 @@ data class MatrixImpedance(
     }
 
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = DurationZoneMetric { o, d ->
-        timeConverter.from(travelTimes[mode, time][o, d])
+        val matrix: ZoneIdMatrix = travelTimes[mode, time]
+        val matrixAccess: Double = matrix[o, d]
+        matrixAccess.minutes
     }
 
     override fun costIndexed(
