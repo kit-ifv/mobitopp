@@ -9,6 +9,9 @@ import kotlin.math.abs
 private const val ATTRACTIVENESS_THRESHOLD = 1e-6
 private const val MAX_PARKING_PRESSURE = 999.0
 
+/**
+ * A [ParkingPressureModel] which calculates with an [AttractivenessModel].
+ */
 class ParkingPressureByAttractiveness(
     private val work: ActivityType,
     private val privateVisit: ActivityType,
