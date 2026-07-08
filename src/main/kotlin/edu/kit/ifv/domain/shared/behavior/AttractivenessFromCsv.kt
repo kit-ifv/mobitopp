@@ -17,9 +17,8 @@ class AttractivenessFromCsv(
     private val path: Path,
     delimiter: String = ";",
     zoneColumn: String = "zoneId",
-    override val work: ActivityType,
-    override val privateVisit: ActivityType,
     private val activityTypes: Set<ActivityType>,
+    errorHandling: ErrorHandling = ErrorHandling.THROW,
 ) : AttractivenessModel {
 
     private val attractivenessMap: Map<ZoneId, Map<ActivityType, Attractiveness>>
@@ -28,8 +27,7 @@ class AttractivenessFromCsv(
         var filteredActivityTypes: Set<ActivityType>? = null
 
         val parser = DefaultMapCsvParser(
-            CsvParser.Companion(errorHandling = ErrorHandling.THROW) { row ->
-                // TODO error level as config param
+            CsvParser(errorHandling = errorHandling) { row ->
                 filteredActivityTypes = filteredActivityTypes ?: activityTypes.filterExistingColumns(row)
                 ZoneId(row.long(zoneColumn)) to
                     activityMapOf(row, filteredActivityTypes)
@@ -43,9 +41,7 @@ class AttractivenessFromCsv(
     private val warnedSet = mutableSetOf<ActivityType>()
 
     override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
-        attractivenessMap[zone]?.let {
-            it[activityType]
-        } ?: Attractiveness.DEFAULT.also {
+        attractivenessMap[zone]?.let { it[activityType] } ?: Attractiveness.DEFAULT.also {
             val activities = warned.getOrPut(zone) { mutableListOf() }
             if (activityType !in activities && activityType !in warnedSet) {
                 println(
@@ -62,12 +58,11 @@ private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) = activity
     row.commaDouble(act.columnString).asAttractiveness()
 }
 
-@Deprecated("This function should either be in util or not used by loadattractiveness step")
-internal fun String.capitalizeWithUnderscores() = this.split("_").joinToString("_") { part ->
+fun String.capitalizeWithUnderscores() = this.split("_").joinToString("_") { part ->
     part.lowercase().replaceFirstChar { it.uppercase() }
 }
 
-private fun Set<ActivityType>.filterExistingColumns(row: Row) = this.filter { act ->
+fun Set<ActivityType>.filterExistingColumns(row: Row) = this.filter { act ->
     row.hasColumn(act.columnString)
 }.toSet()
 

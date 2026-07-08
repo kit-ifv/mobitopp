@@ -4,6 +4,7 @@ import edu.kit.ifv.core.modelsteps.resources.MutableRepository
 import edu.kit.ifv.core.modelsteps.resources.Repository
 import edu.kit.ifv.core.statemachine.Agent
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ParkingPressureModel
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.data.person.PersonId
@@ -243,4 +244,8 @@ interface HasMutablePersonBehavior :
     Context,
     HasPersonBehavior {
     override var personBehavior: PersonBehavior
+}
+
+interface HasParkingPressureModel : Context {
+    var parkingPressure: ParkingPressureModel
 }

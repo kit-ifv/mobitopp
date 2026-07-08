@@ -12,8 +12,6 @@ class AttractivenessModelParser {
     lateinit var purposes: ChoiceModelPurposes
     fun build(): AttractivenessModel = AttractivenessFromCsv(
         path = path,
-        work = purposes.work,
-        privateVisit = purposes.privateVisit,
         activityTypes = purposes.allActivityTypes,
     )
 

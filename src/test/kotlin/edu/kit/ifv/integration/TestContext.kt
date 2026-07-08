@@ -1,6 +1,4 @@
 package edu.kit.ifv.integration
-import attractivities
-import dataFolder
 import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.CoreCSVConfig
 import edu.kit.ifv.application.steps.ActivityTypesConfig
@@ -31,12 +29,14 @@ import edu.kit.ifv.application.steps.SharingSourceFilesConfig
 import edu.kit.ifv.application.steps.SimulationConfig
 import edu.kit.ifv.application.steps.SourceFilesConfig
 import edu.kit.ifv.application.steps.UnitConfig
+import edu.kit.ifv.attractivities
 import edu.kit.ifv.core.modelsteps.Cloneable
 import edu.kit.ifv.core.modelsteps.Config
 import edu.kit.ifv.core.modelsteps.ExecutionMode
 import edu.kit.ifv.core.modelsteps.initReport
 import edu.kit.ifv.core.modelsteps.resources.MapRepository
 import edu.kit.ifv.core.modelsteps.resources.MutableRepository
+import edu.kit.ifv.dataFolder
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.car.CarSegment
