@@ -1,4 +1,5 @@
 package edu.kit.ifv.application.syntheticsim
+
 import BIELEFELD
 import edu.kit.ifv.application.scenarios.ScenarioContext
 import edu.kit.ifv.application.steps.HasAttractivenessModel
@@ -9,13 +10,13 @@ import edu.kit.ifv.core.statemachine.builder.StateData
 import edu.kit.ifv.core.statemachine.usage.RecordingStateMachineFactory
 import edu.kit.ifv.domain.shared.behavior.Attractiveness
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.behavior.asAttractiveness
 import edu.kit.ifv.domain.shared.data.activity.ActivityId
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.Activity
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyMode
-import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
@@ -29,8 +30,6 @@ import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.createLegacyDestinationChoice
 import edu.kit.ifv.domain.simulation.behavior.createLegacyModeChoice
-import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoice
-import edu.kit.ifv.domain.simulation.behavior.legacyModeChoice
 import edu.kit.ifv.domain.simulation.data.MutablePlannedActivity
 import edu.kit.ifv.domain.simulation.data.PlannedActivity
 import edu.kit.ifv.domain.simulation.data.household.Household
@@ -47,6 +46,8 @@ import edu.kit.ifv.domain.simulation.events.StartPerson
 import edu.kit.ifv.domain.simulation.events.StartingTrip
 import edu.kit.ifv.domain.simulation.events.personStateMachine
 import edu.kit.ifv.domain.synthesis.ControllableAttractiveness
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModelImpl
 import edu.kit.ifv.utils.units.AbsoluteTime
 import edu.kit.ifv.utils.units.sinceStart
 import generateHousehold
@@ -112,7 +113,7 @@ class PlanLoader(private val person: MutablePerson) {
                 duration = 4.hours
             }.also { start += 8.hours },
 
-        )
+            )
     }
 }
 
@@ -133,17 +134,46 @@ abstract class Scenario(val zones: List<MaximalZone>, val impedance: Controllabl
             type = ActivityType.UNKNOWN,
         )
 
+    protected val scenarioChoiceModelModes: ChoiceModelModes = ChoiceModelModes(
+        car = LegacyMode.CAR,
+        passenger = LegacyMode.PASSENGER,
+        bike = LegacyMode.BIKE,
+        pedestrian = LegacyMode.PEDESTRIAN,
+        publicTransport = LegacyMode.PUBLICTRANSPORT,
+        bikeSharing = LegacyMode.BIKESHARING,
+        ridePooling = LegacyMode.RIDE_POOLING,
+        carSharingFree = LegacyMode.CARSHARING_FREE,
+        carSharingStation = LegacyMode.CARSHARING_STATION,
+        taxi = LegacyMode.TAXI,
+        eScooter = LegacyMode.E_SCOOTER,
+        options = setOf(
+            LegacyMode.CAR,
+            LegacyMode.PASSENGER,
+            LegacyMode.BIKE,
+            LegacyMode.PEDESTRIAN,
+            LegacyMode.PUBLICTRANSPORT,
+        )
+    )
     val availability = AvailabilityModelWithSharing(
-        legacyChoiceModelModes,
+        scenarioChoiceModelModes,
         emptyMap(),
         mapOf(),
     )
 
-    fun destinationChoice(attractivenessModel: AttractivenessModel, impedance: Impedance, availabilityModel: ModeAvailabilityModel): OverridableDestinationChoiceModel
-        = OverridableDestinationChoiceModel(createLegacyDestinationChoice(impedance, attractivenessModel, availabilityModel))
+    fun destinationChoice(
+        attractivenessModel: AttractivenessModel,
+        impedance: Impedance,
+        availabilityModel: ModeAvailabilityModel
+    ): OverridableDestinationChoiceModel = OverridableDestinationChoiceModel(
+        createLegacyDestinationChoice(
+            impedance,
+            attractivenessModel,
+            availabilityModel
+        )
+    )
 
     fun modeChoice(impedance: Impedance): OverridableModeChoiceModel =
-        OverridableModeChoiceModel(createLegacyModeChoice(impedance).addFilter( context(impedance) { availability.asResourceAvailabilityFilter() } ))
+        OverridableModeChoiceModel(createLegacyModeChoice(impedance).addFilter(context(impedance) { availability.asResourceAvailabilityFilter() }))
 
 //    protected val behavior
 //        get() = PersonBehavior(
@@ -160,9 +190,13 @@ abstract class Scenario(val zones: List<MaximalZone>, val impedance: Controllabl
 //    )
 
     context(c: C)
-    fun <C> PersonAgent.stepper(): EventStepper where C: HasAttractivenessModel, C: HasImpedance, C: HasModeAvailabilityModel {
+    fun <C> PersonAgent.stepper(overridableModeChoiceModel: OverridableModeChoiceModel, destinationChoiceModel: OverridableDestinationChoiceModel): EventStepper where C : HasAttractivenessModel, C : HasImpedance, C : HasModeAvailabilityModel {
         val initEvent = this.init().takeIf { it.size == 1 }!!.take(1)[0]
-        return EventStepper(initEvent, destinationChoice(c.attractiveness, c.impedance, c.modeAvailability), modeChoice(c.impedance))
+        return EventStepper(
+            initEvent,
+            destinationChoiceModel,
+            overridableModeChoiceModel
+        )
     }
 
     fun EventStepper.stepOverFirstActivity() {
@@ -228,9 +262,13 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
             scenarioName = "synthetic",
             attractiveness = attractivenessModel,
             impedance = impedance,
-            choiceModelModes = legacyChoiceModelModes,
+            choiceModelModes = scenarioChoiceModelModes,
             modeAvailability = availability,
-            destinationChoiceModel = destinationChoice(attractivenessModel, impedance, availability).fixed(zones.map { z -> z.centroidLocation }.toSet()),
+            destinationChoiceModel = destinationChoice(
+                attractivenessModel,
+                impedance,
+                availability
+            ).fixed(zones.map { z -> z.centroidLocation }.toSet()),
             modeChoiceModel = modeChoice(impedance).fixed(createLegacyModeChoice(impedance).choices),
         )
 
@@ -251,6 +289,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     val secondAgent: PersonAgent by lazy { second.toAgent(builder) }
     val carAgent: PrivateCarAgent by lazy { car.toAgent(builder) }
 }
+
 
 operator fun Collection<State>.contains(stateClass: KClass<out StateData>): Boolean = any {
     when {
@@ -282,8 +321,14 @@ class Synthetic {
             }
             context(context) {
 
-                val firstPerson = firstAgent.stepper()
-                val secondPerson = secondAgent.stepper()
+                val firstPerson = firstAgent.stepper(
+                    (context.modeChoiceModel as FixedChoiceModelImpl).original as OverridableModeChoiceModel,
+                    (context.destinationChoiceModel as FixedChoiceModelImpl).original as OverridableDestinationChoiceModel,
+                )
+                val secondPerson = secondAgent.stepper(
+                    (context.modeChoiceModel as FixedChoiceModelImpl).original  as OverridableModeChoiceModel,
+                    (context.destinationChoiceModel as FixedChoiceModelImpl).original as OverridableDestinationChoiceModel,
+                )
 
                 firstPerson.inspect(1) {
                     assert(StartPerson in popStatesOf(firstAgent))
