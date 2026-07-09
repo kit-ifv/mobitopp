@@ -14,7 +14,6 @@ import edu.kit.ifv.domain.simulation.agent.BuildAgents
 import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.events.personStateMachine
-import edu.kit.ifv.integration.TestContext
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import edu.kit.ifv.utils.units.sinceStart
@@ -70,7 +69,7 @@ class CarOnlyScenario {
             val context = ScenarioContext(
                 scenarioName = "carOnlyScenario",
                 destinationChoiceModel = destinationChoice,
-                modeChoice = modeChoice,
+                modeChoiceModel = modeChoice,
                 modeAvailability = availability,
             )
 

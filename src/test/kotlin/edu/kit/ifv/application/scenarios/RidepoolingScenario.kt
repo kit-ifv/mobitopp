@@ -78,7 +78,7 @@ class RidepoolingScenario {
                     "random destination",
                     zones.map { it.centroidLocation }.toSet(),
                 ),
-                modeChoice = FixedOrderChoiceModel(
+                modeChoiceModel = FixedOrderChoiceModel(
                     "prefer ridepooling",
                     setOf(ridePooling, pedestrian),
                     availability.asResourceAvailabilityFilter(),

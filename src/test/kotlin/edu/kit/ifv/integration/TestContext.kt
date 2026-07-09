@@ -99,32 +99,31 @@ class TestContext(
     HasSharingProviderAgentRepo<SharingProviderAgent, SharingProviderAgent>,
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
-    HasModes
-{
-override val execMode: ExecutionMode = ExecutionMode()
-override val report: ReportBuilder = initReport()
+    HasModes {
+    override val execMode: ExecutionMode = ExecutionMode()
+    override val report: ReportBuilder = initReport()
 
-override lateinit var impedance: Impedance
-override lateinit var attractiveness: AttractivenessModel
+    override lateinit var impedance: Impedance
+    override lateinit var attractiveness: AttractivenessModel
 
-override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> = MapRepository("zone")
-override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> =
-    MapRepository("household")
-override val mutableCarRepository: MutableRepository<MutablePrivateCar, CarId> = MapRepository("car")
-override val mutablePersonRepository: MutableRepository<MutablePerson, PersonId> = MapRepository("person")
-override val mutableSharingProviderRepository: MutableRepository<MutableSharingProvider, SharingProviderId> =
-    MapRepository("sharingProvider")
-override val mutableDrtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId> =
-    MapRepository("drtProvider")
-override val mutablePersonAgentRepository: MutableRepository<PersonAgent, PersonId> = MapRepository("PersonAgents")
-override val mutableSharingProviderAgentRepository: MutableRepository<SharingProviderAgent, SharingProviderId> =
-    MapRepository("SharingProviderAgents")
-override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> =
-    MapRepository("DrtProviderAgents")
+    override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> = MapRepository("zone")
+    override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> =
+        MapRepository("household")
+    override val mutableCarRepository: MutableRepository<MutablePrivateCar, CarId> = MapRepository("car")
+    override val mutablePersonRepository: MutableRepository<MutablePerson, PersonId> = MapRepository("person")
+    override val mutableSharingProviderRepository: MutableRepository<MutableSharingProvider, SharingProviderId> =
+        MapRepository("sharingProvider")
+    override val mutableDrtProviderRepository: MutableRepository<MutableDrtProviderData, DrtProviderId> =
+        MapRepository("drtProvider")
+    override val mutablePersonAgentRepository: MutableRepository<PersonAgent, PersonId> = MapRepository("PersonAgents")
+    override val mutableSharingProviderAgentRepository: MutableRepository<SharingProviderAgent, SharingProviderId> =
+        MapRepository("SharingProviderAgents")
+    override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> =
+        MapRepository("DrtProviderAgents")
 
-override fun clone(): TestContext = TestContext() // TODO doppelt zu context factory
+    override fun clone(): TestContext = TestContext() // TODO doppelt zu context factory
 
-override var currentStep: String = ""
+    override var currentStep: String = ""
 }
 
 @Suppress("LongParameterList")

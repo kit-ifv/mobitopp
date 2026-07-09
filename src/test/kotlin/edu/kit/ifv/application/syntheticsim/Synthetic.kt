@@ -1,6 +1,9 @@
 package edu.kit.ifv.application.syntheticsim
 import BIELEFELD
 import edu.kit.ifv.application.scenarios.ScenarioContext
+import edu.kit.ifv.application.steps.HasAttractivenessModel
+import edu.kit.ifv.application.steps.HasImpedance
+import edu.kit.ifv.application.steps.HasModeAvailabilityModel
 import edu.kit.ifv.core.statemachine.State
 import edu.kit.ifv.core.statemachine.builder.StateData
 import edu.kit.ifv.core.statemachine.usage.RecordingStateMachineFactory
@@ -24,6 +27,8 @@ import edu.kit.ifv.domain.simulation.agent.locationBySchedule
 import edu.kit.ifv.domain.simulation.agent.toAgent
 import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.createLegacyDestinationChoice
+import edu.kit.ifv.domain.simulation.behavior.createLegacyModeChoice
 import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoice
 import edu.kit.ifv.domain.simulation.behavior.legacyModeChoice
 import edu.kit.ifv.domain.simulation.data.MutablePlannedActivity
@@ -65,6 +70,9 @@ import kotlin.time.Duration.Companion.seconds
 fun MutablePerson.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
     val plan = PlanLoader(this)
     plan.apply(lambda)
+    require(plan.plannedActivities.isNotEmpty()) {
+        "ERROR"
+    }
     plan.plannedActivities.forEach { this.plannedActivities.add(it) }
 }
 
@@ -131,13 +139,11 @@ abstract class Scenario(val zones: List<MaximalZone>, val impedance: Controllabl
         mapOf(),
     )
 
-    context(attractivenessModel: AttractivenessModel, impedance: Impedance, availabilityModel: ModeAvailabilityModel)
-    val destinationChoice: OverridableDestinationChoiceModel
-        get() = OverridableDestinationChoiceModel(legacyDestinationChoice)
+    fun destinationChoice(attractivenessModel: AttractivenessModel, impedance: Impedance, availabilityModel: ModeAvailabilityModel): OverridableDestinationChoiceModel
+        = OverridableDestinationChoiceModel(createLegacyDestinationChoice(impedance, attractivenessModel, availabilityModel))
 
-    context(impedance: Impedance)
-    val modeChoice: OverridableModeChoiceModel
-        get() = OverridableModeChoiceModel(legacyModeChoice.addFilter(availability.asResourceAvailabilityFilter()))
+    fun modeChoice(impedance: Impedance): OverridableModeChoiceModel =
+        OverridableModeChoiceModel(createLegacyModeChoice(impedance).addFilter( context(impedance) { availability.asResourceAvailabilityFilter() } ))
 
 //    protected val behavior
 //        get() = PersonBehavior(
@@ -153,10 +159,10 @@ abstract class Scenario(val zones: List<MaximalZone>, val impedance: Controllabl
 //        spawnModeCharacteristics = StandardModeImplementation,
 //    )
 
-    context(attractivenessModel: AttractivenessModel, impedance: Impedance, availabilityModel: ModeAvailabilityModel)
-    fun PersonAgent.stepper(): EventStepper {
+    context(c: C)
+    fun <C> PersonAgent.stepper(): EventStepper where C: HasAttractivenessModel, C: HasImpedance, C: HasModeAvailabilityModel {
         val initEvent = this.init().takeIf { it.size == 1 }!!.take(1)[0]
-        return EventStepper(initEvent, destinationChoice, modeChoice)
+        return EventStepper(initEvent, destinationChoice(c.attractiveness, c.impedance, c.modeAvailability), modeChoice(c.impedance))
     }
 
     fun EventStepper.stepOverFirstActivity() {
@@ -201,6 +207,8 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     val first = persons[0]
     val second = persons[1]
 
+    val attractivenessModel: AttractivenessModel = currentAttractivenessModel
+
     //    controllableImpedance.apply {
 //        difficultAccess(zones[0], zones[0])
 //        easyAccess(zones[0], zones[1])
@@ -214,45 +222,34 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 //
 //    }
 
-    context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
-    val context
-        get() = ScenarioContext(
+    //context
+    val context =
+        ScenarioContext(
             scenarioName = "synthetic",
-            destinationChoiceModel = destinationChoice.fixed(zones.map { it.centroidLocation }.toSet()),
-            modeChoice = modeChoice.fixed(legacyModeChoice.choices),
+            attractiveness = attractivenessModel,
+            impedance = impedance,
             choiceModelModes = legacyChoiceModelModes,
             modeAvailability = availability,
+            destinationChoiceModel = destinationChoice(attractivenessModel, impedance, availability).fixed(zones.map { z -> z.centroidLocation }.toSet()),
+            modeChoiceModel = modeChoice(impedance).fixed(createLegacyModeChoice(impedance).choices),
         )
 
-    context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
-    val stateMachine
-        get() = RecordingStateMachineFactory(context.personStateMachine())
+    //context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
+    val stateMachine = RecordingStateMachineFactory(context.personStateMachine())
 
-    context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
     fun statesOf(agent: PersonAgent) = stateMachine.of(agent)!!.history
 
-    context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
     fun popStatesOf(agent: PersonAgent) = stateMachine.of(agent)!!.let { sm ->
         sm.history.toList().also {
             sm.clearHistory()
         }
     }
 
-    context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
-    private val builder: BuildAgents
-        get() = BuildAgents(seed = 1L, stateMachine)
+    private val builder: BuildAgents = BuildAgents(seed = 1L, stateMachine)
 
-    context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
-    val firstAgent: PersonAgent
-        get() = first.toAgent(builder)
-
-    context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
-    val secondAgent: PersonAgent
-        get() = second.toAgent(builder)
-
-    context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
-    val carAgent: PrivateCarAgent
-        get() = car.toAgent(builder)
+    val firstAgent: PersonAgent by lazy { first.toAgent(builder) }
+    val secondAgent: PersonAgent by lazy { second.toAgent(builder) }
+    val carAgent: PrivateCarAgent by lazy { car.toAgent(builder) }
 }
 
 operator fun Collection<State>.contains(stateClass: KClass<out StateData>): Boolean = any {
@@ -283,7 +280,8 @@ class Synthetic {
                 +Triple(LegacyActivityType.HOME, 0, 5)
                 +Triple(LegacyActivityType.WORK, 8, 4)
             }
-            context(impedance, currentAttractivenessModel, availability) {
+            context(context) {
+
                 val firstPerson = firstAgent.stepper()
                 val secondPerson = secondAgent.stepper()
 

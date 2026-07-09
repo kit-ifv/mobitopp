@@ -10,6 +10,8 @@ import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceParameters
 import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceParameters
+import edu.kit.ifv.domain.simulation.behavior.createLegacyDestinationChoiceBuilder
+import edu.kit.ifv.domain.simulation.behavior.createLegacyModeChoiceBuilder
 import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoiceBuilder
 import edu.kit.ifv.domain.simulation.behavior.legacyModeChoiceBuilder
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
@@ -38,11 +40,7 @@ val DestinationChoiceModule = GenericKeyValueBuilder(
                     attractivenessModel: AttractivenessModel,
                     availabilityModel: ModeAvailabilityModel,
                 ->
-                context(
-                    impedance,
-                    attractivenessModel,
-                    availabilityModel,
-                ) { legacyDestinationChoiceBuilder.build(DestinationChoiceParameters()) }
+                createLegacyDestinationChoiceBuilder(impedance, attractivenessModel, availabilityModel).build(DestinationChoiceParameters())
             },
     ),
     loadFromSubmodules = true,
@@ -65,9 +63,7 @@ val ModeChoiceModule = GenericKeyValueBuilder(
     getModeChoiceModelType(),
     mapOf(
         "legacyModeChoiceModel" to { impedance: Impedance ->
-            context(impedance) {
-                legacyModeChoiceBuilder.build(ModeChoiceParameters())
-            }
+            createLegacyModeChoiceBuilder(impedance).build(ModeChoiceParameters())
         },
     ),
     loadFromSubmodules = true,

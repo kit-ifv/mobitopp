@@ -1,12 +1,17 @@
 @file:Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
 
 package edu.kit.ifv.domain.simulation.behavior
+import edu.kit.ifv.application.steps.HasAttractivenessModel
+import edu.kit.ifv.application.steps.HasImpedance
+import edu.kit.ifv.application.steps.HasModeAvailabilityModel
+import edu.kit.ifv.core.ruleForAllOf
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.Location
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasZoneId
 import edu.kit.ifv.domain.simulation.behavior.with
@@ -130,125 +135,136 @@ data class DestinationChoiceParameters(
     val shift_arb_on_logsum_drive: Double = 0.0,
 )
 
-val DestinationChoiceCharacteristics.age: Int get() = person.age
-val DestinationChoiceCharacteristics.employment: Employment get() = person.employment
-val DestinationChoiceCharacteristics.hasCommuterTicket: Double get() = person.hasCommuterTicket.D
+context(c: DestinationChoiceCharacteristics)
+val age: Int get() = c.person.age
+
+context(c: DestinationChoiceCharacteristics)
+val employment: Employment get() = c.person.employment
+
+context(c: DestinationChoiceCharacteristics)
+val hasCommuterTicket: Double get() = c.person.hasCommuterTicket.D
 
 // Household properties
-val DestinationChoiceCharacteristics.householdEconomicalStatus: Int get() = person.household.economicStatus.code
-val DestinationChoiceCharacteristics.adultsInHousehold: Int get() = person.household.members.count { it.isAdult }
-val DestinationChoiceCharacteristics.householdCars: Int get() = person.household.cars.size
-val DestinationChoiceCharacteristics.carsPerAdult: Double get() = householdCars / max(adultsInHousehold, 1).toDouble()
+context(c: DestinationChoiceCharacteristics)
+val householdEconomicalStatus: Int get() = c.person.household.economicStatus.code
+
+context(c: DestinationChoiceCharacteristics)
+val adultsInHousehold: Int get() = c.person.household.members.count { it.isAdult }
+
+context(c: DestinationChoiceCharacteristics)
+val householdCars: Int get() = c.person.household.cars.size
+
+context(c: DestinationChoiceCharacteristics)
+val carsPerAdult: Double get() = c.run { householdCars / max(adultsInHousehold, 1).toDouble() }
 
 // Trip properties
-val DestinationChoiceCharacteristics.purpose: ActivityType
-    get() = person.schedule.activities().first().type
+context(c: DestinationChoiceCharacteristics)
+val purpose: ActivityType
+    get() = c.person.schedule.activities().first().type
 
-context(attractivenessModel: AttractivenessModel)
-val DestinationAlternative.attractivity: Double
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val AttractivenessModel.attractivity: Double
     get() =
-        attractivenessModel.attractivenessFor(
+        attractivenessFor(
             choice.zoneId,
             purpose,
         ).value
 
-context(impedance: Impedance)
-val DestinationAlternative.distance: Distance get() = impedance.distance(origin, choice, LegacyMode.CAR)
-val DestinationAlternative.isIntrazonal: Double get() = (origin.zoneId == choice.zoneId).D
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.distance: Distance get() = distance(c.origin, choice, LegacyMode.CAR)
 
-context(impedance: Impedance)
-val DestinationAlternative.travelTimePed: Duration
-    get() = impedance.duration(
-        origin,
-        choice,
-        LegacyMode.PEDESTRIAN,
-        time,
-    )
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val isIntrazonal: Double get() = (c.origin.zoneId == choice.zoneId).D
 
-context(impedance: Impedance)
-val DestinationAlternative.travelTimeBike: Duration get() = impedance.duration(origin, choice, LegacyMode.BIKE, time)
-context(impedance: Impedance)
-val DestinationAlternative.travelTimePut: Duration
-    get() = impedance.duration(
-        origin,
-        choice,
-        LegacyMode.PUBLICTRANSPORT,
-        time,
-    )
-context(impedance: Impedance)
-val DestinationAlternative.travelTimeCar: Duration get() = impedance.duration(origin, choice, LegacyMode.CAR, time)
-context(impedance: Impedance)
-val DestinationAlternative.travelCostPut: Currency
-    get() = impedance.cost(
-        origin,
-        choice,
-        LegacyMode.PUBLICTRANSPORT,
-        time,
-    )
-context(impedance: Impedance)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelTimePed: Duration
+    get() = duration(c.origin, choice, LegacyMode.PEDESTRIAN, c.time)
 
-val DestinationAlternative.travelCostCar: Currency get() = impedance.cost(origin, choice, LegacyMode.CAR, time)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelTimeBike: Duration get() = duration(c.origin, choice, LegacyMode.BIKE, c.time)
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelTimePut: Duration
+    get() = duration(c.origin, choice, LegacyMode.PUBLICTRANSPORT, c.time)
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelTimeCar: Duration get() = duration(c.origin, choice, LegacyMode.CAR, c.time)
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelCostPut: Currency
+    get() = cost(c.origin, choice, LegacyMode.PUBLICTRANSPORT, c.time)
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelCostCar: Currency get() = cost(c.origin, choice, LegacyMode.CAR, c.time)
 
 // Next fixed destination properties
-val DestinationChoiceCharacteristics.nextFixedActivity
-    get() = person.schedule.activities().find { it.location != StandardLocation.LOCATIONUNKNOWN }
-val DestinationChoiceCharacteristics.nextFixedDestination: HasZoneId
-    get() = nextFixedActivity?.location ?: person.household.location
-val DestinationChoiceCharacteristics.nextFixedActivityEnd get() = nextFixedActivity?.endTime ?: time.plus(7.hours)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val nextFixedActivity get() = c.person.schedule.activities().find { it.location != StandardLocation.LOCATIONUNKNOWN }
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val nextFixedDestination: HasZoneId get() = nextFixedActivity?.location ?: c.person.household.location
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val nextFixedActivityEnd get() = nextFixedActivity?.endTime ?: c.time.plus(7.hours)
 
 // TODO get next fixed!
-context(impedance: Impedance)
-val DestinationAlternative.travelTimeFixedPed: Duration
-    get() = impedance.duration(
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelTimeFixedPed: Duration
+    get() = duration(
         choice,
         nextFixedDestination,
         LegacyMode.PEDESTRIAN,
         nextFixedActivityEnd,
     )
-context(impedance: Impedance)
-val DestinationAlternative.travelTimeFixedBike: Duration
-    get() = impedance.duration(
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelTimeFixedBike: Duration
+    get() = duration(
         choice,
         nextFixedDestination,
         LegacyMode.BIKE,
         nextFixedActivityEnd,
     )
-context(impedance: Impedance)
-val DestinationAlternative.travelTimeFixedPut: Duration
-    get() = impedance.duration(
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelTimeFixedPut: Duration
+    get() = duration(
         choice,
         nextFixedDestination,
         LegacyMode.PUBLICTRANSPORT,
         nextFixedActivityEnd,
     )
-context(impedance: Impedance)
 
-val DestinationAlternative.travelTimeFixedCar: Duration
-    get() = impedance.duration(
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelTimeFixedCar: Duration
+    get() = duration(
         choice,
         nextFixedDestination,
         LegacyMode.CAR,
         nextFixedActivityEnd,
     )
-context(impedance: Impedance)
-val DestinationAlternative.travelCostFixedPut: Currency
-    get() = impedance.cost(
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelCostFixedPut: Currency
+    get() = cost(
         choice,
         nextFixedDestination,
         LegacyMode.PUBLICTRANSPORT,
         nextFixedActivityEnd,
     )
-context(impedance: Impedance)
-val DestinationAlternative.travelCostFixedBikesharing: Currency
-    get() = impedance.cost(
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelCostFixedBikesharing: Currency
+    get() = cost(
         choice,
         nextFixedDestination,
         LegacyMode.BIKESHARING,
         nextFixedActivityEnd,
     )
-context(impedance: Impedance)
-val DestinationAlternative.travelCostFixedCar: Currency
-    get() = impedance.cost(
+
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val Impedance.travelCostFixedCar: Currency
+    get() = cost(
         choice,
         nextFixedDestination,
         LegacyMode.CAR,
@@ -256,21 +272,23 @@ val DestinationAlternative.travelCostFixedCar: Currency
     )
 
 // availability properties
-context(modeAvailability: ModeAvailabilityModel)
-fun DestinationAlternative.isAvailable(mode: Mode) = modeAvailability.asProviderAvailabilityFilter().filter(mode)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+fun ModeAvailabilityModel.isAvailable(mode: Mode) = context(c.with(choice)) {
+    asProviderAvailabilityFilter().filter(mode)
+}
 
-context(modeAvailability: ModeAvailabilityModel)
-val DestinationAlternative.isPedAvailable get() = isAvailable(LegacyMode.PEDESTRIAN)
-context(modeAvailability: ModeAvailabilityModel)
-val DestinationAlternative.isBikeAvailable get() = isAvailable(LegacyMode.BIKE)
-context(modeAvailability: ModeAvailabilityModel)
-val DestinationAlternative.isCarAvailable get() = isAvailable(LegacyMode.CAR)
-context(modeAvailability: ModeAvailabilityModel)
-val DestinationAlternative.isPassengerAvailable get() = isAvailable(LegacyMode.PASSENGER)
-context(modeAvailability: ModeAvailabilityModel)
-val DestinationAlternative.isPutAvailable get() = isAvailable(LegacyMode.PUBLICTRANSPORT)
-context(modeAvailability: ModeAvailabilityModel)
-val DestinationAlternative.isBikesharingAvailable get() = isAvailable(LegacyMode.BIKESHARING)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val ModeAvailabilityModel.isPedAvailable get() = isAvailable(LegacyMode.PEDESTRIAN)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val ModeAvailabilityModel.isBikeAvailable get() = isAvailable(LegacyMode.BIKE)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val ModeAvailabilityModel.isCarAvailable get() = isAvailable(LegacyMode.CAR)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val ModeAvailabilityModel.isPassengerAvailable get() = isAvailable(LegacyMode.PASSENGER)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val ModeAvailabilityModel.isPutAvailable get() = isAvailable(LegacyMode.PUBLICTRANSPORT)
+context(c: DestinationChoiceCharacteristics, choice: StandardLocation)
+val ModeAvailabilityModel.isBikesharingAvailable get() = isAvailable(LegacyMode.BIKESHARING)
 
 val studentTypes = listOf(
     Employment.STUDENT,
@@ -289,54 +307,54 @@ inline operator fun Boolean.plus(number: Number) = this.D + number.toDouble()
 
 @Deprecated("Dont use")
 @Suppress("MagicNumber")
-context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
-val legacyDestinationChoiceBuilder
-    get() =
+val <C> C.legacyDestinationChoiceBuilder where C: HasImpedance, C: HasAttractivenessModel, C: HasModeAvailabilityModel
+    get() = createLegacyDestinationChoiceBuilder(impedance, attractiveness, modeAvailability)
+
+fun createLegacyDestinationChoiceBuilder(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel) =
         RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
-            ruleForAll { destination, tripchoice ->
-                val it = tripchoice.with(destination)
+            ruleForAllOf {
 
                 (
                     ( // b_attr
                         b_attr +
-                            shift_age_1_on_logsum_attr * (it.age in 0..17).D +
-                            shift_age_56_on_logsum_attr * (it.age in 50..69).D +
-                            shift_age_78_on_logsum_attr * (it.age in 70..120).D +
-                            shift_educ_on_logsum_attr * (it.employment in studentTypes).D +
-                            shift_home_on_logsum_attr * (it.employment in noWorkTypes).D +
-                            shift_zk_on_logsum_attr * it.hasCommuterTicket +
-                            shift_carav_on_logsum_attr * (it.carsPerAdult >= 1).D +
-                            shift_high_inc_on_logsum_attr * (it.householdEconomicalStatus in 4..5).D +
-                            shift_b_0_1_on_logsum_attr * (it.distance.kilometers in 0.0..1.0).D +
+                            shift_age_1_on_logsum_attr * (age in 0..17).D +
+                            shift_age_56_on_logsum_attr * (age in 50..69).D +
+                            shift_age_78_on_logsum_attr * (age in 70..120).D +
+                            shift_educ_on_logsum_attr * (employment in studentTypes).D +
+                            shift_home_on_logsum_attr * (employment in noWorkTypes).D +
+                            shift_zk_on_logsum_attr * hasCommuterTicket +
+                            shift_carav_on_logsum_attr * (carsPerAdult >= 1).D +
+                            shift_high_inc_on_logsum_attr * (householdEconomicalStatus in 4..5).D +
+                            shift_b_0_1_on_logsum_attr * (impedance.distance.kilometers in 0.0..1.0).D +
                             shift_b_1_2_on_logsum_attr *
-                            (1.0 < it.distance.kilometers && it.distance.kilometers <= 2.0).D +
-                            shift_intrazonal_on_attr * it.isIntrazonal
+                            (1.0 < impedance.distance.kilometers && impedance.distance.kilometers <= 2.0).D +
+                            shift_intrazonal_on_attr * isIntrazonal
                         )
-                    ) * ln(min(max_attractivity, it.attractivity)) +
+                    ) * ln(min(max_attractivity, attractivenessModel.attractivity)) +
 
-                    b_0_1 * (it.distance.kilometers in 0.0..1.0).D +
-                    b_1_2 * (1.0 < it.distance.kilometers && it.distance.kilometers <= 2.0).D +
-                    b_intrazonal * it.isIntrazonal +
+                    b_0_1 * (impedance.distance.kilometers in 0.0..1.0).D +
+                    b_1_2 * (1.0 < impedance.distance.kilometers && impedance.distance.kilometers <= 2.0).D +
+                    b_intrazonal * isIntrazonal +
 
                     (
                         ( // b_logsum_pt
                             b_logsum_pt_active +
                                 shift_purp_on_logsum_pt +
-                                shift_age_1_on_logsum_pt * (it.age in 0..17) +
-                                shift_age_56_on_logsum_pt * (it.age in 50..69) +
-                                shift_age_78_on_logsum_pt * (it.age in 70..120) +
-                                shift_educ_on_logsum_pt * (it.employment in studentTypes).D +
-                                shift_home_on_logsum_pt * (it.employment in noWorkTypes).D +
-                                shift_zk_on_logsum_pt * it.hasCommuterTicket +
-                                shift_carav_on_logsum_pt * (it.carsPerAdult >= 1).D +
-                                shift_nocar_on_logsum_pt * (it.householdCars == 0).D +
-                                shift_high_inc_on_logsum_pt * (it.householdEconomicalStatus in 4..5).D
+                                shift_age_1_on_logsum_pt * (age in 0..17) +
+                                shift_age_56_on_logsum_pt * (age in 50..69) +
+                                shift_age_78_on_logsum_pt * (age in 70..120) +
+                                shift_educ_on_logsum_pt * (employment in studentTypes).D +
+                                shift_home_on_logsum_pt * (employment in noWorkTypes).D +
+                                shift_zk_on_logsum_pt * hasCommuterTicket +
+                                shift_carav_on_logsum_pt * (carsPerAdult >= 1).D +
+                                shift_nocar_on_logsum_pt * (householdCars == 0).D +
+                                shift_high_inc_on_logsum_pt * (householdEconomicalStatus in 4..5).D
                             ) * ( // LOGSUM_DEST_PT
                             ln(
                                 exp( // utility_put
                                     asc_put +
-                                        b_tt_put * min(999.0, it.travelTimePut.minutes) +
-                                        b_cost * min(999.0, it.travelCostPut.euros),
+                                        b_tt_put * min(999.0, impedance.travelTimePut.minutes) +
+                                        b_cost * min(999.0, impedance.travelCostPut.euros),
                                     // + b_tt_acc_put * ( 1000 >
                                     // ACCESS_TIME_PUBLICTRANSPORT & 1000 > EGRESS_TIME_PUBLICTRANSPORT ) ?
                                     // ( ACCESS_TIME_PUBLICTRANSPORT + EGRESS_TIME_PUBLICTRANSPORT ) : ( 999 )
@@ -347,41 +365,41 @@ val legacyDestinationChoiceBuilder
                                 ) +
                                     exp( // utility_ped
                                         asc_ped +
-                                            b_tt_ped * min(999.0, it.travelTimePed.minutes),
+                                            b_tt_ped * min(999.0, impedance.travelTimePed.minutes),
                                     ) +
                                     exp( // utility_bike
                                         asc_bike +
-                                            b_tt_bike * min(999.0, it.travelTimeBike.minutes),
+                                            b_tt_bike * min(999.0, impedance.travelTimeBike.minutes),
                                     ),
-                            ) + (!it.isPedAvailable && !it.isBikeAvailable && !it.isPutAvailable).D * (-50)
+                            ) + (!availabilityModel.isPedAvailable && !availabilityModel.isBikeAvailable && !availabilityModel.isPutAvailable).D * (-50)
                             )
                         ) +
 
                     (
                         ( // b_logsum_drive
                             b_logsum_drive +
-                                shift_age_1_on_logsum_drive * (it.age in 0..17).D +
-                                shift_age_56_on_logsum_drive * (it.age in 50..69).D +
-                                shift_age_78_on_logsum_drive * (it.age in 70..120).D +
-                                shift_educ_on_logsum_drive * (it.employment in studentTypes).D +
-                                shift_arb_on_logsum_drive * (it.employment in noWorkTypes).D +
-                                shift_zk_on_logsum_drive * it.hasCommuterTicket +
-                                shift_carav_on_logsum_drive * (it.carsPerAdult >= 1).D +
-                                shift_nocar_on_logsum_drive * (it.householdCars == 0).D +
-                                shift_high_inc_on_logsum_drive * (it.householdEconomicalStatus in 4..5).D
+                                shift_age_1_on_logsum_drive * (age in 0..17).D +
+                                shift_age_56_on_logsum_drive * (age in 50..69).D +
+                                shift_age_78_on_logsum_drive * (age in 70..120).D +
+                                shift_educ_on_logsum_drive * (employment in studentTypes).D +
+                                shift_arb_on_logsum_drive * (employment in noWorkTypes).D +
+                                shift_zk_on_logsum_drive * hasCommuterTicket +
+                                shift_carav_on_logsum_drive * (carsPerAdult >= 1).D +
+                                shift_nocar_on_logsum_drive * (householdCars == 0).D +
+                                shift_high_inc_on_logsum_drive * (householdEconomicalStatus in 4..5).D
 
                             ) * ( // LOGSUM_DEST_DRIVE
                             ln(
-                                it.isCarAvailable.D * exp( // utility_car_d
+                                availabilityModel.isCarAvailable.D * exp( // utility_car_d
                                     asc_car_d +
-                                        b_tt_car_d * min(999.0, it.travelTimeCar.minutes) +
-                                        b_cost * min(999.0, it.travelCostCar.euros),
+                                        b_tt_car_d * min(999.0, impedance.travelTimeCar.minutes) +
+                                        b_cost * min(999.0, impedance.travelCostCar.euros),
                                 ) +
                                     exp( // utility_car_p
                                         asc_car_p +
-                                            b_tt_car_p * min(999.0, it.travelTimeCar.minutes + 3),
+                                            b_tt_car_p * min(999.0, impedance.travelTimeCar.minutes + 3),
                                     ),
-                            ) + (!it.isCarAvailable && !it.isPassengerAvailable) * (-50)
+                            ) + (!availabilityModel.isCarAvailable && !availabilityModel.isPassengerAvailable) * (-50)
                             )
 
                         ) +
@@ -390,41 +408,41 @@ val legacyDestinationChoiceBuilder
                         ( // b_logsum_pt_fix
                             b_logsum_pt_active +
                                 shift_purp_on_logsum_pt_fix +
-                                shift_age_1_on_logsum_pt_fix * (it.age in 0..17).D +
-                                shift_age_56_on_logsum_pt_fix * (it.age in 50..69).D +
-                                shift_age_78_on_logsum_pt_fix * (it.age in 70..120).D +
-                                shift_educ_on_logsum_pt_fix * (it.employment in studentTypes).D +
-                                shift_home_on_logsum_pt_fix * (it.employment in noWorkTypes).D +
-                                shift_zk_on_logsum_pt_fix * it.hasCommuterTicket +
-                                shift_carav_on_logsum_pt_fix * (it.carsPerAdult >= 1).D +
-                                shift_nocar_on_logsum_pt_fix * (it.householdCars == 0).D +
-                                shift_high_inc_on_logsum_pt_fix * (it.householdEconomicalStatus in 4..5).D
+                                shift_age_1_on_logsum_pt_fix * (age in 0..17).D +
+                                shift_age_56_on_logsum_pt_fix * (age in 50..69).D +
+                                shift_age_78_on_logsum_pt_fix * (age in 70..120).D +
+                                shift_educ_on_logsum_pt_fix * (employment in studentTypes).D +
+                                shift_home_on_logsum_pt_fix * (employment in noWorkTypes).D +
+                                shift_zk_on_logsum_pt_fix * hasCommuterTicket +
+                                shift_carav_on_logsum_pt_fix * (carsPerAdult >= 1).D +
+                                shift_nocar_on_logsum_pt_fix * (householdCars == 0).D +
+                                shift_high_inc_on_logsum_pt_fix * (householdEconomicalStatus in 4..5).D
                             ) * ( // LOGSUM_FIX_DEST_PT
                             ln(
                                 exp( // utility_put
                                     asc_put +
-                                        b_tt_put * min(999.0, it.travelTimeFixedPut.minutes) +
-                                        b_cost * min(999.0, it.travelCostFixedPut.euros),
+                                        b_tt_put * min(999.0, impedance.travelTimeFixedPut.minutes) +
+                                        b_cost * min(999.0, impedance.travelCostFixedPut.euros),
                                     // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT_FIX > (-50))?(LOGSUM_ACC_PUT_FIX):(-50))
                                     // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT_FIX > (-50))?(LOGSUM_EGR_PUT_FIX):(-50))
                                 ) +
 
                                     exp( // utility_ped
                                         asc_ped +
-                                            b_tt_ped * min(999.0, it.travelTimeFixedPed.minutes),
+                                            b_tt_ped * min(999.0, impedance.travelTimeFixedPed.minutes),
                                     ) +
 
                                     exp( // utility_bike
                                         asc_bike +
-                                            b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes),
+                                            b_tt_bike * min(999.0, impedance.travelTimeFixedBike.minutes),
                                     ) +
 
-                                    it.isBikesharingAvailable.D * exp( // utility_bike
+                                        availabilityModel.isBikesharingAvailable.D * exp( // utility_bike
                                         asc_bs +
-                                            b_tt_bike * min(999.0, it.travelTimeFixedBike.minutes) +
-                                            b_cost * min(999.0, it.travelCostFixedBikesharing.euros),
+                                            b_tt_bike * min(999.0, impedance.travelTimeFixedBike.minutes) +
+                                            b_cost * min(999.0, impedance.travelCostFixedBikesharing.euros),
                                     ),
-                            ) + (!it.isPedAvailable && !it.isBikeAvailable && !it.isPutAvailable).D * (-50)
+                            ) + (!availabilityModel.isPedAvailable && !availabilityModel.isBikeAvailable && !availabilityModel.isPutAvailable).D * (-50)
 
                             )
                         ) +
@@ -432,36 +450,38 @@ val legacyDestinationChoiceBuilder
                     (
                         ( // b_logsum_drive_fix
                             b_logsum_drive_fix +
-                                shift_age_1_on_logsum_drive_fix * (it.age in 0..17).D +
-                                shift_age_56_on_logsum_drive_fix * (it.age in 50..69).D +
-                                shift_age_78_on_logsum_drive_fix * (it.age in 70..120).D +
-                                shift_educ_on_logsum_drive_fix * (it.employment in studentTypes).D +
-                                shift_home_on_logsum_drive_fix * (it.employment in noWorkTypes).D +
-                                shift_zk_on_logsum_drive_fix * it.hasCommuterTicket +
-                                shift_carav_on_logsum_drive_fix * (it.carsPerAdult >= 1).D +
-                                shift_nocar_on_logsum_drive_fix * (it.householdCars == 0).D +
-                                shift_high_inc_on_logsum_drive_fix * (it.householdEconomicalStatus in 4..5).D
+                                shift_age_1_on_logsum_drive_fix * (age in 0..17).D +
+                                shift_age_56_on_logsum_drive_fix * (age in 50..69).D +
+                                shift_age_78_on_logsum_drive_fix * (age in 70..120).D +
+                                shift_educ_on_logsum_drive_fix * (employment in studentTypes).D +
+                                shift_home_on_logsum_drive_fix * (employment in noWorkTypes).D +
+                                shift_zk_on_logsum_drive_fix * hasCommuterTicket +
+                                shift_carav_on_logsum_drive_fix * (carsPerAdult >= 1).D +
+                                shift_nocar_on_logsum_drive_fix * (householdCars == 0).D +
+                                shift_high_inc_on_logsum_drive_fix * (householdEconomicalStatus in 4..5).D
 
                             ) * ( // LOGSUM_FIX_DEST_DRIVE
                             ln(
-                                it.isCarAvailable * exp( // utility_car_d
+                                availabilityModel.isCarAvailable * exp( // utility_car_d
                                     asc_car_d +
-                                        b_tt_car_d * min(999.0, it.travelTimeFixedCar.minutes) +
-                                        b_cost * min(999.0, it.travelCostFixedCar.euros),
+                                        b_tt_car_d * min(999.0, impedance.travelTimeFixedCar.minutes) +
+                                        b_cost * min(999.0, impedance.travelCostFixedCar.euros),
                                 ) +
 
                                     exp( // utility_car_p
                                         asc_car_p +
-                                            b_tt_car_p * min(999.0, it.travelTimeFixedCar.minutes + 3),
+                                            b_tt_car_p * min(999.0, impedance.travelTimeFixedCar.minutes + 3),
                                     ),
-                            ) + (!it.isCarAvailable && !it.isPassengerAvailable).D * (-50)
+                            ) + (!availabilityModel.isCarAvailable && !availabilityModel.isPassengerAvailable).D * (-50)
                             )
                         )
             }
         }.openMultinomialLogit("LegacyDestinationChoiceModel")
 
-context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
-val legacyDestinationChoice
+val <C> C.legacyDestinationChoice where C: HasImpedance, C: HasAttractivenessModel, C: HasModeAvailabilityModel
     get() = legacyDestinationChoiceBuilder.build(
         parameters = DestinationChoiceParameters(),
     )
+
+fun createLegacyDestinationChoice(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel) =
+    createLegacyDestinationChoiceBuilder(impedance, attractivenessModel, availabilityModel).build(DestinationChoiceParameters())

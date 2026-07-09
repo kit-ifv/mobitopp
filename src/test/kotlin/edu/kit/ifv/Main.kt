@@ -193,7 +193,7 @@ class MyContext :
         MapRepository("DrtProviderAgents")
     override lateinit var modeAvailability: AvailabilityModelWithSharing
     override val choiceModelModes: ChoiceModelModes = exampleChoiceModelModes
-    override val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics> = context(impedance) {
+    override val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics> = context(impedance) {
         legacyModeChoice
     } // TODO: Load later
     override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>

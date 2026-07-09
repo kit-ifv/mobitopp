@@ -203,6 +203,7 @@ fun <C> C.personStateMachine(): StateMachineFactory<PersonAgent>
 where C : HasImpedance, C : HasAttractivenessModel, C : HasMutableDestinationChoiceModel, C : HasModeChoiceModel,
       C : HasChoiceModelModes, C : HasMutableModeAvailabilityModel, C : HasSpawnModeCharacteristics, C : HasSpawnDestinationCharacteristics,
       C : HasReplanningStrategy =
+
     stateMachine<PersonAgent>("PersonsStateMachine") {
         start(StartPerson, ::startPerson) { send ->
             val target = person.schedule.activities().first()
@@ -269,7 +270,7 @@ where C : HasImpedance, C : HasAttractivenessModel, C : HasMutableDestinationCho
                                     modeAvailability.resourceAvailability(it)
                                 }
                             }
-                            modeChoice.select(mcAvail.toSet())
+                            modeChoiceModel.select(mcAvail.toSet())
                         }
                         modeResult
                     }

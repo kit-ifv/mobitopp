@@ -252,15 +252,15 @@ interface HasMutableDestinationChoiceModel : Context {
 }
 
 interface HasModeChoiceModel : Context {
-    val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
+    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
 }
 
 interface HasChoiceModelModes : Context {
     val choiceModelModes: ChoiceModelModes
 }
 
-interface HasMutableModeAvailabilityModel : Context {
-    var modeAvailability: AvailabilityModelWithSharing
+interface HasMutableModeAvailabilityModel : Context, HasModeAvailabilityModel {
+    override var modeAvailability: AvailabilityModelWithSharing
 }
 
 interface HasModeAvailabilityModel {

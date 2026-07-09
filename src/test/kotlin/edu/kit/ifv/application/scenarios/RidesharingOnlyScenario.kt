@@ -69,7 +69,7 @@ class RidesharingOnlyScenario {
                     "random destination",
                     zones.map { it.centroidLocation }.toSet(),
                 ),
-                modeChoice = FixedOrderChoiceModel(
+                modeChoiceModel = FixedOrderChoiceModel(
                     "prefer ridesharing",
                     setOf(bikeSharing, pedestrian),
                     availability.asResourceAvailabilityFilter(),

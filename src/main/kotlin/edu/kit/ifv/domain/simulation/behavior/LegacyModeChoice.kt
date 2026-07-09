@@ -1,13 +1,18 @@
 @file:Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
 
 package edu.kit.ifv.domain.simulation.behavior
+
+import edu.kit.ifv.application.steps.HasImpedance
+import edu.kit.ifv.core.optionOf
 import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.enums.person.Sex
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
@@ -97,128 +102,167 @@ data class ModeChoiceParameters(
 val workingEmploymentTypes = listOf(Employment.FULLTIME, Employment.PARTTIME, Employment.MARGINAL)
 val Currency.euros get() = this.toDouble(CurrencyUnit.EUROS)
 
-val ModeChoiceCharacteristics.age: Int get() = person.age
-val ModeChoiceCharacteristics.isEmployed: Double get() = (person.employment in workingEmploymentTypes).D
-val ModeChoiceCharacteristics.isFemale: Double get() = (person.sex == Sex.FEMALE).D
-val ModeChoiceCharacteristics.ecoStatus: Int get() = person.household.economicStatus.code
-val ModeChoiceCharacteristics.hasCommuterTicket: Double get() = person.hasCommuterTicket.D
-val ModeChoiceCharacteristics.isAgeIn0To17: Double get() = (age in 0..17).D
-val ModeChoiceCharacteristics.isAgeIn18To29: Double get() = (age in 18..29).D
-val ModeChoiceCharacteristics.isAgeIn50To59: Double get() = (age in 50..59).D
-val ModeChoiceCharacteristics.isAgeIn60To69: Double get() = (age in 60..69).D
-val ModeChoiceCharacteristics.isAgeIn70Plus: Double get() = (age in 70..100).D
-val ModeChoiceCharacteristics.isEcoStatusHigh: Double get() = (ecoStatus in 4..5).D
-context(impedance: Impedance)
-fun ModeChoiceCharacteristics.travelTime(mode: Mode): Duration = impedance.duration(origin, destination, mode, time)
-context(impedance: Impedance)
-fun ModeChoiceCharacteristics.travelCost(mode: Mode): Currency = impedance.cost(origin, destination, mode, time)
+context(c: ModeChoiceCharacteristics)
+val age: Int get() = c.person.age
+
+context(c: ModeChoiceCharacteristics)
+val isEmployed: Double get() = c.run { (person.employment in workingEmploymentTypes).D }
+
+context(c: ModeChoiceCharacteristics)
+val isFemale: Double get() = c.run { (person.sex == Sex.FEMALE).D }
+
+context(c: ModeChoiceCharacteristics)
+val ecoStatus: Int get() = c.run { person.household.economicStatus.code }
+
+context(c: ModeChoiceCharacteristics)
+val hasCommuterTicket: Double get() = c.run { person.hasCommuterTicket.D }
+
+context(c: ModeChoiceCharacteristics)
+val isAgeIn0To17: Double get() = (age in 0..17).D
+
+context(c: ModeChoiceCharacteristics)
+val isAgeIn18To29: Double get() = (age in 18..29).D
+
+context(c: ModeChoiceCharacteristics)
+val isAgeIn50To59: Double get() = (age in 50..59).D
+
+context(c: ModeChoiceCharacteristics)
+val isAgeIn60To69: Double get() = (age in 60..69).D
+
+context(c: ModeChoiceCharacteristics)
+val isAgeIn70Plus: Double get() = (age in 70..100).D
+
+context(c: ModeChoiceCharacteristics)
+val isEcoStatusHigh: Double get() = (ecoStatus in 4..5).D
+
+context(c: ModeChoiceCharacteristics, mode: Mode)
+val Impedance.travelTime: Duration get() = duration(
+    c.origin,
+    c.destination,
+    mode,
+    c.time,
+)
+
+context(c: ModeChoiceCharacteristics, mode: Mode)
+val Impedance.travelCost: Currency get() = cost(
+    c.origin,
+    c.destination,
+    mode,
+    c.time,
+)
 
 @Suppress("MagicNumber")
-context(impedance: Impedance)
-val legacyModeChoiceBuilder
-    get() = DiscreteStructure<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> {
-        option(LegacyMode.PEDESTRIAN) { mode, characteristics ->
+val <C> C.legacyModeChoiceBuilder: EnumeratedDiscreteModelBuilder<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> where C : HasImpedance
+    get() = createLegacyModeChoiceBuilder(impedance)
+
+fun createLegacyModeChoiceBuilder(impedance: Impedance): EnumeratedDiscreteModelBuilder<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> =
+    DiscreteStructure<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> {
+        optionOf(LegacyMode.PEDESTRIAN) {
             asc_ped +
-                age_0_17_on_asc_ped * characteristics.isAgeIn0To17 +
-                age_18_29_on_asc_ped * characteristics.isAgeIn18To29 +
-                age_50_59_on_asc_ped * characteristics.isAgeIn50To59 +
-                age_60_69_on_asc_ped * characteristics.isAgeIn60To69 +
-                age_70_100_on_asc_ped * characteristics.isAgeIn70Plus +
-                beruft_on_asc_ped * characteristics.isEmployed +
-                female_on_asc_ped * characteristics.isFemale +
-                inc_high_on_asc_ped * characteristics.isEcoStatusHigh +
-                zk_on_asc_ped * characteristics.hasCommuterTicket +
-                b_tt_ped * (characteristics.travelTime(mode).inWholeMinutes)
+                    age_0_17_on_asc_ped * isAgeIn0To17 +
+                    age_18_29_on_asc_ped * isAgeIn18To29 +
+                    age_50_59_on_asc_ped * isAgeIn50To59 +
+                    age_60_69_on_asc_ped * isAgeIn60To69 +
+                    age_70_100_on_asc_ped * isAgeIn70Plus +
+                    beruft_on_asc_ped * isEmployed +
+                    female_on_asc_ped * isFemale +
+                    inc_high_on_asc_ped * isEcoStatusHigh +
+                    zk_on_asc_ped * hasCommuterTicket +
+                    b_tt_ped * (impedance.travelTime.inWholeMinutes)
         }
 
-        option(LegacyMode.BIKE) { mode, characteristics ->
+        optionOf(LegacyMode.BIKE) {
             asc_bike +
-                age_0_17_on_asc_bike * characteristics.isAgeIn0To17 +
-                age_18_29_on_asc_bike * characteristics.isAgeIn18To29 +
-                age_50_59_on_asc_bike * characteristics.isAgeIn50To59 +
-                age_60_69_on_asc_bike * characteristics.isAgeIn60To69 +
-                age_70_100_on_asc_bike * characteristics.isAgeIn70Plus +
-                beruft_on_asc_bike * characteristics.isEmployed +
-                female_on_asc_bike * characteristics.isFemale +
-                inc_high_on_asc_bike * characteristics.isEcoStatusHigh +
-                zk_on_asc_bike * characteristics.hasCommuterTicket +
-                b_tt_bike * (characteristics.travelTime(mode).inWholeMinutes)
+                    age_0_17_on_asc_bike * isAgeIn0To17 +
+                    age_18_29_on_asc_bike * isAgeIn18To29 +
+                    age_50_59_on_asc_bike * isAgeIn50To59 +
+                    age_60_69_on_asc_bike * isAgeIn60To69 +
+                    age_70_100_on_asc_bike * isAgeIn70Plus +
+                    beruft_on_asc_bike * isEmployed +
+                    female_on_asc_bike * isFemale +
+                    inc_high_on_asc_bike * isEcoStatusHigh +
+                    zk_on_asc_bike * hasCommuterTicket +
+                    b_tt_bike * (impedance.travelTime.inWholeMinutes)
         }
 
-        option(LegacyMode.CAR) { mode, characteristics ->
+        optionOf(LegacyMode.CAR) {
             asc_car_d +
-                age_0_17_on_asc_car_d * characteristics.isAgeIn0To17 +
-                age_18_29_on_asc_car_d * characteristics.isAgeIn18To29 +
-                age_50_59_on_asc_car_d * characteristics.isAgeIn50To59 +
-                age_60_69_on_asc_car_d * characteristics.isAgeIn60To69 +
-                age_70_100_on_asc_car_d * characteristics.isAgeIn70Plus +
-                beruft_on_asc_car_d * characteristics.isEmployed +
-                female_on_asc_car_d * characteristics.isFemale +
-                inc_high_on_asc_car_d * characteristics.isEcoStatusHigh +
-                zk_on_asc_car_d * characteristics.hasCommuterTicket +
-                b_tt_car_d * (characteristics.travelTime(mode).inWholeMinutes) +
-                (
-                    b_cost_car_d +
-                        age_0_17_on_b_cost_car_d * characteristics.isAgeIn0To17 +
-                        age_18_29_on_b_cost_car_d * characteristics.isAgeIn18To29 +
-                        age_50_59_on_b_cost_car_d * characteristics.isAgeIn50To59 +
-                        age_60_69_on_b_cost_car_d * characteristics.isAgeIn60To69 +
-                        age_70_100_on_b_cost_car_d * characteristics.isAgeIn70Plus +
-                        beruft_on_b_cost_car_d * characteristics.isEmployed +
-                        female_on_b_cost_car_d * characteristics.isFemale +
-                        inc_high_on_b_cost_car_d * characteristics.isEcoStatusHigh +
-                        zk_on_b_cost_car_d * characteristics.hasCommuterTicket
-                    ) * characteristics.travelCost(mode).euros
+                    age_0_17_on_asc_car_d * isAgeIn0To17 +
+                    age_18_29_on_asc_car_d * isAgeIn18To29 +
+                    age_50_59_on_asc_car_d * isAgeIn50To59 +
+                    age_60_69_on_asc_car_d * isAgeIn60To69 +
+                    age_70_100_on_asc_car_d * isAgeIn70Plus +
+                    beruft_on_asc_car_d * isEmployed +
+                    female_on_asc_car_d * isFemale +
+                    inc_high_on_asc_car_d * isEcoStatusHigh +
+                    zk_on_asc_car_d * hasCommuterTicket +
+                    b_tt_car_d * (impedance.travelTime.inWholeMinutes) +
+                    (
+                            b_cost_car_d +
+                                    age_0_17_on_b_cost_car_d * isAgeIn0To17 +
+                                    age_18_29_on_b_cost_car_d * isAgeIn18To29 +
+                                    age_50_59_on_b_cost_car_d * isAgeIn50To59 +
+                                    age_60_69_on_b_cost_car_d * isAgeIn60To69 +
+                                    age_70_100_on_b_cost_car_d * isAgeIn70Plus +
+                                    beruft_on_b_cost_car_d * isEmployed +
+                                    female_on_b_cost_car_d * isFemale +
+                                    inc_high_on_b_cost_car_d * isEcoStatusHigh +
+                                    zk_on_b_cost_car_d * hasCommuterTicket
+                            ) * impedance.travelCost.euros
         }
 
-        option(LegacyMode.PASSENGER) { mode, characteristics ->
+        optionOf(LegacyMode.PASSENGER) {
             asc_car_p +
-                age_0_17_on_asc_car_p * characteristics.isAgeIn0To17 +
-                age_18_29_on_asc_car_p * characteristics.isAgeIn18To29 +
-                age_50_59_on_asc_car_p * characteristics.isAgeIn50To59 +
-                age_60_69_on_asc_car_p * characteristics.isAgeIn60To69 +
-                age_70_100_on_asc_car_p * characteristics.isAgeIn70Plus +
-                beruft_on_asc_car_p * characteristics.isEmployed +
-                female_on_asc_car_p * characteristics.isFemale +
-                inc_high_on_asc_car_p * characteristics.isEcoStatusHigh +
-                zk_on_asc_car_p * characteristics.hasCommuterTicket +
-                b_tt_car_p * (characteristics.travelTime(mode).inWholeMinutes)
+                    age_0_17_on_asc_car_p * isAgeIn0To17 +
+                    age_18_29_on_asc_car_p * isAgeIn18To29 +
+                    age_50_59_on_asc_car_p * isAgeIn50To59 +
+                    age_60_69_on_asc_car_p * isAgeIn60To69 +
+                    age_70_100_on_asc_car_p * isAgeIn70Plus +
+                    beruft_on_asc_car_p * isEmployed +
+                    female_on_asc_car_p * isFemale +
+                    inc_high_on_asc_car_p * isEcoStatusHigh +
+                    zk_on_asc_car_p * hasCommuterTicket +
+                    b_tt_car_p * (impedance.travelTime.inWholeMinutes)
         }
 
-        option(LegacyMode.PUBLICTRANSPORT) { mode, characteristics ->
+        optionOf(LegacyMode.PUBLICTRANSPORT) {
             asc_put +
-                age_0_17_on_asc_put * characteristics.isAgeIn0To17 +
-                age_18_29_on_asc_put * characteristics.isAgeIn18To29 +
-                age_50_59_on_asc_put * characteristics.isAgeIn50To59 +
-                age_60_69_on_asc_put * characteristics.isAgeIn60To69 +
-                age_70_100_on_asc_put * characteristics.isAgeIn70Plus +
-                beruft_on_asc_put * characteristics.isEmployed +
-                female_on_asc_put * characteristics.isFemale +
-                inc_high_on_asc_put * characteristics.isEcoStatusHigh +
-                zk_on_asc_put * characteristics.hasCommuterTicket +
-                b_tt_put * (characteristics.travelTime(mode).inWholeMinutes) +
-                // b_acc_put
-                // b_u_put
-                (
-                    b_cost_put +
-                        age_0_17_on_b_cost_put * characteristics.isAgeIn0To17 +
-                        age_18_29_on_b_cost_put * characteristics.isAgeIn18To29 +
-                        age_50_59_on_b_cost_put * characteristics.isAgeIn50To59 +
-                        age_60_69_on_b_cost_put * characteristics.isAgeIn60To69 +
-                        age_70_100_on_b_cost_put * characteristics.isAgeIn70Plus +
-                        beruft_on_b_cost_put * characteristics.isEmployed +
-                        female_on_b_cost_put * characteristics.isFemale +
-                        inc_high_on_b_cost_put * characteristics.isEcoStatusHigh +
-                        zk_on_b_cost_put * characteristics.hasCommuterTicket
-                    ) * characteristics.travelCost(mode).euros * (1 - characteristics.hasCommuterTicket)
+                    age_0_17_on_asc_put * isAgeIn0To17 +
+                    age_18_29_on_asc_put * isAgeIn18To29 +
+                    age_50_59_on_asc_put * isAgeIn50To59 +
+                    age_60_69_on_asc_put * isAgeIn60To69 +
+                    age_70_100_on_asc_put * isAgeIn70Plus +
+                    beruft_on_asc_put * isEmployed +
+                    female_on_asc_put * isFemale +
+                    inc_high_on_asc_put * isEcoStatusHigh +
+                    zk_on_asc_put * hasCommuterTicket +
+                    b_tt_put * (impedance.travelTime.inWholeMinutes) +
+                    // b_acc_put
+                    // b_u_put
+                    (
+                            b_cost_put +
+                                    age_0_17_on_b_cost_put * isAgeIn0To17 +
+                                    age_18_29_on_b_cost_put * isAgeIn18To29 +
+                                    age_50_59_on_b_cost_put * isAgeIn50To59 +
+                                    age_60_69_on_b_cost_put * isAgeIn60To69 +
+                                    age_70_100_on_b_cost_put * isAgeIn70Plus +
+                                    beruft_on_b_cost_put * isEmployed +
+                                    female_on_b_cost_put * isFemale +
+                                    inc_high_on_b_cost_put * isEcoStatusHigh +
+                                    zk_on_b_cost_put * hasCommuterTicket
+                            ) * impedance.travelCost.euros * (1 - hasCommuterTicket)
             // NO PUT COST IF OWNS TICKET
         }
     }.multinomialLogit(
         name = "LegacyModeChoiceModel",
     )
 
-context(impedance: Impedance)
-val legacyModeChoice
+val <C> C.legacyModeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics> where C : HasImpedance
     get() = legacyModeChoiceBuilder.build(
+        parameters = ModeChoiceParameters(),
+    )
+
+fun createLegacyModeChoice(impedance: Impedance): FixedChoiceModel<Mode, ModeChoiceCharacteristics> =
+    createLegacyModeChoiceBuilder(impedance).build(
         parameters = ModeChoiceParameters(),
     )
