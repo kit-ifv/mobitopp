@@ -1,6 +1,8 @@
 package edu.kit.ifv.domain.jackson
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.type.TypeFactory
+import edu.kit.ifv.application.config.DestinationChoiceFactory
+import edu.kit.ifv.application.config.ModeChoiceFactory
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
@@ -12,10 +14,6 @@ import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceParameters
 import edu.kit.ifv.domain.simulation.behavior.createLegacyDestinationChoiceBuilder
 import edu.kit.ifv.domain.simulation.behavior.createLegacyModeChoiceBuilder
-import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoiceBuilder
-import edu.kit.ifv.domain.simulation.behavior.legacyModeChoiceBuilder
-import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
-import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
 /**
  * Getter for the `DestinationChoiceModelType` aka
@@ -26,22 +24,26 @@ import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
  * in kotlin.)
  */
 fun getDestinationChoiceModelType(): JavaType = TypeFactory.defaultInstance().constructParametricType(
-    UtilityBasedChoiceModel::class.java,
-    StandardLocation::class.java,
-    DestinationChoiceCharacteristics::class.java,
-)
+        DestinationChoiceFactory::class.java,
+        StandardLocation::class.java,
+        DestinationChoiceCharacteristics::class.java
+    )
+
+val legacyDestinationChoiceFactory = DestinationChoiceFactory<StandardLocation, DestinationChoiceCharacteristics> {
+        impedance: Impedance,
+        attractivenessModel: AttractivenessModel,
+        availabilityModel: ModeAvailabilityModel,
+    ->
+    createLegacyDestinationChoiceBuilder(impedance, attractivenessModel, availabilityModel).build(
+        DestinationChoiceParameters()
+    )
+}
 
 val DestinationChoiceModule = GenericKeyValueBuilder(
     getDestinationChoiceModelType(),
     mapOf(
         "legacyDestinationChoiceModel" to
-            {
-                    impedance: Impedance,
-                    attractivenessModel: AttractivenessModel,
-                    availabilityModel: ModeAvailabilityModel,
-                ->
-                createLegacyDestinationChoiceBuilder(impedance, attractivenessModel, availabilityModel).build(DestinationChoiceParameters())
-            },
+                legacyDestinationChoiceFactory,
     ),
     loadFromSubmodules = true,
 ).getModule()
@@ -54,17 +56,19 @@ val DestinationChoiceModule = GenericKeyValueBuilder(
  * in kotlin.)
  */
 fun getModeChoiceModelType(): JavaType = TypeFactory.defaultInstance().constructParametricType(
-    FixedChoiceModel::class.java,
-    Mode::class.java,
-    ModeChoiceCharacteristics::class.java,
-)
+        ModeChoiceFactory::class.java,
+        Mode::class.java,
+        ModeChoiceCharacteristics::class.java,
+    )
+
+val legacyModeChoiceFactory = ModeChoiceFactory<Mode, ModeChoiceCharacteristics> { impedance: Impedance ->
+    createLegacyModeChoiceBuilder(impedance).build(ModeChoiceParameters())
+}
 
 val ModeChoiceModule = GenericKeyValueBuilder(
     getModeChoiceModelType(),
     mapOf(
-        "legacyModeChoiceModel" to { impedance: Impedance ->
-            createLegacyModeChoiceBuilder(impedance).build(ModeChoiceParameters())
-        },
+        "legacyModeChoiceModel" to legacyModeChoiceFactory,
     ),
     loadFromSubmodules = true,
 ).getModule()

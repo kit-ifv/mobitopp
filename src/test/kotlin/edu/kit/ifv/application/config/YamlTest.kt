@@ -69,11 +69,18 @@ class YamlTest {
         Path(output).createParentDirectories()
         if (!Path(output).exists()) Path(output).createFile()
 
-        val configObj = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(input)
-        Yaml.writeYaml(output, configObj)
-        val writtenConfig = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(output)
-        assertEquals(configObj, writtenConfig)
-        Path(output).deleteIfExists()
+        try {
+            val configObj = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(input)
+            Yaml.writeYaml(output, configObj)
+            val writtenConfig = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(output)
+            assertEquals(configObj, writtenConfig)
+        } catch (e: Exception) {
+            println("[DEBUG_LOG] Caught exception: ${e.javaClass.name}: ${e.message}")
+            e.printStackTrace()
+            throw e
+        } finally {
+            //Path(output).deleteIfExists()
+        }
     }
 
     @Test
