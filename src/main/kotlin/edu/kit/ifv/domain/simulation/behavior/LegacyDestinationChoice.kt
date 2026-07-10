@@ -11,7 +11,6 @@ import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.location.Impedance
-import edu.kit.ifv.domain.shared.location.Location
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasZoneId
 import edu.kit.ifv.domain.simulation.behavior.with
@@ -307,181 +306,202 @@ inline operator fun Boolean.plus(number: Number) = this.D + number.toDouble()
 
 @Deprecated("Dont use")
 @Suppress("MagicNumber")
-val <C> C.legacyDestinationChoiceBuilder where C: HasImpedance, C: HasAttractivenessModel, C: HasModeAvailabilityModel
+val <C> C.legacyDestinationChoiceBuilder
+    where C : HasImpedance, C : HasAttractivenessModel, C : HasModeAvailabilityModel
     get() = createLegacyDestinationChoiceBuilder(impedance, attractiveness, modeAvailability)
 
-fun createLegacyDestinationChoiceBuilder(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel) =
-        RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
-            ruleForAllOf {
+@Suppress("LongMethod", "FunctionNameMaxLength")
+fun createLegacyDestinationChoiceBuilder(
+    impedance: Impedance,
+    attractivenessModel: AttractivenessModel,
+    availabilityModel: ModeAvailabilityModel,
+) = RuleBasedStructure<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> {
+    ruleForAllOf {
+        (
+            ( // b_attr
+                b_attr +
+                    shift_age_1_on_logsum_attr * (age in 0..17).D +
+                    shift_age_56_on_logsum_attr * (age in 50..69).D +
+                    shift_age_78_on_logsum_attr * (age in 70..120).D +
+                    shift_educ_on_logsum_attr * (employment in studentTypes).D +
+                    shift_home_on_logsum_attr * (employment in noWorkTypes).D +
+                    shift_zk_on_logsum_attr * hasCommuterTicket +
+                    shift_carav_on_logsum_attr * (carsPerAdult >= 1).D +
+                    shift_high_inc_on_logsum_attr * (householdEconomicalStatus in 4..5).D +
+                    shift_b_0_1_on_logsum_attr * (impedance.distance.kilometers in 0.0..1.0).D +
+                    shift_b_1_2_on_logsum_attr *
+                    (1.0 < impedance.distance.kilometers && impedance.distance.kilometers <= 2.0).D +
+                    shift_intrazonal_on_attr * isIntrazonal
+                )
+            ) * ln(min(max_attractivity, attractivenessModel.attractivity)) +
 
-                (
-                    ( // b_attr
-                        b_attr +
-                            shift_age_1_on_logsum_attr * (age in 0..17).D +
-                            shift_age_56_on_logsum_attr * (age in 50..69).D +
-                            shift_age_78_on_logsum_attr * (age in 70..120).D +
-                            shift_educ_on_logsum_attr * (employment in studentTypes).D +
-                            shift_home_on_logsum_attr * (employment in noWorkTypes).D +
-                            shift_zk_on_logsum_attr * hasCommuterTicket +
-                            shift_carav_on_logsum_attr * (carsPerAdult >= 1).D +
-                            shift_high_inc_on_logsum_attr * (householdEconomicalStatus in 4..5).D +
-                            shift_b_0_1_on_logsum_attr * (impedance.distance.kilometers in 0.0..1.0).D +
-                            shift_b_1_2_on_logsum_attr *
-                            (1.0 < impedance.distance.kilometers && impedance.distance.kilometers <= 2.0).D +
-                            shift_intrazonal_on_attr * isIntrazonal
-                        )
-                    ) * ln(min(max_attractivity, attractivenessModel.attractivity)) +
+            b_0_1 * (impedance.distance.kilometers in 0.0..1.0).D +
+            b_1_2 * (1.0 < impedance.distance.kilometers && impedance.distance.kilometers <= 2.0).D +
+            b_intrazonal * isIntrazonal +
 
-                    b_0_1 * (impedance.distance.kilometers in 0.0..1.0).D +
-                    b_1_2 * (1.0 < impedance.distance.kilometers && impedance.distance.kilometers <= 2.0).D +
-                    b_intrazonal * isIntrazonal +
+            (
+                ( // b_logsum_pt
+                    b_logsum_pt_active +
+                        shift_purp_on_logsum_pt +
+                        shift_age_1_on_logsum_pt * (age in 0..17) +
+                        shift_age_56_on_logsum_pt * (age in 50..69) +
+                        shift_age_78_on_logsum_pt * (age in 70..120) +
+                        shift_educ_on_logsum_pt * (employment in studentTypes).D +
+                        shift_home_on_logsum_pt * (employment in noWorkTypes).D +
+                        shift_zk_on_logsum_pt * hasCommuterTicket +
+                        shift_carav_on_logsum_pt * (carsPerAdult >= 1).D +
+                        shift_nocar_on_logsum_pt * (householdCars == 0).D +
+                        shift_high_inc_on_logsum_pt * (householdEconomicalStatus in 4..5).D
+                    ) * ( // LOGSUM_DEST_PT
+                    ln(
+                        exp( // utility_put
+                            asc_put +
+                                b_tt_put * min(999.0, impedance.travelTimePut.minutes) +
+                                b_cost * min(999.0, impedance.travelCostPut.euros),
+                            // + b_tt_acc_put * ( 1000 >
+                            // ACCESS_TIME_PUBLICTRANSPORT & 1000 > EGRESS_TIME_PUBLICTRANSPORT ) ?
+                            // ( ACCESS_TIME_PUBLICTRANSPORT + EGRESS_TIME_PUBLICTRANSPORT ) : ( 999 )
+                            // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT > (-50))
+                            // ?(LOGSUM_ACC_PUT):(-50))
+                            // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT > (-50))
+                            // ?(LOGSUM_EGR_PUT):(-50))
+                        ) +
+                            exp( // utility_ped
+                                asc_ped +
+                                    b_tt_ped * min(999.0, impedance.travelTimePed.minutes),
+                            ) +
+                            exp( // utility_bike
+                                asc_bike +
+                                    b_tt_bike * min(999.0, impedance.travelTimeBike.minutes),
+                            ),
+                    ) +
+                        (
+                            !availabilityModel.isPedAvailable && !availabilityModel.isBikeAvailable &&
+                                !availabilityModel.isPutAvailable
+                            ).D *
+                        (-50)
+                    )
+                ) +
 
-                    (
-                        ( // b_logsum_pt
-                            b_logsum_pt_active +
-                                shift_purp_on_logsum_pt +
-                                shift_age_1_on_logsum_pt * (age in 0..17) +
-                                shift_age_56_on_logsum_pt * (age in 50..69) +
-                                shift_age_78_on_logsum_pt * (age in 70..120) +
-                                shift_educ_on_logsum_pt * (employment in studentTypes).D +
-                                shift_home_on_logsum_pt * (employment in noWorkTypes).D +
-                                shift_zk_on_logsum_pt * hasCommuterTicket +
-                                shift_carav_on_logsum_pt * (carsPerAdult >= 1).D +
-                                shift_nocar_on_logsum_pt * (householdCars == 0).D +
-                                shift_high_inc_on_logsum_pt * (householdEconomicalStatus in 4..5).D
-                            ) * ( // LOGSUM_DEST_PT
-                            ln(
-                                exp( // utility_put
-                                    asc_put +
-                                        b_tt_put * min(999.0, impedance.travelTimePut.minutes) +
-                                        b_cost * min(999.0, impedance.travelCostPut.euros),
-                                    // + b_tt_acc_put * ( 1000 >
-                                    // ACCESS_TIME_PUBLICTRANSPORT & 1000 > EGRESS_TIME_PUBLICTRANSPORT ) ?
-                                    // ( ACCESS_TIME_PUBLICTRANSPORT + EGRESS_TIME_PUBLICTRANSPORT ) : ( 999 )
-                                    // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT > (-50))
-                                    // ?(LOGSUM_ACC_PUT):(-50))
-                                    // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT > (-50))
-                                    // ?(LOGSUM_EGR_PUT):(-50))
-                                ) +
-                                    exp( // utility_ped
-                                        asc_ped +
-                                            b_tt_ped * min(999.0, impedance.travelTimePed.minutes),
-                                    ) +
-                                    exp( // utility_bike
-                                        asc_bike +
-                                            b_tt_bike * min(999.0, impedance.travelTimeBike.minutes),
-                                    ),
-                            ) + (!availabilityModel.isPedAvailable && !availabilityModel.isBikeAvailable && !availabilityModel.isPutAvailable).D * (-50)
-                            )
+            (
+                ( // b_logsum_drive
+                    b_logsum_drive +
+                        shift_age_1_on_logsum_drive * (age in 0..17).D +
+                        shift_age_56_on_logsum_drive * (age in 50..69).D +
+                        shift_age_78_on_logsum_drive * (age in 70..120).D +
+                        shift_educ_on_logsum_drive * (employment in studentTypes).D +
+                        shift_arb_on_logsum_drive * (employment in noWorkTypes).D +
+                        shift_zk_on_logsum_drive * hasCommuterTicket +
+                        shift_carav_on_logsum_drive * (carsPerAdult >= 1).D +
+                        shift_nocar_on_logsum_drive * (householdCars == 0).D +
+                        shift_high_inc_on_logsum_drive * (householdEconomicalStatus in 4..5).D
+
+                    ) * ( // LOGSUM_DEST_DRIVE
+                    ln(
+                        availabilityModel.isCarAvailable.D * exp( // utility_car_d
+                            asc_car_d +
+                                b_tt_car_d * min(999.0, impedance.travelTimeCar.minutes) +
+                                b_cost * min(999.0, impedance.travelCostCar.euros),
+                        ) +
+                            exp( // utility_car_p
+                                asc_car_p +
+                                    b_tt_car_p * min(999.0, impedance.travelTimeCar.minutes + 3),
+                            ),
+                    ) + (!availabilityModel.isCarAvailable && !availabilityModel.isPassengerAvailable) * (-50)
+                    )
+
+                ) +
+
+            (
+                ( // b_logsum_pt_fix
+                    b_logsum_pt_active +
+                        shift_purp_on_logsum_pt_fix +
+                        shift_age_1_on_logsum_pt_fix * (age in 0..17).D +
+                        shift_age_56_on_logsum_pt_fix * (age in 50..69).D +
+                        shift_age_78_on_logsum_pt_fix * (age in 70..120).D +
+                        shift_educ_on_logsum_pt_fix * (employment in studentTypes).D +
+                        shift_home_on_logsum_pt_fix * (employment in noWorkTypes).D +
+                        shift_zk_on_logsum_pt_fix * hasCommuterTicket +
+                        shift_carav_on_logsum_pt_fix * (carsPerAdult >= 1).D +
+                        shift_nocar_on_logsum_pt_fix * (householdCars == 0).D +
+                        shift_high_inc_on_logsum_pt_fix * (householdEconomicalStatus in 4..5).D
+                    ) * ( // LOGSUM_FIX_DEST_PT
+                    ln(
+                        exp( // utility_put
+                            asc_put +
+                                b_tt_put * min(999.0, impedance.travelTimeFixedPut.minutes) +
+                                b_cost * min(999.0, impedance.travelCostFixedPut.euros),
+                            // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT_FIX > (-50))?(LOGSUM_ACC_PUT_FIX):(-50))
+                            // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT_FIX > (-50))?(LOGSUM_EGR_PUT_FIX):(-50))
                         ) +
 
-                    (
-                        ( // b_logsum_drive
-                            b_logsum_drive +
-                                shift_age_1_on_logsum_drive * (age in 0..17).D +
-                                shift_age_56_on_logsum_drive * (age in 50..69).D +
-                                shift_age_78_on_logsum_drive * (age in 70..120).D +
-                                shift_educ_on_logsum_drive * (employment in studentTypes).D +
-                                shift_arb_on_logsum_drive * (employment in noWorkTypes).D +
-                                shift_zk_on_logsum_drive * hasCommuterTicket +
-                                shift_carav_on_logsum_drive * (carsPerAdult >= 1).D +
-                                shift_nocar_on_logsum_drive * (householdCars == 0).D +
-                                shift_high_inc_on_logsum_drive * (householdEconomicalStatus in 4..5).D
+                            exp( // utility_ped
+                                asc_ped +
+                                    b_tt_ped * min(999.0, impedance.travelTimeFixedPed.minutes),
+                            ) +
 
-                            ) * ( // LOGSUM_DEST_DRIVE
-                            ln(
-                                availabilityModel.isCarAvailable.D * exp( // utility_car_d
-                                    asc_car_d +
-                                        b_tt_car_d * min(999.0, impedance.travelTimeCar.minutes) +
-                                        b_cost * min(999.0, impedance.travelCostCar.euros),
-                                ) +
-                                    exp( // utility_car_p
-                                        asc_car_p +
-                                            b_tt_car_p * min(999.0, impedance.travelTimeCar.minutes + 3),
-                                    ),
-                            ) + (!availabilityModel.isCarAvailable && !availabilityModel.isPassengerAvailable) * (-50)
-                            )
+                            exp( // utility_bike
+                                asc_bike +
+                                    b_tt_bike * min(999.0, impedance.travelTimeFixedBike.minutes),
+                            ) +
 
+                            availabilityModel.isBikesharingAvailable.D * exp( // utility_bike
+                                asc_bs +
+                                    b_tt_bike * min(999.0, impedance.travelTimeFixedBike.minutes) +
+                                    b_cost * min(999.0, impedance.travelCostFixedBikesharing.euros),
+                            ),
+                    ) +
+                        (
+                            !availabilityModel.isPedAvailable && !availabilityModel.isBikeAvailable &&
+                                !availabilityModel.isPutAvailable
+                            ).D *
+                        (-50)
+
+                    )
+                ) +
+
+            (
+                ( // b_logsum_drive_fix
+                    b_logsum_drive_fix +
+                        shift_age_1_on_logsum_drive_fix * (age in 0..17).D +
+                        shift_age_56_on_logsum_drive_fix * (age in 50..69).D +
+                        shift_age_78_on_logsum_drive_fix * (age in 70..120).D +
+                        shift_educ_on_logsum_drive_fix * (employment in studentTypes).D +
+                        shift_home_on_logsum_drive_fix * (employment in noWorkTypes).D +
+                        shift_zk_on_logsum_drive_fix * hasCommuterTicket +
+                        shift_carav_on_logsum_drive_fix * (carsPerAdult >= 1).D +
+                        shift_nocar_on_logsum_drive_fix * (householdCars == 0).D +
+                        shift_high_inc_on_logsum_drive_fix * (householdEconomicalStatus in 4..5).D
+
+                    ) * ( // LOGSUM_FIX_DEST_DRIVE
+                    ln(
+                        availabilityModel.isCarAvailable * exp( // utility_car_d
+                            asc_car_d +
+                                b_tt_car_d * min(999.0, impedance.travelTimeFixedCar.minutes) +
+                                b_cost * min(999.0, impedance.travelCostFixedCar.euros),
                         ) +
 
-                    (
-                        ( // b_logsum_pt_fix
-                            b_logsum_pt_active +
-                                shift_purp_on_logsum_pt_fix +
-                                shift_age_1_on_logsum_pt_fix * (age in 0..17).D +
-                                shift_age_56_on_logsum_pt_fix * (age in 50..69).D +
-                                shift_age_78_on_logsum_pt_fix * (age in 70..120).D +
-                                shift_educ_on_logsum_pt_fix * (employment in studentTypes).D +
-                                shift_home_on_logsum_pt_fix * (employment in noWorkTypes).D +
-                                shift_zk_on_logsum_pt_fix * hasCommuterTicket +
-                                shift_carav_on_logsum_pt_fix * (carsPerAdult >= 1).D +
-                                shift_nocar_on_logsum_pt_fix * (householdCars == 0).D +
-                                shift_high_inc_on_logsum_pt_fix * (householdEconomicalStatus in 4..5).D
-                            ) * ( // LOGSUM_FIX_DEST_PT
-                            ln(
-                                exp( // utility_put
-                                    asc_put +
-                                        b_tt_put * min(999.0, impedance.travelTimeFixedPut.minutes) +
-                                        b_cost * min(999.0, impedance.travelCostFixedPut.euros),
-                                    // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT_FIX > (-50))?(LOGSUM_ACC_PUT_FIX):(-50))
-                                    // + b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT_FIX > (-50))?(LOGSUM_EGR_PUT_FIX):(-50))
-                                ) +
+                            exp( // utility_car_p
+                                asc_car_p +
+                                    b_tt_car_p * min(999.0, impedance.travelTimeFixedCar.minutes + 3),
+                            ),
+                    ) + (!availabilityModel.isCarAvailable && !availabilityModel.isPassengerAvailable).D * (-50)
+                    )
+                )
+    }
+}.openMultinomialLogit("LegacyDestinationChoiceModel")
 
-                                    exp( // utility_ped
-                                        asc_ped +
-                                            b_tt_ped * min(999.0, impedance.travelTimeFixedPed.minutes),
-                                    ) +
-
-                                    exp( // utility_bike
-                                        asc_bike +
-                                            b_tt_bike * min(999.0, impedance.travelTimeFixedBike.minutes),
-                                    ) +
-
-                                        availabilityModel.isBikesharingAvailable.D * exp( // utility_bike
-                                        asc_bs +
-                                            b_tt_bike * min(999.0, impedance.travelTimeFixedBike.minutes) +
-                                            b_cost * min(999.0, impedance.travelCostFixedBikesharing.euros),
-                                    ),
-                            ) + (!availabilityModel.isPedAvailable && !availabilityModel.isBikeAvailable && !availabilityModel.isPutAvailable).D * (-50)
-
-                            )
-                        ) +
-
-                    (
-                        ( // b_logsum_drive_fix
-                            b_logsum_drive_fix +
-                                shift_age_1_on_logsum_drive_fix * (age in 0..17).D +
-                                shift_age_56_on_logsum_drive_fix * (age in 50..69).D +
-                                shift_age_78_on_logsum_drive_fix * (age in 70..120).D +
-                                shift_educ_on_logsum_drive_fix * (employment in studentTypes).D +
-                                shift_home_on_logsum_drive_fix * (employment in noWorkTypes).D +
-                                shift_zk_on_logsum_drive_fix * hasCommuterTicket +
-                                shift_carav_on_logsum_drive_fix * (carsPerAdult >= 1).D +
-                                shift_nocar_on_logsum_drive_fix * (householdCars == 0).D +
-                                shift_high_inc_on_logsum_drive_fix * (householdEconomicalStatus in 4..5).D
-
-                            ) * ( // LOGSUM_FIX_DEST_DRIVE
-                            ln(
-                                availabilityModel.isCarAvailable * exp( // utility_car_d
-                                    asc_car_d +
-                                        b_tt_car_d * min(999.0, impedance.travelTimeFixedCar.minutes) +
-                                        b_cost * min(999.0, impedance.travelCostFixedCar.euros),
-                                ) +
-
-                                    exp( // utility_car_p
-                                        asc_car_p +
-                                            b_tt_car_p * min(999.0, impedance.travelTimeFixedCar.minutes + 3),
-                                    ),
-                            ) + (!availabilityModel.isCarAvailable && !availabilityModel.isPassengerAvailable).D * (-50)
-                            )
-                        )
-            }
-        }.openMultinomialLogit("LegacyDestinationChoiceModel")
-
-val <C> C.legacyDestinationChoice where C: HasImpedance, C: HasAttractivenessModel, C: HasModeAvailabilityModel
+val <C> C.legacyDestinationChoice where C : HasImpedance, C : HasAttractivenessModel, C : HasModeAvailabilityModel
     get() = legacyDestinationChoiceBuilder.build(
         parameters = DestinationChoiceParameters(),
     )
 
-fun createLegacyDestinationChoice(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel) =
-    createLegacyDestinationChoiceBuilder(impedance, attractivenessModel, availabilityModel).build(DestinationChoiceParameters())
+fun createLegacyDestinationChoice(
+    impedance: Impedance,
+    attractivenessModel: AttractivenessModel,
+    availabilityModel: ModeAvailabilityModel,
+) = createLegacyDestinationChoiceBuilder(
+    impedance,
+    attractivenessModel,
+    availabilityModel,
+).build(DestinationChoiceParameters())

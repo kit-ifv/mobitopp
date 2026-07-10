@@ -88,7 +88,7 @@ class RidepoolingScenario {
 
             val builder = BuildAgents(
                 seed = 1L,
-                context.personStateMachine().withRecording(),
+                context.personStateMachine.withRecording(),
                 drtStateMachine = drtProviderStateMachine.withRecording(),
                 drtAlgorithm = { _ -> algorithm },
             )

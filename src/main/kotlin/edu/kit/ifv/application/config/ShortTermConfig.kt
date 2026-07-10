@@ -62,7 +62,11 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
 }
 
 fun interface DestinationChoiceFactory<L, C> {
-    fun create(impedance: Impedance, attractivenessModel: AttractivenessModel, modeAvailabilityModel: ModeAvailabilityModel): UtilityBasedChoiceModel<L, C>
+    fun create(
+        impedance: Impedance,
+        attractivenessModel: AttractivenessModel,
+        modeAvailabilityModel: ModeAvailabilityModel,
+    ): UtilityBasedChoiceModel<L, C>
 }
 
 fun interface ModeChoiceFactory<M, C> {

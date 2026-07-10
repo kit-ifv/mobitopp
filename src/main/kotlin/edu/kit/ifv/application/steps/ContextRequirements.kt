@@ -259,7 +259,9 @@ interface HasChoiceModelModes : Context {
     val choiceModelModes: ChoiceModelModes
 }
 
-interface HasMutableModeAvailabilityModel : Context, HasModeAvailabilityModel {
+interface HasMutableModeAvailabilityModel :
+    Context,
+    HasModeAvailabilityModel {
     override var modeAvailability: AvailabilityModelWithSharing
 }
 

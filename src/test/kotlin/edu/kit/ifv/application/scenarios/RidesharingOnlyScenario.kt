@@ -78,7 +78,7 @@ class RidesharingOnlyScenario {
             )
             val builder = BuildAgents(
                 seed = 1L,
-                context.personStateMachine().withRecording(),
+                context.personStateMachine.withRecording(),
             )
             val agents = builder.buildPersonAgents(households)
 

@@ -108,7 +108,6 @@ import edu.kit.ifv.domain.simulation.agent.SharingProviderAgent
 import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.legacyModeChoice
 import edu.kit.ifv.domain.simulation.data.car.MutablePrivateCar
 import edu.kit.ifv.domain.simulation.data.car.PrivateCar
 import edu.kit.ifv.domain.simulation.data.drt.DrtProvider
@@ -193,9 +192,7 @@ class MyContext :
         MapRepository("DrtProviderAgents")
     override lateinit var modeAvailability: AvailabilityModelWithSharing
     override val choiceModelModes: ChoiceModelModes = exampleChoiceModelModes
-    override val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics> = context(impedance) {
-        legacyModeChoice
-    } // TODO: Load later
+    override lateinit var modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
     override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
     override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =
         StandardModeImplementation
@@ -373,7 +370,7 @@ fun main(args: Array<String>) {
         loadDestinationChoiceModel()
 
         buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines
-            personStateMachine(),
+            personStateMachine,
             drtStateMachine = drtProviderStateMachine,
             drtAlgorithm = { _ ->
                 simpleDrtAlgorithm(

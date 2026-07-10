@@ -19,9 +19,7 @@ class OverridableModeChoiceModel constructor(val original: UtilityBasedChoiceMod
     override val name: String = original.name
 
     context(_: ModeChoiceCharacteristics, _: Random)
-    override fun select(choices: Set<Mode>): Mode {
-        return overrideMode ?: original.select(choices)
-    }
+    override fun select(choices: Set<Mode>): Mode = overrideMode ?: original.select(choices)
 
     context(_: ModeChoiceCharacteristics)
     override fun utility(alternative: Mode): Double = throw UnsupportedOperationException("Not yet implemented")
@@ -40,9 +38,7 @@ class OverridableModeChoiceModel constructor(val original: UtilityBasedChoiceMod
     override fun selectInjected(choices: Set<Mode>, injections: Map<Mode, (Double) -> Double>): Mode =
         throw UnsupportedOperationException("Not yet implemented")
 
-    override fun toString(): String {
-        return "Overridable ID: $id override = $overrideMode"
-    }
+    override fun toString(): String = "Overridable ID: $id override = $overrideMode"
 
     companion object {
         private var counter = 0

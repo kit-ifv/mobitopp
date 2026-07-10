@@ -199,183 +199,183 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // State: walking to dest
 // - send self: finish drt trip
 
-fun <C> C.personStateMachine(): StateMachineFactory<PersonAgent>
-where C : HasImpedance, C : HasAttractivenessModel, C : HasMutableDestinationChoiceModel, C : HasModeChoiceModel,
-      C : HasChoiceModelModes, C : HasMutableModeAvailabilityModel, C : HasSpawnModeCharacteristics, C : HasSpawnDestinationCharacteristics,
-      C : HasReplanningStrategy =
+val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
+    where C : HasImpedance, C : HasAttractivenessModel, C : HasMutableDestinationChoiceModel, C : HasModeChoiceModel,
+          C : HasChoiceModelModes, C : HasMutableModeAvailabilityModel, C : HasSpawnModeCharacteristics,
+          C : HasSpawnDestinationCharacteristics, C : HasReplanningStrategy get() =
 
-    stateMachine<PersonAgent>("PersonsStateMachine") {
-        start(StartPerson, ::startPerson) { send ->
-            val target = person.schedule.activities().first()
-            target.location = person.household.location
+        stateMachine<PersonAgent>("PersonsStateMachine") {
+            start(StartPerson, ::startPerson) { send ->
+                val target = person.schedule.activities().first()
+                target.location = person.household.location
 
-            val firstActivity = (block as Agenda).elements[0]
-            send(firstActivity(firstActivity), self, firstActivity.startTime)
-            //
-        }.transitionOn(FirstActivity) { message, send ->
-            performingActivity((block as Agenda), message.activity)
-        }
-
-        state(PerformingActivity) { send ->
-            send(endActivity(), self, activity.endTime)
-            //
-        }.transitionOn(EndActivity) { message, send ->
-            person.schedule.step()
-            when (block) {
-                is Agenda -> performingActivity(block as Agenda, agenda.elements[0])
-                is LinkTrip -> startingTrip(block as LinkTrip)
-                null -> finishedPerson()
-                else -> error("Expected next block in schedule to be agenda, trip or null but git: $block")
-            }
-        }
-
-        transState(StartingTrip) { send ->
-            // destination choice
-            // TODO Robin last.endlocation is destination?
-
-            if ("home" in (trip.nextAction?.type?.description?.lowercase() ?: "")) {
-                trip.elements.last().endLocation = person.household.location
+                val firstActivity = (block as Agenda).elements[0]
+                send(firstActivity(firstActivity), self, firstActivity.startTime)
+                //
+            }.transitionOn(FirstActivity) { message, send ->
+                performingActivity((block as Agenda), message.activity)
             }
 
-            if (trip.elements.last().endLocation == StandardLocation.LOCATIONUNKNOWN) {
-                val situation = spawnDestinationCharacteristics(person, time, trip)
-                context(situation, person.random) {
-                    trip.elements.last().endLocation = destinationChoiceModel.select()
+            state(PerformingActivity) { send ->
+                send(endActivity(), self, activity.endTime)
+                //
+            }.transitionOn(EndActivity) { message, send ->
+                person.schedule.step()
+                when (block) {
+                    is Agenda -> performingActivity(block as Agenda, agenda.elements[0])
+                    is LinkTrip -> startingTrip(block as LinkTrip)
+                    null -> finishedPerson()
+                    else -> error("Expected next block in schedule to be agenda, trip or null but git: $block")
                 }
-                trip.elements.forEach { it.transportType = MODEUNKOWN }
             }
-        }.next { send ->
-            context(choiceModelModes, modeAvailability) {
-                // mode choice
 
-                // TODO add version of ModeAvailabilityFilter with fixed global choice set
-                val (choices, sharedResources) = context(person, time, destination) {
-                    choiceModelModes.options.map { modeAvailability.providerAvailability(it) }
-                }.flatten()
+            transState(StartingTrip) { send ->
+                // destination choice
+                // TODO Robin last.endlocation is destination?
 
-                synchronizeAll(sharedResources.distinct().toSet()) {
-                    val (mode, drtRide) = modeChoiceDrtWrapper(choices, send) { choiceSet, drtOffer ->
-                        val modeSituation = spawnModeCharacteristics(
-                            person,
-                            time,
-                            origin,
-                            destination,
-                            choiceSet,
-                            drtOffer,
-                        )
+                if ("home" in (trip.nextAction?.type?.description?.lowercase() ?: "")) {
+                    trip.elements.last().endLocation = person.household.location
+                }
 
-                        val modeResult = context(modeSituation, person.random) {
-                            val mcAvail = choices.filter {
-                                context(impedance) {
-                                    modeAvailability.resourceAvailability(it)
+                if (trip.elements.last().endLocation == StandardLocation.LOCATIONUNKNOWN) {
+                    val situation = spawnDestinationCharacteristics(person, time, trip)
+                    context(situation, person.random) {
+                        trip.elements.last().endLocation = destinationChoiceModel.select()
+                    }
+                    trip.elements.forEach { it.transportType = MODEUNKOWN }
+                }
+            }.next { send ->
+                context(choiceModelModes, modeAvailability) {
+                    // mode choice
+
+                    // TODO add version of ModeAvailabilityFilter with fixed global choice set
+                    val (choices, sharedResources) = context(person, time, destination) {
+                        choiceModelModes.options.map { modeAvailability.providerAvailability(it) }
+                    }.flatten()
+
+                    synchronizeAll(sharedResources.distinct().toSet()) {
+                        val (mode, drtRide) = modeChoiceDrtWrapper(choices, send) { choiceSet, drtOffer ->
+                            val modeSituation = spawnModeCharacteristics(
+                                person,
+                                time,
+                                origin,
+                                destination,
+                                choiceSet,
+                                drtOffer,
+                            )
+
+                            val modeResult = context(modeSituation, person.random) {
+                                val mcAvail = choices.filter {
+                                    context(impedance) {
+                                        modeAvailability.resourceAvailability(it)
+                                    }
                                 }
+                                modeChoiceModel.select(mcAvail.toSet())
                             }
-                            modeChoiceModel.select(mcAvail.toSet())
+                            modeResult
                         }
-                        modeResult
-                    }
 
-                    trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
-                        taking(mode to destination)
-                    }
+                        trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
+                            taking(mode to destination)
+                        }
 
-                    person.inTransit = true
+                        person.inTransit = true
 
-                    // TODO after leg action is temporary hack until nested state machine is possible
-                    val noAction = AfterLegAction { a, t -> Unit }
-                    context(impedance, replanningStrategy, modeAvailability) {
-                        when (mode) {
-                            choiceModelModes.car -> startingCarTrip()
-                            choiceModelModes.bikeSharing -> startingBikeSharingTrip()
-                            choiceModelModes.ridePooling -> startingRidePoolingTrip(drtRide!!)
-                            else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
+                        // TODO after leg action is temporary hack until nested state machine is possible
+                        val noAction = AfterLegAction { a, t -> Unit }
+                        context(impedance, replanningStrategy, modeAvailability) {
+                            when (mode) {
+                                choiceModelModes.car -> startingCarTrip()
+                                choiceModelModes.bikeSharing -> startingBikeSharingTrip()
+                                choiceModelModes.ridePooling -> startingRidePoolingTrip(drtRide!!)
+                                else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
+                            }
                         }
                     }
                 }
             }
-        }
 
-        state(PerformLeg) { send ->
-            send(endLeg(), self, leg.endTime)
-            //
-        }.transitionOn(EndLeg) { message, send ->
-            person.location = leg.endLocation
-            person.schedule.step()
-            afterLegAction.execute(person, time)
+            state(PerformLeg) { send ->
+                send(endLeg(), self, leg.endTime)
+                //
+            }.transitionOn(EndLeg) { message, send ->
+                person.location = leg.endLocation
+                person.schedule.step()
+                afterLegAction.execute(person, time)
 
-            when (block) {
-                null -> finishedPerson()
+                when (block) {
+                    null -> finishedPerson()
 
-                is LinkTrip -> performLeg(block as LinkTrip, leg = trip.legs[0])
+                    is LinkTrip -> performLeg(block as LinkTrip, leg = trip.legs[0])
 
-                is Agenda -> {
-                    val agenda = block as Agenda
-                    agenda.elements.firstOrNull()?.let {
-                        performingActivity(agenda, agenda.elements[0])
-                    } ?: finishedPerson()
+                    is Agenda -> {
+                        val agenda = block as Agenda
+                        agenda.elements.firstOrNull()?.let {
+                            performingActivity(agenda, agenda.elements[0])
+                        } ?: finishedPerson()
+                    }
+
+                    else -> error(
+                        "Cannot process EndLeg: '$message' ins PerformLeg state: $this!" +
+                            " Current schedule block should be Agenda or LinkTrip but is of type " +
+                            block.agendaBlockDescription(),
+                    )
                 }
+            }
 
-                else -> error(
-                    "Cannot process EndLeg: '$message' ins PerformLeg state: $this!" +
-                        " Current schedule block should be Agenda or LinkTrip but is of type " +
-                        block.agendaBlockDescription(),
-                )
+            finState(FinishedPerson)
+
+            // DRT states
+
+            state(WaitingForPickup) {
+                //
+            }.transitionOn(PickupByDrt) { message, send ->
+                // pedestrian leg finished, pooling leg starts
+                person.location = trip.elements[0].endLocation
+                person.schedule.step()
+                waitingForDropOff()
+            }
+
+            state(WaitingForDropOff) {
+                //
+            }.transitionOn(DropOffByDrt) { message, send ->
+                // pooling leg finished, ped egress leg starts
+                person.location = trip.elements[0].endLocation
+                person.schedule.step()
+                onDrtEgress()
+            }
+
+            state(OnDrtEgress) { send ->
+                val arrival = maxOf(time, drtRide.offer.arrivalTimeAtDest)
+                send(finishDrtEgress(drtRide), self, arrival)
+                //
+            }.transitionOn(FinishDrtEgress) { message, send ->
+                // ped egress leg finished
+                person.location = trip.elements[0].endLocation
+                person.schedule.step()
+                finishDrtTrip()
+            }
+
+            transState(FinishDrtTrip).next { send ->
+
+                when (block) {
+                    null -> finishedPerson()
+
+                    is Agenda -> {
+                        val agenda = block as Agenda
+                        agenda.elements.firstOrNull()?.let {
+                            performingActivity(agenda, agenda.elements[0])
+                        } ?: finishedPerson()
+                    }
+
+                    else -> error(
+                        "Expected next block to be null or Agenda in FinishDrtTrip state: $this!" +
+                            " Current schedule block should be Agenda or null but is of type " +
+                            block.agendaBlockDescription(),
+                    )
+                }
             }
         }
-
-        finState(FinishedPerson)
-
-        // DRT states
-
-        state(WaitingForPickup) {
-            //
-        }.transitionOn(PickupByDrt) { message, send ->
-            // pedestrian leg finished, pooling leg starts
-            person.location = trip.elements[0].endLocation
-            person.schedule.step()
-            waitingForDropOff()
-        }
-
-        state(WaitingForDropOff) {
-            //
-        }.transitionOn(DropOffByDrt) { message, send ->
-            // pooling leg finished, ped egress leg starts
-            person.location = trip.elements[0].endLocation
-            person.schedule.step()
-            onDrtEgress()
-        }
-
-        state(OnDrtEgress) { send ->
-            val arrival = maxOf(time, drtRide.offer.arrivalTimeAtDest)
-            send(finishDrtEgress(drtRide), self, arrival)
-            //
-        }.transitionOn(FinishDrtEgress) { message, send ->
-            // ped egress leg finished
-            person.location = trip.elements[0].endLocation
-            person.schedule.step()
-            finishDrtTrip()
-        }
-
-        transState(FinishDrtTrip).next { send ->
-
-            when (block) {
-                null -> finishedPerson()
-
-                is Agenda -> {
-                    val agenda = block as Agenda
-                    agenda.elements.firstOrNull()?.let {
-                        performingActivity(agenda, agenda.elements[0])
-                    } ?: finishedPerson()
-                }
-
-                else -> error(
-                    "Expected next block to be null or Agenda in FinishDrtTrip state: $this!" +
-                        " Current schedule block should be Agenda or null but is of type " +
-                        block.agendaBlockDescription(),
-                )
-            }
-        }
-    }
 
 private fun Representative<out LinkedAction>?.agendaBlockDescription(): String = "${this?.let {
     it::class.simpleName
@@ -420,9 +420,9 @@ fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
 
     val (startStation, endStation) = requireNotNull(maybeBikesharing) {
         "How did you manage to select bikesharing if no connection available?\n" +
-            " - check availability model: ${modeAvailability::class.simpleName}\n" + // TODO: Is there really a need of modeAvailability here ??
+            " - check availability model: ${modeAvailability::class.simpleName}\n" +
             " - check connection model: ${bikeSharingConnections::class.simpleName}"
-    }
+    } // TODO Is there really a need of modeAvailability here ??
 
     trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
         taking(modes.pedestrian to startStation.location)

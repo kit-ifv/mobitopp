@@ -10,7 +10,6 @@ import edu.kit.ifv.application.steps.HasReplanningStrategy
 import edu.kit.ifv.application.steps.HasSpawnDestinationCharacteristics
 import edu.kit.ifv.application.steps.HasSpawnModeCharacteristics
 import edu.kit.ifv.application.syntheticsim.ControllableImpedance
-import edu.kit.ifv.application.syntheticsim.OneHouseholdTwoPersons
 import edu.kit.ifv.application.syntheticsim.testAttractivenessModel
 import edu.kit.ifv.core.modelsteps.ExecutionMode
 import edu.kit.ifv.core.modelsteps.initReport

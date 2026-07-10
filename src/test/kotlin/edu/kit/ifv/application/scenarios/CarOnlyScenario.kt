@@ -75,7 +75,7 @@ class CarOnlyScenario {
 
             val agents = BuildAgents(
                 seed = 1L,
-                context.personStateMachine().withRecording(),
+                context.personStateMachine.withRecording(),
             ).buildPersonAgents(households)
 
             RecordingStateMachine.recordInteractions()

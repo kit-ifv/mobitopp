@@ -152,105 +152,109 @@ val Impedance.travelCost: Currency get() = cost(
 )
 
 @Suppress("MagicNumber")
-val <C> C.legacyModeChoiceBuilder: EnumeratedDiscreteModelBuilder<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> where C : HasImpedance
+val <C> C.legacyModeChoiceBuilder: EnumeratedDiscreteModelBuilder<Mode, ModeChoiceCharacteristics, ModeChoiceParameters>
+    where C : HasImpedance
     get() = createLegacyModeChoiceBuilder(impedance)
 
-fun createLegacyModeChoiceBuilder(impedance: Impedance): EnumeratedDiscreteModelBuilder<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> =
+@Suppress("LongMethod")
+fun createLegacyModeChoiceBuilder(
+    impedance: Impedance,
+): EnumeratedDiscreteModelBuilder<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> =
     DiscreteStructure<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> {
         optionOf(LegacyMode.PEDESTRIAN) {
             asc_ped +
-                    age_0_17_on_asc_ped * isAgeIn0To17 +
-                    age_18_29_on_asc_ped * isAgeIn18To29 +
-                    age_50_59_on_asc_ped * isAgeIn50To59 +
-                    age_60_69_on_asc_ped * isAgeIn60To69 +
-                    age_70_100_on_asc_ped * isAgeIn70Plus +
-                    beruft_on_asc_ped * isEmployed +
-                    female_on_asc_ped * isFemale +
-                    inc_high_on_asc_ped * isEcoStatusHigh +
-                    zk_on_asc_ped * hasCommuterTicket +
-                    b_tt_ped * (impedance.travelTime.inWholeMinutes)
+                age_0_17_on_asc_ped * isAgeIn0To17 +
+                age_18_29_on_asc_ped * isAgeIn18To29 +
+                age_50_59_on_asc_ped * isAgeIn50To59 +
+                age_60_69_on_asc_ped * isAgeIn60To69 +
+                age_70_100_on_asc_ped * isAgeIn70Plus +
+                beruft_on_asc_ped * isEmployed +
+                female_on_asc_ped * isFemale +
+                inc_high_on_asc_ped * isEcoStatusHigh +
+                zk_on_asc_ped * hasCommuterTicket +
+                b_tt_ped * (impedance.travelTime.inWholeMinutes)
         }
 
         optionOf(LegacyMode.BIKE) {
             asc_bike +
-                    age_0_17_on_asc_bike * isAgeIn0To17 +
-                    age_18_29_on_asc_bike * isAgeIn18To29 +
-                    age_50_59_on_asc_bike * isAgeIn50To59 +
-                    age_60_69_on_asc_bike * isAgeIn60To69 +
-                    age_70_100_on_asc_bike * isAgeIn70Plus +
-                    beruft_on_asc_bike * isEmployed +
-                    female_on_asc_bike * isFemale +
-                    inc_high_on_asc_bike * isEcoStatusHigh +
-                    zk_on_asc_bike * hasCommuterTicket +
-                    b_tt_bike * (impedance.travelTime.inWholeMinutes)
+                age_0_17_on_asc_bike * isAgeIn0To17 +
+                age_18_29_on_asc_bike * isAgeIn18To29 +
+                age_50_59_on_asc_bike * isAgeIn50To59 +
+                age_60_69_on_asc_bike * isAgeIn60To69 +
+                age_70_100_on_asc_bike * isAgeIn70Plus +
+                beruft_on_asc_bike * isEmployed +
+                female_on_asc_bike * isFemale +
+                inc_high_on_asc_bike * isEcoStatusHigh +
+                zk_on_asc_bike * hasCommuterTicket +
+                b_tt_bike * (impedance.travelTime.inWholeMinutes)
         }
 
         optionOf(LegacyMode.CAR) {
             asc_car_d +
-                    age_0_17_on_asc_car_d * isAgeIn0To17 +
-                    age_18_29_on_asc_car_d * isAgeIn18To29 +
-                    age_50_59_on_asc_car_d * isAgeIn50To59 +
-                    age_60_69_on_asc_car_d * isAgeIn60To69 +
-                    age_70_100_on_asc_car_d * isAgeIn70Plus +
-                    beruft_on_asc_car_d * isEmployed +
-                    female_on_asc_car_d * isFemale +
-                    inc_high_on_asc_car_d * isEcoStatusHigh +
-                    zk_on_asc_car_d * hasCommuterTicket +
-                    b_tt_car_d * (impedance.travelTime.inWholeMinutes) +
-                    (
-                            b_cost_car_d +
-                                    age_0_17_on_b_cost_car_d * isAgeIn0To17 +
-                                    age_18_29_on_b_cost_car_d * isAgeIn18To29 +
-                                    age_50_59_on_b_cost_car_d * isAgeIn50To59 +
-                                    age_60_69_on_b_cost_car_d * isAgeIn60To69 +
-                                    age_70_100_on_b_cost_car_d * isAgeIn70Plus +
-                                    beruft_on_b_cost_car_d * isEmployed +
-                                    female_on_b_cost_car_d * isFemale +
-                                    inc_high_on_b_cost_car_d * isEcoStatusHigh +
-                                    zk_on_b_cost_car_d * hasCommuterTicket
-                            ) * impedance.travelCost.euros
+                age_0_17_on_asc_car_d * isAgeIn0To17 +
+                age_18_29_on_asc_car_d * isAgeIn18To29 +
+                age_50_59_on_asc_car_d * isAgeIn50To59 +
+                age_60_69_on_asc_car_d * isAgeIn60To69 +
+                age_70_100_on_asc_car_d * isAgeIn70Plus +
+                beruft_on_asc_car_d * isEmployed +
+                female_on_asc_car_d * isFemale +
+                inc_high_on_asc_car_d * isEcoStatusHigh +
+                zk_on_asc_car_d * hasCommuterTicket +
+                b_tt_car_d * (impedance.travelTime.inWholeMinutes) +
+                (
+                    b_cost_car_d +
+                        age_0_17_on_b_cost_car_d * isAgeIn0To17 +
+                        age_18_29_on_b_cost_car_d * isAgeIn18To29 +
+                        age_50_59_on_b_cost_car_d * isAgeIn50To59 +
+                        age_60_69_on_b_cost_car_d * isAgeIn60To69 +
+                        age_70_100_on_b_cost_car_d * isAgeIn70Plus +
+                        beruft_on_b_cost_car_d * isEmployed +
+                        female_on_b_cost_car_d * isFemale +
+                        inc_high_on_b_cost_car_d * isEcoStatusHigh +
+                        zk_on_b_cost_car_d * hasCommuterTicket
+                    ) * impedance.travelCost.euros
         }
 
         optionOf(LegacyMode.PASSENGER) {
             asc_car_p +
-                    age_0_17_on_asc_car_p * isAgeIn0To17 +
-                    age_18_29_on_asc_car_p * isAgeIn18To29 +
-                    age_50_59_on_asc_car_p * isAgeIn50To59 +
-                    age_60_69_on_asc_car_p * isAgeIn60To69 +
-                    age_70_100_on_asc_car_p * isAgeIn70Plus +
-                    beruft_on_asc_car_p * isEmployed +
-                    female_on_asc_car_p * isFemale +
-                    inc_high_on_asc_car_p * isEcoStatusHigh +
-                    zk_on_asc_car_p * hasCommuterTicket +
-                    b_tt_car_p * (impedance.travelTime.inWholeMinutes)
+                age_0_17_on_asc_car_p * isAgeIn0To17 +
+                age_18_29_on_asc_car_p * isAgeIn18To29 +
+                age_50_59_on_asc_car_p * isAgeIn50To59 +
+                age_60_69_on_asc_car_p * isAgeIn60To69 +
+                age_70_100_on_asc_car_p * isAgeIn70Plus +
+                beruft_on_asc_car_p * isEmployed +
+                female_on_asc_car_p * isFemale +
+                inc_high_on_asc_car_p * isEcoStatusHigh +
+                zk_on_asc_car_p * hasCommuterTicket +
+                b_tt_car_p * (impedance.travelTime.inWholeMinutes)
         }
 
         optionOf(LegacyMode.PUBLICTRANSPORT) {
             asc_put +
-                    age_0_17_on_asc_put * isAgeIn0To17 +
-                    age_18_29_on_asc_put * isAgeIn18To29 +
-                    age_50_59_on_asc_put * isAgeIn50To59 +
-                    age_60_69_on_asc_put * isAgeIn60To69 +
-                    age_70_100_on_asc_put * isAgeIn70Plus +
-                    beruft_on_asc_put * isEmployed +
-                    female_on_asc_put * isFemale +
-                    inc_high_on_asc_put * isEcoStatusHigh +
-                    zk_on_asc_put * hasCommuterTicket +
-                    b_tt_put * (impedance.travelTime.inWholeMinutes) +
-                    // b_acc_put
-                    // b_u_put
-                    (
-                            b_cost_put +
-                                    age_0_17_on_b_cost_put * isAgeIn0To17 +
-                                    age_18_29_on_b_cost_put * isAgeIn18To29 +
-                                    age_50_59_on_b_cost_put * isAgeIn50To59 +
-                                    age_60_69_on_b_cost_put * isAgeIn60To69 +
-                                    age_70_100_on_b_cost_put * isAgeIn70Plus +
-                                    beruft_on_b_cost_put * isEmployed +
-                                    female_on_b_cost_put * isFemale +
-                                    inc_high_on_b_cost_put * isEcoStatusHigh +
-                                    zk_on_b_cost_put * hasCommuterTicket
-                            ) * impedance.travelCost.euros * (1 - hasCommuterTicket)
+                age_0_17_on_asc_put * isAgeIn0To17 +
+                age_18_29_on_asc_put * isAgeIn18To29 +
+                age_50_59_on_asc_put * isAgeIn50To59 +
+                age_60_69_on_asc_put * isAgeIn60To69 +
+                age_70_100_on_asc_put * isAgeIn70Plus +
+                beruft_on_asc_put * isEmployed +
+                female_on_asc_put * isFemale +
+                inc_high_on_asc_put * isEcoStatusHigh +
+                zk_on_asc_put * hasCommuterTicket +
+                b_tt_put * (impedance.travelTime.inWholeMinutes) +
+                // b_acc_put
+                // b_u_put
+                (
+                    b_cost_put +
+                        age_0_17_on_b_cost_put * isAgeIn0To17 +
+                        age_18_29_on_b_cost_put * isAgeIn18To29 +
+                        age_50_59_on_b_cost_put * isAgeIn50To59 +
+                        age_60_69_on_b_cost_put * isAgeIn60To69 +
+                        age_70_100_on_b_cost_put * isAgeIn70Plus +
+                        beruft_on_b_cost_put * isEmployed +
+                        female_on_b_cost_put * isFemale +
+                        inc_high_on_b_cost_put * isEcoStatusHigh +
+                        zk_on_b_cost_put * hasCommuterTicket
+                    ) * impedance.travelCost.euros * (1 - hasCommuterTicket)
             // NO PUT COST IF OWNS TICKET
         }
     }.multinomialLogit(
