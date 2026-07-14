@@ -16,9 +16,9 @@ import edu.kit.ifv.domain.shared.location.road.LocatableGraph
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderMessage
 import edu.kit.ifv.domain.simulation.agent.PersonMessage
-import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.data.drt.DrtProviderId
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
 import edu.kit.ifv.domain.simulation.events.GenerateDestinationCharacteristics
@@ -262,11 +262,11 @@ interface HasChoiceModelModes : Context {
 interface HasMutableModeAvailabilityModel :
     Context,
     HasModeAvailabilityModel {
-    override var modeAvailability: AvailabilityModelWithSharing
+    override var modeAvailability: ModeAvailabilityModel
 }
 
 interface HasModeAvailabilityModel {
-    val modeAvailability: AvailabilityModelWithSharing
+    val modeAvailability: ModeAvailabilityModel
 }
 
 interface HasSpawnDestinationCharacteristics : Context {

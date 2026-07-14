@@ -11,8 +11,8 @@ import edu.kit.ifv.domain.simulation.agent.BuildAgents
 import edu.kit.ifv.domain.simulation.agent.DrtAlgorithm
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
 import edu.kit.ifv.domain.simulation.agent.SimpleMatrixDrtAlgorithm
-import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
-import edu.kit.ifv.domain.simulation.behavior.currentlyAffectedProviders
+import edu.kit.ifv.domain.simulation.behavior.availability.AvailabilityModelWithSharing
+import edu.kit.ifv.domain.simulation.behavior.availability.currentlyAffectedProviders
 import edu.kit.ifv.domain.simulation.data.drt.DrtProviderId
 import edu.kit.ifv.domain.simulation.data.drt.MutableDrtProviderData
 import edu.kit.ifv.domain.simulation.events.drtProviderStateMachine

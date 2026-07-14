@@ -8,9 +8,9 @@ import edu.kit.ifv.application.steps.HasZoneRepo
 import edu.kit.ifv.core.modelsteps.steps.repositoryDependentStep
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceParameters
-import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoice
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceParameters
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.legacyDestinationChoice
 import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
 
 fun <C> C.loadDestinationChoiceModel(

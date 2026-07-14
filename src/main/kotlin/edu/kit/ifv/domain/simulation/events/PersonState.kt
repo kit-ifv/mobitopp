@@ -3,10 +3,10 @@ import edu.kit.ifv.MessageCalled
 import edu.kit.ifv.StateCalled
 import edu.kit.ifv.application.steps.HasAttractivenessModel
 import edu.kit.ifv.application.steps.HasChoiceModelModes
+import edu.kit.ifv.application.steps.HasDestinationChoiceModel
 import edu.kit.ifv.application.steps.HasImpedance
+import edu.kit.ifv.application.steps.HasModeAvailabilityModel
 import edu.kit.ifv.application.steps.HasModeChoiceModel
-import edu.kit.ifv.application.steps.HasMutableDestinationChoiceModel
-import edu.kit.ifv.application.steps.HasMutableModeAvailabilityModel
 import edu.kit.ifv.application.steps.HasReplanningStrategy
 import edu.kit.ifv.application.steps.HasSpawnDestinationCharacteristics
 import edu.kit.ifv.application.steps.HasSpawnModeCharacteristics
@@ -27,21 +27,24 @@ import edu.kit.ifv.domain.shared.enums.MODEUNKOWN
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.agent.DrtOffer
 import edu.kit.ifv.domain.simulation.agent.DrtRide
 import edu.kit.ifv.domain.simulation.agent.PersonAgent
 import edu.kit.ifv.domain.simulation.agent.PersonMessage
 import edu.kit.ifv.domain.simulation.agent.PrivateCarAgent
 import edu.kit.ifv.domain.simulation.agent.getBestCar
-import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
-import edu.kit.ifv.domain.simulation.behavior.BikeSharingConnectionSelector
-import edu.kit.ifv.domain.simulation.behavior.DrtAvailabilitySelector
-import edu.kit.ifv.domain.simulation.behavior.flatten
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeResource
+import edu.kit.ifv.domain.simulation.behavior.availability.PoolingResource
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.utils.concurrent.synchronizeAll
 import edu.kit.ifv.utils.units.AbsoluteTime
 
-abstract class
-PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean) : BaseStateData(time) {
+abstract class PersonState(
+    time: AbsoluteTime,
+    override val agent: PersonAgent,
+    doStep: Boolean
+) : BaseStateData(time) {
 
     init {
         if (doStep) {
@@ -126,7 +129,7 @@ class StartingTripState constructor(trip: LinkTrip, state: PersonState) : TripSt
     StartingTripState::class,
     PerformLegState::class,
 )
-class PerformLegState(trip: LinkTrip, val leg: Leg, val afterLegAction: AfterLegAction, state: PersonState) :
+class PerformLegState(trip: LinkTrip, val leg: Leg, state: PersonState) :
     TripState(trip, state, doStep = true)
 
 // @StateCalled("StartingCarTrip", StartingTripState::class)
@@ -200,8 +203,8 @@ class FinishDrtTripState(state: PersonState, val trip: LinkTrip, val drtRide: Dr
 // - send self: finish drt trip
 
 val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
-    where C : HasImpedance, C : HasAttractivenessModel, C : HasMutableDestinationChoiceModel, C : HasModeChoiceModel,
-          C : HasChoiceModelModes, C : HasMutableModeAvailabilityModel, C : HasSpawnModeCharacteristics,
+    where C : HasImpedance, C : HasAttractivenessModel, C : HasDestinationChoiceModel, C : HasModeChoiceModel,
+          C : HasChoiceModelModes, C : HasModeAvailabilityModel, C : HasSpawnModeCharacteristics,
           C : HasSpawnDestinationCharacteristics, C : HasReplanningStrategy get() =
 
         stateMachine<PersonAgent>("PersonsStateMachine") {
@@ -233,6 +236,7 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
                 // destination choice
                 // TODO Robin last.endlocation is destination?
 
+                //check if this hack is still necessary or can be removed
                 if ("home" in (trip.nextAction?.type?.description?.lowercase() ?: "")) {
                     trip.elements.last().endLocation = person.household.location
                 }
@@ -244,54 +248,25 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
                     }
                     trip.elements.forEach { it.transportType = MODEUNKOWN }
                 }
+
             }.next { send ->
-                context(choiceModelModes, modeAvailability) {
-                    // mode choice
+                // mode choice: either continue using mode resource in person state or choose new mode
+                val resource = person.modeResource?.also {
+                    it.startTrip(person)
+                } ?: modeChoice(send, choiceModelModes, modeAvailability, modeChoiceModel, spawnModeCharacteristics)
 
-                    // TODO add version of ModeAvailabilityFilter with fixed global choice set
-                    val (choices, sharedResources) = context(person, time, destination) {
-                        choiceModelModes.options.map { modeAvailability.providerAvailability(it) }
-                    }.flatten()
+                trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
+                    taking(resource.mode to destination)
+                }
+//
+//            resource.startTrip(person)
+//            person.modeResource = resource
+                person.inTransit = true
 
-                    synchronizeAll(sharedResources.distinct().toSet()) {
-                        val (mode, drtRide) = modeChoiceDrtWrapper(choices, send) { choiceSet, drtOffer ->
-                            val modeSituation = spawnModeCharacteristics(
-                                person,
-                                time,
-                                origin,
-                                destination,
-                                choiceSet,
-                                drtOffer,
-                            )
-
-                            val modeResult = context(modeSituation, person.random) {
-                                val mcAvail = choices.filter {
-                                    context(impedance) {
-                                        modeAvailability.resourceAvailability(it)
-                                    }
-                                }
-                                modeChoiceModel.select(mcAvail.toSet())
-                            }
-                            modeResult
-                        }
-
-                        trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
-                            taking(mode to destination)
-                        }
-
-                        person.inTransit = true
-
-                        // TODO after leg action is temporary hack until nested state machine is possible
-                        val noAction = AfterLegAction { a, t -> Unit }
-                        context(impedance, replanningStrategy, modeAvailability) {
-                            when (mode) {
-                                choiceModelModes.car -> startingCarTrip()
-                                choiceModelModes.bikeSharing -> startingBikeSharingTrip()
-                                choiceModelModes.ridePooling -> startingRidePoolingTrip(drtRide!!)
-                                else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
-                            }
-                        }
-                    }
+                if (resource is PoolingResource) {
+                    waitingForPickup(drtRide = resource.drtRide!!)
+                } else {
+                    performLeg(leg = trip.elements[0])
                 }
             }
 
@@ -301,7 +276,6 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
             }.transitionOn(EndLeg) { message, send ->
                 person.location = leg.endLocation
                 person.schedule.step()
-                afterLegAction.execute(person, time)
 
                 when (block) {
                     null -> finishedPerson()
@@ -309,6 +283,7 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
                     is LinkTrip -> performLeg(block as LinkTrip, leg = trip.legs[0])
 
                     is Agenda -> {
+                        person.modeResource!!.endTrip(person)
                         val agenda = block as Agenda
                         agenda.elements.firstOrNull()?.let {
                             performingActivity(agenda, agenda.elements[0])
@@ -323,25 +298,30 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
                 }
             }
 
-            finState(FinishedPerson)
+            finState(FinishedPerson) {
+                person.modeResource = person.modeResource?.endTrip(person) // TODO force return?
+            }
 
             // DRT states
 
             state(WaitingForPickup) {
-                //
+                // move leg into present
+                println("${person.id.value} waits for pickup by ${drtRide.offer.providerAgent.name} at $time")
+                person.schedule.step()
             }.transitionOn(PickupByDrt) { message, send ->
                 // pedestrian leg finished, pooling leg starts
-                person.location = trip.elements[0].endLocation
-                person.schedule.step()
+                println("Provider ${drtRide.offer.providerAgent.name} picks up ${person.id.value} at $time")
+                person.location = drtRide.offer.pickupAt
                 waitingForDropOff()
             }
 
             state(WaitingForDropOff) {
                 //
+                println("${person.id.value} waits for drop off by ${drtRide.offer.providerAgent.name} at $time")
             }.transitionOn(DropOffByDrt) { message, send ->
+                println("Provider ${drtRide.offer.providerAgent.name} drops off up ${person.id.value} at $time")
                 // pooling leg finished, ped egress leg starts
                 person.location = trip.elements[0].endLocation
-                person.schedule.step()
                 onDrtEgress()
             }
 
@@ -350,9 +330,10 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
                 send(finishDrtEgress(drtRide), self, arrival)
                 //
             }.transitionOn(FinishDrtEgress) { message, send ->
-                // ped egress leg finished
-                person.location = trip.elements[0].endLocation
-                person.schedule.step()
+                // "ped egress leg" finished
+                person.location = drtRide.offer.destination
+
+                person.schedule.step() // move leg to past
                 finishDrtTrip()
             }
 
@@ -381,119 +362,151 @@ private fun Representative<out LinkedAction>?.agendaBlockDescription(): String =
     it::class.simpleName
 } ?: "null"}: '$this'"
 
-fun StartingTripState.startingCarTrip(): PerformLegState {
-    val car = person.getBestCar()
+//fun StartingTripState.startingCarTrip(): PerformLegState {
+//    val car = person.getBestCar()
+//
+//    car.state = PrivateCarAgent.CarState.IN_USE
+//    car.addDriver(person)
+//    car.keyHolder = person
+//
+//    var returned = false
+//    val checkEndOfCarTrip = AfterLegAction { a, t ->
+//        if (a.location == destination && !returned) {
+//            car.location = destination
+//            car.removeDriver()
+//            car.state = PrivateCarAgent.CarState.PARKED
+//            if (destination == a.household.location) { // TODO check
+//                car.keyHolder = null
+//                returned = true
+//            }
+//        }
+//    }
+//
+//    return performLeg(leg = trip.elements[0], afterLegAction = checkEndOfCarTrip)
+//}
+//
+//context(
+//    bikeSharingConnections: BikeSharingConnectionSelector,
+//    impedance: Impedance,
+//    replanningStrategy: ReplanningStrategy,
+//    modes: ChoiceModelModes,
+//    modeAvailability: AvailabilityModelWithSharing
+//)
+//fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
+//    val maybeBikesharing = modeAvailability.findConnection(person, destination)
+//
+//    if (maybeBikesharing == null) {
+//        println("NOOO")
+//    }
+//
+//    val (startStation, endStation) = requireNotNull(maybeBikesharing) {
+//        "How did you manage to select bikesharing if no connection available?\n" +
+//            " - check availability model: ${modeAvailability::class.simpleName}\n" +
+//            " - check connection model: ${bikeSharingConnections::class.simpleName}"
+//    } // TODO Is there really a need of modeAvailability here ??
+//
+//    trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
+//        taking(modes.pedestrian to startStation.location)
+//        taking(modes.bikeSharing to endStation.location)
+//        taking(modes.pedestrian to destination)
+//    }
+//
+//    val vehicle = startStation.takeAny()
+//
+//    var returned = false
+//    val checkBikeReturn = AfterLegAction { a, t ->
+//        if (a.location == endStation.location && !returned) {
+//            synchronized(endStation) {
+//                vehicle.returnTo(endStation)
+//            }
+//            returned = true
+//        }
+//    }
+//
+//    return performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
+//}
+//
+//context(impedance: Impedance, replanningStrategy: ReplanningStrategy, modes: ChoiceModelModes)
+//fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPickupState {
+//    trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
+//        taking(modes.pedestrian to drtRide.offer.pickupAt)
+//        taking(modes.ridePooling to drtRide.offer.dropOffAt)
+//        taking(modes.pedestrian to destination)
+//    }
+//
+//    return waitingForPickup(drtRide = drtRide)
+//}
 
-    car.state = PrivateCarAgent.CarState.IN_USE
-    car.addDriver(person)
-    car.keyHolder = person
 
-    var returned = false
-    val checkEndOfCarTrip = AfterLegAction { a, t ->
-        if (a.location == destination && !returned) {
-            car.location = destination
-            car.removeDriver()
-            car.state = PrivateCarAgent.CarState.PARKED
-            if (destination == a.household.location) { // TODO check
-                car.keyHolder = null
-                returned = true
-            }
-        }
-    }
-
-    return performLeg(leg = trip.elements[0], afterLegAction = checkEndOfCarTrip)
-}
-
-context(
-    bikeSharingConnections: BikeSharingConnectionSelector,
-    impedance: Impedance,
-    replanningStrategy: ReplanningStrategy,
+internal fun StartingTripState.modeChoice( // Add ignore modes for recursive call
+    send: Send,
     modes: ChoiceModelModes,
-    modeAvailability: AvailabilityModelWithSharing
-)
-fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
-    val maybeBikesharing = modeAvailability.findConnection(person, destination)
+    modeAvailability: ModeAvailabilityModel,
+    modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+    spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
+): ModeResource {
 
-    if (maybeBikesharing == null) {
-        println("NOOO")
-    }
+    val providerAvail = modes.options.map {
+        modeAvailability.providerAvailability(it, person, time, destination)
+    }.filter { it.isAvailable }
 
-    val (startStation, endStation) = requireNotNull(maybeBikesharing) {
-        "How did you manage to select bikesharing if no connection available?\n" +
-            " - check availability model: ${modeAvailability::class.simpleName}\n" +
-            " - check connection model: ${bikeSharingConnections::class.simpleName}"
-    } // TODO Is there really a need of modeAvailability here ??
+    val choices = providerAvail.map { it.mode }
+    val providers = providerAvail.flatMap { it.providers!!.toList() }.distinct().toSet()
 
-    trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
-        taking(modes.pedestrian to startStation.location)
-        taking(modes.bikeSharing to endStation.location)
-        taking(modes.pedestrian to destination)
-    }
+    val mode = synchronizeAll(providers) {
+        val resource = retryModeChoiceOnRideUnavailable(choices, send, modes) { choiceSet ->
+            val modeSituation = spawnModeCharacteristics(
+                person,
+                time,
+                origin,
+                destination,
+                choiceSet,
+                null,
+            )
 
-    val vehicle = startStation.takeAny()
 
-    var returned = false
-    val checkBikeReturn = AfterLegAction { a, t ->
-        if (a.location == endStation.location && !returned) {
-            synchronized(endStation) {
-                vehicle.returnTo(endStation)
+            val mcAvail = choices.mapNotNull {
+                modeAvailability.resourceAvailability(it, modeSituation)
+            }.associateBy { it.mode }
+
+            val mode = context(modeSituation,person.random) {
+                modeChoiceModel.select(mcAvail.keys)
             }
-            returned = true
+
+            return@retryModeChoiceOnRideUnavailable mcAvail[mode]!!
         }
+
+        person.modeResource = resource
+        resource.startTrip(person)
+        resource
+
+
     }
 
-    return performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
+    return mode
 }
 
-context(impedance: Impedance, replanningStrategy: ReplanningStrategy, modes: ChoiceModelModes)
-fun StartingTripState.startingRidePoolingTrip(drtRide: DrtRide): WaitingForPickupState {
-    trip.alternateByImpedance(impedance, replanner = replanningStrategy) {
-        taking(modes.pedestrian to drtRide.offer.pickupAt)
-        taking(modes.ridePooling to drtRide.offer.dropOffAt)
-        taking(modes.pedestrian to destination)
-    }
-
-    return waitingForPickup(drtRide = drtRide)
-}
-
-context(drtAvailabilitySelector: DrtAvailabilitySelector, modes: ChoiceModelModes)
-internal fun StartingTripState.modeChoiceDrtWrapper(
+internal fun StartingTripState.retryModeChoiceOnRideUnavailable(
     choices: List<Mode>,
     send: Send,
-    modeChoiceScope: StartingTripState.(List<Mode>, DrtOffer?) -> Mode,
-): Pair<Mode, DrtRide?> {
-    val drtOffers = takeIf { modes.ridePooling in choices }?.let {
-        context(person, time, destination) {
-            drtAvailabilitySelector.findDrtOffers()
-        }
-    } ?: emptyList()
+    modes: ChoiceModelModes,
+    modeChoiceScope: StartingTripState.(List<Mode>) -> ModeResource
+): ModeResource {
+    var mode = modeChoiceScope(choices)
 
-    val drtOffer = drtOffers.minByOrNull { it.totalDuration }
+    if (mode is PoolingResource) {
+        mode.startTrip(person)
 
-    var mode = modeChoiceScope(choices, drtOffer)
-
-    var drtRide: DrtRide? = null
-    if (mode == modes.ridePooling) {
-        drtOffer?.also {
-            drtRide = it.providerAgent.algorithm.bookRide(it)
-        }
-        drtOffers.filter { it != drtOffer }.forEach {
-            it.providerAgent.algorithm.revokeOffer(it)
-        }
-
-        if (drtRide == null) {
+        if (mode.drtRide == null) {
+            mode.drtOffer.providerAgent.algorithm.revokeOffer(mode.drtOffer)
             val modesNoDrt = choices - modes.ridePooling
-            mode = modeChoiceScope(modesNoDrt, null)
+            mode = modeChoiceScope(modesNoDrt)
         } else {
             // TODO since request/booking/revoke not via messages currently,
             // trigger provider state machine in case it went inactive
-            send.now(pickupDropOffPersons(), drtRide.offer.providerAgent)
-        }
-    } else {
-        drtOffers.forEach {
-            it.providerAgent.algorithm.revokeOffer(it)
+            send.now(pickupDropOffPersons(), mode.drtOffer.providerAgent)
         }
     }
 
-    return mode to drtRide
+    return mode
 }

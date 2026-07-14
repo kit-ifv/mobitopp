@@ -1,40 +1,38 @@
 package edu.kit.ifv.application.steps.model
 
-import edu.kit.ifv.application.steps.HasChoiceModelModes
-import edu.kit.ifv.application.steps.HasDrtProviderRepo
+import edu.kit.ifv.application.steps.BaseModesConfig
+import edu.kit.ifv.application.steps.DrtModesConfig
+import edu.kit.ifv.application.steps.HasImpedance
 import edu.kit.ifv.application.steps.HasMutableModeAvailabilityModel
-import edu.kit.ifv.application.steps.HasSharingProviderRepo
-import edu.kit.ifv.core.modelsteps.steps.repositoryDependentStep
-import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
-import edu.kit.ifv.domain.simulation.data.drt.DrtProvider
-import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
+import edu.kit.ifv.application.steps.SharingModesConfig
+import edu.kit.ifv.core.modelsteps.steps.modelStep
+import edu.kit.ifv.domain.simulation.behavior.availability.defaultAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.AvailabilityByRuleBuilder
 
-fun <C> C.loadAvailabilityModel() where C : HasSharingProviderRepo<*, SharingProvider>,
-                                        C : HasDrtProviderRepo<*, DrtProvider>,
-                                        C : HasChoiceModelModes,
-                                        C : HasMutableModeAvailabilityModel =
-    repositoryDependentStep(
-        "load availability model",
-        dependentRepositories = setOf(sharingProviderRepository, drtProviderRepository),
-    ) {
-        val sharingProviders = sharingProviderRepository.elements.associateBy { it.id }
-        val sharingProvidersByMode = sharingProviders.values.groupBy {
-            it.mode
-        }.mapValues {
-            it.value.map { p -> p.id }.toSet()
-        }
+context(config: CFG)
+fun <C, CFG> C.loadAvailabilityModel()
+where C : HasMutableModeAvailabilityModel,
+      C: HasImpedance,
+      CFG: BaseModesConfig,
+      CFG: SharingModesConfig,
+      CFG: DrtModesConfig =
+    modelStep("load availability model") {
 
-        val drtProviders = drtProviderRepository.elements.associateBy { it.id }
-        val drtProvidersByMode = drtProviders.values.groupBy {
-            it.mode
-        }.mapValues {
-            it.value.map { p -> p.id }.toSet()
-        }
-
-        // TODO refactor availability model, as composite of availability rules
-        modeAvailability = AvailabilityModelWithSharing(
-            choiceModelModes,
-            sharingProvidersByMode,
-            drtProvidersByMode,
+        modeAvailability = defaultAvailabilityModel(
+            pedestrian = config.pedestrianMode,
+            bike = config.bikeMode,
+            car = config.carMode,
+            passenger = config.passengerMode,
+            publicTransport = config.publicTransportMode,
+            carSharingStation = config.carSharingStationMode,
+            carSharingFree = config.carSharingFloatingMode,
+            bikeSharingOneWay = config.bikeSharingMode,
+            ridePooling = config.ridePoolingMode,
+            impedance = impedance
         )
     }
+
+fun <C> C.loadCustomAvailabilityModel(block: AvailabilityByRuleBuilder.() -> Unit)
+where C : HasMutableModeAvailabilityModel = modelStep("load custom availability model") {
+    modeAvailability = AvailabilityByRuleBuilder().apply { block() }.build()
+}

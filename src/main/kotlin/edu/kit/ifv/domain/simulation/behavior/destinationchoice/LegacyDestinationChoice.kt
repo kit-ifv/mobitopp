@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
 
-package edu.kit.ifv.domain.simulation.behavior
+package edu.kit.ifv.domain.simulation.behavior.destinationchoice
 import edu.kit.ifv.application.steps.HasAttractivenessModel
 import edu.kit.ifv.application.steps.HasImpedance
 import edu.kit.ifv.application.steps.HasModeAvailabilityModel
@@ -13,7 +13,8 @@ import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasZoneId
-import edu.kit.ifv.domain.simulation.behavior.with
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.modechoice.euros
 import edu.kit.ifv.domain.simulation.data.person.isAdult
 import edu.kit.ifv.mobitopp.actitoppNG.utils.D
 import edu.kit.ifv.mobitopp.discretechoice.structure.RuleBasedStructure

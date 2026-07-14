@@ -10,6 +10,7 @@ import edu.kit.ifv.domain.shared.datastructure.schedule.action.MovingAction
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Location
 import edu.kit.ifv.domain.shared.location.StandardLocation
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeResource
 import edu.kit.ifv.domain.simulation.data.person.IPerson
 import edu.kit.ifv.utils.random.StochasticActor
 import edu.kit.ifv.utils.units.AbsoluteTime
@@ -40,6 +41,7 @@ abstract class PersonAgent(
 
     var inTransit: Boolean = false
     var location: StandardLocation = household.location
+    var modeResource: ModeResource? = null
 }
 
 fun PersonAgent.lastTransportMode(action: Action? = null): Mode? = schedule.pastLegs().lastOrNull {
@@ -67,3 +69,5 @@ fun PersonAgent.getBestCar(): PrivateCarAgent = requireNotNull(this.getBestCarOr
         "Household at ${household.location} contains vehicles: " +
         "  ${household.cars.map { "${it.id} ${it.state} ${it.keyHolder?.id} ${it.location}" }}\n\n"
 }
+
+fun PersonAgent.isHome() = location == household.location

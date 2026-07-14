@@ -1,7 +1,7 @@
 package edu.kit.ifv.application.syntheticsim
 import edu.kit.ifv.domain.shared.enums.Mode
-import edu.kit.ifv.domain.simulation.behavior.ModeChoiceAlternative
-import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceAlternative
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel

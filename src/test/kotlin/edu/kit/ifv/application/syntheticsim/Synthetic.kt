@@ -26,10 +26,10 @@ import edu.kit.ifv.domain.simulation.agent.PrivateCarAgent
 import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
 import edu.kit.ifv.domain.simulation.agent.locationBySchedule
 import edu.kit.ifv.domain.simulation.agent.toAgent
-import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
-import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
-import edu.kit.ifv.domain.simulation.behavior.createLegacyDestinationChoice
-import edu.kit.ifv.domain.simulation.behavior.createLegacyModeChoice
+import edu.kit.ifv.domain.simulation.behavior.availability.AvailabilityModelWithSharing
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.createLegacyDestinationChoice
+import edu.kit.ifv.domain.simulation.behavior.modechoice.createLegacyModeChoice
 import edu.kit.ifv.domain.simulation.data.MutablePlannedActivity
 import edu.kit.ifv.domain.simulation.data.PlannedActivity
 import edu.kit.ifv.domain.simulation.data.household.Household

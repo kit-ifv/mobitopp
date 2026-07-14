@@ -7,13 +7,13 @@ import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceParameters
-import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
-import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.ModeChoiceParameters
-import edu.kit.ifv.domain.simulation.behavior.createLegacyDestinationChoiceBuilder
-import edu.kit.ifv.domain.simulation.behavior.createLegacyModeChoiceBuilder
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceParameters
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceParameters
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.createLegacyDestinationChoiceBuilder
+import edu.kit.ifv.domain.simulation.behavior.modechoice.createLegacyModeChoiceBuilder
 
 /**
  * Getter for the `DestinationChoiceModelType` aka

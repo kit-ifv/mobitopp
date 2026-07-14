@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber", "ConstructorParameterNaming", "MatchingDeclarationName")
 
-package edu.kit.ifv.domain.simulation.behavior
+package edu.kit.ifv.domain.simulation.behavior.modechoice
 
 import edu.kit.ifv.application.steps.HasImpedance
 import edu.kit.ifv.core.optionOf
