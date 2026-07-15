@@ -7,11 +7,12 @@ import edu.kit.ifv.core.statemachine.usage.renderAsPumlSequenceDiagram
 import edu.kit.ifv.core.statemachine.usage.renderAsPumlStateCharts
 import edu.kit.ifv.core.statemachine.usage.renderAsPumlTimingDiagram
 import edu.kit.ifv.core.statemachine.usage.withRecording
+import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
 import edu.kit.ifv.domain.simulation.agent.BuildAgents
 import edu.kit.ifv.domain.simulation.agent.SharingStationAgent
-import edu.kit.ifv.domain.simulation.behavior.availability.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.availability.currentlyAffectedProviders
+import edu.kit.ifv.domain.simulation.behavior.availability.defaultAvailabilityModel
 import edu.kit.ifv.domain.simulation.data.sharing.MutableSharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
 import edu.kit.ifv.domain.simulation.events.personStateMachine
@@ -46,6 +47,7 @@ class RidesharingOnlyScenario {
         val provider = MutableSharingProvider(SharingProviderId(1L)) {
             name = "Testprovider"
             mode = bikeSharing
+            operatingHours = 0 .. 24
         }
         zones.map { it.generateSharingStation(provider, 1) }
 
@@ -57,11 +59,12 @@ class RidesharingOnlyScenario {
 
         // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
         val impedance = ControllableImpedance()
-        val availability = AvailabilityModelWithSharing(
-            legacyChoiceModelModes,
-            mapOf(bikeSharing to setOf(provider.id)),
-            mapOf(),
+        val availability = defaultAvailabilityModel(legacyChoiceModelModes,
+            LegacyMode.TAXI, LegacyMode.E_SCOOTER,
+            impedance = impedance
         )
+//            mapOf(bikeSharing to setOf(provider.id)),
+
         context(impedance) {
             val context = ScenarioContext(
                 scenarioName = "RidesharingOnlyScenario",
@@ -80,14 +83,19 @@ class RidesharingOnlyScenario {
                 seed = 1L,
                 context.personStateMachine.withRecording(),
             )
+
+            builder.buildSharingProviderAgents(listOf(provider))
             val agents = builder.buildPersonAgents(households)
 
             agents.forEach { person ->
                 val dest = zones.first { it.id != person.location.zoneId }
-                val sharedResources =
-                    context(person, AbsoluteTime.START, dest.centroidLocation) {
-                        availability.currentlyAffectedProviders(legacyChoiceModelModes.options)
-                    }
+                val sharedResources = availability.currentlyAffectedProviders(
+                    legacyChoiceModelModes.options,
+                    person,
+                    AbsoluteTime.START,
+                    dest.centroidLocation
+                )
+
                 assertTrue(
                     sharedResources.any { it is SharingStationAgent },
                     "No sharing station available for person $person, from: ${person.location}, to: $dest",

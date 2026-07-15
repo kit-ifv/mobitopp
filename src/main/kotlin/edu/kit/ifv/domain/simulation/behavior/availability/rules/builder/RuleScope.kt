@@ -66,6 +66,7 @@ class ProviderRuleScope(
     override val time: AbsoluteTime,
     override val destination: StandardLocation
 ): AgentRuleScope {
+    fun available(resources: Collection<Any>): ProviderAvailability = mode.available(resources)
     fun available(vararg resources: Any): ProviderAvailability = mode.available(resources)
     fun notAvailable(): ProviderAvailability = mode.notAvailable
     fun modeAlreadyInUse(): Boolean = agent.modeResource?.let { it.mode == mode } ?: false

@@ -11,14 +11,16 @@ fun availabilityRules(block: AvailabilityByRuleBuilder.() -> Unit): ModeAvailabi
 
 class AvailabilityByRuleBuilder {
 
-    private val rulesByMode = mutableMapOf<Mode, AvailabilityRule>()
+    private val rulesByMode = mutableMapOf<Mode, AvailabilityRuleBuilder>()
 
     fun availabilityOf(mode: Mode): StaticAvailabilityRuleBuilder {
         require(mode !in rulesByMode) { "Cannot define a rule for $mode as it is already defined." }
-        return AvailabilityRuleBuilder(mode)
+        return AvailabilityRuleBuilder(mode).also {
+            rulesByMode[mode] = it
+        }
     }
 
-    fun build() = ModeAvailabilityByRule(rulesByMode)
+    fun build() = ModeAvailabilityByRule(rulesByMode.mapValues { it.value.build() })
 
     fun simpleAvailabilityOf(mode: Mode) = availabilityOf(mode).staticRule {
         true
@@ -26,23 +28,6 @@ class AvailabilityByRuleBuilder {
         available()
     }.resourceRule {
         availableWithoutResource()
-    }
-
-}
-
-
-val test = availabilityRules {
-
-    simpleAvailabilityOf(LegacyMode.TAXI)
-
-
-
-    availabilityOf(LegacyMode.TAXI).staticRule {
-        true
-    }.providerRule {
-        available()
-    }.resourceRule {
-        NoResourceMode(LegacyMode.TAXI)
     }
 
 }

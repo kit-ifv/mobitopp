@@ -6,6 +6,7 @@ import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.CoreCSVConfig
 import edu.kit.ifv.application.steps.ActivityTypesConfig
 import edu.kit.ifv.application.steps.AttractivenessFileConfig
+import edu.kit.ifv.application.steps.BaseModesConfig
 import edu.kit.ifv.application.steps.CarCodesConfig
 import edu.kit.ifv.application.steps.DrtModesConfig
 import edu.kit.ifv.application.steps.DrtSourceFilesConfig
@@ -105,7 +106,7 @@ import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
 import edu.kit.ifv.domain.simulation.agent.PersonAgent
 import edu.kit.ifv.domain.simulation.agent.SharingProviderAgent
-import edu.kit.ifv.domain.simulation.behavior.availability.AvailabilityModelWithSharing
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.data.car.MutablePrivateCar
@@ -190,7 +191,7 @@ class MyContext :
         MapRepository("SharingProviderAgents")
     override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> =
         MapRepository("DrtProviderAgents")
-    override lateinit var modeAvailability: AvailabilityModelWithSharing
+    override lateinit var modeAvailability: ModeAvailabilityModel
     override val choiceModelModes: ChoiceModelModes = exampleChoiceModelModes
     override lateinit var modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
     override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
@@ -214,6 +215,7 @@ class MyConfig :
     HouseholdCodesConfig,
     CarCodesConfig,
     ActivityTypesConfig,
+    BaseModesConfig,
     SourceFilesConfig,
     SharingSourceFilesConfig,
     SharingModesConfig,
@@ -268,6 +270,12 @@ class MyConfig :
     override val ridePoolingMode: Mode = LegacyMode.RIDE_POOLING
     override val work: ActivityType = LegacyActivityType.WORK
     override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT
+
+    override val pedestrianMode: Mode = LegacyMode.PEDESTRIAN
+    override val bikeMode: Mode = LegacyMode.BIKE
+    override val carMode: Mode = LegacyMode.CAR
+    override val passengerMode: Mode = LegacyMode.PASSENGER
+    override val publicTransportMode: Mode = LegacyMode.PUBLICTRANSPORT
 }
 
 @Suppress("LongMethod")

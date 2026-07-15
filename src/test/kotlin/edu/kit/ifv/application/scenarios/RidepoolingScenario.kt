@@ -6,13 +6,14 @@ import edu.kit.ifv.core.statemachine.usage.renderAsPumlSequenceDiagram
 import edu.kit.ifv.core.statemachine.usage.renderAsPumlStateCharts
 import edu.kit.ifv.core.statemachine.usage.renderAsPumlTimingDiagram
 import edu.kit.ifv.core.statemachine.usage.withRecording
+import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
 import edu.kit.ifv.domain.simulation.agent.BuildAgents
 import edu.kit.ifv.domain.simulation.agent.DrtAlgorithm
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
 import edu.kit.ifv.domain.simulation.agent.SimpleMatrixDrtAlgorithm
-import edu.kit.ifv.domain.simulation.behavior.availability.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.availability.currentlyAffectedProviders
+import edu.kit.ifv.domain.simulation.behavior.availability.defaultAvailabilityModel
 import edu.kit.ifv.domain.simulation.data.drt.DrtProviderId
 import edu.kit.ifv.domain.simulation.data.drt.MutableDrtProviderData
 import edu.kit.ifv.domain.simulation.events.drtProviderStateMachine
@@ -65,11 +66,13 @@ class RidepoolingScenario {
         )
 
         // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
-        val availability = AvailabilityModelWithSharing(
+        val availability = defaultAvailabilityModel(
             legacyChoiceModelModes,
-            mapOf(),
-            mapOf(ridePooling to setOf(provider.id)),
+            LegacyMode.TAXI, LegacyMode.E_SCOOTER,
+            impedance = impedance
         )
+//        mapOf(),
+//        mapOf(ridePooling to setOf(provider.id)),
 
         context(impedance) {
             val context = ScenarioContext(
@@ -96,10 +99,24 @@ class RidepoolingScenario {
 
             agents.forEach { person ->
                 val dest = zones.first { it.id != person.location.zoneId }
-                val sharedResources =
-                    context(person, 5.hours.sinceStart, dest.centroidLocation) {
-                        availability.currentlyAffectedProviders(legacyChoiceModelModes.options)
-                    }
+                val sharedResources = availability.currentlyAffectedProviders(
+                        legacyChoiceModelModes.options,
+                        person,
+                        5.hours.sinceStart,
+                        dest.centroidLocation
+                    )
+
+                if (!sharedResources.any { it is DrtProviderAgent }) {
+                    print("error")
+                    val res = availability.currentlyAffectedProviders(
+                        legacyChoiceModelModes.options,
+                        person,
+                        5.hours.sinceStart,
+                        dest.centroidLocation
+                    )
+                    print(res)
+                }
+
                 assertTrue(
                     sharedResources.any { it is DrtProviderAgent },
                     "No sharing station available for person $person, from: ${person.location}, to: $dest",

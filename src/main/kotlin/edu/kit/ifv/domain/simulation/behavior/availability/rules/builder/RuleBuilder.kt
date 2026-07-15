@@ -33,7 +33,7 @@ interface ProviderAvailabilityRuleBuilder {
 }
 
 interface ResourceAvailabilityRuleBuilder {
-    fun resourceRule(rule: ResourceRuleDefinition): AvailabilityRule
+    fun resourceRule(rule: ResourceRuleDefinition)
 }
 
 fun StaticAvailabilityRuleBuilder.default() = staticRule { true }.default()
@@ -65,9 +65,9 @@ class AvailabilityRuleBuilder(
         }
     }
 
-    override fun resourceRule(rule: ResourceRuleDefinition) = apply {
+    override fun resourceRule(rule: ResourceRuleDefinition) {
         resource = { characteristics -> ResourceRuleScope(mode, characteristics).rule() }
-    }.build()
+    }
 
     internal fun build(): AvailabilityRule {
         require(::static.isInitialized) { "Cannot build availability rule for $mode as no static rule was defined!" }
@@ -94,7 +94,8 @@ private class DefaultRule(
         destination: StandardLocation,
     ): ProviderAvailability {
         if (!staticRule(agent)) return mode.notAvailable
-        return if (isFixedToDifferentMode(agent, mode)) mode.notAvailable else providerRule(agent, time, destination)
+        return if (isFixedToDifferentMode(agent, mode)) mode.notAvailable
+            else providerRule(agent, time, destination)
     }
 
     private fun isFixedToDifferentMode(agent: PersonAgent, mode: Mode): Boolean =

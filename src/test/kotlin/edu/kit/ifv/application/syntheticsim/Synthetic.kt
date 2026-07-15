@@ -26,8 +26,8 @@ import edu.kit.ifv.domain.simulation.agent.PrivateCarAgent
 import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
 import edu.kit.ifv.domain.simulation.agent.locationBySchedule
 import edu.kit.ifv.domain.simulation.agent.toAgent
-import edu.kit.ifv.domain.simulation.behavior.availability.AvailabilityModelWithSharing
 import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.availability.defaultAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.createLegacyDestinationChoice
 import edu.kit.ifv.domain.simulation.behavior.modechoice.createLegacyModeChoice
 import edu.kit.ifv.domain.simulation.data.MutablePlannedActivity
@@ -153,10 +153,10 @@ abstract class Scenario(val zones: List<MaximalZone>, val impedance: Controllabl
             LegacyMode.PUBLICTRANSPORT,
         ),
     )
-    val availability = AvailabilityModelWithSharing(
+    val availability = defaultAvailabilityModel(
         scenarioChoiceModelModes,
-        emptyMap(),
-        mapOf(),
+        LegacyMode.TAXI, LegacyMode.E_SCOOTER,
+        impedance =  impedance
     )
 
     fun destinationChoice(

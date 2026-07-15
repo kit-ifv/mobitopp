@@ -47,6 +47,10 @@ private class ModeRuleLookup(
 
     companion object {
         fun from(ruleByMode: Map<Mode, AvailabilityRule>): ModeRuleLookup {
+            require(ruleByMode.isNotEmpty()) {
+                "Cannot create a mode -> rule lookup from an empty map!"
+            }
+
             val maxCode = ruleByMode.keys.maxOfOrNull { it.code } ?: 0
             val minCode = ruleByMode.keys.minOfOrNull { it.code } ?: 0
             val range = maxCode - minCode + 1

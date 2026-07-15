@@ -247,8 +247,8 @@ interface HasDestinationChoiceModel : Context {
     val destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
 }
 
-interface HasMutableDestinationChoiceModel : Context {
-    var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
+interface HasMutableDestinationChoiceModel : HasDestinationChoiceModel {
+    override var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
 }
 
 interface HasModeChoiceModel : Context {

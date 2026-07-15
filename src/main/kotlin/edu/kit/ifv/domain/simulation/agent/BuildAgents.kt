@@ -182,6 +182,8 @@ fun SharingProvider.toAgent(context: BuildAgents) = context.sharingProvidersById
     key = this.id,
     defaultValue = { MutableSharingProviderAgent(id, name, mode) },
 ) { agent ->
+
+    agent.operatingHours = operatingHours
     agent.stations.addAll(
         this.stations.map { it.toAgent(context, agent) },
     )

@@ -1,10 +1,29 @@
 package edu.kit.ifv.domain.simulation.behavior.availability
 
+import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.availabilityRules
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.default
+
+fun defaultAvailabilityModel(
+    modes: ChoiceModelModes,
+    vararg beamedModes: Mode,
+    impedance: Impedance
+) = defaultAvailabilityModel(
+    pedestrian = modes.pedestrian,
+    bike = modes.bike,
+    car = modes.car,
+    passenger = modes.passenger,
+    publicTransport = modes.publicTransport,
+    carSharingFree = modes.carSharingFree,
+    carSharingStation = modes.carSharingStation,
+    bikeSharingOneWay = modes.bikeSharing,
+    ridePooling = modes.ridePooling,
+    beamedModes = beamedModes,
+    impedance = impedance,
+)
 
 fun defaultAvailabilityModel(
     pedestrian: Mode,

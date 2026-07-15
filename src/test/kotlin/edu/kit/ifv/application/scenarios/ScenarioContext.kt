@@ -20,7 +20,7 @@ import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.behavior.availability.AvailabilityModelWithSharing
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.events.GenerateDestinationCharacteristics
@@ -34,7 +34,7 @@ class ScenarioContext(
     override val scenarioName: String,
     override val attractiveness: AttractivenessModel = testAttractivenessModel,
     override val choiceModelModes: ChoiceModelModes = legacyChoiceModelModes,
-    override var modeAvailability: AvailabilityModelWithSharing,
+    override var modeAvailability: ModeAvailabilityModel,
     override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =
         StandardModeImplementation,
     override val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics> =
