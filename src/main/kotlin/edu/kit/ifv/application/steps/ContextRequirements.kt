@@ -4,6 +4,7 @@ import edu.kit.ifv.core.modelsteps.resources.MutableRepository
 import edu.kit.ifv.core.modelsteps.resources.Repository
 import edu.kit.ifv.core.statemachine.Agent
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ParkingPressureModel
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
@@ -279,4 +280,8 @@ interface HasSpawnModeCharacteristics : Context {
 
 interface HasReplanningStrategy : Context {
     val replanningStrategy: ReplanningStrategy // = ReplanningStrategy.SHIFT
+}
+
+interface HasParkingPressureModel : Context {
+    var parkingPressure: ParkingPressureModel
 }

@@ -21,6 +21,8 @@ import edu.kit.ifv.application.steps.HasMutableAttractivenessModel
 import edu.kit.ifv.application.steps.HasMutableDestinationChoiceModel
 import edu.kit.ifv.application.steps.HasMutableImpedance
 import edu.kit.ifv.application.steps.HasMutableModeAvailabilityModel
+import edu.kit.ifv.application.steps.HasMutablePersonBehavior
+import edu.kit.ifv.application.steps.HasParkingPressureModel
 import edu.kit.ifv.application.steps.HasPersonAgentRepo
 import edu.kit.ifv.application.steps.HasPersonRepo
 import edu.kit.ifv.application.steps.HasReplanningStrategy
@@ -69,6 +71,7 @@ import edu.kit.ifv.application.steps.parser.csv.plannedActivityCsv
 import edu.kit.ifv.application.steps.parser.csv.zoneCsv
 import edu.kit.ifv.application.steps.parser.csv.zones
 import edu.kit.ifv.application.steps.parser.loadImpedance
+import edu.kit.ifv.application.steps.parser.loadParkingPressureModel
 import edu.kit.ifv.application.steps.results.createHtmlReport
 import edu.kit.ifv.application.steps.results.writeTrips
 import edu.kit.ifv.core.modelsteps.Cloneable
@@ -81,6 +84,7 @@ import edu.kit.ifv.core.modelsteps.resources.MutableRepository
 import edu.kit.ifv.core.modelsteps.steps.modelStep
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
+import edu.kit.ifv.domain.shared.behavior.ParkingPressureModel
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.car.CarSegment
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
@@ -163,6 +167,9 @@ class MyContext :
     HasSharingProviderAgentRepo<SharingProviderAgent, SharingProviderAgent>,
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
+    HasModes, // TODO discuss whether modes are context or config
+    HasParkingPressureModel,
+    HasMutablePersonBehavior,
     HasMutableModeAvailabilityModel,
     HasChoiceModelModes,
     HasModeChoiceModel,
@@ -171,12 +178,15 @@ class MyContext :
     HasSpawnDestinationCharacteristics,
     HasMutableDestinationChoiceModel,
     HasModes {
-    override val scenarioName: String = "regression test short term scenario"
-    override val modes: CodePlan<Mode> = LegacyMode
-    override lateinit var impedance: Impedance
-    override lateinit var attractiveness: AttractivenessModel
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
+
+    override val scenarioName: String = "regression test short term scenario"
+    override val modes: CodePlan<Mode> = LegacyMode
+
+    override lateinit var impedance: Impedance
+    override lateinit var attractiveness: AttractivenessModel
+    override lateinit var parkingPressure: ParkingPressureModel
     override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> = MapRepository("zone")
     override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> =
         MapRepository("household")
@@ -303,6 +313,8 @@ fun main(args: Array<String>) {
         }
 
         loadAttractivenessModelFromCsv()
+
+        loadParkingPressureModel()
 
 //            sharingProviders {
 //                loadSharingProviders(bikeSharingProviderCsv())
