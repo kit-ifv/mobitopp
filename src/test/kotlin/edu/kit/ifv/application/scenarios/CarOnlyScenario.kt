@@ -50,8 +50,9 @@ class CarOnlyScenario {
         val impedance = ControllableImpedance()
         val availability = defaultAvailabilityModel(
             legacyModes,
-            LegacyMode.TAXI, LegacyMode.E_SCOOTER,
-            impedance = impedance
+            LegacyMode.TAXI,
+            LegacyMode.E_SCOOTER,
+            impedance = impedance,
         )
 
         val car = legacyModes.car

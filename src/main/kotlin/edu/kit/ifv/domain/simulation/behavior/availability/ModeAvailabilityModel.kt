@@ -10,7 +10,6 @@ import edu.kit.ifv.domain.simulation.data.person.IPerson
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import edu.kit.ifv.utils.units.AbsoluteTime
 
-
 /**
  * ModeAvailabilityFilter is a [ChoiceFilter] for [edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceAlternative]s
  * that additionally breaks down availability into three parts:
@@ -74,7 +73,7 @@ interface ModeAvailabilityModel {
         mode: Mode,
         agent: PersonAgent,
         time: AbsoluteTime,
-        destination: StandardLocation
+        destination: StandardLocation,
     ): ProviderAvailability
 
     /**
@@ -86,5 +85,4 @@ interface ModeAvailabilityModel {
      * @return whether the given mode is available
      */
     fun resourceAvailability(mode: Mode, characteristics: ModeChoiceCharacteristics): ModeResource?
-
 }

@@ -38,7 +38,7 @@ interface SharingSourceFilesConfig : Config {
     val carSharingFloatingArea: Path
 }
 
-interface BaseModesConfig: Config {
+interface BaseModesConfig : Config {
     val pedestrianMode: Mode
     val bikeMode: Mode
     val carMode: Mode

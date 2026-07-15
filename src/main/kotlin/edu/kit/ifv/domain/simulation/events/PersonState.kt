@@ -36,11 +36,7 @@ import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.utils.concurrent.synchronizeAll
 import edu.kit.ifv.utils.units.AbsoluteTime
 
-abstract class PersonState(
-    time: AbsoluteTime,
-    override val agent: PersonAgent,
-    doStep: Boolean
-) : BaseStateData(time) {
+abstract class PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean) : BaseStateData(time) {
 
     init {
         if (doStep) {
@@ -125,8 +121,7 @@ class StartingTripState constructor(trip: LinkTrip, state: PersonState) : TripSt
     StartingTripState::class,
     PerformLegState::class,
 )
-class PerformLegState(trip: LinkTrip, val leg: Leg, state: PersonState) :
-    TripState(trip, state, doStep = true)
+class PerformLegState(trip: LinkTrip, val leg: Leg, state: PersonState) : TripState(trip, state, doStep = true)
 
 // @StateCalled("StartingCarTrip", StartingTripState::class)
 // class StartingCarTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
@@ -232,7 +227,7 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
                 // destination choice
                 // TODO Robin last.endlocation is destination?
 
-                //check if this hack is still necessary or can be removed
+                // check if this hack is still necessary or can be removed
                 if ("home" in (trip.nextAction?.type?.description?.lowercase() ?: "")) {
                     trip.elements.last().endLocation = person.household.location
                 }
@@ -244,7 +239,6 @@ val <C> C.personStateMachine: StateMachineFactory<PersonAgent>
                     }
                     trip.elements.forEach { it.transportType = MODEUNKOWN }
                 }
-
             }.next { send ->
                 // mode choice: either continue using mode resource in person state or choose new mode
                 val resource = person.modeResource?.also {
@@ -366,7 +360,6 @@ internal fun StartingTripState.modeChoice( // Add ignore modes for recursive cal
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
 ): ModeResource {
-
     val providerAvail = modes.options.map {
         modeAvailability.providerAvailability(it, person, time, destination)
     }.filter { it.isAvailable }
@@ -385,12 +378,11 @@ internal fun StartingTripState.modeChoice( // Add ignore modes for recursive cal
                 null,
             )
 
-
             val mcAvail = choices.mapNotNull {
                 modeAvailability.resourceAvailability(it, modeSituation)
             }.associateBy { it.mode }
 
-            val mode = context(modeSituation,person.random) {
+            val mode = context(modeSituation, person.random) {
                 modeChoiceModel.select(mcAvail.keys)
             }
 
@@ -400,8 +392,6 @@ internal fun StartingTripState.modeChoice( // Add ignore modes for recursive cal
         person.modeResource = resource
         resource.startTrip(person)
         resource
-
-
     }
 
     return mode
@@ -411,7 +401,7 @@ internal fun StartingTripState.retryModeChoiceOnRideUnavailable(
     choices: List<Mode>,
     send: Send,
     modes: ChoiceModelModes,
-    modeChoiceScope: StartingTripState.(List<Mode>) -> ModeResource
+    modeChoiceScope: StartingTripState.(List<Mode>) -> ModeResource,
 ): ModeResource {
     var mode = modeChoiceScope(choices)
 

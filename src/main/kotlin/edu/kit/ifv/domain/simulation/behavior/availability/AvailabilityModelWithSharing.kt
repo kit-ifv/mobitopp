@@ -1,30 +1,30 @@
 package edu.kit.ifv.domain.simulation.behavior.availability
 //
-//import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
-//import edu.kit.ifv.domain.shared.enums.Mode
-//import edu.kit.ifv.domain.shared.location.Impedance
-//import edu.kit.ifv.domain.shared.location.StandardLocation
-//import edu.kit.ifv.domain.simulation.agent.DrtOffer
-//import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
-//import edu.kit.ifv.domain.simulation.agent.DrtRequest
-//import edu.kit.ifv.domain.simulation.agent.PersonAgent
-//import edu.kit.ifv.domain.simulation.agent.SharingStationAgent
-//import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
-//import edu.kit.ifv.domain.simulation.agent.lastTransportMode
-//import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
-//import edu.kit.ifv.domain.simulation.data.drt.DrtProviderId
-//import edu.kit.ifv.domain.simulation.data.person.IPerson
-//import edu.kit.ifv.domain.simulation.data.person.drtMembershipIds
-//import edu.kit.ifv.domain.simulation.data.person.sharingMembershipIds
-//import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
-//import edu.kit.ifv.utils.units.AbsoluteTime
+// import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
+// import edu.kit.ifv.domain.shared.enums.Mode
+// import edu.kit.ifv.domain.shared.location.Impedance
+// import edu.kit.ifv.domain.shared.location.StandardLocation
+// import edu.kit.ifv.domain.simulation.agent.DrtOffer
+// import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
+// import edu.kit.ifv.domain.simulation.agent.DrtRequest
+// import edu.kit.ifv.domain.simulation.agent.PersonAgent
+// import edu.kit.ifv.domain.simulation.agent.SharingStationAgent
+// import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
+// import edu.kit.ifv.domain.simulation.agent.lastTransportMode
+// import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
+// import edu.kit.ifv.domain.simulation.data.drt.DrtProviderId
+// import edu.kit.ifv.domain.simulation.data.person.IPerson
+// import edu.kit.ifv.domain.simulation.data.person.drtMembershipIds
+// import edu.kit.ifv.domain.simulation.data.person.sharingMembershipIds
+// import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
+// import edu.kit.ifv.utils.units.AbsoluteTime
 //
-//@Suppress("TooManyFunctions")
-//class AvailabilityModelWithSharing(
+// @Suppress("TooManyFunctions")
+// class AvailabilityModelWithSharing(
 //    val modes: ChoiceModelModes,
 //    private val sharingProvidersByMode: Map<Mode, Set<SharingProviderId>>,
 //    private val drtProvidersByMode: Map<Mode, Set<DrtProviderId>>,
-//) : ModeAvailabilityModel,
+// ) : ModeAvailabilityModel,
 //    BikeSharingConnectionSelector,
 //    DrtAvailabilitySelector {
 //
@@ -59,14 +59,14 @@ package edu.kit.ifv.domain.simulation.behavior.availability
 //
 //    context(characteristics: ModeChoiceCharacteristics, impedance: Impedance)
 //    override fun resourceAvailability(mode: Mode): ModeResource? = NoResourceMode(mode)
-////        context(characteristics.person, characteristics.time, characteristics.destination) {
-////            mode in characteristics.currentChoices // cached choice set before mode choice / lock
-////        } && when (mode) {
-////            modes.car -> isPrivateCarAvailableForChoice(characteristics)
-////            modes.bikeSharing -> isBikesharingAvailableForChoice(characteristics)
-////            modes.ridePooling -> isPoolingAvailableForChoice(characteristics)
-////            else -> true
-////        }
+// //        context(characteristics.person, characteristics.time, characteristics.destination) {
+// //            mode in characteristics.currentChoices // cached choice set before mode choice / lock
+// //        } && when (mode) {
+// //            modes.car -> isPrivateCarAvailableForChoice(characteristics)
+// //            modes.bikeSharing -> isBikesharingAvailableForChoice(characteristics)
+// //            modes.ridePooling -> isPoolingAvailableForChoice(characteristics)
+// //            else -> true
+// //        }
 //
 //    // Static availability
 //    private fun hasCarStatic(person: IPerson) = person.hasLicense && person.household.cars.isNotEmpty()
@@ -228,4 +228,4 @@ package edu.kit.ifv.domain.simulation.behavior.availability
 //            )
 //        }
 //    }
-//}
+// }

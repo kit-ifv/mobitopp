@@ -1,9 +1,6 @@
 package edu.kit.ifv.domain.simulation.behavior.availability.rules.builder
 
-import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.Mode
-import edu.kit.ifv.domain.simulation.behavior.availability.NoResourceMode
-import edu.kit.ifv.domain.simulation.behavior.availability.rules.AvailabilityRule
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.ModeAvailabilityByRule
 
 fun availabilityRules(block: AvailabilityByRuleBuilder.() -> Unit): ModeAvailabilityByRule =
@@ -29,5 +26,4 @@ class AvailabilityByRuleBuilder {
     }.resourceRule {
         availableWithoutResource()
     }
-
 }

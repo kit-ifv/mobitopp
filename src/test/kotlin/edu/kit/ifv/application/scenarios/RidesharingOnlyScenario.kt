@@ -47,7 +47,7 @@ class RidesharingOnlyScenario {
         val provider = MutableSharingProvider(SharingProviderId(1L)) {
             name = "Testprovider"
             mode = bikeSharing
-            operatingHours = 0 .. 24
+            operatingHours = 0..24
         }
         zones.map { it.generateSharingStation(provider, 1) }
 
@@ -59,9 +59,11 @@ class RidesharingOnlyScenario {
 
         // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
         val impedance = ControllableImpedance()
-        val availability = defaultAvailabilityModel(legacyChoiceModelModes,
-            LegacyMode.TAXI, LegacyMode.E_SCOOTER,
-            impedance = impedance
+        val availability = defaultAvailabilityModel(
+            legacyChoiceModelModes,
+            LegacyMode.TAXI,
+            LegacyMode.E_SCOOTER,
+            impedance = impedance,
         )
 //            mapOf(bikeSharing to setOf(provider.id)),
 
@@ -93,7 +95,7 @@ class RidesharingOnlyScenario {
                     legacyChoiceModelModes.options,
                     person,
                     AbsoluteTime.START,
-                    dest.centroidLocation
+                    dest.centroidLocation,
                 )
 
                 assertTrue(

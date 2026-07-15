@@ -9,23 +9,20 @@ import edu.kit.ifv.domain.simulation.agent.SharingStationAgent
 import edu.kit.ifv.domain.simulation.agent.SharingVehicleAgent
 import edu.kit.ifv.domain.simulation.agent.isHome
 
-
 interface ModeResource {
     val mode: Mode
     fun startTrip(person: PersonAgent)
     fun endTrip(person: PersonAgent): ModeResource?
 }
 
-class NoResourceMode(override val mode: Mode): ModeResource {
-    override fun startTrip(person: PersonAgent) {}
+class NoResourceMode(override val mode: Mode) : ModeResource {
+    override fun startTrip(person: PersonAgent) = Unit
 
-    override fun endTrip(person: PersonAgent): ModeResource? =
-        if (mode.requiresVehicleTakeAlong && !person.isHome()) {
-            this
-        } else {
-            null
-        }
-
+    override fun endTrip(person: PersonAgent): ModeResource? = if (mode.requiresVehicleTakeAlong && !person.isHome()) {
+        this
+    } else {
+        null
+    }
 }
 
 class CarResource(override val mode: Mode, val car: PrivateCarAgent) : ModeResource {
@@ -51,7 +48,11 @@ class CarResource(override val mode: Mode, val car: PrivateCarAgent) : ModeResou
 }
 
 typealias SharingFreeFloatingZoneAgent = SharingStationAgent
-class SharingFreeResource(override val mode: Mode, val start: SharingFreeFloatingZoneAgent, val end: SharingFreeFloatingZoneAgent) : ModeResource {
+class SharingFreeResource(
+    override val mode: Mode,
+    val start: SharingFreeFloatingZoneAgent,
+    val end: SharingFreeFloatingZoneAgent,
+) : ModeResource {
     private lateinit var vehicle: SharingVehicleAgent
 
     override fun startTrip(person: PersonAgent) {

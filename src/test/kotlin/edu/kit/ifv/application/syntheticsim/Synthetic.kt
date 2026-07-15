@@ -155,8 +155,9 @@ abstract class Scenario(val zones: List<MaximalZone>, val impedance: Controllabl
     )
     val availability = defaultAvailabilityModel(
         scenarioChoiceModelModes,
-        LegacyMode.TAXI, LegacyMode.E_SCOOTER,
-        impedance =  impedance
+        LegacyMode.TAXI,
+        LegacyMode.E_SCOOTER,
+        impedance = impedance,
     )
 
     fun destinationChoice(

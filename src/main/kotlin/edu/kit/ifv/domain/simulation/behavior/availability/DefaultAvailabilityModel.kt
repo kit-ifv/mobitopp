@@ -7,24 +7,22 @@ import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.availabilityRules
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.default
 
-fun defaultAvailabilityModel(
-    modes: ChoiceModelModes,
-    vararg beamedModes: Mode,
-    impedance: Impedance
-) = defaultAvailabilityModel(
-    pedestrian = modes.pedestrian,
-    bike = modes.bike,
-    car = modes.car,
-    passenger = modes.passenger,
-    publicTransport = modes.publicTransport,
-    carSharingFree = modes.carSharingFree,
-    carSharingStation = modes.carSharingStation,
-    bikeSharingOneWay = modes.bikeSharing,
-    ridePooling = modes.ridePooling,
-    beamedModes = beamedModes,
-    impedance = impedance,
-)
+fun defaultAvailabilityModel(modes: ChoiceModelModes, vararg beamedModes: Mode, impedance: Impedance) =
+    defaultAvailabilityModel(
+        pedestrian = modes.pedestrian,
+        bike = modes.bike,
+        car = modes.car,
+        passenger = modes.passenger,
+        publicTransport = modes.publicTransport,
+        carSharingFree = modes.carSharingFree,
+        carSharingStation = modes.carSharingStation,
+        bikeSharingOneWay = modes.bikeSharing,
+        ridePooling = modes.ridePooling,
+        beamedModes = beamedModes,
+        impedance = impedance,
+    )
 
+@Suppress("LongMethod")
 fun defaultAvailabilityModel(
     pedestrian: Mode,
     bike: Mode,
@@ -38,7 +36,6 @@ fun defaultAvailabilityModel(
     vararg beamedModes: Mode,
     impedance: Impedance,
 ): ModeAvailabilityModel = availabilityRules {
-
     simpleAvailabilityOf(pedestrian)
 
     availabilityOf(bike).staticRule {
@@ -83,7 +80,6 @@ fun defaultAvailabilityModel(
             .stations()
             .checkAgentInFootZones()
             .checkAnyAvailable()
-
     }.resourceRule {
         sharingProviders.checkOperatingHours()
             .stations()
@@ -118,10 +114,7 @@ fun defaultAvailabilityModel(
             .selectRideOfferByMinDuration()
     }
 
-
     for (m in beamedModes) {
         simpleAvailabilityOf(m)
     }
-
-
 }

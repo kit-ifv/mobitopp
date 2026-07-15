@@ -68,8 +68,9 @@ class RidepoolingScenario {
         // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
         val availability = defaultAvailabilityModel(
             legacyChoiceModelModes,
-            LegacyMode.TAXI, LegacyMode.E_SCOOTER,
-            impedance = impedance
+            LegacyMode.TAXI,
+            LegacyMode.E_SCOOTER,
+            impedance = impedance,
         )
 //        mapOf(),
 //        mapOf(ridePooling to setOf(provider.id)),
@@ -100,11 +101,11 @@ class RidepoolingScenario {
             agents.forEach { person ->
                 val dest = zones.first { it.id != person.location.zoneId }
                 val sharedResources = availability.currentlyAffectedProviders(
-                        legacyChoiceModelModes.options,
-                        person,
-                        5.hours.sinceStart,
-                        dest.centroidLocation
-                    )
+                    legacyChoiceModelModes.options,
+                    person,
+                    5.hours.sinceStart,
+                    dest.centroidLocation,
+                )
 
                 if (!sharedResources.any { it is DrtProviderAgent }) {
                     print("error")
@@ -112,7 +113,7 @@ class RidepoolingScenario {
                         legacyChoiceModelModes.options,
                         person,
                         5.hours.sinceStart,
-                        dest.centroidLocation
+                        dest.centroidLocation,
                     )
                     print(res)
                 }

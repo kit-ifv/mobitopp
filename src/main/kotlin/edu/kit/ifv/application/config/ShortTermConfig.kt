@@ -8,8 +8,8 @@ import edu.kit.ifv.domain.shared.datastructure.matrix.ZoneMatrixCreation
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel

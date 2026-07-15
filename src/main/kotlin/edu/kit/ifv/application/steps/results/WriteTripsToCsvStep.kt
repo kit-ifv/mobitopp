@@ -10,8 +10,8 @@ import edu.kit.ifv.domain.shared.datastructure.schedule.action.Activity
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.LinkedLeg
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.simulation.agent.PersonAgent
-import edu.kit.ifv.domain.simulation.behavior.modechoice.euros
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.kilometers
+import edu.kit.ifv.domain.simulation.behavior.modechoice.euros
 import edu.kit.ifv.domain.synthesis.results.legacy.toCSV
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter

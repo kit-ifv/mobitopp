@@ -12,12 +12,11 @@ import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.Availab
 context(config: CFG)
 fun <C, CFG> C.loadAvailabilityModel()
 where C : HasMutableModeAvailabilityModel,
-      C: HasImpedance,
-      CFG: BaseModesConfig,
-      CFG: SharingModesConfig,
-      CFG: DrtModesConfig =
+      C : HasImpedance,
+      CFG : BaseModesConfig,
+      CFG : SharingModesConfig,
+      CFG : DrtModesConfig =
     modelStep("load availability model") {
-
         modeAvailability = defaultAvailabilityModel(
             pedestrian = config.pedestrianMode,
             bike = config.bikeMode,
@@ -28,11 +27,13 @@ where C : HasMutableModeAvailabilityModel,
             carSharingFree = config.carSharingFloatingMode,
             bikeSharingOneWay = config.bikeSharingMode,
             ridePooling = config.ridePoolingMode,
-            impedance = impedance
+            impedance = impedance,
         )
     }
 
-fun <C> C.loadCustomAvailabilityModel(block: AvailabilityByRuleBuilder.() -> Unit)
+fun <C> C.loadCustomAvailabilityModel(
+    block: AvailabilityByRuleBuilder.() -> Unit,
+)
 where C : HasMutableModeAvailabilityModel = modelStep("load custom availability model") {
     modeAvailability = AvailabilityByRuleBuilder().apply { block() }.build()
 }

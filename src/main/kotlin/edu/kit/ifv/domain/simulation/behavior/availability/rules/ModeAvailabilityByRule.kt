@@ -10,39 +10,28 @@ import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristi
 import edu.kit.ifv.domain.simulation.data.person.IPerson
 import edu.kit.ifv.utils.units.AbsoluteTime
 
-class ModeAvailabilityByRule(ruleByMode: Map<Mode, AvailabilityRule>): ModeAvailabilityModel {
+class ModeAvailabilityByRule(ruleByMode: Map<Mode, AvailabilityRule>) : ModeAvailabilityModel {
 
     private val lookup = ModeRuleLookup.from(ruleByMode)
 
-    override fun staticAvailability(
-        mode: Mode,
-        person: IPerson
-    ): Boolean = lookup[mode].staticAvailability(person)
+    override fun staticAvailability(mode: Mode, person: IPerson): Boolean = lookup[mode].staticAvailability(person)
 
     override fun providerAvailability(
         mode: Mode,
         agent: PersonAgent,
         time: AbsoluteTime,
-        destination: StandardLocation
+        destination: StandardLocation,
     ): ProviderAvailability = lookup[mode].providerAvailability(agent, time, destination)
 
-    override fun resourceAvailability(
-        mode: Mode,
-        characteristics: ModeChoiceCharacteristics
-    ): ModeResource? = lookup[mode].resourceAvailability(characteristics)
-
+    override fun resourceAvailability(mode: Mode, characteristics: ModeChoiceCharacteristics): ModeResource? =
+        lookup[mode].resourceAvailability(characteristics)
 }
 
-private class ModeRuleLookup(
-    val lookup: Array<AvailabilityRule?>,
-    private val codeOffset: Int
-) {
+private class ModeRuleLookup(val lookup: Array<AvailabilityRule?>, private val codeOffset: Int) {
 
-    operator fun get(mode: Mode): AvailabilityRule {
-        return requireNotNull(lookup[mode.code - codeOffset]) {
-            "No rule defined for mode $mode (at index ${mode.code - codeOffset}).\n" +
-                    "Lookup table: ${lookup.withIndex().associate { it.index to it.value }}}"
-        }
+    operator fun get(mode: Mode): AvailabilityRule = requireNotNull(lookup[mode.code - codeOffset]) {
+        "No rule defined for mode $mode (at index ${mode.code - codeOffset}).\n" +
+            "Lookup table: ${lookup.withIndex().associate { it.index to it.value }}}"
     }
 
     companion object {
@@ -64,8 +53,4 @@ private class ModeRuleLookup(
             return ModeRuleLookup(values, minCode)
         }
     }
-
-
-
 }
-

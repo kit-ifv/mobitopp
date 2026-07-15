@@ -17,11 +17,8 @@ interface AvailabilityRule {
     fun providerAvailability(
         agent: PersonAgent,
         time: AbsoluteTime,
-        destination: StandardLocation
+        destination: StandardLocation,
     ): ProviderAvailability
 
-    fun resourceAvailability(
-        characteristics: ModeChoiceCharacteristics,
-    ): ModeResource?
-
+    fun resourceAvailability(characteristics: ModeChoiceCharacteristics): ModeResource?
 }

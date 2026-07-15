@@ -26,6 +26,5 @@ fun ModeAvailabilityModel.currentlyAffectedProviders(
     modes: Collection<Mode>,
     agent: PersonAgent,
     time: AbsoluteTime,
-    destination: StandardLocation
-): List<Any> =
-    modes.mapNotNull { providerAvailability(it, agent, time, destination).providers }.flatten()
+    destination: StandardLocation,
+): List<Any> = modes.mapNotNull { providerAvailability(it, agent, time, destination).providers }.flatten()
