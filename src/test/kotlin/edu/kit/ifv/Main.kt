@@ -21,7 +21,6 @@ import edu.kit.ifv.application.steps.HasMutableAttractivenessModel
 import edu.kit.ifv.application.steps.HasMutableDestinationChoiceModel
 import edu.kit.ifv.application.steps.HasMutableImpedance
 import edu.kit.ifv.application.steps.HasMutableModeAvailabilityModel
-import edu.kit.ifv.application.steps.HasMutablePersonBehavior
 import edu.kit.ifv.application.steps.HasParkingPressureModel
 import edu.kit.ifv.application.steps.HasPersonAgentRepo
 import edu.kit.ifv.application.steps.HasPersonRepo
@@ -169,15 +168,13 @@ class MyContext :
     HasMutableImpedance,
     HasModes, // TODO discuss whether modes are context or config
     HasParkingPressureModel,
-    HasMutablePersonBehavior,
     HasMutableModeAvailabilityModel,
     HasChoiceModelModes,
     HasModeChoiceModel,
     HasReplanningStrategy,
     HasSpawnModeCharacteristics,
     HasSpawnDestinationCharacteristics,
-    HasMutableDestinationChoiceModel,
-    HasModes {
+    HasMutableDestinationChoiceModel {
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
 
