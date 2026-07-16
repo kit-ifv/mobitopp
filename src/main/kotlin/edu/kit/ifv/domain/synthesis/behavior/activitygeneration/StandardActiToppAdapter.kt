@@ -1,10 +1,9 @@
 package edu.kit.ifv.domain.synthesis.behavior.activitygeneration
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelPurposes
 import edu.kit.ifv.domain.shared.enums.ActivityType
-import edu.kit.ifv.domain.shared.enums.areatype.RegionType
-import edu.kit.ifv.domain.shared.enums.areatype.ZoneRegionType
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.enums.person.Sex
+import edu.kit.ifv.domain.synthesis.behavior.MinimalistHousehold
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
 
@@ -20,25 +19,20 @@ import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
  * ActivityType decoding: actiTopp types are mapped to project purposes provided via [purposes].
  * TRANSPORT maps to purposes.service; confirm that this aligns with your domain semantics.
  */
-class StandardActiToppAdapter(
+class StandardActiToppAdapter<in S, in T>(
     private val purposes: ChoiceModelPurposes,
     val unknownSexResolution: (Sex) ->
     Gender = { Gender.FEMALE },
-    val converter: (RegionType) -> ZoneRegionType,
-) : ActiToppAdapter {
+    val converter: (MinimalistHousehold<S, T>) -> AreaType,
+) : ActiToppAdapter<S, T> {
     override fun encodeSex(sex: Sex): Gender = when (sex) {
         Sex.MALE -> Gender.MALE
         Sex.FEMALE -> Gender.FEMALE
         else -> unknownSexResolution(sex)
     }
 
-    override fun encodeRegionType(regionType: RegionType): AreaType = when (converter(regionType)) {
-        ZoneRegionType.RURAL -> AreaType.RURAL
-        ZoneRegionType.PROVINCIAL -> AreaType.PROVINCIAL
-        ZoneRegionType.CITYOUTSKIRT -> AreaType.CITYOUTSKIRT
-        ZoneRegionType.METROPOLITAN -> AreaType.METROPOLITAN
-        ZoneRegionType.CONURBATION -> AreaType.CONURBATION
-        ZoneRegionType.DEFAULT -> AreaType.UNKNOWN
+    override fun encodeRegionType(household: MinimalistHousehold<S, T>): AreaType {
+        return converter(household)
     }
 
     @Suppress("CyclomaticComplexMethod")
