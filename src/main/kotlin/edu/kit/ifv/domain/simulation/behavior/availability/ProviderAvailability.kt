@@ -14,14 +14,17 @@ import edu.kit.ifv.utils.units.AbsoluteTime
 data class ProviderAvailability(val mode: Mode, val providers: Collection<Any>? = null) {
     /** True if the mode is available from at least one provider. */
     val isAvailable: Boolean = (providers != null)
+
     /** True if the mode is not available. */
     val isNotAvailable: Boolean = (providers == null)
 }
 
 /** Returns a [ProviderAvailability] indicating that the mode is not available. */
 val Mode.notAvailable get() = ProviderAvailability(this, null)
+
 /** Creates a [ProviderAvailability] indicating that the mode is available with the given [providers]. */
 fun Mode.available(providers: Collection<Any> = emptyList()) = ProviderAvailability(this, providers)
+
 /** Creates a [ProviderAvailability] indicating that the mode is available with the given [providers]. */
 fun Mode.available(vararg providers: Any) = ProviderAvailability(this, providers.toSet())
 

@@ -73,11 +73,12 @@ class CarResource(override val mode: Mode, val car: PrivateCarAgent) : ModeResou
  * A [ModeResource] representing a bike.
  */
 class BikeResource(override val mode: Mode) : ModeResource {
-    override fun startTrip(person: PersonAgent) {}
-    override fun endTrip(person: PersonAgent): ModeResource? =
-        if (person.household.location == person.location) {
-            null
-        } else this
+    override fun startTrip(person: PersonAgent) = Unit
+    override fun endTrip(person: PersonAgent): ModeResource? = if (person.household.location == person.location) {
+        null
+    } else {
+        this
+    }
 }
 
 /**

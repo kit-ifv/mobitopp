@@ -6,7 +6,6 @@ import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
 import edu.kit.ifv.domain.simulation.behavior.availability.BikeResource
 import edu.kit.ifv.domain.simulation.behavior.availability.CarResource
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.AvailabilityByRuleBuilder
-import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.default
 
 /**
  * Adds the default car availability rule to the rules builder.

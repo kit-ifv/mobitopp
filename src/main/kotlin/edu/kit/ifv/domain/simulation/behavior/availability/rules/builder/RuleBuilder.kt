@@ -14,17 +14,22 @@ import edu.kit.ifv.utils.units.AbsoluteTime
 
 /** Static rule logic: (person: IPerson) -> Boolean */
 typealias StaticRule = (person: IPerson) -> Boolean
+
 /** Provider rule logic: (agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation) -> ProviderAvailability */
 typealias ProviderRule = (agent: PersonAgent, time: AbsoluteTime, destination: StandardLocation) -> ProviderAvailability
+
 /** Resource rule logic: (characteristics: ModeChoiceCharacteristics) -> ModeResource? */
 typealias ResourceRule = (characteristics: ModeChoiceCharacteristics) -> ModeResource?
 
 /** DSL definition for static rules. */
 typealias StaticRuleDefinition = StaticRuleScope.() -> Boolean
+
 /** DSL definition for provider rules. */
 typealias ProviderRuleDefinition = ProviderRuleScope.() -> ProviderAvailability
+
 /** DSL definition for wrapped provider rules. */
 typealias ProviderWrappedRuleDefinition = ProviderRuleScope.() -> Boolean
+
 /** DSL definition for resource rules. */
 typealias ResourceRuleDefinition = ResourceRuleScope.() -> ModeResource?
 
@@ -38,6 +43,7 @@ sealed interface StaticAvailabilityRuleBuilder {
 sealed interface ProviderAvailabilityRuleBuilder {
     /** Sets the [rule] for provider availability. */
     fun providerRule(rule: ProviderRuleDefinition): ResourceAvailabilityRuleBuilder
+
     /** Sets the [rule] for provider availability, indicating availability of [providers] if the rule evaluates to true. */
     fun providersIf(vararg providers: Any, rule: ProviderWrappedRuleDefinition): ResourceAvailabilityRuleBuilder
 }
@@ -50,8 +56,10 @@ sealed interface ResourceAvailabilityRuleBuilder {
 
 /** Sets a default static rule (always true) and returns the next builder. */
 fun StaticAvailabilityRuleBuilder.default() = staticRule { true }.default()
+
 /** Sets a default provider rule (always available) and returns the next builder. */
 fun ProviderAvailabilityRuleBuilder.default() = providerRule { available() }.default()
+
 /** Sets a default resource rule (available without specific resource). */
 fun ResourceAvailabilityRuleBuilder.default() = resourceRule { NoResourceMode(mode) }
 

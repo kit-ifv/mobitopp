@@ -35,26 +35,33 @@ class StaticRuleScope(val mode: Mode, val person: IPerson)
 interface AgentRuleScope {
     /** The transport mode. */
     val mode: Mode
+
     /** The current simulation time. */
     val time: AbsoluteTime
+
     /** The person agent making the choice. */
     val agent: PersonAgent
+
     /** The potential destination. */
     val destination: StandardLocation
 
     /** Sharing providers the agent is a member of for the current [mode]. */
     val sharingProviders get() = agent.sharingMemberships.filter { it.mode == mode }
+
     /** DRT providers the agent is a member of for the current [mode]. */
     val drtProviders get() = agent.drtMemberships.filter { it.mode == mode }
 
     /** Filters providers that are currently operating. */
     fun List<SharingProviderAgent>.checkOperatingHours() = filter { time.hour in it.operatingHours }
+
     /** Returns all stations of the given providers. */
     fun List<SharingProviderAgent>.stations() = flatMap { it.stations }
+
     /** Filters stations where the agent is currently in a foot zone. */
     fun List<SharingStationAgent>.checkAgentInFootZones() = filter {
         it.zonesByFoot.any { zone -> agent.location in zone }
     }
+
     /** Filters stations within a certain [radius] from the agent's location. */
     fun List<SharingStationAgent>.checkAgentInRadius(radius: Distance, pedestrian: Mode, impedance: Impedance) =
         filter { impedance.distance(it.location, agent.location, pedestrian) <= radius }
@@ -90,10 +97,13 @@ class ProviderRuleScope(
 ) : AgentRuleScope {
     /** Creates a [ProviderAvailability] indicating availability from the given [resources]. */
     fun available(resources: Collection<Any>): ProviderAvailability = mode.available(resources)
+
     /** Creates a [ProviderAvailability] indicating availability from the given [resources]. */
     fun available(vararg resources: Any): ProviderAvailability = mode.available(resources)
+
     /** Creates a [ProviderAvailability] indicating that the mode is not available. */
     fun notAvailable(): ProviderAvailability = mode.notAvailable
+
     /** Returns true if the agent is already using a resource for this [mode]. */
     fun modeAlreadyInUse(): Boolean = agent.modeResource?.let { it.mode == mode } ?: false
 
@@ -128,6 +138,7 @@ class ResourceRuleScope(override val mode: Mode, val characteristics: ModeChoice
 
     /** Returns a [NoResourceMode] indicating that the mode is available without a specific resource. */
     fun availableWithoutResource(): ModeResource = NoResourceMode(mode)
+
     /** Indicates that the resource is unavailable. */
     val resourceUnavailable: ModeResource? = null
 
