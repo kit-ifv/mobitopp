@@ -73,7 +73,9 @@ fun defaultAvailabilityModel(
         person.hasBike
     }.providerRule {
         homeBasedVehicleRule(useProvider = false)
-    }.default()
+    }.resourceRule {
+        BikeResource(bike)
+    }
 
     availabilityOf(car).staticRule {
         person.hasLicense && person.household.cars.isNotEmpty()
