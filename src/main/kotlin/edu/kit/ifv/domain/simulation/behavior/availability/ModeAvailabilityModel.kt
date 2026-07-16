@@ -32,11 +32,18 @@ import edu.kit.ifv.utils.units.AbsoluteTime
  *
  */
 interface ModeAvailabilityModel {
-
+    /**
+     * Converts this model to a [ChoiceFilter] for [IPerson] that checks static availability.
+     * @return a choice filter for static availability
+     */
     fun asStaticAvailabilityFilter() = ChoiceFilter<Mode, IPerson> { mode ->
         staticAvailability(mode, contextOf<IPerson>())
     }
 
+    /**
+     * Converts this model to a [ChoiceFilter] for [DestinationAlternative] that checks provider availability.
+     * @return a choice filter for provider availability
+     */
     fun asProviderAvailabilityFilter() = ChoiceFilter<Mode, DestinationAlternative> { mode ->
         val destinationAlternative = contextOf<DestinationAlternative>()
         providerAvailability(
@@ -47,6 +54,10 @@ interface ModeAvailabilityModel {
         ).isAvailable
     }
 
+    /**
+     * Converts this model to a [ChoiceFilter] for [ModeChoiceCharacteristics] that checks resource availability.
+     * @return a choice filter for resource availability
+     */
     fun asResourceAvailabilityFilter() = ChoiceFilter<Mode, ModeChoiceCharacteristics> { mode ->
         resourceAvailability(mode, contextOf<ModeChoiceCharacteristics>())?.let { true } ?: false
     }
@@ -63,11 +74,13 @@ interface ModeAvailabilityModel {
 
     /**
      * Computes the provider availability (availability and possibly affected shared resource providers)
-     * of the given [mode] in the current choice situation (given in the context).
+     * of the given [mode] in the current choice situation.
      *
      * @param mode the mode for which to check availability and affected resources
-     * @receiver situation = a [DestinationAlternative] characterizing the choice situation and potential destination
-     * @return availability and possibly affected resource providers
+     * @param agent the person to check provider availability for
+     * @param time the time of the choice situation
+     * @param destination the potential destination for the mode choice
+     * @return [ProviderAvailability] containing availability status and affected resource providers
      */
     fun providerAvailability(
         mode: Mode,
@@ -81,8 +94,8 @@ interface ModeAvailabilityModel {
      * in the context of a choice situation defined by [ModeChoiceCharacteristics].
      *
      * @param mode the mode to be checked for availability
-     * @receiver characteristics = the characteristics of the mode choice situation
-     * @return whether the given mode is available
+     * @param characteristics the characteristics of the mode choice situation
+     * @return [ModeResource] if the mode is available, `null` otherwise
      */
     fun resourceAvailability(mode: Mode, characteristics: ModeChoiceCharacteristics): ModeResource?
 }
