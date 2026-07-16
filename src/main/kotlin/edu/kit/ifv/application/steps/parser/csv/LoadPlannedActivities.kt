@@ -214,5 +214,5 @@ fun <C, CFG> C.binaryPlannedActivityFormat(): BinaryCacheConfig<MutablePlannedAc
 //            personConverter = converter,
             contextSimulationSeed = config.seed,
         ),
-        binaryWriter = BinaryActivityWriter(),
+        binaryWriter = BinaryActivityWriter,
     )

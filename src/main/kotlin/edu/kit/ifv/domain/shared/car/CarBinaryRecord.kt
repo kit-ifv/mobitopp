@@ -1,5 +1,5 @@
 package edu.kit.ifv.domain.shared.car
-import edu.kit.ifv.utils.binary.BinaryWritable
+import edu.kit.ifv.binary.BinaryWritable
 import java.io.DataOutputStream
 
 data class CarBinaryRecord(

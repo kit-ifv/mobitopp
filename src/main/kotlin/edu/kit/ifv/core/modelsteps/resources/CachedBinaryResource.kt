@@ -1,8 +1,8 @@
 package edu.kit.ifv.core.modelsteps.resources
 
 import edu.kit.ifv.binary.BinaryReader
+import edu.kit.ifv.binary.BinaryWriter
 import edu.kit.ifv.utils.PathChecksum
-import edu.kit.ifv.utils.binary.BinaryWriter
 import edu.kit.ifv.utils.files.crc32
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString

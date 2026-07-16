@@ -143,7 +143,7 @@ fun <C, CFG> C.binaryPersonFormat(): BinaryCacheConfig<MutablePerson>
             contextSimulationSeed = config.seed,
         ),
 
-        binaryWriter = BinaryPersonWriter(),
+        binaryWriter = BinaryPersonWriter,
     )
 
 /**

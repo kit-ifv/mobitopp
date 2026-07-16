@@ -1,12 +1,12 @@
 package edu.kit.ifv.domain.simulation.data
 import edu.kit.ifv.Mutable
+import edu.kit.ifv.binary.Simplifiable
 import edu.kit.ifv.domain.shared.data.activity.ActivityBinaryRecord
 import edu.kit.ifv.domain.shared.data.activity.ActivityId
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.utils.Identifiable
-import edu.kit.ifv.utils.binary.Simplifiable
 import edu.kit.ifv.utils.random.StochasticActor
 import edu.kit.ifv.utils.units.AbsoluteTime
 import kotlin.random.Random

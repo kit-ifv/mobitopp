@@ -1,5 +1,6 @@
 package edu.kit.ifv.core.modelsteps.steps
 import edu.kit.ifv.binary.BinaryReader
+import edu.kit.ifv.binary.BinaryWriter
 import edu.kit.ifv.core.modelsteps.Context
 import edu.kit.ifv.core.modelsteps.Validation
 import edu.kit.ifv.core.modelsteps.resources.LazyResource
@@ -7,7 +8,6 @@ import edu.kit.ifv.core.modelsteps.resources.MutableRepository
 import edu.kit.ifv.core.modelsteps.resources.Repository
 import edu.kit.ifv.core.modelsteps.validation.validateFileReadAccess
 import edu.kit.ifv.utils.Identifiable
-import edu.kit.ifv.utils.binary.BinaryWriter
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
