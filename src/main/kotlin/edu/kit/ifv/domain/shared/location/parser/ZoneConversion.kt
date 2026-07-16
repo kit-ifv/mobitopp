@@ -1,4 +1,5 @@
 package edu.kit.ifv.domain.shared.location.parser
+import edu.kit.ifv.binary.ElementWiseBinaryReader
 import edu.kit.ifv.domain.shared.enums.ZoneClassification
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.location.ZonedRoadAccessLocationRecord
@@ -8,7 +9,6 @@ import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
 import edu.kit.ifv.units.meters
-import edu.kit.ifv.utils.binary.BinaryReader
 import edu.kit.ifv.utils.binary.BinaryWritable
 import edu.kit.ifv.utils.binary.BinaryWriter
 import edu.kit.ifv.utils.binary.readAsByteBuffer
@@ -20,7 +20,8 @@ import java.nio.ByteBuffer
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
-class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionType>) : BinaryReader<MaximalZone> {
+class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionType>) :
+    ElementWiseBinaryReader<MaximalZone> {
     override fun fromBinary(path: Path): List<MaximalZone> {
         val byteBuffer = path.readAsByteBuffer()
         byteBuffer.long // Consume hash code at start of file

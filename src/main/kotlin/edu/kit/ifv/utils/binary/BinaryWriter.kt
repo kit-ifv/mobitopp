@@ -1,5 +1,5 @@
 package edu.kit.ifv.utils.binary
-import edu.kit.ifv.utils.files.PathChecksum
+import edu.kit.ifv.utils.PathChecksum
 import java.io.DataOutputStream
 import java.nio.file.Path
 

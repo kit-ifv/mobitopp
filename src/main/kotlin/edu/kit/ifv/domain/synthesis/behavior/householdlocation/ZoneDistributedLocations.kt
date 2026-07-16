@@ -1,7 +1,8 @@
 package edu.kit.ifv.domain.synthesis.behavior.householdlocation
-import domain.VisumPolyZone
-import domain.VisumZoneId
+
 import edu.kit.ifv.CoordinateGenerator
+import edu.kit.ifv.VisumPolyZone
+import edu.kit.ifv.VisumZoneId
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.StandardLocationImpl
 import edu.kit.ifv.domain.shared.location.road.RoadAccess
@@ -12,7 +13,7 @@ import org.locationtech.jts.geom.Point
 
 /**
  * Generates locations using the given [distributor]. Essentially uses the functionality of the [distributor] to
- * distribute coordinates inside [domain.VisumPolyZone]-areas according to a landuse-model.
+ * distribute coordinates inside [edu.kit.ifv.VisumPolyZone]-areas according to a landuse-model.
  *
  * @param polyZones The zones used for generating locations.
  * @param distributor A [edu.kit.ifv.LanduseDistributedCoordinates]-[CoordinateGenerator] initialized with the land-use-model and

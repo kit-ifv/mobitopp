@@ -1,10 +1,11 @@
 package edu.kit.ifv.domain.shared.datastructure.matrix
+
 import edu.kit.ifv.domain.shared.datastructure.matrix.binary.BinaryIntegerFormat
 import edu.kit.ifv.domain.shared.datastructure.matrix.binary.MatrixDoubleFormat
 import edu.kit.ifv.domain.shared.datastructure.matrix.binary.MatrixHalfFloatFormat
 import edu.kit.ifv.domain.shared.datastructure.matrix.binary.MatrixShortFormat
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
-import edu.kit.ifv.utils.files.PathChecksum
+import edu.kit.ifv.utils.PathChecksum
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path

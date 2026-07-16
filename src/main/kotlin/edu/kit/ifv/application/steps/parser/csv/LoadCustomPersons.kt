@@ -1,6 +1,8 @@
 package edu.kit.ifv.application.steps.parser.csv
+
 import edu.kit.ifv.application.steps.HasPersonRepo
 import edu.kit.ifv.application.steps.SourceFilesConfig
+import edu.kit.ifv.binary.BinaryReader
 import edu.kit.ifv.core.modelsteps.Context
 import edu.kit.ifv.core.modelsteps.resources.BinaryCacheConfig
 import edu.kit.ifv.core.modelsteps.resources.CsvResource
@@ -12,7 +14,6 @@ import edu.kit.ifv.core.modelsteps.scopes.addResourceStep
 import edu.kit.ifv.core.modelsteps.scopes.mutableRepositoryScope
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.utils.Identifiable
-import edu.kit.ifv.utils.binary.BinaryReader
 import edu.kit.ifv.utils.binary.BinaryWriter
 import edu.kit.ifv.utils.csv.CsvParser
 import java.nio.file.Path
