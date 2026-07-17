@@ -35,7 +35,6 @@ import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeFixedDestinatio
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeHouseholds
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writePersons
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
-import edu.kit.ifv.utils.PathChecksum
 import edu.kit.ifv.utils.collections.addProgressBar
 import edu.kit.ifv.utils.collections.standardProgressBar
 import kotlinx.coroutines.Dispatchers.Default
@@ -44,9 +43,6 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
-import kotlin.io.path.createFile
-import kotlin.io.path.createParentDirectories
-import kotlin.io.path.deleteIfExists
 import kotlin.random.Random
 
 /**

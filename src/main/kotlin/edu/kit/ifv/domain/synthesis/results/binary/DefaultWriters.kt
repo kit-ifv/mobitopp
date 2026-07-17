@@ -5,11 +5,13 @@ import edu.kit.ifv.binary.ParallelBinaryRW
 val StandardOutputBinaryCarWriter = ParallelBinaryRW<SynthesisCarBinaryRecord>(
     0,
     { record, _ ->
-    putInt(record.houseHoldID)
-    putLong(record.carID)
-}, { _ ->
-    SynthesisCarBinaryRecord(int, long)
-})
+        putInt(record.houseHoldID)
+        putLong(record.carID)
+    },
+    { _ ->
+        SynthesisCarBinaryRecord(int, long)
+    },
+)
 
 val StandardFixedDestinationWriter = ParallelBinaryRW<FixedDestinationBinaryRecord>(
     0,
@@ -17,9 +19,11 @@ val StandardFixedDestinationWriter = ParallelBinaryRW<FixedDestinationBinaryReco
         putInt(record.personID)
         putInt(record.activityType)
         putLong(record.zoneID)
-    }, { _ ->
+    },
+    { _ ->
         FixedDestinationBinaryRecord(int, int, long)
-    })
+    },
+)
 
 val StandardSynthesisBinaryActivitiesWriter = ParallelBinaryRW<ActivitiesBinaryRecord>(
     0,
@@ -28,6 +32,8 @@ val StandardSynthesisBinaryActivitiesWriter = ParallelBinaryRW<ActivitiesBinaryR
         putLong(record.durationMinutes)
         putLong(record.startTimeMinutes)
         putInt(record.activityType)
-    }, { _ ->
+    },
+    { _ ->
         ActivitiesBinaryRecord(int, long, long, int)
-    })
+    },
+)

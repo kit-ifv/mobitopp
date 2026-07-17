@@ -13,7 +13,7 @@ import java.nio.file.Path
 fun writeFixedDestinations(
     outputPath: Path,
     fixedDestinationWriter: BinaryWriter<FixedDestinationBinaryRecord>,
-    fixedDestinations: List<FixedDestinationElements>
+    fixedDestinations: List<FixedDestinationElements>,
 ) {
     val mappedDestinations = fixedDestinations.map {
         FixedDestinationBinaryRecord(it.person.personId, it.activityType.code, it.location.zoneId.value)
@@ -25,7 +25,8 @@ fun writeFixedDestinations(
 fun <S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> writeCarsBinary(
     outputPath: Path,
     carWriter: BinaryWriter<SynthesisCarBinaryRecord>,
-    households:  List<SynthesisHousehold<S, T>>) {
+    households: List<SynthesisHousehold<S, T>>,
+) {
     val unrolledCars = households.map { household ->
         household.cars.map { car ->
             SynthesisCarBinaryRecord(household.id, car.id.value)
@@ -35,8 +36,11 @@ fun <S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> writeCarsBinar
     carWriter.toBinary(carPath, unrolledCars, PathChecksum.from(0))
 }
 
-fun <S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>
-        writePersonsBinary(outputPath: Path, personWriter: BinaryWriter<SynthesisPerson<S, T>>, people: List<SynthesisPerson<S, T>>) {
+fun <S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> writePersonsBinary(
+    outputPath: Path,
+    personWriter: BinaryWriter<SynthesisPerson<S, T>>,
+    people: List<SynthesisPerson<S, T>>,
+) {
     val personPath = outputPath.resolve("persons.binary")
     personWriter.toBinary(personPath, people, PathChecksum.from(0))
 }
@@ -44,7 +48,7 @@ fun <S : MinimumHouseholdAttributes, T : MinimumPersonAttributes>
 fun <S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> writeHouseholdsBinary(
     outputPath: Path,
     householdWriter: BinaryWriter<SynthesisHousehold<S, T>>,
-    households: List<SynthesisHousehold<S, T>>
+    households: List<SynthesisHousehold<S, T>>,
 ) {
     val householdPath = outputPath.resolve("households.binary")
     householdWriter.toBinary(householdPath, households, PathChecksum.from(0))
@@ -53,7 +57,7 @@ fun <S : MinimumHouseholdAttributes, T : MinimumPersonAttributes> writeHousehold
 fun writeActivitiesBinary(
     outputPath: Path,
     activityWriter: BinaryWriter<ActivitiesBinaryRecord>,
-    activities: Map<SynthesisPerson<*, *>, Collection<Activity>>
+    activities: Map<SynthesisPerson<*, *>, Collection<Activity>>,
 ) {
     val unrolledActivities = activities.map { (household, activity) ->
         val personID = household.personId
