@@ -1,5 +1,6 @@
 package edu.kit.ifv.domain.synthesis
 
+import edu.kit.ifv.binary.BinaryWriter
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.Activity
 import edu.kit.ifv.domain.synthesis.attributes.household.HasMutableEconomicStatus
 import edu.kit.ifv.domain.synthesis.attributes.household.HasMutableNumberOfCars
@@ -16,6 +17,17 @@ import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.AssignFixedDestin
 import edu.kit.ifv.domain.synthesis.behavior.householdlocation.AssignHouseholdLocations
 import edu.kit.ifv.domain.synthesis.behavior.sharingmemberships.SharingMembershipsBuilder
 import edu.kit.ifv.domain.synthesis.results.FixedDestinationElements
+import edu.kit.ifv.domain.synthesis.results.binary.ActivitiesBinaryRecord
+import edu.kit.ifv.domain.synthesis.results.binary.FixedDestinationBinaryRecord
+import edu.kit.ifv.domain.synthesis.results.binary.StandardFixedDestinationWriter
+import edu.kit.ifv.domain.synthesis.results.binary.StandardOutputBinaryCarWriter
+import edu.kit.ifv.domain.synthesis.results.binary.StandardSynthesisBinaryActivitiesWriter
+import edu.kit.ifv.domain.synthesis.results.binary.SynthesisCarBinaryRecord
+import edu.kit.ifv.domain.synthesis.results.binary.writeActivitiesBinary
+import edu.kit.ifv.domain.synthesis.results.binary.writeCarsBinary
+import edu.kit.ifv.domain.synthesis.results.binary.writeFixedDestinations
+import edu.kit.ifv.domain.synthesis.results.binary.writeHouseholdsBinary
+import edu.kit.ifv.domain.synthesis.results.binary.writePersonsBinary
 import edu.kit.ifv.domain.synthesis.results.fastcsv.OutputWriters
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeActivities
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeCars
@@ -23,6 +35,7 @@ import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeFixedDestinatio
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writeHouseholds
 import edu.kit.ifv.domain.synthesis.results.fastcsv.writers.writePersons
 import edu.kit.ifv.populationsynthesis.synthesis.CompletePopulationSynthesis
+import edu.kit.ifv.utils.PathChecksum
 import edu.kit.ifv.utils.collections.addProgressBar
 import edu.kit.ifv.utils.collections.standardProgressBar
 import kotlinx.coroutines.Dispatchers.Default
@@ -31,6 +44,9 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
+import kotlin.io.path.createFile
+import kotlin.io.path.createParentDirectories
+import kotlin.io.path.deleteIfExists
 import kotlin.random.Random
 
 /**
@@ -256,6 +272,25 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
      * @param path directory used by [OutputWriters.useDirectoryForCSV].
      */
     fun writeStandardOutputCSV(path: Path) = writeStandardOutputCSV(OutputWriters.useDirectoryForCSV(path))
+
+    /**
+     * Writes the standard outputs(persons, households, activities, cars, fixedDestinations) into files at the
+     * [outputPath].
+     */
+    fun writeStandardOutputBinary(
+        personWriter: BinaryWriter<SynthesisPerson<S, T>>,
+        householdWriter: BinaryWriter<SynthesisHousehold<S, T>>,
+        activityWriter: BinaryWriter<ActivitiesBinaryRecord> = StandardSynthesisBinaryActivitiesWriter,
+        carWriter: BinaryWriter<SynthesisCarBinaryRecord> = StandardOutputBinaryCarWriter,
+        fixedDestinationWriter: BinaryWriter<FixedDestinationBinaryRecord> = StandardFixedDestinationWriter,
+        outputPath: Path = this.outputDirectory.resolve("binary"),
+    ) {
+        writePersonsBinary(outputPath, personWriter, people)
+        writeHouseholdsBinary(outputPath, householdWriter, households)
+        writeActivitiesBinary(outputPath, activityWriter, activities)
+        writeCarsBinary(outputPath, carWriter, households)
+        writeFixedDestinations(outputPath, fixedDestinationWriter, fixedDestinations)
+    }
 
     /**
      * Writes available synthesis results to the configured output writers.
