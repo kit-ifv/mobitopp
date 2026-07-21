@@ -11,7 +11,7 @@ import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
  * Implementations are responsible for all enum mappings and should capture any project-specific
  * conventions or fallbacks (e.g., handling of unknown sex or region types).
  */
-interface ActiToppAdapter<in S , in T> {
+interface ActiToppAdapter<in S, in T> {
     fun decodeActivityType(actiToppType: ActitoppActivityType): ActivityType
     fun encodeRegionType(household: MinimalistHousehold<S, T>): AreaType
     fun encodeEmployment(employment: Employment): ActitoppEmployment

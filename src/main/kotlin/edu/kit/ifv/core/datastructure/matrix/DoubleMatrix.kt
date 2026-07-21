@@ -16,6 +16,7 @@ class DoubleMatrix(private val values: DoubleArray, val numColumns: Int) {
         val index = row * numColumns + column
         return values[index]
     }
+    fun getArray(originRow: Int) = values.sliceArray(originRow * numColumns until (originRow + 1) * numColumns)
 
     fun values(): List<Double> = values.toList()
 

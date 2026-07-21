@@ -31,9 +31,7 @@ class StandardActiToppAdapter<in S, in T>(
         else -> unknownSexResolution(sex)
     }
 
-    override fun encodeRegionType(household: MinimalistHousehold<S, T>): AreaType {
-        return converter(household)
-    }
+    override fun encodeRegionType(household: MinimalistHousehold<S, T>): AreaType = converter(household)
 
     @Suppress("CyclomaticComplexMethod")
     override fun encodeEmployment(employment: Employment): ActitoppEmployment = when (employment) {

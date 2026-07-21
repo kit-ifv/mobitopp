@@ -6,13 +6,13 @@ include("processor")
 project(":processor").projectDir = file("codegen/processor")
 include("custom-detekt")
 project(":custom-detekt").projectDir = file("codegen/custom-detekt")
-//
+
 //val dcmPath =  "../discretechoicemodelling"
 //if (File(dcmPath).exists()) {
 //    println("Include local build of discrete-choice")
 //    includeBuild(dcmPath)
 //}
-//
+
 //
 //val actiToppPAth =  "../actitopp"
 //if (File(actiToppPAth).exists()) {
