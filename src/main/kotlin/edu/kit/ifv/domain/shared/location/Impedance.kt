@@ -1,4 +1,5 @@
 package edu.kit.ifv.domain.shared.location
+import edu.kit.ifv.core.datastructure.matrix.DoubleMatrix
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasZoneId
 import edu.kit.ifv.units.Currency
@@ -31,9 +32,10 @@ interface IndexAddressableImpedance: Impedance {
     fun costIndexed(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): Double
     fun distanceIndexed(fromIndex: Int, toIndex: Int, mode: Mode): Double
     fun durationIndexed(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): Double
+
+
+    fun distanceArray(mode: Mode): DoubleMatrix
+    fun durationArray(mode: Mode): DoubleMatrix
+    fun costArray(mode: Mode): DoubleMatrix
 }
 
-interface KernelImpedance {
-    fun costArray(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): DoubleArray
-    fun distanceArray(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): DoubleArray
-}

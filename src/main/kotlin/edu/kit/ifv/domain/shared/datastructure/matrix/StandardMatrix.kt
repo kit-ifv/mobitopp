@@ -29,6 +29,10 @@ class StandardMatrix private constructor(
         return matrix[LargeBuddy.get(row), LargeBuddy.get(column)]
     }
 
+    override fun getMatrixD(): DoubleMatrix {
+        return matrix
+    }
+
     override val converter: IndexEncoder<ZoneId> = IndexEncoder {
         indexLookup[it] ?: throw NoSuchElementException(
             "There is no zone id in the lookup $it. Source: ${sourcePath ?: "undefined"}",

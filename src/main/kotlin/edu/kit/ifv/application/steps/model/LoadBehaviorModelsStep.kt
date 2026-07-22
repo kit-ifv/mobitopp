@@ -97,10 +97,15 @@ fun <C> C.loadBehaviorModels(
         val availableLocations: Set<StandardLocation> = zoneRepository.elements.filter { it.isDestination }.map {
             it.centroidLocation
         }.toSet()
-        val destinationChoice = destinationChoiceModel.fixed(
-
-            availableLocations,
-        )
+        val destinationChoice = if(destinationChoiceModel !is FixedChoiceModel) {
+            destinationChoiceModel.fixed(availableLocations)
+        } else {
+            destinationChoiceModel
+        }
+//        val destinationChoice = destinationChoiceModel.fixed(
+//
+//            availableLocations,
+//        )
         val zoneIds = zoneRepository.elements.toList().map {it.zoneId.value.toInt()}.sorted().withIndex()
         val mapping = zoneIds.associate { it.value to it.index }
         val max = zoneIds.last().value

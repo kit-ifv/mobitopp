@@ -1,4 +1,5 @@
 package edu.kit.ifv.core.datastructure.matrix
+
 /**
  * A lightweight 2-D matrix backed by a contiguous [DoubleArray].
  *
@@ -10,7 +11,7 @@ package edu.kit.ifv.core.datastructure.matrix
  *
  * @property numColumns number of columns in the matrix
  */
-class DoubleMatrix(private val values: DoubleArray, val numColumns: Int) {
+class DoubleMatrix(val values: DoubleArray, val numColumns: Int) {
     val size: Int get() = values.size
     operator fun get(row: Int, column: Int): Double {
         val index = row * numColumns + column
@@ -20,6 +21,33 @@ class DoubleMatrix(private val values: DoubleArray, val numColumns: Int) {
     fun values(): List<Double> = values.toList()
 
     override fun toString(): String = "Matrix: $size [${values.joinToString()}]"
+
+    fun transpose(): DoubleMatrix {
+        val numRows: Int = values.size / numColumns
+        val transposedValues =
+            DoubleArray(values.size)
+
+        for (row in 0 until numRows) {
+            val sourceOffset =
+                row * numColumns
+
+            for (column in 0 until numColumns) {
+                val sourceIndex =
+                    sourceOffset + column
+
+                val targetIndex =
+                    column * numRows + row
+
+                transposedValues[targetIndex] =
+                    values[sourceIndex]
+            }
+        }
+
+        return DoubleMatrix(
+            values = transposedValues,
+            numColumns = numRows,
+        )
+    }
 
     override fun equals(other: Any?): Boolean {
         if (other !is DoubleMatrix) return false

@@ -1,4 +1,5 @@
 package edu.kit.ifv.domain.shared.datastructure.matrix
+import edu.kit.ifv.core.datastructure.matrix.DoubleMatrix
 import edu.kit.ifv.domain.shared.datastructure.matrix.yaml.YamlInfo
 import edu.kit.ifv.domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import edu.kit.ifv.domain.shared.enums.Mode
@@ -15,9 +16,11 @@ import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.utils.codes.Decodable
 import edu.kit.ifv.utils.units.Time
+import edu.kit.ifv.utils.units.sinceStart
 import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Provides [Impedance] backed by zone-based OD matrices.
@@ -79,6 +82,20 @@ data class MatrixImpedance(
         time: Time,
     ): Double {
         return travelTimes[mode, time].getIndexed(fromIndex, toIndex)
+    }
+
+    override fun distanceArray(mode: Mode): DoubleMatrix {
+        return travelDistance.getMatrixD()
+    }
+
+    override fun durationArray(mode: Mode): DoubleMatrix {
+        // TODO pass time onwards
+        return travelTimes[mode, 0.seconds.sinceStart].getMatrixD()
+    }
+
+    override fun costArray(mode: Mode): DoubleMatrix {
+        // TODO pass time onwards
+        return travelCosts[mode, 0.seconds.sinceStart].getMatrixD()
     }
 
     companion object {
