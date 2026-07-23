@@ -13,7 +13,6 @@ import edu.kit.ifv.application.steps.HasHouseholdRepo
 import edu.kit.ifv.application.steps.HasModes
 import edu.kit.ifv.application.steps.HasMutableAttractivenessModel
 import edu.kit.ifv.application.steps.HasMutableImpedance
-import edu.kit.ifv.application.steps.HasMutablePersonBehavior
 import edu.kit.ifv.application.steps.HasPersonAgentRepo
 import edu.kit.ifv.application.steps.HasPersonRepo
 import edu.kit.ifv.application.steps.HasSharingProviderAgentRepo
@@ -69,7 +68,6 @@ import edu.kit.ifv.domain.simulation.data.person.Person
 import edu.kit.ifv.domain.simulation.data.sharing.MutableSharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue
@@ -85,6 +83,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
+// TODO discuss whether modes are context or config
 class TestContext(
     override val scenarioName: String = "integration test",
     override val modes: CodePlan<Mode> = LegacyMode,
@@ -100,14 +99,12 @@ class TestContext(
     HasSharingProviderAgentRepo<SharingProviderAgent, SharingProviderAgent>,
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
-    HasModes, // TODO discuss whether modes are context or config
-    HasMutablePersonBehavior {
+    HasModes {
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
 
     override lateinit var impedance: Impedance
     override lateinit var attractiveness: AttractivenessModel
-    override lateinit var personBehavior: PersonBehavior
 
     override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> = MapRepository("zone")
     override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> =
