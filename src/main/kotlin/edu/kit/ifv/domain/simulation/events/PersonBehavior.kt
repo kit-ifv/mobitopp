@@ -13,6 +13,7 @@ import edu.kit.ifv.domain.simulation.behavior.DrtAvailabilitySelector
 import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.TrulyFixedChoiceModel
 import edu.kit.ifv.utils.units.Time
 
 fun interface GenerateDestinationCharacteristics<out T> {
@@ -66,7 +67,7 @@ val StandardModeImplementation =
     }
 
 data class PersonBehavior constructor(
-    val destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
+    val destinationChoice: TrulyFixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     val modes: ChoiceModelModes,
     val impedance: IndexAddressableImpedance,
@@ -82,7 +83,7 @@ data class PersonBehavior constructor(
         @Suppress("LongParameterList")
         fun from(
             impedance: IndexAddressableImpedance,
-            destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
+            destinationChoice: TrulyFixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
             modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
             choiceModelModes: ChoiceModelModes,
             attractivenessModel: AttractivenessModel,

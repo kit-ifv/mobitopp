@@ -25,7 +25,7 @@ import edu.kit.ifv.domain.simulation.events.PersonBehavior
 import edu.kit.ifv.domain.simulation.events.StandardDestinationImplementation
 import edu.kit.ifv.domain.simulation.events.StandardModeImplementation
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
-import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.TrulyFixedChoiceModel
 
 // TODO split into model steps to define mode avail, mode choice, destination choice individually
 /**
@@ -54,7 +54,7 @@ import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
  */
 @Suppress("LongParameterList")
 fun <C> C.loadBehaviorModels(
-    destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
+    destinationChoiceModel: TrulyFixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     modes: ChoiceModelModes, // TODO remove ChoiceModelModes and replace by Context/Config requirements
     spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics = StandardDestinationImplementation,
@@ -97,11 +97,9 @@ fun <C> C.loadBehaviorModels(
         val availableLocations: Set<StandardLocation> = zoneRepository.elements.filter { it.isDestination }.map {
             it.centroidLocation
         }.toSet()
-        val destinationChoice = if(destinationChoiceModel !is FixedChoiceModel) {
-            destinationChoiceModel.fixed(availableLocations)
-        } else {
+        val destinationChoice =
             destinationChoiceModel
-        }
+
 //        val destinationChoice = destinationChoiceModel.fixed(
 //
 //            availableLocations,

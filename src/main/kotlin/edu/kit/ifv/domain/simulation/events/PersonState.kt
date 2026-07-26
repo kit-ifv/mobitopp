@@ -31,6 +31,7 @@ import edu.kit.ifv.domain.simulation.behavior.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.flatten
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.TrulyFixedChoiceModel
 import edu.kit.ifv.utils.concurrent.synchronizeAll
 import edu.kit.ifv.utils.units.AbsoluteTime
 
@@ -58,7 +59,7 @@ PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean
     val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
         get() = behavior.modeChoice
 
-    val destinationChoice: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
+    val destinationChoice: TrulyFixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
         get() = behavior.destinationChoice
 
     // TODO modes only necessary here until dispatch: mode > nested state machine can be defined outside of PersonStates
