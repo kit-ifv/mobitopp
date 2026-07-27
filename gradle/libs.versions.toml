@@ -7,7 +7,6 @@ detekt = "2.0.0-alpha.3"
 junit = "6.1.0"
 kover = "0.9.8"
 kandy = "0.8.0"
-shadowjar = "9.4.1"
 # kotlinx libs
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
@@ -26,7 +25,7 @@ ifv-units= "1.0.0"
 ifv-visum-netparser = "1.0.0"
 ifv-actitopp-NG = "1.0.0"
 ifv-discrete-choice = "1.1.0"
-ifv-synthesis-algorithms = "1.0.0"
+ifv-synthesis-algorithms = "1.1.2"
 #scala
 scala-lang = "3.8.3"
 
@@ -36,7 +35,6 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
-shadowjar = { id = "com.gradleup.shadow", version.ref = "shadowjar"}
 
 
 [libraries]
