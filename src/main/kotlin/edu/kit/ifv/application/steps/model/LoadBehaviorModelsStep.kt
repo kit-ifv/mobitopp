@@ -25,7 +25,7 @@ import edu.kit.ifv.domain.simulation.events.PersonBehavior
 import edu.kit.ifv.domain.simulation.events.StandardDestinationImplementation
 import edu.kit.ifv.domain.simulation.events.StandardModeImplementation
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
-import edu.kit.ifv.mobitopp.discretechoice.models.TrulyFixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
 // TODO split into model steps to define mode avail, mode choice, destination choice individually
 /**
@@ -54,7 +54,7 @@ import edu.kit.ifv.mobitopp.discretechoice.models.TrulyFixedChoiceModel
  */
 @Suppress("LongParameterList")
 fun <C> C.loadBehaviorModels(
-    destinationChoiceModel: TrulyFixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
+    destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     modes: ChoiceModelModes, // TODO remove ChoiceModelModes and replace by Context/Config requirements
     spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics = StandardDestinationImplementation,
@@ -97,13 +97,9 @@ fun <C> C.loadBehaviorModels(
         val availableLocations: Set<StandardLocation> = zoneRepository.elements.filter { it.isDestination }.map {
             it.centroidLocation
         }.toSet()
-        val destinationChoice =
-            destinationChoiceModel
-
-//        val destinationChoice = destinationChoiceModel.fixed(
-//
-//            availableLocations,
-//        )
+        val destinationChoice = destinationChoiceModel.fixed(
+            availableLocations, // todo probably needs to be WRAPPED CM here for internal BatchUtilModel
+        )
         val zoneIds = zoneRepository.elements.toList().map {it.zoneId.value.toInt()}.sorted().withIndex()
         val mapping = zoneIds.associate { it.value to it.index }
         val max = zoneIds.last().value
