@@ -149,13 +149,23 @@ object Yaml {
          * Converts `this `to a map. Expects this to be a scala map. (Mapper seems to output scala maps, in nested
          * values)
          */
-        private fun Any?.toMap(): Map<String, Any?> {
-            if (this == null) return emptyMap()
-            if (this::class.jvmName.contains("Map")) {
-                val java = CollectionConverters.asJava(this as scala.collection.Map<String, Any?>)
-                return java
-            }
-            return emptyMap()
+        private fun Any?.toMap(): Map<String, Any?> = when (this) {
+            null -> emptyMap()
+
+            is Map<*, *> ->
+                entries.associate { (key, value) ->
+                    key.toString() to value
+                }
+
+            is scala.collection.Map<*, *> ->
+                CollectionConverters
+                    .asJava(this)
+                    .entries
+                    .associate { (key, value) ->
+                        key.toString() to value
+                    }
+
+            else -> emptyMap()
         }
 
         private fun isPathNotSeenBefore(path: Path): Boolean {

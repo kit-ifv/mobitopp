@@ -47,6 +47,7 @@ import edu.kit.ifv.domain.simulation.events.StartingTrip
 import edu.kit.ifv.domain.simulation.events.personStateMachine
 import edu.kit.ifv.domain.synthesis.ControllableAttractiveness
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModelImpl
+import edu.kit.ifv.mobitopp.discretechoice.models.addFilter
 import edu.kit.ifv.utils.units.AbsoluteTime
 import edu.kit.ifv.utils.units.sinceStart
 import generateHousehold

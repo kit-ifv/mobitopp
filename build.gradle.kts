@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.shadowjar)
     application
     id("maven-publish")
     id("signing")
@@ -40,8 +39,15 @@ detekt {
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
+    parallel.set(true)
 }
-
+tasks.named("check") {
+    setDependsOn(
+        dependsOn.filterNot {
+            it.toString().contains("detekt", ignoreCase = true)
+        }
+    )
+}
 dependencies {
 
     detektPlugins(project(":custom-detekt"))
@@ -106,13 +112,6 @@ tasks.test {
     }
 }
 
-tasks {
-    shadowJar {
-        isZip64 = true
-        archiveClassifier.set("all") // produces e.g. myapp-all.jar
-        mergeServiceFiles() // optional: handles META-INF/services
-    }
-}
 
 tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
     reports {
@@ -188,6 +187,19 @@ tasks.withType<JavaExec>().configureEach {
 //}
 
 
+if (checkProperty("doPublish") && checkProperty("isRelease")) {
+    nexusPublishing {
+        repositories {
+            // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+            sonatype {
+                nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+                snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+            }
+        }
+    }
+}
+
+
 /**
  * Configures this project and each of its sub-projects.
  *
@@ -199,7 +211,6 @@ allprojects {
      */
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
-//    apply(plugin = "io.github.gradle-nexus.publish-plugin:2.0.0")
     project.group = "edu.kit.ifv.mobitopp"
 
 
@@ -289,15 +300,15 @@ allprojects {
                             sign(publishing.publications)
                         }
 
-                        nexusPublishing {
-                            repositories {
-                                // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
-                                sonatype {
-                                    nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-                                    snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
-                                }
-                            }
-                        }
+//                        nexusPublishing {
+//                            repositories {
+//                                // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+//                                sonatype {
+//                                    nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+//                                    snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+//                                }
+//                            }
+//                        }
 
                     } else {
                         println("Activate: publish local build!")
