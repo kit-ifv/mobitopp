@@ -6,32 +6,36 @@ default:
   image: gradle:jdk25
   before_script:
     - |
+      before_script:
+    - |
       cat > "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts" <<'EOF'
-      allprojects {
-          repositories {
-              val rcUrl = System.getenv("RC_REPO_URL")
-              if (!rcUrl.isNullOrBlank()) {
-                  maven {
-                      url = uri(rcUrl)
-                      credentials {
-                          username = System.getenv("RC_REPO_USERNAME")
-                          password = System.getenv("RC_REPO_PASSWORD")
+      beforeSettings {
+          dependencyResolutionManagement {
+              repositories {
+                  val rcUrl = System.getenv("RC_REPO_URL")
+                  if (!rcUrl.isNullOrBlank()) {
+                      maven {
+                          name = "InjectedRcRepository"
+                          url = uri(rcUrl)
+                          credentials {
+                              username = System.getenv("RC_REPO_USERNAME")
+                              password = System.getenv("RC_REPO_PASSWORD")
+                          }
+                      }
+                  }
+      
+                  val snapshotUrl = System.getenv("LOCAL_SNAPSHOT_REPO_URL")
+                  if (!snapshotUrl.isNullOrBlank()) {
+                      maven {
+                          name = "InjectedSnapshotRepository"
+                          url = uri(snapshotUrl)
+                          credentials {
+                              username = System.getenv("LOCAL_REPO_USERNAME")
+                              password = System.getenv("LOCAL_REPO_PASSWORD")
+                          }
                       }
                   }
               }
-
-              val snapshotUrl = System.getenv("LOCAL_SNAPSHOT_REPO_URL")
-              if (!snapshotUrl.isNullOrBlank()) {
-                  maven {
-                      url = uri(snapshotUrl)
-                      credentials {
-                          username = System.getenv("LOCAL_REPO_USERNAME")
-                          password = System.getenv("LOCAL_REPO_PASSWORD")
-                      }
-                  }
-              }
-
-              mavenCentral()
           }
       }
       EOF
