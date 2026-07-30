@@ -6,35 +6,66 @@ default:
   image: gradle:jdk25
   before_script:
     - |
-      cat > "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts" <<'EOF'
-       settingsEvaluated {
-           dependencyResolutionManagement.repositories {
-               val rcUrl = System.getenv("RC_REPO_URL")
-               if (!rcUrl.isNullOrBlank()) {
-                   maven {
-                       name = "InjectedRcRepository"
-                       url = uri(rcUrl)
-                       credentials {
-                           username = System.getenv("RC_REPO_USERNAME")
-                           password = System.getenv("RC_REPO_PASSWORD")
-                       }
-                   }
-               }
+      echo "CI ref:                 ${CI_COMMIT_REF_NAME:-unset}"
+      echo "CI branch:              ${CI_COMMIT_BRANCH:-unset}"
+      echo "CI tag:                 ${CI_COMMIT_TAG:-unset}"
+      echo "Protected ref:          ${CI_COMMIT_REF_PROTECTED:-unset}"
+      echo "RC_REPO_URL present:    $([ -n "${RC_REPO_URL:-}" ] && echo yes || echo no)"
+      echo "RC username present:    $([ -n "${RC_REPO_USERNAME:-}" ] && echo yes || echo no)"
+      echo "RC password present:    $([ -n "${RC_REPO_PASSWORD:-}" ] && echo yes || echo no)"
+      echo "Snapshot URL present:   $([ -n "${LOCAL_SNAPSHOT_REPO_URL:-}" ] && echo yes || echo no)"
+      echo "Local username present: $([ -n "${LOCAL_REPO_USERNAME:-}" ] && echo yes || echo no)"
+      echo "Local password present: $([ -n "${LOCAL_REPO_PASSWORD:-}" ] && echo yes || echo no)"
       
-               val snapshotUrl = System.getenv("LOCAL_SNAPSHOT_REPO_URL")
-               if (!snapshotUrl.isNullOrBlank()) {
-                   maven {
-                       name = "InjectedSnapshotRepository"
-                       url = uri(snapshotUrl)
-                       credentials {
-                           username = System.getenv("LOCAL_REPO_USERNAME")
-                           password = System.getenv("LOCAL_REPO_PASSWORD")
-                       }
-                   }
-               }
-           }
-       }
-       EOF
+      cat > "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts" <<'EOF'
+      println("Init script loaded")
+      
+      settingsEvaluated {
+          println("Settings evaluated; injecting internal repositories")
+      
+          dependencyResolutionManagement.repositories {
+              val rcUrl = System.getenv("RC_REPO_URL")
+              println("RC repository variable present: ${!rcUrl.isNullOrBlank()}")
+      
+              if (!rcUrl.isNullOrBlank()) {
+                  maven {
+                      name = "InjectedRcRepository"
+                      url = uri(rcUrl)
+                      credentials {
+                          username = System.getenv("RC_REPO_USERNAME")
+                          password = System.getenv("RC_REPO_PASSWORD")
+                      }
+                  }
+      
+                  println("Injected repository: InjectedRcRepository")
+              }
+      
+              val snapshotUrl = System.getenv("LOCAL_SNAPSHOT_REPO_URL")
+              println("Snapshot repository variable present: ${!snapshotUrl.isNullOrBlank()}")
+      
+              if (!snapshotUrl.isNullOrBlank()) {
+                  maven {
+                      name = "InjectedSnapshotRepository"
+                      url = uri(snapshotUrl)
+                      credentials {
+                          username = System.getenv("LOCAL_REPO_USERNAME")
+                          password = System.getenv("LOCAL_REPO_PASSWORD")
+                      }
+                  }
+      
+                  println("Injected repository: InjectedSnapshotRepository")
+              }
+      
+              println(
+                  "Configured repositories: " +
+                      map { repository -> repository.name }.joinToString()
+              )
+          }
+      }
+      EOF
+      
+      echo "Init script created:"
+      ls -l "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts"
 
 cache:
   key: "gradle-$CI_PROJECT_ID"
