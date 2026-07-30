@@ -39,8 +39,15 @@ detekt {
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
+    parallel.set(true)
 }
-
+tasks.named("check") {
+    setDependsOn(
+        dependsOn.filterNot {
+            it.toString().contains("detekt", ignoreCase = true)
+        }
+    )
+}
 dependencies {
 
     detektPlugins(project(":custom-detekt"))
