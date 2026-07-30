@@ -1,17 +1,23 @@
 package edu.kit.ifv.application.syntheticsim
+
 import BIELEFELD
+import edu.kit.ifv.application.scenarios.ScenarioContext
+import edu.kit.ifv.application.steps.HasAttractivenessModel
+import edu.kit.ifv.application.steps.HasImpedance
+import edu.kit.ifv.application.steps.HasModeAvailabilityModel
 import edu.kit.ifv.core.statemachine.State
 import edu.kit.ifv.core.statemachine.builder.StateData
 import edu.kit.ifv.core.statemachine.usage.RecordingStateMachineFactory
 import edu.kit.ifv.domain.shared.behavior.Attractiveness
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.behavior.asAttractiveness
 import edu.kit.ifv.domain.shared.data.activity.ActivityId
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.Activity
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyMode
-import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
+import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.BuildAgents
@@ -20,9 +26,10 @@ import edu.kit.ifv.domain.simulation.agent.PrivateCarAgent
 import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
 import edu.kit.ifv.domain.simulation.agent.locationBySchedule
 import edu.kit.ifv.domain.simulation.agent.toAgent
-import edu.kit.ifv.domain.simulation.behavior.AvailabilityModelWithSharing
-import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoice
-import edu.kit.ifv.domain.simulation.behavior.legacyModeChoice
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.availability.defaultAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.createLegacyDestinationChoice
+import edu.kit.ifv.domain.simulation.behavior.modechoice.createLegacyModeChoice
 import edu.kit.ifv.domain.simulation.data.MutablePlannedActivity
 import edu.kit.ifv.domain.simulation.data.PlannedActivity
 import edu.kit.ifv.domain.simulation.data.household.Household
@@ -35,13 +42,11 @@ import edu.kit.ifv.domain.simulation.events.FinishedPerson
 import edu.kit.ifv.domain.simulation.events.FirstActivityMessage
 import edu.kit.ifv.domain.simulation.events.PerformLeg
 import edu.kit.ifv.domain.simulation.events.PerformingActivity
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
-import edu.kit.ifv.domain.simulation.events.StandardDestinationImplementation
-import edu.kit.ifv.domain.simulation.events.StandardModeImplementation
 import edu.kit.ifv.domain.simulation.events.StartPerson
 import edu.kit.ifv.domain.simulation.events.StartingTrip
 import edu.kit.ifv.domain.simulation.events.personStateMachine
 import edu.kit.ifv.domain.synthesis.ControllableAttractiveness
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModelImpl
 import edu.kit.ifv.mobitopp.discretechoice.models.addFilter
 import edu.kit.ifv.utils.units.AbsoluteTime
 import edu.kit.ifv.utils.units.sinceStart
@@ -66,6 +71,9 @@ import kotlin.time.Duration.Companion.seconds
 fun MutablePerson.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
     val plan = PlanLoader(this)
     plan.apply(lambda)
+    require(plan.plannedActivities.isNotEmpty()) {
+        "ERROR"
+    }
     plan.plannedActivities.forEach { this.plannedActivities.add(it) }
 }
 
@@ -126,36 +134,76 @@ abstract class Scenario(val zones: List<MaximalZone>, val impedance: Controllabl
             type = ActivityType.UNKNOWN,
         )
 
-    val availability = AvailabilityModelWithSharing(
-        legacyChoiceModelModes,
-        emptyMap(),
-        mapOf(),
-        impedance,
+    protected val scenarioChoiceModelModes: ChoiceModelModes = ChoiceModelModes(
+        car = LegacyMode.CAR,
+        passenger = LegacyMode.PASSENGER,
+        bike = LegacyMode.BIKE,
+        pedestrian = LegacyMode.PEDESTRIAN,
+        publicTransport = LegacyMode.PUBLICTRANSPORT,
+        bikeSharing = LegacyMode.BIKESHARING,
+        ridePooling = LegacyMode.RIDE_POOLING,
+        carSharingFree = LegacyMode.CARSHARING_FREE,
+        carSharingStation = LegacyMode.CARSHARING_STATION,
+        taxi = LegacyMode.TAXI,
+        eScooter = LegacyMode.E_SCOOTER,
+        options = setOf(
+            LegacyMode.CAR,
+            LegacyMode.PASSENGER,
+            LegacyMode.BIKE,
+            LegacyMode.PEDESTRIAN,
+            LegacyMode.PUBLICTRANSPORT,
+        ),
+    )
+    val availability = defaultAvailabilityModel(
+        scenarioChoiceModelModes,
+        LegacyMode.TAXI,
+        LegacyMode.E_SCOOTER,
+        impedance = impedance,
     )
 
-    val destinationChoice: OverridableDestinationChoiceModel = OverridableDestinationChoiceModel(
-        legacyDestinationChoice,
-    )
-    val modeChoice: OverridableModeChoiceModel = OverridableModeChoiceModel(
-        legacyModeChoice.addFilter(availability.asResourceAvailabilityFilter()),
-    )
-
-    protected val behavior = PersonBehavior(
-        destinationChoice = destinationChoice.fixed(zones.map { it.centroidLocation }.toSet()),
-        modeChoice = modeChoice.fixed(legacyModeChoice.choices),
-        modes = legacyChoiceModelModes,
-        impedance,
-        attractivityModel = currentAttractivenessModel,
-        availabilityModel = availability,
-        bikeSharingConnectionSelector = availability,
-        drtAvailabilitySelector = availability,
-        spawnDestinationCharacteristics = StandardDestinationImplementation,
-        spawnModeCharacteristics = StandardModeImplementation,
+    fun destinationChoice(
+        attractivenessModel: AttractivenessModel,
+        impedance: Impedance,
+        availabilityModel: ModeAvailabilityModel,
+    ): OverridableDestinationChoiceModel = OverridableDestinationChoiceModel(
+        createLegacyDestinationChoice(
+            impedance,
+            attractivenessModel,
+            availabilityModel,
+        ),
     )
 
-    fun PersonAgent.stepper(): EventStepper {
+    fun modeChoice(impedance: Impedance): OverridableModeChoiceModel = OverridableModeChoiceModel(
+        createLegacyModeChoice(
+            impedance,
+        ).addFilter(context(impedance) { availability.asResourceAvailabilityFilter() }),
+    )
+
+//    protected val behavior
+//        get() = PersonBehavior(
+//        destinationChoice = destinationChoice.fixed(zones.map { it.centroidLocation }.toSet()),
+//        modeChoice = modeChoice.fixed(legacyModeChoice.choices),
+//        modes = legacyChoiceModelModes,
+//        impedance,
+//        attractivityModel = currentAttractivenessModel,
+//        availabilityModel = availability,
+//        bikeSharingConnectionSelector = availability,
+//        drtAvailabilitySelector = availability,
+//        spawnDestinationCharacteristics = StandardDestinationImplementation,
+//        spawnModeCharacteristics = StandardModeImplementation,
+//    )
+
+    context(c: C)
+    fun <C> PersonAgent.stepper(
+        overridableModeChoiceModel: OverridableModeChoiceModel,
+        destinationChoiceModel: OverridableDestinationChoiceModel,
+    ): EventStepper where C : HasAttractivenessModel, C : HasImpedance, C : HasModeAvailabilityModel {
         val initEvent = this.init().takeIf { it.size == 1 }!!.take(1)[0]
-        return EventStepper(initEvent, destinationChoice, modeChoice)
+        return EventStepper(
+            initEvent,
+            destinationChoiceModel,
+            overridableModeChoiceModel,
+        )
     }
 
     fun EventStepper.stepOverFirstActivity() {
@@ -177,9 +225,6 @@ val testAttractivenessModel = object : AttractivenessModel {
         // Zone 2 should be barely attractive at all
         else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
     }.asAttractiveness()
-
-    override val work: ActivityType = LegacyActivityType.WORK
-    override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT
 }
 
 class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
@@ -200,6 +245,8 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     val first = persons[0]
     val second = persons[1]
 
+    val attractivenessModel: AttractivenessModel = currentAttractivenessModel
+
     //    controllableImpedance.apply {
 //        difficultAccess(zones[0], zones[0])
 //        easyAccess(zones[0], zones[1])
@@ -212,24 +259,39 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 //        difficultAccess(zones[2], zones[2])
 //
 //    }
-    val stateMachine = RecordingStateMachineFactory(personStateMachine)
+
+    // context
+    val context =
+        ScenarioContext(
+            scenarioName = "synthetic",
+            attractiveness = attractivenessModel,
+            impedance = impedance,
+            choiceModelModes = scenarioChoiceModelModes,
+            modeAvailability = availability,
+            destinationChoiceModel = destinationChoice(
+                attractivenessModel,
+                impedance,
+                availability,
+            ).fixed(zones.map { z -> z.centroidLocation }.toSet()),
+            modeChoiceModel = modeChoice(impedance).fixed(createLegacyModeChoice(impedance).choices),
+        )
+
+    // context(impedance: Impedance, attractivenessModel: AttractivenessModel, availabilityModel: ModeAvailabilityModel)
+    val stateMachine = RecordingStateMachineFactory(context.personStateMachine)
 
     fun statesOf(agent: PersonAgent) = stateMachine.of(agent)!!.history
+
     fun popStatesOf(agent: PersonAgent) = stateMachine.of(agent)!!.let { sm ->
         sm.history.toList().also {
             sm.clearHistory()
         }
     }
 
-    private val builder: BuildAgents = BuildAgents(seed = 1L, stateMachine, behavior)
-    val firstAgent: PersonAgent
-        get() = first.toAgent(builder)
+    private val builder: BuildAgents = BuildAgents(seed = 1L, stateMachine)
 
-    val secondAgent: PersonAgent
-        get() = second.toAgent(builder)
-
-    val carAgent: PrivateCarAgent
-        get() = car.toAgent(builder)
+    val firstAgent: PersonAgent by lazy { first.toAgent(builder) }
+    val secondAgent: PersonAgent by lazy { second.toAgent(builder) }
+    val carAgent: PrivateCarAgent by lazy { car.toAgent(builder) }
 }
 
 operator fun Collection<State>.contains(stateClass: KClass<out StateData>): Boolean = any {
@@ -260,81 +322,92 @@ class Synthetic {
                 +Triple(LegacyActivityType.HOME, 0, 5)
                 +Triple(LegacyActivityType.WORK, 8, 4)
             }
-            val firstPerson = firstAgent.stepper()
-            val secondPerson = secondAgent.stepper()
 
-            firstPerson.inspect(1) {
-                assert(StartPerson in popStatesOf(firstAgent))
-            }
-            secondPerson.inspect(1) {
-                assert(StartPerson in popStatesOf(secondAgent))
-            }
+            context(context) {
+                val firstPerson = firstAgent.stepper(
+                    (context.modeChoiceModel as FixedChoiceModelImpl).original as OverridableModeChoiceModel,
+                    (context.destinationChoiceModel as FixedChoiceModelImpl).original
+                        as OverridableDestinationChoiceModel,
+                )
+                val secondPerson = secondAgent.stepper(
+                    (context.modeChoiceModel as FixedChoiceModelImpl).original as OverridableModeChoiceModel,
+                    (context.destinationChoiceModel as FixedChoiceModelImpl).original
+                        as OverridableDestinationChoiceModel,
+                )
 
-            assertNull(firstAgent.schedule.present)
-            assertNull(secondAgent.schedule.present)
-            assertEquals(firstAgent.locationBySchedule(), household.location)
-            assertEquals(secondAgent.locationBySchedule(), household.location)
+                firstPerson.inspect(1) {
+                    assert(StartPerson in popStatesOf(firstAgent))
+                }
+                secondPerson.inspect(1) {
+                    assert(StartPerson in popStatesOf(secondAgent))
+                }
 
-            firstPerson.nextStep(1) {
-                // it is the event to be processed; lambda is now checked AFTER execute!
-                assertIs<FirstActivityMessage>(it.content)
-                assert(PerformingActivity in popStatesOf(firstAgent))
-            }
-            secondPerson.nextStep(1) {
-                assertIs<FirstActivityMessage>(it.content)
-                assert(PerformingActivity in popStatesOf(secondAgent))
-            }
-
-            assertTrue(firstAgent.hasAccessToCar())
-            assertTrue(secondAgent.hasAccessToCar())
-            assertNotNull(firstAgent.schedule.present)
-            assertNotNull(secondAgent.schedule.present)
-
-            firstPerson.nextStep(1, zones[2].point(BIELEFELD), LegacyMode.CAR) {
-                assertIs<EndActivityMessage>(it.content)
-
-                val visitedStates = popStatesOf(firstAgent)
-                assert(StartingTrip in visitedStates)
-                assert(PerformLeg in visitedStates)
-
-                assertEquals(carAgent.driver, firstAgent)
-                assertEquals(carAgent.location, household.location)
+                assertNull(firstAgent.schedule.present)
+                assertNull(secondAgent.schedule.present)
                 assertEquals(firstAgent.locationBySchedule(), household.location)
-                assertFalse(secondAgent.hasAccessToCar())
-            }
+                assertEquals(secondAgent.locationBySchedule(), household.location)
 
-            firstPerson.nextStep(1) {
-                assertIs<EndLegMessage>(it.content)
-
-                val states = popStatesOf(firstAgent)
-                assert(PerformingActivity in states) { "PerformingActivity is expected in $states" }
-
-                assertEquals(firstAgent.locationBySchedule(), zones[2].point(BIELEFELD))
-                assertEquals(carAgent.driver, null)
-                assertEquals(carAgent.location, firstAgent.locationBySchedule())
-                assertTrue(firstAgent.hasAccessToCar())
-                assertFalse(secondAgent.hasAccessToCar())
-            }
-
-            firstPerson.nextStep(1, household.location, LegacyMode.CAR) {
-                assertIs<EndActivityMessage>(it.content)
-
-                val visitedStates = popStatesOf(firstAgent)
-                assert(StartingTrip in visitedStates)
-                assert(PerformLeg in visitedStates)
-            }
-
-            firstPerson.nextStep(1) {
-                assertIs<EndLegMessage>(it.content)
-                assert(PerformingActivity in popStatesOf(firstAgent))
+                firstPerson.nextStep(1) {
+                    // it is the event to be processed; lambda is now checked AFTER execute!
+                    assertIs<FirstActivityMessage>(it.content)
+                    assert(PerformingActivity in popStatesOf(firstAgent))
+                }
+                secondPerson.nextStep(1) {
+                    assertIs<FirstActivityMessage>(it.content)
+                    assert(PerformingActivity in popStatesOf(secondAgent))
+                }
 
                 assertTrue(firstAgent.hasAccessToCar())
                 assertTrue(secondAgent.hasAccessToCar())
-            }
+                assertNotNull(firstAgent.schedule.present)
+                assertNotNull(secondAgent.schedule.present)
 
-            firstPerson.nextStep(0) {
-                assertIs<EndActivityMessage>(it.content)
-                assert(FinishedPerson in popStatesOf(firstAgent))
+                firstPerson.nextStep(1, zones[2].point(BIELEFELD), LegacyMode.CAR) {
+                    assertIs<EndActivityMessage>(it.content)
+
+                    val visitedStates = popStatesOf(firstAgent)
+                    assert(StartingTrip in visitedStates)
+                    assert(PerformLeg in visitedStates)
+
+                    assertEquals(carAgent.driver, firstAgent)
+                    assertEquals(carAgent.location, household.location)
+                    assertEquals(firstAgent.locationBySchedule(), household.location)
+                    assertFalse(secondAgent.hasAccessToCar())
+                }
+
+                firstPerson.nextStep(1) {
+                    assertIs<EndLegMessage>(it.content)
+
+                    val states = popStatesOf(firstAgent)
+                    assert(PerformingActivity in states) { "PerformingActivity is expected in $states" }
+
+                    assertEquals(firstAgent.locationBySchedule(), zones[2].point(BIELEFELD))
+                    assertEquals(carAgent.driver, null)
+                    assertEquals(carAgent.location, firstAgent.locationBySchedule())
+                    assertTrue(firstAgent.hasAccessToCar())
+                    assertFalse(secondAgent.hasAccessToCar())
+                }
+
+                firstPerson.nextStep(1, household.location, LegacyMode.CAR) {
+                    assertIs<EndActivityMessage>(it.content)
+
+                    val visitedStates = popStatesOf(firstAgent)
+                    assert(StartingTrip in visitedStates)
+                    assert(PerformLeg in visitedStates)
+                }
+
+                firstPerson.nextStep(1) {
+                    assertIs<EndLegMessage>(it.content)
+                    assert(PerformingActivity in popStatesOf(firstAgent))
+
+                    assertTrue(firstAgent.hasAccessToCar())
+                    assertTrue(secondAgent.hasAccessToCar())
+                }
+
+                firstPerson.nextStep(0) {
+                    assertIs<EndActivityMessage>(it.content)
+                    assert(FinishedPerson in popStatesOf(firstAgent))
+                }
             }
         }
     }

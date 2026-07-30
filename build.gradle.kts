@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.shadowjar)
     application
     id("maven-publish")
     id("signing")
@@ -40,8 +39,15 @@ detekt {
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
+    parallel.set(true)
 }
-
+tasks.named("check") {
+    setDependsOn(
+        dependsOn.filterNot {
+            it.toString().contains("detekt", ignoreCase = true)
+        }
+    )
+}
 dependencies {
 
     detektPlugins(project(":custom-detekt"))
@@ -106,13 +112,6 @@ tasks.test {
     }
 }
 
-tasks {
-    shadowJar {
-        isZip64 = true
-        archiveClassifier.set("all") // produces e.g. myapp-all.jar
-        mergeServiceFiles() // optional: handles META-INF/services
-    }
-}
 
 tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
     reports {

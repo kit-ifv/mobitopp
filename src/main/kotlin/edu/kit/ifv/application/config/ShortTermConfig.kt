@@ -1,13 +1,16 @@
 package edu.kit.ifv.application.config
 import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.MatrixConfig
+import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import edu.kit.ifv.domain.shared.datastructure.matrix.ZoneMatrixCreation
 import edu.kit.ifv.domain.shared.enums.Mode
+import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 import edu.kit.ifv.utils.ErrorHandling
@@ -35,10 +38,11 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     val sourceFiles: CSVFiles,
 
     /* ChoiceParameters */
-    val destinationChoiceModel: UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>,
-    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+    val destinationChoiceModel: DestinationChoiceFactory<StandardLocation, DestinationChoiceCharacteristics>,
+    val modeChoiceModel: ModeChoiceFactory<Mode, ModeChoiceCharacteristics>,
 
 ) {
+
     lateinit var matrixConfig: MatrixConfig
     lateinit var resultName: String
     lateinit var choiceModelModes: ChoiceModelModes
@@ -55,4 +59,16 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
                 sourceFiles.getNonexistentPaths()
         require(nonExistentPaths.isEmpty()) { "The following paths are not existing: $nonExistentPaths" }
     }
+}
+
+fun interface DestinationChoiceFactory<L, C> {
+    fun create(
+        impedance: Impedance,
+        attractivenessModel: AttractivenessModel,
+        modeAvailabilityModel: ModeAvailabilityModel,
+    ): UtilityBasedChoiceModel<L, C>
+}
+
+fun interface ModeChoiceFactory<M, C> {
+    fun create(impedance: Impedance): FixedChoiceModel<M, C>
 }
