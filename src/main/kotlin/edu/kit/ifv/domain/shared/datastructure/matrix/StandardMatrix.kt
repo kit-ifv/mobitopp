@@ -7,27 +7,13 @@ import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import java.nio.file.Path
 
 
-object LargeBuddy {
 
-    private lateinit var indices: IntArray
-    fun set(indices: IntArray) {
-        this.indices = indices
-    }
-    fun get(id: ZoneId): Int {
-        return indices[id.value.toInt()]
-    }
-
-}
 class StandardMatrix private constructor(
     override val matrix: DoubleMatrix,
     private val indexLookup: Map<ZoneId, Int>,
     private val sourcePath: Path?,
 ) : ZoneIdMatrix,
     MappedDoubleMatrix<ZoneId> {
-
-    override fun get(row: ZoneId, column: ZoneId): Double {
-        return matrix[LargeBuddy.get(row), LargeBuddy.get(column)]
-    }
 
     override fun getMatrixD(): DoubleMatrix {
         return matrix
