@@ -21,10 +21,10 @@ exp4j = "0.4.8"
 fast-utils = "8.5.18"
 fast-csv = "4.3.0"
 # ifv units
-ifv-units= "1.0.0"
-ifv-visum-netparser = "1.0.0"
-ifv-actitopp-NG = "1.0.0"
-ifv-discrete-choice = "1.1.0"
+ifv-units= "1.1.3"
+ifv-mobitopp-IO = "1.1.2"
+ifv-actitopp-NG = "1.1.2"
+ifv-discrete-choice = "1.2.2"
 ifv-synthesis-algorithms = "1.1.6"
 #scala
 scala-lang = "3.8.3"
@@ -40,7 +40,7 @@ kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 [libraries]
 # ifv libs
 ifv-units = { module = "edu.kit.ifv.mobitopp:kotlin-units", version.ref = "ifv-units" }
-ifv-visum-netparser = { module = "edu.kit.ifv.mobitopp:mobiToppIO", version.ref = "ifv-visum-netparser" }
+ifv-visum-netparser = { module = "edu.kit.ifv.mobitopp:mobiToppIO", version.ref = "ifv-mobitopp-IO" }
 ifv-actitoppNG = { module = "edu.kit.ifv.mobitopp:actitoppNG", version.ref = "ifv-actitopp-NG" }
 ifv-synthesisAlgorithms = { module = "edu.kit.ifv.mobitopp:synthesisalgorithms", version.ref = "ifv-synthesis-algorithms" }
 ifv-discrete-choice = {module = "edu.kit.ifv.mobitopp:discrete-choice", version.ref = "ifv-discrete-choice"}
