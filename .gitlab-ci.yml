@@ -6,8 +6,6 @@ default:
   image: gradle:jdk25
   before_script:
     - |
-      before_script:
-    - |
       cat > "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts" <<'EOF'
       beforeSettings {
           dependencyResolutionManagement {
