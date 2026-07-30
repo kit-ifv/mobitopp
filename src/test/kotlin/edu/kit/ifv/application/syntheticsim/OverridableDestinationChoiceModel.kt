@@ -1,7 +1,7 @@
 package edu.kit.ifv.application.syntheticsim
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.behavior.DestinationAlternative
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationAlternative
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
@@ -29,10 +29,6 @@ class OverridableDestinationChoiceModel(
         throw UnsupportedOperationException(
             "Not yet implemented",
         )
-
-    override fun addFilter(
-        filter: ChoiceFilter<StandardLocation, DestinationChoiceCharacteristics>,
-    ): FilteredChoiceModel<StandardLocation, DestinationChoiceCharacteristics> = original.addFilter(filter)
 
     context(_: DestinationChoiceCharacteristics, random: Random)
     override fun selectInjected(

@@ -2,6 +2,7 @@ package edu.kit.ifv.domain.simulation.behavior
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.StationaryAction
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.simulation.agent.PersonAgent
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 
 // TODO should filters have names for debugging?

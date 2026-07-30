@@ -63,9 +63,10 @@ class SpecificTypeSerializers(private val targetType: JavaType, private val seri
         type: JavaType,
         beanDesc: BeanDescription?,
     ): JsonSerializer<*>? {
-        if (type.isSameOrSubtypeOf(targetType)) {
+        if (type.isSameOrSubtypeOf(targetType) || targetType.rawClass.isAssignableFrom(type.rawClass)) {
             return serializer
         }
+
         return null
     }
 }
