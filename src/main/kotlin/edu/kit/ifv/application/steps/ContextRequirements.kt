@@ -4,18 +4,27 @@ import edu.kit.ifv.core.modelsteps.resources.MutableRepository
 import edu.kit.ifv.core.modelsteps.resources.Repository
 import edu.kit.ifv.core.statemachine.Agent
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
+import edu.kit.ifv.domain.shared.behavior.ParkingPressureModel
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.data.person.PersonId
+import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.road.LocatableGraph
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderMessage
 import edu.kit.ifv.domain.simulation.agent.PersonMessage
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.data.drt.DrtProviderId
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
+import edu.kit.ifv.domain.simulation.events.GenerateDestinationCharacteristics
+import edu.kit.ifv.domain.simulation.events.GenerateModeCharacteristics
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.utils.CodePlan
 import edu.kit.ifv.utils.Identifiable
 
@@ -235,12 +244,44 @@ interface HasMutableAttractivenessModel : HasAttractivenessModel {
     override var attractiveness: AttractivenessModel
 }
 
-interface HasPersonBehavior : Context {
-    val personBehavior: PersonBehavior
+interface HasDestinationChoiceModel : Context {
+    val destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
 }
 
-interface HasMutablePersonBehavior :
+interface HasMutableDestinationChoiceModel : HasDestinationChoiceModel {
+    override var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
+}
+
+interface HasModeChoiceModel : Context {
+    val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
+}
+
+interface HasChoiceModelModes : Context {
+    val choiceModelModes: ChoiceModelModes
+}
+
+interface HasMutableModeAvailabilityModel :
     Context,
-    HasPersonBehavior {
-    override var personBehavior: PersonBehavior
+    HasModeAvailabilityModel {
+    override var modeAvailability: ModeAvailabilityModel
+}
+
+interface HasModeAvailabilityModel {
+    val modeAvailability: ModeAvailabilityModel
+}
+
+interface HasSpawnDestinationCharacteristics : Context {
+    val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>
+}
+
+interface HasSpawnModeCharacteristics : Context {
+    val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>
+}
+
+interface HasReplanningStrategy : Context {
+    val replanningStrategy: ReplanningStrategy // = ReplanningStrategy.SHIFT
+}
+
+interface HasParkingPressureModel : Context {
+    var parkingPressure: ParkingPressureModel
 }

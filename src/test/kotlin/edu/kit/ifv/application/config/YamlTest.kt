@@ -61,6 +61,20 @@ class YamlTest {
             .registerModule(PathModule)
             .findAndRegisterModules()
     }
+
+    @Test
+    fun `equality of initial and written configs`() {
+        val input = "src/test/resources/yamlParsing/basicConfig.yaml"
+        val output = "src/test/resources/tempOutput/serializedConfig.yaml"
+        Path(output).createParentDirectories()
+        if (!Path(output).exists()) Path(output).createFile()
+
+        val configObj = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(input)
+        Yaml.writeYaml(output, configObj)
+        val writtenConfig = Yaml.readYaml<ShortTermConfig<BikeSharingConfig>>(output)
+        assertEquals(configObj, writtenConfig)
+    }
+
     @Test
     fun keyValueParserTest() {
         val input = "src/test/resources/yamlParsing/keyValueTest.yaml"
