@@ -95,7 +95,6 @@ dependencies {
 
     implementation(libs.fast.util)
     implementation(libs.fast.csv)
-    implementation("com.graphhopper:graphhopper-core:11.0")
 }
 
 tasks.test {
