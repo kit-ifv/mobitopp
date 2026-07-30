@@ -95,6 +95,7 @@ dependencies {
 
     implementation(libs.fast.util)
     implementation(libs.fast.csv)
+
 }
 
 tasks.test {
@@ -155,7 +156,6 @@ tasks.withType<JavaExec>().configureEach {
     jvmArgs = listOf(
         "-Xmx60G"
     )
-
 }
 // I Disabled the entire schema publishing: Currently it fails due to having no pom config,
 //// Apparently using any publish process from src/main makes gradle unhappy. The solution to add a copy of the
