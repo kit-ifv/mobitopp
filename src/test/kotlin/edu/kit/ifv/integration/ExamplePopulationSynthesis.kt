@@ -3,7 +3,6 @@ import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyActivityType
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
-import edu.kit.ifv.domain.shared.enums.areatype.ZoneRegionType
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelPurposes
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.StandardLocationImpl
