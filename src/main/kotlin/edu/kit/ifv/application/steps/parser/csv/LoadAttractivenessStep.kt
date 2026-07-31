@@ -46,12 +46,10 @@ fun <C, CFG> C.loadAttractivenessModelFromCsv(
         CFG : PurposesConfig =
     modelStep(
         "Load Attractiveness Csv",
-        validation = listOf(validateAttractivenessColumns(path, activityTypes, work, privateVisit)),
+        validation = listOf(validateAttractivenessColumns(path, activityTypes)),
     ) {
         attractiveness = AttractivenessFromCsv(
             path = path,
-            work = work,
-            privateVisit = privateVisit,
             activityTypes = activityTypes,
         )
     }
@@ -59,8 +57,6 @@ fun <C, CFG> C.loadAttractivenessModelFromCsv(
 private fun <C> validateAttractivenessColumns(
     path: Path,
     activityTypes: Set<ActivityType>,
-    work: ActivityType,
-    privateVisit: ActivityType,
 ): Check<C> where C : HasMutableAttractivenessModel = {
     validateFileReadAccess(path, fileDescription = "Csv containing attractiveness data by activity type for zones")
 
@@ -84,8 +80,6 @@ private fun <C> validateAttractivenessColumns(
     attractiveness = object : AttractivenessModel {
         override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Attractiveness =
             Attractiveness.DEFAULT
-        override val work: ActivityType = work
-        override val privateVisit: ActivityType = privateVisit
     }
 
     true

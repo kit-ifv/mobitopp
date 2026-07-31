@@ -1,24 +1,34 @@
 @file:Suppress("UnusedPrivateProperty", "MagicNumber")
 
+package edu.kit.ifv
+
 import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.CoreCSVConfig
 import edu.kit.ifv.application.steps.ActivityTypesConfig
 import edu.kit.ifv.application.steps.AttractivenessFileConfig
+import edu.kit.ifv.application.steps.BaseModesConfig
 import edu.kit.ifv.application.steps.CarCodesConfig
 import edu.kit.ifv.application.steps.DrtModesConfig
 import edu.kit.ifv.application.steps.DrtSourceFilesConfig
 import edu.kit.ifv.application.steps.HasCarRepo
+import edu.kit.ifv.application.steps.HasChoiceModelModes
 import edu.kit.ifv.application.steps.HasDrtProviderAgentRepo
 import edu.kit.ifv.application.steps.HasDrtProviderRepo
 import edu.kit.ifv.application.steps.HasHouseholdRepo
+import edu.kit.ifv.application.steps.HasModeChoiceModel
 import edu.kit.ifv.application.steps.HasModes
 import edu.kit.ifv.application.steps.HasMutableAttractivenessModel
+import edu.kit.ifv.application.steps.HasMutableDestinationChoiceModel
 import edu.kit.ifv.application.steps.HasMutableImpedance
-import edu.kit.ifv.application.steps.HasMutablePersonBehavior
+import edu.kit.ifv.application.steps.HasMutableModeAvailabilityModel
+import edu.kit.ifv.application.steps.HasParkingPressureModel
 import edu.kit.ifv.application.steps.HasPersonAgentRepo
 import edu.kit.ifv.application.steps.HasPersonRepo
+import edu.kit.ifv.application.steps.HasReplanningStrategy
 import edu.kit.ifv.application.steps.HasSharingProviderAgentRepo
 import edu.kit.ifv.application.steps.HasSharingProviderRepo
+import edu.kit.ifv.application.steps.HasSpawnDestinationCharacteristics
+import edu.kit.ifv.application.steps.HasSpawnModeCharacteristics
 import edu.kit.ifv.application.steps.HasZoneRepo
 import edu.kit.ifv.application.steps.HouseholdCodesConfig
 import edu.kit.ifv.application.steps.MatrixConfig
@@ -34,7 +44,8 @@ import edu.kit.ifv.application.steps.model.assignHouseholdLocation
 import edu.kit.ifv.application.steps.model.assignMainCarUsers
 import edu.kit.ifv.application.steps.model.buildSimulationAgents
 import edu.kit.ifv.application.steps.model.gaussianDurationRandomizer
-import edu.kit.ifv.application.steps.model.loadBehaviorModels
+import edu.kit.ifv.application.steps.model.loadAvailabilityModel
+import edu.kit.ifv.application.steps.model.loadDestinationChoiceModel
 import edu.kit.ifv.application.steps.model.simpleDrtAlgorithm
 import edu.kit.ifv.application.steps.model.simulate
 import edu.kit.ifv.application.steps.parser.csv.carCsv
@@ -59,6 +70,7 @@ import edu.kit.ifv.application.steps.parser.csv.plannedActivityCsv
 import edu.kit.ifv.application.steps.parser.csv.zoneCsv
 import edu.kit.ifv.application.steps.parser.csv.zones
 import edu.kit.ifv.application.steps.parser.loadImpedance
+import edu.kit.ifv.application.steps.parser.loadParkingPressureModel
 import edu.kit.ifv.application.steps.results.createHtmlReport
 import edu.kit.ifv.application.steps.results.writeTrips
 import edu.kit.ifv.core.modelsteps.Cloneable
@@ -70,6 +82,8 @@ import edu.kit.ifv.core.modelsteps.resources.MapRepository
 import edu.kit.ifv.core.modelsteps.resources.MutableRepository
 import edu.kit.ifv.core.modelsteps.steps.modelStep
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
+import edu.kit.ifv.domain.shared.behavior.ParkingPressureModel
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.car.CarSegment
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
@@ -78,6 +92,7 @@ import edu.kit.ifv.domain.shared.datastructure.matrix.ConstantZoneIdMatrix
 import edu.kit.ifv.domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import edu.kit.ifv.domain.shared.datastructure.matrix.MatrixImpedance
 import edu.kit.ifv.domain.shared.datastructure.matrix.ZoneMatrixCreation
+import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyMode
@@ -88,13 +103,15 @@ import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelModes
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
 import edu.kit.ifv.domain.simulation.agent.PersonAgent
 import edu.kit.ifv.domain.simulation.agent.SharingProviderAgent
-import edu.kit.ifv.domain.simulation.behavior.legacyDestinationChoice
-import edu.kit.ifv.domain.simulation.behavior.legacyModeChoice
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.data.car.MutablePrivateCar
 import edu.kit.ifv.domain.simulation.data.car.PrivateCar
 import edu.kit.ifv.domain.simulation.data.drt.DrtProvider
@@ -107,9 +124,13 @@ import edu.kit.ifv.domain.simulation.data.person.Person
 import edu.kit.ifv.domain.simulation.data.sharing.MutableSharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
+import edu.kit.ifv.domain.simulation.events.GenerateDestinationCharacteristics
+import edu.kit.ifv.domain.simulation.events.GenerateModeCharacteristics
+import edu.kit.ifv.domain.simulation.events.StandardDestinationImplementation
+import edu.kit.ifv.domain.simulation.events.StandardModeImplementation
 import edu.kit.ifv.domain.simulation.events.drtProviderStateMachine
 import edu.kit.ifv.domain.simulation.events.personStateMachine
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue
@@ -125,13 +146,13 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
-// TODO move from main to test
 val visum_network = Path("src/test/resources/synthesis/leopoldshafen.net")
 val attractivities = Path("data/attractivities.csv")
 val dataFolder = Path("src/test/resources/testDemand/demand-data/")
 
 val exampleChoiceModelModes = legacyChoiceModelModes.copy(options = MainModes.values())
 
+// TODO discuss whether modes are context or config
 class MyContext :
     HasZoneRepo<MaximalZone, MaximalZone>,
     HasHouseholdRepo<MutableHousehold, Household>,
@@ -146,14 +167,23 @@ class MyContext :
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
     HasModes, // TODO discuss whether modes are context or config
-    HasMutablePersonBehavior {
-    override val scenarioName: String = "regression test short term scenario"
-    override val modes: CodePlan<Mode> = LegacyMode
-    override lateinit var impedance: Impedance
-    override lateinit var attractiveness: AttractivenessModel
-    override lateinit var personBehavior: PersonBehavior
+    HasParkingPressureModel,
+    HasMutableModeAvailabilityModel,
+    HasChoiceModelModes,
+    HasModeChoiceModel,
+    HasReplanningStrategy,
+    HasSpawnModeCharacteristics,
+    HasSpawnDestinationCharacteristics,
+    HasMutableDestinationChoiceModel {
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
+
+    override val scenarioName: String = "regression test short term scenario"
+    override val modes: CodePlan<Mode> = LegacyMode
+
+    override lateinit var impedance: Impedance
+    override lateinit var attractiveness: AttractivenessModel
+    override lateinit var parkingPressure: ParkingPressureModel
     override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> = MapRepository("zone")
     override val mutableHouseholdRepository: MutableRepository<MutableHousehold, HouseholdId> =
         MapRepository("household")
@@ -168,6 +198,15 @@ class MyContext :
         MapRepository("SharingProviderAgents")
     override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> =
         MapRepository("DrtProviderAgents")
+    override lateinit var modeAvailability: ModeAvailabilityModel
+    override val choiceModelModes: ChoiceModelModes = exampleChoiceModelModes
+    override lateinit var modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
+    override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
+    override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =
+        StandardModeImplementation
+    override val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics> =
+        StandardDestinationImplementation
+    override val replanningStrategy: ReplanningStrategy = ReplanningStrategy.SHIFT
 
     override fun clone(): MyContext = MyContext() // TODO doppelt zu context factory
 
@@ -183,6 +222,7 @@ class MyConfig :
     HouseholdCodesConfig,
     CarCodesConfig,
     ActivityTypesConfig,
+    BaseModesConfig,
     SourceFilesConfig,
     SharingSourceFilesConfig,
     SharingModesConfig,
@@ -237,6 +277,12 @@ class MyConfig :
     override val ridePoolingMode: Mode = LegacyMode.RIDE_POOLING
     override val work: ActivityType = LegacyActivityType.WORK
     override val privateVisit: ActivityType = LegacyActivityType.PRIVATE_VISIT
+
+    override val pedestrianMode: Mode = LegacyMode.PEDESTRIAN
+    override val bikeMode: Mode = LegacyMode.BIKE
+    override val carMode: Mode = LegacyMode.CAR
+    override val passengerMode: Mode = LegacyMode.PASSENGER
+    override val publicTransportMode: Mode = LegacyMode.PUBLICTRANSPORT
 }
 
 @Suppress("LongMethod")
@@ -264,6 +310,8 @@ fun main(args: Array<String>) {
         }
 
         loadAttractivenessModelFromCsv()
+
+        loadParkingPressureModel()
 
 //            sharingProviders {
 //                loadSharingProviders(bikeSharingProviderCsv())
@@ -334,11 +382,9 @@ fun main(args: Array<String>) {
             assignMainCarUsers()
         }
 
-        loadBehaviorModels(
-            legacyDestinationChoice,
-            legacyModeChoice,
-            exampleChoiceModelModes,
-        )
+        loadAvailabilityModel()
+
+        loadDestinationChoiceModel()
 
         buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines
             personStateMachine,

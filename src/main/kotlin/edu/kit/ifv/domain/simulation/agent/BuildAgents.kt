@@ -18,13 +18,11 @@ import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
 import edu.kit.ifv.domain.simulation.data.sharing.SharingStation
 import edu.kit.ifv.domain.simulation.data.sharing.SharingStationId
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
 import edu.kit.ifv.utils.collections.addProgressBar
 
 class BuildAgents(
     val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived
     val personStateMachine: StateMachineFactory<PersonAgent>,
-    val personBehavior: PersonBehavior,
     val drtStateMachine: StateMachineFactory<DrtProviderAgent>? = null,
     val drtAlgorithm: ((DrtProvider) -> DrtAlgorithm)? = null,
     val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
@@ -156,8 +154,6 @@ fun Person.toAgent(
         this.drtMemberships.map { it.toAgent(context) },
     )
 
-    agent.behavior = context.personBehavior
-
     agent.schedule = this.plannedActivities.toSchedule(SingularDispatcher())
     this.clearPlannedActivities() // clear to save memory
     context.durationRandomizer.randomizeAll(agent)
@@ -186,6 +182,8 @@ fun SharingProvider.toAgent(context: BuildAgents) = context.sharingProvidersById
     key = this.id,
     defaultValue = { MutableSharingProviderAgent(id, name, mode) },
 ) { agent ->
+
+    agent.operatingHours = operatingHours
     agent.stations.addAll(
         this.stations.map { it.toAgent(context, agent) },
     )
