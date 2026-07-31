@@ -1,8 +1,49 @@
 variables:
   MOBITOPP_COMMIT_HASH: $CI_COMMIT_SHA
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
 default:
   image: gradle:jdk25
+  before_script:
+    - |
+      echo "CI ref:              ${CI_COMMIT_REF_NAME:-unset}"
+      echo "Protected ref:       ${CI_COMMIT_REF_PROTECTED:-unset}"
+      echo "RC_REPO_URL present: $([ -n "${RC_REPO_URL:-}" ] && echo yes || echo no)"
+      
+      cat > "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts" <<'EOF'
+      println("Internal repository init script loaded")
+      
+      beforeProject {
+          val rcUrl = System.getenv("RC_REPO_URL")
+      
+          if (!rcUrl.isNullOrBlank()) {
+              repositories.maven {
+                  name = "InjectedRcRepository"
+                  url = uri(rcUrl)
+              }
+      
+              println("Injected RC repository into project '${path}'")
+          }
+      
+          val snapshotUrl = System.getenv("LOCAL_SNAPSHOT_REPO_URL")
+      
+          if (!snapshotUrl.isNullOrBlank()) {
+              repositories.maven {
+                  name = "InjectedSnapshotRepository"
+                  url = uri(snapshotUrl)
+              }
+      
+              println("Injected snapshot repository into project '${path}'")
+          }
+      }
+      EOF
+
+cache:
+  key: "gradle-$CI_PROJECT_ID"
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+    - .kotlin
 
 stages: # List of stages for jobs, and their order of execution
   - build
@@ -16,20 +57,16 @@ stages: # List of stages for jobs, and their order of execution
 build-job:
   stage: build
   script:
-    - ./gradlew compileKotlin
-  artifacts:
-    expire_in: 1 week
-    when: always
-    paths:
-      - build/
+    - ./gradlew compileKotlin --build-cache --init-script "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts"
 
 test-job:
   stage: test
   needs: [ build-job ]
   script:
-    - ./gradlew test koverXmlReport koverLog
+    - ./gradlew test koverXmlReport koverLog --build-cache --init-script "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts"
   artifacts:
     when: always
+    expire_in: 1 week
     reports:
       junit: build/test-results/test/**/TEST-*.xml
       coverage_report:
@@ -44,69 +81,138 @@ code-style:
   stage: test
   needs: [ build-job ]
   script:
-    - ./gradlew detektGenerateConfig
-    - ./gradlew detekt
+    - ./gradlew detektGenerateConfig --build-cache --init-script "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts"
+    - ./gradlew detekt --build-cache --init-script "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts"
 
-deploy-job:
+snapshot-publish-job:
   stage: publish
-  only:
-    - main
-    - master
-  needs: [ "test-job" ]
-  resource_group: production #only one deploy job at a time
-  script:
-    - echo "Publish local release $BUILD_VERSION"
-    - |
-      ./gradlew publish -PbuildVersion=$BUILD_VERSION \
-      -PdoPublish=true \
-      -PisRelease=false \
-      -PlocalUrl=$LOCAL_REPO_URL \
-      -PlocalRepoUser=$LOCAL_REPO_USERNAME \
-      -PlocalRepoPassword=$LOCAL_REPO_PASSWORD
-    - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
-    - echo "Update BUILD_NUMBER to $NEW_BUILD_NUMBER"
-    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
-git-version-tag:
+  needs:
+    - test-job
+    - code-style
+  resource_group: nexus-publish
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-  stage: publish
-  needs: [ deploy-job ]
-  image:
-    name: alpine/git:v2.49.1 #need git
-    entrypoint: ["/bin/sh", "-c"]
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: on_success
+    - when: never
   script:
-    - echo "Setting tag v$RELEASE_VERSION on gitlab."
-    - git status
-    - git tag "v$RELEASE_VERSION"
-    - git push origin "v$RELEASE_VERSION"
-
-
-publish-job:
-  allow_failure: false
-  when: manual
-  stage: publish
-  only:
-    - main
-    - master
-  needs: [ "test-job" ]
-  resource_group: production #only one deploy job at a time
-  script:
-    - export NEW_BUILD_VERSION=$MAJOR.$MINOR.0
-    - echo "Publish public release $NEW_BUILD_VERSION"^
-    - mkdir -p "$CI_PROJECT_DIR/.ci-secrets"
-    - printf '%s' "$GPG_SECRING" | base64 -d > "$CI_PROJECT_DIR/.ci-secrets/secring.gpg"
-    - echo "New Build Version $NEW_BUILD_VERSION"
-    - chmod 600 "$CI_PROJECT_DIR/.ci-secrets/secring.gpg"
+    - SNAPSHOT_VERSION="${MAJOR}.${MINOR}-SNAPSHOT"
+    - echo "Publishing snapshot ${SNAPSHOT_VERSION}"
     - |
-      ./gradlew publishToSonatype closeSonatypeStagingRepository -PbuildVersion=$NEW_BUILD_VERSION \
-      -PdoPublish=true \
-      -PisRelease=true \
-      -PsonatypeUsername=$PUBLIC_REPO_USERNAME \
-      -PsonatypePassword=$PUBLIC_REPO_PASSWORD \
-      -Psigning.keyId=$GPG_ID \
-      -Psigning.password=$GPG_PASSWORD \
-      -Psigning.secretKeyRingFile="$CI_PROJECT_DIR/.ci-secrets/secring.gpg"
-    - export NEW_MINOR=$((MINOR + 1))
-    - echo "Update MINOR to $NEW_MINOR, set BUILD_NUMBER to 0"
-    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/MINOR" --form "value=$NEW_MINOR"
-    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=0"
+      ./gradlew publish \
+        --build-cache \
+        --init-script "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts" \
+        -PdoPublish=true \
+        -PbuildVersion="$SNAPSHOT_VERSION" \
+        -PlocalUrl="$LOCAL_SNAPSHOT_REPO_URL" \
+        -PlocalRepoUser="$LOCAL_REPO_USERNAME" \
+        -PlocalRepoPassword="$LOCAL_REPO_PASSWORD"
+
+rc-publish-job:
+  stage: publish
+  needs:
+    - test-job
+    - code-style
+  resource_group: nexus-publish
+  allow_failure: false
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v?[0-9]+\.[0-9]+\.[0-9]+$/'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+    - when: never
+  script:
+    - |
+      set -eu
+      
+      if [ -n "${CI_COMMIT_TAG:-}" ]; then
+        MANUAL_RELEASE=false
+        TAG_VERSION="${CI_COMMIT_TAG#v}"
+      
+        case "$TAG_VERSION" in
+          *[!0-9.]* | *.*.*.* | .* | *.)
+            echo "Invalid release tag: $CI_COMMIT_TAG"
+            echo "Expected format: v1.2.3 or 1.2.3"
+            exit 1
+            ;;
+        esac
+      
+        RELEASE_MAJOR="${TAG_VERSION%%.*}"
+        VERSION_REMAINDER="${TAG_VERSION#*.}"
+        RELEASE_MINOR="${VERSION_REMAINDER%%.*}"
+        RELEASE_PATCH="${VERSION_REMAINDER#*.}"
+      
+        case "$RELEASE_MAJOR:$RELEASE_MINOR:$RELEASE_PATCH" in
+          *[!0-9:]* | :* | *::* | *:)
+            echo "Invalid release tag: $CI_COMMIT_TAG"
+            exit 1
+            ;;
+        esac
+      
+        RELEASE_VERSION="$TAG_VERSION"
+        NEXT_MAJOR="$RELEASE_MAJOR"
+        NEXT_MINOR="$((RELEASE_MINOR + 1))"
+      else
+        MANUAL_RELEASE=true
+        RELEASE_VERSION="${MAJOR}.${MINOR}.0"
+        NEXT_MAJOR="$MAJOR"
+        NEXT_MINOR="$((MINOR + 1))"
+      
+        if git ls-remote --exit-code \
+          --tags origin "refs/tags/v$RELEASE_VERSION" >/dev/null 2>&1; then
+          echo "Tag v$RELEASE_VERSION already exists"
+          exit 1
+        fi
+      fi
+      
+      echo "Release version: $RELEASE_VERSION"
+      echo "Next MAJOR:      $NEXT_MAJOR"
+      echo "Next MINOR:      $NEXT_MINOR"
+      
+      echo "Publishing $RELEASE_VERSION to the RC repository"
+      
+      ./gradlew publish \
+        --no-configuration-cache \
+        --init-script "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts" \
+        -PdoPublish=true \
+        -PbuildVersion="$RELEASE_VERSION" \
+        -PlocalUrl="$RC_REPO_URL" \
+        -PlocalRepoUser="$RC_REPO_USERNAME" \
+        -PlocalRepoPassword="$RC_REPO_PASSWORD"
+      
+      echo "Publishing $RELEASE_VERSION to the local release repository"
+      
+      ./gradlew publish \
+        --no-configuration-cache \
+        --init-script "$CI_PROJECT_DIR/internal-repositories.init.gradle.kts" \
+        -PdoPublish=true \
+        -PbuildVersion="$RELEASE_VERSION" \
+        -PlocalUrl="$LOCAL_REPO_URL" \
+        -PlocalRepoUser="$LOCAL_REPO_USERNAME" \
+        -PlocalRepoPassword="$LOCAL_REPO_PASSWORD"
+      
+      if [ "$MANUAL_RELEASE" = "true" ]; then
+        git config user.name "mobiTopp Release Pipeline"
+        git config user.email "mobitopp@ifv.kit.edu"
+      
+        git tag -a "v$RELEASE_VERSION" "$CI_COMMIT_SHA" \
+          -m "Release $RELEASE_VERSION"
+      
+        git push -o ci.skip origin "v$RELEASE_VERSION"
+      fi
+      
+      echo "Updating project version variables"
+      
+      curl --fail-with-body \
+        --request PUT \
+        --header "PRIVATE-TOKEN:$API_TOKEN" \
+        --form "value=$NEXT_MAJOR" \
+        "$GITLAB_API_URL/MAJOR"
+      
+      curl --fail-with-body \
+        --request PUT \
+        --header "PRIVATE-TOKEN:$API_TOKEN" \
+        --form "value=$NEXT_MINOR" \
+        "$GITLAB_API_URL/MINOR"
+      
+      echo "Published $RELEASE_VERSION successfully"
+      echo "Future snapshots will use ${NEXT_MAJOR}.${NEXT_MINOR}-SNAPSHOT"
