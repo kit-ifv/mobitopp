@@ -219,13 +219,13 @@ interface HasDrtProviderAgentRepo<M : D, out D> :
 }
 
 interface HasImpedance : Context {
-    val impedance: IndexAddressableImpedance
+    val impedance: Impedance
 }
 
 interface HasMutableImpedance :
     Context,
     HasImpedance {
-    override var impedance: IndexAddressableImpedance
+    override var impedance: Impedance
 }
 
 interface HasModes : Context { // TODO modes are very common, maybe move to base context?

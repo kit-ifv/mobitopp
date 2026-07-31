@@ -26,16 +26,11 @@ interface Impedance {
     fun distanceMetric(mode: Mode): DistanceMetric
 
     fun durationMetric(mode: Mode, time: Time): DurationMetric
-}
-
-interface IndexAddressableImpedance: Impedance {
-    fun costIndexed(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): Double
-    fun distanceIndexed(fromIndex: Int, toIndex: Int, mode: Mode): Double
-    fun durationIndexed(fromIndex: Int, toIndex: Int, mode: Mode, time: Time): Double
-
 
     fun distanceArray(mode: Mode): DoubleMatrix
+
     fun durationArray(mode: Mode): DoubleMatrix
+
     fun costArray(mode: Mode): DoubleMatrix
 }
 

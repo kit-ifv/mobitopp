@@ -3,6 +3,7 @@ import edu.kit.ifv.application.steps.HasModes
 import edu.kit.ifv.application.steps.HasMutableImpedance
 import edu.kit.ifv.application.steps.MatrixConfig
 import edu.kit.ifv.application.steps.UnitConfig
+import edu.kit.ifv.core.datastructure.matrix.DoubleMatrix
 import edu.kit.ifv.core.modelsteps.steps.modelStep
 import edu.kit.ifv.core.modelsteps.validation.validateCondition
 import edu.kit.ifv.core.modelsteps.validation.validateFileReadAccess
@@ -128,7 +129,7 @@ private fun HasModes.checkConfigKeysAreKnownModes(configText: String, path: Path
 fun HasMutableImpedance.loadTeleportation() = modelStep(
     "create Teleportation impedance for Transport",
 ) {
-    this.impedance = TODO() // Teleportation()
+    this.impedance = Teleportation()
 }
 
 class Teleportation : Impedance {
@@ -147,6 +148,18 @@ class Teleportation : Impedance {
     override fun distanceMetric(mode: Mode): DistanceMetric = distanceMetric
 
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = durationMetric
+
+    override fun distanceArray(mode: Mode): DoubleMatrix {
+        TODO("Not yet implemented")
+    }
+
+    override fun durationArray(mode: Mode): DoubleMatrix {
+        TODO("Not yet implemented")
+    }
+
+    override fun costArray(mode: Mode): DoubleMatrix {
+        TODO("Not yet implemented")
+    }
 }
 
 private const val SHOULD_NOT_BE_CALLED = "Should not be called!"

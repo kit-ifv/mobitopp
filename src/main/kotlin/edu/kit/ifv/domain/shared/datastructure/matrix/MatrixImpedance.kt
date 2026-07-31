@@ -7,7 +7,6 @@ import edu.kit.ifv.domain.shared.location.CostMetric
 import edu.kit.ifv.domain.shared.location.DistanceMetric
 import edu.kit.ifv.domain.shared.location.DurationMetric
 import edu.kit.ifv.domain.shared.location.Impedance
-import edu.kit.ifv.domain.shared.location.IndexAddressableImpedance
 import edu.kit.ifv.domain.shared.location.zone.CostZoneMetric
 import edu.kit.ifv.domain.shared.location.zone.DistanceZoneMetric
 import edu.kit.ifv.domain.shared.location.zone.DurationZoneMetric
@@ -39,7 +38,7 @@ data class MatrixImpedance(
     private val travelCosts: ZoneMatrixLookup<Mode>,
     private val travelDistance: ZoneIdMatrix,
     private val unitConverters: UnitConverter,
-) : IndexAddressableImpedance {
+) : Impedance {
     private val currencyConverter = unitConverters.currencyConverter
     private val timeConverter = unitConverters.timeConverter
     private val distanceConverter = unitConverters.distanceConverter
@@ -58,43 +57,15 @@ data class MatrixImpedance(
         matrixAccess.minutes
     }
 
-    override fun costIndexed(
-        fromIndex: Int,
-        toIndex: Int,
-        mode: Mode,
-        time: Time,
-    ): Double {
-        return travelCosts[mode, time].getIndexed(fromIndex, toIndex)
-    }
-
-    override fun distanceIndexed(
-        fromIndex: Int,
-        toIndex: Int,
-        mode: Mode,
-    ): Double {
-        return travelDistance.getIndexed(fromIndex, toIndex)
-    }
-
-    override fun durationIndexed(
-        fromIndex: Int,
-        toIndex: Int,
-        mode: Mode,
-        time: Time,
-    ): Double {
-        return travelTimes[mode, time].getIndexed(fromIndex, toIndex)
-    }
-
     override fun distanceArray(mode: Mode): DoubleMatrix {
         return travelDistance.getMatrixD()
     }
 
     override fun durationArray(mode: Mode): DoubleMatrix {
-        // TODO pass time onwards
         return travelTimes[mode, 0.seconds.sinceStart].getMatrixD()
     }
 
     override fun costArray(mode: Mode): DoubleMatrix {
-        // TODO pass time onwards
         return travelCosts[mode, 0.seconds.sinceStart].getMatrixD()
     }
 
