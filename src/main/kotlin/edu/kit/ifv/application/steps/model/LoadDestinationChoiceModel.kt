@@ -9,13 +9,12 @@ import edu.kit.ifv.core.modelsteps.steps.repositoryDependentStep
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceParameters
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.legacyDestinationChoice
-import edu.kit.ifv.mobitopp.discretechoice.models.DiscreteChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
 fun <C> C.loadDestinationChoiceModel(
-    discreteChoiceModel:
-    DiscreteChoiceModel<StandardLocation, DestinationChoiceCharacteristics, DestinationChoiceParameters> =
+    choiceModel:
+    UtilityBasedChoiceModel<StandardLocation, DestinationChoiceCharacteristics> =
         this.legacyDestinationChoice,
 ) where C : HasZoneRepo<*, MaximalZone>, C : HasMutableDestinationChoiceModel,
         C : HasImpedance, C : HasAttractivenessModel, C : HasMutableModeAvailabilityModel =
@@ -23,7 +22,7 @@ fun <C> C.loadDestinationChoiceModel(
         "load destination choice model",
         dependentRepositories = setOf(zoneRepository),
     ) {
-        destinationChoiceModel = discreteChoiceModel.fixed(
+        destinationChoiceModel = choiceModel.fixed(
             zoneRepository.elements.filter { it.isDestination }.map {
                 it.centroidLocation
             }.toSet(),
