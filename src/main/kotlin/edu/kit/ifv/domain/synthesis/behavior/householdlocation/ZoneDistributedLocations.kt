@@ -1,7 +1,8 @@
 package edu.kit.ifv.domain.synthesis.behavior.householdlocation
-import domain.VisumPolyZone
-import domain.VisumZoneId
+
 import edu.kit.ifv.CoordinateGenerator
+import edu.kit.ifv.VisumPolyZone
+import edu.kit.ifv.VisumZoneId
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.StandardLocationImpl
 import edu.kit.ifv.domain.shared.location.road.RoadAccess

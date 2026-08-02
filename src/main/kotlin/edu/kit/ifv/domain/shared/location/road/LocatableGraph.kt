@@ -1,8 +1,8 @@
 package edu.kit.ifv.domain.shared.location.road
 
-import domain.LinkInfo
-import domain.VisumNode
 import edu.kit.ifv.JTSConverter
+import edu.kit.ifv.LinkInfo
+import edu.kit.ifv.VisumNode
 import edu.kit.ifv.core.datastructure.kdtree.ReadOnlyKDTree
 import edu.kit.ifv.domain.shared.location.Location
 import edu.kit.ifv.domain.shared.location.attributes.HasRoadAccess
