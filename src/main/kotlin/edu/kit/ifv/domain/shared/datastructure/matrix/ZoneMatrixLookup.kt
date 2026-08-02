@@ -15,6 +15,6 @@ import edu.kit.ifv.utils.units.AbsoluteTime
  *
  * @param M the mode dimension (most likely transport mode).
  */
-interface ZoneMatrixLookup<M: Encodable> : MatrixLookup<M, ZoneId> {
+interface ZoneMatrixLookup<M : Encodable> : MatrixLookup<M, ZoneId> {
     override fun get(mode: M, time: AbsoluteTime): ZoneIdMatrix
 }

@@ -6,8 +6,6 @@ import edu.kit.ifv.domain.shared.datastructure.matrix.visum.VisumMatrixParser
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import java.nio.file.Path
 
-
-
 class StandardMatrix private constructor(
     override val matrix: DoubleMatrix,
     private val indexLookup: Map<ZoneId, Int>,
@@ -15,9 +13,7 @@ class StandardMatrix private constructor(
 ) : ZoneIdMatrix,
     MappedDoubleMatrix<ZoneId> {
 
-    override fun getMatrixD(): DoubleMatrix {
-        return matrix
-    }
+    override fun getMatrixD(): DoubleMatrix = matrix
 
     override val converter: IndexEncoder<ZoneId> = IndexEncoder {
         indexLookup[it] ?: throw NoSuchElementException(
@@ -27,9 +23,7 @@ class StandardMatrix private constructor(
     val size get() = keys.size
     val keys = indexLookup.keys
 
-    override fun getIndexed(rowIndex: Int, columnIndex: Int): Double {
-        return matrix[rowIndex, columnIndex]
-    }
+    override fun getIndexed(rowIndex: Int, columnIndex: Int): Double = matrix[rowIndex, columnIndex]
 
     override fun equals(other: Any?): Boolean {
         if (other !is StandardMatrix) return false

@@ -33,4 +33,3 @@ interface Impedance {
 
     fun costArray(mode: Mode): DoubleMatrix
 }
-

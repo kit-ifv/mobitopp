@@ -57,17 +57,11 @@ data class MatrixImpedance(
         matrixAccess.minutes
     }
 
-    override fun distanceArray(mode: Mode): DoubleMatrix {
-        return travelDistance.getMatrixD()
-    }
+    override fun distanceArray(mode: Mode): DoubleMatrix = travelDistance.getMatrixD()
 
-    override fun durationArray(mode: Mode): DoubleMatrix {
-        return travelTimes[mode, 0.seconds.sinceStart].getMatrixD()
-    }
+    override fun durationArray(mode: Mode): DoubleMatrix = travelTimes[mode, 0.seconds.sinceStart].getMatrixD()
 
-    override fun costArray(mode: Mode): DoubleMatrix {
-        return travelCosts[mode, 0.seconds.sinceStart].getMatrixD()
-    }
+    override fun costArray(mode: Mode): DoubleMatrix = travelCosts[mode, 0.seconds.sinceStart].getMatrixD()
 
     companion object {
         @Suppress("LongParameterList")

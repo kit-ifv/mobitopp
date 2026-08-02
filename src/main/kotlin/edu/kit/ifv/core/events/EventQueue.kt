@@ -1,6 +1,5 @@
 package edu.kit.ifv.core.events
 import edu.kit.ifv.core.statemachine.Event
-import edu.kit.ifv.utils.collections.append
 import edu.kit.ifv.utils.units.Time
 import java.util.*
 
@@ -23,15 +22,13 @@ class MapEventQueue : EventQueue {
         val timeSlice = events.getOrPut(event.receiveTime.toInternalNumber()) {
             mutableListOf()
         }
-        timeSlice.add(event)// TODO round to nearest minute
+        timeSlice.add(event) // TODO round to nearest minute
 //        events.append(event.receiveTime, event)
     }
 
     override fun addAll(events: Collection<Event<*>>) {
-
         events.forEach { add(it) }
 //        require(events.all { it.isValid })
-
     }
 
     override fun hasEventsUntil(time: Time): Boolean = events.keys.any { it <= time.toInternalNumber() }

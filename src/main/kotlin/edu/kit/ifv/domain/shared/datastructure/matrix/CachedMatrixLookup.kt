@@ -21,8 +21,10 @@ import edu.kit.ifv.utils.units.AbsoluteTime
  * @param matrixCreator factory for constructing [ZoneIdMatrix] instances from the yaml info
  */
 
-class CachedMatrixLookup<M: Encodable>(private val yaml: YamlMatrixLookup<M>, private val matrixCreator: ZoneMatrixCreation) :
-    ZoneMatrixLookup<M> {
+class CachedMatrixLookup<M : Encodable>(
+    private val yaml: YamlMatrixLookup<M>,
+    private val matrixCreator: ZoneMatrixCreation,
+) : ZoneMatrixLookup<M> {
     private val cache: MatrixCache<M> = MatrixCache.fromRange(yaml.codeRange)
 
     // TODO this code is not parallel safe, because two threads will cause a double read from matrixCreator
@@ -38,13 +40,12 @@ class CachedMatrixLookup<M: Encodable>(private val yaml: YamlMatrixLookup<M>, pr
         cache[mode, expiration] = matrix
         return matrix
     }
-    private class MatrixCache<M: Encodable>(initialSize: Int) {
+    private class MatrixCache<M : Encodable>(initialSize: Int) {
 
         private val arrayCache: Array<Pair<AbsoluteTime, ZoneIdMatrix>?> = Array(initialSize + 1) { null }
 
 //        private val cache: MutableMap<M, Pair<AbsoluteTime, ZoneIdMatrix>> = mutableMapOf()
         operator fun get(mode: M, time: AbsoluteTime): Pair<AbsoluteTime, ZoneIdMatrix>? {
-
             return arrayCache[mode.code]
 //            return cache[mode]
         }
@@ -54,7 +55,7 @@ class CachedMatrixLookup<M: Encodable>(private val yaml: YamlMatrixLookup<M>, pr
         }
 
         companion object {
-            fun <M: Encodable> fromRange(intRange: IntRange): MatrixCache<M> {
+            fun <M : Encodable> fromRange(intRange: IntRange): MatrixCache<M> {
                 require(intRange.first >= 0) { "intRange should not be less than 0" }
                 return MatrixCache(intRange.endInclusive)
             }

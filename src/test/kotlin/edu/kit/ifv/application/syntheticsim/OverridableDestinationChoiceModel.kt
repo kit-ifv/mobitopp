@@ -2,8 +2,6 @@ package edu.kit.ifv.application.syntheticsim
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationAlternative
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
-import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
-import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 import kotlin.random.Random
 

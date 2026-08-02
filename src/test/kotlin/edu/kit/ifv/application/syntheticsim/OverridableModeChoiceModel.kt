@@ -2,8 +2,6 @@ package edu.kit.ifv.application.syntheticsim
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceAlternative
 import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
-import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
-import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 import kotlin.random.Random
 
@@ -27,8 +25,6 @@ class OverridableModeChoiceModel constructor(val original: UtilityBasedChoiceMod
     override fun probabilities(utilities: Map<Mode, Double>): Map<Mode, Double> = throw UnsupportedOperationException(
         "Not yet implemented",
     )
-
-
 
     context(_: ModeChoiceCharacteristics, random: Random)
     override fun selectInjected(choices: Set<Mode>, injections: Map<Mode, (Double) -> Double>): Mode =
