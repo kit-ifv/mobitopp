@@ -47,7 +47,7 @@ project(":custom-detekt").projectDir = file("codegen/custom-detekt")
 //    includeBuild(synLibPath)
 //}
 
-//val netfilePath = "../visumnetfileparser"
+//val netfilePath = "../visumNetfileParser"
 //
 //if (File(netfilePath).exists()) {
 //    println("Include local build of netfile parser")
