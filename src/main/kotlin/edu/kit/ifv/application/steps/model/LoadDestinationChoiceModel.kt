@@ -10,6 +10,7 @@ import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.legacyDestinationChoice
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
 fun <C> C.loadDestinationChoiceModel(
@@ -21,9 +22,11 @@ fun <C> C.loadDestinationChoiceModel(
         "load destination choice model",
         dependentRepositories = setOf(zoneRepository),
     ) {
-        destinationChoiceModel = choiceModel.fixed(
-            zoneRepository.elements.filter { it.isDestination }.map {
-                it.centroidLocation
-            }.toSet(),
-        )
+        destinationChoiceModel =
+            choiceModel as? FixedChoiceModel
+                ?: choiceModel.fixed(
+                    zoneRepository.elements.filter { it.isDestination }.map {
+                        it.centroidLocation
+                    }.toSet(),
+                )
     }
