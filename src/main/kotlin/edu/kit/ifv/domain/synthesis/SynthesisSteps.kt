@@ -238,7 +238,6 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
                         if (workerId == 0) {
                             progressBar.stepBy(1)
                         }
-                        progressBar.step()
                     }
                 }
             }.joinAll()
