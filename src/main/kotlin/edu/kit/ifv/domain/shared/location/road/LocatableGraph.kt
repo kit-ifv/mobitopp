@@ -1,4 +1,5 @@
 package edu.kit.ifv.domain.shared.location.road
+
 import edu.kit.ifv.JTSConverter
 import edu.kit.ifv.LinkInfo
 import edu.kit.ifv.VisumNode

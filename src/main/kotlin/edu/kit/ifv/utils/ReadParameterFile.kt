@@ -1,5 +1,5 @@
 package edu.kit.ifv.utils
-import edu.kit.ifv.processor.builder.splitOnce
+
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.nio.charset.Charset
 import java.nio.file.Path
