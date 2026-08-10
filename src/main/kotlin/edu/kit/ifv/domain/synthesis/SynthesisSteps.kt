@@ -221,7 +221,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         val workerCount = Runtime.getRuntime().availableProcessors()
         val localHouseholdCopy = households // Keep a local copy, because otherwise each thread access would go
         // through the getter function
-        val progressBar = standardProgressBar("Generate Activities", (localHouseholdCopy.size / workerCount))
+        val progressBar = standardProgressBar("Generate Activities", (localHouseholdCopy.size))
         runBlocking {
             (0 until workerCount).map { workerId ->
 
@@ -235,9 +235,7 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
                             person.plannedActivities = activities
                         }
                         localIndex += workerCount
-                        if (workerId == 0) {
-                            progressBar.stepBy(1)
-                        }
+                        progressBar.step()
                     }
                 }
             }.joinAll()
