@@ -11,6 +11,7 @@ import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import edu.kit.ifv.domain.shared.enums.Mode
+import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.road.LocatableGraph
@@ -220,6 +221,18 @@ interface HasDrtProviderAgentRepo<M : D, out D> :
 
 interface HasImpedance : Context {
     val impedance: Impedance
+}
+
+interface HasArrayBackedImpedance :
+    Context,
+    HasImpedance {
+    override val impedance: ArrayBackedImpedance
+}
+
+interface HasMutableArrayBackedImpedance :
+    Context,
+    HasArrayBackedImpedance {
+    override var impedance: ArrayBackedImpedance
 }
 
 interface HasMutableImpedance :

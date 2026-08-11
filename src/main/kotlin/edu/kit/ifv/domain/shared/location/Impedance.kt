@@ -37,7 +37,7 @@ interface Impedance {
  * An Impedance encodes costs, distances and times that are required to travel from one zone to another.
  * This type of impedance works with a fixed set of zones. It returns a full DoubleMatrix for each mode.
  */
-interface ArrayBackedImpedance {
+interface ArrayBackedImpedance : Impedance {
     /**
      * The distances between all zones for a given mode.
      * @return In the first row the DoubleMatrix encodes the distance between zone_0 to zone_0, then zone_0 and zone_1,

@@ -1,5 +1,6 @@
 package edu.kit.ifv.application.steps.parser
 import edu.kit.ifv.application.steps.HasModes
+import edu.kit.ifv.application.steps.HasMutableArrayBackedImpedance
 import edu.kit.ifv.application.steps.HasMutableImpedance
 import edu.kit.ifv.application.steps.HasZoneRepo
 import edu.kit.ifv.application.steps.MatrixConfig
@@ -51,7 +52,7 @@ fun <C, CFG> C.loadImpedance(
     ),
     errorOnMissingMode: Boolean = false,
 )
-    where C : HasModes, C : HasMutableImpedance, CFG : MatrixConfig, CFG : UnitConfig = modelStep(
+    where C : HasModes, C : HasMutableArrayBackedImpedance, CFG : MatrixConfig, CFG : UnitConfig = modelStep(
     "load impedance matrices",
     validation = listOf({ validateLoadImpedance(config, errorOnMissingMode) }),
 ) {

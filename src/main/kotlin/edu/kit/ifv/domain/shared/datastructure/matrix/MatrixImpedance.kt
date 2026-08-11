@@ -3,11 +3,11 @@ import edu.kit.ifv.core.datastructure.matrix.DoubleMatrix
 import edu.kit.ifv.domain.shared.datastructure.matrix.yaml.YamlInfo
 import edu.kit.ifv.domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import edu.kit.ifv.domain.shared.enums.Mode
+import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.CostMetric
 import edu.kit.ifv.domain.shared.location.DistanceMetric
 import edu.kit.ifv.domain.shared.location.DurationMetric
 import edu.kit.ifv.domain.shared.location.Impedance
-import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.zone.CostZoneMetric
 import edu.kit.ifv.domain.shared.location.zone.DistanceZoneMetric
 import edu.kit.ifv.domain.shared.location.zone.DurationZoneMetric
