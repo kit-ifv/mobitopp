@@ -11,10 +11,7 @@ import edu.kit.ifv.domain.shared.location.zone.ZoneId
  * generate attractivities for all [zoneIds] and all activities this cacher gets called with.
  * @param zoneIds All zoneIDs the cacher generates attractivities for.
  */
-class AttractivenessCacher(
-    private val attractivenessModel: AttractivenessModel,
-    private val zoneIds: List<ZoneId>,
-) {
+class AttractivenessCacher(private val attractivenessModel: AttractivenessModel, private val zoneIds: List<ZoneId>) {
     private val map: MutableMap<ActivityType, DoubleArray> = mutableMapOf()
 
     /**
@@ -22,11 +19,9 @@ class AttractivenessCacher(
      * is at the index of the zone, that was provided in [zoneIds].
      * @param activity
      */
-    operator fun get(activity: ActivityType): DoubleArray {
-        return map.getOrPut(activity) {
-            DoubleArray(zoneIds.size) {
-                attractivenessModel.attractivenessFor(zoneIds[it], activity).value
-            }
+    operator fun get(activity: ActivityType): DoubleArray = map.getOrPut(activity) {
+        DoubleArray(zoneIds.size) {
+            attractivenessModel.attractivenessFor(zoneIds[it], activity).value
         }
     }
 }

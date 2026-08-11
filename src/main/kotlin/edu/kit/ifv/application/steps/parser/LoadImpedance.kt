@@ -4,7 +4,6 @@ import edu.kit.ifv.application.steps.HasMutableImpedance
 import edu.kit.ifv.application.steps.HasZoneRepo
 import edu.kit.ifv.application.steps.MatrixConfig
 import edu.kit.ifv.application.steps.UnitConfig
-import edu.kit.ifv.core.datastructure.matrix.DoubleMatrix
 import edu.kit.ifv.core.modelsteps.steps.modelStep
 import edu.kit.ifv.core.modelsteps.validation.validateCondition
 import edu.kit.ifv.core.modelsteps.validation.validateFileReadAccess
@@ -150,15 +149,4 @@ class Teleportation(numLocations: Int) : Impedance {
     override fun distanceMetric(mode: Mode): DistanceMetric = distanceMetric
 
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = durationMetric
-
-    val oneMeterConstDistance = DoubleMatrix(DoubleArray(numLocations * numLocations) { 1.0 }, numLocations)
-    override fun distanceArray(mode: Mode): DoubleMatrix = oneMeterConstDistance
-
-    val oneSecondConst = DoubleMatrix(DoubleArray(numLocations * numLocations) { 1.0 }, numLocations)
-
-    override fun durationArray(mode: Mode): DoubleMatrix = oneSecondConst
-
-    val zeroEuroConst = DoubleMatrix(DoubleArray(numLocations * numLocations) { 0.0 }, numLocations)
-
-    override fun costArray(mode: Mode): DoubleMatrix = zeroEuroConst
 }

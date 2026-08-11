@@ -1,5 +1,4 @@
 package edu.kit.ifv.application.syntheticsim
-import edu.kit.ifv.core.datastructure.matrix.DoubleMatrix
 import edu.kit.ifv.domain.shared.enums.LegacyMode
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.ConstantMetric
@@ -174,18 +173,6 @@ class ControllableImpedance(
                 setTime(mode, origin, destination, rng(travelTimes).minutes)
             }
         }
-    }
-
-    override fun distanceArray(mode: Mode): DoubleMatrix {
-        TODO("Not yet implemented")
-    }
-
-    override fun durationArray(mode: Mode): DoubleMatrix {
-        TODO("Not yet implemented")
-    }
-
-    override fun costArray(mode: Mode): DoubleMatrix {
-        TODO("Not yet implemented")
     }
 }
 

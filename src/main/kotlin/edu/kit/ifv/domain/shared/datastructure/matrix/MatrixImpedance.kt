@@ -7,6 +7,7 @@ import edu.kit.ifv.domain.shared.location.CostMetric
 import edu.kit.ifv.domain.shared.location.DistanceMetric
 import edu.kit.ifv.domain.shared.location.DurationMetric
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.zone.CostZoneMetric
 import edu.kit.ifv.domain.shared.location.zone.DistanceZoneMetric
 import edu.kit.ifv.domain.shared.location.zone.DurationZoneMetric
@@ -38,7 +39,8 @@ data class MatrixImpedance(
     private val travelCosts: ZoneMatrixLookup<Mode>,
     private val travelDistance: ZoneIdMatrix,
     private val unitConverters: UnitConverter,
-) : Impedance {
+) : Impedance,
+    ArrayBackedImpedance {
     private val currencyConverter = unitConverters.currencyConverter
     private val timeConverter = unitConverters.timeConverter
     private val distanceConverter = unitConverters.distanceConverter
