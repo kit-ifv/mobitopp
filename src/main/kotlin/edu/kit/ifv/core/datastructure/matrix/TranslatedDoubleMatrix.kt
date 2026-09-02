@@ -9,4 +9,6 @@ package edu.kit.ifv.core.datastructure.matrix
  */
 fun interface TranslatedDoubleMatrix<I> {
     operator fun get(row: I, column: I): Double
+
+    fun getMatrixD(): DoubleMatrix = throw UnsupportedOperationException()
 }

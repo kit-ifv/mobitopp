@@ -5,7 +5,6 @@ import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.availabilityRules
-import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.default
 
 /**
  * Creates a default [ModeAvailabilityModel] using the provided [ChoiceModelModes].

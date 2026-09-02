@@ -1,7 +1,9 @@
 package edu.kit.ifv.domain.shared.datastructure.matrix
+import edu.kit.ifv.core.datastructure.matrix.DoubleMatrix
 import edu.kit.ifv.domain.shared.datastructure.matrix.yaml.YamlInfo
 import edu.kit.ifv.domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import edu.kit.ifv.domain.shared.enums.Mode
+import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.CostMetric
 import edu.kit.ifv.domain.shared.location.DistanceMetric
 import edu.kit.ifv.domain.shared.location.DurationMetric
@@ -14,8 +16,11 @@ import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.utils.codes.Decodable
 import edu.kit.ifv.utils.units.Time
+import edu.kit.ifv.utils.units.sinceStart
 import java.nio.file.Path
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Provides [Impedance] backed by zone-based OD matrices.
@@ -34,7 +39,8 @@ data class MatrixImpedance(
     private val travelCosts: ZoneMatrixLookup<Mode>,
     private val travelDistance: ZoneIdMatrix,
     private val unitConverters: UnitConverter,
-) : Impedance {
+) : Impedance,
+    ArrayBackedImpedance {
     private val currencyConverter = unitConverters.currencyConverter
     private val timeConverter = unitConverters.timeConverter
     private val distanceConverter = unitConverters.distanceConverter
@@ -48,8 +54,16 @@ data class MatrixImpedance(
     }
 
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = DurationZoneMetric { o, d ->
-        timeConverter.from(travelTimes[mode, time][o, d])
+        val matrix: ZoneIdMatrix = travelTimes[mode, time]
+        val matrixAccess: Double = matrix[o, d]
+        matrixAccess.minutes
     }
+
+    override fun distanceArray(mode: Mode): DoubleMatrix = travelDistance.getMatrixD()
+
+    override fun durationArray(mode: Mode): DoubleMatrix = travelTimes[mode, 0.seconds.sinceStart].getMatrixD()
+
+    override fun costArray(mode: Mode): DoubleMatrix = travelCosts[mode, 0.seconds.sinceStart].getMatrixD()
 
     companion object {
         @Suppress("LongParameterList")

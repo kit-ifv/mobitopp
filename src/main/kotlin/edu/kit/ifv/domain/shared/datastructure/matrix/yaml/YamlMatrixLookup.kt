@@ -6,10 +6,9 @@ import edu.kit.ifv.utils.codes.Decodable
 import edu.kit.ifv.utils.codes.Encodable
 import java.nio.file.Path
 
-fun interface YamlMatrixLookup<M> : ExpiringLookup<M, YamlInfo> {
-
+interface YamlMatrixLookup<M : Encodable> : ExpiringLookup<M, YamlInfo> {
+    val codeRange: IntRange
     fun cached(matrixCreator: ZoneMatrixCreation): CachedMatrixLookup<M> = CachedMatrixLookup(this, matrixCreator)
-
     companion object {
         fun <M : Encodable> default(
             yamlPath: Path,

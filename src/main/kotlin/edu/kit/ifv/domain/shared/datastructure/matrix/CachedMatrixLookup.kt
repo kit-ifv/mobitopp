@@ -1,5 +1,6 @@
 package edu.kit.ifv.domain.shared.datastructure.matrix
 import edu.kit.ifv.domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
+import edu.kit.ifv.utils.codes.Encodable
 import edu.kit.ifv.utils.units.AbsoluteTime
 
 /**
@@ -20,9 +21,11 @@ import edu.kit.ifv.utils.units.AbsoluteTime
  * @param matrixCreator factory for constructing [ZoneIdMatrix] instances from the yaml info
  */
 
-class CachedMatrixLookup<M>(private val yaml: YamlMatrixLookup<M>, private val matrixCreator: ZoneMatrixCreation) :
-    ZoneMatrixLookup<M> {
-    private val cache: MatrixCache<M> = MatrixCache()
+class CachedMatrixLookup<M : Encodable>(
+    private val yaml: YamlMatrixLookup<M>,
+    private val matrixCreator: ZoneMatrixCreation,
+) : ZoneMatrixLookup<M> {
+    private val cache: MatrixCache<M> = MatrixCache.fromRange(yaml.codeRange)
 
     // TODO this code is not parallel safe, because two threads will cause a double read from matrixCreator
     //
@@ -37,12 +40,25 @@ class CachedMatrixLookup<M>(private val yaml: YamlMatrixLookup<M>, private val m
         cache[mode, expiration] = matrix
         return matrix
     }
-    private class MatrixCache<M> {
-        private val cache: MutableMap<M, Pair<AbsoluteTime, ZoneIdMatrix>> = mutableMapOf()
-        operator fun get(mode: M, time: AbsoluteTime): Pair<AbsoluteTime, ZoneIdMatrix>? = cache[mode]
+    private class MatrixCache<M : Encodable>(initialSize: Int) {
+
+        private val arrayCache: Array<Pair<AbsoluteTime, ZoneIdMatrix>?> = Array(initialSize + 1) { null }
+
+//        private val cache: MutableMap<M, Pair<AbsoluteTime, ZoneIdMatrix>> = mutableMapOf()
+        operator fun get(mode: M, time: AbsoluteTime): Pair<AbsoluteTime, ZoneIdMatrix>? {
+            return arrayCache[mode.code]
+//            return cache[mode]
+        }
 
         operator fun set(mode: M, validUntilExclusive: AbsoluteTime, matrix: ZoneIdMatrix) {
-            cache[mode] = validUntilExclusive to matrix
+            arrayCache[mode.code] = validUntilExclusive to matrix
+        }
+
+        companion object {
+            fun <M : Encodable> fromRange(intRange: IntRange): MatrixCache<M> {
+                require(intRange.first >= 0) { "intRange should not be less than 0" }
+                return MatrixCache(intRange.endInclusive)
+            }
         }
     }
 }

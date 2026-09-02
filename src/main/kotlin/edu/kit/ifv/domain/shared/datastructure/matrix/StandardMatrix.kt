@@ -13,6 +13,8 @@ class StandardMatrix private constructor(
 ) : ZoneIdMatrix,
     MappedDoubleMatrix<ZoneId> {
 
+    override fun getMatrixD(): DoubleMatrix = matrix
+
     override val converter: IndexEncoder<ZoneId> = IndexEncoder {
         indexLookup[it] ?: throw NoSuchElementException(
             "There is no zone id in the lookup $it. Source: ${sourcePath ?: "undefined"}",
@@ -20,6 +22,8 @@ class StandardMatrix private constructor(
     }
     val size get() = keys.size
     val keys = indexLookup.keys
+
+    override fun getIndexed(rowIndex: Int, columnIndex: Int): Double = matrix[rowIndex, columnIndex]
 
     override fun equals(other: Any?): Boolean {
         if (other !is StandardMatrix) return false
