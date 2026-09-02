@@ -13,7 +13,7 @@ import org.locationtech.jts.geom.Point
 
 /**
  * Generates locations using the given [distributor]. Essentially uses the functionality of the [distributor] to
- * distribute coordinates inside [domain.VisumPolyZone]-areas according to a landuse-model.
+ * distribute coordinates inside [edu.kit.ifv.VisumPolyZone]-areas according to a landuse-model.
  *
  * @param polyZones The zones used for generating locations.
  * @param distributor A [edu.kit.ifv.LanduseDistributedCoordinates]-[CoordinateGenerator] initialized with the land-use-model and

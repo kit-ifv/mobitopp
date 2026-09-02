@@ -1,7 +1,8 @@
 package edu.kit.ifv.domain.shared.datastructure.matrix.binary
+
 import edu.kit.ifv.domain.shared.datastructure.matrix.StandardMatrix
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
-import edu.kit.ifv.utils.files.PathChecksum
+import edu.kit.ifv.utils.PathChecksum
 import java.io.DataInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -29,7 +30,7 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
         input.readFully(buffer)
         val bb = ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN)
         val doubleArray = readContentFromBuffer(bb, amountOfElements)
-        StandardMatrix.Companion.fromValues(doubleArray, zoneIds, path)
+        StandardMatrix.fromValues(doubleArray, zoneIds, path)
     }
 
     /*
@@ -37,7 +38,7 @@ interface BinaryStandardDeserializer : BinaryDeserializer {
     to the hash code.
      */
     fun checksum(path: Path): PathChecksum = path.inputStream().buffered().use {
-        val result = runCatching { PathChecksum.Companion.from(DataInputStream(it).readLong()) }
+        val result = runCatching { PathChecksum.from(DataInputStream(it).readLong()) }
         if (result.isFailure) {
             println("The failure path is $path")
         }

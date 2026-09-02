@@ -1,4 +1,5 @@
 package edu.kit.ifv.domain.simulation.data.person
+import edu.kit.ifv.binary.Simplifiable
 import edu.kit.ifv.domain.shared.data.person.PersonBinaryRecord
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.shared.enums.person.ChargingInfluence
@@ -14,7 +15,6 @@ import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.UnitIntervalValue
 import edu.kit.ifv.utils.Identifiable
-import edu.kit.ifv.utils.binary.Simplifiable
 import edu.kit.ifv.utils.random.StochasticActor
 
 @Suppress("ComplexInterface")

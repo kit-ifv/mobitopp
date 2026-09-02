@@ -94,7 +94,7 @@ class BinaryConversionTest {
     @Test
     fun testHousehold() {
         val path = Path("src/test/resources/tempOutput/household.bin")
-        val writer = BinaryHouseholdWriter()
+        val writer = BinaryHouseholdWriter
         val reader = BinaryHouseholdReader({ zone }, 1L)
         writer.toBinary(path, listOf(hh1, hh2))
         val households = reader.fromBinary(path)
@@ -130,7 +130,7 @@ class BinaryConversionTest {
             mapOf<DrtProviderId, DrtProvider>()::getValue,
             1,
         )
-        val writer = BinaryPersonWriter()
+        val writer = BinaryPersonWriter
 
         writer.toBinary(path, listOf(p1, p2))
         /* TODO this is only necessary because Person always runs addAsMember() which always adds a person to the
@@ -180,7 +180,7 @@ class BinaryConversionTest {
         val path = Path("src/test/resources/tempOutput/activities.bin")
         val map = listOf(p1, p2).associateBy { it.id }
         val reader = BinaryActivityReader(LegacyActivityType.Companion, 1L)
-        val writer = BinaryActivityWriter()
+        val writer = BinaryActivityWriter
         writer.toBinary(path, listOf(act1, act2))
         val activities = reader.fromBinary(path)
         activities[0].let {
@@ -223,7 +223,7 @@ class BinaryConversionTest {
 //        {
 //            decodeLocation(zoneMap::getValue) // TODO clean up
 //        }
-        val writer = BinaryCarWriter()
+        val writer = BinaryCarWriter
         /* TODO similar argument to person test case. The Car is always automatically added to the household which in
             turn makes this test fail because: Car is present -> Hash Collision -> Object check -> Properties not yet
             defined -> Crash.

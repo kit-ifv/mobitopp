@@ -1,4 +1,10 @@
 package edu.kit.ifv.domain.shared.location.parser
+import edu.kit.ifv.binary.BinaryWritable
+import edu.kit.ifv.binary.ElementWiseBinaryReader
+import edu.kit.ifv.binary.StreamBinaryWriter
+import edu.kit.ifv.binary.getString
+import edu.kit.ifv.binary.readAsByteBuffer
+import edu.kit.ifv.binary.writeString
 import edu.kit.ifv.domain.shared.enums.ZoneClassification
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.location.ZonedRoadAccessLocationRecord
@@ -8,38 +14,32 @@ import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.shared.location.zone.attributes.MaximumZoneAttributesImpl
 import edu.kit.ifv.units.meters
-import edu.kit.ifv.utils.binary.BinaryReader
-import edu.kit.ifv.utils.binary.BinaryWritable
-import edu.kit.ifv.utils.binary.BinaryWriter
-import edu.kit.ifv.utils.binary.readAsByteBuffer
-import edu.kit.ifv.utils.binary.readString
-import edu.kit.ifv.utils.binary.writeString
 import edu.kit.ifv.utils.codes.Decodable
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
-class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionType>) : BinaryReader<MaximalZone> {
-    override fun fromBinary(path: Path): List<MaximalZone> {
-        val byteBuffer = path.readAsByteBuffer()
-        byteBuffer.long // Consume hash code at start of file
-        val size = byteBuffer.int
-        val stringLength = byteBuffer.int
+class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<RegionType>) :
+    ElementWiseBinaryReader<MaximalZone> {
+    override fun fromBinary(path: Path): List<MaximalZone> = path.readAsByteBuffer {
+        long // Consume hash code at start of file
+        val size = int
+        val stringLength = int
 
         var elements = ArrayList<MaximalZone>(size)
         repeat(size) {
-            elements.add(byteBuffer.decode(stringLength))
+            elements.add(decode(stringLength))
         }
-//        elements.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
-        return elements
+
+        elements
     }
 
     override fun ByteBuffer.decode(stringLength: Int): MaximalZone {
         val zoneId = ZoneId(long)
         val position = decodeNakedLocation().position
         val visumId = long // advance the reader, the visumId field is no longer needed in the construction of a zone
-        val name = readString(stringLength) // advance and drop the name field
+        val name = getString(stringLength) // advance and drop the name field
         val regionType = regionCode.decode(int)
         val classificationCode = int // drop classification
         val parkingPlaces = int // drop parking places
@@ -97,7 +97,7 @@ data class ZoneBinaryRecord(
     }
 }
 
-class BinaryZoneWriter : BinaryWriter<MaximalZone> {
+class BinaryZoneWriter : StreamBinaryWriter<MaximalZone> {
 
     override fun operateStream(outStream: DataOutputStream, elements: Collection<MaximalZone>) {
         val maxStringLength = getMaxStringSize(elements)

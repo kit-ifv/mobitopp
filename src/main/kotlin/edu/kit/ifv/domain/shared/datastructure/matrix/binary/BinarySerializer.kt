@@ -1,6 +1,6 @@
 package edu.kit.ifv.domain.shared.datastructure.matrix.binary
 import edu.kit.ifv.domain.shared.datastructure.matrix.StandardMatrix
-import edu.kit.ifv.utils.files.PathChecksum
+import edu.kit.ifv.utils.PathChecksum
 import java.io.DataOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

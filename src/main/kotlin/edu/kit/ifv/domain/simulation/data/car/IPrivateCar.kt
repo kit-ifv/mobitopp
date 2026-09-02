@@ -1,9 +1,9 @@
 package edu.kit.ifv.domain.simulation.data.car
+import edu.kit.ifv.binary.Simplifiable
 import edu.kit.ifv.domain.shared.car.Car
 import edu.kit.ifv.domain.shared.car.CarBinaryRecord
 import edu.kit.ifv.domain.simulation.data.household.IHousehold
 import edu.kit.ifv.domain.simulation.data.person.IPerson
-import edu.kit.ifv.utils.binary.Simplifiable
 
 interface IPrivateCar :
     Car,

@@ -1,11 +1,11 @@
 package edu.kit.ifv.domain.simulation.parser.binary
 
+import edu.kit.ifv.binary.ElementWiseBinaryReader
 import edu.kit.ifv.domain.shared.data.activity.ActivityId
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.simulation.data.MutablePlannedActivity
 import edu.kit.ifv.utils.CodePlan
-import edu.kit.ifv.utils.binary.BinaryReader
 import edu.kit.ifv.utils.units.sinceStart
 import java.nio.ByteBuffer
 import kotlin.time.DurationUnit
@@ -20,7 +20,7 @@ import kotlin.time.toDuration
  */
 @Suppress("MagicNumber")
 class BinaryActivityReader(private val codeActivity: CodePlan<ActivityType>, private val contextSimulationSeed: Long) :
-    BinaryReader<MutablePlannedActivity> {
+    ElementWiseBinaryReader<MutablePlannedActivity> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutablePlannedActivity? {
         val id = ActivityId(long)

@@ -1,4 +1,6 @@
 package edu.kit.ifv.domain.simulation.data.household
+
+import edu.kit.ifv.binary.Simplifiable
 import edu.kit.ifv.domain.shared.data.household.HouseholdBinaryRecord
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
@@ -9,7 +11,6 @@ import edu.kit.ifv.domain.simulation.data.sharing.HasStandardLocation
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.utils.Identifiable
-import edu.kit.ifv.utils.binary.Simplifiable
 import edu.kit.ifv.utils.random.StochasticActor
 
 interface IHousehold :

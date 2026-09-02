@@ -116,7 +116,7 @@ fun <C, CFG> C.binaryHouseholdFormat(): BinaryCacheConfig<MutableHousehold>
             zoneConverter = ::getZone,
             contextSimulationSeed = config.seed,
         ),
-        binaryWriter = BinaryHouseholdWriter(),
+        binaryWriter = BinaryHouseholdWriter,
     )
 
 /**

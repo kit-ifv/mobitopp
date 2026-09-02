@@ -158,5 +158,5 @@ fun <C, CFG> C.binaryPrivateCarFormat(): BinaryCacheConfig<MutablePrivateCar>
             carEngineStatistics = CarEngineStatistics(),
         ),
 
-        binaryWriter = BinaryCarWriter(),
+        binaryWriter = BinaryCarWriter,
     )

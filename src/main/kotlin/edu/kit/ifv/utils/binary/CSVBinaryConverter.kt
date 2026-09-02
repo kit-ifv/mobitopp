@@ -1,4 +1,5 @@
 package edu.kit.ifv.utils.binary
+import edu.kit.ifv.binary.bufferedDataOutputStream
 import edu.kit.ifv.utils.csv.DefaultCsvReader
 import edu.kit.ifv.utils.csv.Row
 import java.io.DataOutputStream

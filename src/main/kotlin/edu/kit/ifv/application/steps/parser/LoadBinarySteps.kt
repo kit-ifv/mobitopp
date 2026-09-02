@@ -194,7 +194,7 @@ fun <C, CFG> C.loadActivitiesFromBinary(
  */
 fun HasHouseholdRepo<*, Household>.writeHouseholdBinary(path: Path) = writeBinary(
     path = path,
-    writer = BinaryHouseholdWriter(),
+    writer = BinaryHouseholdWriter,
     repository = householdRepository,
 )
 
@@ -216,7 +216,7 @@ fun HasZoneRepo<*, MaximalZone>.writeZoneBinary(path: Path) = writeBinary(
  */
 fun HasPersonRepo<*, Person>.writePersonBinary(path: Path) = writeBinary(
     path = path,
-    writer = BinaryPersonWriter(),
+    writer = BinaryPersonWriter,
     repository = personRepository,
 )
 
@@ -233,7 +233,7 @@ fun HasPersonRepo<*, Person>.writeActivitiesBinary(path: Path) = forAllStep(
     emptySet(),
     validation = listOf { validateFileReadAccess(path, true, "binary cache file ${path.fileName}") },
 ) { elements ->
-    BinaryActivityWriter().toBinary(
+    BinaryActivityWriter.toBinary(
         path,
         elements.flatMap { it.plannedActivities },
     )
@@ -246,6 +246,6 @@ fun HasPersonRepo<*, Person>.writeActivitiesBinary(path: Path) = forAllStep(
  */
 fun HasCarRepo<*, PrivateCar>.writeCarsBinary(path: Path) = writeBinary(
     path = path,
-    writer = BinaryCarWriter(),
+    writer = BinaryCarWriter,
     repository = carRepository,
 )
