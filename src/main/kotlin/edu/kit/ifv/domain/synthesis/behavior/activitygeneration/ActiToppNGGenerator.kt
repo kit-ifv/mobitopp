@@ -1,8 +1,6 @@
 package edu.kit.ifv.domain.synthesis.behavior.activitygeneration
 import edu.kit.ifv.domain.shared.behavior.ChoiceModelPurposes
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.RawActivity
-import edu.kit.ifv.domain.shared.enums.areatype.RegionType
-import edu.kit.ifv.domain.shared.enums.areatype.ZoneRegionType
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.synthesis.attributes.household.HasNumberOfCars
 import edu.kit.ifv.domain.synthesis.attributes.household.MinimumHouseholdAttributes
@@ -12,6 +10,7 @@ import edu.kit.ifv.domain.synthesis.attributes.person.HasEmployment
 import edu.kit.ifv.domain.synthesis.attributes.person.MinimumPersonAttributes
 import edu.kit.ifv.domain.synthesis.attributes.person.employment
 import edu.kit.ifv.domain.synthesis.behavior.ISurveyHousehold
+import edu.kit.ifv.domain.synthesis.behavior.MinimalistHousehold
 import edu.kit.ifv.domain.synthesis.behavior.SurveyPerson
 import edu.kit.ifv.mobitopp.actitoppNG.ActiToppHousehold
 import edu.kit.ifv.mobitopp.actitoppNG.ActitoppPerson
@@ -21,6 +20,7 @@ import edu.kit.ifv.mobitopp.actitoppNG.HouseholdPlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.PersonAttributes
 import edu.kit.ifv.mobitopp.actitoppNG.PlanGenerationParameters
 import edu.kit.ifv.mobitopp.actitoppNG.StandardHouseholdPlanGeneration
+import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.ReusablePlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.plan.MobilityPlan
 import edu.kit.ifv.units.Distance
@@ -84,7 +84,7 @@ class ActiToppNGGenerator<in S, in T>(
         ReusablePlanGeneration(it)
     },
     val maxCommute: Distance = 150.kilometers,
-    private val actiToppAdapter: ActiToppAdapter,
+    private val actiToppAdapter: ActiToppAdapter<S, T>,
     private val personIsAllowedToWork: (SurveyPerson<T>) -> Boolean = { true },
 ) : GenerateHouseholdActivitySchedule<S, T>
     where S : MinimumHouseholdAttributes,
@@ -96,7 +96,7 @@ class ActiToppNGGenerator<in S, in T>(
     /**
      * Legacy constructor to allow the construction via a converter lambda expression rather than passing an adapter.
      */
-    constructor(purposes: ChoiceModelPurposes, converter: (RegionType) -> ZoneRegionType) : this(
+    constructor(purposes: ChoiceModelPurposes, converter: (MinimalistHousehold<S, T>) -> AreaType) : this(
         purposes,
         actiToppAdapter = StandardActiToppAdapter(purposes, converter = converter),
     )
@@ -137,7 +137,7 @@ class ActiToppNGGenerator<in S, in T>(
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
             numMinorsBelow18 = household.numberOfYouths,
-            areaType = actiToppAdapter.encodeRegionType(household.attributes.location.regionType),
+            areaType = actiToppAdapter.encodeRegionType(household),
             numberOfCars = household.attributes.amountOfCars,
         )
         household.members.forEach {

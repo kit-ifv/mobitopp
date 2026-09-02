@@ -2,7 +2,6 @@ package edu.kit.ifv.domain.synthesis.behavior.activitygeneration
 import edu.kit.ifv.domain.shared.enums.areatype.RegioStaR17
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.areatype.SizebasedRegiostarClassification
-import edu.kit.ifv.domain.shared.enums.areatype.ZoneRegionType
 import edu.kit.ifv.domain.shared.enums.areatype.toSizebasedClassification
 import edu.kit.ifv.domain.shared.enums.household.HouseholdType
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelPurposes
@@ -21,6 +20,7 @@ import edu.kit.ifv.domain.synthesis.attributes.household.MaximumHouseholdAttribu
 import edu.kit.ifv.domain.synthesis.attributes.person.MaximumPersonAttributes
 import edu.kit.ifv.domain.synthesis.attributes.person.MaximumPersonAttributesImpl
 import edu.kit.ifv.domain.synthesis.behavior.SmallestSurveyPerson
+import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.units.euros
 import edu.kit.ifv.units.kilometers
 import org.locationtech.jts.geom.Point
@@ -80,7 +80,7 @@ class ActiToppNGGeneratorTest {
 
     private val generator =
         ActiToppNGGenerator<MaximumHouseholdAttributes, MaximumPersonAttributes>(legacyChoiceModelPurposes) {
-            ZoneRegionType.DEFAULT
+            AreaType.UNKNOWN
         }
 
     @Test
