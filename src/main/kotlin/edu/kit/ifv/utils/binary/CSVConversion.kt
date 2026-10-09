@@ -1,4 +1,6 @@
 package edu.kit.ifv.utils.binary
+
+import edu.kit.ifv.binary.writeString
 import java.io.DataOutputStream
 
 /**

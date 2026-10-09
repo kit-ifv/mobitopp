@@ -9,4 +9,5 @@ import edu.kit.ifv.domain.shared.location.zone.ZoneId
  */
 interface ZoneIdMatrix : TranslatedDoubleMatrix<ZoneId> {
     override operator fun get(row: ZoneId, column: ZoneId): Double
+    fun getIndexed(rowIndex: Int, columnIndex: Int): Double
 }

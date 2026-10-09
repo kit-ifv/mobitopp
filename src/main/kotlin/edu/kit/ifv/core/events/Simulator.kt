@@ -113,7 +113,7 @@ object AppScope : CoroutineScope {
 class ParallelSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
     eventListeners: Collection<EventListener> = emptyList(),
-    queue: MapEventQueue = MapEventQueue(),
+    queue: EventQueue = MapEventQueue(),
     timeStep: Duration = 1.minutes,
 ) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
@@ -129,7 +129,7 @@ class ParallelSimulator(
 class SequentialSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
     eventListeners: Collection<EventListener> = emptyList(),
-    queue: MapEventQueue = MapEventQueue(),
+    queue: EventQueue = MapEventQueue(),
     timeStep: Duration = 1.minutes,
 ) : Simulator(initEvents, eventListeners, queue, timeStep) {
 

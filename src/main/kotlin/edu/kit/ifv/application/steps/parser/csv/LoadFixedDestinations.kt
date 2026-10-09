@@ -163,5 +163,5 @@ fun <C, CFG> C.binaryFixedDestinationFormat(): BinaryCacheConfig<ActivityLocatio
             zoneConverter = zoneRepository::getValue,
         ),
 
-        binaryWriter = FixedDestinationWriter(),
+        binaryWriter = FixedDestinationWriter,
     )

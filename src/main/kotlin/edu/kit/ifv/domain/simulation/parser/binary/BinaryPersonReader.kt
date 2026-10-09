@@ -1,5 +1,6 @@
 package edu.kit.ifv.domain.simulation.parser.binary
 
+import edu.kit.ifv.binary.ElementWiseBinaryReader
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.shared.enums.person.ChargingInfluence
@@ -14,7 +15,6 @@ import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
 import edu.kit.ifv.units.UnitIntervalValue
 import edu.kit.ifv.units.euros
-import edu.kit.ifv.utils.binary.BinaryReader
 import java.nio.ByteBuffer
 
 @Suppress("MagicNumber")
@@ -23,7 +23,7 @@ class BinaryPersonReader(
     val sharingConverter: (SharingProviderId) -> SharingProvider,
     val drtConverter: (DrtProviderId) -> DrtProvider,
     private val contextSimulationSeed: Long,
-) : BinaryReader<MutablePerson> {
+) : ElementWiseBinaryReader<MutablePerson> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutablePerson? {
         val id = PersonId(long)

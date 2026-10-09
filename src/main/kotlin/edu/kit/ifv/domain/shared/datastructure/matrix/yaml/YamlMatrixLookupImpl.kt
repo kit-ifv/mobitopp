@@ -59,6 +59,7 @@ class YamlMatrixLookupImpl<M : Encodable>(
             mode to buildCalendarWeeks(weekMap)
         }
     }
+    override val codeRange: IntRange = modeLookup.keys.minOf { it.code }..modeLookup.keys.maxOf { it.code }
     override operator fun get(mode: M, time: AbsoluteTime): WithExpiration<YamlInfo> =
         requireNotNull(modeLookup[mode]) {
             "Key $mode (type: ${mode::class.simpleName}) is missing in matrix config lookup. Available keys:\n" +

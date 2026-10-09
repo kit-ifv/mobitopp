@@ -3,7 +3,6 @@ import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.LegacyActivityType
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
-import edu.kit.ifv.domain.shared.enums.areatype.ZoneRegionType
 import edu.kit.ifv.domain.shared.enums.legacyChoiceModelPurposes
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.StandardLocationImpl
@@ -41,6 +40,7 @@ import edu.kit.ifv.domain.synthesis.behavior.transitpass.YesTransitPass
 import edu.kit.ifv.domain.synthesis.behavior.transitpass.transitPassChoiceModel
 import edu.kit.ifv.domain.synthesis.results.OpportunityOutput
 import edu.kit.ifv.domain.synthesis.results.legacy.writeLegacyOutput
+import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.units.meters
 import org.locationtech.jts.geom.Geometry
 import kotlin.io.path.Path
@@ -168,7 +168,7 @@ fun examplePopulationSynthesis() {
         )
         assignActivities {
             ActiToppNGGenerator(legacyChoiceModelPurposes) {
-                ZoneRegionType.DEFAULT
+                AreaType.UNKNOWN
             }
         }
         // TODO reenable sharing memberships. MAybe in restatt

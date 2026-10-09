@@ -360,7 +360,7 @@ internal fun StartingTripState.modeChoice( // Add ignore modes for recursive cal
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
 ): ModeResource {
-    val providerAvail = modes.options.map {
+    val providerAvail = modes.options.filter { it !is MODEUNKOWN }.map {
         modeAvailability.providerAvailability(it, person, time, destination)
     }.filter { it.isAvailable }
 

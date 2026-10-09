@@ -1,6 +1,7 @@
 package edu.kit.ifv.domain.shared.datastructure.matrix
 import edu.kit.ifv.core.datastructure.matrix.MatrixLookup
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
+import edu.kit.ifv.utils.codes.Encodable
 import edu.kit.ifv.utils.units.AbsoluteTime
 
 /**
@@ -14,6 +15,6 @@ import edu.kit.ifv.utils.units.AbsoluteTime
  *
  * @param M the mode dimension (most likely transport mode).
  */
-interface ZoneMatrixLookup<M> : MatrixLookup<M, ZoneId> {
+interface ZoneMatrixLookup<M : Encodable> : MatrixLookup<M, ZoneId> {
     override fun get(mode: M, time: AbsoluteTime): ZoneIdMatrix
 }

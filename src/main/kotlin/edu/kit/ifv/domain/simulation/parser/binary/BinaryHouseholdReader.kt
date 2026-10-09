@@ -1,5 +1,6 @@
 package edu.kit.ifv.domain.simulation.parser.binary
 
+import edu.kit.ifv.binary.ElementWiseBinaryReader
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.location.parser.LocationUtils.decodeLocation
@@ -8,7 +9,6 @@ import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.shared.location.zone.attributes.HasRegionType
 import edu.kit.ifv.domain.simulation.data.household.MutableHousehold
 import edu.kit.ifv.units.euros
-import edu.kit.ifv.utils.binary.BinaryReader
 import java.nio.ByteBuffer
 
 /**
@@ -23,7 +23,7 @@ import java.nio.ByteBuffer
 class BinaryHouseholdReader(
     private val zoneConverter: (ZoneId) -> Zone<HasRegionType>,
     private val contextSimulationSeed: Long,
-) : BinaryReader<MutableHousehold> {
+) : ElementWiseBinaryReader<MutableHousehold> {
 
     override fun ByteBuffer.decode(stringLength: Int): MutableHousehold {
         val id = HouseholdId(long)

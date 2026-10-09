@@ -1,7 +1,7 @@
 package edu.kit.ifv.domain.shared.data.household
+import edu.kit.ifv.binary.BinaryWritable
 import edu.kit.ifv.domain.shared.location.ZonedRoadAccessLocationRecord
 import edu.kit.ifv.domain.shared.location.parser.LocationUtils.encodeLocation
-import edu.kit.ifv.utils.binary.BinaryWritable
 import java.io.DataOutputStream
 
 data class HouseholdBinaryRecord(

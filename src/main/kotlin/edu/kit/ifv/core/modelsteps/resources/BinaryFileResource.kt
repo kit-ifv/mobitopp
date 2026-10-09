@@ -1,5 +1,6 @@
 package edu.kit.ifv.core.modelsteps.resources
-import edu.kit.ifv.utils.binary.BinaryReader
+
+import edu.kit.ifv.binary.BinaryReader
 import java.nio.file.Path
 
 /**

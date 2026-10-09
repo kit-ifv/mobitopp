@@ -1,4 +1,6 @@
 package edu.kit.ifv.utils.files
+
+import edu.kit.ifv.utils.PathChecksum
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.Path
@@ -8,6 +10,7 @@ import kotlin.io.path.fileSize
 import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.inputStream
 import kotlin.io.path.readBytes
+
 @Suppress("MagicNumber")
 fun Path.sampledCrc32(sampleSize: Int = 1 shl 20, chunks: Int = 4): PathChecksum {
     val crc = CRC32()
@@ -44,23 +47,4 @@ fun Path.crc32direct(): PathChecksum {
     val crc = CRC32()
     crc.update(this.readBytes())
     return PathChecksum.from(crc.value)
-}
-
-/**
- * Wrapper class to combine Checksum in combination with Invalid Element.
- */
-@JvmInline
-value class PathChecksum private constructor(val value: Long) {
-
-    fun isValid() = value >= 0
-    companion object {
-        fun from(value: Long): PathChecksum {
-            require(value >= 0) {
-                "PathChecksum cannot be negative, because negative values are used to represent invalid hashes"
-            }
-            return PathChecksum(value)
-        }
-
-        val INVALID = PathChecksum(-1L)
-    }
 }

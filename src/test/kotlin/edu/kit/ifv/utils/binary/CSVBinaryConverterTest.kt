@@ -1,4 +1,5 @@
 package edu.kit.ifv.utils.binary
+import edu.kit.ifv.binary.readString
 import org.junit.jupiter.api.Test
 import java.io.DataInputStream
 import java.io.DataOutputStream
