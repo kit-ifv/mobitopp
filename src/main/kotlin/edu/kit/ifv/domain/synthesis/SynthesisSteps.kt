@@ -8,7 +8,9 @@ import edu.kit.ifv.domain.synthesis.attributes.household.MinimumHouseholdAttribu
 import edu.kit.ifv.domain.synthesis.attributes.person.HasMutableTransitPass
 import edu.kit.ifv.domain.synthesis.attributes.person.MinimumPersonAttributes
 import edu.kit.ifv.domain.synthesis.behavior.ISurveyHousehold
+import edu.kit.ifv.domain.synthesis.behavior.activitygeneration.ActivityGeneratorSelector
 import edu.kit.ifv.domain.synthesis.behavior.activitygeneration.GenerateHouseholdActivitySchedule
+import edu.kit.ifv.domain.synthesis.behavior.activitygeneration.withOverride
 import edu.kit.ifv.domain.synthesis.behavior.cars.SynthesisCar
 import edu.kit.ifv.domain.synthesis.behavior.cars.generation.GenerateCars
 import edu.kit.ifv.domain.synthesis.behavior.cars.ownership.AssignMainUser
@@ -256,6 +258,12 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
             household.forEach {
                 activities[it] = it.plannedActivities
             }
+        }
+    }
+
+    fun assignActivities(override: ActivityGeneratorSelector<S, T>, supplier: () -> GenerateHouseholdActivitySchedule<S, T>) {
+        assignActivities{
+            supplier().withOverride(override)
         }
     }
 
