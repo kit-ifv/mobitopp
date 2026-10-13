@@ -25,5 +25,3 @@ import edu.kit.ifv.domain.synthesis.behavior.ISurveyHousehold
 fun interface GenerateHouseholdActivitySchedule<in S : MinimumHouseholdAttributes, in T : MinimumPersonAttributes> {
     fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule>
 }
-
-

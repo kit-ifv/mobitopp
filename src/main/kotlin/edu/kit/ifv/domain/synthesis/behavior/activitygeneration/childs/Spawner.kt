@@ -6,7 +6,7 @@ import kotlin.random.Random
 
 object Spawner {
 
-    fun  fromListOfPotentialPlans(
+    fun fromListOfPotentialPlans(
         random: Random,
         potentialPlans: List<ChildActivitySchedule>,
         filter: (ChildActivitySchedule) -> Boolean,
@@ -18,5 +18,4 @@ object Spawner {
         val target = DayOfWeek.entries.associateWith { lookup.getValue(it) }
         return DayComposingScheduleGenerator(random, target)
     }
-
 }

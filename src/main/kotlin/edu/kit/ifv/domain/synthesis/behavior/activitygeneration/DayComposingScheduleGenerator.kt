@@ -15,15 +15,15 @@ class DayComposingScheduleGenerator(
     private val random: Random,
     val dayPrefabs: Map<DayOfWeek, List<ReadonlyActivitySchedule>>,
 ) : GenerateActivitySchedule<MinimumHouseholdAttributes, MinimumPersonAttributes> {
-    override fun generate(person: SurveyPerson<MinimumPersonAttributes>): PreliminaryActivitySchedule {
-        return DayOfWeek.entries.map { day -> getRandomActivityPlanFor(day) }.flatten().toPreliminaryActivitySchedule()
-
-    }
+    override fun generate(person: SurveyPerson<MinimumPersonAttributes>): PreliminaryActivitySchedule =
+        DayOfWeek.entries.map { day ->
+            getRandomActivityPlanFor(day)
+        }.flatten().toPreliminaryActivitySchedule()
 
     fun getRandomActivityPlanFor(day: DayOfWeek): ReadonlyActivitySchedule {
         val potentialCandidates = dayPrefabs[day] ?: throw NoSuchElementException(
             "There is nothing registered for " +
-                    "this day"
+                "this day",
         )
         return potentialCandidates.randomOrNull(random = random) ?: listOf()
     }
@@ -38,11 +38,9 @@ class DayComposingScheduleGenerator(
                     endTime = it.endTime,
                     earliestStartTime = it.earliestStartTime,
                     latestEndTime = it.latestEndTime,
-                    type = it.type
+                    type = it.type,
                 )
             }.toMutableList(),
         )
     }
-
-
 }

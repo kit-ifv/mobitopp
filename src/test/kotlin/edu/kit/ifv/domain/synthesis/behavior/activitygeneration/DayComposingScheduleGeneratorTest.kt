@@ -21,27 +21,30 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 class DayComposingScheduleGeneratorTest {
-    private class Attrs(override val age: Int, override val sex: Sex) : MinimumPersonAttributes {
+    private class Attrs(override val age: Int, override val sex: Sex) : MinimumPersonAttributes
 
-    }
-
-    private enum class DayActivities(override val code: Int): ActivityType {
-        MO(0), DI(1), MI(2), DO(3), FR(4), SA(5), SO(6);
+    private enum class DayActivities(override val code: Int) : ActivityType {
+        MO(0),
+        DI(1),
+        MI(2),
+        DO(3),
+        FR(4),
+        SA(5),
+        SO(6),
+        ;
 
         override val description: String
             get() = code.toString()
         companion object {
-            fun decode(dayOfWeek: DayOfWeek): DayActivities {
-                return DayActivities.entries[dayOfWeek.ordinal]
-            }
+            fun decode(dayOfWeek: DayOfWeek): DayActivities = DayActivities.entries[dayOfWeek.ordinal]
         }
     }
 
-    private fun testPerson() =
-        SmallestSurveyPerson<MinimumPersonAttributes>(
-            1,
-            attributes = Attrs(10, Sex.MALE)
-        )
+    private fun testPerson() = SmallestSurveyPerson<MinimumPersonAttributes>(
+        1,
+        attributes = Attrs(10, Sex.MALE),
+    )
+
     @Test
     fun composerSchedule() {
         val prefabs = DayOfWeek.entries.associateWith {
@@ -50,29 +53,29 @@ class DayComposingScheduleGeneratorTest {
 
         val generator = DayComposingScheduleGenerator(
             Random(42),
-            dayPrefabs = prefabs
+            dayPrefabs = prefabs,
         )
         val person = SmallestSurveyPerson<MinimumPersonAttributes>(
             1,
-            attributes = Attrs(10, Sex.MALE)
+            attributes = Attrs(10, Sex.MALE),
         )
         val output = generator.generate(person)
         assertTrue(output.isConsistent())
         assertEquals(DayActivities.MO, output[0].type)
         assertEquals(DayActivities.SO, output[6].type)
-
     }
 
-
-    private fun validActivityPlanForDay(dayOfWeek: DayOfWeek, size: Int = 1, type: ActivityType): ReadonlyActivitySchedule {
-        return (0 until size).map { it ->
-            RawActivity(
-                location = StandardLocation.LOCATIONUNKNOWN,
-                startTime = (dayOfWeek.ordinal.days + it.hours).sinceStart,
-                endTime = (dayOfWeek.ordinal.days + it.hours + 30.minutes).sinceStart,
-                type = type,
-            )
-        }
+    private fun validActivityPlanForDay(
+        dayOfWeek: DayOfWeek,
+        size: Int = 1,
+        type: ActivityType,
+    ): ReadonlyActivitySchedule = (0 until size).map {
+        RawActivity(
+            location = StandardLocation.LOCATIONUNKNOWN,
+            startTime = (dayOfWeek.ordinal.days + it.hours).sinceStart,
+            endTime = (dayOfWeek.ordinal.days + it.hours + 30.minutes).sinceStart,
+            type = type,
+        )
     }
 
     @Test
@@ -80,12 +83,12 @@ class DayComposingScheduleGeneratorTest {
         val mondaySchedule = validActivityPlanForDay(
             DayOfWeek.MONDAY,
             size = 3,
-            type = DayActivities.MO
+            type = DayActivities.MO,
         )
 
         val generator = DayComposingScheduleGenerator(
             Random(42),
-            mapOf(DayOfWeek.MONDAY to listOf(mondaySchedule))
+            mapOf(DayOfWeek.MONDAY to listOf(mondaySchedule)),
         )
 
         val selected = generator.getRandomActivityPlanFor(DayOfWeek.MONDAY)
@@ -99,13 +102,13 @@ class DayComposingScheduleGeneratorTest {
             validActivityPlanForDay(
                 DayOfWeek.MONDAY,
                 size = size,
-                type = DayActivities.MO
+                type = DayActivities.MO,
             )
         }
 
         val generator = DayComposingScheduleGenerator(
             Random(42),
-            mapOf(DayOfWeek.MONDAY to candidates)
+            mapOf(DayOfWeek.MONDAY to candidates),
         )
 
         repeat(100) {
@@ -113,7 +116,7 @@ class DayComposingScheduleGeneratorTest {
 
             assertTrue(
                 candidates.any { it === selected },
-                "Selected schedule must be one of the registered candidates"
+                "Selected schedule must be one of the registered candidates",
             )
         }
     }
@@ -124,13 +127,13 @@ class DayComposingScheduleGeneratorTest {
             validActivityPlanForDay(
                 DayOfWeek.MONDAY,
                 size = size,
-                type = DayActivities.MO
+                type = DayActivities.MO,
             )
         }
 
         fun generator() = DayComposingScheduleGenerator(
             Random(42),
-            mapOf(DayOfWeek.MONDAY to candidates)
+            mapOf(DayOfWeek.MONDAY to candidates),
         )
 
         val first = generator()
@@ -156,7 +159,7 @@ class DayComposingScheduleGeneratorTest {
     fun `returns empty schedule when candidate list is empty`() {
         val generator = DayComposingScheduleGenerator(
             Random(42),
-            mapOf(DayOfWeek.MONDAY to emptyList())
+            mapOf(DayOfWeek.MONDAY to emptyList()),
         )
 
         val selected = generator.getRandomActivityPlanFor(DayOfWeek.MONDAY)
@@ -168,7 +171,7 @@ class DayComposingScheduleGeneratorTest {
     fun `throws when no candidates are registered for a day`() {
         val generator = DayComposingScheduleGenerator(
             Random(42),
-            emptyMap()
+            emptyMap(),
         )
         assertThrows<NoSuchElementException> {
             generator.getRandomActivityPlanFor(DayOfWeek.MONDAY)
@@ -226,9 +229,9 @@ class DayComposingScheduleGeneratorTest {
                 DayActivities.DO,
                 DayActivities.FR,
                 DayActivities.SA,
-                DayActivities.SO
+                DayActivities.SO,
             ),
-            result.map { it.type }
+            result.map { it.type },
         )
     }
 
@@ -241,8 +244,8 @@ class DayComposingScheduleGeneratorTest {
                 validActivityPlanForDay(
                     day,
                     size = activitiesPerDay,
-                    type = DayActivities.decode(day)
-                )
+                    type = DayActivities.decode(day),
+                ),
             )
         }
 
@@ -261,11 +264,11 @@ class DayComposingScheduleGeneratorTest {
                 assertEquals(DayActivities.decode(day), activity.type)
                 assertEquals(
                     (day.ordinal.days + activityIndex.hours).sinceStart,
-                    activity.startTime
+                    activity.startTime,
                 )
                 assertEquals(
                     (day.ordinal.days + activityIndex.hours + 30.minutes).sinceStart,
-                    activity.endTime
+                    activity.endTime,
                 )
             }
         }
@@ -278,8 +281,8 @@ class DayComposingScheduleGeneratorTest {
                 validActivityPlanForDay(
                     day,
                     size = 2,
-                    type = DayActivities.decode(day)
-                )
+                    type = DayActivities.decode(day),
+                ),
             )
         }
 
@@ -321,5 +324,4 @@ class DayComposingScheduleGeneratorTest {
             assertNotSame(first[index], second[index])
         }
     }
-
 }

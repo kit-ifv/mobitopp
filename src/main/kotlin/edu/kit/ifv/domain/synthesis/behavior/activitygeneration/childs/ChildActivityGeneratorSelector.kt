@@ -11,14 +11,14 @@ class ChildActivityGeneratorSelector(
     val zeroToTwoYears: DayComposingScheduleGenerator,
     val threeToFiveYears: DayComposingScheduleGenerator,
     val sixToNineYears: DayComposingScheduleGenerator,
-) :
-    ActivityGeneratorSelector<MinimumHouseholdAttributes, MinimumPersonAttributes> {
-    override fun selectFor(person: SurveyPerson<MinimumPersonAttributes>): GenerateActivitySchedule<MinimumHouseholdAttributes, MinimumPersonAttributes>? {
-        return when (AgeGroup.fromAge(person.age)) {
+) : ActivityGeneratorSelector<MinimumHouseholdAttributes, MinimumPersonAttributes> {
+    override fun selectFor(
+        person: SurveyPerson<MinimumPersonAttributes>,
+    ): GenerateActivitySchedule<MinimumHouseholdAttributes, MinimumPersonAttributes>? =
+        when (AgeGroup.fromAge(person.age)) {
             AgeGroup.ZERO_TO_TWO -> zeroToTwoYears
             AgeGroup.THREE_TO_FIVE -> threeToFiveYears
             AgeGroup.SIX_TO_NINE -> sixToNineYears
             null -> null
         }
-    }
 }

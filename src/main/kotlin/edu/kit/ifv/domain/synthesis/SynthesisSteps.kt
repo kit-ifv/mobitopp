@@ -261,8 +261,11 @@ class SynthesisSteps<AREA, S : MinimumHouseholdAttributes, T : MinimumPersonAttr
         }
     }
 
-    fun assignActivities(override: ActivityGeneratorSelector<S, T>, supplier: () -> GenerateHouseholdActivitySchedule<S, T>) {
-        assignActivities{
+    fun assignActivities(
+        override: ActivityGeneratorSelector<S, T>,
+        supplier: () -> GenerateHouseholdActivitySchedule<S, T>,
+    ) {
+        assignActivities {
             supplier().withOverride(override)
         }
     }

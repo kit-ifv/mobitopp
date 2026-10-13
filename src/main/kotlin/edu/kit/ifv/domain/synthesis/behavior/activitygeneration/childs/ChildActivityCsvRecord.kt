@@ -22,18 +22,16 @@ data class ChildActivityCsvRecord(
     @field:JsonProperty("agegroup")
     val ageGroupCode: Int,
 
-    ) {
-    val ageGroup get()= AgeGroup.decode(ageGroupCode)
-    val dayType get()= DayType.decode(dayTypeCode)
+) {
+    val ageGroup get() = AgeGroup.decode(ageGroupCode)
+    val dayType get() = DayType.decode(dayTypeCode)
     val startTime get() = activityStartMinutes.minutes.sinceStart
     val duration get() = activityDurationMinutes.minutes.coerceAtLeast(1.minutes)
     val endTime get() = startTime + duration
-    fun toActivity(decoder: (String) -> ActivityType): Activity {
-        return RawActivity(
-            location = StandardLocation.Companion.LOCATIONUNKNOWN,
-            startTime = startTime,
-            endTime = endTime,
-            type = decoder(actType.uppercase())
-        )
-    }
+    fun toActivity(decoder: (String) -> ActivityType): Activity = RawActivity(
+        location = StandardLocation.Companion.LOCATIONUNKNOWN,
+        startTime = startTime,
+        endTime = endTime,
+        type = decoder(actType.uppercase()),
+    )
 }
