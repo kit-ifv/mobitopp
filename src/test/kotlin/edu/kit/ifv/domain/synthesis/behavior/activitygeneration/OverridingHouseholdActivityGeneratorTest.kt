@@ -10,7 +10,7 @@ import edu.kit.ifv.domain.synthesis.behavior.ISurveyHousehold
 import edu.kit.ifv.domain.synthesis.behavior.SmallestSurveyPerson
 import edu.kit.ifv.domain.synthesis.behavior.SurveyHousehold
 import edu.kit.ifv.domain.synthesis.behavior.SurveyPerson
-import edu.kit.ifv.domain.synthesis.behavior.activitygeneration.childs.ChildActivityScheduleCsvReader
+import edu.kit.ifv.domain.synthesis.behavior.activitygeneration.children.ChildActivityScheduleCsvReader
 import edu.kit.ifv.units.Currency
 import edu.kit.ifv.units.euros
 import kotlin.random.Random
@@ -71,7 +71,8 @@ class OverridingHouseholdActivityGeneratorTest {
         val activityGenerator =
             OverridingHouseholdActivityGenerator(
                 TestHouseholdGenerator(),
-                ChildActivityScheduleCsvReader().read(random = Random(42), decoder = { LegacyActivityType.decode(it) }),
+                ChildActivityScheduleCsvReader().readBundled(random = Random(42), decoder = { LegacyActivityType.decode(it)
+                }),
             )
         val household = household {
             member(20)

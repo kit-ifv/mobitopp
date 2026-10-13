@@ -1,4 +1,4 @@
-package edu.kit.ifv.domain.synthesis.behavior.activitygeneration.childs
+package edu.kit.ifv.domain.synthesis.behavior.activitygeneration.children
 
 enum class AgeGroup(val ageRange: IntRange) {
     ZERO_TO_TWO(0..2),

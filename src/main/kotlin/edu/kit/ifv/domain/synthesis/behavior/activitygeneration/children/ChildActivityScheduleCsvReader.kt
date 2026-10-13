@@ -1,20 +1,28 @@
-package edu.kit.ifv.domain.synthesis.behavior.activitygeneration.childs
+package edu.kit.ifv.domain.synthesis.behavior.activitygeneration.children
 
 import edu.kit.ifv.domain.jackson.standardCSVParse
 import edu.kit.ifv.domain.shared.enums.ActivityType
+import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.inputStream
 import kotlin.random.Random
 
 class ChildActivityScheduleCsvReader {
+
     fun read(
         path: Path = DEFAULT_PATH,
         random: Random,
         decoder: (String) -> ActivityType,
+    ) = read(path.inputStream(), random, decoder)
+
+    fun read(
+        inputStream: InputStream,
+        random: Random,
+        decoder: (String) -> ActivityType,
     ): ChildActivityGeneratorSelector {
         val records = standardCSVParse<ChildActivityCsvRecord>(
-            input = path.inputStream(),
+            input = inputStream,
             separator = ',',
         )
         val activityPlans = records
@@ -39,6 +47,23 @@ class ChildActivityScheduleCsvReader {
             threeToFiveYears = generatorFor(AgeGroup.THREE_TO_FIVE),
             sixToNineYears = generatorFor(AgeGroup.SIX_TO_NINE),
         )
+    }
+
+    fun readBundled(
+        random: Random,
+        decoder: (String) -> ActivityType,
+    ): ChildActivityGeneratorSelector {
+        val resource = "activities_children.csv"
+
+        val input = requireNotNull(
+            ChildActivityScheduleCsvReader::class.java.getResourceAsStream(resource)
+        ) {
+            "Missing bundled resource: $resource"
+        }
+
+        return input.use {
+            read(it, random, decoder)
+        }
     }
 
     companion object {

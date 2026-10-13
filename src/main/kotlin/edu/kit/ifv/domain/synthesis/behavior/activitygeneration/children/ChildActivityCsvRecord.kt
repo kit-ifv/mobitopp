@@ -1,4 +1,4 @@
-package edu.kit.ifv.domain.synthesis.behavior.activitygeneration.childs
+package edu.kit.ifv.domain.synthesis.behavior.activitygeneration.children
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import edu.kit.ifv.domain.shared.datastructure.schedule.action.Activity

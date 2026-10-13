@@ -1,4 +1,4 @@
-package edu.kit.ifv.domain.synthesis.behavior.activitygeneration.childs
+package edu.kit.ifv.domain.synthesis.behavior.activitygeneration.children
 
 import kotlinx.datetime.DayOfWeek
 
