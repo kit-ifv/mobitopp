@@ -10,8 +10,7 @@ import kotlin.random.Random
 
 class ChildActivityScheduleCsvReader {
 
-    fun read(path: Path, random: Random, decoder: (String) -> ActivityType) =
-        read(path.inputStream(), random, decoder)
+    fun read(path: Path, random: Random, decoder: (String) -> ActivityType) = read(path.inputStream(), random, decoder)
 
     fun read(
         inputStream: InputStream,
