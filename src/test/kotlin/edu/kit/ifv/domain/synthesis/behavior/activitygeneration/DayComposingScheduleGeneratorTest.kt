@@ -53,7 +53,7 @@ class DayComposingScheduleGeneratorTest {
 
         val generator = DayComposingScheduleGenerator(
             Random(42),
-            dayPrefabs = prefabs,
+            dailyScheduleCandidates = prefabs,
         )
         val person = SmallestSurveyPerson<MinimumPersonAttributes>(
             1,

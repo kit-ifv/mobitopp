@@ -71,8 +71,14 @@ class OverridingHouseholdActivityGeneratorTest {
         val activityGenerator =
             OverridingHouseholdActivityGenerator(
                 TestHouseholdGenerator(),
-                ChildActivityScheduleCsvReader().readBundled(random = Random(42), decoder = { LegacyActivityType.decode(it)
-                }),
+                ChildActivityScheduleCsvReader().readBundled(
+                    random = Random(
+                    42,
+                ),
+                    decoder = {
+                    LegacyActivityType.decode(it)
+                }
+                ),
             )
         val household = household {
             member(20)

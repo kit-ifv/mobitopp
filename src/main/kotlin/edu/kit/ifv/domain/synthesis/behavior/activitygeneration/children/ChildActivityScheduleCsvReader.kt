@@ -10,11 +10,8 @@ import kotlin.random.Random
 
 class ChildActivityScheduleCsvReader {
 
-    fun read(
-        path: Path = DEFAULT_PATH,
-        random: Random,
-        decoder: (String) -> ActivityType,
-    ) = read(path.inputStream(), random, decoder)
+    fun read(path: Path, random: Random, decoder: (String) -> ActivityType) =
+        read(path.inputStream(), random, decoder)
 
     fun read(
         inputStream: InputStream,
@@ -49,14 +46,11 @@ class ChildActivityScheduleCsvReader {
         )
     }
 
-    fun readBundled(
-        random: Random,
-        decoder: (String) -> ActivityType,
-    ): ChildActivityGeneratorSelector {
+    fun readBundled(random: Random, decoder: (String) -> ActivityType): ChildActivityGeneratorSelector {
         val resource = "activities_children.csv"
 
         val input = requireNotNull(
-            ChildActivityScheduleCsvReader::class.java.getResourceAsStream(resource)
+            ChildActivityScheduleCsvReader::class.java.getResourceAsStream(resource),
         ) {
             "Missing bundled resource: $resource"
         }
@@ -64,12 +58,5 @@ class ChildActivityScheduleCsvReader {
         return input.use {
             read(it, random, decoder)
         }
-    }
-
-    companion object {
-        val DEFAULT_PATH =
-            Path(
-                "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte\\ALIKE_MOIA_Hochbahn_autonom\\Work\\Modelle\\Bevölkerung\\Activities\\children\\activities_children.csv",
-            )
     }
 }

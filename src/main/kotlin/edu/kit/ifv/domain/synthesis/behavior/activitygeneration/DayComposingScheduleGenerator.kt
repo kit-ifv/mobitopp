@@ -13,7 +13,7 @@ import kotlin.random.Random
  */
 class DayComposingScheduleGenerator(
     private val random: Random,
-    val dayPrefabs: Map<DayOfWeek, List<ReadonlyActivitySchedule>>,
+    val dailyScheduleCandidates: Map<DayOfWeek, List<ReadonlyActivitySchedule>>,
 ) : GenerateActivitySchedule<MinimumHouseholdAttributes, MinimumPersonAttributes> {
     override fun generate(person: SurveyPerson<MinimumPersonAttributes>): PreliminaryActivitySchedule =
         DayOfWeek.entries.map { day ->
@@ -21,7 +21,7 @@ class DayComposingScheduleGenerator(
         }.flatten().toPreliminaryActivitySchedule()
 
     fun getRandomActivityPlanFor(day: DayOfWeek): ReadonlyActivitySchedule {
-        val potentialCandidates = dayPrefabs[day] ?: throw NoSuchElementException(
+        val potentialCandidates = dailyScheduleCandidates[day] ?: throw NoSuchElementException(
             "There is nothing registered for " +
                 "this day",
         )
