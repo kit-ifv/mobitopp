@@ -4,6 +4,7 @@ import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.simulation.agent.getBestCarOrNull
+import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.AvailabilityByRuleBuilder
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.builder.availabilityRules
 
 /**
@@ -52,7 +53,6 @@ fun defaultAvailabilityModel(modes: ChoiceModelModes, vararg beamedModes: Mode, 
  * @param impedance the impedance used for distance-based resource selection
  * @return a configured [ModeAvailabilityModel]
  */
-@Suppress("LongMethod")
 fun defaultAvailabilityModel(
     pedestrian: Mode,
     bike: Mode,
@@ -68,27 +68,39 @@ fun defaultAvailabilityModel(
 ): ModeAvailabilityModel = availabilityRules {
     simpleAvailabilityOf(pedestrian)
 
-    availabilityOf(bike).staticRule {
-        person.hasBike
-    }.providerRule {
-        homeBasedVehicleRule(useProvider = false)
-    }.resourceRule {
-        BikeResource(bike)
-    }
+    standardBikeAvailability(bike)
 
-    availabilityOf(car).staticRule {
-        person.hasLicense && person.household.cars.isNotEmpty()
-    }.providerRule {
-        homeBasedVehicleRule(useProvider = true)
-    }.resourceRule {
-        characteristics.person.getBestCarOrNull()?.let { vehicle ->
-            CarResource(car, vehicle)
-        }
-    }
+    standardCarAvailability(car)
 
     simpleAvailabilityOf(passenger)
     simpleAvailabilityOf(publicTransport)
 
+    standardFreeFloatingSharedModeAvailability(carSharingFree, pedestrian, impedance)
+
+    standardCarsharingStationAvailability(carSharingStation, pedestrian, impedance)
+
+    standardFreeFloatingSharedModeAvailability(bikeSharingOneWay, pedestrian, impedance)
+
+    availabilityOf(ridePooling).staticRule {
+        person.drtMemberships.any { it.mode == mode }
+    }.providerRule {
+        drtProviders.checkOperatingHoursAndArea()
+            .checkAnyAvailable()
+    }.resourceRule {
+        drtProviders.checkOperatingHoursAndArea()
+            .selectRideOfferByMinDuration()
+    }
+
+    for (m in beamedModes) {
+        simpleAvailabilityOf(m)
+    }
+}
+
+private fun AvailabilityByRuleBuilder.standardFreeFloatingSharedModeAvailability(
+    carSharingFree: Mode,
+    pedestrian: Mode,
+    impedance: Impedance,
+) {
     availabilityOf(carSharingFree).staticRule {
         person.sharingMemberships.any { it.mode == mode }
     }.providerRule {
@@ -104,7 +116,13 @@ fun defaultAvailabilityModel(
             .checkAgentInFootZones()
             .selectMinDistOneWaySharing(pedestrian, impedance)
     }
+}
 
+fun AvailabilityByRuleBuilder.standardCarsharingStationAvailability(
+    carSharingStation: Mode,
+    pedestrian: Mode,
+    impedance: Impedance,
+) {
     availabilityOf(carSharingStation).staticRule {
         person.sharingMemberships.any { it.mode == mode }
     }.providerRule {
@@ -119,34 +137,26 @@ fun defaultAvailabilityModel(
             .checkAgentInFootZones()
             .selectStationByMinDistance(pedestrian, impedance)
     }
+}
 
-    availabilityOf(bikeSharingOneWay).staticRule {
-        person.sharingMemberships.any { it.mode == mode }
+fun AvailabilityByRuleBuilder.standardCarAvailability(car: Mode) {
+    availabilityOf(car).staticRule {
+        person.hasLicense && person.household.cars.isNotEmpty()
     }.providerRule {
-        sharingProviders.checkOperatingHours()
-            .stations()
-            .checkAgentInFootZones()
-            .checkDestinationInFootZones()
-            .checkAnyAvailable()
+        homeBasedVehicleRule(useProvider = true)
     }.resourceRule {
-        sharingProviders.checkOperatingHours()
-            .stations()
-            .checkVehiclesAvailable()
-            .checkAgentInFootZones()
-            .selectMinDistOneWaySharing(pedestrian, impedance)
+        characteristics.person.getBestCarOrNull()?.let { vehicle ->
+            CarResource(car, vehicle)
+        }
     }
+}
 
-    availabilityOf(ridePooling).staticRule {
-        person.drtMemberships.any { it.mode == mode }
+fun AvailabilityByRuleBuilder.standardBikeAvailability(bike: Mode) {
+    availabilityOf(bike).staticRule {
+        person.hasBike
     }.providerRule {
-        drtProviders.checkOperatingHoursAndArea()
-            .checkAnyAvailable()
+        homeBasedVehicleRule(useProvider = false)
     }.resourceRule {
-        drtProviders.checkOperatingHoursAndArea()
-            .selectRideOfferByMinDuration()
-    }
-
-    for (m in beamedModes) {
-        simpleAvailabilityOf(m)
+        BikeResource(bike)
     }
 }

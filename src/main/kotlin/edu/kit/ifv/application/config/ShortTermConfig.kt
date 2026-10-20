@@ -38,8 +38,9 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     val sourceFiles: CSVFiles,
 
     /* ChoiceParameters */
-    val destinationChoiceModel: DestinationChoiceFactory<StandardLocation, DestinationChoiceCharacteristics>,
-    val modeChoiceModel: ModeChoiceFactory<Mode, ModeChoiceCharacteristics>,
+    val destinationChoiceModel: DestinationChoiceFactory<StandardLocation, @JvmSuppressWildcards
+    DestinationChoiceCharacteristics>,
+    val modeChoiceModel: ModeChoiceFactory<Mode,@JvmSuppressWildcards ModeChoiceCharacteristics>,
 
 ) {
 
@@ -61,7 +62,7 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     }
 }
 
-fun interface DestinationChoiceFactory<L, C> {
+fun interface DestinationChoiceFactory<L, in C> {
     fun create(
         impedance: Impedance,
         attractivenessModel: AttractivenessModel,
@@ -69,6 +70,6 @@ fun interface DestinationChoiceFactory<L, C> {
     ): UtilityBasedChoiceModel<L, C>
 }
 
-fun interface ModeChoiceFactory<M, C> {
+fun interface ModeChoiceFactory<M, in C> {
     fun create(impedance: Impedance): FixedChoiceModel<M, C>
 }
