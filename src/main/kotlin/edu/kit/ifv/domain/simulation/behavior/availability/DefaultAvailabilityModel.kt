@@ -75,11 +75,11 @@ fun defaultAvailabilityModel(
     simpleAvailabilityOf(passenger)
     simpleAvailabilityOf(publicTransport)
 
-    standardFreeFloatingSharedModeAvailability(carSharingFree, pedestrian, impedance)
+    floatingSharedModeAvailability(carSharingFree, pedestrian, impedance)
 
-    standardCarsharingStationAvailability(carSharingStation, pedestrian, impedance)
+    standardStationAvailability(carSharingStation, pedestrian, impedance)
 
-    standardFreeFloatingSharedModeAvailability(bikeSharingOneWay, pedestrian, impedance)
+    floatingSharedModeAvailability(bikeSharingOneWay, pedestrian, impedance)
 
     availabilityOf(ridePooling).staticRule {
         person.drtMemberships.any { it.mode == mode }
@@ -96,7 +96,7 @@ fun defaultAvailabilityModel(
     }
 }
 
-private fun AvailabilityByRuleBuilder.standardFreeFloatingSharedModeAvailability(
+private fun AvailabilityByRuleBuilder.floatingSharedModeAvailability(
     carSharingFree: Mode,
     pedestrian: Mode,
     impedance: Impedance,
@@ -118,7 +118,7 @@ private fun AvailabilityByRuleBuilder.standardFreeFloatingSharedModeAvailability
     }
 }
 
-fun AvailabilityByRuleBuilder.standardCarsharingStationAvailability(
+fun AvailabilityByRuleBuilder.standardStationAvailability(
     carSharingStation: Mode,
     pedestrian: Mode,
     impedance: Impedance,

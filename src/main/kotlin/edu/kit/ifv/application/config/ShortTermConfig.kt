@@ -38,9 +38,12 @@ data class ShortTermConfig<CSVFiles : BaseCSVFiles>(
     val sourceFiles: CSVFiles,
 
     /* ChoiceParameters */
-    val destinationChoiceModel: DestinationChoiceFactory<StandardLocation, @JvmSuppressWildcards
-    DestinationChoiceCharacteristics>,
-    val modeChoiceModel: ModeChoiceFactory<Mode,@JvmSuppressWildcards ModeChoiceCharacteristics>,
+    val destinationChoiceModel: DestinationChoiceFactory<
+        StandardLocation,
+        @JvmSuppressWildcards
+        DestinationChoiceCharacteristics,
+        >,
+    val modeChoiceModel: ModeChoiceFactory<Mode, @JvmSuppressWildcards ModeChoiceCharacteristics>,
 
 ) {
 
