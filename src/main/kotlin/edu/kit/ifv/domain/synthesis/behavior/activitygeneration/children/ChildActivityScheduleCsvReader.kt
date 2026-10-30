@@ -4,7 +4,6 @@ import edu.kit.ifv.domain.jackson.standardCSVParse
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import java.io.InputStream
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.inputStream
 import kotlin.random.Random
 
@@ -45,17 +44,4 @@ class ChildActivityScheduleCsvReader {
         )
     }
 
-    fun readBundled(random: Random, decoder: (String) -> ActivityType): ChildActivityGeneratorSelector {
-        val resource = "activities_children.csv"
-
-        val input = requireNotNull(
-            ChildActivityScheduleCsvReader::class.java.getResourceAsStream(resource),
-        ) {
-            "Missing bundled resource: $resource"
-        }
-
-        return input.use {
-            read(it, random, decoder)
-        }
-    }
 }
