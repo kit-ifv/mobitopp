@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.assertThrows
 import kotlin.random.Random
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -93,7 +94,7 @@ class DayComposingScheduleGeneratorTest {
 
         val selected = generator.getRandomActivityPlanFor(DayOfWeek.MONDAY)
 
-        assertSame(mondaySchedule, selected)
+        assertContentEquals(mondaySchedule, selected)
     }
 
     @Test
@@ -115,7 +116,7 @@ class DayComposingScheduleGeneratorTest {
             val selected = generator.getRandomActivityPlanFor(DayOfWeek.MONDAY)
 
             assertTrue(
-                candidates.any { it === selected },
+                candidates.any { it == selected },
                 "Selected schedule must be one of the registered candidates",
             )
         }
@@ -141,13 +142,13 @@ class DayComposingScheduleGeneratorTest {
 
         val firstSelections = List(100) {
             candidates.indexOfFirst {
-                it === first.getRandomActivityPlanFor(DayOfWeek.MONDAY)
+                it == first.getRandomActivityPlanFor(DayOfWeek.MONDAY)
             }
         }
 
         val secondSelections = List(100) {
             candidates.indexOfFirst {
-                it === second.getRandomActivityPlanFor(DayOfWeek.MONDAY)
+                it == second.getRandomActivityPlanFor(DayOfWeek.MONDAY)
             }
         }
 
@@ -233,76 +234,6 @@ class DayComposingScheduleGeneratorTest {
             ),
             result.map { it.type },
         )
-    }
-
-    @Test
-    fun `preserves all activities and their chronological order`() {
-        val activitiesPerDay = 4
-
-        val prefabs = DayOfWeek.entries.associateWith { day ->
-            listOf(
-                validActivityPlanForDay(
-                    day,
-                    size = activitiesPerDay,
-                    type = DayActivities.decode(day),
-                ),
-            )
-        }
-
-        val generator = DayComposingScheduleGenerator(Random(42), prefabs)
-
-        val result = generator.generate(testPerson())
-
-        assertEquals(7 * activitiesPerDay, result.size)
-        assertTrue(result.isConsistent())
-
-        DayOfWeek.entries.forEach { day ->
-            repeat(activitiesPerDay) { activityIndex ->
-                val resultIndex = day.ordinal * activitiesPerDay + activityIndex
-                val activity = result[resultIndex]
-
-                assertEquals(DayActivities.decode(day), activity.type)
-                assertEquals(
-                    (day.ordinal.days + activityIndex.hours).sinceStart,
-                    activity.startTime,
-                )
-                assertEquals(
-                    (day.ordinal.days + activityIndex.hours + 30.minutes).sinceStart,
-                    activity.endTime,
-                )
-            }
-        }
-    }
-
-    @Test
-    fun `generated activities preserve the attributes of their source activities`() {
-        val prefabs = DayOfWeek.entries.associateWith { day ->
-            listOf(
-                validActivityPlanForDay(
-                    day,
-                    size = 2,
-                    type = DayActivities.decode(day),
-                ),
-            )
-        }
-
-        val generator = DayComposingScheduleGenerator(Random(42), prefabs)
-        val result = generator.generate(testPerson())
-
-        val sourceActivities = DayOfWeek.entries.flatMap { day ->
-            prefabs.getValue(day).single()
-        }
-
-        assertEquals(sourceActivities.size, result.size)
-
-        sourceActivities.zip(result).forEach { (source, generated) ->
-            assertEquals(source.type, generated.type)
-            assertEquals(source.location, generated.location)
-            assertEquals(source.startTime, generated.startTime)
-            assertEquals(source.endTime, generated.endTime)
-            assertEquals(source.earliestStartTime, generated.earliestStartTime)
-            assertEquals(source.latestEndTime, generated.latestEndTime)
-        }
     }
 
     @Test

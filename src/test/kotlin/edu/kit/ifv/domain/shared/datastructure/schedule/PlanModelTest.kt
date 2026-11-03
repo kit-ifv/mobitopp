@@ -19,6 +19,7 @@ import edu.kit.ifv.utils.units.sinceStart
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import java.util.*
+import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -147,6 +148,14 @@ abstract class PlanModelTest {
             }
         }
         return t.toList()
+    }
+
+    @Test
+    fun simple() {
+        model.clear()
+        model.add(activity1)
+        model.add(activity2)
+        println("Done")
     }
 
     /**
