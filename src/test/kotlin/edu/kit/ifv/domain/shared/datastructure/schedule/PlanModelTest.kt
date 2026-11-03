@@ -19,6 +19,7 @@ import edu.kit.ifv.utils.units.sinceStart
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import java.util.*
+import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -148,7 +149,13 @@ abstract class PlanModelTest {
         }
         return t.toList()
     }
-
+    @Test
+    fun simple() {
+        model.clear()
+        model.add(activity1)
+        model.add(activity2)
+        println("Done")
+    }
     /**
      * Attempts to perform adding and later removing the activities A1, A2 and the legs L1, L1b. Generates all
      * permutations where the insertion action of an element X occurs before the removal of element X.
