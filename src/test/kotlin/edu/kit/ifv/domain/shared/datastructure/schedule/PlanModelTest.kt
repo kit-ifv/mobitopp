@@ -149,6 +149,7 @@ abstract class PlanModelTest {
         }
         return t.toList()
     }
+
     @Test
     fun simple() {
         model.clear()
@@ -156,6 +157,7 @@ abstract class PlanModelTest {
         model.add(activity2)
         println("Done")
     }
+
     /**
      * Attempts to perform adding and later removing the activities A1, A2 and the legs L1, L1b. Generates all
      * permutations where the insertion action of an element X occurs before the removal of element X.

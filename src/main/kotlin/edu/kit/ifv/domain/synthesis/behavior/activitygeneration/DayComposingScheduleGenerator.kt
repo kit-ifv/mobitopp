@@ -31,14 +31,16 @@ class DayComposingScheduleGenerator(
         )
         val dayschedule: ReadonlyActivitySchedule = potentialCandidates.randomOrNull(random = random) ?: listOf()
         val dayOffset: Duration = day.ordinal.days
-        return dayschedule.map { RawActivity(
-            location = it.location,
-            startTime = it.startTime + dayOffset,
-            endTime = it.endTime + dayOffset,
-            earliestStartTime = it.earliestStartTime + dayOffset,
-            latestEndTime = it.latestEndTime + dayOffset,
-            type = it.type
-        ) }
+        return dayschedule.map {
+            RawActivity(
+                location = it.location,
+                startTime = it.startTime + dayOffset,
+                endTime = it.endTime + dayOffset,
+                earliestStartTime = it.earliestStartTime + dayOffset,
+                latestEndTime = it.latestEndTime + dayOffset,
+                type = it.type,
+            )
+        }
     }
 
     private fun Collection<StationaryAction>.toPreliminaryActivitySchedule(): PreliminaryActivitySchedule {
