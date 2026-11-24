@@ -4,10 +4,15 @@ import edu.kit.ifv.domain.synthesis.results.fastcsv.writeCsvUnrolled
 import java.io.Writer
 
 fun Collection<SynthesisHousehold<*, *>>.writeCars(writer: Writer) {
-    writeCsvUnrolled(writer, header = listOf("householdId", "carId"), unroll = { it.cars }) { household, car ->
+    writeCsvUnrolled(writer, header = listOf("householdId", "ownerId", "carId"), unroll = { it.cars }) {
+            household,
+            car,
+        ->
         buildList {
             add(household.id.toString())
+            add((car.mainUser?.personId?.toLong() ?: -1).toString())
             add(car.id.toString())
         }
     }
 }
+
