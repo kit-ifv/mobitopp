@@ -30,7 +30,7 @@ data class CarColumns( // TODO drop support for old format
 }
 
 data class PrivateCarCsvConfig(
-    var columns: CarColumns = CarColumns(),
+    var columns: CarColumns = CarColumns.NEW_FORMAT,
     var householdExists: (HouseholdId) -> Boolean,
     var getOwnerHousehold: (Row, String) -> MutableHousehold,
     var getMainUser: (Row, String) -> Person?,
