@@ -43,5 +43,4 @@ class ChildActivityScheduleCsvReader {
             sixToNineYears = generatorFor(AgeGroup.SIX_TO_NINE),
         )
     }
-
 }
